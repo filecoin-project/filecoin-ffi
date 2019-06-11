@@ -1,6 +1,6 @@
 # Filecoin Proofs FFI
 
-> A linkable library implementation of rust-fil-proofs.
+> A linkable library implementation of filecoin-proofs.
 
 ## License
 
