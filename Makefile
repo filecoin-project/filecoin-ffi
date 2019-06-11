@@ -14,7 +14,7 @@ clean:
 include/filecoin_proofs.h: target/$(BUILD_MODE)/$(STATIC_NAME)
 
 target/$(BUILD_MODE)/$(STATIC_NAME): Cargo.toml src/lib.rs
-	cargo +$(RUST_TOOLCHAIN_VERSION) build --$(BUILD_MODE) $(CARGO_EXTRAFLAGS)
+	cargo +$(RUST_TOOLCHAIN_VERSION) build --$(BUILD_MODE) $(CARGO_FLAGS)
 
 filecoin_proofs.pc: filecoin_proofs.pc.template Makefile Cargo.toml
 	sed -e "s;@VERSION@;$(VERSION);" \
