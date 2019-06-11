@@ -1,6 +1,6 @@
 # Filecoin Proofs FFI
 
-> A linkable library implementation of filecoin-proofs.
+> C bindings for filecoin-proofs.
 
 ## License
 
