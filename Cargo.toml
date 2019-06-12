@@ -10,7 +10,7 @@ edition = "2018"
 publish = false
 
 [lib]
-crate-type = ["staticlib"]
+crate-type = ["rlib", "staticlib", "cdylib"]
 
 [dependencies]
 filecoin-proofs = "0.2.0"
