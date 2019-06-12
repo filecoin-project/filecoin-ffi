@@ -1,6 +1,6 @@
 STATIC_NAME=libfilecoin_proofs.a
 BUILD_MODE=release
-VERSION=$$(git rev-parse HEAD))
+VERSION=$$(git rev-parse HEAD)
 DUMMY_CRATE_OUTPUT=$$(mktemp)
 RUST_TOOLCHAIN_VERSION=$$(cat rust-toolchain)
 
