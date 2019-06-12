@@ -26,4 +26,4 @@ slog = "2.4.1"
 filecoin-proofs = { branch = "master", git = "https://github.com/filecoin-project/rust-fil-proofs" }
 
 [build-dependencies]
-cbindgen = "0.8.7"
+cbindgen = "=0.8.4"
