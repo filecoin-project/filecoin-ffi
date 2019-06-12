@@ -14,19 +14,30 @@ fn main() {
     let config = {
         let mut c: Config = Default::default();
 
-        c.header = Some(format!(r##"
+        c.header = Some(
+            format!(
+                r##"
 /* libfilecoin_proofs Header Version {} */
 
 #ifdef __cplusplus
 extern "C" {{
 #endif
-"##, VERSION).trim().into());
+"##,
+                VERSION
+            )
+            .trim()
+            .into(),
+        );
 
-        c.trailer = Some(r##"
+        c.trailer = Some(
+            r##"
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
-"##.trim().into());
+"##
+            .trim()
+            .into(),
+        );
 
         c.include_guard = Some("LIBFILECOIN_PROOFS_CAPI_H".to_owned());
         c.language = cbindgen::Language::C;
