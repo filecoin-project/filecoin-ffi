@@ -12,9 +12,9 @@ mkdir -p $TAR_PATH
 mkdir -p $TAR_PATH/include
 mkdir -p $TAR_PATH/lib/pkgconfig
 
-find . -type f -name filecoin_proofs.h -exec cp -- "{}" $TAR_PATH/include/ \
-find . -type f -name filecoin_proofs.a -exec cp -- "{}" $TAR_PATH/lib/ \
-find . -type f -name filecoin_proofs.pc -exec cp -- "{}" $TAR_PATH/lib/pkgconfig \
+find . -type f -name filecoin_proofs_ffi.h -exec cp -- "{}" $TAR_PATH/include/ \
+find . -type f -name libfilecoin_proofs_ffi.a -exec cp -- "{}" $TAR_PATH/lib/ \
+find . -type f -name filecoin_proofs_ffi.pc -exec cp -- "{}" $TAR_PATH/lib/pkgconfig \
 
 pushd $TAR_PATH
 
