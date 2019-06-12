@@ -149,13 +149,7 @@ workflows:
       - clippy:
           requires:
             - cargo_fetch
-      - test_release:
-          requires:
-            - cargo_fetch
       - test:
-          requires:
-            - cargo_fetch
-      - test_nightly:
           requires:
             - cargo_fetch
       - build_linux_release:
