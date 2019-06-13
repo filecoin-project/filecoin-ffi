@@ -7,7 +7,7 @@ extern crate lazy_static;
 
 mod error;
 mod helpers;
-mod responses;
 mod singletons;
 
 pub mod api;
+pub mod responses;
