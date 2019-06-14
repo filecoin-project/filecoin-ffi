@@ -15,5 +15,8 @@ include_guard = "FILECOIN_PROOFS_FFI_H"
 include_version = true
 language = "C"
 
+[export]
+prefix = "filecoin_proofs_ffi"
+
 [parse]
 parse_deps = false

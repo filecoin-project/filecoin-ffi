@@ -17,8 +17,8 @@ RUSTFLAGS='--print native-static-libs' \
 # parse build output for linker flags
 #
 linker_flags=$(cat ${build_output_tmp} \
-    | grep note \
-    | grep native-static-libs \
+    | grep native-static-libs\: \
+    | head -n 1 \
     | cut -d ':' -f 3)
 
 # generate pkg-config
