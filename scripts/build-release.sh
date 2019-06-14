@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 
-set -Eeuo pipefail
+set -Eeo pipefail
+
+if [[ -z "$1" ]]
+then
+    (>&2 echo 'Error: script requires a toolchain, e.g. ./build-release.sh +nightly-2019-04-19')
+    exit 1
+fi
 
 build_output_tmp=$(mktemp)
 
