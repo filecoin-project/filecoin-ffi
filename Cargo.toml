@@ -23,7 +23,7 @@ libc = "0.2.58"
 slog = "2.4.1"
 
 [patch.crates-io]
-filecoin-proofs = { branch = "master", git = "https://github.com/filecoin-project/rust-fil-proofs" }
+filecoin-proofs = { rev = "07de4ef9eac5400335229678c0cc01ab8d967273", git = "https://github.com/filecoin-project/rust-fil-proofs.git" }
 
 [build-dependencies]
 cbindgen = "=0.8.4"
