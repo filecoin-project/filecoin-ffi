@@ -96,13 +96,13 @@ jobs:
           keys:
             - cargo-v0-{{ checksum "rust-toolchain" }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}-{{ arch }}
       - run:
-          name: Build (release)
-          command: make CARGO_EXTRAFLAGS="--verbose --frozen --all"
-      - run:
           name: Install jq
           command: apt-get install jq -yqq
       - run:
-          name: Run publish-release.sh
+          name: Build the release
+          command: ./scripts/build-release.sh $(cat ./rust-toolchain) --verbose --frozen --all
+      - run:
+          name: Publish release to GitHub
           command: bash ./scripts/publish-release.sh
 
   build_darwin_release:
@@ -126,16 +126,16 @@ jobs:
       - run: cargo update
       - run: cargo fetch
       - run:
-          name: Build (release)
-          command: make CARGO_EXTRAFLAGS="--verbose --frozen --all"
-      - run:
           name: Install jq
           command: |
             mkdir $HOME/.bin
             curl --location https://github.com/stedolan/jq/releases/download/jq-1.6/jq-osx-amd64 --output $HOME/.bin/jq
             chmod +x $HOME/.bin/jq
       - run:
-          name: Run publish-release.sh
+          name: Build the release
+          command: ./scripts/build-release.sh $(cat ./rust-toolchain) --verbose --frozen --all
+      - run:
+          name: Publish to GitHub
           command: bash ./scripts/publish-release.sh
 
 workflows:
