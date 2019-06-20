@@ -13,9 +13,9 @@ publish = false
 crate-type = ["rlib", "staticlib"]
 
 [dependencies]
-filecoin-proofs = { rev = "07de4ef9eac5400335229678c0cc01ab8d967273", git = "https://github.com/filecoin-project/rust-fil-proofs.git" }
-logging-toolkit = { rev = "07de4ef9eac5400335229678c0cc01ab8d967273", git = "https://github.com/filecoin-project/rust-fil-proofs.git" }
-ffi-toolkit = { rev = "c9c9d55a0810a017b0e18fddf5593e84b366daad", git = "https://github.com/filecoin-project/rust-fil-ffi-toolkit.git" }
+filecoin-proofs = "0.3.0"
+logging-toolkit = "0.3.0"
+ffi-toolkit = "0.3.0"
 lazy_static = "1.3.0"
 failure = "0.1.5"
 drop_struct_macro_derive = "0.2.0"
