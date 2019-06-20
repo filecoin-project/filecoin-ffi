@@ -7,7 +7,6 @@ license = "MIT OR Apache-2.0"
 repository = "https://github.com/filecoin-project/rust-fil-proofs-ffi"
 readme = "README.md"
 edition = "2018"
-publish = false
 
 [lib]
 crate-type = ["rlib", "staticlib"]
