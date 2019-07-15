@@ -120,7 +120,8 @@ pub unsafe extern "C" fn verify_post(
     raw_ptr(response)
 }
 
-#[allow(dead_code)]
+/// Verifies that a piece inclusion proof is valid for a given merkle root, piece root, padded and
+/// aligned piece size, and tree size.
 #[no_mangle]
 pub unsafe extern "C" fn verify_piece_inclusion_proof(
     comm_d: &[u8; 32],
@@ -137,8 +138,13 @@ pub unsafe extern "C" fn verify_piece_inclusion_proof(
     let padded_and_aligned_piece_size = api_types::PaddedBytesAmount(padded_and_aligned_piece_size);
     let sector_size = api_types::SectorSize(sector_size);
 
-    let result =
-        api_fns::verify_piece_inclusion_proof(bytes, comm_d, comm_p, padded_and_aligned_piece_size, sector_size);
+    let result = api_fns::verify_piece_inclusion_proof(
+        bytes,
+        comm_d,
+        comm_p,
+        padded_and_aligned_piece_size,
+        sector_size,
+    );
 
     let mut response = VerifyPieceInclusionProofResponse::default();
 
@@ -169,7 +175,7 @@ pub unsafe extern "C" fn destroy_verify_piece_inclusion_proof_response(
     let _ = Box::from_raw(ptr);
 }
 
-#[allow(dead_code)]
+/// Returns the merkle root for a piece and its size after piece padding and alignment.
 #[no_mangle]
 pub unsafe extern "C" fn generate_piece_commitment(
     piece_path: *const libc::c_char,
