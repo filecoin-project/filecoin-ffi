@@ -127,18 +127,18 @@ pub unsafe extern "C" fn verify_piece_inclusion_proof(
     comm_p: &[u8; 32],
     piece_inclusion_proof_ptr: *const u8,
     piece_inclusion_proof_len: libc::size_t,
-    piece_size: u64,
+    padded_and_aligned_piece_size: u64,
     sector_size: u64,
 ) -> *mut VerifyPieceInclusionProofResponse {
     info!(FCPFFI_LOG, "verify_piece_inclusion_proof: {}", "start"; "target" => "FFI");
 
-    let bytes = from_raw_parts(piece_inclusion_proof_ptr, piece_inclusion_proof_len).to_vec();
+    let bytes = from_raw_parts(piece_inclusion_proof_ptr, piece_inclusion_proof_len);
 
-    let piece_size = api_types::PaddedBytesAmount(piece_size);
+    let padded_and_aligned_piece_size = api_types::PaddedBytesAmount(padded_and_aligned_piece_size);
     let sector_size = api_types::SectorSize(sector_size);
 
     let result =
-        api_fns::verify_piece_inclusion_proof(bytes, *comm_d, *comm_p, piece_size, sector_size);
+        api_fns::verify_piece_inclusion_proof(bytes, comm_d, comm_p, padded_and_aligned_piece_size, sector_size);
 
     let mut response = VerifyPieceInclusionProofResponse::default();
 
