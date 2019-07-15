@@ -79,7 +79,7 @@ pub struct GeneratePieceCommitmentResponse {
     pub status_code: isize,
     pub error_msg: *const libc::c_char,
     pub comm_p: [u8; 32],
-    pub padded_piece_size: u64,
+    pub padded_and_aligned_piece_size: u64,
 }
 
 impl Default for GeneratePieceCommitmentResponse {
@@ -88,7 +88,7 @@ impl Default for GeneratePieceCommitmentResponse {
             status_code: 0,
             error_msg: ptr::null(),
             comm_p: Default::default(),
-            padded_piece_size: 0,
+            padded_and_aligned_piece_size: 0,
         }
     }
 }

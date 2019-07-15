@@ -185,10 +185,10 @@ pub unsafe extern "C" fn generate_piece_commitment(
     let mut response = GeneratePieceCommitmentResponse::default();
 
     match result {
-        Ok((comm_p, padded_piece_size)) => {
+        Ok((comm_p, padded_and_aligned_piece_size)) => {
             response.status_code = 0;
             response.comm_p = comm_p;
-            response.padded_piece_size = padded_piece_size.into();
+            response.padded_and_aligned_piece_size = padded_and_aligned_piece_size.into();
         }
         Err(err) => {
             response.status_code = 1;
