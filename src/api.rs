@@ -128,21 +128,21 @@ pub unsafe extern "C" fn verify_piece_inclusion_proof(
     comm_p: &[u8; 32],
     piece_inclusion_proof_ptr: *const u8,
     piece_inclusion_proof_len: libc::size_t,
-    padded_and_aligned_piece_size: u64,
+    unpadded_piece_size: u64,
     sector_size: u64,
 ) -> *mut VerifyPieceInclusionProofResponse {
     info!(FCPFFI_LOG, "verify_piece_inclusion_proof: {}", "start"; "target" => "FFI");
 
     let bytes = from_raw_parts(piece_inclusion_proof_ptr, piece_inclusion_proof_len);
 
-    let padded_and_aligned_piece_size = api_types::PaddedBytesAmount(padded_and_aligned_piece_size);
+    let unpadded_piece_size = api_types::UnpaddedBytesAmount(unpadded_piece_size);
     let sector_size = api_types::SectorSize(sector_size);
 
     let result = api_fns::verify_piece_inclusion_proof(
         bytes,
         comm_d,
         comm_p,
-        padded_and_aligned_piece_size,
+        unpadded_piece_size,
         sector_size,
     );
 
@@ -175,7 +175,7 @@ pub unsafe extern "C" fn destroy_verify_piece_inclusion_proof_response(
     let _ = Box::from_raw(ptr);
 }
 
-/// Returns the merkle root for a piece and its size after piece padding and alignment.
+/// Returns the merkle root for a piece after piece padding and alignment.
 #[no_mangle]
 pub unsafe extern "C" fn generate_piece_commitment(
     piece_path: *const libc::c_char,
@@ -191,10 +191,9 @@ pub unsafe extern "C" fn generate_piece_commitment(
     let mut response = GeneratePieceCommitmentResponse::default();
 
     match result {
-        Ok((comm_p, padded_and_aligned_piece_size)) => {
+        Ok(comm_p) => {
             response.status_code = 0;
             response.comm_p = comm_p;
-            response.padded_and_aligned_piece_size = padded_and_aligned_piece_size.into();
         }
         Err(err) => {
             response.status_code = 1;
