@@ -1,13 +1,13 @@
 use std::slice::from_raw_parts;
 
-use ffi_toolkit::{raw_ptr, rust_str_to_c_str};
+use ffi_toolkit::{c_str_to_rust_str, raw_ptr, rust_str_to_c_str};
 use filecoin_proofs as api_fns;
 use filecoin_proofs::types as api_types;
 use libc;
 use slog::info;
 
 use crate::helpers;
-use crate::responses::{VerifyPoStResponse, VerifySealResponse};
+use crate::responses::*;
 use crate::singletons::FCPFFI_LOG;
 
 /// Verifies the output of seal.
@@ -118,6 +118,97 @@ pub unsafe extern "C" fn verify_post(
     info!(FCPFFI_LOG, "verify_post: {}", "finish"; "target" => "FFI");
 
     raw_ptr(response)
+}
+
+/// Verifies that a piece inclusion proof is valid for a given merkle root, piece root, padded and
+/// aligned piece size, and tree size.
+#[no_mangle]
+pub unsafe extern "C" fn verify_piece_inclusion_proof(
+    comm_d: &[u8; 32],
+    comm_p: &[u8; 32],
+    piece_inclusion_proof_ptr: *const u8,
+    piece_inclusion_proof_len: libc::size_t,
+    unpadded_piece_size: u64,
+    sector_size: u64,
+) -> *mut VerifyPieceInclusionProofResponse {
+    info!(FCPFFI_LOG, "verify_piece_inclusion_proof: {}", "start"; "target" => "FFI");
+
+    let bytes = from_raw_parts(piece_inclusion_proof_ptr, piece_inclusion_proof_len);
+
+    let unpadded_piece_size = api_types::UnpaddedBytesAmount(unpadded_piece_size);
+    let sector_size = api_types::SectorSize(sector_size);
+
+    let result = api_fns::verify_piece_inclusion_proof(
+        bytes,
+        comm_d,
+        comm_p,
+        unpadded_piece_size,
+        sector_size,
+    );
+
+    let mut response = VerifyPieceInclusionProofResponse::default();
+
+    match result {
+        Ok(true) => {
+            response.status_code = 0;
+            response.is_valid = true;
+        }
+        Ok(false) => {
+            response.status_code = 0;
+            response.is_valid = false;
+        }
+        Err(err) => {
+            response.status_code = 1;
+            response.error_msg = rust_str_to_c_str(format!("{}", err));
+        }
+    };
+
+    info!(FCPFFI_LOG, "verify_piece_inclusion_proof: {}", "finish"; "target" => "FFI");
+
+    raw_ptr(response)
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn destroy_verify_piece_inclusion_proof_response(
+    ptr: *mut VerifyPieceInclusionProofResponse,
+) {
+    let _ = Box::from_raw(ptr);
+}
+
+/// Returns the merkle root for a piece after piece padding and alignment.
+#[no_mangle]
+pub unsafe extern "C" fn generate_piece_commitment(
+    piece_path: *const libc::c_char,
+    unpadded_piece_size: u64,
+) -> *mut GeneratePieceCommitmentResponse {
+    let unpadded_piece_size = api_types::UnpaddedBytesAmount(unpadded_piece_size);
+
+    let result = api_fns::generate_piece_commitment(
+        c_str_to_rust_str(piece_path).to_string(),
+        unpadded_piece_size,
+    );
+
+    let mut response = GeneratePieceCommitmentResponse::default();
+
+    match result {
+        Ok(comm_p) => {
+            response.status_code = 0;
+            response.comm_p = comm_p;
+        }
+        Err(err) => {
+            response.status_code = 1;
+            response.error_msg = rust_str_to_c_str(format!("{}", err));
+        }
+    }
+
+    raw_ptr(response)
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn destroy_generate_piece_commitment_response(
+    ptr: *mut GeneratePieceCommitmentResponse,
+) {
+    let _ = Box::from_raw(ptr);
 }
 
 /// Returns the number of user bytes that will fit into a staged sector.

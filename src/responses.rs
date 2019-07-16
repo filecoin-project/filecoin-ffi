@@ -46,3 +46,47 @@ impl Default for VerifyPoStResponse {
         }
     }
 }
+
+///////////////////////////////////////////////////////////////////////////////
+/// VerifyPieceInclusionProofResponse
+/////////////////////////////////////
+
+#[repr(C)]
+#[derive(DropStructMacro)]
+pub struct VerifyPieceInclusionProofResponse {
+    pub status_code: isize,
+    pub error_msg: *const libc::c_char,
+    pub is_valid: bool,
+}
+
+impl Default for VerifyPieceInclusionProofResponse {
+    fn default() -> Self {
+        VerifyPieceInclusionProofResponse {
+            status_code: 0,
+            error_msg: ptr::null(),
+            is_valid: false,
+        }
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+/// GeneratePieceCommitmentResponse
+///////////////////////////////////
+
+#[repr(C)]
+#[derive(DropStructMacro)]
+pub struct GeneratePieceCommitmentResponse {
+    pub status_code: isize,
+    pub error_msg: *const libc::c_char,
+    pub comm_p: [u8; 32],
+}
+
+impl Default for GeneratePieceCommitmentResponse {
+    fn default() -> GeneratePieceCommitmentResponse {
+        GeneratePieceCommitmentResponse {
+            status_code: 0,
+            error_msg: ptr::null(),
+            comm_p: Default::default(),
+        }
+    }
+}
