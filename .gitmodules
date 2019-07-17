@@ -1,0 +1,3 @@
+[submodule "rust-fil-sector-builder"]
+	path = rust-fil-sector-builder
+	url = https://github.com/filecoin-project/rust-fil-sector-builder
