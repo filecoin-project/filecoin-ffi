@@ -1,3 +1,4 @@
 **/*.h
 **/*.a
 **/*.pc
+.install-rust-fil-sector-builder

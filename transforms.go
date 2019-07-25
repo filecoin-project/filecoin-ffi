@@ -1,12 +1,12 @@
-package sectorbuilder
+package go_sectorbuilder
 
 import (
 	"unsafe"
 )
 
-// #cgo LDFLAGS: -L${SRCDIR}/../lib -lsector_builder_ffi
-// #cgo pkg-config: ${SRCDIR}/../lib/pkgconfig/sector_builder_ffi.pc
-// #include "../include/sector_builder_ffi.h"
+// #cgo LDFLAGS: ${SRCDIR}/libsector_builder_ffi.a
+// #cgo pkg-config: ${SRCDIR}/sector_builder_ffi.pc
+// #include "./sector_builder_ffi.h"
 import "C"
 
 // SingleProofPartitionProofLen denotes the number of bytes in a proof generated
@@ -81,9 +81,15 @@ func goPieceMetadata(src *C.sector_builder_ffi_FFIPieceMetadata, size C.size_t) 
 
 	ptrs := (*[1 << 30]C.sector_builder_ffi_FFIPieceMetadata)(unsafe.Pointer(src))[:size:size]
 	for i := 0; i < int(size); i++ {
+		commPSlice := goBytes(&ptrs[i].comm_p[0], CommitmentBytesLen)
+		var commP [CommitmentBytesLen]byte
+		copy(commP[:], commPSlice)
+
 		ps[i] = PieceMetadata{
-			Key:  C.GoString(ptrs[i].piece_key),
-			Size: uint64(ptrs[i].num_bytes),
+			Key:            C.GoString(ptrs[i].piece_key),
+			Size:           uint64(ptrs[i].num_bytes),
+			CommP:          commP,
+			InclusionProof: goBytes(ptrs[i].piece_inclusion_proof_ptr, ptrs[i].piece_inclusion_proof_len),
 		}
 	}
 

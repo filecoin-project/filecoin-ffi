@@ -1,6 +1,4 @@
-// +build !windows
-
-package sectorbuilder
+package go_sectorbuilder
 
 import (
 	"time"
@@ -10,9 +8,9 @@ import (
 	"github.com/pkg/errors"
 )
 
-// #cgo LDFLAGS: -L${SRCDIR}/../lib -lsector_builder_ffi
-// #cgo pkg-config: ${SRCDIR}/../lib/pkgconfig/sector_builder_ffi.pc
-// #include "../include/sector_builder_ffi.h"
+// #cgo LDFLAGS: ${SRCDIR}/libsector_builder_ffi.a
+// #cgo pkg-config: ${SRCDIR}/sector_builder_ffi.pc
+// #include "./sector_builder_ffi.h"
 import "C"
 
 var log = logging.Logger("libsectorbuilder") // nolint: deadcode
@@ -23,6 +21,9 @@ func elapsed(what string) func() {
 		log.Debugf("%s took %v\n", what, time.Since(start))
 	}
 }
+
+// CommitmentBytesLen is the number of bytes in a CommR, CommD, CommP, and CommRStar.
+const CommitmentBytesLen = 32
 
 // StagedSectorMetadata is a sector into which we write user piece-data before
 // sealing. Note: SectorID is unique across all staged and sealed sectors for a
@@ -35,13 +36,13 @@ type StagedSectorMetadata struct {
 // sector has progressed.
 type SectorSealingStatus struct {
 	SectorID       uint64
-	SealStatusCode uint8           // Sealed = 0, Pending = 1, Failed = 2, Sealing = 3
-	SealErrorMsg   string          // will be nil unless SealStatusCode == 2
-	CommD          [32]byte        // will be empty unless SealStatusCode == 0
-	CommR          [32]byte        // will be empty unless SealStatusCode == 0
-	CommRStar      [32]byte        // will be empty unless SealStatusCode == 0
-	Proof          []byte          // will be empty unless SealStatusCode == 0
-	Pieces         []PieceMetadata // will be empty unless SealStatusCode == 0
+	SealStatusCode uint8                    // Sealed = 0, Pending = 1, Failed = 2, Sealing = 3
+	SealErrorMsg   string                   // will be nil unless SealStatusCode == 2
+	CommD          [CommitmentBytesLen]byte // will be empty unless SealStatusCode == 0
+	CommR          [CommitmentBytesLen]byte // will be empty unless SealStatusCode == 0
+	CommRStar      [CommitmentBytesLen]byte // will be empty unless SealStatusCode == 0
+	Proof          []byte                   // will be empty unless SealStatusCode == 0
+	Pieces         []PieceMetadata          // will be empty unless SealStatusCode == 0
 }
 
 // PieceMetadata represents a piece stored by the sector builder.
@@ -49,15 +50,16 @@ type PieceMetadata struct {
 	Key            string
 	Size           uint64
 	InclusionProof []byte
+	CommP          [CommitmentBytesLen]byte
 }
 
 // VerifySeal returns true if the sealing operation from which its inputs were
 // derived was valid, and false if not.
 func VerifySeal(
 	sectorSize uint64,
-	commR [32]byte,
-	commD [32]byte,
-	commRStar [32]byte,
+	commR [CommitmentBytesLen]byte,
+	commD [CommitmentBytesLen]byte,
+	commRStar [CommitmentBytesLen]byte,
 	proverID [31]byte,
 	sectorID [31]byte,
 	proof []byte,
@@ -83,16 +85,16 @@ func VerifySeal(
 	defer C.free(sectorIDCbytes)
 
 	// a mutable pointer to a VerifySealResponse C-struct
-	resPtr := (*C.sector_builder_ffi_VerifySealResponse)(unsafe.Pointer(C.sector_builder_ffi_verify_seal(
+	resPtr := C.sector_builder_ffi_verify_seal(
 		C.uint64_t(sectorSize),
-		(*[32]C.uint8_t)(commRCBytes),
-		(*[32]C.uint8_t)(commDCBytes),
-		(*[32]C.uint8_t)(commRStarCBytes),
+		(*[CommitmentBytesLen]C.uint8_t)(commRCBytes),
+		(*[CommitmentBytesLen]C.uint8_t)(commDCBytes),
+		(*[CommitmentBytesLen]C.uint8_t)(commRStarCBytes),
 		(*[31]C.uint8_t)(proverIDCBytes),
 		(*[31]C.uint8_t)(sectorIDCbytes),
 		(*C.uint8_t)(proofCBytes),
 		C.size_t(len(proof)),
-	)))
+	)
 	defer C.sector_builder_ffi_destroy_verify_seal_response(resPtr)
 
 	if resPtr.status_code != 0 {
@@ -106,8 +108,8 @@ func VerifySeal(
 // inputs were derived was valid, and false if not.
 func VerifyPoSt(
 	sectorSize uint64,
-	sortedCommRs [][32]byte,
-	challengeSeed [32]byte,
+	sortedCommRs [][CommitmentBytesLen]byte,
+	challengeSeed [CommitmentBytesLen]byte,
 	proofs [][]byte,
 	faults []uint64,
 ) (bool, error) {
@@ -123,9 +125,9 @@ func VerifyPoSt(
 	commRs := sortedCommRs
 
 	// flattening the byte slice makes it easier to copy into the C heap
-	flattened := make([]byte, 32*len(commRs))
+	flattened := make([]byte, CommitmentBytesLen*len(commRs))
 	for idx, commR := range commRs {
-		copy(flattened[(32*idx):(32*(1+idx))], commR[:])
+		copy(flattened[(CommitmentBytesLen*idx):(CommitmentBytesLen*(1+idx))], commR[:])
 	}
 
 	// copy bytes from Go to C heap
@@ -143,17 +145,17 @@ func VerifyPoSt(
 	defer C.free(unsafe.Pointer(faultsPtr))
 
 	// a mutable pointer to a VerifyPoStResponse C-struct
-	resPtr := (*C.sector_builder_ffi_VerifyPoStResponse)(unsafe.Pointer(C.sector_builder_ffi_verify_post(
+	resPtr := C.sector_builder_ffi_verify_post(
 		C.uint64_t(sectorSize),
 		proofPartitions,
 		(*C.uint8_t)(flattenedCommRsCBytes),
 		C.size_t(len(flattened)),
-		(*[32]C.uint8_t)(challengeSeedCBytes),
+		(*[CommitmentBytesLen]C.uint8_t)(challengeSeedCBytes),
 		proofsPtr,
 		proofsLen,
 		faultsPtr,
 		faultsSize,
-	)))
+	)
 	defer C.sector_builder_ffi_destroy_verify_post_response(resPtr)
 
 	if resPtr.status_code != 0 {
@@ -203,7 +205,7 @@ func InitSectorBuilder(
 		return nil, errors.Wrap(err, "failed to get sector class")
 	}
 
-	resPtr := (*C.sector_builder_ffi_InitSectorBuilderResponse)(unsafe.Pointer(C.sector_builder_ffi_init_sector_builder(
+	resPtr := C.sector_builder_ffi_init_sector_builder(
 		class,
 		C.uint64_t(lastUsedSectorID),
 		cMetadataDir,
@@ -211,7 +213,7 @@ func InitSectorBuilder(
 		cSealedSectorDir,
 		cStagedSectorDir,
 		C.uint8_t(maxNumOpenStagedSectors),
-	)))
+	)
 	defer C.sector_builder_ffi_destroy_init_sector_builder_response(resPtr)
 
 	if resPtr.status_code != 0 {
@@ -246,12 +248,12 @@ func AddPiece(
 	cPiecePath := C.CString(piecePath)
 	defer C.free(unsafe.Pointer(cPiecePath))
 
-	resPtr := (*C.sector_builder_ffi_AddPieceResponse)(unsafe.Pointer(C.sector_builder_ffi_add_piece(
+	resPtr := C.sector_builder_ffi_add_piece(
 		(*C.sector_builder_ffi_SectorBuilder)(sectorBuilderPtr),
 		cPieceKey,
 		C.uint64_t(pieceSize),
 		cPiecePath,
-	)))
+	)
 	defer C.sector_builder_ffi_destroy_add_piece_response(resPtr)
 
 	if resPtr.status_code != 0 {
@@ -270,7 +272,10 @@ func ReadPieceFromSealedSector(sectorBuilderPtr unsafe.Pointer, pieceKey string)
 	cPieceKey := C.CString(pieceKey)
 	defer C.free(unsafe.Pointer(cPieceKey))
 
-	resPtr := (*C.sector_builder_ffi_ReadPieceFromSealedSectorResponse)(unsafe.Pointer(C.sector_builder_ffi_read_piece_from_sealed_sector((*C.sector_builder_ffi_SectorBuilder)(sectorBuilderPtr), cPieceKey)))
+	resPtr := C.sector_builder_ffi_read_piece_from_sealed_sector(
+		(*C.sector_builder_ffi_SectorBuilder)(sectorBuilderPtr),
+		cPieceKey,
+	)
 	defer C.sector_builder_ffi_destroy_read_piece_from_sealed_sector_response(resPtr)
 
 	if resPtr.status_code != 0 {
@@ -284,7 +289,7 @@ func ReadPieceFromSealedSector(sectorBuilderPtr unsafe.Pointer, pieceKey string)
 func SealAllStagedSectors(sectorBuilderPtr unsafe.Pointer) error {
 	defer elapsed("SealAllStagedSectors")()
 
-	resPtr := (*C.sector_builder_ffi_SealAllStagedSectorsResponse)(unsafe.Pointer(C.sector_builder_ffi_seal_all_staged_sectors((*C.sector_builder_ffi_SectorBuilder)(sectorBuilderPtr))))
+	resPtr := C.sector_builder_ffi_seal_all_staged_sectors((*C.sector_builder_ffi_SectorBuilder)(sectorBuilderPtr))
 	defer C.sector_builder_ffi_destroy_seal_all_staged_sectors_response(resPtr)
 
 	if resPtr.status_code != 0 {
@@ -298,14 +303,14 @@ func SealAllStagedSectors(sectorBuilderPtr unsafe.Pointer) error {
 func GetAllStagedSectors(sectorBuilderPtr unsafe.Pointer) ([]StagedSectorMetadata, error) {
 	defer elapsed("GetAllStagedSectors")()
 
-	resPtr := (*C.sector_builder_ffi_GetStagedSectorsResponse)(unsafe.Pointer(C.sector_builder_ffi_get_staged_sectors((*C.sector_builder_ffi_SectorBuilder)(sectorBuilderPtr))))
+	resPtr := C.sector_builder_ffi_get_staged_sectors((*C.sector_builder_ffi_SectorBuilder)(sectorBuilderPtr))
 	defer C.sector_builder_ffi_destroy_get_staged_sectors_response(resPtr)
 
 	if resPtr.status_code != 0 {
 		return nil, errors.New(C.GoString(resPtr.error_msg))
 	}
 
-	meta, err := goStagedSectorMetadata((*C.sector_builder_ffi_FFIStagedSectorMetadata)(unsafe.Pointer(resPtr.sectors_ptr)), resPtr.sectors_len)
+	meta, err := goStagedSectorMetadata(resPtr.sectors_ptr, resPtr.sectors_len)
 	if err != nil {
 		return nil, err
 	}
@@ -319,7 +324,10 @@ func GetAllStagedSectors(sectorBuilderPtr unsafe.Pointer) ([]StagedSectorMetadat
 func GetSectorSealingStatusByID(sectorBuilderPtr unsafe.Pointer, sectorID uint64) (SectorSealingStatus, error) {
 	defer elapsed("GetSectorSealingStatusByID")()
 
-	resPtr := (*C.sector_builder_ffi_GetSealStatusResponse)(unsafe.Pointer(C.sector_builder_ffi_get_seal_status((*C.sector_builder_ffi_SectorBuilder)(sectorBuilderPtr), C.uint64_t(sectorID))))
+	resPtr := C.sector_builder_ffi_get_seal_status(
+		(*C.sector_builder_ffi_SectorBuilder)(sectorBuilderPtr),
+		C.uint64_t(sectorID),
+	)
 	defer C.sector_builder_ffi_destroy_get_seal_status_response(resPtr)
 
 	if resPtr.status_code != 0 {
@@ -333,16 +341,16 @@ func GetSectorSealingStatusByID(sectorBuilderPtr unsafe.Pointer, sectorID uint64
 	} else if resPtr.seal_status_code == C.Sealing {
 		return SectorSealingStatus{SealStatusCode: 3}, nil
 	} else if resPtr.seal_status_code == C.Sealed {
-		commRSlice := goBytes(&resPtr.comm_r[0], 32)
-		var commR [32]byte
+		commRSlice := goBytes(&resPtr.comm_r[0], CommitmentBytesLen)
+		var commR [CommitmentBytesLen]byte
 		copy(commR[:], commRSlice)
 
-		commDSlice := goBytes(&resPtr.comm_d[0], 32)
-		var commD [32]byte
+		commDSlice := goBytes(&resPtr.comm_d[0], CommitmentBytesLen)
+		var commD [CommitmentBytesLen]byte
 		copy(commD[:], commDSlice)
 
-		commRStarSlice := goBytes(&resPtr.comm_r_star[0], 32)
-		var commRStar [32]byte
+		commRStarSlice := goBytes(&resPtr.comm_r_star[0], CommitmentBytesLen)
+		var commRStar [CommitmentBytesLen]byte
 		copy(commRStar[:], commRStarSlice)
 
 		proof := goBytes(resPtr.proof_ptr, resPtr.proof_len)
@@ -370,16 +378,16 @@ func GetSectorSealingStatusByID(sectorBuilderPtr unsafe.Pointer, sectorID uint64
 // GeneratePoSt produces a proof-of-spacetime for the provided replica commitments.
 func GeneratePoSt(
 	sectorBuilderPtr unsafe.Pointer,
-	sortedCommRs [][32]byte,
-	challengeSeed [32]byte,
+	sortedCommRs [][CommitmentBytesLen]byte,
+	challengeSeed [CommitmentBytesLen]byte,
 ) ([][]byte, []uint64, error) {
 	defer elapsed("GeneratePoSt")()
 
 	// flattening the byte slice makes it easier to copy into the C heap
 	commRs := sortedCommRs
-	flattened := make([]byte, 32*len(commRs))
+	flattened := make([]byte, CommitmentBytesLen*len(commRs))
 	for idx, commR := range commRs {
-		copy(flattened[(32*idx):(32*(1+idx))], commR[:])
+		copy(flattened[(CommitmentBytesLen*idx):(CommitmentBytesLen*(1+idx))], commR[:])
 	}
 
 	// copy the Go byte slice into C memory
@@ -389,7 +397,12 @@ func GeneratePoSt(
 	challengeSeedPtr := unsafe.Pointer(&(challengeSeed)[0])
 
 	// a mutable pointer to a GeneratePoStResponse C-struct
-	resPtr := (*C.sector_builder_ffi_GeneratePoStResponse)(unsafe.Pointer(C.sector_builder_ffi_generate_post((*C.sector_builder_ffi_SectorBuilder)(sectorBuilderPtr), (*C.uint8_t)(cflattened), C.size_t(len(flattened)), (*[32]C.uint8_t)(challengeSeedPtr))))
+	resPtr := C.sector_builder_ffi_generate_post(
+		(*C.sector_builder_ffi_SectorBuilder)(sectorBuilderPtr),
+		(*C.uint8_t)(cflattened),
+		C.size_t(len(flattened)),
+		(*[CommitmentBytesLen]C.uint8_t)(challengeSeedPtr),
+	)
 	defer C.sector_builder_ffi_destroy_generate_post_response(resPtr)
 
 	if resPtr.status_code != 0 {
@@ -402,4 +415,53 @@ func GeneratePoSt(
 	}
 
 	return proofs, goUint64s(resPtr.faults_ptr, resPtr.faults_len), nil
+}
+
+// VerifyPieceInclusionProof returns true if the piece inclusion proof is valid
+// with the given arguments.
+func VerifyPieceInclusionProof(sectorSize uint64, pieceSize uint64, commP [CommitmentBytesLen]byte, commD [CommitmentBytesLen]byte, proof []byte) (bool, error) {
+	commDCBytes := C.CBytes(commD[:])
+	defer C.free(commDCBytes)
+
+	commPCBytes := C.CBytes(commP[:])
+	defer C.free(commPCBytes)
+
+	pieceInclusionProofCBytes := C.CBytes(proof)
+	defer C.free(pieceInclusionProofCBytes)
+
+	resPtr := C.sector_builder_ffi_verify_piece_inclusion_proof(
+		(*[CommitmentBytesLen]C.uint8_t)(commDCBytes),
+		(*[CommitmentBytesLen]C.uint8_t)(commPCBytes),
+		(*C.uint8_t)(pieceInclusionProofCBytes),
+		C.size_t(len(proof)),
+		C.uint64_t(pieceSize),
+		C.uint64_t(sectorSize),
+	)
+	defer C.sector_builder_ffi_destroy_verify_piece_inclusion_proof_response(resPtr)
+
+	if resPtr.status_code != 0 {
+		return false, errors.New(C.GoString(resPtr.error_msg))
+	}
+
+	return bool(resPtr.is_valid), nil
+}
+
+// GeneratePieceCommitment produces a piece commitment for the provided data
+// stored at a given piece path.
+func GeneratePieceCommitment(piecePath string, pieceSize uint64) (commP [CommitmentBytesLen]byte, err error) {
+	cPiecePath := C.CString(piecePath)
+	defer C.free(unsafe.Pointer(cPiecePath))
+
+	resPtr := C.sector_builder_ffi_generate_piece_commitment(cPiecePath, C.uint64_t(pieceSize))
+	defer C.sector_builder_ffi_destroy_generate_piece_commitment_response(resPtr)
+
+	if resPtr.status_code != 0 {
+		return [CommitmentBytesLen]byte{}, errors.New(C.GoString(resPtr.error_msg))
+	}
+
+	commPSlice := goBytes(&resPtr.comm_p[0], CommitmentBytesLen)
+	var commitment [CommitmentBytesLen]byte
+	copy(commitment[:], commPSlice)
+
+	return commitment, nil
 }
