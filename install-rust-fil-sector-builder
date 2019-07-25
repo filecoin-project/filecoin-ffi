@@ -11,10 +11,11 @@ git submodule update --init --recursive $subm_dir
 
 if download_release_tarball tarball_path "${subm_dir}"; then
     tmp_dir=$(mktemp -d)
-    tar -C $tmp_dir -xzf $tarball_path
+    tar -C "$tmp_dir" -xzf "$tarball_path"
 
-    cp -R "${tmp_dir}/include" .
-    cp -R "${tmp_dir}/lib" .
+    cp "${tmp_dir}/include/sector_builder_ffi.h" .
+    cp "${tmp_dir}/lib/libsector_builder_ffi.a" .
+    cp "${tmp_dir}/lib/pkgconfig/sector_builder_ffi.pc" .
 else
     echo "failed to find or obtain precompiled assets for ${subm_dir}, falling back to local build"
     build_from_source "${subm_dir}"
@@ -22,7 +23,7 @@ else
     mkdir -p include
     mkdir -p lib/pkgconfig
 
-    find "${subm_dir}" -type f -name sector_builder_ffi.h -exec mv -- "{}" include/ \;
-    find "${subm_dir}" -type f -name libsector_builder_ffi.a -exec cp -- "{}" lib/ \;
-    find "${subm_dir}" -type f -name sector_builder_ffi.pc -exec cp -- "{}" pkgconfig/ \;
+    find "${subm_dir}" -type f -name sector_builder_ffi.h -exec cp -- "{}" . \;
+    find "${subm_dir}" -type f -name libsector_builder_ffi.a -exec cp -- "{}" . \;
+    find "${subm_dir}" -type f -name sector_builder_ffi.pc -exec cp -- "{}" . \;
 fi
