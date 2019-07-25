@@ -1,4 +1,4 @@
-DEPS:=sector_builder_ffi.h sector_builder_ffi.pc sector_builder_ffi.a
+DEPS:=sector_builder_ffi.h sector_builder_ffi.pc libsector_builder_ffi.a
 
 all: $(DEPS)
 .PHONY: all
