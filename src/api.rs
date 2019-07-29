@@ -4,11 +4,10 @@ use ffi_toolkit::{c_str_to_rust_str, raw_ptr, rust_str_to_c_str};
 use filecoin_proofs as api_fns;
 use filecoin_proofs::types as api_types;
 use libc;
-use slog::info;
+use once_cell::sync::OnceCell;
 
 use crate::helpers;
 use crate::responses::*;
-use crate::singletons::FCPFFI_LOG;
 
 /// Verifies the output of seal.
 ///
@@ -23,7 +22,9 @@ pub unsafe extern "C" fn verify_seal(
     proof_ptr: *const u8,
     proof_len: libc::size_t,
 ) -> *mut VerifySealResponse {
-    info!(FCPFFI_LOG, "verify_seal: {}", "start"; "target" => "FFI");
+    init_log();
+
+    info!("verify_seal: start");
 
     let porep_bytes = helpers::try_into_porep_proof_bytes(proof_ptr, proof_len);
 
@@ -60,7 +61,7 @@ pub unsafe extern "C" fn verify_seal(
         }
     };
 
-    info!(FCPFFI_LOG, "verify_seal: {}", "finish"; "target" => "FFI");
+    info!("verify_seal: finish");
 
     raw_ptr(response)
 }
@@ -79,7 +80,9 @@ pub unsafe extern "C" fn verify_post(
     faults_ptr: *const u64,
     faults_len: libc::size_t,
 ) -> *mut VerifyPoStResponse {
-    info!(FCPFFI_LOG, "verify_post: {}", "start"; "target" => "FFI");
+    init_log();
+
+    info!("verify_post: start");
 
     let post_bytes = helpers::try_into_post_proofs_bytes(
         proof_partitions,
@@ -115,7 +118,7 @@ pub unsafe extern "C" fn verify_post(
         }
     }
 
-    info!(FCPFFI_LOG, "verify_post: {}", "finish"; "target" => "FFI");
+    info!("verify_post: {}", "finish");
 
     raw_ptr(response)
 }
@@ -131,7 +134,9 @@ pub unsafe extern "C" fn verify_piece_inclusion_proof(
     unpadded_piece_size: u64,
     sector_size: u64,
 ) -> *mut VerifyPieceInclusionProofResponse {
-    info!(FCPFFI_LOG, "verify_piece_inclusion_proof: {}", "start"; "target" => "FFI");
+    init_log();
+
+    info!("verify_piece_inclusion_proof: {}", "start");
 
     let bytes = from_raw_parts(piece_inclusion_proof_ptr, piece_inclusion_proof_len);
 
@@ -163,7 +168,7 @@ pub unsafe extern "C" fn verify_piece_inclusion_proof(
         }
     };
 
-    info!(FCPFFI_LOG, "verify_piece_inclusion_proof: {}", "finish"; "target" => "FFI");
+    info!("verify_piece_inclusion_proof: {}", "finish");
 
     raw_ptr(response)
 }
@@ -181,6 +186,8 @@ pub unsafe extern "C" fn generate_piece_commitment(
     piece_path: *const libc::c_char,
     unpadded_piece_size: u64,
 ) -> *mut GeneratePieceCommitmentResponse {
+    init_log();
+
     let unpadded_piece_size = api_types::UnpaddedBytesAmount(unpadded_piece_size);
 
     let result = api_fns::generate_piece_commitment(
@@ -232,4 +239,15 @@ pub unsafe extern "C" fn destroy_verify_seal_response(ptr: *mut VerifySealRespon
 #[no_mangle]
 pub unsafe extern "C" fn destroy_verify_post_response(ptr: *mut VerifyPoStResponse) {
     let _ = Box::from_raw(ptr);
+}
+
+/// Protects the init off the logger.
+static LOG_INIT: OnceCell<bool> = OnceCell::new();
+
+/// Ensures the logger is initialized.
+fn init_log() {
+    LOG_INIT.get_or_init(|| {
+        let _ = pretty_env_logger::try_init_timed();
+        true
+    });
 }
