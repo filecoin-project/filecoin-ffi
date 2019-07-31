@@ -335,11 +335,11 @@ func GetSectorSealingStatusByID(sectorBuilderPtr unsafe.Pointer, sectorID uint64
 	}
 
 	if resPtr.seal_status_code == C.Failed {
-		return SectorSealingStatus{SealStatusCode: 2, SealErrorMsg: C.GoString(resPtr.seal_error_msg)}, nil
+		return SectorSealingStatus{SectorID: sectorID, SealStatusCode: 2, SealErrorMsg: C.GoString(resPtr.seal_error_msg)}, nil
 	} else if resPtr.seal_status_code == C.Pending {
-		return SectorSealingStatus{SealStatusCode: 1}, nil
+		return SectorSealingStatus{SectorID: sectorID, SealStatusCode: 1}, nil
 	} else if resPtr.seal_status_code == C.Sealing {
-		return SectorSealingStatus{SealStatusCode: 3}, nil
+		return SectorSealingStatus{SectorID: sectorID, SealStatusCode: 3}, nil
 	} else if resPtr.seal_status_code == C.Sealed {
 		commRSlice := goBytes(&resPtr.comm_r[0], CommitmentBytesLen)
 		var commR [CommitmentBytesLen]byte
