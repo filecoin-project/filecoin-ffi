@@ -2,6 +2,8 @@ package go_sectorbuilder
 
 import (
 	"unsafe"
+
+	"github.com/pkg/errors"
 )
 
 // #cgo LDFLAGS: ${SRCDIR}/libsector_builder_ffi.a
@@ -67,6 +69,46 @@ func goStagedSectorMetadata(src *C.sector_builder_ffi_FFIStagedSectorMetadata, s
 	for i := 0; i < int(size); i++ {
 		sectors[i] = StagedSectorMetadata{
 			SectorID: uint64(sectorPtrs[i].sector_id),
+		}
+	}
+
+	return sectors, nil
+}
+
+func goSealedSectorMetadata(src *C.sector_builder_ffi_FFISealedSectorMetadata, size C.size_t) ([]SealedSectorMetadata, error) {
+	sectors := make([]SealedSectorMetadata, size)
+	if src == nil || size == 0 {
+		return sectors, nil
+	}
+
+	ptrs := (*[1 << 30]C.sector_builder_ffi_FFISealedSectorMetadata)(unsafe.Pointer(src))[:size:size]
+	for i := 0; i < int(size); i++ {
+		commDSlice := goBytes(&ptrs[i].comm_d[0], CommitmentBytesLen)
+		var commD [CommitmentBytesLen]byte
+		copy(commD[:], commDSlice)
+
+		commRSlice := goBytes(&ptrs[i].comm_r[0], CommitmentBytesLen)
+		var commR [CommitmentBytesLen]byte
+		copy(commR[:], commRSlice)
+
+		commRStarSlice := goBytes(&ptrs[i].comm_r_star[0], CommitmentBytesLen)
+		var commRStar [CommitmentBytesLen]byte
+		copy(commRStar[:], commRStarSlice)
+
+		proof := goBytes(ptrs[i].proofs_ptr, ptrs[i].proofs_len)
+
+		pieces, err := goPieceMetadata(ptrs[i].pieces_ptr, ptrs[i].pieces_len)
+		if err != nil {
+			return []SealedSectorMetadata{}, errors.Wrap(err, "failed to marshal piece metadata")
+		}
+
+		sectors[i] = SealedSectorMetadata{
+			SectorID:  uint64(ptrs[i].sector_id),
+			CommD:     commD,
+			CommR:     commR,
+			CommRStar: commRStar,
+			Proof:     proof,
+			Pieces:    pieces,
 		}
 	}
 
