@@ -86,7 +86,7 @@ func TestSectorBuilderLifecycle(t *testing.T) {
 	require.Equal(t, uint64(1), sealedSector.SectorID)
 	require.Equal(t, 1, len(sealedSector.Pieces))
 	// the piece is the size of the sector, so its piece commitment should be the
-	// sector commitment
+	// data commitment
 	require.Equal(t, commP, sealedSector.CommD)
 
 	// unseal the sector and retrieve the client's piece, verifying that the
