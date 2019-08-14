@@ -1,0 +1,30 @@
+version: 2.1
+
+jobs:
+  build_linux:
+    docker:
+      - image: circleci/golang:1.12.1-stretch
+    working_directory: /go/src/github.com/filecoin-project/go-sectorbuilder
+    resource_class: xlarge
+    steps:
+      - run:
+          name: Configure environment variables
+          command: |
+            echo 'export FILECOIN_PARAMETER_CACHE="${HOME}/filecoin-proof-parameters/"' >> $BASH_ENV
+            echo 'export GO111MODULE=on' >> $BASH_ENV
+      - checkout
+      - run:
+          name: Update submodules
+          command: git submodule update --init --recursive
+      - run:
+          name: Build upstream project
+          command: make
+      - run:
+          name: Build project
+          command: go build .
+
+workflows:
+  version: 2
+  test_all:
+    jobs:
+      - build_linux
