@@ -51,6 +51,11 @@ func TestSectorBuilderLifecycle(t *testing.T) {
 	sectorID, err := sb.AddPiece(ptr, "snoqualmie", maxPieceSize, piecePath)
 	require.NoError(t, err)
 
+	stagedSectors, err := sb.GetAllStagedSectors(ptr)
+	require.Equal(t, 1, len(stagedSectors))
+	stagedSector := stagedSectors[0]
+	require.Equal(t, uint64(1), stagedSector.SectorID)
+
 	// block until Groth parameter cache is (lazily) hydrated and sector has
 	// been sealed (or timeout)
 	status, err := pollForSectorSealingStatus(ptr, sectorID, 0, time.Minute*30)
@@ -74,6 +79,15 @@ func TestSectorBuilderLifecycle(t *testing.T) {
 	// verify the PoSt
 	isValid, err = sb.VerifyPoSt(1024, [][32]byte{status.CommR}, [32]byte{}, proofs, faults)
 	require.True(t, isValid)
+
+	sealedSectors, err := sb.GetAllSealedSectors(ptr)
+	require.Equal(t, 1, len(sealedSectors), "expected to see one sealed sector")
+	sealedSector := sealedSectors[0]
+	require.Equal(t, uint64(1), sealedSector.SectorID)
+	require.Equal(t, 1, len(sealedSector.Pieces))
+	// the piece is the size of the sector, so its piece commitment should be the
+	// data commitment
+	require.Equal(t, commP, sealedSector.CommD)
 
 	// unseal the sector and retrieve the client's piece, verifying that the
 	// retrieved bytes match what we originally wrote to the staged sector

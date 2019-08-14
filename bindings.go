@@ -32,6 +32,16 @@ type StagedSectorMetadata struct {
 	SectorID uint64
 }
 
+// SealedSectorMetadata represents a sector in the builder that has been sealed.
+type SealedSectorMetadata struct {
+	SectorID  uint64
+	CommD     [CommitmentBytesLen]byte
+	CommR     [CommitmentBytesLen]byte
+	CommRStar [CommitmentBytesLen]byte
+	Proof     []byte
+	Pieces    []PieceMetadata
+}
+
 // SectorSealingStatus communicates how far along in the sealing process a
 // sector has progressed.
 type SectorSealingStatus struct {
@@ -318,7 +328,26 @@ func GetAllStagedSectors(sectorBuilderPtr unsafe.Pointer) ([]StagedSectorMetadat
 	return meta, nil
 }
 
-// GetSectorSealingStatusByID produces sector sealing status (staged, sealing in
+// GetAllSealedSectors returns a slice of all sealed sector metadata for the sector builder.
+func GetAllSealedSectors(sectorBuilderPtr unsafe.Pointer) ([]SealedSectorMetadata, error) {
+	defer elapsed("GetAllSealedSectors")()
+
+	resPtr := C.sector_builder_ffi_get_sealed_sectors((*C.sector_builder_ffi_SectorBuilder)(sectorBuilderPtr))
+	defer C.sector_builder_ffi_destroy_get_sealed_sectors_response(resPtr)
+
+	if resPtr.status_code != 0 {
+		return nil, errors.New(C.GoString(resPtr.error_msg))
+	}
+
+	meta, err := goSealedSectorMetadata(resPtr.sectors_ptr, resPtr.sectors_len)
+	if err != nil {
+		return nil, err
+	}
+
+	return meta, nil
+}
+
+// GetSectorSealingStatusByID produces sector sealing status (staged, sealinG in
 // progress, sealed, failed) for the provided sector id if it exists, otherwise
 // an error.
 func GetSectorSealingStatusByID(sectorBuilderPtr unsafe.Pointer, sectorID uint64) (SectorSealingStatus, error) {
