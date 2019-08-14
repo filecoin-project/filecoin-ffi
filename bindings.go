@@ -258,11 +258,22 @@ func AddPiece(
 	cPiecePath := C.CString(piecePath)
 	defer C.free(unsafe.Pointer(cPiecePath))
 
+	// TODO: The UTC time, in seconds, at which the sector builder can safely
+	// delete the piece. This allows for co-location of pieces with similar time
+	// constraints, and allows the sector builder to remove sectors containing
+	// pieces whose deals have expired.
+	//
+	// This value is currently ignored by the sector builder.
+	//
+	// https://github.com/filecoin-project/rust-fil-sector-builder/issues/32
+	pieceExpiryUtcSeconds := 0
+
 	resPtr := C.sector_builder_ffi_add_piece(
 		(*C.sector_builder_ffi_SectorBuilder)(sectorBuilderPtr),
 		cPieceKey,
 		C.uint64_t(pieceSize),
 		cPiecePath,
+		C.uint64_t(pieceExpiryUtcSeconds),
 	)
 	defer C.sector_builder_ffi_destroy_add_piece_response(resPtr)
 
