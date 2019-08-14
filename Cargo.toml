@@ -23,4 +23,4 @@ once_cell = "0.2.4"
 storage-proofs = "0.6.1"
 
 [build-dependencies]
-cbindgen = "=0.8.4"
+cbindgen = "0.9"
