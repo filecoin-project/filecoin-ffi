@@ -12,7 +12,8 @@ edition = "2018"
 crate-type = ["rlib", "staticlib"]
 
 [dependencies]
-filecoin-proofs = "0.6.1"
+filecoin-proofs = "0.6.2"
+storage-proofs = "0.6.2"
 ffi-toolkit = "0.3.0"
 failure = "0.1.5"
 drop_struct_macro_derive = "0.3.0"
@@ -20,7 +21,6 @@ libc = "0.2.58"
 log = "0.4.7"
 pretty_env_logger = "0.3.0"
 once_cell = "0.2.4"
-storage-proofs = "0.6.1"
 
 [build-dependencies]
 cbindgen = "0.9"
