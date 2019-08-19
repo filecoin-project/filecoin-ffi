@@ -52,6 +52,7 @@ func TestSectorBuilderLifecycle(t *testing.T) {
 	require.NoError(t, err)
 
 	stagedSectors, err := sb.GetAllStagedSectors(ptr)
+	require.NoError(t, err)
 	require.Equal(t, 1, len(stagedSectors))
 	stagedSector := stagedSectors[0]
 	require.Equal(t, uint64(1), stagedSector.SectorID)
@@ -78,9 +79,11 @@ func TestSectorBuilderLifecycle(t *testing.T) {
 
 	// verify the PoSt
 	isValid, err = sb.VerifyPoSt(1024, [][32]byte{status.CommR}, [32]byte{}, proofs, faults)
+	require.NoError(t, err)
 	require.True(t, isValid)
 
 	sealedSectors, err := sb.GetAllSealedSectors(ptr)
+	require.NoError(t, err)
 	require.Equal(t, 1, len(sealedSectors), "expected to see one sealed sector")
 	sealedSector := sealedSectors[0]
 	require.Equal(t, uint64(1), sealedSector.SectorID)
@@ -92,6 +95,7 @@ func TestSectorBuilderLifecycle(t *testing.T) {
 	// unseal the sector and retrieve the client's piece, verifying that the
 	// retrieved bytes match what we originally wrote to the staged sector
 	unsealedPieceBytes, err := sb.ReadPieceFromSealedSector(ptr, "snoqualmie")
+	require.NoError(t, err)
 	require.Equal(t, pieceBytes, unsealedPieceBytes)
 }
 

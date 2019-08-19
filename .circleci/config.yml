@@ -1,30 +1,128 @@
 version: 2.1
 
 jobs:
-  build_linux:
+  build_and_test_linux:
     docker:
       - image: circleci/golang:1.12.1-stretch
-    working_directory: /go/src/github.com/filecoin-project/go-sectorbuilder
+    working_directory: ~/go/src/github.com/filecoin-project/go-sectorbuilder
     resource_class: xlarge
+    steps:
+      - configure_environment_variables
+      - run:
+          name: Install Rust toolchain
+          command: |
+            (sudo apt-get update && sudo apt-get install -y clang libssl-dev && which cargo && which rustc) || (curl https://sh.rustup.rs -sSf | sh -s -- -y)
+            rustc --version
+      - run:
+          name: Install jq
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y jq
+            jq --version
+      - checkout
+      - update_submodules
+      - build_project
+      - lint_project
+      - install_filecoin_proofs
+      - restore_parameter_cache
+      - fetch_filecoin_parameters
+      - save_parameter_cache
+      - test_project
+  build_and_test_darwin:
+    macos:
+      xcode: "10.0.0"
+    working_directory: ~/go/src/github.com/filecoin-project/go-sectorbuilder
+    resource_class: medium
+    steps:
+      - configure_environment_variables
+      - run:
+          name: Install go
+          command: |
+            curl https://dl.google.com/go/go1.12.1.darwin-amd64.pkg -o /tmp/go.pkg && \
+            sudo installer -pkg /tmp/go.pkg -target /
+            go version
+      - run:
+          name: Install pkg-config
+          command: HOMEBREW_NO_AUTO_UPDATE=1 brew install pkg-config
+      - run:
+          name: Install Rust toolchain
+          command: |
+            curl https://sh.rustup.rs -sSf | sh -s -- -y
+            rustc --version
+      - run:
+          name: Install jq
+          command: |
+            HOMEBREW_NO_AUTO_UPDATE=1 brew install jq
+            jq --version
+      - checkout
+      - update_submodules
+      - build_project
+      - lint_project
+      - install_filecoin_proofs
+      - restore_parameter_cache
+      - fetch_filecoin_parameters
+      - save_parameter_cache
+      - test_project
+
+workflows:
+  version: 2
+  build_and_test_linux:
+    jobs:
+      - build_and_test_linux
+  build_and_test_darwin:
+    jobs:
+      - build_and_test_darwin
+
+commands:
+  configure_environment_variables:
     steps:
       - run:
           name: Configure environment variables
           command: |
+            echo 'export PATH="/usr/local/go/bin:${HOME}/.cargo/bin:${PATH}:${HOME}/go/bin:${HOME}/.bin"' >> $BASH_ENV
+            echo 'export GOPATH="${HOME}/go"' >> $BASH_ENV
             echo 'export FILECOIN_PARAMETER_CACHE="${HOME}/filecoin-proof-parameters/"' >> $BASH_ENV
             echo 'export GO111MODULE=on' >> $BASH_ENV
-      - checkout
+  install_filecoin_proofs:
+    steps:
+      - run:
+          name: Install filecoin-proofs binaries
+          command: |
+            cargo install filecoin-proofs
+  fetch_filecoin_parameters:
+    steps:
+      - run:
+          name: Fetch filecoin groth parameters
+          command: |
+            ./scripts/retry.sh 1 10 1000 ./scripts/with-dots.sh paramfetch --params-for-sector-sizes=1024 --verbose
+  update_submodules:
+    steps:
       - run:
           name: Update submodules
           command: git submodule update --init --recursive
-      - run:
-          name: Build upstream project
-          command: make
+  build_project:
+    steps:
       - run:
           name: Build project
-          command: go build .
-
-workflows:
-  version: 2
-  test_all:
-    jobs:
-      - build_linux
+          command: make
+  lint_project:
+    steps:
+      - run:
+          name: Lint project
+          command: go run github.com/golangci/golangci-lint/cmd/golangci-lint run
+  test_project:
+    steps:
+      - run:
+          name: Test project
+          command: go test
+  restore_parameter_cache:
+    steps:
+      - restore_cache:
+          keys:
+            - v1-proof-params-{{ checksum "~/.cargo/bin/paramfetch" }}
+  save_parameter_cache:
+    steps:
+      - save_cache:
+          key: v1-proof-params-{{ checksum "~/.cargo/bin/paramfetch" }}
+          paths:
+            - "~/filecoin-proof-parameters/"
