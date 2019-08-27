@@ -7,13 +7,14 @@ license = "MIT OR Apache-2.0"
 repository = "https://github.com/filecoin-project/rust-fil-proofs-ffi"
 readme = "README.md"
 edition = "2018"
+publish = false
 
 [lib]
 crate-type = ["rlib", "staticlib"]
 
 [dependencies]
-filecoin-proofs = "0.6.4"
-storage-proofs = "0.6.2"
+filecoin-proofs = { git = "https://github.com/filecoin-project/rust-fil-proofs.git", branch = "master" }
+storage-proofs = { git = "https://github.com/filecoin-project/rust-fil-proofs.git", branch = "master" }
 ffi-toolkit = "0.3.0"
 failure = "0.1.5"
 drop_struct_macro_derive = "0.3.0"
