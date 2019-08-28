@@ -106,7 +106,7 @@ commands:
     steps:
       - run:
           name: Test project
-          command: go test
+          command: RUST_LOG=info go test
   restore_parameter_cache:
     steps:
       - restore_cache:
