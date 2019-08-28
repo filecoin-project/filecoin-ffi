@@ -39,5 +39,5 @@ for attempt in `seq 1 $attempts`; do
 
     >&2 echo "sleeping ${sleep_seconds}s and then retrying ($((attempt + 1))/${attempts})"
 
-    sleep "${sleep_ms:0:-3}.${sleep_ms: -3}"
+    sleep "${sleep_seconds}"
 done
