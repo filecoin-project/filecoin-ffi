@@ -3,7 +3,6 @@ package go_sectorbuilder_test
 import (
 	"bytes"
 	"crypto/rand"
-	"encoding/binary"
 	"errors"
 	"io"
 	"io/ioutil"
@@ -128,16 +127,6 @@ func pollForSectorSealingStatus(ptr unsafe.Pointer, sectorID uint64, sealStatusC
 			}
 		}
 	}
-}
-
-func sectorIdAsBytes(sectorID uint64) [31]byte {
-	slice := make([]byte, 31)
-	binary.LittleEndian.PutUint64(slice, sectorID)
-
-	var sectorIDAsBytes [31]byte
-	copy(sectorIDAsBytes[:], slice)
-
-	return sectorIDAsBytes
 }
 
 func requireTempFilePath(t *testing.T, fileContentsReader io.Reader) string {

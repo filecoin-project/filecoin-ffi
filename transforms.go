@@ -120,11 +120,3 @@ func goPieceMetadata(src *C.sector_builder_ffi_FFIPieceMetadata, size C.size_t) 
 
 	return ps, nil
 }
-
-func goUint64s(src *C.uint64_t, size C.size_t) []uint64 {
-	out := make([]uint64, size)
-	if src != nil {
-		copy(out, (*(*[1 << 30]uint64)(unsafe.Pointer(src)))[:size:size])
-	}
-	return out
-}
