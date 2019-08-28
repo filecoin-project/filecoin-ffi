@@ -64,7 +64,7 @@ func TestSectorBuilderLifecycle(t *testing.T) {
 	require.Equal(t, 1, len(status.Pieces), "expected to see the one piece we added")
 
 	// verify the seal proof
-	isValid, err := sb.VerifySeal(1024, status.CommR, status.CommD, status.CommRStar, [31]byte{}, sectorIdAsBytes(sectorID), status.Proof)
+	isValid, err := sb.VerifySeal(1024, status.CommR, status.CommD, status.CommRStar, [31]byte{}, sectorID, status.Proof)
 	require.NoError(t, err)
 	require.True(t, isValid)
 
@@ -74,11 +74,11 @@ func TestSectorBuilderLifecycle(t *testing.T) {
 	require.True(t, isValid)
 
 	// generate a PoSt
-	proofs, faults, err := sb.GeneratePoSt(ptr, [][32]byte{status.CommR}, [32]byte{})
+	proofs, err := sb.GeneratePoSt(ptr, [][32]byte{status.CommR}, [32]byte{}, []uint64{})
 	require.NoError(t, err)
 
 	// verify the PoSt
-	isValid, err = sb.VerifyPoSt(1024, [][32]byte{status.CommR}, [32]byte{}, proofs, faults)
+	isValid, err = sb.VerifyPoSt(1024, [][32]byte{status.CommR}, []uint64{status.SectorID}, [32]byte{}, proofs, []uint64{})
 	require.NoError(t, err)
 	require.True(t, isValid)
 
