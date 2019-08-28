@@ -1,34 +1,63 @@
+use std::collections::BTreeMap;
+use std::collections::HashSet;
 use std::slice::from_raw_parts;
 
-use filecoin_proofs::constants as api_constants;
 use filecoin_proofs::types as api_types;
+use filecoin_proofs::{constants as api_constants, Commitment, PublicReplicaInfo};
 use libc;
 
 use crate::error::Result;
+use storage_proofs::sector::SectorId;
 
-/// Copy the provided dynamic array's bytes into a vector of vectors, splitting
-/// at the boundary established by the number of partitions used to create each
-/// proof.
+/// Produce a map from sector id to replica info by pairing sector ids and
+/// replica commitments (by index in their respective arrays), setting the
+/// storage fault-boolean if the sector id is present in the provided dynamic
+/// array. This function's return value should be provided to the verify_post
+/// call.
 ///
-pub unsafe fn try_into_post_proofs_bytes(
-    proof_partitions: u8,
-    flattened_proofs_ptr: *const u8,
-    flattened_proofs_len: libc::size_t,
-) -> Result<Vec<Vec<u8>>> {
-    let chunk_size = proof_partitions as usize * api_constants::SINGLE_PARTITION_PROOF_LEN;
+pub unsafe fn to_public_replica_info_map(
+    sector_ids_ptr: *const u64,
+    sector_ids_len: libc::size_t,
+    flattened_comm_rs_ptr: *const u8,
+    flattened_comm_rs_len: libc::size_t,
+    faulty_sector_ids_ptr: *const u64,
+    faulty_sector_ids_len: libc::size_t,
+) -> Result<BTreeMap<SectorId, PublicReplicaInfo>> {
+    let sector_ids: Vec<SectorId> = from_raw_parts(sector_ids_ptr, sector_ids_len)
+        .iter()
+        .cloned()
+        .map(SectorId::from)
+        .collect();
+
+    let comm_rs: Vec<Commitment> = into_commitments(flattened_comm_rs_ptr, flattened_comm_rs_len);
 
     ensure!(
-        flattened_proofs_len % chunk_size == 0,
-        "proofs array len={:?} incompatible with partitions={:?}",
-        flattened_proofs_len,
-        proof_partitions
-    );
+        sector_ids.len() == comm_rs.len(),
+        "must provide equal number of sector ids and replica commitments (sector_ids.len={}, comm_rs.len()={})",
+        sector_ids.len(),
+        comm_rs.len());
 
-    Ok(into_proof_vecs(
-        chunk_size,
-        flattened_proofs_ptr,
-        flattened_proofs_len,
-    ))
+    let faulty_sector_ids: HashSet<SectorId> =
+        from_raw_parts(faulty_sector_ids_ptr, faulty_sector_ids_len)
+            .iter()
+            .cloned()
+            .map(SectorId::from)
+            .collect();
+
+    let mut m = BTreeMap::new();
+
+    for i in 0..sector_ids.len() {
+        m.insert(
+            sector_ids[i],
+            if faulty_sector_ids.contains(&sector_ids[i]) {
+                PublicReplicaInfo::new_faulty(comm_rs[i])
+            } else {
+                PublicReplicaInfo::new(comm_rs[i])
+            },
+        );
+    }
+
+    Ok(m)
 }
 
 /// Copy the provided dynamic array's bytes into a vector and return the vector.
