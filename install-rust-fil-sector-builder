@@ -16,6 +16,9 @@ if download_release_tarball tarball_path "${subm_dir}"; then
     cp "${tmp_dir}/include/sector_builder_ffi.h" .
     cp "${tmp_dir}/lib/libsector_builder_ffi.a" .
     cp "${tmp_dir}/lib/pkgconfig/sector_builder_ffi.pc" .
+
+    mkdir -p bin
+    cp "${tmp_dir}/bin/paramfetch" bin
 else
     echo "failed to find or obtain precompiled assets for ${subm_dir}, falling back to local build"
     build_from_source "${subm_dir}"
@@ -26,4 +29,13 @@ else
     find "${subm_dir}" -type f -name sector_builder_ffi.h -exec cp -- "{}" . \;
     find "${subm_dir}" -type f -name libsector_builder_ffi.a -exec cp -- "{}" . \;
     find "${subm_dir}" -type f -name sector_builder_ffi.pc -exec cp -- "{}" . \;
+
+    pushd $subm_dir
+
+    # TODO https://github.com/filecoin-project/rust-fil-sector-builder/issues/39
+    FP_VERSION=$(cat "Cargo.lock" | grep 'name = "filecoin-proofs"' -A1 | tail -n1 | cut -d' ' -f3 | tr -d '"')
+
+    cargo install --version $FP_VERSION filecoin-proofs --root '..' --bin paramfetch
+
+    popd
 fi
