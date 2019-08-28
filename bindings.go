@@ -1,6 +1,8 @@
 package go_sectorbuilder
 
 import (
+	"bytes"
+	"sort"
 	"time"
 	"unsafe"
 
@@ -20,6 +22,35 @@ func elapsed(what string) func() {
 	return func() {
 		log.Debugf("%s took %v\n", what, time.Since(start))
 	}
+}
+
+// SortedSectorInfo is a slice of SectorInfo sorted (lexicographically,
+// ascending) by replica commitment (CommR).
+type SortedSectorInfo struct {
+	f []SectorInfo
+}
+
+// NewSortedSectorInfo returns a SortedSectorInfo
+func NewSortedSectorInfo(sectorInfo ...SectorInfo) SortedSectorInfo {
+	fn := func(i, j int) bool {
+		return bytes.Compare(sectorInfo[i].CommR[:], sectorInfo[j].CommR[:]) == -1
+	}
+
+	sort.Slice(sectorInfo[:], fn)
+
+	return SortedSectorInfo{
+		f: sectorInfo,
+	}
+}
+
+// Values returns the sorted SectorInfo as a slice
+func (s *SortedSectorInfo) Values() []SectorInfo {
+	return s.f
+}
+
+type SectorInfo struct {
+	SectorID uint64
+	CommR [CommitmentBytesLen]byte
 }
 
 // CommitmentBytesLen is the number of bytes in a CommR, CommD, CommP, and CommRStar.
@@ -115,21 +146,25 @@ func VerifySeal(
 // inputs were derived was valid, and false if not.
 func VerifyPoSt(
 	sectorSize uint64,
-	sortedCommRs [][CommitmentBytesLen]byte,
-	sortedSectorIds []uint64, // TODO: Use a better type, combining with sortedCommRs
+	sectorInfo SortedSectorInfo,
 	challengeSeed [32]byte,
 	proof []byte,
 	faults []uint64,
 ) (bool, error) {
 	defer elapsed("VerifyPoSt")()
 
-	// CommRs must be provided to C.verify_post in the same order that they were
-	// provided to the C.generate_post
-	commRs := sortedCommRs
+	// CommRs and sector ids must be provided to C.verify_post in the same order
+	// that they were provided to the C.generate_post
+	sortedCommRs := make([][CommitmentBytesLen]byte, len(sectorInfo.Values()))
+	sortedSectorIds := make([]uint64, len(sectorInfo.Values()))
+	for idx, v := range sectorInfo.Values() {
+		sortedCommRs[idx] = v.CommR
+		sortedSectorIds[idx] = v.SectorID
+	}
 
 	// flattening the byte slice makes it easier to copy into the C heap
-	flattened := make([]byte, CommitmentBytesLen*len(commRs))
-	for idx, commR := range commRs {
+	flattened := make([]byte, CommitmentBytesLen*len(sortedCommRs))
+	for idx, commR := range sortedCommRs {
 		copy(flattened[(CommitmentBytesLen*idx):(CommitmentBytesLen*(1+idx))], commR[:])
 	}
 
@@ -415,16 +450,22 @@ func GetSectorSealingStatusByID(sectorBuilderPtr unsafe.Pointer, sectorID uint64
 // GeneratePoSt produces a proof-of-spacetime for the provided replica commitments.
 func GeneratePoSt(
 	sectorBuilderPtr unsafe.Pointer,
-	sortedCommRs [][CommitmentBytesLen]byte,
+	sectorInfo SortedSectorInfo,
 	challengeSeed [CommitmentBytesLen]byte,
 	faults []uint64,
 ) ([]byte, error) {
 	defer elapsed("GeneratePoSt")()
 
+	// CommRs and sector ids must be provided to C.verify_post in the same order
+	// that they were provided to the C.generate_post
+	sortedCommRs := make([][CommitmentBytesLen]byte, len(sectorInfo.Values()))
+	for idx, v := range sectorInfo.Values() {
+		sortedCommRs[idx] = v.CommR
+	}
+
 	// flattening the byte slice makes it easier to copy into the C heap
-	commRs := sortedCommRs
-	flattened := make([]byte, CommitmentBytesLen*len(commRs))
-	for idx, commR := range commRs {
+	flattened := make([]byte, CommitmentBytesLen*len(sortedCommRs))
+	for idx, commR := range sortedCommRs {
 		copy(flattened[(CommitmentBytesLen*idx):(CommitmentBytesLen*(1+idx))], commR[:])
 	}
 

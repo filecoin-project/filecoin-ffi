@@ -73,12 +73,18 @@ func TestSectorBuilderLifecycle(t *testing.T) {
 	require.NoError(t, err)
 	require.True(t, isValid)
 
+	// enforces sort ordering of SectorInfo tuples
+	sectorInfo := sb.NewSortedSectorInfo(sb.SectorInfo{
+		SectorID: status.SectorID,
+		CommR:    status.CommR,
+	})
+
 	// generate a PoSt
-	proofs, err := sb.GeneratePoSt(ptr, [][32]byte{status.CommR}, [32]byte{}, []uint64{})
+	proofs, err := sb.GeneratePoSt(ptr, sectorInfo, [32]byte{}, []uint64{})
 	require.NoError(t, err)
 
 	// verify the PoSt
-	isValid, err = sb.VerifyPoSt(1024, [][32]byte{status.CommR}, []uint64{status.SectorID}, [32]byte{}, proofs, []uint64{})
+	isValid, err = sb.VerifyPoSt(1024, sectorInfo, [32]byte{}, proofs, []uint64{})
 	require.NoError(t, err)
 	require.True(t, isValid)
 
