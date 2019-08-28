@@ -23,7 +23,6 @@ jobs:
       - update_submodules
       - build_project
       - lint_project
-      - install_filecoin_proofs
       - restore_parameter_cache
       - fetch_filecoin_parameters
       - save_parameter_cache
@@ -58,7 +57,6 @@ jobs:
       - update_submodules
       - build_project
       - lint_project
-      - install_filecoin_proofs
       - restore_parameter_cache
       - fetch_filecoin_parameters
       - save_parameter_cache
@@ -83,18 +81,12 @@ commands:
             echo 'export GOPATH="${HOME}/go"' >> $BASH_ENV
             echo 'export FILECOIN_PARAMETER_CACHE="${HOME}/filecoin-proof-parameters/"' >> $BASH_ENV
             echo 'export GO111MODULE=on' >> $BASH_ENV
-  install_filecoin_proofs:
-    steps:
-      - run:
-          name: Install filecoin-proofs binaries
-          command: |
-            cargo install filecoin-proofs
   fetch_filecoin_parameters:
     steps:
       - run:
           name: Fetch filecoin groth parameters
           command: |
-            ./scripts/retry.sh 1 10 1000 ./scripts/with-dots.sh paramfetch --params-for-sector-sizes=1024 --verbose
+            ./scripts/retry.sh 1 10 1000 ./scripts/with-dots.sh ./bin/paramfetch --params-for-sector-sizes=1024 --verbose
   update_submodules:
     steps:
       - run:
@@ -119,10 +111,10 @@ commands:
     steps:
       - restore_cache:
           keys:
-            - v1-proof-params-{{ checksum "~/.cargo/bin/paramfetch" }}
+            - v1-proof-params-{{ checksum "./bin/paramfetch" }}
   save_parameter_cache:
     steps:
       - save_cache:
-          key: v1-proof-params-{{ checksum "~/.cargo/bin/paramfetch" }}
+          key: v1-proof-params-{{ checksum "./bin/paramfetch" }}
           paths:
             - "~/filecoin-proof-parameters/"
