@@ -3,7 +3,6 @@ package go_sectorbuilder_test
 import (
 	"bytes"
 	"crypto/rand"
-	"encoding/binary"
 	"errors"
 	"io"
 	"io/ioutil"
@@ -64,7 +63,7 @@ func TestSectorBuilderLifecycle(t *testing.T) {
 	require.Equal(t, 1, len(status.Pieces), "expected to see the one piece we added")
 
 	// verify the seal proof
-	isValid, err := sb.VerifySeal(1024, status.CommR, status.CommD, status.CommRStar, [31]byte{}, sectorIdAsBytes(sectorID), status.Proof)
+	isValid, err := sb.VerifySeal(1024, status.CommR, status.CommD, status.CommRStar, [31]byte{}, sectorID, status.Proof)
 	require.NoError(t, err)
 	require.True(t, isValid)
 
@@ -73,12 +72,18 @@ func TestSectorBuilderLifecycle(t *testing.T) {
 	require.NoError(t, err)
 	require.True(t, isValid)
 
+	// enforces sort ordering of SectorInfo tuples
+	sectorInfo := sb.NewSortedSectorInfo(sb.SectorInfo{
+		SectorID: status.SectorID,
+		CommR:    status.CommR,
+	})
+
 	// generate a PoSt
-	proofs, faults, err := sb.GeneratePoSt(ptr, [][32]byte{status.CommR}, [32]byte{})
+	proofs, err := sb.GeneratePoSt(ptr, sectorInfo, [32]byte{}, []uint64{})
 	require.NoError(t, err)
 
 	// verify the PoSt
-	isValid, err = sb.VerifyPoSt(1024, [][32]byte{status.CommR}, [32]byte{}, proofs, faults)
+	isValid, err = sb.VerifyPoSt(1024, sectorInfo, [32]byte{}, proofs, []uint64{})
 	require.NoError(t, err)
 	require.True(t, isValid)
 
@@ -122,16 +127,6 @@ func pollForSectorSealingStatus(ptr unsafe.Pointer, sectorID uint64, sealStatusC
 			}
 		}
 	}
-}
-
-func sectorIdAsBytes(sectorID uint64) [31]byte {
-	slice := make([]byte, 31)
-	binary.LittleEndian.PutUint64(slice, sectorID)
-
-	var sectorIDAsBytes [31]byte
-	copy(sectorIDAsBytes[:], slice)
-
-	return sectorIDAsBytes
 }
 
 func requireTempFilePath(t *testing.T, fileContentsReader io.Reader) string {

@@ -16,22 +16,6 @@ import "C"
 // with the number of partitions used when creating that proof.
 const SingleProofPartitionProofLen = 192
 
-func cPoStProofs(src [][]byte) (C.uint8_t, *C.uint8_t, C.size_t) {
-	proofSize := len(src[0])
-
-	flattenedLen := C.size_t(proofSize * len(src))
-
-	// flattening the byte slice makes it easier to copy into the C heap
-	flattened := make([]byte, flattenedLen)
-	for idx, proof := range src {
-		copy(flattened[(proofSize*idx):(proofSize*(1+idx))], proof[:])
-	}
-
-	proofPartitions := proofSize / SingleProofPartitionProofLen
-
-	return C.uint8_t(proofPartitions), (*C.uint8_t)(C.CBytes(flattened)), flattenedLen
-}
-
 func cUint64s(src []uint64) (*C.uint64_t, C.size_t) {
 	srcCSizeT := C.size_t(len(src))
 
@@ -47,11 +31,10 @@ func cUint64s(src []uint64) (*C.uint64_t, C.size_t) {
 	return (*C.uint64_t)(cUint64s), srcCSizeT
 }
 
-func cSectorClass(sectorSize uint64, poRepProofPartitions uint8, poStProofPartitions uint8) (C.sector_builder_ffi_FFISectorClass, error) {
+func cSectorClass(sectorSize uint64, poRepProofPartitions uint8) (C.sector_builder_ffi_FFISectorClass, error) {
 	return C.sector_builder_ffi_FFISectorClass{
 		sector_size:            C.uint64_t(sectorSize),
 		porep_proof_partitions: C.uint8_t(poRepProofPartitions),
-		post_proof_partitions:  C.uint8_t(poStProofPartitions),
 	}, nil
 }
 
@@ -136,26 +119,4 @@ func goPieceMetadata(src *C.sector_builder_ffi_FFIPieceMetadata, size C.size_t) 
 	}
 
 	return ps, nil
-}
-
-func goPoStProofs(partitions C.uint8_t, src *C.uint8_t, size C.size_t) ([][]byte, error) {
-	tmp := goBytes(src, size)
-
-	arraySize := len(tmp)
-	chunkSize := int(partitions) * SingleProofPartitionProofLen
-
-	out := make([][]byte, arraySize/chunkSize)
-	for i := 0; i < len(out); i++ {
-		out[i] = append([]byte{}, tmp[i*chunkSize:(i+1)*chunkSize]...)
-	}
-
-	return out, nil
-}
-
-func goUint64s(src *C.uint64_t, size C.size_t) []uint64 {
-	out := make([]uint64, size)
-	if src != nil {
-		copy(out, (*(*[1 << 30]uint64)(unsafe.Pointer(src)))[:size:size])
-	}
-	return out
 }

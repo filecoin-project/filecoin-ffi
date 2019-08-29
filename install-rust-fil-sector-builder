@@ -20,7 +20,7 @@ if download_release_tarball tarball_path "${subm_dir}"; then
     mkdir -p bin
     cp "${tmp_dir}/bin/paramfetch" bin
 else
-    echo "failed to find or obtain precompiled assets for ${subm_dir}, falling back to local build"
+    (>&2 echo "failed to find or obtain precompiled assets for ${subm_dir} - falling back to local build")
     build_from_source "${subm_dir}"
 
     mkdir -p include
@@ -32,10 +32,19 @@ else
 
     pushd $subm_dir
 
-    # TODO https://github.com/filecoin-project/rust-fil-sector-builder/issues/39
-    FP_VERSION=$(cat "Cargo.lock" | grep 'name = "filecoin-proofs"' -A1 | tail -n1 | cut -d' ' -f3 | tr -d '"')
+    s="WARNING: paramfetch cannot be built from rust-fil-sector-builder "
+    s+="sources. Installing from HEAD of rust-fil-proofs master. The installed "
+    s+="version of paramfetch may be incompatible with your version of "
+    s+="rust-fil-sector-builder, which could result in you downloading "
+    s+="incompatible Groth parameters and verifying keys."
 
-    cargo install --version $FP_VERSION filecoin-proofs --root '..' --bin paramfetch
+    (>&2 echo s)
+    cargo install filecoin-proofs \
+      --bin paramfetch \
+      --force \
+      --git=https://github.com/filecoin-project/rust-fil-proofs.git \
+      --branch=master \
+      --root ".."
 
     popd
 fi

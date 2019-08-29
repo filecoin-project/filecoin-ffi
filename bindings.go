@@ -1,6 +1,8 @@
 package go_sectorbuilder
 
 import (
+	"bytes"
+	"sort"
 	"time"
 	"unsafe"
 
@@ -20,6 +22,35 @@ func elapsed(what string) func() {
 	return func() {
 		log.Debugf("%s took %v\n", what, time.Since(start))
 	}
+}
+
+// SortedSectorInfo is a slice of SectorInfo sorted (lexicographically,
+// ascending) by replica commitment (CommR).
+type SortedSectorInfo struct {
+	f []SectorInfo
+}
+
+// NewSortedSectorInfo returns a SortedSectorInfo
+func NewSortedSectorInfo(sectorInfo ...SectorInfo) SortedSectorInfo {
+	fn := func(i, j int) bool {
+		return bytes.Compare(sectorInfo[i].CommR[:], sectorInfo[j].CommR[:]) == -1
+	}
+
+	sort.Slice(sectorInfo[:], fn)
+
+	return SortedSectorInfo{
+		f: sectorInfo,
+	}
+}
+
+// Values returns the sorted SectorInfo as a slice
+func (s *SortedSectorInfo) Values() []SectorInfo {
+	return s.f
+}
+
+type SectorInfo struct {
+	SectorID uint64
+	CommR [CommitmentBytesLen]byte
 }
 
 // CommitmentBytesLen is the number of bytes in a CommR, CommD, CommP, and CommRStar.
@@ -71,7 +102,7 @@ func VerifySeal(
 	commD [CommitmentBytesLen]byte,
 	commRStar [CommitmentBytesLen]byte,
 	proverID [31]byte,
-	sectorID [31]byte,
+	sectorID uint64,
 	proof []byte,
 ) (bool, error) {
 	defer elapsed("VerifySeal")()
@@ -91,9 +122,6 @@ func VerifySeal(
 	proverIDCBytes := C.CBytes(proverID[:])
 	defer C.free(proverIDCBytes)
 
-	sectorIDCbytes := C.CBytes(sectorID[:])
-	defer C.free(sectorIDCbytes)
-
 	// a mutable pointer to a VerifySealResponse C-struct
 	resPtr := C.sector_builder_ffi_verify_seal(
 		C.uint64_t(sectorSize),
@@ -101,7 +129,7 @@ func VerifySeal(
 		(*[CommitmentBytesLen]C.uint8_t)(commDCBytes),
 		(*[CommitmentBytesLen]C.uint8_t)(commRStarCBytes),
 		(*[31]C.uint8_t)(proverIDCBytes),
-		(*[31]C.uint8_t)(sectorIDCbytes),
+		C.uint64_t(sectorID),
 		(*C.uint8_t)(proofCBytes),
 		C.size_t(len(proof)),
 	)
@@ -118,25 +146,25 @@ func VerifySeal(
 // inputs were derived was valid, and false if not.
 func VerifyPoSt(
 	sectorSize uint64,
-	sortedCommRs [][CommitmentBytesLen]byte,
-	challengeSeed [CommitmentBytesLen]byte,
-	proofs [][]byte,
+	sectorInfo SortedSectorInfo,
+	challengeSeed [32]byte,
+	proof []byte,
 	faults []uint64,
 ) (bool, error) {
 	defer elapsed("VerifyPoSt")()
 
-	// validate verification request
-	if len(proofs) == 0 {
-		return false, errors.New("must provide at least one proof to verify")
+	// CommRs and sector ids must be provided to C.verify_post in the same order
+	// that they were provided to the C.generate_post
+	sortedCommRs := make([][CommitmentBytesLen]byte, len(sectorInfo.Values()))
+	sortedSectorIds := make([]uint64, len(sectorInfo.Values()))
+	for idx, v := range sectorInfo.Values() {
+		sortedCommRs[idx] = v.CommR
+		sortedSectorIds[idx] = v.SectorID
 	}
 
-	// CommRs must be provided to C.verify_post in the same order that they were
-	// provided to the C.generate_post
-	commRs := sortedCommRs
-
 	// flattening the byte slice makes it easier to copy into the C heap
-	flattened := make([]byte, CommitmentBytesLen*len(commRs))
-	for idx, commR := range commRs {
+	flattened := make([]byte, CommitmentBytesLen*len(sortedCommRs))
+	for idx, commR := range sortedCommRs {
 		copy(flattened[(CommitmentBytesLen*idx):(CommitmentBytesLen*(1+idx))], commR[:])
 	}
 
@@ -147,24 +175,28 @@ func VerifyPoSt(
 	challengeSeedCBytes := C.CBytes(challengeSeed[:])
 	defer C.free(challengeSeedCBytes)
 
-	proofPartitions, proofsPtr, proofsLen := cPoStProofs(proofs)
-	defer C.free(unsafe.Pointer(proofsPtr))
+	proofCBytes := C.CBytes(proof)
+	defer C.free(proofCBytes)
 
 	// allocate fixed-length array of uint64s in C heap
+	sectorIdsPtr, sectorIdsSize := cUint64s(sortedSectorIds)
+	defer C.free(unsafe.Pointer(sectorIdsPtr))
+
 	faultsPtr, faultsSize := cUint64s(faults)
 	defer C.free(unsafe.Pointer(faultsPtr))
 
 	// a mutable pointer to a VerifyPoStResponse C-struct
 	resPtr := C.sector_builder_ffi_verify_post(
 		C.uint64_t(sectorSize),
-		proofPartitions,
-		(*C.uint8_t)(flattenedCommRsCBytes),
-		C.size_t(len(flattened)),
 		(*[CommitmentBytesLen]C.uint8_t)(challengeSeedCBytes),
-		proofsPtr,
-		proofsLen,
+		sectorIdsPtr,
+		sectorIdsSize,
 		faultsPtr,
 		faultsSize,
+		(*C.uint8_t)(flattenedCommRsCBytes),
+		C.size_t(len(flattened)),
+		(*C.uint8_t)(proofCBytes),
+		C.size_t(len(proof)),
 	)
 	defer C.sector_builder_ffi_destroy_verify_post_response(resPtr)
 
@@ -210,7 +242,7 @@ func InitSectorBuilder(
 	cSealedSectorDir := C.CString(sealedSectorDir)
 	defer C.free(unsafe.Pointer(cSealedSectorDir))
 
-	class, err := cSectorClass(sectorSize, poRepProofPartitions, poStProofPartitions)
+	class, err := cSectorClass(sectorSize, poRepProofPartitions)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get sector class")
 	}
@@ -418,15 +450,22 @@ func GetSectorSealingStatusByID(sectorBuilderPtr unsafe.Pointer, sectorID uint64
 // GeneratePoSt produces a proof-of-spacetime for the provided replica commitments.
 func GeneratePoSt(
 	sectorBuilderPtr unsafe.Pointer,
-	sortedCommRs [][CommitmentBytesLen]byte,
+	sectorInfo SortedSectorInfo,
 	challengeSeed [CommitmentBytesLen]byte,
-) ([][]byte, []uint64, error) {
+	faults []uint64,
+) ([]byte, error) {
 	defer elapsed("GeneratePoSt")()
 
+	// CommRs and sector ids must be provided to C.verify_post in the same order
+	// that they were provided to the C.generate_post
+	sortedCommRs := make([][CommitmentBytesLen]byte, len(sectorInfo.Values()))
+	for idx, v := range sectorInfo.Values() {
+		sortedCommRs[idx] = v.CommR
+	}
+
 	// flattening the byte slice makes it easier to copy into the C heap
-	commRs := sortedCommRs
-	flattened := make([]byte, CommitmentBytesLen*len(commRs))
-	for idx, commR := range commRs {
+	flattened := make([]byte, CommitmentBytesLen*len(sortedCommRs))
+	for idx, commR := range sortedCommRs {
 		copy(flattened[(CommitmentBytesLen*idx):(CommitmentBytesLen*(1+idx))], commR[:])
 	}
 
@@ -436,25 +475,25 @@ func GeneratePoSt(
 
 	challengeSeedPtr := unsafe.Pointer(&(challengeSeed)[0])
 
+	faultsPtr, faultsSize := cUint64s(faults)
+	defer C.free(unsafe.Pointer(faultsPtr))
+
 	// a mutable pointer to a GeneratePoStResponse C-struct
 	resPtr := C.sector_builder_ffi_generate_post(
 		(*C.sector_builder_ffi_SectorBuilder)(sectorBuilderPtr),
 		(*C.uint8_t)(cflattened),
 		C.size_t(len(flattened)),
 		(*[CommitmentBytesLen]C.uint8_t)(challengeSeedPtr),
+		faultsPtr,
+		faultsSize,
 	)
 	defer C.sector_builder_ffi_destroy_generate_post_response(resPtr)
 
 	if resPtr.status_code != 0 {
-		return nil, nil, errors.New(C.GoString(resPtr.error_msg))
+		return nil, errors.New(C.GoString(resPtr.error_msg))
 	}
 
-	proofs, err := goPoStProofs(resPtr.proof_partitions, resPtr.flattened_proofs_ptr, resPtr.flattened_proofs_len)
-	if err != nil {
-		return nil, nil, errors.Wrap(err, "failed to convert to []PoStProof")
-	}
-
-	return proofs, goUint64s(resPtr.faults_ptr, resPtr.faults_len), nil
+	return goBytes(resPtr.proof_ptr, resPtr.proof_len), nil
 }
 
 // VerifyPieceInclusionProof returns true if the piece inclusion proof is valid
