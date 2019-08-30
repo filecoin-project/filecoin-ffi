@@ -72,15 +72,6 @@ pub unsafe fn try_into_porep_proof_bytes(
         .ok_or_else(|| format_err!("no proofs in chunked vec"))
 }
 
-/// Copies the bytes from the provided challenge seed (pointer) to a 32-item,
-/// stack allocated byte array.
-pub fn into_safe_challenge_seed(challenge_seed: &[u8; 32]) -> [u8; 32] {
-    let mut cs = [0; 32];
-    cs.copy_from_slice(challenge_seed);
-    cs[31] &= 0b0011_1111;
-    cs
-}
-
 /// Splits the flattened, dynamic array of CommR bytes into a vector of
 /// 32-element byte arrays and returns the vector. Each byte array's
 /// little-endian value represents an Fr.

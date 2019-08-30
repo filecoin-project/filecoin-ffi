@@ -7,7 +7,6 @@ use libc;
 use once_cell::sync::OnceCell;
 
 use crate::helpers;
-use crate::helpers::into_safe_challenge_seed;
 use crate::responses::*;
 use storage_proofs::sector::SectorId;
 
@@ -101,7 +100,7 @@ pub unsafe extern "C" fn verify_post(
     let result = convert.and_then(|map| {
         api_fns::verify_post(
             api_types::PoStConfig(api_types::SectorSize(sector_size)),
-            &into_safe_challenge_seed(challenge_seed),
+            challenge_seed,
             from_raw_parts(proof_ptr, proof_len),
             &map,
         )
