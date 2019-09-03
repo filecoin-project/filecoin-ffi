@@ -24,6 +24,16 @@ func elapsed(what string) func() {
 	}
 }
 
+type SealedSectorHealth int
+
+const (
+	Unknown SealedSectorHealth = iota
+	Ok
+	ErrorInvalidChecksum
+	ErrorInvalidLength
+	ErrorMissing
+)
+
 // SortedSectorInfo is a slice of SectorInfo sorted (lexicographically,
 // ascending) by replica commitment (CommR).
 type SortedSectorInfo struct {
@@ -50,7 +60,7 @@ func (s *SortedSectorInfo) Values() []SectorInfo {
 
 type SectorInfo struct {
 	SectorID uint64
-	CommR [CommitmentBytesLen]byte
+	CommR    [CommitmentBytesLen]byte
 }
 
 // CommitmentBytesLen is the number of bytes in a CommR, CommD, CommP, and CommRStar.
@@ -71,6 +81,7 @@ type SealedSectorMetadata struct {
 	CommRStar [CommitmentBytesLen]byte
 	Proof     []byte
 	Pieces    []PieceMetadata
+	Health    SealedSectorHealth
 }
 
 // SectorSealingStatus communicates how far along in the sealing process a
@@ -372,10 +383,10 @@ func GetAllStagedSectors(sectorBuilderPtr unsafe.Pointer) ([]StagedSectorMetadat
 }
 
 // GetAllSealedSectors returns a slice of all sealed sector metadata for the sector builder.
-func GetAllSealedSectors(sectorBuilderPtr unsafe.Pointer) ([]SealedSectorMetadata, error) {
+func GetAllSealedSectors(sectorBuilderPtr unsafe.Pointer, performHealthchecks bool) ([]SealedSectorMetadata, error) {
 	defer elapsed("GetAllSealedSectors")()
 
-	resPtr := C.sector_builder_ffi_get_sealed_sectors((*C.sector_builder_ffi_SectorBuilder)(sectorBuilderPtr))
+	resPtr := C.sector_builder_ffi_get_sealed_sectors((*C.sector_builder_ffi_SectorBuilder)(sectorBuilderPtr), performHealthchecks)
 	defer C.sector_builder_ffi_destroy_get_sealed_sectors_response(resPtr)
 
 	if resPtr.status_code != 0 {
