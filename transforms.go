@@ -129,15 +129,15 @@ func goPieceMetadata(src *C.sector_builder_ffi_FFIPieceMetadata, size C.size_t) 
 
 func goSealedSectorHealth(health C.sector_builder_ffi_FFISealedSectorHealth) (SealedSectorHealth, error) {
 	switch health {
-	case C.sector_builder_ffi_FFISealedSectorHealth_Unknown:
+	case C.Unknown:
 		return Unknown, nil
-	case C.sector_builder_ffi_FFISealedSectorHealth_Ok:
+	case C.Ok:
 		return Ok, nil
-	case C.sector_builder_ffi_FFISealedSectorHealth_ErrorInvalidChecksum:
+	case C.ErrorInvalidChecksum:
 		return ErrorInvalidChecksum, nil
-	case C.sector_builder_ffi_FFISealedSectorHealth_ErrorInvalidLength:
+	case C.ErrorInvalidLength:
 		return ErrorInvalidLength, nil
-	case C.sector_builder_ffi_FFISealedSectorHealth_ErrorMissing:
+	case C.ErrorMissing:
 		return ErrorMissing, nil
 	default:
 		return Unknown, errors.Errorf("unhandled sealed sector health: %v", health)

@@ -87,12 +87,13 @@ func TestSectorBuilderLifecycle(t *testing.T) {
 	require.NoError(t, err)
 	require.True(t, isValid)
 
-	sealedSectors, err := sb.GetAllSealedSectors(ptr)
+	sealedSectors, err := sb.GetAllSealedSectors(ptr, true)
 	require.NoError(t, err)
 	require.Equal(t, 1, len(sealedSectors), "expected to see one sealed sector")
 	sealedSector := sealedSectors[0]
 	require.Equal(t, uint64(1), sealedSector.SectorID)
 	require.Equal(t, 1, len(sealedSector.Pieces))
+	require.Equal(t, sb.Ok, sealedSector.Health)
 	// the piece is the size of the sector, so its piece commitment should be the
 	// data commitment
 	require.Equal(t, commP, sealedSector.CommD)

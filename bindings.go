@@ -386,7 +386,7 @@ func GetAllStagedSectors(sectorBuilderPtr unsafe.Pointer) ([]StagedSectorMetadat
 func GetAllSealedSectors(sectorBuilderPtr unsafe.Pointer, performHealthchecks bool) ([]SealedSectorMetadata, error) {
 	defer elapsed("GetAllSealedSectors")()
 
-	resPtr := C.sector_builder_ffi_get_sealed_sectors((*C.sector_builder_ffi_SectorBuilder)(sectorBuilderPtr), performHealthchecks)
+	resPtr := C.sector_builder_ffi_get_sealed_sectors((*C.sector_builder_ffi_SectorBuilder)(sectorBuilderPtr), true == performHealthchecks)
 	defer C.sector_builder_ffi_destroy_get_sealed_sectors_response(resPtr)
 
 	if resPtr.status_code != 0 {
