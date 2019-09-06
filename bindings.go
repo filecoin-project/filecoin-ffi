@@ -24,14 +24,16 @@ func elapsed(what string) func() {
 	}
 }
 
+// SealedSectorHealth represents the healthiness of a sector managed by a
+// sector builder.
 type SealedSectorHealth int
 
 const (
-	Unknown SealedSectorHealth = iota
-	Ok
-	ErrorInvalidChecksum
-	ErrorInvalidLength
-	ErrorMissing
+	Unknown              SealedSectorHealth = iota
+	Ok                                      // everything is fine
+	ErrorInvalidChecksum                    // sector exists, but checksum is invalid
+	ErrorInvalidLength                      // sector exists, but length is incorrect
+	ErrorMissing                            // sector no longer exists
 )
 
 // SortedSectorInfo is a slice of SectorInfo sorted (lexicographically,
