@@ -382,28 +382,26 @@ func GetAllStagedSectors(sectorBuilderPtr unsafe.Pointer) ([]StagedSectorMetadat
 	return meta, nil
 }
 
-// GetAllSealedSectors returns a slice of all sealed sector metadata for the sector builder.
-func GetAllSealedSectors(sectorBuilderPtr unsafe.Pointer, performHealthchecks bool) ([]SealedSectorMetadata, error) {
+// GetAllSealedSectors returns a slice of all sealed sector metadata, excluding
+// sector health.
+func GetAllSealedSectors(sectorBuilderPtr unsafe.Pointer) ([]SealedSectorMetadata, error) {
 	defer elapsed("GetAllSealedSectors")()
 
-	resPtr := C.sector_builder_ffi_get_sealed_sectors((*C.sector_builder_ffi_SectorBuilder)(sectorBuilderPtr), true == performHealthchecks)
-	defer C.sector_builder_ffi_destroy_get_sealed_sectors_response(resPtr)
-
-	if resPtr.status_code != 0 {
-		return nil, errors.New(C.GoString(resPtr.error_msg))
-	}
-
-	meta, err := goSealedSectorMetadata(resPtr.sectors_ptr, resPtr.sectors_len)
-	if err != nil {
-		return nil, err
-	}
-
-	return meta, nil
+	return getAllSealedSectors(sectorBuilderPtr, false)
 }
 
-// GetSectorSealingStatusByID produces sector sealing status (staged, sealinG in
-// progress, sealed, failed) for the provided sector id if it exists, otherwise
-// an error.
+// GetAllSealedSectorsWithHealth returns a slice of all sealed sector metadata
+// for the sector builder, including sector health info (which can be expensive
+// to compute).
+func GetAllSealedSectorsWithHealth(sectorBuilderPtr unsafe.Pointer) ([]SealedSectorMetadata, error) {
+	defer elapsed("GetAllSealedSectorsWithHealth")()
+
+	return getAllSealedSectors(sectorBuilderPtr, true)
+}
+
+// GetSectorSealingStatusByID produces sector sealing status (staged, sealing in
+// progress, sealed, failed) for the provided sector id. If no sector
+// corresponding to the provided id exists, this function returns an error.
 func GetSectorSealingStatusByID(sectorBuilderPtr unsafe.Pointer, sectorID uint64) (SectorSealingStatus, error) {
 	defer elapsed("GetSectorSealingStatusByID")()
 
@@ -554,4 +552,20 @@ func GeneratePieceCommitment(piecePath string, pieceSize uint64) (commP [Commitm
 	copy(commitment[:], commPSlice)
 
 	return commitment, nil
+}
+
+func getAllSealedSectors(sectorBuilderPtr unsafe.Pointer, performHealthchecks bool) ([]SealedSectorMetadata, error) {
+	resPtr := C.sector_builder_ffi_get_sealed_sectors((*C.sector_builder_ffi_SectorBuilder)(sectorBuilderPtr), C.bool(performHealthchecks))
+	defer C.sector_builder_ffi_destroy_get_sealed_sectors_response(resPtr)
+
+	if resPtr.status_code != 0 {
+		return nil, errors.New(C.GoString(resPtr.error_msg))
+	}
+
+	meta, err := goSealedSectorMetadata(resPtr.sectors_ptr, resPtr.sectors_len)
+	if err != nil {
+		return nil, err
+	}
+
+	return meta, nil
 }
