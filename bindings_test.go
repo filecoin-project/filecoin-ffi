@@ -30,6 +30,11 @@ func TestSectorBuilderLifecycle(t *testing.T) {
 	require.NoError(t, err)
 	defer sb.DestroySectorBuilder(ptr)
 
+	// verify that we've not yet sealed a sector
+	sealedSectors, err := sb.GetAllSealedSectorsWithHealth(ptr)
+	require.NoError(t, err)
+	require.Equal(t, 0, len(sealedSectors), "expected to see zero sealed sectors")
+
 	// compute the max user-bytes that can fit into a staged sector such that
 	// bit-padding ("preprocessing") expands the file to $SECTOR_SIZE
 	maxPieceSize := sb.GetMaxUserBytesPerStagedSector(1024)
@@ -87,12 +92,13 @@ func TestSectorBuilderLifecycle(t *testing.T) {
 	require.NoError(t, err)
 	require.True(t, isValid)
 
-	sealedSectors, err := sb.GetAllSealedSectors(ptr)
+	sealedSectors, err = sb.GetAllSealedSectorsWithHealth(ptr)
 	require.NoError(t, err)
 	require.Equal(t, 1, len(sealedSectors), "expected to see one sealed sector")
 	sealedSector := sealedSectors[0]
 	require.Equal(t, uint64(1), sealedSector.SectorID)
 	require.Equal(t, 1, len(sealedSector.Pieces))
+	require.Equal(t, sb.Ok, sealedSector.Health)
 	// the piece is the size of the sector, so its piece commitment should be the
 	// data commitment
 	require.Equal(t, commP, sealedSector.CommD)

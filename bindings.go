@@ -24,6 +24,18 @@ func elapsed(what string) func() {
 	}
 }
 
+// SealedSectorHealth represents the healthiness of a sector managed by a
+// sector builder.
+type SealedSectorHealth int
+
+const (
+	Unknown              SealedSectorHealth = iota
+	Ok                                      // everything is fine
+	ErrorInvalidChecksum                    // sector exists, but checksum is invalid
+	ErrorInvalidLength                      // sector exists, but length is incorrect
+	ErrorMissing                            // sector no longer exists
+)
+
 // SortedSectorInfo is a slice of SectorInfo sorted (lexicographically,
 // ascending) by replica commitment (CommR).
 type SortedSectorInfo struct {
@@ -50,7 +62,7 @@ func (s *SortedSectorInfo) Values() []SectorInfo {
 
 type SectorInfo struct {
 	SectorID uint64
-	CommR [CommitmentBytesLen]byte
+	CommR    [CommitmentBytesLen]byte
 }
 
 // CommitmentBytesLen is the number of bytes in a CommR, CommD, CommP, and CommRStar.
@@ -71,6 +83,7 @@ type SealedSectorMetadata struct {
 	CommRStar [CommitmentBytesLen]byte
 	Proof     []byte
 	Pieces    []PieceMetadata
+	Health    SealedSectorHealth
 }
 
 // SectorSealingStatus communicates how far along in the sealing process a
@@ -371,28 +384,26 @@ func GetAllStagedSectors(sectorBuilderPtr unsafe.Pointer) ([]StagedSectorMetadat
 	return meta, nil
 }
 
-// GetAllSealedSectors returns a slice of all sealed sector metadata for the sector builder.
+// GetAllSealedSectors returns a slice of all sealed sector metadata, excluding
+// sector health.
 func GetAllSealedSectors(sectorBuilderPtr unsafe.Pointer) ([]SealedSectorMetadata, error) {
 	defer elapsed("GetAllSealedSectors")()
 
-	resPtr := C.sector_builder_ffi_get_sealed_sectors((*C.sector_builder_ffi_SectorBuilder)(sectorBuilderPtr))
-	defer C.sector_builder_ffi_destroy_get_sealed_sectors_response(resPtr)
-
-	if resPtr.status_code != 0 {
-		return nil, errors.New(C.GoString(resPtr.error_msg))
-	}
-
-	meta, err := goSealedSectorMetadata(resPtr.sectors_ptr, resPtr.sectors_len)
-	if err != nil {
-		return nil, err
-	}
-
-	return meta, nil
+	return getAllSealedSectors(sectorBuilderPtr, false)
 }
 
-// GetSectorSealingStatusByID produces sector sealing status (staged, sealinG in
-// progress, sealed, failed) for the provided sector id if it exists, otherwise
-// an error.
+// GetAllSealedSectorsWithHealth returns a slice of all sealed sector metadata
+// for the sector builder, including sector health info (which can be expensive
+// to compute).
+func GetAllSealedSectorsWithHealth(sectorBuilderPtr unsafe.Pointer) ([]SealedSectorMetadata, error) {
+	defer elapsed("GetAllSealedSectorsWithHealth")()
+
+	return getAllSealedSectors(sectorBuilderPtr, true)
+}
+
+// GetSectorSealingStatusByID produces sector sealing status (staged, sealing in
+// progress, sealed, failed) for the provided sector id. If no sector
+// corresponding to the provided id exists, this function returns an error.
 func GetSectorSealingStatusByID(sectorBuilderPtr unsafe.Pointer, sectorID uint64) (SectorSealingStatus, error) {
 	defer elapsed("GetSectorSealingStatusByID")()
 
@@ -543,4 +554,20 @@ func GeneratePieceCommitment(piecePath string, pieceSize uint64) (commP [Commitm
 	copy(commitment[:], commPSlice)
 
 	return commitment, nil
+}
+
+func getAllSealedSectors(sectorBuilderPtr unsafe.Pointer, performHealthchecks bool) ([]SealedSectorMetadata, error) {
+	resPtr := C.sector_builder_ffi_get_sealed_sectors((*C.sector_builder_ffi_SectorBuilder)(sectorBuilderPtr), C.bool(performHealthchecks))
+	defer C.sector_builder_ffi_destroy_get_sealed_sectors_response(resPtr)
+
+	if resPtr.status_code != 0 {
+		return nil, errors.New(C.GoString(resPtr.error_msg))
+	}
+
+	meta, err := goSealedSectorMetadata(resPtr.sectors_ptr, resPtr.sectors_len)
+	if err != nil {
+		return nil, err
+	}
+
+	return meta, nil
 }

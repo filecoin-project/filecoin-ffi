@@ -85,6 +85,11 @@ func goSealedSectorMetadata(src *C.sector_builder_ffi_FFISealedSectorMetadata, s
 			return []SealedSectorMetadata{}, errors.Wrap(err, "failed to marshal piece metadata")
 		}
 
+		health, err := goSealedSectorHealth(ptrs[i].health)
+		if err != nil {
+			return []SealedSectorMetadata{}, errors.Wrap(err, "failed to marshal sealed sector health")
+		}
+
 		sectors[i] = SealedSectorMetadata{
 			SectorID:  uint64(ptrs[i].sector_id),
 			CommD:     commD,
@@ -92,6 +97,7 @@ func goSealedSectorMetadata(src *C.sector_builder_ffi_FFISealedSectorMetadata, s
 			CommRStar: commRStar,
 			Proof:     proof,
 			Pieces:    pieces,
+			Health:    health,
 		}
 	}
 
@@ -119,4 +125,21 @@ func goPieceMetadata(src *C.sector_builder_ffi_FFIPieceMetadata, size C.size_t) 
 	}
 
 	return ps, nil
+}
+
+func goSealedSectorHealth(health C.sector_builder_ffi_FFISealedSectorHealth) (SealedSectorHealth, error) {
+	switch health {
+	case C.Unknown:
+		return Unknown, nil
+	case C.Ok:
+		return Ok, nil
+	case C.ErrorInvalidChecksum:
+		return ErrorInvalidChecksum, nil
+	case C.ErrorInvalidLength:
+		return ErrorInvalidLength, nil
+	case C.ErrorMissing:
+		return ErrorMissing, nil
+	default:
+		return Unknown, errors.Errorf("unhandled sealed sector health: %v", health)
+	}
 }
