@@ -23,8 +23,9 @@ jobs:
       - update_submodules
       - build_project
       - lint_project
+      - generate_parameter_checksum
       - restore_parameter_cache
-      - fetch_filecoin_parameters
+      - obtain_filecoin_parameters
       - save_parameter_cache
       - test_project
   build_and_test_darwin:
@@ -41,8 +42,8 @@ jobs:
             sudo installer -pkg /tmp/go.pkg -target /
             go version
       - run:
-          name: Install pkg-config
-          command: HOMEBREW_NO_AUTO_UPDATE=1 brew install pkg-config
+          name: Install pkg-config and md5sum
+          command: HOMEBREW_NO_AUTO_UPDATE=1 brew install pkg-config md5sha1sum
       - run:
           name: Install Rust toolchain
           command: |
@@ -57,18 +58,17 @@ jobs:
       - update_submodules
       - build_project
       - lint_project
+      - generate_parameter_checksum
       - restore_parameter_cache
-      - fetch_filecoin_parameters
+      - obtain_filecoin_parameters
       - save_parameter_cache
       - test_project
 
 workflows:
   version: 2
-  build_and_test_linux:
+  test_all:
     jobs:
       - build_and_test_linux
-  build_and_test_darwin:
-    jobs:
       - build_and_test_darwin
 
 commands:
@@ -81,12 +81,13 @@ commands:
             echo 'export GOPATH="${HOME}/go"' >> $BASH_ENV
             echo 'export FILECOIN_PARAMETER_CACHE="${HOME}/filecoin-proof-parameters/"' >> $BASH_ENV
             echo 'export GO111MODULE=on' >> $BASH_ENV
-  fetch_filecoin_parameters:
+            echo 'export RUST_LOG=info' >> $BASH_ENV
+  obtain_filecoin_parameters:
     steps:
       - run:
-          name: Fetch filecoin groth parameters
-          command: |
-            ./scripts/retry.sh 1 10 1000 ./scripts/with-dots.sh ./bin/paramfetch --params-for-sector-sizes=1024 --verbose
+          name: Obtain filecoin groth parameters
+          command: ./paramcache --test-only
+          no_output_timeout: 30m
   update_submodules:
     steps:
       - run:
@@ -97,6 +98,12 @@ commands:
       - run:
           name: Build project
           command: make
+      - run:
+          name: Ensure paramcache is installed to project root
+          command: |
+            test -f ./paramcache \
+              || (rustup run --install nightly cargo install filecoin-proofs --force --git=https://github.com/filecoin-project/rust-fil-proofs.git --branch=master --bin=paramcache --root=./ \
+                && mv ./bin/paramcache ./paramcache)
   lint_project:
     steps:
       - run:
@@ -111,10 +118,16 @@ commands:
     steps:
       - restore_cache:
           keys:
-            - v1-proof-params-{{ checksum "./bin/paramfetch" }}
+            - v1-proof-params-{{ checksum "parameter-checksum.txt" }}
   save_parameter_cache:
     steps:
       - save_cache:
-          key: v1-proof-params-{{ checksum "./bin/paramfetch" }}
+          key: v1-proof-params-{{ checksum "parameter-checksum.txt" }}
           paths:
             - "~/filecoin-proof-parameters/"
+  generate_parameter_checksum:
+    steps:
+      - run:
+          name: create parameter cache checksum
+          command: md5sum ./paramcache | cut -d ' ' -f 1 >> parameter-checksum.txt
+

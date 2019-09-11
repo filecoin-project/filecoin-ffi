@@ -17,8 +17,7 @@ if download_release_tarball tarball_path "${subm_dir}"; then
     cp "${tmp_dir}/lib/libsector_builder_ffi.a" .
     cp "${tmp_dir}/lib/pkgconfig/sector_builder_ffi.pc" .
 
-    mkdir -p bin
-    cp "${tmp_dir}/bin/paramfetch" bin
+    cp "${tmp_dir}/bin/paramcache" .
 else
     (>&2 echo "failed to find or obtain precompiled assets for ${subm_dir} - falling back to local build")
     build_from_source "${subm_dir}"
@@ -30,21 +29,5 @@ else
     find "${subm_dir}" -type f -name libsector_builder_ffi.a -exec cp -- "{}" . \;
     find "${subm_dir}" -type f -name sector_builder_ffi.pc -exec cp -- "{}" . \;
 
-    pushd $subm_dir
-
-    s="WARNING: paramfetch cannot be built from rust-fil-sector-builder "
-    s+="sources. Installing from HEAD of rust-fil-proofs master. The installed "
-    s+="version of paramfetch may be incompatible with your version of "
-    s+="rust-fil-sector-builder, which could result in you downloading "
-    s+="incompatible Groth parameters and verifying keys."
-
-    (>&2 echo s)
-    cargo install filecoin-proofs \
-      --bin paramfetch \
-      --force \
-      --git=https://github.com/filecoin-project/rust-fil-proofs.git \
-      --branch=master \
-      --root ".."
-
-    popd
+    (>&2 echo "WARNING: paramcache was not installed - you may wish to 'cargo install' it")
 fi

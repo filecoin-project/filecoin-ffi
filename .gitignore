@@ -3,3 +3,5 @@
 **/*.pc
 .install-rust-fil-sector-builder
 bin/
+.crates.toml
+**/paramcache
