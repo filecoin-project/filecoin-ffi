@@ -12,6 +12,7 @@ import (
 	"unsafe"
 
 	sb "github.com/filecoin-project/go-sectorbuilder"
+	"github.com/filecoin-project/go-sectorbuilder/sealed_sector_health"
 
 	"github.com/stretchr/testify/require"
 )
@@ -98,7 +99,7 @@ func TestSectorBuilderLifecycle(t *testing.T) {
 	sealedSector := sealedSectors[0]
 	require.Equal(t, uint64(1), sealedSector.SectorID)
 	require.Equal(t, 1, len(sealedSector.Pieces))
-	require.Equal(t, sb.Ok, sealedSector.Health)
+	require.Equal(t, sealed_sector_health.Ok, sealedSector.Health)
 	// the piece is the size of the sector, so its piece commitment should be the
 	// data commitment
 	require.Equal(t, commP, sealedSector.CommD)

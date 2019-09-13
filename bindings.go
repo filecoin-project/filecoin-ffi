@@ -6,6 +6,8 @@ import (
 	"time"
 	"unsafe"
 
+	"github.com/filecoin-project/go-sectorbuilder/sealed_sector_health"
+
 	logging "github.com/ipfs/go-log"
 	"github.com/pkg/errors"
 )
@@ -23,18 +25,6 @@ func elapsed(what string) func() {
 		log.Debugf("%s took %v\n", what, time.Since(start))
 	}
 }
-
-// SealedSectorHealth represents the healthiness of a sector managed by a
-// sector builder.
-type SealedSectorHealth int
-
-const (
-	Unknown              SealedSectorHealth = iota
-	Ok                                      // everything is fine
-	ErrorInvalidChecksum                    // sector exists, but checksum is invalid
-	ErrorInvalidLength                      // sector exists, but length is incorrect
-	ErrorMissing                            // sector no longer exists
-)
 
 // SortedSectorInfo is a slice of SectorInfo sorted (lexicographically,
 // ascending) by replica commitment (CommR).
@@ -83,7 +73,7 @@ type SealedSectorMetadata struct {
 	CommRStar [CommitmentBytesLen]byte
 	Proof     []byte
 	Pieces    []PieceMetadata
-	Health    SealedSectorHealth
+	Health    sealed_sector_health.Health
 }
 
 // SectorSealingStatus communicates how far along in the sealing process a
