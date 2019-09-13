@@ -10,3 +10,15 @@ const (
 	Sealing       // sector is currently being sealed
 	Sealed        // sector has been sealed successfully
 )
+
+var labels = [...]string{
+	"Unknown",
+	"Pending",
+	"Failed",
+	"Sealing",
+	"Sealed",
+}
+
+func (el State) String() string {
+	return labels[el]
+}

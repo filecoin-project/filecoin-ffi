@@ -11,3 +11,15 @@ const (
 	ErrorInvalidLength          // sector exists, but length is incorrect
 	ErrorMissing                // sector no longer exists
 )
+
+var labels = [...]string{
+	"Unknown",
+	"Ok",
+	"ErrorInvalidChecksum",
+	"ErrorInvalidLength",
+	"ErrorMissing",
+}
+
+func (el Health) String() string {
+	return labels[el]
+}
