@@ -7,6 +7,7 @@ import (
 	"unsafe"
 
 	"github.com/filecoin-project/go-sectorbuilder/sealed_sector_health"
+	"github.com/filecoin-project/go-sectorbuilder/sealing_state"
 
 	logging "github.com/ipfs/go-log"
 	"github.com/pkg/errors"
@@ -79,14 +80,14 @@ type SealedSectorMetadata struct {
 // SectorSealingStatus communicates how far along in the sealing process a
 // sector has progressed.
 type SectorSealingStatus struct {
-	SectorID       uint64
-	SealStatusCode uint8                    // Sealed = 0, Pending = 1, Failed = 2, Sealing = 3
-	SealErrorMsg   string                   // will be nil unless SealStatusCode == 2
-	CommD          [CommitmentBytesLen]byte // will be empty unless SealStatusCode == 0
-	CommR          [CommitmentBytesLen]byte // will be empty unless SealStatusCode == 0
-	CommRStar      [CommitmentBytesLen]byte // will be empty unless SealStatusCode == 0
-	Proof          []byte                   // will be empty unless SealStatusCode == 0
-	Pieces         []PieceMetadata          // will be empty unless SealStatusCode == 0
+	SectorID     uint64
+	State        sealing_state.State
+	SealErrorMsg string                   // will be nil unless State == Failed
+	CommD        [CommitmentBytesLen]byte // will be empty unless State == Sealed
+	CommR        [CommitmentBytesLen]byte // will be empty unless State == Sealed
+	CommRStar    [CommitmentBytesLen]byte // will be empty unless State == Sealed
+	Proof        []byte                   // will be empty unless State == Sealed
+	Pieces       []PieceMetadata          // will be empty unless State == Sealed
 }
 
 // PieceMetadata represents a piece stored by the sector builder.
@@ -408,11 +409,11 @@ func GetSectorSealingStatusByID(sectorBuilderPtr unsafe.Pointer, sectorID uint64
 	}
 
 	if resPtr.seal_status_code == C.Failed {
-		return SectorSealingStatus{SectorID: sectorID, SealStatusCode: 2, SealErrorMsg: C.GoString(resPtr.seal_error_msg)}, nil
+		return SectorSealingStatus{SectorID: sectorID, State: sealing_state.Failed, SealErrorMsg: C.GoString(resPtr.seal_error_msg)}, nil
 	} else if resPtr.seal_status_code == C.Pending {
-		return SectorSealingStatus{SectorID: sectorID, SealStatusCode: 1}, nil
+		return SectorSealingStatus{SectorID: sectorID, State: sealing_state.Pending}, nil
 	} else if resPtr.seal_status_code == C.Sealing {
-		return SectorSealingStatus{SectorID: sectorID, SealStatusCode: 3}, nil
+		return SectorSealingStatus{SectorID: sectorID, State: sealing_state.Sealing}, nil
 	} else if resPtr.seal_status_code == C.Sealed {
 		commRSlice := goBytes(&resPtr.comm_r[0], CommitmentBytesLen)
 		var commR [CommitmentBytesLen]byte
@@ -434,13 +435,13 @@ func GetSectorSealingStatusByID(sectorBuilderPtr unsafe.Pointer, sectorID uint64
 		}
 
 		return SectorSealingStatus{
-			SectorID:       sectorID,
-			SealStatusCode: 0,
-			CommD:          commD,
-			CommR:          commR,
-			CommRStar:      commRStar,
-			Proof:          proof,
-			Pieces:         ps,
+			SectorID:  sectorID,
+			State:     sealing_state.Sealed,
+			CommD:     commD,
+			CommR:     commR,
+			CommRStar: commRStar,
+			Proof:     proof,
+			Pieces:    ps,
 		}, nil
 	} else {
 		// unknown

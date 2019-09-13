@@ -13,6 +13,7 @@ import (
 
 	sb "github.com/filecoin-project/go-sectorbuilder"
 	"github.com/filecoin-project/go-sectorbuilder/sealed_sector_health"
+	"github.com/filecoin-project/go-sectorbuilder/sealing_state"
 
 	"github.com/stretchr/testify/require"
 )
@@ -64,7 +65,7 @@ func TestSectorBuilderLifecycle(t *testing.T) {
 
 	// block until Groth parameter cache is (lazily) hydrated and sector has
 	// been sealed (or timeout)
-	status, err := pollForSectorSealingStatus(ptr, sectorID, 0, time.Minute*30)
+	status, err := pollForSectorSealingStatus(ptr, sectorID, sealing_state.Sealed, time.Minute*30)
 	require.NoError(t, err)
 	require.Equal(t, 1, len(status.Pieces), "expected to see the one piece we added")
 
@@ -111,7 +112,7 @@ func TestSectorBuilderLifecycle(t *testing.T) {
 	require.Equal(t, pieceBytes, unsealedPieceBytes)
 }
 
-func pollForSectorSealingStatus(ptr unsafe.Pointer, sectorID uint64, sealStatusCode uint8, timeout time.Duration) (status sb.SectorSealingStatus, retErr error) {
+func pollForSectorSealingStatus(ptr unsafe.Pointer, sectorID uint64, targetState sealing_state.State, timeout time.Duration) (status sb.SectorSealingStatus, retErr error) {
 	timeoutCh := time.After(timeout)
 
 	tick := time.Tick(5 * time.Second)
@@ -128,7 +129,7 @@ func pollForSectorSealingStatus(ptr unsafe.Pointer, sectorID uint64, sealStatusC
 				return
 			}
 
-			if sealingStatus.SealStatusCode == sealStatusCode {
+			if sealingStatus.State == targetState {
 				status = sealingStatus
 				return
 			}
