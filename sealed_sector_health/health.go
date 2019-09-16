@@ -5,19 +5,19 @@ package sealed_sector_health
 type Health int
 
 const (
-	Unknown              Health = iota
-	Ok                          // everything is fine
-	ErrorInvalidChecksum        // sector exists, but checksum is invalid
-	ErrorInvalidLength          // sector exists, but length is incorrect
-	ErrorMissing                // sector no longer exists
+	Unknown         Health = iota
+	Ok                     // everything is fine
+	InvalidChecksum        // sector exists, but checksum is invalid
+	InvalidLength          // sector exists, but length is incorrect
+	Missing                // sector no longer exists
 )
 
 var labels = [...]string{
 	"Unknown",
 	"Ok",
-	"ErrorInvalidChecksum",
-	"ErrorInvalidLength",
-	"ErrorMissing",
+	"InvalidChecksum",
+	"InvalidLength",
+	"Missing",
 }
 
 func (el Health) String() string {

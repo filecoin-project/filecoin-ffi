@@ -136,11 +136,11 @@ func goSealedSectorHealth(health C.sector_builder_ffi_FFISealedSectorHealth) (se
 	case C.Ok:
 		return sealed_sector_health.Ok, nil
 	case C.ErrorInvalidChecksum:
-		return sealed_sector_health.ErrorInvalidChecksum, nil
+		return sealed_sector_health.InvalidChecksum, nil
 	case C.ErrorInvalidLength:
-		return sealed_sector_health.ErrorInvalidLength, nil
+		return sealed_sector_health.InvalidLength, nil
 	case C.ErrorMissing:
-		return sealed_sector_health.ErrorMissing, nil
+		return sealed_sector_health.Missing, nil
 	default:
 		return sealed_sector_health.Unknown, errors.Errorf("unhandled sealed sector health: %v", health)
 	}
