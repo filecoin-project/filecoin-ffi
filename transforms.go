@@ -3,6 +3,8 @@ package go_sectorbuilder
 import (
 	"unsafe"
 
+	"github.com/filecoin-project/go-sectorbuilder/sealed_sector_health"
+
 	"github.com/pkg/errors"
 )
 
@@ -127,19 +129,19 @@ func goPieceMetadata(src *C.sector_builder_ffi_FFIPieceMetadata, size C.size_t) 
 	return ps, nil
 }
 
-func goSealedSectorHealth(health C.sector_builder_ffi_FFISealedSectorHealth) (SealedSectorHealth, error) {
+func goSealedSectorHealth(health C.sector_builder_ffi_FFISealedSectorHealth) (sealed_sector_health.Health, error) {
 	switch health {
 	case C.Unknown:
-		return Unknown, nil
+		return sealed_sector_health.Unknown, nil
 	case C.Ok:
-		return Ok, nil
+		return sealed_sector_health.Ok, nil
 	case C.ErrorInvalidChecksum:
-		return ErrorInvalidChecksum, nil
+		return sealed_sector_health.InvalidChecksum, nil
 	case C.ErrorInvalidLength:
-		return ErrorInvalidLength, nil
+		return sealed_sector_health.InvalidLength, nil
 	case C.ErrorMissing:
-		return ErrorMissing, nil
+		return sealed_sector_health.Missing, nil
 	default:
-		return Unknown, errors.Errorf("unhandled sealed sector health: %v", health)
+		return sealed_sector_health.Unknown, errors.Errorf("unhandled sealed sector health: %v", health)
 	}
 }
