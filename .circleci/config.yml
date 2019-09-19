@@ -79,7 +79,7 @@ commands:
           command: |
             echo 'export PATH="/usr/local/go/bin:${HOME}/.cargo/bin:${PATH}:${HOME}/go/bin:${HOME}/.bin"' >> $BASH_ENV
             echo 'export GOPATH="${HOME}/go"' >> $BASH_ENV
-            echo 'export FILECOIN_PARAMETER_CACHE="${HOME}/filecoin-proof-parameters/"' >> $BASH_ENV
+            echo 'export FIL_PROOFS_PARAMETER_CACHE="${HOME}/filecoin-proof-parameters/"' >> $BASH_ENV
             echo 'export GO111MODULE=on' >> $BASH_ENV
             echo 'export RUST_LOG=info' >> $BASH_ENV
   obtain_filecoin_parameters:
@@ -118,11 +118,11 @@ commands:
     steps:
       - restore_cache:
           keys:
-            - v1-proof-params-{{ checksum "parameter-checksum.txt" }}
+            - v2-proof-params-{{ checksum "parameter-checksum.txt" }}
   save_parameter_cache:
     steps:
       - save_cache:
-          key: v1-proof-params-{{ checksum "parameter-checksum.txt" }}
+          key: v2-proof-params-{{ checksum "parameter-checksum.txt" }}
           paths:
             - "~/filecoin-proof-parameters/"
   generate_parameter_checksum:
