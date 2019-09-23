@@ -2,6 +2,7 @@ package go_sectorbuilder
 
 import (
 	"bytes"
+	"encoding/json"
 	"os"
 	"runtime"
 	"sort"
@@ -51,6 +52,20 @@ func NewSortedSectorInfo(sectorInfo ...SectorInfo) SortedSectorInfo {
 // Values returns the sorted SectorInfo as a slice
 func (s *SortedSectorInfo) Values() []SectorInfo {
 	return s.f
+}
+
+// MarshalJSON JSON-encodes and serializes the SortedSectorInfo.
+func (s SortedSectorInfo) MarshalJSON() ([]byte, error) {
+	return json.Marshal(s.f)
+}
+
+// UnmarshalJSON parses the JSON-encoded byte slice and stores the result in the
+// value pointed to by s.f. Note that this method allows for construction of a
+// SortedSectorInfo which violates its invariant (that its SectorInfo are sorted
+// in some defined way). Callers should take care to never provide a byte slice
+// which would violate this invariant.
+func (s *SortedSectorInfo) UnmarshalJSON(b []byte) error {
+	return json.Unmarshal(b, &s.f)
 }
 
 type SectorInfo struct {
