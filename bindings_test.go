@@ -6,6 +6,7 @@ import (
 	"errors"
 	"io"
 	"io/ioutil"
+	"math/big"
 	"os"
 	"testing"
 	"time"
@@ -116,6 +117,32 @@ func TestSectorBuilderLifecycle(t *testing.T) {
 	unsealedPieceBytes, err := sb.ReadPieceFromSealedSector(ptr, "snoqualmie")
 	require.NoError(t, err)
 	require.Equal(t, pieceBytes, unsealedPieceBytes)
+}
+
+func TestJsonMarshalSymmetry(t *testing.T) {
+	for i := 0; i < 100; i++ {
+		xs := make([]sb.SectorInfo, 10)
+		for j := 0; j < 10; j++ {
+			var x sb.SectorInfo
+			_, err := io.ReadFull(rand.Reader, x.CommR[:])
+			require.NoError(t, err)
+
+			n, err := rand.Int(rand.Reader, big.NewInt(500))
+			require.NoError(t, err)
+			x.SectorID = n.Uint64()
+			xs[j] = x
+		}
+		toSerialize := sb.NewSortedSectorInfo(xs...)
+
+		serialized, err := toSerialize.MarshalJSON()
+		require.NoError(t, err)
+
+		var fromSerialized sb.SortedSectorInfo
+		err = fromSerialized.UnmarshalJSON(serialized)
+		require.NoError(t, err)
+
+		require.Equal(t, toSerialize, fromSerialized)
+	}
 }
 
 func pollForSectorSealingStatus(ptr unsafe.Pointer, sectorID uint64, targetState sealing_state.State, timeout time.Duration) (status sb.SectorSealingStatus, retErr error) {
