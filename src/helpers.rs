@@ -23,6 +23,16 @@ pub unsafe fn to_public_replica_info_map(
     faulty_sector_ids_ptr: *const u64,
     faulty_sector_ids_len: libc::size_t,
 ) -> Result<BTreeMap<SectorId, PublicReplicaInfo>> {
+    ensure!(!sector_ids_ptr.is_null(), "sector_ids_ptr must not be null");
+    ensure!(
+        !flattened_comm_rs_ptr.is_null(),
+        "flattened_comm_rs_ptr must not be null"
+    );
+    ensure!(
+        !faulty_sector_ids_ptr.is_null(),
+        "faulty_sector_ids_ptr must not be null"
+    );
+
     let sector_ids: Vec<SectorId> = from_raw_parts(sector_ids_ptr, sector_ids_len)
         .iter()
         .cloned()
@@ -66,7 +76,7 @@ pub unsafe fn try_into_porep_proof_bytes(
     proof_ptr: *const u8,
     proof_len: libc::size_t,
 ) -> Result<Vec<u8>> {
-    into_proof_vecs(proof_len, proof_ptr, proof_len)
+    into_proof_vecs(proof_len, proof_ptr, proof_len)?
         .first()
         .map(Vec::clone)
         .ok_or_else(|| format_err!("no proofs in chunked vec"))
@@ -114,13 +124,21 @@ unsafe fn into_proof_vecs(
     proof_chunk: usize,
     flattened_proofs_ptr: *const u8,
     flattened_proofs_len: libc::size_t,
-) -> Vec<Vec<u8>> {
-    from_raw_parts(flattened_proofs_ptr, flattened_proofs_len)
+) -> Result<Vec<Vec<u8>>> {
+    ensure!(
+        !flattened_proofs_ptr.is_null(),
+        "flattened_proofs_ptr must not be a null pointer"
+    );
+    ensure!(proof_chunk > 0, "Invalid proof chunk of 0 passed");
+
+    let res = from_raw_parts(flattened_proofs_ptr, flattened_proofs_len)
         .iter()
         .step_by(proof_chunk)
         .fold(Default::default(), |mut acc: Vec<Vec<u8>>, item| {
             let sliced = from_raw_parts(item, proof_chunk);
             acc.push(sliced.to_vec());
             acc
-        })
+        });
+
+    Ok(res)
 }

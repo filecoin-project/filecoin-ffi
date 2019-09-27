@@ -98,6 +98,8 @@ pub unsafe extern "C" fn verify_post(
     );
 
     let result = convert.and_then(|map| {
+        ensure!(!proof_ptr.is_null(), "proof_ptr must not be null");
+
         api_fns::verify_post(
             api_types::PoStConfig(api_types::SectorSize(sector_size)),
             challenge_seed,
@@ -136,18 +138,29 @@ pub unsafe extern "C" fn verify_piece_inclusion_proof(
 
     info!("verify_piece_inclusion_proof: {}", "start");
 
-    let bytes = from_raw_parts(piece_inclusion_proof_ptr, piece_inclusion_proof_len);
+    let bytes = Ok(()).and_then(|_| {
+        ensure!(
+            !piece_inclusion_proof_ptr.is_null(),
+            "piece_inclusion_proof_ptr must not be null"
+        );
+        Ok(from_raw_parts(
+            piece_inclusion_proof_ptr,
+            piece_inclusion_proof_len,
+        ))
+    });
 
     let unpadded_piece_size = api_types::UnpaddedBytesAmount(unpadded_piece_size);
     let sector_size = api_types::SectorSize(sector_size);
 
-    let result = api_fns::verify_piece_inclusion_proof(
-        bytes,
-        comm_d,
-        comm_p,
-        unpadded_piece_size,
-        sector_size,
-    );
+    let result = bytes.and_then(|bytes| {
+        api_fns::verify_piece_inclusion_proof(
+            bytes,
+            comm_d,
+            comm_p,
+            unpadded_piece_size,
+            sector_size,
+        )
+    });
 
     let mut response = VerifyPieceInclusionProofResponse::default();
 
