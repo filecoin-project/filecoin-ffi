@@ -7,9 +7,6 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout
-      - run:
-          name: Calculate dependencies
-          command: cargo generate-lockfile
       - restore_cache:
           keys:
             - cargo-v0-{{ checksum "rust-toolchain" }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}-{{ arch }}
@@ -17,7 +14,6 @@ jobs:
       - run: rustup default $(cat rust-toolchain)
       - run: rustup component add rustfmt-preview
       - run: rustup component add clippy-preview
-      - run: cargo update
       - run: cargo fetch
       - run: rustc +stable --version
       - run: rustc +$(cat rust-toolchain) --version
@@ -123,7 +119,6 @@ jobs:
             curl https://sh.rustup.rs -sSf | sh -s -- -y
       - run: rustup install $(cat rust-toolchain)
       - run: rustup default $(cat rust-toolchain)
-      - run: cargo update
       - run: cargo fetch
       - run:
           name: Install jq
