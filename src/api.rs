@@ -17,8 +17,8 @@ pub unsafe extern "C" fn verify_seal(
     sector_size: u64,
     comm_r: &[u8; 32],
     comm_d: &[u8; 32],
-    comm_r_star: &[u8; 32],
-    prover_id: &[u8; 31],
+    prover_id: &[u8; 32],
+    ticket: &[u8; 32],
     sector_id: u64,
     proof_ptr: *const u8,
     proof_len: libc::size_t,
@@ -37,9 +37,9 @@ pub unsafe extern "C" fn verify_seal(
                 cfg,
                 *comm_r,
                 *comm_d,
-                *comm_r_star,
-                prover_id,
+                *prover_id,
                 SectorId::from(sector_id),
+                *ticket,
                 &bs,
             )
         })
