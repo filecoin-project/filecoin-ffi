@@ -16,7 +16,7 @@ include_version = true
 language = "C"
 
 [export]
-prefix = "filecoin_proofs_ffi"
+prefix = "filecoin_proofs_ffi_"
 
 [parse]
 parse_deps = false
