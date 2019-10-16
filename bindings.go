@@ -36,6 +36,12 @@ type SortedSectorInfo struct {
 	f []SectorInfo
 }
 
+// SealTicket commits a sector to a subchain.
+type SealTicket struct {
+	BlockHeight uint64
+	TicketBytes [32]byte
+}
+
 // NewSortedSectorInfo returns a SortedSectorInfo
 func NewSortedSectorInfo(sectorInfo ...SectorInfo) SortedSectorInfo {
 	fn := func(i, j int) bool {
@@ -92,6 +98,7 @@ type SealedSectorMetadata struct {
 	Proof     []byte
 	Pieces    []PieceMetadata
 	Health    sealed_sector_health.Health
+	Ticket    SealTicket
 }
 
 // SectorSealingStatus communicates how far along in the sealing process a
@@ -102,9 +109,9 @@ type SectorSealingStatus struct {
 	SealErrorMsg string                   // will be nil unless State == Failed
 	CommD        [CommitmentBytesLen]byte // will be empty unless State == Sealed
 	CommR        [CommitmentBytesLen]byte // will be empty unless State == Sealed
-	CommRStar    [CommitmentBytesLen]byte // will be empty unless State == Sealed
 	Proof        []byte                   // will be empty unless State == Sealed
 	Pieces       []PieceMetadata          // will be empty unless State == Sealed
+	Ticket       SealTicket               // will be empty unless State == Sealed
 }
 
 // PieceMetadata represents a piece stored by the sector builder.
@@ -121,8 +128,8 @@ func VerifySeal(
 	sectorSize uint64,
 	commR [CommitmentBytesLen]byte,
 	commD [CommitmentBytesLen]byte,
-	commRStar [CommitmentBytesLen]byte,
-	proverID [31]byte,
+	proverID [32]byte,
+	ticket [32]byte,
 	sectorID uint64,
 	proof []byte,
 ) (bool, error) {
@@ -134,23 +141,23 @@ func VerifySeal(
 	commRCBytes := C.CBytes(commR[:])
 	defer C.free(commRCBytes)
 
-	commRStarCBytes := C.CBytes(commRStar[:])
-	defer C.free(commRStarCBytes)
-
 	proofCBytes := C.CBytes(proof[:])
 	defer C.free(proofCBytes)
 
 	proverIDCBytes := C.CBytes(proverID[:])
 	defer C.free(proverIDCBytes)
 
+	ticketCBytes := C.CBytes(ticket[:])
+	defer C.free(ticketCBytes)
+
 	// a mutable pointer to a VerifySealResponse C-struct
 	resPtr := C.sector_builder_ffi_verify_seal(
 		C.uint64_t(sectorSize),
 		(*[CommitmentBytesLen]C.uint8_t)(commRCBytes),
 		(*[CommitmentBytesLen]C.uint8_t)(commDCBytes),
-		(*[CommitmentBytesLen]C.uint8_t)(commRStarCBytes),
-		(*[31]C.uint8_t)(proverIDCBytes),
+		(*[32]C.uint8_t)(proverIDCBytes),
 		C.uint64_t(sectorID),
+		(*[32]C.uint8_t)(ticketCBytes),
 		(*C.uint8_t)(proofCBytes),
 		C.size_t(len(proof)),
 	)
@@ -244,7 +251,7 @@ func InitSectorBuilder(
 	poStProofPartitions uint8,
 	lastUsedSectorID uint64,
 	metadataDir string,
-	proverID [31]byte,
+	proverID [32]byte,
 	sealedSectorDir string,
 	stagedSectorDir string,
 	maxNumOpenStagedSectors uint8,
@@ -272,7 +279,7 @@ func InitSectorBuilder(
 		class,
 		C.uint64_t(lastUsedSectorID),
 		cMetadataDir,
-		(*[31]C.uint8_t)(proverIDCBytes),
+		(*[32]C.uint8_t)(proverIDCBytes),
 		cSealedSectorDir,
 		cStagedSectorDir,
 		C.uint8_t(maxNumOpenStagedSectors),
@@ -377,18 +384,81 @@ func ReadPieceFromSealedSector(sectorBuilderPtr unsafe.Pointer, pieceKey string)
 	return goBytes(resPtr.data_ptr, resPtr.data_len), nil
 }
 
-// SealAllStagedSectors schedules sealing of all staged sectors.
-func SealAllStagedSectors(sectorBuilderPtr unsafe.Pointer) error {
+// SealSector seals the sector with the provided id, blocking until sealing
+// completes. If no staged sector exists in the ReadyToSeal state with such an
+// id, an error will be returned.
+func SealSector(sectorBuilderPtr unsafe.Pointer, sectorID uint64, ticket SealTicket) (SealedSectorMetadata, error) {
+	defer elapsed("SealSector")()
+
+	cTicketBytes := C.CBytes(ticket.TicketBytes[:])
+	defer C.free(cTicketBytes)
+
+	cSealTicket := C.sector_builder_ffi_FFISealTicket{
+		block_height: C.uint64_t(ticket.BlockHeight),
+		ticket_bytes: *(*[32]C.uint8_t)(cTicketBytes),
+	}
+
+	resPtr := C.sector_builder_ffi_seal_sector((*C.sector_builder_ffi_SectorBuilder)(sectorBuilderPtr), C.uint64_t(sectorID), cSealTicket)
+	defer C.sector_builder_ffi_destroy_seal_sector_response(resPtr)
+
+	if resPtr.status_code != 0 {
+		return SealedSectorMetadata{}, errors.New(C.GoString(resPtr.error_msg))
+	}
+
+	meta, err := goSealedSectorMetadata((*C.sector_builder_ffi_FFISealedSectorMetadata)(unsafe.Pointer(&resPtr.meta)), 1)
+	if err != nil {
+		return SealedSectorMetadata{}, err
+	}
+
+	return meta[0], nil
+}
+
+// ResumeSealSector resumes sealing for a sector in the Paused state. If no
+// staged sector exists in such a state, an error will be returned.
+func ResumeSealSector(sectorBuilderPtr unsafe.Pointer, sectorID uint64) (SealedSectorMetadata, error) {
+	defer elapsed("ResumeSealSector")()
+
+	resPtr := C.sector_builder_ffi_resume_seal_sector((*C.sector_builder_ffi_SectorBuilder)(sectorBuilderPtr), C.uint64_t(sectorID))
+	defer C.sector_builder_ffi_destroy_resume_seal_sector_response(resPtr)
+
+	if resPtr.status_code != 0 {
+		return SealedSectorMetadata{}, errors.New(C.GoString(resPtr.error_msg))
+	}
+
+	meta, err := goSealedSectorMetadata((*C.sector_builder_ffi_FFISealedSectorMetadata)(unsafe.Pointer(&resPtr.meta)), 1)
+	if err != nil {
+		return SealedSectorMetadata{}, err
+	}
+
+	return meta[0], nil
+}
+
+// SealAllStagedSectors seals all staged sectors and returns sealed sector
+// metadata for all successfully sealed sectors.
+func SealAllStagedSectors(sectorBuilderPtr unsafe.Pointer, ticket SealTicket) ([]SealedSectorMetadata, error) {
 	defer elapsed("SealAllStagedSectors")()
 
-	resPtr := C.sector_builder_ffi_seal_all_staged_sectors((*C.sector_builder_ffi_SectorBuilder)(sectorBuilderPtr))
+	cTicketBytes := C.CBytes(ticket.TicketBytes[:])
+	defer C.free(cTicketBytes)
+
+	cSealTicket := C.sector_builder_ffi_FFISealTicket{
+		block_height: C.uint64_t(ticket.BlockHeight),
+		ticket_bytes: *(*[32]C.uint8_t)(cTicketBytes),
+	}
+
+	resPtr := C.sector_builder_ffi_seal_all_staged_sectors((*C.sector_builder_ffi_SectorBuilder)(sectorBuilderPtr), cSealTicket)
 	defer C.sector_builder_ffi_destroy_seal_all_staged_sectors_response(resPtr)
 
 	if resPtr.status_code != 0 {
-		return errors.New(C.GoString(resPtr.error_msg))
+		return nil, errors.New(C.GoString(resPtr.error_msg))
 	}
 
-	return nil
+	meta, err := goSealedSectorMetadata(resPtr.meta_ptr, resPtr.meta_len)
+	if err != nil {
+		return nil, err
+	}
+
+	return meta, nil
 }
 
 // GetAllStagedSectors returns a slice of all staged sector metadata for the sector builder.
@@ -445,6 +515,10 @@ func GetSectorSealingStatusByID(sectorBuilderPtr unsafe.Pointer, sectorID uint64
 
 	if resPtr.seal_status_code == C.Failed {
 		return SectorSealingStatus{SectorID: sectorID, State: sealing_state.Failed, SealErrorMsg: C.GoString(resPtr.seal_error_msg)}, nil
+	} else if resPtr.seal_status_code == C.ReadyForSealing {
+		return SectorSealingStatus{SectorID: sectorID, State: sealing_state.ReadyForSealing}, nil
+	} else if resPtr.seal_status_code == C.Paused {
+		return SectorSealingStatus{SectorID: sectorID, State: sealing_state.Paused}, nil
 	} else if resPtr.seal_status_code == C.Pending {
 		return SectorSealingStatus{SectorID: sectorID, State: sealing_state.Pending}, nil
 	} else if resPtr.seal_status_code == C.Sealing {
@@ -458,10 +532,6 @@ func GetSectorSealingStatusByID(sectorBuilderPtr unsafe.Pointer, sectorID uint64
 		var commD [CommitmentBytesLen]byte
 		copy(commD[:], commDSlice)
 
-		commRStarSlice := goBytes(&resPtr.comm_r_star[0], CommitmentBytesLen)
-		var commRStar [CommitmentBytesLen]byte
-		copy(commRStar[:], commRStarSlice)
-
 		proof := goBytes(resPtr.proof_ptr, resPtr.proof_len)
 
 		ps, err := goPieceMetadata(resPtr.pieces_ptr, resPtr.pieces_len)
@@ -470,13 +540,13 @@ func GetSectorSealingStatusByID(sectorBuilderPtr unsafe.Pointer, sectorID uint64
 		}
 
 		return SectorSealingStatus{
-			SectorID:  sectorID,
-			State:     sealing_state.Sealed,
-			CommD:     commD,
-			CommR:     commR,
-			CommRStar: commRStar,
-			Proof:     proof,
-			Pieces:    ps,
+			SectorID: sectorID,
+			State:    sealing_state.Sealed,
+			CommD:    commD,
+			CommR:    commR,
+			Proof:    proof,
+			Pieces:   ps,
+			Ticket:   goSealTicket(resPtr.seal_ticket),
 		}, nil
 	} else {
 		// unknown
@@ -603,7 +673,7 @@ func getAllSealedSectors(sectorBuilderPtr unsafe.Pointer, performHealthchecks bo
 		return nil, errors.New(C.GoString(resPtr.error_msg))
 	}
 
-	meta, err := goSealedSectorMetadata(resPtr.sectors_ptr, resPtr.sectors_len)
+	meta, err := goSealedSectorMetadata(resPtr.meta_ptr, resPtr.meta_len)
 	if err != nil {
 		return nil, err
 	}

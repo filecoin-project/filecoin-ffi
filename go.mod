@@ -6,8 +6,6 @@ require (
 	github.com/golangci/golangci-lint v1.17.1 // indirect
 	github.com/hashicorp/golang-lru v0.5.3 // indirect
 	github.com/ipfs/go-log v0.0.1
-	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
-	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/neelance/parallel v0.0.0-20160708114440-4de9ce63d14c // indirect
 	github.com/opentracing/basictracer-go v1.0.0 // indirect
 	github.com/pkg/errors v0.8.1

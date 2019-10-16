@@ -44,6 +44,17 @@ func goBytes(src *C.uint8_t, size C.size_t) []byte {
 	return C.GoBytes(unsafe.Pointer(src), C.int(size))
 }
 
+func goSealTicket(src C.sector_builder_ffi_FFISealTicket) SealTicket {
+	ticketBytesSlice := C.GoBytes(unsafe.Pointer(&src.ticket_bytes[0]), 32)
+	var ticketBytes [CommitmentBytesLen]byte
+	copy(ticketBytes[:], ticketBytesSlice)
+
+	return SealTicket{
+		TicketBytes: ticketBytes,
+		BlockHeight: uint64(src.block_height),
+	}
+}
+
 func goStagedSectorMetadata(src *C.sector_builder_ffi_FFIStagedSectorMetadata, size C.size_t) ([]StagedSectorMetadata, error) {
 	sectors := make([]StagedSectorMetadata, size)
 	if src == nil || size == 0 {
@@ -76,10 +87,6 @@ func goSealedSectorMetadata(src *C.sector_builder_ffi_FFISealedSectorMetadata, s
 		var commR [CommitmentBytesLen]byte
 		copy(commR[:], commRSlice)
 
-		commRStarSlice := goBytes(&ptrs[i].comm_r_star[0], CommitmentBytesLen)
-		var commRStar [CommitmentBytesLen]byte
-		copy(commRStar[:], commRStarSlice)
-
 		proof := goBytes(ptrs[i].proofs_ptr, ptrs[i].proofs_len)
 
 		pieces, err := goPieceMetadata(ptrs[i].pieces_ptr, ptrs[i].pieces_len)
@@ -93,13 +100,13 @@ func goSealedSectorMetadata(src *C.sector_builder_ffi_FFISealedSectorMetadata, s
 		}
 
 		sectors[i] = SealedSectorMetadata{
-			SectorID:  uint64(ptrs[i].sector_id),
-			CommD:     commD,
-			CommR:     commR,
-			CommRStar: commRStar,
-			Proof:     proof,
-			Pieces:    pieces,
-			Health:    health,
+			SectorID: uint64(ptrs[i].sector_id),
+			CommD:    commD,
+			CommR:    commR,
+			Proof:    proof,
+			Pieces:   pieces,
+			Health:   health,
+			Ticket:   goSealTicket(ptrs[i].seal_ticket),
 		}
 	}
 

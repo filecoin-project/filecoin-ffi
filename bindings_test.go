@@ -20,6 +20,18 @@ import (
 )
 
 func TestSectorBuilderLifecycle(t *testing.T) {
+	ticketA := sb.SealTicket{
+		BlockHeight: 0,
+		TicketBytes: [32]byte{},
+	}
+
+	ticketB := sb.SealTicket{
+		BlockHeight: 10,
+		TicketBytes: [32]byte{1, 2, 3},
+	}
+
+	proverID := [32]byte{6, 7, 8}
+
 	metadataDir := requireTempDirPath(t)
 	defer require.NoError(t, os.Remove(metadataDir))
 
@@ -29,7 +41,7 @@ func TestSectorBuilderLifecycle(t *testing.T) {
 	stagedSectorDir := requireTempDirPath(t)
 	defer require.NoError(t, os.Remove(stagedSectorDir))
 
-	ptr, err := sb.InitSectorBuilder(1024, 2, 1, 0, metadataDir, [31]byte{}, sealedSectorDir, stagedSectorDir, 1)
+	ptr, err := sb.InitSectorBuilder(1024, 2, 1, 0, metadataDir, proverID, sealedSectorDir, stagedSectorDir, 1)
 	require.NoError(t, err)
 	defer sb.DestroySectorBuilder(ptr)
 
@@ -49,19 +61,21 @@ func TestSectorBuilderLifecycle(t *testing.T) {
 	require.Equal(t, uint64(read), maxPieceSize)
 
 	require.NoError(t, err)
-	pieceFile := requireTempFile(t, bytes.NewReader(pieceBytes), maxPieceSize)
+	pieceFileA := requireTempFile(t, bytes.NewReader(pieceBytes), maxPieceSize)
+
+	require.NoError(t, err)
+	pieceFileB := requireTempFile(t, bytes.NewReader(pieceBytes), maxPieceSize)
 
 	// generate piece commitment
-	commP, err := sb.GeneratePieceCommitmentFromFile(pieceFile, maxPieceSize)
+	commP, err := sb.GeneratePieceCommitmentFromFile(pieceFileA, maxPieceSize)
 	require.NoError(t, err)
 
 	// seek to the beginning
-	_, err = pieceFile.Seek(0, 0)
+	_, err = pieceFileA.Seek(0, 0)
 	require.NoError(t, err)
 
-	// write a piece to a staged sector, reducing remaining space to 0 and
-	// triggering the seal job
-	sectorID, err := sb.AddPieceFromFile(ptr, "snoqualmie", maxPieceSize, pieceFile)
+	// write a piece to a staged sector, reducing remaining space to 0
+	sectorIDA, err := sb.AddPieceFromFile(ptr, "snoqualmie", maxPieceSize, pieceFileA)
 	require.NoError(t, err)
 
 	stagedSectors, err := sb.GetAllStagedSectors(ptr)
@@ -70,26 +84,57 @@ func TestSectorBuilderLifecycle(t *testing.T) {
 	stagedSector := stagedSectors[0]
 	require.Equal(t, uint64(1), stagedSector.SectorID)
 
-	// block until Groth parameter cache is (lazily) hydrated and sector has
-	// been sealed (or timeout)
-	status, err := pollForSectorSealingStatus(ptr, sectorID, sealing_state.Sealed, time.Minute*30)
+	// block until the sector is ready for us to begin sealing
+	statusA, err := pollForSectorSealingStatus(ptr, sectorIDA, sealing_state.ReadyForSealing, time.Minute)
 	require.NoError(t, err)
-	require.Equal(t, 1, len(status.Pieces), "expected to see the one piece we added")
+
+	// seal all staged sectors
+	go func() {
+		// blocks until sealing has completed
+		meta, err := sb.SealAllStagedSectors(ptr, ticketA)
+		require.NoError(t, err)
+		require.Equal(t, 1, len(meta))
+		require.Equal(t, 1, len(meta[0].Pieces), "expected to see the one piece we added")
+		require.Equal(t, stagedSector.SectorID, meta[0].SectorID)
+	}()
+
+	// block until the sector begins to seal
+	_, err = pollForSectorSealingStatus(ptr, sectorIDA, sealing_state.Sealing, 15*time.Second)
+	require.NoError(t, err)
+
+	// write a second piece to a staged sector, reducing remaining space to 0
+	sectorIDB, err := sb.AddPieceFromFile(ptr, "duvall", maxPieceSize, pieceFileB)
+	require.NoError(t, err)
+
+	go func() {
+		meta, err := sb.SealSector(ptr, sectorIDB, ticketB)
+		require.NoError(t, err)
+		require.Equal(t, sectorIDB, meta.SectorID)
+	}()
+
+	// block until both sectors have successfully sealed
+	statusA, err = pollForSectorSealingStatus(ptr, sectorIDA, sealing_state.Sealed, 30*time.Minute)
+	require.NoError(t, err)
+	require.Equal(t, ticketA, statusA.Ticket)
+
+	statusB, err := pollForSectorSealingStatus(ptr, sectorIDB, sealing_state.Sealed, 30*time.Minute)
+	require.NoError(t, err)
+	require.Equal(t, ticketB, statusB.Ticket)
 
 	// verify the seal proof
-	isValid, err := sb.VerifySeal(1024, status.CommR, status.CommD, status.CommRStar, [31]byte{}, sectorID, status.Proof)
+	isValid, err := sb.VerifySeal(1024, statusA.CommR, statusA.CommD, proverID, ticketA.TicketBytes, sectorIDA, statusA.Proof)
 	require.NoError(t, err)
 	require.True(t, isValid)
 
 	// verify the piece inclusion proof
-	isValid, err = sb.VerifyPieceInclusionProof(1024, maxPieceSize, commP, status.CommD, status.Pieces[0].InclusionProof)
+	isValid, err = sb.VerifyPieceInclusionProof(1024, maxPieceSize, commP, statusA.CommD, statusA.Pieces[0].InclusionProof)
 	require.NoError(t, err)
 	require.True(t, isValid)
 
 	// enforces sort ordering of SectorInfo tuples
 	sectorInfo := sb.NewSortedSectorInfo(sb.SectorInfo{
-		SectorID: status.SectorID,
-		CommR:    status.CommR,
+		SectorID: statusA.SectorID,
+		CommR:    statusA.CommR,
 	})
 
 	// generate a PoSt
@@ -103,14 +148,13 @@ func TestSectorBuilderLifecycle(t *testing.T) {
 
 	sealedSectors, err = sb.GetAllSealedSectorsWithHealth(ptr)
 	require.NoError(t, err)
-	require.Equal(t, 1, len(sealedSectors), "expected to see one sealed sector")
-	sealedSector := sealedSectors[0]
-	require.Equal(t, uint64(1), sealedSector.SectorID)
-	require.Equal(t, 1, len(sealedSector.Pieces))
-	require.Equal(t, sealed_sector_health.Ok, sealedSector.Health)
-	// the piece is the size of the sector, so its piece commitment should be the
-	// data commitment
-	require.Equal(t, commP, sealedSector.CommD)
+	require.Equal(t, 2, len(sealedSectors), "expected to see two sealed sectors")
+	for _, sealedSector := range sealedSectors {
+		require.Equal(t, sealed_sector_health.Ok, sealedSector.Health)
+	}
+
+	// both sealed sectors contain the same data, so either will suffice
+	require.Equal(t, commP, sealedSectors[0].CommD)
 
 	// unseal the sector and retrieve the client's piece, verifying that the
 	// retrieved bytes match what we originally wrote to the staged sector
