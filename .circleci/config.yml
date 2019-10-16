@@ -23,7 +23,6 @@ jobs:
       - update_submodules
       - build_project
       - lint_project
-      - generate_parameter_checksum
       - restore_parameter_cache
       - obtain_filecoin_parameters
       - save_parameter_cache
@@ -58,7 +57,6 @@ jobs:
       - update_submodules
       - build_project
       - lint_project
-      - generate_parameter_checksum
       - restore_parameter_cache
       - obtain_filecoin_parameters
       - save_parameter_cache
@@ -118,16 +116,11 @@ commands:
     steps:
       - restore_cache:
           keys:
-            - v2-proof-params-{{ checksum "parameter-checksum.txt" }}
+            - v14-proof-params
   save_parameter_cache:
     steps:
       - save_cache:
-          key: v2-proof-params-{{ checksum "parameter-checksum.txt" }}
+          key: v14-proof-params
           paths:
             - "~/filecoin-proof-parameters/"
-  generate_parameter_checksum:
-    steps:
-      - run:
-          name: create parameter cache checksum
-          command: md5sum ./paramcache | cut -d ' ' -f 1 >> parameter-checksum.txt
 
