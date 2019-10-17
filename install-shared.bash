@@ -64,7 +64,6 @@ build_from_source() {
     pushd $__submodule_path
 
     cargo --version
-    cargo update
 
     if [[ -f "./scripts/build-release.sh" ]]; then
         ./scripts/build-release.sh $(cat rust-toolchain)
