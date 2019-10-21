@@ -248,12 +248,12 @@ func GetMaxUserBytesPerStagedSector(sectorSize uint64) uint64 {
 func InitSectorBuilder(
 	sectorSize uint64,
 	poRepProofPartitions uint8,
-	poStProofPartitions uint8,
 	lastUsedSectorID uint64,
 	metadataDir string,
 	proverID [32]byte,
 	sealedSectorDir string,
 	stagedSectorDir string,
+	sectorCacheRootDir string,
 	maxNumOpenStagedSectors uint8,
 ) (unsafe.Pointer, error) {
 	defer elapsed("InitSectorBuilder")()
@@ -270,6 +270,9 @@ func InitSectorBuilder(
 	cSealedSectorDir := C.CString(sealedSectorDir)
 	defer C.free(unsafe.Pointer(cSealedSectorDir))
 
+	cSectorCacheRootDir := C.CString(sectorCacheRootDir)
+	defer C.free(unsafe.Pointer(cSectorCacheRootDir))
+
 	class, err := cSectorClass(sectorSize, poRepProofPartitions)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get sector class")
@@ -282,6 +285,7 @@ func InitSectorBuilder(
 		(*[32]C.uint8_t)(proverIDCBytes),
 		cSealedSectorDir,
 		cStagedSectorDir,
+		cSectorCacheRootDir,
 		C.uint8_t(maxNumOpenStagedSectors),
 	)
 	defer C.sector_builder_ffi_destroy_init_sector_builder_response(resPtr)
