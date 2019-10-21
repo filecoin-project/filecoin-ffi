@@ -19,20 +19,30 @@ if download_release_tarball tarball_path "${subm_dir}"; then
 
     cp "${tmp_dir}/bin/paramcache" .
 else
-    if [ $CI = "true" ]; then
-        (>&2 echo "failed to find or obtain precompiled assets for ${subm_dir} - falling back to local build")
-        build_from_source "${subm_dir}"
+    (>&2 echo "failed to find or obtain precompiled assets for ${subm_dir} - falling back to local build")
+    build_from_source "${subm_dir}"
 
-        mkdir -p include
-        mkdir -p lib/pkgconfig
+    mkdir -p include
+    mkdir -p lib/pkgconfig
 
-        find "${subm_dir}" -type f -name sector_builder_ffi.h -exec cp -- "{}" . \;
-        find "${subm_dir}" -type f -name libsector_builder_ffi.a -exec cp -- "{}" . \;
-        find "${subm_dir}" -type f -name sector_builder_ffi.pc -exec cp -- "{}" . \;
+    find "${subm_dir}/target/release" -type f -name sector_builder_ffi.h -exec cp -- "{}" . \;
+    find "${subm_dir}/target/release" -type f -name libsector_builder_ffi.a -exec cp -- "{}" . \;
+    find "${subm_dir}/target/release" -type f -name sector_builder_ffi.pc -exec cp -- "{}" . \;
 
-        (>&2 echo "WARNING: paramcache was not installed - you may wish to 'cargo install' it")
-    else
-        (>&2 echo "build failed: could not obtain precompiled assets for ${subm_dir} - contact @laser or @dignifiedquire")
+    if [[ ! -f "./sector_builder_ffi.h" ]]; then
+        (>&2 echo "failed to install sector_builder_ffi.h")
         exit 1
     fi
+
+    if [[ ! -f "./libsector_builder_ffi.a" ]]; then
+        (>&2 echo "failed to install libsector_builder_ffi.a")
+        exit 1
+    fi
+
+    if [[ ! -f "./sector_builder_ffi.pc" ]]; then
+        (>&2 echo "failed to install sector_builder_ffi.pc")
+        exit 1
+    fi
+
+    (>&2 echo "WARNING: paramcache was not installed - you may wish to 'cargo install' it")
 fi
