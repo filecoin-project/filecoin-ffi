@@ -5,7 +5,7 @@ download_release_tarball() {
     __submodule_path=$2
     __repo_name=$(echo $2 | cut -d '/' -f 1)
     __release_name="${__repo_name}-$(uname)"
-    __release_sha1=$(git rev-parse @:"${__submodule_path}")
+    __release_sha1=$(git rev-parse HEAD:"${__submodule_path}")
     __release_tag="${__release_sha1:0:16}"
     __release_tag_url="https://api.github.com/repos/filecoin-project/${__repo_name}/releases/tags/${__release_tag}"
 
