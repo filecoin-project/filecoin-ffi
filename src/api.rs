@@ -1,6 +1,6 @@
 use std::slice::from_raw_parts;
 
-use ffi_toolkit::{raw_ptr, rust_str_to_c_str};
+use ffi_toolkit::{catch_panic_response, raw_ptr, rust_str_to_c_str, FCPResponseStatus};
 use filecoin_proofs as api_fns;
 use filecoin_proofs::types as api_types;
 use libc;
@@ -23,48 +23,50 @@ pub unsafe extern "C" fn verify_seal(
     proof_ptr: *const u8,
     proof_len: libc::size_t,
 ) -> *mut VerifySealResponse {
-    init_log();
+    catch_panic_response(|| {
+        init_log();
 
-    info!("verify_seal: start");
+        info!("verify_seal: start");
 
-    let porep_bytes = helpers::try_into_porep_proof_bytes(proof_ptr, proof_len);
+        let porep_bytes = helpers::try_into_porep_proof_bytes(proof_ptr, proof_len);
 
-    let result = porep_bytes.and_then(|bs| {
-        helpers::porep_proof_partitions_try_from_bytes(&bs).and_then(|ppp| {
-            let cfg = api_types::PoRepConfig(api_types::SectorSize(sector_size), ppp);
+        let result = porep_bytes.and_then(|bs| {
+            helpers::porep_proof_partitions_try_from_bytes(&bs).and_then(|ppp| {
+                let cfg = api_types::PoRepConfig(api_types::SectorSize(sector_size), ppp);
 
-            api_fns::verify_seal(
-                cfg,
-                *comm_r,
-                *comm_d,
-                *prover_id,
-                SectorId::from(sector_id),
-                *ticket,
-                &bs,
-            )
-        })
-    });
+                api_fns::verify_seal(
+                    cfg,
+                    *comm_r,
+                    *comm_d,
+                    *prover_id,
+                    SectorId::from(sector_id),
+                    *ticket,
+                    &bs,
+                )
+            })
+        });
 
-    let mut response = VerifySealResponse::default();
+        let mut response = VerifySealResponse::default();
 
-    match result {
-        Ok(true) => {
-            response.status_code = 0;
-            response.is_valid = true;
-        }
-        Ok(false) => {
-            response.status_code = 0;
-            response.is_valid = false;
-        }
-        Err(err) => {
-            response.status_code = 1;
-            response.error_msg = rust_str_to_c_str(format!("{}", err));
-        }
-    };
+        match result {
+            Ok(true) => {
+                response.status_code = FCPResponseStatus::FCPNoError;
+                response.is_valid = true;
+            }
+            Ok(false) => {
+                response.status_code = FCPResponseStatus::FCPNoError;
+                response.is_valid = false;
+            }
+            Err(err) => {
+                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                response.error_msg = rust_str_to_c_str(format!("{}", err));
+            }
+        };
 
-    info!("verify_seal: finish");
+        info!("verify_seal: finish");
 
-    raw_ptr(response)
+        raw_ptr(response)
+    })
 }
 
 /// Verifies that a proof-of-spacetime is valid.
@@ -82,45 +84,47 @@ pub unsafe extern "C" fn verify_post(
     proof_ptr: *const u8,
     proof_len: libc::size_t,
 ) -> *mut VerifyPoStResponse {
-    init_log();
+    catch_panic_response(|| {
+        init_log();
 
-    info!("verify_post: start");
+        info!("verify_post: start");
 
-    let mut response = VerifyPoStResponse::default();
+        let mut response = VerifyPoStResponse::default();
 
-    let convert = helpers::to_public_replica_info_map(
-        sector_ids_ptr,
-        sector_ids_len,
-        flattened_comm_rs_ptr,
-        flattened_comm_rs_len,
-        faulty_sector_ids_ptr,
-        faulty_sector_ids_len,
-    );
+        let convert = helpers::to_public_replica_info_map(
+            sector_ids_ptr,
+            sector_ids_len,
+            flattened_comm_rs_ptr,
+            flattened_comm_rs_len,
+            faulty_sector_ids_ptr,
+            faulty_sector_ids_len,
+        );
 
-    let result = convert.and_then(|map| {
-        ensure!(!proof_ptr.is_null(), "proof_ptr must not be null");
+        let result = convert.and_then(|map| {
+            ensure!(!proof_ptr.is_null(), "proof_ptr must not be null");
 
-        api_fns::verify_post(
-            api_types::PoStConfig(api_types::SectorSize(sector_size)),
-            challenge_seed,
-            from_raw_parts(proof_ptr, proof_len),
-            &map,
-        )
-    });
+            api_fns::verify_post(
+                api_types::PoStConfig(api_types::SectorSize(sector_size)),
+                challenge_seed,
+                from_raw_parts(proof_ptr, proof_len),
+                &map,
+            )
+        });
 
-    match result {
-        Ok(is_valid) => {
-            response.status_code = 0;
-            response.is_valid = is_valid;
-        }
-        Err(err) => {
-            response.status_code = 1;
-            response.error_msg = rust_str_to_c_str(format!("{}", err));
-        }
-    };
+        match result {
+            Ok(is_valid) => {
+                response.status_code = FCPResponseStatus::FCPNoError;
+                response.is_valid = is_valid;
+            }
+            Err(err) => {
+                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                response.error_msg = rust_str_to_c_str(format!("{}", err));
+            }
+        };
 
-    info!("verify_post: {}", "finish");
-    raw_ptr(response)
+        info!("verify_post: {}", "finish");
+        raw_ptr(response)
+    })
 }
 
 /// Verifies that a piece inclusion proof is valid for a given merkle root, piece root, padded and
@@ -134,54 +138,56 @@ pub unsafe extern "C" fn verify_piece_inclusion_proof(
     unpadded_piece_size: u64,
     sector_size: u64,
 ) -> *mut VerifyPieceInclusionProofResponse {
-    init_log();
+    catch_panic_response(|| {
+        init_log();
 
-    info!("verify_piece_inclusion_proof: {}", "start");
+        info!("verify_piece_inclusion_proof: {}", "start");
 
-    let bytes = Ok(()).and_then(|_| {
-        ensure!(
-            !piece_inclusion_proof_ptr.is_null(),
-            "piece_inclusion_proof_ptr must not be null"
-        );
-        Ok(from_raw_parts(
-            piece_inclusion_proof_ptr,
-            piece_inclusion_proof_len,
-        ))
-    });
+        let bytes = Ok(()).and_then(|_| {
+            ensure!(
+                !piece_inclusion_proof_ptr.is_null(),
+                "piece_inclusion_proof_ptr must not be null"
+            );
+            Ok(from_raw_parts(
+                piece_inclusion_proof_ptr,
+                piece_inclusion_proof_len,
+            ))
+        });
 
-    let unpadded_piece_size = api_types::UnpaddedBytesAmount(unpadded_piece_size);
-    let sector_size = api_types::SectorSize(sector_size);
+        let unpadded_piece_size = api_types::UnpaddedBytesAmount(unpadded_piece_size);
+        let sector_size = api_types::SectorSize(sector_size);
 
-    let result = bytes.and_then(|bytes| {
-        api_fns::verify_piece_inclusion_proof(
-            bytes,
-            comm_d,
-            comm_p,
-            unpadded_piece_size,
-            sector_size,
-        )
-    });
+        let result = bytes.and_then(|bytes| {
+            api_fns::verify_piece_inclusion_proof(
+                bytes,
+                comm_d,
+                comm_p,
+                unpadded_piece_size,
+                sector_size,
+            )
+        });
 
-    let mut response = VerifyPieceInclusionProofResponse::default();
+        let mut response = VerifyPieceInclusionProofResponse::default();
 
-    match result {
-        Ok(true) => {
-            response.status_code = 0;
-            response.is_valid = true;
-        }
-        Ok(false) => {
-            response.status_code = 0;
-            response.is_valid = false;
-        }
-        Err(err) => {
-            response.status_code = 1;
-            response.error_msg = rust_str_to_c_str(format!("{}", err));
-        }
-    };
+        match result {
+            Ok(true) => {
+                response.status_code = FCPResponseStatus::FCPNoError;
+                response.is_valid = true;
+            }
+            Ok(false) => {
+                response.status_code = FCPResponseStatus::FCPNoError;
+                response.is_valid = false;
+            }
+            Err(err) => {
+                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                response.error_msg = rust_str_to_c_str(format!("{}", err));
+            }
+        };
 
-    info!("verify_piece_inclusion_proof: {}", "finish");
+        info!("verify_piece_inclusion_proof: {}", "finish");
 
-    raw_ptr(response)
+        raw_ptr(response)
+    })
 }
 
 #[no_mangle]
@@ -199,33 +205,35 @@ pub unsafe extern "C" fn generate_piece_commitment(
     piece_fd_raw: libc::c_int,
     unpadded_piece_size: u64,
 ) -> *mut GeneratePieceCommitmentResponse {
-    init_log();
+    catch_panic_response(|| {
+        init_log();
 
-    use std::os::unix::io::{FromRawFd, IntoRawFd};
+        use std::os::unix::io::{FromRawFd, IntoRawFd};
 
-    let mut piece_file = std::fs::File::from_raw_fd(piece_fd_raw);
+        let mut piece_file = std::fs::File::from_raw_fd(piece_fd_raw);
 
-    let unpadded_piece_size = api_types::UnpaddedBytesAmount(unpadded_piece_size);
+        let unpadded_piece_size = api_types::UnpaddedBytesAmount(unpadded_piece_size);
 
-    let result = api_fns::generate_piece_commitment(&mut piece_file, unpadded_piece_size);
+        let result = api_fns::generate_piece_commitment(&mut piece_file, unpadded_piece_size);
 
-    // avoid dropping the File which closes it
-    let _ = piece_file.into_raw_fd();
+        // avoid dropping the File which closes it
+        let _ = piece_file.into_raw_fd();
 
-    let mut response = GeneratePieceCommitmentResponse::default();
+        let mut response = GeneratePieceCommitmentResponse::default();
 
-    match result {
-        Ok(comm_p) => {
-            response.status_code = 0;
-            response.comm_p = comm_p;
+        match result {
+            Ok(comm_p) => {
+                response.status_code = FCPResponseStatus::FCPNoError;
+                response.comm_p = comm_p;
+            }
+            Err(err) => {
+                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                response.error_msg = rust_str_to_c_str(format!("{}", err));
+            }
         }
-        Err(err) => {
-            response.status_code = 1;
-            response.error_msg = rust_str_to_c_str(format!("{}", err));
-        }
-    }
 
-    raw_ptr(response)
+        raw_ptr(response)
+    })
 }
 
 #[no_mangle]

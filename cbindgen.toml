@@ -19,4 +19,5 @@ language = "C"
 prefix = "filecoin_proofs_ffi_"
 
 [parse]
-parse_deps = false
+parse_deps = true
+include = ["ffi-toolkit"]
