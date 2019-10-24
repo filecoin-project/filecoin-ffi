@@ -2,13 +2,30 @@ use std::slice::from_raw_parts;
 
 use ffi_toolkit::{catch_panic_response, raw_ptr, rust_str_to_c_str, FCPResponseStatus};
 use filecoin_proofs as api_fns;
-use filecoin_proofs::types as api_types;
+use filecoin_proofs::{types as api_types, PieceInfo, UnpaddedBytesAmount};
 use libc;
 use once_cell::sync::OnceCell;
+use storage_proofs::sector::SectorId;
 
 use crate::helpers;
 use crate::responses::*;
-use storage_proofs::sector::SectorId;
+
+#[repr(C)]
+#[derive(Clone)]
+pub struct FFIPublicPieceInfo {
+    pub num_bytes: u64,
+    pub comm_p: [u8; 32],
+}
+
+impl From<FFIPublicPieceInfo> for PieceInfo {
+    fn from(x: FFIPublicPieceInfo) -> Self {
+        let FFIPublicPieceInfo { num_bytes, comm_p } = x;
+        PieceInfo {
+            commitment: comm_p,
+            size: UnpaddedBytesAmount(num_bytes),
+        }
+    }
+}
 
 /// Verifies the output of seal.
 ///
@@ -19,9 +36,12 @@ pub unsafe extern "C" fn verify_seal(
     comm_d: &[u8; 32],
     prover_id: &[u8; 32],
     ticket: &[u8; 32],
+    seed: &[u8; 32],
     sector_id: u64,
     proof_ptr: *const u8,
     proof_len: libc::size_t,
+    pieces_ptr: *const FFIPublicPieceInfo,
+    pieces_len: libc::size_t,
 ) -> *mut VerifySealResponse {
     catch_panic_response(|| {
         init_log();
@@ -32,6 +52,12 @@ pub unsafe extern "C" fn verify_seal(
 
         let result = porep_bytes.and_then(|bs| {
             helpers::porep_proof_partitions_try_from_bytes(&bs).and_then(|ppp| {
+                let public_pieces: Vec<PieceInfo> = from_raw_parts(pieces_ptr, pieces_len)
+                    .iter()
+                    .cloned()
+                    .map(Into::into)
+                    .collect();
+
                 let cfg = api_types::PoRepConfig(api_types::SectorSize(sector_size), ppp);
 
                 api_fns::verify_seal(
@@ -41,7 +67,9 @@ pub unsafe extern "C" fn verify_seal(
                     *prover_id,
                     SectorId::from(sector_id),
                     *ticket,
+                    *seed,
                     &bs,
+                    &public_pieces,
                 )
             })
         });
@@ -127,76 +155,6 @@ pub unsafe extern "C" fn verify_post(
     })
 }
 
-/// Verifies that a piece inclusion proof is valid for a given merkle root, piece root, padded and
-/// aligned piece size, and tree size.
-#[no_mangle]
-pub unsafe extern "C" fn verify_piece_inclusion_proof(
-    comm_d: &[u8; 32],
-    comm_p: &[u8; 32],
-    piece_inclusion_proof_ptr: *const u8,
-    piece_inclusion_proof_len: libc::size_t,
-    unpadded_piece_size: u64,
-    sector_size: u64,
-) -> *mut VerifyPieceInclusionProofResponse {
-    catch_panic_response(|| {
-        init_log();
-
-        info!("verify_piece_inclusion_proof: {}", "start");
-
-        let bytes = Ok(()).and_then(|_| {
-            ensure!(
-                !piece_inclusion_proof_ptr.is_null(),
-                "piece_inclusion_proof_ptr must not be null"
-            );
-            Ok(from_raw_parts(
-                piece_inclusion_proof_ptr,
-                piece_inclusion_proof_len,
-            ))
-        });
-
-        let unpadded_piece_size = api_types::UnpaddedBytesAmount(unpadded_piece_size);
-        let sector_size = api_types::SectorSize(sector_size);
-
-        let result = bytes.and_then(|bytes| {
-            api_fns::verify_piece_inclusion_proof(
-                bytes,
-                comm_d,
-                comm_p,
-                unpadded_piece_size,
-                sector_size,
-            )
-        });
-
-        let mut response = VerifyPieceInclusionProofResponse::default();
-
-        match result {
-            Ok(true) => {
-                response.status_code = FCPResponseStatus::FCPNoError;
-                response.is_valid = true;
-            }
-            Ok(false) => {
-                response.status_code = FCPResponseStatus::FCPNoError;
-                response.is_valid = false;
-            }
-            Err(err) => {
-                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{}", err));
-            }
-        };
-
-        info!("verify_piece_inclusion_proof: {}", "finish");
-
-        raw_ptr(response)
-    })
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn destroy_verify_piece_inclusion_proof_response(
-    ptr: *mut VerifyPieceInclusionProofResponse,
-) {
-    let _ = Box::from_raw(ptr);
-}
-
 /// Returns the merkle root for a piece after piece padding and alignment.
 /// The caller is responsible for closing the passed in file descriptor.
 #[no_mangle]
@@ -222,9 +180,10 @@ pub unsafe extern "C" fn generate_piece_commitment(
         let mut response = GeneratePieceCommitmentResponse::default();
 
         match result {
-            Ok(comm_p) => {
+            Ok(meta) => {
                 response.status_code = FCPResponseStatus::FCPNoError;
-                response.comm_p = comm_p;
+                response.comm_p = meta.commitment;
+                response.num_bytes_aligned = meta.size.into();
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
