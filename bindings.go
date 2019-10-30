@@ -36,8 +36,14 @@ type SortedSectorInfo struct {
 	f []SectorInfo
 }
 
-// SealTicket commits a sector to a subchain.
+// SealTicket is required for the first step of Interactive PoRep.
 type SealTicket struct {
+	BlockHeight uint64
+	TicketBytes [32]byte
+}
+
+// SealSeed is required for the second step of Interactive PoRep.
+type SealSeed struct {
 	BlockHeight uint64
 	TicketBytes [32]byte
 }
@@ -91,14 +97,35 @@ type StagedSectorMetadata struct {
 
 // SealedSectorMetadata represents a sector in the builder that has been sealed.
 type SealedSectorMetadata struct {
-	SectorID  uint64
-	CommD     [CommitmentBytesLen]byte
-	CommR     [CommitmentBytesLen]byte
-	CommRStar [CommitmentBytesLen]byte
-	Proof     []byte
-	Pieces    []PieceMetadata
-	Health    sealed_sector_health.Health
-	Ticket    SealTicket
+	SectorID uint64
+	CommD    [CommitmentBytesLen]byte
+	CommR    [CommitmentBytesLen]byte
+	Proof    []byte
+	Pieces   []PieceMetadata
+	Health   sealed_sector_health.Health
+	Ticket   SealTicket
+	Seed     SealSeed
+}
+
+// SealPreCommitOutput is used to acquire a seed from the chain for the second
+// step of Interactive PoRep.
+type SealPreCommitOutput struct {
+	SectorID uint64
+	CommD    [CommitmentBytesLen]byte
+	CommR    [CommitmentBytesLen]byte
+	Pieces   []PieceMetadata
+	Ticket   SealTicket
+}
+
+// SealCommitOutput is produced by the second step of Interactive PoRep.
+type SealCommitOutput struct {
+	SectorID uint64
+	CommD    [CommitmentBytesLen]byte
+	CommR    [CommitmentBytesLen]byte
+	Proof    []byte
+	Pieces   []PieceMetadata
+	Ticket   SealTicket
+	Seed     SealSeed
 }
 
 // SectorSealingStatus communicates how far along in the sealing process a
@@ -107,19 +134,25 @@ type SectorSealingStatus struct {
 	SectorID     uint64
 	State        sealing_state.State
 	SealErrorMsg string                   // will be nil unless State == Failed
-	CommD        [CommitmentBytesLen]byte // will be empty unless State == Sealed
-	CommR        [CommitmentBytesLen]byte // will be empty unless State == Sealed
-	Proof        []byte                   // will be empty unless State == Sealed
-	Pieces       []PieceMetadata          // will be empty unless State == Sealed
-	Ticket       SealTicket               // will be empty unless State == Sealed
+	CommD        [CommitmentBytesLen]byte // will be empty unless State == Committed
+	CommR        [CommitmentBytesLen]byte // will be empty unless State == Committed
+	Proof        []byte                   // will be empty unless State == Committed
+	Pieces       []PieceMetadata          // will be empty unless State == Committed
+	Ticket       SealTicket               // will be empty unless State == Committed
+	Seed         SealSeed                 // will be empty unless State == Committed
 }
 
 // PieceMetadata represents a piece stored by the sector builder.
 type PieceMetadata struct {
-	Key            string
-	Size           uint64
-	InclusionProof []byte
-	CommP          [CommitmentBytesLen]byte
+	Key   string
+	Size  uint64
+	CommP [CommitmentBytesLen]byte
+}
+
+// PublicPieceInfo is an on-chain tuple of CommP and aligned piece-size.
+type PublicPieceInfo struct {
+	Size  uint64
+	CommP [CommitmentBytesLen]byte
 }
 
 // VerifySeal returns true if the sealing operation from which its inputs were
@@ -130,8 +163,10 @@ func VerifySeal(
 	commD [CommitmentBytesLen]byte,
 	proverID [32]byte,
 	ticket [32]byte,
+	seed [32]byte,
 	sectorID uint64,
 	proof []byte,
+	pieces []PublicPieceInfo,
 ) (bool, error) {
 	defer elapsed("VerifySeal")()
 
@@ -150,6 +185,12 @@ func VerifySeal(
 	ticketCBytes := C.CBytes(ticket[:])
 	defer C.free(ticketCBytes)
 
+	seedCBytes := C.CBytes(seed[:])
+	defer C.free(seedCBytes)
+
+	cPiecesPtr, cPiecesLen := cPublicPieceInfo(pieces)
+	defer C.free(unsafe.Pointer(cPiecesPtr))
+
 	// a mutable pointer to a VerifySealResponse C-struct
 	resPtr := C.sector_builder_ffi_verify_seal(
 		C.uint64_t(sectorSize),
@@ -158,8 +199,11 @@ func VerifySeal(
 		(*[32]C.uint8_t)(proverIDCBytes),
 		C.uint64_t(sectorID),
 		(*[32]C.uint8_t)(ticketCBytes),
+		(*[32]C.uint8_t)(seedCBytes),
 		(*C.uint8_t)(proofCBytes),
 		C.size_t(len(proof)),
+		(*C.sector_builder_ffi_FFIPublicPieceInfo)(cPiecesPtr),
+		cPiecesLen,
 	)
 	defer C.sector_builder_ffi_destroy_verify_seal_response(resPtr)
 
@@ -255,6 +299,7 @@ func InitSectorBuilder(
 	stagedSectorDir string,
 	sectorCacheRootDir string,
 	maxNumOpenStagedSectors uint8,
+	numWorkerThreads uint8,
 ) (unsafe.Pointer, error) {
 	defer elapsed("InitSectorBuilder")()
 
@@ -287,6 +332,7 @@ func InitSectorBuilder(
 		cStagedSectorDir,
 		cSectorCacheRootDir,
 		C.uint8_t(maxNumOpenStagedSectors),
+		C.uint8_t(numWorkerThreads),
 	)
 	defer C.sector_builder_ffi_destroy_init_sector_builder_response(resPtr)
 
@@ -388,11 +434,11 @@ func ReadPieceFromSealedSector(sectorBuilderPtr unsafe.Pointer, pieceKey string)
 	return goBytes(resPtr.data_ptr, resPtr.data_len), nil
 }
 
-// SealSector seals the sector with the provided id, blocking until sealing
-// completes. If no staged sector exists in the ReadyToSeal state with such an
-// id, an error will be returned.
-func SealSector(sectorBuilderPtr unsafe.Pointer, sectorID uint64, ticket SealTicket) (SealedSectorMetadata, error) {
-	defer elapsed("SealSector")()
+// SealPreCommit pre-commits the sector with the provided id to the ticket,
+// blocking until completion. If no staged sector with the provided id exists in
+// the FullyPacked or AcceptingPieces state, an error will be returned.
+func SealPreCommit(sectorBuilderPtr unsafe.Pointer, sectorID uint64, ticket SealTicket) (SealPreCommitOutput, error) {
+	defer elapsed("SealPreCommit")()
 
 	cTicketBytes := C.CBytes(ticket.TicketBytes[:])
 	defer C.free(cTicketBytes)
@@ -402,67 +448,90 @@ func SealSector(sectorBuilderPtr unsafe.Pointer, sectorID uint64, ticket SealTic
 		ticket_bytes: *(*[32]C.uint8_t)(cTicketBytes),
 	}
 
-	resPtr := C.sector_builder_ffi_seal_sector((*C.sector_builder_ffi_SectorBuilder)(sectorBuilderPtr), C.uint64_t(sectorID), cSealTicket)
-	defer C.sector_builder_ffi_destroy_seal_sector_response(resPtr)
+	resPtr := C.sector_builder_ffi_seal_pre_commit((*C.sector_builder_ffi_SectorBuilder)(sectorBuilderPtr), C.uint64_t(sectorID), cSealTicket)
+	defer C.sector_builder_ffi_destroy_seal_pre_commit_response(resPtr)
 
 	if resPtr.status_code != 0 {
-		return SealedSectorMetadata{}, errors.New(C.GoString(resPtr.error_msg))
+		return SealPreCommitOutput{}, errors.New(C.GoString(resPtr.error_msg))
 	}
 
-	meta, err := goSealedSectorMetadata((*C.sector_builder_ffi_FFISealedSectorMetadata)(unsafe.Pointer(&resPtr.meta)), 1)
+	out, err := goSealPreCommitOutput(resPtr)
 	if err != nil {
-		return SealedSectorMetadata{}, err
+		return SealPreCommitOutput{}, err
 	}
 
-	return meta[0], nil
+	return out, nil
 }
 
-// ResumeSealSector resumes sealing for a sector in the Paused state. If no
-// staged sector exists in such a state, an error will be returned.
-func ResumeSealSector(sectorBuilderPtr unsafe.Pointer, sectorID uint64) (SealedSectorMetadata, error) {
-	defer elapsed("ResumeSealSector")()
+// ResumeSealPreCommit resumes the pre-commit operation for a sector with the
+// provided id. If no sector exists with the given id that is in the
+// PreCommittingPaused state, an error will be returned.
+func ResumeSealPreCommit(sectorBuilderPtr unsafe.Pointer, sectorID uint64) (SealPreCommitOutput, error) {
+	defer elapsed("ResumeSealPreCommit")()
 
-	resPtr := C.sector_builder_ffi_resume_seal_sector((*C.sector_builder_ffi_SectorBuilder)(sectorBuilderPtr), C.uint64_t(sectorID))
-	defer C.sector_builder_ffi_destroy_resume_seal_sector_response(resPtr)
+	resPtr := C.sector_builder_ffi_resume_seal_pre_commit((*C.sector_builder_ffi_SectorBuilder)(sectorBuilderPtr), C.uint64_t(sectorID))
+	defer C.sector_builder_ffi_destroy_resume_seal_pre_commit_response(resPtr)
 
 	if resPtr.status_code != 0 {
-		return SealedSectorMetadata{}, errors.New(C.GoString(resPtr.error_msg))
+		return SealPreCommitOutput{}, errors.New(C.GoString(resPtr.error_msg))
 	}
 
-	meta, err := goSealedSectorMetadata((*C.sector_builder_ffi_FFISealedSectorMetadata)(unsafe.Pointer(&resPtr.meta)), 1)
+	out, err := goResumeSealPreCommitOutput(resPtr)
 	if err != nil {
-		return SealedSectorMetadata{}, err
+		return SealPreCommitOutput{}, err
 	}
 
-	return meta[0], nil
+	return out, nil
 }
 
-// SealAllStagedSectors seals all staged sectors and returns sealed sector
-// metadata for all successfully sealed sectors.
-func SealAllStagedSectors(sectorBuilderPtr unsafe.Pointer, ticket SealTicket) ([]SealedSectorMetadata, error) {
-	defer elapsed("SealAllStagedSectors")()
+// SealCommit commits the sector with the provided id to the seed, blocking
+// until completion. If no staged sector exists in the PreCommitted state with
+// such an id, an error will be returned.
+func SealCommit(sectorBuilderPtr unsafe.Pointer, sectorID uint64, seed SealSeed) (SealCommitOutput, error) {
+	defer elapsed("SealCommit")()
 
-	cTicketBytes := C.CBytes(ticket.TicketBytes[:])
-	defer C.free(cTicketBytes)
+	cSeedBytes := C.CBytes(seed.TicketBytes[:])
+	defer C.free(cSeedBytes)
 
-	cSealTicket := C.sector_builder_ffi_FFISealTicket{
-		block_height: C.uint64_t(ticket.BlockHeight),
-		ticket_bytes: *(*[32]C.uint8_t)(cTicketBytes),
+	cSealSeed := C.sector_builder_ffi_FFISealSeed{
+		block_height: C.uint64_t(seed.BlockHeight),
+		ticket_bytes: *(*[32]C.uint8_t)(cSeedBytes),
 	}
 
-	resPtr := C.sector_builder_ffi_seal_all_staged_sectors((*C.sector_builder_ffi_SectorBuilder)(sectorBuilderPtr), cSealTicket)
-	defer C.sector_builder_ffi_destroy_seal_all_staged_sectors_response(resPtr)
+	resPtr := C.sector_builder_ffi_seal_commit((*C.sector_builder_ffi_SectorBuilder)(sectorBuilderPtr), C.uint64_t(sectorID), cSealSeed)
+	defer C.sector_builder_ffi_destroy_seal_commit_response(resPtr)
 
 	if resPtr.status_code != 0 {
-		return nil, errors.New(C.GoString(resPtr.error_msg))
+		return SealCommitOutput{}, errors.New(C.GoString(resPtr.error_msg))
 	}
 
-	meta, err := goSealedSectorMetadata(resPtr.meta_ptr, resPtr.meta_len)
+	out, err := goSealCommitOutput(resPtr)
 	if err != nil {
-		return nil, err
+		return SealCommitOutput{}, err
 	}
 
-	return meta, nil
+	return out, nil
+}
+
+// ResumeSealCommit resumes sector commit (the second stage of Interactive
+// PoRep) for a sector in the CommittingPaused state. If no staged sector exists
+// in such a state, an error will be returned.
+func ResumeSealCommit(sectorBuilderPtr unsafe.Pointer, sectorID uint64) (SealCommitOutput, error) {
+	defer elapsed("ResumeSealCommit")()
+
+	resPtr := C.sector_builder_ffi_resume_seal_commit((*C.sector_builder_ffi_SectorBuilder)(sectorBuilderPtr), C.uint64_t(sectorID))
+	defer C.sector_builder_ffi_destroy_resume_seal_commit_response(resPtr)
+
+	if resPtr.status_code != 0 {
+		return SealCommitOutput{}, errors.New(C.GoString(resPtr.error_msg))
+	}
+
+	out, err := goResumeSealCommitOutput(resPtr)
+	if err != nil {
+		return SealCommitOutput{}, err
+	}
+
+	return out, nil
 }
 
 // GetAllStagedSectors returns a slice of all staged sector metadata for the sector builder.
@@ -519,15 +588,21 @@ func GetSectorSealingStatusByID(sectorBuilderPtr unsafe.Pointer, sectorID uint64
 
 	if resPtr.seal_status_code == C.Failed {
 		return SectorSealingStatus{SectorID: sectorID, State: sealing_state.Failed, SealErrorMsg: C.GoString(resPtr.seal_error_msg)}, nil
-	} else if resPtr.seal_status_code == C.ReadyForSealing {
-		return SectorSealingStatus{SectorID: sectorID, State: sealing_state.ReadyForSealing}, nil
-	} else if resPtr.seal_status_code == C.Paused {
-		return SectorSealingStatus{SectorID: sectorID, State: sealing_state.Paused}, nil
-	} else if resPtr.seal_status_code == C.Pending {
-		return SectorSealingStatus{SectorID: sectorID, State: sealing_state.Pending}, nil
-	} else if resPtr.seal_status_code == C.Sealing {
-		return SectorSealingStatus{SectorID: sectorID, State: sealing_state.Sealing}, nil
-	} else if resPtr.seal_status_code == C.Sealed {
+	} else if resPtr.seal_status_code == C.AcceptingPieces {
+		return SectorSealingStatus{SectorID: sectorID, State: sealing_state.AcceptingPieces}, nil
+	} else if resPtr.seal_status_code == C.Committing {
+		return SectorSealingStatus{SectorID: sectorID, State: sealing_state.Committing}, nil
+	} else if resPtr.seal_status_code == C.CommittingPaused {
+		return SectorSealingStatus{SectorID: sectorID, State: sealing_state.CommittingPaused}, nil
+	} else if resPtr.seal_status_code == C.FullyPacked {
+		return SectorSealingStatus{SectorID: sectorID, State: sealing_state.FullyPacked}, nil
+	} else if resPtr.seal_status_code == C.PreCommitted {
+		return SectorSealingStatus{SectorID: sectorID, State: sealing_state.PreCommitted}, nil
+	} else if resPtr.seal_status_code == C.PreCommitting {
+		return SectorSealingStatus{SectorID: sectorID, State: sealing_state.PreCommitting}, nil
+	} else if resPtr.seal_status_code == C.PreCommittingPaused {
+		return SectorSealingStatus{SectorID: sectorID, State: sealing_state.PreCommittingPaused}, nil
+	} else if resPtr.seal_status_code == C.Committed {
 		commRSlice := goBytes(&resPtr.comm_r[0], CommitmentBytesLen)
 		var commR [CommitmentBytesLen]byte
 		copy(commR[:], commRSlice)
@@ -545,12 +620,13 @@ func GetSectorSealingStatusByID(sectorBuilderPtr unsafe.Pointer, sectorID uint64
 
 		return SectorSealingStatus{
 			SectorID: sectorID,
-			State:    sealing_state.Sealed,
+			State:    sealing_state.Committed,
 			CommD:    commD,
 			CommR:    commR,
 			Proof:    proof,
 			Pieces:   ps,
 			Ticket:   goSealTicket(resPtr.seal_ticket),
+			Seed:     goSealSeed(resPtr.seal_seed),
 		}, nil
 	} else {
 		// unknown
@@ -605,35 +681,6 @@ func GeneratePoSt(
 	}
 
 	return goBytes(resPtr.proof_ptr, resPtr.proof_len), nil
-}
-
-// VerifyPieceInclusionProof returns true if the piece inclusion proof is valid
-// with the given arguments.
-func VerifyPieceInclusionProof(sectorSize uint64, pieceSize uint64, commP [CommitmentBytesLen]byte, commD [CommitmentBytesLen]byte, proof []byte) (bool, error) {
-	commDCBytes := C.CBytes(commD[:])
-	defer C.free(commDCBytes)
-
-	commPCBytes := C.CBytes(commP[:])
-	defer C.free(commPCBytes)
-
-	pieceInclusionProofCBytes := C.CBytes(proof)
-	defer C.free(pieceInclusionProofCBytes)
-
-	resPtr := C.sector_builder_ffi_verify_piece_inclusion_proof(
-		(*[CommitmentBytesLen]C.uint8_t)(commDCBytes),
-		(*[CommitmentBytesLen]C.uint8_t)(commPCBytes),
-		(*C.uint8_t)(pieceInclusionProofCBytes),
-		C.size_t(len(proof)),
-		C.uint64_t(pieceSize),
-		C.uint64_t(sectorSize),
-	)
-	defer C.sector_builder_ffi_destroy_verify_piece_inclusion_proof_response(resPtr)
-
-	if resPtr.status_code != 0 {
-		return false, errors.New(C.GoString(resPtr.error_msg))
-	}
-
-	return bool(resPtr.is_valid), nil
 }
 
 // GeneratePieceCommitment produces a piece commitment for the provided data

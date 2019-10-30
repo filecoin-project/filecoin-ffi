@@ -27,7 +27,7 @@ else
 
     find "${subm_dir}/target/release" -type f -name sector_builder_ffi.h -exec cp -- "{}" . \;
     find "${subm_dir}/target/release" -type f -name libsector_builder_ffi.a -exec cp -- "{}" . \;
-    find "${subm_dir}/target/release" -type f -name sector_builder_ffi.pc -exec cp -- "{}" . \;
+    find "${subm_dir}" -type f -name sector_builder_ffi.pc -exec cp -- "{}" . \;
 
     if [[ ! -f "./sector_builder_ffi.h" ]]; then
         (>&2 echo "failed to install sector_builder_ffi.h")

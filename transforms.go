@@ -18,6 +18,24 @@ import "C"
 // with the number of partitions used when creating that proof.
 const SingleProofPartitionProofLen = 192
 
+func cPublicPieceInfo(src []PublicPieceInfo) (*C.sector_builder_ffi_FFIPublicPieceInfo, C.size_t) {
+	srcCSizeT := C.size_t(len(src))
+
+	// allocate array in C heap
+	cPublicPieceInfos := C.malloc(srcCSizeT * C.sizeof_sector_builder_ffi_FFIPublicPieceInfo)
+
+	// create a Go slice backed by the C-array
+	xs := (*[1 << 30]C.sector_builder_ffi_FFIPublicPieceInfo)(cPublicPieceInfos)
+	for i, v := range src {
+		xs[i] = C.sector_builder_ffi_FFIPublicPieceInfo{
+			num_bytes: C.uint64_t(v.Size),
+			comm_p:    *(*[32]C.uint8_t)(unsafe.Pointer(&v.CommP)),
+		}
+	}
+
+	return (*C.sector_builder_ffi_FFIPublicPieceInfo)(cPublicPieceInfos), srcCSizeT
+}
+
 func cUint64s(src []uint64) (*C.uint64_t, C.size_t) {
 	srcCSizeT := C.size_t(len(src))
 
@@ -51,6 +69,117 @@ func goSealTicket(src C.sector_builder_ffi_FFISealTicket) SealTicket {
 
 	return SealTicket{
 		TicketBytes: ticketBytes,
+		BlockHeight: uint64(src.block_height),
+	}
+}
+
+func goSealCommitOutput(src *C.sector_builder_ffi_SealCommitResponse) (SealCommitOutput, error) {
+	commDSlice := goBytes(&src.comm_d[0], CommitmentBytesLen)
+	var commD [CommitmentBytesLen]byte
+	copy(commD[:], commDSlice)
+
+	commRSlice := goBytes(&src.comm_r[0], CommitmentBytesLen)
+	var commR [CommitmentBytesLen]byte
+	copy(commR[:], commRSlice)
+
+	proof := goBytes(src.proofs_ptr, src.proofs_len)
+
+	pieces, err := goPieceMetadata(src.pieces_ptr, src.pieces_len)
+	if err != nil {
+		return SealCommitOutput{}, errors.Wrap(err, "failed to marshal piece metadata")
+	}
+
+	return SealCommitOutput{
+		SectorID: uint64(src.sector_id),
+		CommD:    commD,
+		CommR:    commR,
+		Proof:    proof,
+		Pieces:   pieces,
+		Ticket:   goSealTicket(src.seal_ticket),
+		Seed:     goSealSeed(src.seal_seed),
+	}, nil
+}
+
+func goResumeSealCommitOutput(src *C.sector_builder_ffi_ResumeSealCommitResponse) (SealCommitOutput, error) {
+	commDSlice := goBytes(&src.comm_d[0], CommitmentBytesLen)
+	var commD [CommitmentBytesLen]byte
+	copy(commD[:], commDSlice)
+
+	commRSlice := goBytes(&src.comm_r[0], CommitmentBytesLen)
+	var commR [CommitmentBytesLen]byte
+	copy(commR[:], commRSlice)
+
+	proof := goBytes(src.proofs_ptr, src.proofs_len)
+
+	pieces, err := goPieceMetadata(src.pieces_ptr, src.pieces_len)
+	if err != nil {
+		return SealCommitOutput{}, errors.Wrap(err, "failed to marshal piece metadata")
+	}
+
+	return SealCommitOutput{
+		SectorID: uint64(src.sector_id),
+		CommD:    commD,
+		CommR:    commR,
+		Proof:    proof,
+		Pieces:   pieces,
+		Ticket:   goSealTicket(src.seal_ticket),
+		Seed:     goSealSeed(src.seal_seed),
+	}, nil
+}
+
+func goSealPreCommitOutput(src *C.sector_builder_ffi_SealPreCommitResponse) (SealPreCommitOutput, error) {
+	commDSlice := goBytes(&src.comm_d[0], CommitmentBytesLen)
+	var commD [CommitmentBytesLen]byte
+	copy(commD[:], commDSlice)
+
+	commRSlice := goBytes(&src.comm_r[0], CommitmentBytesLen)
+	var commR [CommitmentBytesLen]byte
+	copy(commR[:], commRSlice)
+
+	pieces, err := goPieceMetadata(src.pieces_ptr, src.pieces_len)
+	if err != nil {
+		return SealPreCommitOutput{}, errors.Wrap(err, "failed to marshal piece metadata")
+	}
+
+	return SealPreCommitOutput{
+		SectorID: uint64(src.sector_id),
+		CommD:    commD,
+		CommR:    commR,
+		Pieces:   pieces,
+		Ticket:   goSealTicket(src.seal_ticket),
+	}, nil
+}
+
+func goResumeSealPreCommitOutput(src *C.sector_builder_ffi_ResumeSealPreCommitResponse) (SealPreCommitOutput, error) {
+	commDSlice := goBytes(&src.comm_d[0], CommitmentBytesLen)
+	var commD [CommitmentBytesLen]byte
+	copy(commD[:], commDSlice)
+
+	commRSlice := goBytes(&src.comm_r[0], CommitmentBytesLen)
+	var commR [CommitmentBytesLen]byte
+	copy(commR[:], commRSlice)
+
+	pieces, err := goPieceMetadata(src.pieces_ptr, src.pieces_len)
+	if err != nil {
+		return SealPreCommitOutput{}, errors.Wrap(err, "failed to marshal piece metadata")
+	}
+
+	return SealPreCommitOutput{
+		SectorID: uint64(src.sector_id),
+		CommD:    commD,
+		CommR:    commR,
+		Pieces:   pieces,
+		Ticket:   goSealTicket(src.seal_ticket),
+	}, nil
+}
+
+func goSealSeed(src C.sector_builder_ffi_FFISealTicket) SealSeed {
+	seedBytesSlice := C.GoBytes(unsafe.Pointer(&src.ticket_bytes[0]), 32)
+	var seedBytes [CommitmentBytesLen]byte
+	copy(seedBytes[:], seedBytesSlice)
+
+	return SealSeed{
+		TicketBytes: seedBytes,
 		BlockHeight: uint64(src.block_height),
 	}
 }
@@ -107,6 +236,7 @@ func goSealedSectorMetadata(src *C.sector_builder_ffi_FFISealedSectorMetadata, s
 			Pieces:   pieces,
 			Health:   health,
 			Ticket:   goSealTicket(ptrs[i].seal_ticket),
+			Seed:     goSealSeed(ptrs[i].seal_seed),
 		}
 	}
 
@@ -126,10 +256,9 @@ func goPieceMetadata(src *C.sector_builder_ffi_FFIPieceMetadata, size C.size_t) 
 		copy(commP[:], commPSlice)
 
 		ps[i] = PieceMetadata{
-			Key:            C.GoString(ptrs[i].piece_key),
-			Size:           uint64(ptrs[i].num_bytes),
-			CommP:          commP,
-			InclusionProof: goBytes(ptrs[i].piece_inclusion_proof_ptr, ptrs[i].piece_inclusion_proof_len),
+			Key:   C.GoString(ptrs[i].piece_key),
+			Size:  uint64(ptrs[i].num_bytes),
+			CommP: commP,
 		}
 	}
 

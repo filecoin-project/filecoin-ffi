@@ -4,23 +4,29 @@ package sealing_state
 type State int
 
 const (
-	Unknown         State = iota
-	Pending               // sector is still accepting user data
-	Failed                // sealing failed
-	Sealing               // sector is currently being sealed
-	Sealed                // sector has been sealed successfully
-	Paused                // sector sealing has been paused and can be resumed
-	ReadyForSealing       // staged sector is full and is ready to seal
+	Unknown             State = iota
+	AcceptingPieces           // sector is still accepting user data
+	Committed                 // sector has been committed to a ticket and seed
+	Committing                // sector is being committed
+	CommittingPaused          // sector was committing, but now paused
+	Failed                    // sector failed during pre-commit or commit
+	FullyPacked               // sector is no longer accepting pieces; is fully packed
+	PreCommitted              // sector has been pre-committed to a ticket
+	PreCommitting             // sector is pre-committing
+	PreCommittingPaused       // sector was paused during pre-commit
 )
 
 var labels = [...]string{
 	"Unknown",
-	"Pending",
+	"AcceptingPieces",
+	"Committed",
+	"Committing",
+	"CommittingPaused",
 	"Failed",
-	"Sealing",
-	"Sealed",
-	"Paused",
-	"ReadyForSealing",
+	"FullyPacked",
+	"PreCommitted",
+	"PreCommitting",
+	"PreCommittingPaused",
 }
 
 func (el State) String() string {

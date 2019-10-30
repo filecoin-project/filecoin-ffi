@@ -11,7 +11,7 @@ jobs:
       - run:
           name: Install Rust toolchain
           command: |
-            (sudo apt-get update && sudo apt-get install -y clang libssl-dev && which cargo && which rustc) || (curl https://sh.rustup.rs -sSf | sh -s -- -y)
+            (sudo apt-get update && sudo apt-get install -y ocl-icd-opencl-dev clang libssl-dev && which cargo && which rustc) || (curl https://sh.rustup.rs -sSf | sh -s -- -y)
             rustc --version
       - run:
           name: Install jq
@@ -116,11 +116,11 @@ commands:
     steps:
       - restore_cache:
           keys:
-            - v14-proof-params-{{ arch }}
+            - v15-proof-params-{{ arch }}
   save_parameter_cache:
     steps:
       - save_cache:
-          key: v14-proof-params-{{ arch }}
+          key: v15-proof-params-{{ arch }}
           paths:
             - "~/filecoin-proof-parameters/"
 
