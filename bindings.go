@@ -166,7 +166,6 @@ func VerifySeal(
 	seed [32]byte,
 	sectorID uint64,
 	proof []byte,
-	pieces []PublicPieceInfo,
 ) (bool, error) {
 	defer elapsed("VerifySeal")()
 
@@ -188,9 +187,6 @@ func VerifySeal(
 	seedCBytes := C.CBytes(seed[:])
 	defer C.free(seedCBytes)
 
-	cPiecesPtr, cPiecesLen := cPublicPieceInfo(pieces)
-	defer C.free(unsafe.Pointer(cPiecesPtr))
-
 	// a mutable pointer to a VerifySealResponse C-struct
 	resPtr := C.sector_builder_ffi_verify_seal(
 		C.uint64_t(sectorSize),
@@ -202,8 +198,6 @@ func VerifySeal(
 		(*[32]C.uint8_t)(seedCBytes),
 		(*C.uint8_t)(proofCBytes),
 		C.size_t(len(proof)),
-		(*C.sector_builder_ffi_FFIPublicPieceInfo)(cPiecesPtr),
-		cPiecesLen,
 	)
 	defer C.sector_builder_ffi_destroy_verify_seal_response(resPtr)
 
@@ -692,6 +686,26 @@ func GeneratePieceCommitment(piecePath string, pieceSize uint64) ([CommitmentByt
 	}
 
 	return GeneratePieceCommitmentFromFile(pieceFile, pieceSize)
+}
+
+// GenerateDataCommitment produces a commitment for the sector containing the
+// provided pieces.
+func GenerateDataCommitment(sectorSize uint64, pieces []PublicPieceInfo) ([CommitmentBytesLen]byte, error) {
+	cPiecesPtr, cPiecesLen := cPublicPieceInfo(pieces)
+	defer C.free(unsafe.Pointer(cPiecesPtr))
+
+	resPtr := C.sector_builder_ffi_generate_data_commitment(C.uint64_t(sectorSize), (*C.sector_builder_ffi_FFIPublicPieceInfo)(cPiecesPtr), cPiecesLen)
+	defer C.sector_builder_ffi_destroy_generate_data_commitment_response(resPtr)
+
+	if resPtr.status_code != 0 {
+		return [CommitmentBytesLen]byte{}, errors.New(C.GoString(resPtr.error_msg))
+	}
+
+	commDSlice := goBytes(&resPtr.comm_d[0], CommitmentBytesLen)
+	var commitment [CommitmentBytesLen]byte
+	copy(commitment[:], commDSlice)
+
+	return commitment, nil
 }
 
 // GeneratePieceCommitmentFromFile produces a piece commitment for the provided data

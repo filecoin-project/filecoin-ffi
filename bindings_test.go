@@ -89,6 +89,9 @@ func TestSectorBuilderLifecycle(t *testing.T) {
 		CommP: commP,
 	}}
 
+	preComputedCommD, err := sb.GenerateDataCommitment(1024, publicPieceInfoA)
+	require.NoError(t, err)
+
 	// seek to the beginning
 	_, err = pieceFileA.Seek(0, 0)
 	require.NoError(t, err)
@@ -113,6 +116,7 @@ func TestSectorBuilderLifecycle(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, sectorIDA, out.SectorID)
 		require.Equal(t, ticketA.TicketBytes, out.Ticket.TicketBytes)
+		require.True(t, bytes.Equal(preComputedCommD[:], out.CommD[:]))
 	}()
 
 	// write a second piece to a staged sector, reducing remaining space to 0
@@ -161,7 +165,7 @@ func TestSectorBuilderLifecycle(t *testing.T) {
 	require.Equal(t, seedB.TicketBytes, statusB.Seed.TicketBytes)
 
 	// verify the seal proof
-	isValid, err := sb.VerifySeal(1024, statusA.CommR, statusA.CommD, proverID, ticketA.TicketBytes, seedA.TicketBytes, sectorIDA, statusA.Proof, publicPieceInfoA)
+	isValid, err := sb.VerifySeal(1024, statusA.CommR, statusA.CommD, proverID, ticketA.TicketBytes, seedA.TicketBytes, sectorIDA, statusA.Proof)
 	require.NoError(t, err)
 	require.True(t, isValid)
 
