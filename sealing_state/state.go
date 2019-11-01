@@ -16,7 +16,7 @@ const (
 	PreCommittingPaused       // sector was paused during pre-commit
 )
 
-var labels = [...]string{
+var Labels = [...]string{
 	"Unknown",
 	"AcceptingPieces",
 	"Committed",
@@ -30,5 +30,5 @@ var labels = [...]string{
 }
 
 func (el State) String() string {
-	return labels[el]
+	return Labels[el]
 }
