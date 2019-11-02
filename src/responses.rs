@@ -79,3 +79,27 @@ impl Default for GeneratePieceCommitmentResponse {
 }
 
 code_and_message_impl!(GeneratePieceCommitmentResponse);
+
+///////////////////////////////////////////////////////////////////////////////
+/// GenerateDataCommitmentResponse
+//////////////////////////////////
+
+#[repr(C)]
+#[derive(DropStructMacro)]
+pub struct GenerateDataCommitmentResponse {
+    pub status_code: FCPResponseStatus,
+    pub error_msg: *const libc::c_char,
+    pub comm_d: [u8; 32],
+}
+
+impl Default for GenerateDataCommitmentResponse {
+    fn default() -> GenerateDataCommitmentResponse {
+        GenerateDataCommitmentResponse {
+            status_code: FCPResponseStatus::FCPNoError,
+            comm_d: Default::default(),
+            error_msg: ptr::null(),
+        }
+    }
+}
+
+code_and_message_impl!(GenerateDataCommitmentResponse);
