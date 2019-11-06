@@ -3,12 +3,15 @@ package go_sectorbuilder_test
 import (
 	"bytes"
 	"crypto/rand"
+	"encoding/hex"
 	"errors"
 	"fmt"
+	"github.com/stretchr/testify/assert"
 	"io"
 	"io/ioutil"
 	"math/big"
 	"os"
+	"path/filepath"
 	"testing"
 	"time"
 	"unsafe"
@@ -44,16 +47,16 @@ func TestSectorBuilderLifecycle(t *testing.T) {
 	proverID := [32]byte{6, 7, 8}
 
 	metadataDir := requireTempDirPath(t)
-	defer require.NoError(t, os.Remove(metadataDir))
+	defer os.RemoveAll(metadataDir)
 
 	sealedSectorDir := requireTempDirPath(t)
-	defer require.NoError(t, os.Remove(sealedSectorDir))
+	defer os.RemoveAll(sealedSectorDir)
 
 	stagedSectorDir := requireTempDirPath(t)
-	defer require.NoError(t, os.Remove(stagedSectorDir))
+	defer os.RemoveAll(stagedSectorDir)
 
 	sectorCacheRootDir := requireTempDirPath(t)
-	defer require.NoError(t, os.Remove(sectorCacheRootDir))
+	defer os.RemoveAll(sectorCacheRootDir)
 
 	ptr, err := sb.InitSectorBuilder(1024, 2, 0, metadataDir, proverID, sealedSectorDir, stagedSectorDir, sectorCacheRootDir, 1, 2)
 	require.NoError(t, err)
@@ -201,6 +204,169 @@ func TestSectorBuilderLifecycle(t *testing.T) {
 	require.Equal(t, pieceBytes, unsealedPieceBytes)
 }
 
+func TestStandaloneSealing(t *testing.T) {
+	sectorSize := uint64(1024)
+	poRepProofPartitions := uint8(2)
+
+	ticket := sb.SealTicket{
+		BlockHeight: 0,
+		TicketBytes: [32]byte{5, 4, 2},
+	}
+
+	seed := sb.SealSeed{
+		BlockHeight: 50,
+		TicketBytes: [32]byte{7, 4, 2},
+	}
+
+	proverID := [32]byte{6, 7, 8}
+
+	// initialize a sector builder
+	metadataDir := requireTempDirPath(t)
+	defer os.RemoveAll(metadataDir)
+
+	sealedSectorsDir := requireTempDirPath(t)
+	defer os.RemoveAll(sealedSectorsDir)
+
+	stagedSectorsDir := requireTempDirPath(t)
+	defer os.RemoveAll(stagedSectorsDir)
+
+	sectorCacheRootDir := requireTempDirPath(t)
+	defer os.RemoveAll(sectorCacheRootDir)
+
+	ptr, err := sb.InitSectorBuilder(1024, 2, 0, metadataDir, proverID, sealedSectorsDir, stagedSectorsDir, sectorCacheRootDir, 1, 1)
+	require.NoError(t, err)
+	defer sb.DestroySectorBuilder(ptr)
+
+	sectorID, err := sb.AcquireSectorId(ptr)
+	require.NoError(t, err)
+
+	sectorCacheDirPath := requireTempDirPath(t)
+	defer os.RemoveAll(sectorCacheDirPath)
+
+	stagedSectorFile := requireTempFile(t, bytes.NewReader([]byte{}), 0)
+	defer stagedSectorFile.Close()
+
+	sealedSectorFile := requireTempFile(t, bytes.NewReader([]byte{}), 0)
+	defer sealedSectorFile.Close()
+
+	unsealOutputFile := requireTempFile(t, bytes.NewReader([]byte{}), 0)
+	defer unsealOutputFile.Close()
+
+	// some rando bytes
+	someBytes := make([]byte, 1016)
+	_, err = io.ReadFull(rand.Reader, someBytes)
+	require.NoError(t, err)
+
+	// write first piece
+	require.NoError(t, err)
+	pieceFileA := requireTempFile(t, bytes.NewReader(someBytes[0:127]), 127)
+
+	commPA, err := sb.GeneratePieceCommitmentFromFile(pieceFileA, 127)
+	require.NoError(t, err)
+
+	// seek back to head (generating piece commitment moves offset)
+	_, err = pieceFileA.Seek(0, 0)
+	require.NoError(t, err)
+
+	// write the first piece using the alignment-free function
+	n, commP, err := sb.StandaloneWriteWithoutAlignment(pieceFileA, 127, stagedSectorFile)
+	require.NoError(t, err)
+	require.Equal(t, int(n), 127)
+	require.Equal(t, commP, commPA)
+
+	// write second piece + alignment
+	require.NoError(t, err)
+	pieceFileB := requireTempFile(t, bytes.NewReader(someBytes[0:508]), 508)
+
+	commPB, err := sb.GeneratePieceCommitmentFromFile(pieceFileB, 508)
+	require.NoError(t, err)
+
+	// seek back to head
+	_, err = pieceFileB.Seek(0, 0)
+	require.NoError(t, err)
+
+	// second piece relies on the alignment-computing version
+	left, tot, commP, err := sb.StandaloneWriteWithAlignment(pieceFileB, 508, stagedSectorFile, []uint64{127})
+	require.NoError(t, err)
+	require.Equal(t, int(left), 381)
+	require.Equal(t, int(tot), 889)
+	require.Equal(t, commP, commPB)
+
+	publicPieces := []sb.PublicPieceInfo{{
+		Size:  127,
+		CommP: commPA,
+	}, {
+		Size:  508,
+		CommP: commPB,
+	}}
+
+	privatePieces := make([]sb.PieceMetadata, len(publicPieces))
+	for i, v := range publicPieces {
+		privatePieces[i] = sb.PieceMetadata{
+			Key:   hex.EncodeToString(v.CommP[:]),
+			Size:  v.Size,
+			CommP: v.CommP,
+		}
+	}
+
+	// pre-commit the sector
+	output, err := sb.StandaloneSealPreCommit(sectorSize, poRepProofPartitions, sectorCacheDirPath, stagedSectorFile.Name(), sealedSectorFile.Name(), sectorID, proverID, ticket.TicketBytes, publicPieces)
+	require.NoError(t, err)
+
+	// commit the sector
+	proof, err := sb.StandaloneSealCommit(sectorSize, poRepProofPartitions, sectorCacheDirPath, sectorID, proverID, ticket.TicketBytes, seed.TicketBytes, publicPieces, output)
+	require.NoError(t, err)
+
+	// verify the 'ole proofy
+	isValid, err := sb.VerifySeal(sectorSize, output.CommR, output.CommD, proverID, ticket.TicketBytes, seed.TicketBytes, sectorID, proof)
+	require.NoError(t, err)
+	require.True(t, isValid, "proof wasn't valid")
+
+	// unseal and verify that things went as we planned
+	require.NoError(t, sb.StandaloneUnseal(sectorSize, poRepProofPartitions, sealedSectorFile.Name(), unsealOutputFile.Name(), sectorID, proverID, ticket.TicketBytes, output.CommD))
+	contents, err := ioutil.ReadFile(unsealOutputFile.Name())
+	require.NoError(t, err)
+
+	// unsealed sector includes a bunch of alignment NUL-bytes
+	alignment := make([]byte, 381)
+
+	// verify that we unsealed what we expected to unseal
+	require.Equal(t, someBytes[0:127], contents[0:127])
+	require.Equal(t, alignment, contents[127:508])
+	require.Equal(t, someBytes[0:508], contents[508:1016])
+
+	// verify that the sector builder owns no sealed sectors
+	var sealedSectorPaths []string
+	require.NoError(t, filepath.Walk(sealedSectorsDir, visit(&sealedSectorPaths)))
+	assert.Equal(t, 1, len(sealedSectorPaths), sealedSectorPaths)
+
+	// no sector cache dirs, either
+	var sectorCacheDirPaths []string
+	require.NoError(t, filepath.Walk(sectorCacheRootDir, visit(&sectorCacheDirPaths)))
+	assert.Equal(t, 1, len(sectorCacheDirPaths), sectorCacheDirPaths)
+
+	// import the sealed sector
+	err = sb.ImportSealedSector(ptr, sectorID, sectorCacheDirPath, sealedSectorFile.Name(), ticket, seed, output.CommR, output.CommD, output.CommC, output.CommRLast, proof, privatePieces)
+	require.NoError(t, err)
+
+	// it should now have a sealed sector!
+	var sealedSectorPathsB []string
+	require.NoError(t, filepath.Walk(sealedSectorsDir, visit(&sealedSectorPathsB)))
+	assert.Equal(t, 2, len(sealedSectorPathsB), sealedSectorPathsB)
+
+	// it should now have a cache dir, woo!
+	var sectorCacheDirPathsB []string
+	require.NoError(t, filepath.Walk(sectorCacheRootDir, visit(&sectorCacheDirPathsB)))
+	assert.Equal(t, 2, len(sectorCacheDirPathsB), sectorCacheDirPathsB)
+
+	// verify that it shows up in sealed sector list
+	metadata, err := sb.GetAllSealedSectorsWithHealth(ptr)
+	require.NoError(t, err)
+	require.Equal(t, 1, len(metadata))
+	require.Equal(t, output.CommD, metadata[0].CommD)
+	require.Equal(t, output.CommR, metadata[0].CommR)
+}
+
 func TestJsonMarshalSymmetry(t *testing.T) {
 	for i := 0; i < 100; i++ {
 		xs := make([]sb.SectorInfo, 10)
@@ -265,7 +431,7 @@ func requireTempFile(t *testing.T, fileContentsReader io.Reader, size uint64) *o
 	written, err := io.Copy(file, fileContentsReader)
 	require.NoError(t, err)
 	// check that we wrote everything
-	require.Equal(t, uint64(written), size)
+	require.Equal(t, int(size), int(written))
 
 	require.NoError(t, file.Sync())
 
@@ -281,4 +447,14 @@ func requireTempDirPath(t *testing.T) string {
 	require.NoError(t, err)
 
 	return dir
+}
+
+func visit(paths *[]string) filepath.WalkFunc {
+	return func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			panic(err)
+		}
+		*paths = append(*paths, path)
+		return nil
+	}
 }

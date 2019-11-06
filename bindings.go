@@ -117,6 +117,17 @@ type SealPreCommitOutput struct {
 	Ticket   SealTicket
 }
 
+// RawSealPreCommitOutput is used to acquire a seed from the chain for the
+// second step of Interactive PoRep. The PersistentAux is not expected to appear
+// on-chain, but is needed for committing. This struct is useful for standalone
+// (e.g. no sector builder) sealing.
+type RawSealPreCommitOutput struct {
+	CommC     [CommitmentBytesLen]byte
+	CommD     [CommitmentBytesLen]byte
+	CommR     [CommitmentBytesLen]byte
+	CommRLast [CommitmentBytesLen]byte
+}
+
 // SealCommitOutput is produced by the second step of Interactive PoRep.
 type SealCommitOutput struct {
 	SectorID uint64
@@ -188,7 +199,7 @@ func VerifySeal(
 	defer C.free(seedCBytes)
 
 	// a mutable pointer to a VerifySealResponse C-struct
-	resPtr := C.sector_builder_ffi_verify_seal(
+	resPtr := C.sector_builder_ffi_reexported_verify_seal(
 		C.uint64_t(sectorSize),
 		(*[CommitmentBytesLen]C.uint8_t)(commRCBytes),
 		(*[CommitmentBytesLen]C.uint8_t)(commDCBytes),
@@ -199,7 +210,7 @@ func VerifySeal(
 		(*C.uint8_t)(proofCBytes),
 		C.size_t(len(proof)),
 	)
-	defer C.sector_builder_ffi_destroy_verify_seal_response(resPtr)
+	defer C.sector_builder_ffi_reexported_destroy_verify_seal_response(resPtr)
 
 	if resPtr.status_code != 0 {
 		return false, errors.New(C.GoString(resPtr.error_msg))
@@ -252,7 +263,7 @@ func VerifyPoSt(
 	defer C.free(unsafe.Pointer(faultsPtr))
 
 	// a mutable pointer to a VerifyPoStResponse C-struct
-	resPtr := C.sector_builder_ffi_verify_post(
+	resPtr := C.sector_builder_ffi_reexported_verify_post(
 		C.uint64_t(sectorSize),
 		(*[CommitmentBytesLen]C.uint8_t)(challengeSeedCBytes),
 		sectorIdsPtr,
@@ -264,7 +275,7 @@ func VerifyPoSt(
 		(*C.uint8_t)(proofCBytes),
 		C.size_t(len(proof)),
 	)
-	defer C.sector_builder_ffi_destroy_verify_post_response(resPtr)
+	defer C.sector_builder_ffi_reexported_destroy_verify_post_response(resPtr)
 
 	if resPtr.status_code != 0 {
 		return false, errors.New(C.GoString(resPtr.error_msg))
@@ -279,7 +290,7 @@ func VerifyPoSt(
 func GetMaxUserBytesPerStagedSector(sectorSize uint64) uint64 {
 	defer elapsed("GetMaxUserBytesPerStagedSector")()
 
-	return uint64(C.sector_builder_ffi_get_max_user_bytes_per_staged_sector(C.uint64_t(sectorSize)))
+	return uint64(C.sector_builder_ffi_reexported_get_max_user_bytes_per_staged_sector(C.uint64_t(sectorSize)))
 }
 
 // InitSectorBuilder allocates and returns a pointer to a sector builder.
@@ -312,13 +323,8 @@ func InitSectorBuilder(
 	cSectorCacheRootDir := C.CString(sectorCacheRootDir)
 	defer C.free(unsafe.Pointer(cSectorCacheRootDir))
 
-	class, err := cSectorClass(sectorSize, poRepProofPartitions)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get sector class")
-	}
-
 	resPtr := C.sector_builder_ffi_init_sector_builder(
-		class,
+		cSectorClass(sectorSize, poRepProofPartitions),
 		C.uint64_t(lastUsedSectorID),
 		cMetadataDir,
 		(*[32]C.uint8_t)(proverIDCBytes),
@@ -449,7 +455,7 @@ func SealPreCommit(sectorBuilderPtr unsafe.Pointer, sectorID uint64, ticket Seal
 		return SealPreCommitOutput{}, errors.New(C.GoString(resPtr.error_msg))
 	}
 
-	out, err := goSealPreCommitOutput(resPtr)
+	out, err := goSectorBuilderSealPreCommitOutput(resPtr)
 	if err != nil {
 		return SealPreCommitOutput{}, err
 	}
@@ -499,7 +505,7 @@ func SealCommit(sectorBuilderPtr unsafe.Pointer, sectorID uint64, seed SealSeed)
 		return SealCommitOutput{}, errors.New(C.GoString(resPtr.error_msg))
 	}
 
-	out, err := goSealCommitOutput(resPtr)
+	out, err := goSectorBuilderSealCommitOutput(resPtr)
 	if err != nil {
 		return SealCommitOutput{}, err
 	}
@@ -677,6 +683,106 @@ func GeneratePoSt(
 	return goBytes(resPtr.proof_ptr, resPtr.proof_len), nil
 }
 
+// AcquireSectorId returns a sector ID which can be used by out-of-band sealing.
+func AcquireSectorId(
+	sectorBuilderPtr unsafe.Pointer,
+) (uint64, error) {
+	defer elapsed("AcquireSectorId")()
+
+	resPtr := C.sector_builder_ffi_acquire_sector_id(
+		(*C.sector_builder_ffi_SectorBuilder)(sectorBuilderPtr),
+	)
+	defer C.sector_builder_ffi_destroy_acquire_sector_id_response(resPtr)
+
+	if resPtr.status_code != 0 {
+		return 0, errors.New(C.GoString(resPtr.error_msg))
+	}
+
+	return uint64(resPtr.sector_id), nil
+}
+
+// ImportSealedSector
+func ImportSealedSector(
+	sectorBuilderPtr unsafe.Pointer,
+	sectorID uint64,
+	sectorCacheDirPath string,
+	sealedSectorPath string,
+	ticket SealTicket,
+	seed SealSeed,
+	commR [CommitmentBytesLen]byte,
+	commD [CommitmentBytesLen]byte,
+	commC [CommitmentBytesLen]byte,
+	commRLast [CommitmentBytesLen]byte,
+	proof []byte,
+	pieces []PieceMetadata,
+) error {
+	defer elapsed("ImportSealedSector")()
+
+	cSectorCacheDirPath := C.CString(sectorCacheDirPath)
+	defer C.free(unsafe.Pointer(cSectorCacheDirPath))
+
+	cSealedSectorPath := C.CString(sealedSectorPath)
+	defer C.free(unsafe.Pointer(cSealedSectorPath))
+
+	cTicketBytes := C.CBytes(ticket.TicketBytes[:])
+	defer C.free(cTicketBytes)
+
+	cSealTicket := C.sector_builder_ffi_FFISealTicket{
+		block_height: C.uint64_t(ticket.BlockHeight),
+		ticket_bytes: *(*[32]C.uint8_t)(cTicketBytes),
+	}
+
+	cSeedBytes := C.CBytes(seed.TicketBytes[:])
+	defer C.free(cSeedBytes)
+
+	cSealSeed := C.sector_builder_ffi_FFISealSeed{
+		block_height: C.uint64_t(seed.BlockHeight),
+		ticket_bytes: *(*[32]C.uint8_t)(cSeedBytes),
+	}
+
+	commDCBytes := C.CBytes(commD[:])
+	defer C.free(commDCBytes)
+
+	commRCBytes := C.CBytes(commR[:])
+	defer C.free(commRCBytes)
+
+	commCCBytes := C.CBytes(commC[:])
+	defer C.free(commCCBytes)
+
+	commRLastCBytes := C.CBytes(commRLast[:])
+	defer C.free(commRLastCBytes)
+
+	proofCBytes := C.CBytes(proof[:])
+	defer C.free(proofCBytes)
+
+	piecesPtr, piecesLen := cPieceMetadata(pieces)
+	defer C.free(unsafe.Pointer(piecesPtr))
+
+	resPtr := C.sector_builder_ffi_import_sealed_sector(
+		(*C.sector_builder_ffi_SectorBuilder)(sectorBuilderPtr),
+		C.uint64_t(sectorID),
+		cSectorCacheDirPath,
+		cSealedSectorPath,
+		cSealTicket,
+		cSealSeed,
+		(*[CommitmentBytesLen]C.uint8_t)(commRCBytes),
+		(*[CommitmentBytesLen]C.uint8_t)(commDCBytes),
+		(*[CommitmentBytesLen]C.uint8_t)(commCCBytes),
+		(*[CommitmentBytesLen]C.uint8_t)(commRLastCBytes),
+		(*C.uint8_t)(proofCBytes),
+		C.size_t(len(proof)),
+		piecesPtr,
+		piecesLen,
+	)
+	defer C.sector_builder_ffi_destroy_import_sealed_sector_response(resPtr)
+
+	if resPtr.status_code != 0 {
+		return errors.New(C.GoString(resPtr.error_msg))
+	}
+
+	return nil
+}
+
 // GeneratePieceCommitment produces a piece commitment for the provided data
 // stored at a given path.
 func GeneratePieceCommitment(piecePath string, pieceSize uint64) ([CommitmentBytesLen]byte, error) {
@@ -694,18 +800,14 @@ func GenerateDataCommitment(sectorSize uint64, pieces []PublicPieceInfo) ([Commi
 	cPiecesPtr, cPiecesLen := cPublicPieceInfo(pieces)
 	defer C.free(unsafe.Pointer(cPiecesPtr))
 
-	resPtr := C.sector_builder_ffi_generate_data_commitment(C.uint64_t(sectorSize), (*C.sector_builder_ffi_FFIPublicPieceInfo)(cPiecesPtr), cPiecesLen)
-	defer C.sector_builder_ffi_destroy_generate_data_commitment_response(resPtr)
+	resPtr := C.sector_builder_ffi_reexported_generate_data_commitment(C.uint64_t(sectorSize), (*C.sector_builder_ffi_FFIPublicPieceInfo)(cPiecesPtr), cPiecesLen)
+	defer C.sector_builder_ffi_reexported_destroy_generate_data_commitment_response(resPtr)
 
 	if resPtr.status_code != 0 {
 		return [CommitmentBytesLen]byte{}, errors.New(C.GoString(resPtr.error_msg))
 	}
 
-	commDSlice := goBytes(&resPtr.comm_d[0], CommitmentBytesLen)
-	var commitment [CommitmentBytesLen]byte
-	copy(commitment[:], commDSlice)
-
-	return commitment, nil
+	return goCommitment(&resPtr.comm_d[0]), nil
 }
 
 // GeneratePieceCommitmentFromFile produces a piece commitment for the provided data
@@ -713,8 +815,8 @@ func GenerateDataCommitment(sectorSize uint64, pieces []PublicPieceInfo) ([Commi
 func GeneratePieceCommitmentFromFile(pieceFile *os.File, pieceSize uint64) (commP [CommitmentBytesLen]byte, err error) {
 	pieceFd := pieceFile.Fd()
 
-	resPtr := C.sector_builder_ffi_generate_piece_commitment(C.int(pieceFd), C.uint64_t(pieceSize))
-	defer C.sector_builder_ffi_destroy_generate_piece_commitment_response(resPtr)
+	resPtr := C.sector_builder_ffi_reexported_generate_piece_commitment(C.int(pieceFd), C.uint64_t(pieceSize))
+	defer C.sector_builder_ffi_reexported_destroy_generate_piece_commitment_response(resPtr)
 
 	// Make sure our filedescriptor stays alive, stayin alive
 	runtime.KeepAlive(pieceFile)
@@ -723,11 +825,216 @@ func GeneratePieceCommitmentFromFile(pieceFile *os.File, pieceSize uint64) (comm
 		return [CommitmentBytesLen]byte{}, errors.New(C.GoString(resPtr.error_msg))
 	}
 
-	commPSlice := goBytes(&resPtr.comm_p[0], CommitmentBytesLen)
-	var commitment [CommitmentBytesLen]byte
-	copy(commitment[:], commPSlice)
+	return goCommitment(&resPtr.comm_p[0]), nil
+}
 
-	return commitment, nil
+// StandaloneWriteWithAlignment
+func StandaloneWriteWithAlignment(
+	pieceFile *os.File,
+	pieceBytes uint64,
+	stagedSectorFile *os.File,
+	existingPieceSizes []uint64,
+) (leftAlignment, total uint64, commP [CommitmentBytesLen]byte, retErr error) {
+	defer elapsed("StandaloneWriteWithAlignment")()
+
+	pieceFd := pieceFile.Fd()
+	runtime.KeepAlive(pieceFile)
+
+	stagedSectorFd := stagedSectorFile.Fd()
+	runtime.KeepAlive(stagedSectorFile)
+
+	ptr, len := cUint64s(existingPieceSizes)
+	defer C.free(unsafe.Pointer(ptr))
+
+	resPtr := C.sector_builder_ffi_reexported_write_with_alignment(
+		C.int(pieceFd),
+		C.uint64_t(pieceBytes),
+		C.int(stagedSectorFd),
+		ptr,
+		len,
+	)
+	defer C.sector_builder_ffi_reexported_destroy_write_with_alignment_response(resPtr)
+
+	if resPtr.status_code != 0 {
+		return 0, 0, [CommitmentBytesLen]byte{}, errors.New(C.GoString(resPtr.error_msg))
+	}
+
+	return uint64(resPtr.left_alignment_unpadded), uint64(resPtr.total_write_unpadded), goCommitment(&resPtr.comm_p[0]), nil
+}
+
+// StandaloneWriteWithoutAlignment
+func StandaloneWriteWithoutAlignment(
+	pieceFile *os.File,
+	pieceBytes uint64,
+	stagedSectorFile *os.File,
+) (uint64, [CommitmentBytesLen]byte, error) {
+	defer elapsed("StandaloneWriteWithoutAlignment")()
+
+	pieceFd := pieceFile.Fd()
+	runtime.KeepAlive(pieceFile)
+
+	stagedSectorFd := stagedSectorFile.Fd()
+	runtime.KeepAlive(stagedSectorFile)
+
+	resPtr := C.sector_builder_ffi_reexported_write_without_alignment(
+		C.int(pieceFd),
+		C.uint64_t(pieceBytes),
+		C.int(stagedSectorFd),
+	)
+	defer C.sector_builder_ffi_reexported_destroy_write_without_alignment_response(resPtr)
+
+	if resPtr.status_code != 0 {
+		return 0, [CommitmentBytesLen]byte{}, errors.New(C.GoString(resPtr.error_msg))
+	}
+
+	return uint64(resPtr.total_write_unpadded), goCommitment(&resPtr.comm_p[0]), nil
+}
+
+// StandaloneSealPreCommit
+func StandaloneSealPreCommit(
+	sectorSize uint64,
+	poRepProofPartitions uint8,
+	cacheDirPath string,
+	stagedSectorPath string,
+	sealedSectorPath string,
+	sectorID uint64,
+	proverID [CommitmentBytesLen]byte,
+	ticket [CommitmentBytesLen]byte,
+	pieces []PublicPieceInfo,
+) (RawSealPreCommitOutput, error) {
+	defer elapsed("StandaloneSealPreCommit")()
+
+	cCacheDirPath := C.CString(cacheDirPath)
+	defer C.free(unsafe.Pointer(cCacheDirPath))
+
+	cStagedSectorPath := C.CString(stagedSectorPath)
+	defer C.free(unsafe.Pointer(cStagedSectorPath))
+
+	cSealedSectorPath := C.CString(sealedSectorPath)
+	defer C.free(unsafe.Pointer(cSealedSectorPath))
+
+	proverIDCBytes := C.CBytes(proverID[:])
+	defer C.free(proverIDCBytes)
+
+	ticketCBytes := C.CBytes(ticket[:])
+	defer C.free(ticketCBytes)
+
+	cPiecesPtr, cPiecesLen := cPublicPieceInfo(pieces)
+	defer C.free(unsafe.Pointer(cPiecesPtr))
+
+	resPtr := C.sector_builder_ffi_reexported_seal_pre_commit(
+		cSectorClass(sectorSize, poRepProofPartitions),
+		cCacheDirPath,
+		cStagedSectorPath,
+		cSealedSectorPath,
+		C.uint64_t(sectorID),
+		(*[32]C.uint8_t)(proverIDCBytes),
+		(*[32]C.uint8_t)(ticketCBytes),
+		(*C.sector_builder_ffi_FFIPublicPieceInfo)(cPiecesPtr),
+		cPiecesLen,
+	)
+	defer C.sector_builder_ffi_reexported_destroy_seal_pre_commit_response(resPtr)
+
+	if resPtr.status_code != 0 {
+		return RawSealPreCommitOutput{}, errors.New(C.GoString(resPtr.error_msg))
+	}
+
+	return goRawSealPreCommitOutput(resPtr.seal_pre_commit_output), nil
+}
+
+// StandaloneSealCommit
+func StandaloneSealCommit(
+	sectorSize uint64,
+	poRepProofPartitions uint8,
+	cacheDirPath string,
+	sectorID uint64,
+	proverID [CommitmentBytesLen]byte,
+	ticket [CommitmentBytesLen]byte,
+	seed [CommitmentBytesLen]byte,
+	pieces []PublicPieceInfo,
+	rspco RawSealPreCommitOutput,
+) ([]byte, error) {
+	defer elapsed("StandaloneSealCommit")()
+
+	cCacheDirPath := C.CString(cacheDirPath)
+	defer C.free(unsafe.Pointer(cCacheDirPath))
+
+	proverIDCBytes := C.CBytes(proverID[:])
+	defer C.free(proverIDCBytes)
+
+	ticketCBytes := C.CBytes(ticket[:])
+	defer C.free(ticketCBytes)
+
+	seedCBytes := C.CBytes(seed[:])
+	defer C.free(seedCBytes)
+
+	cPiecesPtr, cPiecesLen := cPublicPieceInfo(pieces)
+	defer C.free(unsafe.Pointer(cPiecesPtr))
+
+	resPtr := C.sector_builder_ffi_reexported_seal_commit(
+		cSectorClass(sectorSize, poRepProofPartitions),
+		cCacheDirPath,
+		C.uint64_t(sectorID),
+		(*[32]C.uint8_t)(proverIDCBytes),
+		(*[32]C.uint8_t)(ticketCBytes),
+		(*[32]C.uint8_t)(seedCBytes),
+		(*C.sector_builder_ffi_FFIPublicPieceInfo)(cPiecesPtr),
+		cPiecesLen,
+		cSealPreCommitOutput(rspco),
+	)
+	defer C.sector_builder_ffi_reexported_destroy_seal_commit_response(resPtr)
+
+	if resPtr.status_code != 0 {
+		return nil, errors.New(C.GoString(resPtr.error_msg))
+	}
+
+	return C.GoBytes(unsafe.Pointer(resPtr.proof_ptr), C.int(resPtr.proof_len)), nil
+}
+
+// StandaloneUnseal
+func StandaloneUnseal(
+	sectorSize uint64,
+	poRepProofPartitions uint8,
+	sealedSectorPath string,
+	unsealOutputPath string,
+	sectorID uint64,
+	proverID [CommitmentBytesLen]byte,
+	ticket [CommitmentBytesLen]byte,
+	commD [CommitmentBytesLen]byte,
+) error {
+	defer elapsed("StandaloneUnseal")()
+
+	cSealedSectorPath := C.CString(sealedSectorPath)
+	defer C.free(unsafe.Pointer(cSealedSectorPath))
+
+	cUnsealOutputPath := C.CString(unsealOutputPath)
+	defer C.free(unsafe.Pointer(cUnsealOutputPath))
+
+	proverIDCBytes := C.CBytes(proverID[:])
+	defer C.free(proverIDCBytes)
+
+	ticketCBytes := C.CBytes(ticket[:])
+	defer C.free(ticketCBytes)
+
+	commDCBytes := C.CBytes(commD[:])
+	defer C.free(commDCBytes)
+
+	resPtr := C.sector_builder_ffi_reexported_unseal(
+		cSectorClass(sectorSize, poRepProofPartitions),
+		cSealedSectorPath,
+		cUnsealOutputPath,
+		C.uint64_t(sectorID),
+		(*[CommitmentBytesLen]C.uint8_t)(proverIDCBytes),
+		(*[CommitmentBytesLen]C.uint8_t)(ticketCBytes),
+		(*[CommitmentBytesLen]C.uint8_t)(commDCBytes),
+	)
+	defer C.sector_builder_ffi_reexported_destroy_unseal_response(resPtr)
+
+	if resPtr.status_code != 0 {
+		return errors.New(C.GoString(resPtr.error_msg))
+	}
+
+	return nil
 }
 
 func getAllSealedSectors(sectorBuilderPtr unsafe.Pointer, performHealthchecks bool) ([]SealedSectorMetadata, error) {

@@ -36,6 +36,25 @@ func cPublicPieceInfo(src []PublicPieceInfo) (*C.sector_builder_ffi_FFIPublicPie
 	return (*C.sector_builder_ffi_FFIPublicPieceInfo)(cPublicPieceInfos), srcCSizeT
 }
 
+func cPieceMetadata(src []PieceMetadata) (*C.sector_builder_ffi_FFIPieceMetadata, C.size_t) {
+	srcCSizeT := C.size_t(len(src))
+
+	// allocate array in C heap
+	cPieceMetadata := C.malloc(srcCSizeT * C.sizeof_sector_builder_ffi_FFIPieceMetadata)
+
+	// create a Go slice backed by the C-array
+	xs := (*[1 << 30]C.sector_builder_ffi_FFIPieceMetadata)(cPieceMetadata)
+	for i, v := range src {
+		xs[i] = C.sector_builder_ffi_FFIPieceMetadata{
+			piece_key: C.CString(v.Key),
+			num_bytes: C.uint64_t(v.Size),
+			comm_p:    *(*[32]C.uint8_t)(unsafe.Pointer(&v.CommP)),
+		}
+	}
+
+	return (*C.sector_builder_ffi_FFIPieceMetadata)(cPieceMetadata), srcCSizeT
+}
+
 func cUint64s(src []uint64) (*C.uint64_t, C.size_t) {
 	srcCSizeT := C.size_t(len(src))
 
@@ -51,11 +70,20 @@ func cUint64s(src []uint64) (*C.uint64_t, C.size_t) {
 	return (*C.uint64_t)(cUint64s), srcCSizeT
 }
 
-func cSectorClass(sectorSize uint64, poRepProofPartitions uint8) (C.sector_builder_ffi_FFISectorClass, error) {
+func cSectorClass(sectorSize uint64, poRepProofPartitions uint8) C.sector_builder_ffi_FFISectorClass {
 	return C.sector_builder_ffi_FFISectorClass{
 		sector_size:            C.uint64_t(sectorSize),
 		porep_proof_partitions: C.uint8_t(poRepProofPartitions),
-	}, nil
+	}
+}
+
+func cSealPreCommitOutput(src RawSealPreCommitOutput) C.sector_builder_ffi_FFISealPreCommitOutput {
+	return C.sector_builder_ffi_FFISealPreCommitOutput{
+		comm_d:            *(*[32]C.uint8_t)(unsafe.Pointer(&src.CommD)),
+		comm_r:            *(*[32]C.uint8_t)(unsafe.Pointer(&src.CommR)),
+		p_aux_comm_c:      *(*[32]C.uint8_t)(unsafe.Pointer(&src.CommC)),
+		p_aux_comm_r_last: *(*[32]C.uint8_t)(unsafe.Pointer(&src.CommRLast)),
+	}
 }
 
 func goBytes(src *C.uint8_t, size C.size_t) []byte {
@@ -63,17 +91,30 @@ func goBytes(src *C.uint8_t, size C.size_t) []byte {
 }
 
 func goSealTicket(src C.sector_builder_ffi_FFISealTicket) SealTicket {
-	ticketBytesSlice := C.GoBytes(unsafe.Pointer(&src.ticket_bytes[0]), 32)
-	var ticketBytes [CommitmentBytesLen]byte
-	copy(ticketBytes[:], ticketBytesSlice)
-
 	return SealTicket{
-		TicketBytes: ticketBytes,
+		TicketBytes: goCommitment(&src.ticket_bytes[0]),
 		BlockHeight: uint64(src.block_height),
 	}
 }
 
-func goSealCommitOutput(src *C.sector_builder_ffi_SealCommitResponse) (SealCommitOutput, error) {
+func goRawSealPreCommitOutput(src C.sector_builder_ffi_FFISealPreCommitOutput) RawSealPreCommitOutput {
+	return RawSealPreCommitOutput{
+		CommD:     goCommitment(&src.comm_d[0]),
+		CommR:     goCommitment(&src.comm_r[0]),
+		CommRLast: goCommitment(&src.p_aux_comm_r_last[0]),
+		CommC:     goCommitment(&src.p_aux_comm_c[0]),
+	}
+}
+
+func goCommitment(src *C.uint8_t) [32]byte {
+	slice := C.GoBytes(unsafe.Pointer(src), 32)
+	var array [CommitmentBytesLen]byte
+	copy(array[:], slice)
+
+	return array
+}
+
+func goSectorBuilderSealCommitOutput(src *C.sector_builder_ffi_SectorBuilderSealCommitResponse) (SealCommitOutput, error) {
 	commDSlice := goBytes(&src.comm_d[0], CommitmentBytesLen)
 	var commD [CommitmentBytesLen]byte
 	copy(commD[:], commDSlice)
@@ -127,7 +168,7 @@ func goResumeSealCommitOutput(src *C.sector_builder_ffi_ResumeSealCommitResponse
 	}, nil
 }
 
-func goSealPreCommitOutput(src *C.sector_builder_ffi_SealPreCommitResponse) (SealPreCommitOutput, error) {
+func goSectorBuilderSealPreCommitOutput(src *C.sector_builder_ffi_SectorBuilderSealPreCommitResponse) (SealPreCommitOutput, error) {
 	commDSlice := goBytes(&src.comm_d[0], CommitmentBytesLen)
 	var commD [CommitmentBytesLen]byte
 	copy(commD[:], commDSlice)
