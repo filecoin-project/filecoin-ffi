@@ -48,6 +48,13 @@ type SealSeed struct {
 	TicketBytes [32]byte
 }
 
+type Candidate struct {
+	SectorID             uint64
+	PartialTicket        [32]byte
+	Ticket               [32]byte
+	SectorChallengeIndex uint64
+}
+
 // NewSortedSectorInfo returns a SortedSectorInfo
 func NewSortedSectorInfo(sectorInfo ...SectorInfo) SortedSectorInfo {
 	fn := func(i, j int) bool {
@@ -226,7 +233,8 @@ func VerifyPoSt(
 	sectorInfo SortedSectorInfo,
 	challengeSeed [32]byte,
 	proof []byte,
-	faults []uint64,
+	winners []Candidate,
+	proverID [32]byte,
 ) (bool, error) {
 	defer elapsed("VerifyPoSt")()
 
@@ -259,8 +267,11 @@ func VerifyPoSt(
 	sectorIdsPtr, sectorIdsSize := cUint64s(sortedSectorIds)
 	defer C.free(unsafe.Pointer(sectorIdsPtr))
 
-	faultsPtr, faultsSize := cUint64s(faults)
-	defer C.free(unsafe.Pointer(faultsPtr))
+	winnersPtr, winnersSize := cCandidates(winners)
+	defer C.free(unsafe.Pointer(winnersPtr))
+
+	proverIDCBytes := C.CBytes(proverID[:])
+	defer C.free(proverIDCBytes)
 
 	// a mutable pointer to a VerifyPoStResponse C-struct
 	resPtr := C.sector_builder_ffi_reexported_verify_post(
@@ -268,12 +279,13 @@ func VerifyPoSt(
 		(*[CommitmentBytesLen]C.uint8_t)(challengeSeedCBytes),
 		sectorIdsPtr,
 		sectorIdsSize,
-		faultsPtr,
-		faultsSize,
 		(*C.uint8_t)(flattenedCommRsCBytes),
 		C.size_t(len(flattened)),
 		(*C.uint8_t)(proofCBytes),
 		C.size_t(len(proof)),
+		winnersPtr,
+		winnersSize,
+		(*[32]C.uint8_t)(proverIDCBytes),
 	)
 	defer C.sector_builder_ffi_reexported_destroy_verify_post_response(resPtr)
 
@@ -634,14 +646,31 @@ func GetSectorSealingStatusByID(sectorBuilderPtr unsafe.Pointer, sectorID uint64
 	}
 }
 
-// GeneratePoSt produces a proof-of-spacetime for the provided replica commitments.
-func GeneratePoSt(
+// FinalizeTicket creates an actual ticket from a partial ticket.
+func FinalizeTicket(partialTicket [32]byte) ([32]byte, error) {
+	defer elapsed("FinalizeTicket")()
+
+	partialTicketPtr := unsafe.Pointer(&(partialTicket)[0])
+	resPtr := C.sector_builder_ffi_reexported_finalize_ticket(
+		(*[32]C.uint8_t)(partialTicketPtr),
+	)
+	defer C.sector_builder_ffi_reexported_destroy_finalize_ticket_response(resPtr)
+
+	if resPtr.status_code != 0 {
+		return [32]byte{}, errors.New(C.GoString(resPtr.error_msg))
+	}
+
+	return goCommitment(&resPtr.ticket[0]), nil
+}
+
+// GenerateCandidates creates a list of election candidates.
+func GenerateCandidates(
 	sectorBuilderPtr unsafe.Pointer,
 	sectorInfo SortedSectorInfo,
 	challengeSeed [CommitmentBytesLen]byte,
 	faults []uint64,
-) ([]byte, error) {
-	defer elapsed("GeneratePoSt")()
+) ([]Candidate, error) {
+	defer elapsed("GenerateCandidates")()
 
 	// CommRs and sector ids must be provided to C.verify_post in the same order
 	// that they were provided to the C.generate_post
@@ -665,8 +694,8 @@ func GeneratePoSt(
 	faultsPtr, faultsSize := cUint64s(faults)
 	defer C.free(unsafe.Pointer(faultsPtr))
 
-	// a mutable pointer to a GeneratePoStResponse C-struct
-	resPtr := C.sector_builder_ffi_generate_post(
+	// a mutable pointer to a GenerateCandidatesResponse C-struct
+	resPtr := C.sector_builder_ffi_generate_candidates(
 		(*C.sector_builder_ffi_SectorBuilder)(sectorBuilderPtr),
 		(*C.uint8_t)(cflattened),
 		C.size_t(len(flattened)),
@@ -674,13 +703,62 @@ func GeneratePoSt(
 		faultsPtr,
 		faultsSize,
 	)
+	defer C.sector_builder_ffi_destroy_generate_candidates_response(resPtr)
+
+	if resPtr.status_code != 0 {
+		return nil, errors.New(C.GoString(resPtr.error_msg))
+	}
+
+	return goCandidates(resPtr.candidates_ptr, resPtr.candidates_len)
+}
+
+// GeneratePoSt produces a proof-of-spacetime for the provided replica commitments.
+func GeneratePoSt(
+	sectorBuilderPtr unsafe.Pointer,
+	sectorInfo SortedSectorInfo,
+	challengeSeed [CommitmentBytesLen]byte,
+	winners []Candidate,
+) ([]byte, error) {
+	defer elapsed("GeneratePoSt")()
+
+	// CommRs and sector ids must be provided to C.verify_post in the same order
+	// that they were provided to the C.generate_post
+	sortedCommRs := make([][CommitmentBytesLen]byte, len(sectorInfo.Values()))
+	for idx, v := range sectorInfo.Values() {
+		sortedCommRs[idx] = v.CommR
+	}
+
+	// flattening the byte slice makes it easier to copy into the C heap
+	flattened := make([]byte, CommitmentBytesLen*len(sortedCommRs))
+	for idx, commR := range sortedCommRs {
+		copy(flattened[(CommitmentBytesLen*idx):(CommitmentBytesLen*(1+idx))], commR[:])
+	}
+
+	// copy the Go byte slice into C memory
+	cflattened := C.CBytes(flattened)
+	defer C.free(cflattened)
+
+	challengeSeedPtr := unsafe.Pointer(&(challengeSeed)[0])
+
+	winnersPtr, winnersSize := cCandidates(winners)
+	defer C.free(unsafe.Pointer(winnersPtr))
+
+	// a mutable pointer to a GeneratePoStResponse C-struct
+	resPtr := C.sector_builder_ffi_generate_post(
+		(*C.sector_builder_ffi_SectorBuilder)(sectorBuilderPtr),
+		(*C.uint8_t)(cflattened),
+		C.size_t(len(flattened)),
+		(*[CommitmentBytesLen]C.uint8_t)(challengeSeedPtr),
+		winnersPtr,
+		winnersSize,
+	)
 	defer C.sector_builder_ffi_destroy_generate_post_response(resPtr)
 
 	if resPtr.status_code != 0 {
 		return nil, errors.New(C.GoString(resPtr.error_msg))
 	}
 
-	return goBytes(resPtr.proof_ptr, resPtr.proof_len), nil
+	return goBytes(resPtr.flattened_proofs_ptr, resPtr.flattened_proofs_len), nil
 }
 
 // AcquireSectorId returns a sector ID which can be used by out-of-band sealing.

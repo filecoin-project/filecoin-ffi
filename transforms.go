@@ -86,6 +86,26 @@ func cSealPreCommitOutput(src RawSealPreCommitOutput) C.sector_builder_ffi_FFISe
 	}
 }
 
+func cCandidates(src []Candidate) (*C.sector_builder_ffi_FFICandidate, C.size_t) {
+	srcCSizeT := C.size_t(len(src))
+
+	// allocate array in C heap
+	cCandidates := C.malloc(srcCSizeT * C.sizeof_sector_builder_ffi_FFICandidate)
+
+	// create a Go slice backed by the C-array
+	pp := (*[1 << 30]C.sector_builder_ffi_FFICandidate)(cCandidates)
+	for i, v := range src {
+		pp[i] = C.sector_builder_ffi_FFICandidate{
+			sector_id:              C.uint64_t(v.SectorID),
+			partial_ticket:         *(*[32]C.uint8_t)(unsafe.Pointer(&v.PartialTicket)),
+			ticket:                 *(*[32]C.uint8_t)(unsafe.Pointer(&v.Ticket)),
+			sector_challenge_index: C.uint64_t(v.SectorChallengeIndex),
+		}
+	}
+
+	return (*C.sector_builder_ffi_FFICandidate)(cCandidates), srcCSizeT
+}
+
 func goBytes(src *C.uint8_t, size C.size_t) []byte {
 	return C.GoBytes(unsafe.Pointer(src), C.int(size))
 }
@@ -94,6 +114,29 @@ func goSealTicket(src C.sector_builder_ffi_FFISealTicket) SealTicket {
 	return SealTicket{
 		TicketBytes: goCommitment(&src.ticket_bytes[0]),
 		BlockHeight: uint64(src.block_height),
+	}
+}
+
+func goCandidates(src *C.sector_builder_ffi_FFICandidate, size C.size_t) ([]Candidate, error) {
+	candidates := make([]Candidate, size)
+	if src == nil || size == 0 {
+		return candidates, nil
+	}
+
+	ptrs := (*[1 << 30]C.sector_builder_ffi_FFICandidate)(unsafe.Pointer(src))[:size:size]
+	for i := 0; i < int(size); i++ {
+		candidates[i] = goCandidate(ptrs[i])
+	}
+
+	return candidates, nil
+}
+
+func goCandidate(src C.sector_builder_ffi_FFICandidate) Candidate {
+	return Candidate{
+		SectorID:             uint64(src.sector_id),
+		PartialTicket:        goCommitment(&src.partial_ticket[0]),
+		Ticket:               goCommitment(&src.ticket[0]),
+		SectorChallengeIndex: uint64(src.sector_challenge_index),
 	}
 }
 
