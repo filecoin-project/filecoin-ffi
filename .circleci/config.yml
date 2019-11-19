@@ -17,6 +17,7 @@ jobs:
       - run:
           name: Generate Groth parameters and verifying keys
           command: paramcache
+          no_output_timeout: 1h
       - save_parameter_cache
   cargo_fetch:
     docker:
@@ -198,13 +199,13 @@ commands:
   restore_parameter_cache:
     steps:
       - restore_cache:
-          key: v15b-proof-params-{{ arch }}
+          key: v17-proof-params-{{ arch }}
           paths:
             - /tmp/filecoin-parameter-cache
   save_parameter_cache:
     steps:
       - save_cache:
-          key: v15b-proof-params-{{ arch }}
+          key: v17-proof-params-{{ arch }}
           paths:
             - /tmp/filecoin-parameter-cache
   install_rust:

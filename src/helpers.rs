@@ -1,5 +1,4 @@
 use std::collections::BTreeMap;
-use std::collections::HashSet;
 use std::slice::from_raw_parts;
 
 use filecoin_proofs::types as api_types;
@@ -20,17 +19,11 @@ pub unsafe fn to_public_replica_info_map(
     sector_ids_len: libc::size_t,
     flattened_comm_rs_ptr: *const u8,
     flattened_comm_rs_len: libc::size_t,
-    faulty_sector_ids_ptr: *const u64,
-    faulty_sector_ids_len: libc::size_t,
 ) -> Result<BTreeMap<SectorId, PublicReplicaInfo>> {
     ensure!(!sector_ids_ptr.is_null(), "sector_ids_ptr must not be null");
     ensure!(
         !flattened_comm_rs_ptr.is_null(),
         "flattened_comm_rs_ptr must not be null"
-    );
-    ensure!(
-        !faulty_sector_ids_ptr.is_null(),
-        "faulty_sector_ids_ptr must not be null"
     );
 
     let sector_ids: Vec<SectorId> = from_raw_parts(sector_ids_ptr, sector_ids_len)
@@ -47,24 +40,10 @@ pub unsafe fn to_public_replica_info_map(
         sector_ids.len(),
         comm_rs.len());
 
-    let faulty_sector_ids: HashSet<SectorId> =
-        from_raw_parts(faulty_sector_ids_ptr, faulty_sector_ids_len)
-            .iter()
-            .cloned()
-            .map(SectorId::from)
-            .collect();
-
     let mut m = BTreeMap::new();
 
     for i in 0..sector_ids.len() {
-        m.insert(
-            sector_ids[i],
-            if faulty_sector_ids.contains(&sector_ids[i]) {
-                PublicReplicaInfo::new_faulty(comm_rs[i])
-            } else {
-                PublicReplicaInfo::new(comm_rs[i])
-            },
-        );
+        m.insert(sector_ids[i], PublicReplicaInfo::new(comm_rs[i]));
     }
 
     Ok(m)

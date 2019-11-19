@@ -22,6 +22,7 @@ libc = "0.2.58"
 log = "0.4.7"
 pretty_env_logger = "0.3.0"
 once_cell = "0.2.4"
+paired = "0.16.0"
 
 [build-dependencies]
 cbindgen = "0.9"
