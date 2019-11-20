@@ -389,6 +389,7 @@ pub unsafe extern "C" fn finalize_ticket(partial_ticket: &[u8; 32]) -> *mut Fina
 pub unsafe extern "C" fn verify_post(
     sector_size: u64,
     randomness: &[u8; 32],
+    challenge_count: u64,
     sector_ids_ptr: *const u64,
     sector_ids_len: libc::size_t,
     flattened_comm_rs_ptr: *const u8,
@@ -433,6 +434,7 @@ pub unsafe extern "C" fn verify_post(
             api_fns::verify_post(
                 api_types::PoStConfig(api_types::SectorSize(sector_size)),
                 randomness,
+                challenge_count,
                 &proofs,
                 &map,
                 &winners,
