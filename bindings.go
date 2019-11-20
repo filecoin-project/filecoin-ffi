@@ -1073,6 +1073,7 @@ func StandaloneSealCommit(
 func StandaloneUnseal(
 	sectorSize uint64,
 	poRepProofPartitions uint8,
+	cacheDirPath string,
 	sealedSectorPath string,
 	unsealOutputPath string,
 	sectorID uint64,
@@ -1081,6 +1082,9 @@ func StandaloneUnseal(
 	commD [CommitmentBytesLen]byte,
 ) error {
 	defer elapsed("StandaloneUnseal")()
+
+	cCacheDirPath := C.CString(cacheDirPath)
+	defer C.free(unsafe.Pointer(cCacheDirPath))
 
 	cSealedSectorPath := C.CString(sealedSectorPath)
 	defer C.free(unsafe.Pointer(cSealedSectorPath))
@@ -1099,6 +1103,7 @@ func StandaloneUnseal(
 
 	resPtr := C.sector_builder_ffi_reexported_unseal(
 		cSectorClass(sectorSize, poRepProofPartitions),
+		cCacheDirPath,
 		cSealedSectorPath,
 		cUnsealOutputPath,
 		C.uint64_t(sectorID),

@@ -46,16 +46,16 @@ func TestSectorBuilderLifecycle(t *testing.T) {
 
 	proverID := [32]byte{6, 7, 8}
 
-	metadataDir := requireTempDirPath(t)
+	metadataDir := requireTempDirPath(t, "metadata")
 	defer os.RemoveAll(metadataDir)
 
-	sealedSectorDir := requireTempDirPath(t)
+	sealedSectorDir := requireTempDirPath(t, "sealed-sectors")
 	defer os.RemoveAll(sealedSectorDir)
 
-	stagedSectorDir := requireTempDirPath(t)
+	stagedSectorDir := requireTempDirPath(t, "staged-sectors")
 	defer os.RemoveAll(stagedSectorDir)
 
-	sectorCacheRootDir := requireTempDirPath(t)
+	sectorCacheRootDir := requireTempDirPath(t, "sector-cache-root")
 	defer os.RemoveAll(sectorCacheRootDir)
 
 	ptr, err := sb.InitSectorBuilder(1024, 2, 0, metadataDir, proverID, sealedSectorDir, stagedSectorDir, sectorCacheRootDir, 1, 2)
@@ -224,16 +224,16 @@ func TestStandaloneSealing(t *testing.T) {
 	proverID := [32]byte{6, 7, 8}
 
 	// initialize a sector builder
-	metadataDir := requireTempDirPath(t)
+	metadataDir := requireTempDirPath(t, "metadata")
 	defer os.RemoveAll(metadataDir)
 
-	sealedSectorsDir := requireTempDirPath(t)
+	sealedSectorsDir := requireTempDirPath(t, "sealed-sectors")
 	defer os.RemoveAll(sealedSectorsDir)
 
-	stagedSectorsDir := requireTempDirPath(t)
+	stagedSectorsDir := requireTempDirPath(t, "staged-sectors")
 	defer os.RemoveAll(stagedSectorsDir)
 
-	sectorCacheRootDir := requireTempDirPath(t)
+	sectorCacheRootDir := requireTempDirPath(t, "sector-cache-root-dir")
 	defer os.RemoveAll(sectorCacheRootDir)
 
 	ptr, err := sb.InitSectorBuilder(1024, 2, 0, metadataDir, proverID, sealedSectorsDir, stagedSectorsDir, sectorCacheRootDir, 1, 1)
@@ -243,7 +243,7 @@ func TestStandaloneSealing(t *testing.T) {
 	sectorID, err := sb.AcquireSectorId(ptr)
 	require.NoError(t, err)
 
-	sectorCacheDirPath := requireTempDirPath(t)
+	sectorCacheDirPath := requireTempDirPath(t, "sector-cache-dir")
 	defer os.RemoveAll(sectorCacheDirPath)
 
 	stagedSectorFile := requireTempFile(t, bytes.NewReader([]byte{}), 0)
@@ -326,7 +326,7 @@ func TestStandaloneSealing(t *testing.T) {
 	require.True(t, isValid, "proof wasn't valid")
 
 	// unseal and verify that things went as we planned
-	require.NoError(t, sb.StandaloneUnseal(sectorSize, poRepProofPartitions, sealedSectorFile.Name(), unsealOutputFile.Name(), sectorID, proverID, ticket.TicketBytes, output.CommD))
+	require.NoError(t, sb.StandaloneUnseal(sectorSize, poRepProofPartitions, sectorCacheDirPath, sealedSectorFile.Name(), unsealOutputFile.Name(), sectorID, proverID, ticket.TicketBytes, output.CommD))
 	contents, err := ioutil.ReadFile(unsealOutputFile.Name())
 	require.NoError(t, err)
 
@@ -357,10 +357,10 @@ func TestStandaloneSealing(t *testing.T) {
 	require.NoError(t, filepath.Walk(sealedSectorsDir, visit(&sealedSectorPathsB)))
 	assert.Equal(t, 2, len(sealedSectorPathsB), sealedSectorPathsB)
 
-	// it should now have a cache dir, woo!
+	// it should now have a cache dir and a bunch of goodies in the cache
 	var sectorCacheDirPathsB []string
 	require.NoError(t, filepath.Walk(sectorCacheRootDir, visit(&sectorCacheDirPathsB)))
-	assert.Equal(t, 2, len(sectorCacheDirPathsB), sectorCacheDirPathsB)
+	assert.Less(t, 2, len(sectorCacheDirPathsB), sectorCacheDirPathsB)
 
 	// verify that it shows up in sealed sector list
 	metadata, err := sb.GetAllSealedSectorsWithHealth(ptr)
@@ -445,8 +445,8 @@ func requireTempFile(t *testing.T, fileContentsReader io.Reader, size uint64) *o
 	return file
 }
 
-func requireTempDirPath(t *testing.T) string {
-	dir, err := ioutil.TempDir("", "")
+func requireTempDirPath(t *testing.T, prefix string) string {
+	dir, err := ioutil.TempDir("", prefix)
 	require.NoError(t, err)
 
 	return dir
