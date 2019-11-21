@@ -178,15 +178,15 @@ func TestSectorBuilderLifecycle(t *testing.T) {
 		CommR:    statusA.CommR,
 	})
 
-	candidates, err := sb.GenerateCandidates(ptr, sectorInfo, [32]byte{}, []uint64{})
+	candidates, err := sb.GenerateCandidates(ptr, sectorInfo, [32]byte{}, 2, []uint64{})
 	require.NoError(t, err)
 
 	// generate a PoSt
-	proofs, err := sb.GeneratePoSt(ptr, sectorInfo, [32]byte{}, candidates)
+	proofs, err := sb.GeneratePoSt(ptr, sectorInfo, [32]byte{}, 2, candidates)
 	require.NoError(t, err)
 
 	// verify the PoSt
-	isValid, err = sb.VerifyPoSt(1024, sectorInfo, [32]byte{}, proofs, candidates, proverID)
+	isValid, err = sb.VerifyPoSt(1024, sectorInfo, [32]byte{}, 2, proofs, candidates, proverID)
 	require.NoError(t, err)
 	require.True(t, isValid)
 

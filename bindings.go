@@ -232,6 +232,7 @@ func VerifyPoSt(
 	sectorSize uint64,
 	sectorInfo SortedSectorInfo,
 	challengeSeed [32]byte,
+	challengeCount uint64,
 	proof []byte,
 	winners []Candidate,
 	proverID [32]byte,
@@ -277,6 +278,7 @@ func VerifyPoSt(
 	resPtr := C.sector_builder_ffi_reexported_verify_post(
 		C.uint64_t(sectorSize),
 		(*[CommitmentBytesLen]C.uint8_t)(challengeSeedCBytes),
+		C.uint64_t(challengeCount),
 		sectorIdsPtr,
 		sectorIdsSize,
 		(*C.uint8_t)(flattenedCommRsCBytes),
@@ -668,6 +670,7 @@ func GenerateCandidates(
 	sectorBuilderPtr unsafe.Pointer,
 	sectorInfo SortedSectorInfo,
 	challengeSeed [CommitmentBytesLen]byte,
+	challengeCount uint64,
 	faults []uint64,
 ) ([]Candidate, error) {
 	defer elapsed("GenerateCandidates")()
@@ -700,6 +703,7 @@ func GenerateCandidates(
 		(*C.uint8_t)(cflattened),
 		C.size_t(len(flattened)),
 		(*[CommitmentBytesLen]C.uint8_t)(challengeSeedPtr),
+		C.uint64_t(challengeCount),
 		faultsPtr,
 		faultsSize,
 	)
@@ -717,6 +721,7 @@ func GeneratePoSt(
 	sectorBuilderPtr unsafe.Pointer,
 	sectorInfo SortedSectorInfo,
 	challengeSeed [CommitmentBytesLen]byte,
+	challengeCount uint64,
 	winners []Candidate,
 ) ([]byte, error) {
 	defer elapsed("GeneratePoSt")()
@@ -749,6 +754,7 @@ func GeneratePoSt(
 		(*C.uint8_t)(cflattened),
 		C.size_t(len(flattened)),
 		(*[CommitmentBytesLen]C.uint8_t)(challengeSeedPtr),
+		C.uint64_t(challengeCount),
 		winnersPtr,
 		winnersSize,
 	)
