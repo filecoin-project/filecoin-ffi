@@ -1,0 +1,4 @@
+Name: filecoin
+Version: @VERSION@
+Description: C bindings for libfilecoin
+Libs: @PRIVATE_LIBS@
