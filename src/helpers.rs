@@ -1,12 +1,17 @@
-use std::collections::BTreeMap;
+use std::collections::btree_map::BTreeMap;
 use std::slice::from_raw_parts;
 
-use filecoin_proofs::types as api_types;
+use ffi_toolkit::{c_str_to_pbuf, c_str_to_rust_str};
 use filecoin_proofs::{constants as api_constants, Commitment, PublicReplicaInfo};
+use filecoin_proofs::{types as api_types, PrivateReplicaInfo};
 use libc;
+use paired::bls12_381::{Bls12, Fr};
+use storage_proofs::fr32::fr_into_bytes;
+use storage_proofs::sector::SectorId;
 
 use crate::error::Result;
-use storage_proofs::sector::SectorId;
+use crate::types::{FFICandidate, FFIPrivateReplicaInfo};
+use storage_proofs::election_post::Candidate;
 
 /// Produce a map from sector id to replica info by pairing sector ids and
 /// replica commitments (by index in their respective arrays), setting the
@@ -120,4 +125,71 @@ unsafe fn into_proof_vecs(
         });
 
     Ok(res)
+}
+
+pub fn bls_12_fr_into_bytes(fr: Fr) -> [u8; 32] {
+    let mut commitment = [0; 32];
+    for (i, b) in fr_into_bytes::<Bls12>(&fr).iter().enumerate() {
+        commitment[i] = *b;
+    }
+    commitment
+}
+
+pub unsafe fn to_private_replica_info_map(
+    replicas_ptr: *const FFIPrivateReplicaInfo,
+    replicas_len: libc::size_t,
+) -> Result<BTreeMap<SectorId, PrivateReplicaInfo>> {
+    ensure!(!replicas_ptr.is_null(), "replicas_ptr must not be null");
+
+    from_raw_parts(replicas_ptr, replicas_len)
+        .iter()
+        .cloned()
+        .map(|ffi_r| {
+            let cache_dir_path = c_str_to_pbuf(ffi_r.cache_dir_path);
+            let cloned = cache_dir_path.clone();
+
+            filecoin_proofs::PrivateReplicaInfo::new(
+                c_str_to_rust_str(ffi_r.replica_path).to_string(),
+                ffi_r.comm_r,
+                cache_dir_path,
+            )
+            .map_err(|err| {
+                format_err!(
+                    "could not load private replica (id = {}) from cache (path = {:?}): {}",
+                    ffi_r.sector_id,
+                    cloned,
+                    err
+                )
+            })
+            .map(|p| (SectorId::from(ffi_r.sector_id), p))
+        })
+        .collect()
+}
+
+pub unsafe fn c_to_rust_candidates(
+    winners_ptr: *const FFICandidate,
+    winners_len: libc::size_t,
+) -> Result<Vec<Candidate>> {
+    ensure!(!winners_ptr.is_null(), "winners_ptr must not be null");
+
+    from_raw_parts(winners_ptr, winners_len)
+        .iter()
+        .cloned()
+        .map(|c| c.try_into_candidate().map_err(Into::into))
+        .collect()
+}
+
+pub unsafe fn c_to_rust_proofs(
+    flattened_proofs_ptr: *const u8,
+    flattened_proofs_len: libc::size_t,
+) -> Result<Vec<Vec<u8>>> {
+    ensure!(
+        !flattened_proofs_ptr.is_null(),
+        "flattened_proof_ptr must not be null"
+    );
+
+    Ok(from_raw_parts(flattened_proofs_ptr, flattened_proofs_len)
+        .chunks(filecoin_proofs::SINGLE_PARTITION_PROOF_LEN)
+        .map(Into::into)
+        .collect::<Vec<Vec<u8>>>())
 }

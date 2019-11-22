@@ -1,3 +1,4 @@
+use std::mem;
 use std::slice::from_raw_parts;
 
 use ffi_toolkit::{
@@ -5,18 +6,20 @@ use ffi_toolkit::{
 };
 use filecoin_proofs as api_fns;
 use filecoin_proofs::{
-    types as api_types, Candidate, PaddedBytesAmount, PieceInfo, PoRepConfig, PoRepProofPartitions,
-    SectorClass, SectorSize, UnpaddedByteIndex, UnpaddedBytesAmount,
+    types as api_types, PaddedBytesAmount, PieceInfo, PoRepConfig, PoRepProofPartitions,
+    PoStConfig, SectorClass, SectorSize, UnpaddedByteIndex, UnpaddedBytesAmount,
 };
 use libc;
 use once_cell::sync::OnceCell;
+use storage_proofs::hasher::pedersen::PedersenDomain;
 use storage_proofs::hasher::Domain;
 use storage_proofs::sector::SectorId;
 
 use crate::helpers;
+use crate::helpers::{
+    bls_12_fr_into_bytes, c_to_rust_candidates, c_to_rust_proofs, to_private_replica_info_map,
+};
 use crate::types::*;
-use std::mem;
-use storage_proofs::hasher::pedersen::PedersenDomain;
 
 /// TODO: document
 ///
@@ -415,21 +418,8 @@ pub unsafe extern "C" fn verify_post(
         );
 
         let result = convert.and_then(|map| {
-            ensure!(
-                !flattened_proofs_ptr.is_null(),
-                "flattened_proof_ptr must not be null"
-            );
-            let proofs: Vec<Vec<u8>> = from_raw_parts(flattened_proofs_ptr, flattened_proofs_len)
-                .chunks(filecoin_proofs::SINGLE_PARTITION_PROOF_LEN)
-                .map(Into::into)
-                .collect();
-
-            ensure!(!winners_ptr.is_null(), "winners_ptr must not be null");
-            let winners: Vec<Candidate> = from_raw_parts(winners_ptr, winners_len)
-                .iter()
-                .cloned()
-                .map(|c| c.try_into_candidate())
-                .collect::<Result<_, _>>()?;
+            let proofs = c_to_rust_proofs(flattened_proofs_ptr, flattened_proofs_len)?;
+            let winners = c_to_rust_candidates(winners_ptr, winners_len)?;
 
             api_fns::verify_post(
                 api_types::PoStConfig(api_types::SectorSize(sector_size)),
@@ -536,6 +526,115 @@ pub unsafe extern "C" fn generate_data_commitment(
     })
 }
 
+/// TODO: document
+///
+#[no_mangle]
+pub unsafe extern "C" fn generate_candidates(
+    sector_size: u64,
+    randomness: &[u8; 32],
+    challenge_count: u64,
+    replicas_ptr: *const FFIPrivateReplicaInfo,
+    replicas_len: libc::size_t,
+    prover_id: &[u8; 32],
+) -> *mut GenerateCandidatesResponse {
+    catch_panic_response(|| {
+        init_log();
+
+        info!("generate_candidates: start");
+
+        let mut response = GenerateCandidatesResponse::default();
+
+        let result = to_private_replica_info_map(replicas_ptr, replicas_len).and_then(|rs| {
+            api_fns::generate_candidates(
+                PoStConfig(SectorSize(sector_size)),
+                randomness,
+                challenge_count,
+                &rs,
+                *prover_id,
+            )
+        });
+
+        match result {
+            Ok(output) => {
+                let mapped: Vec<FFICandidate> = output
+                    .iter()
+                    .map(|x| FFICandidate {
+                        sector_id: x.sector_id.into(),
+                        partial_ticket: bls_12_fr_into_bytes(x.partial_ticket),
+                        ticket: x.ticket,
+                        sector_challenge_index: x.sector_challenge_index,
+                    })
+                    .collect();
+
+                response.status_code = FCPResponseStatus::FCPNoError;
+                response.candidates_ptr = mapped.as_ptr();
+                response.candidates_len = mapped.len();
+                mem::forget(mapped);
+            }
+            Err(err) => {
+                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                response.error_msg = rust_str_to_c_str(format!("{}", err));
+            }
+        }
+
+        info!("generate_candidates: finish");
+
+        raw_ptr(response)
+    })
+}
+
+/// TODO: document
+///
+#[no_mangle]
+pub unsafe extern "C" fn generate_post(
+    sector_size: u64,
+    randomness: &[u8; 32],
+    replicas_ptr: *const FFIPrivateReplicaInfo,
+    replicas_len: libc::size_t,
+    winners_ptr: *const FFICandidate,
+    winners_len: libc::size_t,
+    prover_id: &[u8; 32],
+) -> *mut GeneratePoStResponse {
+    catch_panic_response(|| {
+        init_log();
+
+        info!("generate_post: start");
+
+        let mut response = GeneratePoStResponse::default();
+
+        let result = to_private_replica_info_map(replicas_ptr, replicas_len).and_then(|rs| {
+            api_fns::generate_post(
+                PoStConfig(SectorSize(sector_size)),
+                randomness,
+                &rs,
+                c_to_rust_candidates(winners_ptr, winners_len)?,
+                *prover_id,
+            )
+        });
+
+        match result {
+            Ok(proof) => {
+                response.status_code = FCPResponseStatus::FCPNoError;
+
+                let flattened_proofs: Vec<u8> = proof.into_iter().flatten().collect();
+
+                response.flattened_proofs_len = flattened_proofs.len();
+                response.flattened_proofs_ptr = flattened_proofs.as_ptr();
+
+                mem::forget(flattened_proofs);
+            }
+            Err(err) => {
+                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                response.error_msg = rust_str_to_c_str(format!("{}", err));
+            }
+        }
+
+        info!("generate_post: finish");
+
+        raw_ptr(response)
+    })
+}
+
 #[no_mangle]
 pub unsafe extern "C" fn destroy_write_alignment_response(ptr: *mut WriteWithAlignmentResponse) {
     let _ = Box::from_raw(ptr);
@@ -602,6 +701,18 @@ pub unsafe extern "C" fn destroy_finalize_ticket_response(ptr: *mut FinalizeTick
 ///
 #[no_mangle]
 pub unsafe extern "C" fn destroy_verify_post_response(ptr: *mut VerifyPoStResponse) {
+    let _ = Box::from_raw(ptr);
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn destroy_generate_post_response(ptr: *mut GeneratePoStResponse) {
+    let _ = Box::from_raw(ptr);
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn destroy_generate_candidates_response(
+    ptr: *mut GenerateCandidatesResponse,
+) {
     let _ = Box::from_raw(ptr);
 }
 
@@ -700,8 +811,11 @@ pub mod tests {
         let cache_dir = tempfile::tempdir()?;
         let cache_dir_path = cache_dir.into_path();
 
+        let challenge_count = 1;
         let prover_id = [1u8; 32];
+        let randomness = [7u8; 32];
         let sector_id = 42;
+        let sector_size = 1024;
         let seed = [5u8; 32];
         let ticket = [6u8; 32];
 
@@ -756,7 +870,7 @@ pub mod tests {
             );
 
             if (*resp_b).status_code != FCPResponseStatus::FCPNoError {
-                let msg = c_str_to_rust_str((*resp_a).error_msg);
+                let msg = c_str_to_rust_str((*resp_b).error_msg);
                 panic!("seal_pre_commit failed: {:?}", msg);
             }
 
@@ -773,12 +887,12 @@ pub mod tests {
             );
 
             if (*resp_c).status_code != FCPResponseStatus::FCPNoError {
-                let msg = c_str_to_rust_str((*resp_a).error_msg);
+                let msg = c_str_to_rust_str((*resp_c).error_msg);
                 panic!("seal_commit failed: {:?}", msg);
             }
 
             let resp_d = verify_seal(
-                1024,
+                sector_size,
                 &(*resp_b).seal_pre_commit_output.comm_r,
                 &(*resp_b).seal_pre_commit_output.comm_d,
                 &prover_id,
@@ -790,7 +904,7 @@ pub mod tests {
             );
 
             if (*resp_d).status_code != FCPResponseStatus::FCPNoError {
-                let msg = c_str_to_rust_str((*resp_a).error_msg);
+                let msg = c_str_to_rust_str((*resp_d).error_msg);
                 panic!("seal_commit failed: {:?}", msg);
             }
 
@@ -808,7 +922,7 @@ pub mod tests {
             );
 
             if (*resp_e).status_code != FCPResponseStatus::FCPNoError {
-                let msg = c_str_to_rust_str((*resp_a).error_msg);
+                let msg = c_str_to_rust_str((*resp_e).error_msg);
                 panic!("unseal failed: {:?}", msg);
             }
 
@@ -822,11 +936,90 @@ pub mod tests {
                 "original bytes don't match unsealed bytes"
             );
 
+            // generate a PoSt
+
+            let private_replicas = vec![FFIPrivateReplicaInfo {
+                cache_dir_path: cache_dir_path_c_str,
+                comm_r: (*resp_b).seal_pre_commit_output.comm_r,
+                replica_path: sealed_path_c_str,
+                sector_id,
+            }];
+
+            let resp_f = generate_candidates(
+                sector_size,
+                &randomness,
+                challenge_count,
+                private_replicas.as_ptr(),
+                private_replicas.len(),
+                &prover_id,
+            );
+
+            if (*resp_f).status_code != FCPResponseStatus::FCPNoError {
+                let msg = c_str_to_rust_str((*resp_f).error_msg);
+                panic!("generate_candidates failed: {:?}", msg);
+            }
+
+            // exercise the ticket-finalizing code path (but don't do anything
+            // with the results
+            let result = c_to_rust_candidates((*resp_f).candidates_ptr, (*resp_f).candidates_len)?;
+            if result.len() < 1 {
+                panic!("generate_candidates produced no results");
+            }
+
+            let resp_g = finalize_ticket(&bls_12_fr_into_bytes(result[0].partial_ticket));
+            if (*resp_g).status_code != FCPResponseStatus::FCPNoError {
+                let msg = c_str_to_rust_str((*resp_g).error_msg);
+                panic!("finalize_ticket failed: {:?}", msg);
+            }
+
+            let resp_h = generate_post(
+                sector_size,
+                &randomness,
+                private_replicas.as_ptr(),
+                private_replicas.len(),
+                (*resp_f).candidates_ptr,
+                (*resp_f).candidates_len,
+                &prover_id,
+            );
+
+            if (*resp_h).status_code != FCPResponseStatus::FCPNoError {
+                let msg = c_str_to_rust_str((*resp_h).error_msg);
+                panic!("generate_post failed: {:?}", msg);
+            }
+
+            let resp_i = verify_post(
+                sector_size,
+                &randomness,
+                challenge_count,
+                &sector_id as *const u64,
+                1,
+                &(*resp_b).seal_pre_commit_output.comm_r[0],
+                32,
+                (*resp_h).flattened_proofs_ptr,
+                (*resp_h).flattened_proofs_len,
+                (*resp_f).candidates_ptr,
+                (*resp_f).candidates_len,
+                &prover_id,
+            );
+
+            if (*resp_i).status_code != FCPResponseStatus::FCPNoError {
+                let msg = c_str_to_rust_str((*resp_i).error_msg);
+                panic!("verify_post failed: {:?}", msg);
+            }
+
+            if !(*resp_i).is_valid {
+                panic!("verify_post rejected the provided proof as invalid");
+            }
+
             destroy_write_without_alignment_response(resp_a);
             destroy_seal_pre_commit_response(resp_b);
             destroy_seal_commit_response(resp_c);
             destroy_verify_seal_response(resp_d);
             destroy_unseal_response(resp_e);
+            destroy_generate_candidates_response(resp_f);
+            destroy_finalize_ticket_response(resp_g);
+            destroy_generate_post_response(resp_h);
+            destroy_verify_post_response(resp_i);
 
             c_str_to_rust_str(cache_dir_path_c_str);
             c_str_to_rust_str(staged_path_c_str);
