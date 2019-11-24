@@ -106,6 +106,24 @@ func cCandidates(src []Candidate) (*C.sector_builder_ffi_FFICandidate, C.size_t)
 	return (*C.sector_builder_ffi_FFICandidate)(cCandidates), srcCSizeT
 }
 
+func cPrivateReplicaInfos(src []SectorPrivateInfo) (*C.sector_builder_ffi_FFIPrivateReplicaInfo, C.size_t) {
+	srcCSizeT := C.size_t(len(src))
+
+	cPrivateReplicas := C.malloc(srcCSizeT * C.sizeof_sector_builder_ffi_FFIPrivateReplicaInfo)
+
+	pp := (*[1 << 30]C.sector_builder_ffi_FFIPrivateReplicaInfo)(cPrivateReplicas)
+	for i, v := range src {
+		pp[i] = C.sector_builder_ffi_FFIPrivateReplicaInfo{
+			cache_dir_path: C.CString(v.CacheDirPath),
+			comm_r:         *(*[32]C.uint8_t)(unsafe.Pointer(&v.CommR)),
+			replica_path:   C.CString(v.SealedSectorPath),
+			sector_id:      C.uint64_t(v.SectorID),
+		}
+	}
+
+	return (*C.sector_builder_ffi_FFIPrivateReplicaInfo)(cPrivateReplicas), srcCSizeT
+}
+
 func goBytes(src *C.uint8_t, size C.size_t) []byte {
 	return C.GoBytes(unsafe.Pointer(src), C.int(size))
 }

@@ -30,10 +30,16 @@ func elapsed(what string) func() {
 	}
 }
 
-// SortedSectorInfo is a slice of SectorInfo sorted (lexicographically,
-// ascending) by replica commitment (CommR).
-type SortedSectorInfo struct {
-	f []SectorInfo
+// SortedPublicSectorInfo is a slice of PublicSectorInfo sorted
+// (lexicographically, ascending) by replica commitment (CommR).
+type SortedPublicSectorInfo struct {
+	f []SectorPublicInfo
+}
+
+// SortedPrivateSectorInfo is a slice of PrivateSectorInfo sorted
+// (lexicographically, ascending) by replica commitment (CommR).
+type SortedPrivateSectorInfo struct {
+	f []SectorPrivateInfo
 }
 
 // SealTicket is required for the first step of Interactive PoRep.
@@ -55,41 +61,75 @@ type Candidate struct {
 	SectorChallengeIndex uint64
 }
 
-// NewSortedSectorInfo returns a SortedSectorInfo
-func NewSortedSectorInfo(sectorInfo ...SectorInfo) SortedSectorInfo {
+// NewSortedSectorPublicInfo returns a SortedPublicSectorInfo
+func NewSortedSectorPublicInfo(sectorInfo ...SectorPublicInfo) SortedPublicSectorInfo {
 	fn := func(i, j int) bool {
 		return bytes.Compare(sectorInfo[i].CommR[:], sectorInfo[j].CommR[:]) == -1
 	}
 
 	sort.Slice(sectorInfo[:], fn)
 
-	return SortedSectorInfo{
+	return SortedPublicSectorInfo{
 		f: sectorInfo,
 	}
 }
 
-// Values returns the sorted SectorInfo as a slice
-func (s *SortedSectorInfo) Values() []SectorInfo {
+// Values returns the sorted SectorPublicInfo as a slice
+func (s *SortedPublicSectorInfo) Values() []SectorPublicInfo {
 	return s.f
 }
 
-// MarshalJSON JSON-encodes and serializes the SortedSectorInfo.
-func (s SortedSectorInfo) MarshalJSON() ([]byte, error) {
+// MarshalJSON JSON-encodes and serializes the SortedPublicSectorInfo.
+func (s SortedPublicSectorInfo) MarshalJSON() ([]byte, error) {
 	return json.Marshal(s.f)
 }
 
 // UnmarshalJSON parses the JSON-encoded byte slice and stores the result in the
 // value pointed to by s.f. Note that this method allows for construction of a
-// SortedSectorInfo which violates its invariant (that its SectorInfo are sorted
+// SortedPublicSectorInfo which violates its invariant (that its SectorPublicInfo are sorted
 // in some defined way). Callers should take care to never provide a byte slice
 // which would violate this invariant.
-func (s *SortedSectorInfo) UnmarshalJSON(b []byte) error {
+func (s *SortedPublicSectorInfo) UnmarshalJSON(b []byte) error {
 	return json.Unmarshal(b, &s.f)
 }
 
-type SectorInfo struct {
+type SectorPublicInfo struct {
 	SectorID uint64
 	CommR    [CommitmentBytesLen]byte
+}
+
+// NewSortedSectorPrivateInfo returns a SortedPrivateSectorInfo
+func NewSortedSectorPrivateInfo(sectorInfo ...SectorPrivateInfo) SortedPrivateSectorInfo {
+	fn := func(i, j int) bool {
+		return bytes.Compare(sectorInfo[i].CommR[:], sectorInfo[j].CommR[:]) == -1
+	}
+
+	sort.Slice(sectorInfo[:], fn)
+
+	return SortedPrivateSectorInfo{
+		f: sectorInfo,
+	}
+}
+
+// Values returns the sorted SectorPrivateInfo as a slice
+func (s *SortedPrivateSectorInfo) Values() []SectorPrivateInfo {
+	return s.f
+}
+
+// MarshalJSON JSON-encodes and serializes the SortedPrivateSectorInfo.
+func (s SortedPrivateSectorInfo) MarshalJSON() ([]byte, error) {
+	return json.Marshal(s.f)
+}
+
+func (s *SortedPrivateSectorInfo) UnmarshalJSON(b []byte) error {
+	return json.Unmarshal(b, &s.f)
+}
+
+type SectorPrivateInfo struct {
+	SectorID         uint64
+	CommR            [CommitmentBytesLen]byte
+	CacheDirPath     string
+	SealedSectorPath string
 }
 
 // CommitmentBytesLen is the number of bytes in a CommR, CommD, CommP, and CommRStar.
@@ -230,8 +270,8 @@ func VerifySeal(
 // inputs were derived was valid, and false if not.
 func VerifyPoSt(
 	sectorSize uint64,
-	sectorInfo SortedSectorInfo,
-	challengeSeed [32]byte,
+	sectorInfo SortedPublicSectorInfo,
+	randomness [32]byte,
 	challengeCount uint64,
 	proof []byte,
 	winners []Candidate,
@@ -258,8 +298,8 @@ func VerifyPoSt(
 	flattenedCommRsCBytes := C.CBytes(flattened)
 	defer C.free(flattenedCommRsCBytes)
 
-	challengeSeedCBytes := C.CBytes(challengeSeed[:])
-	defer C.free(challengeSeedCBytes)
+	randomnessCBytes := C.CBytes(randomness[:])
+	defer C.free(randomnessCBytes)
 
 	proofCBytes := C.CBytes(proof)
 	defer C.free(proofCBytes)
@@ -277,7 +317,7 @@ func VerifyPoSt(
 	// a mutable pointer to a VerifyPoStResponse C-struct
 	resPtr := C.sector_builder_ffi_reexported_verify_post(
 		C.uint64_t(sectorSize),
-		(*[CommitmentBytesLen]C.uint8_t)(challengeSeedCBytes),
+		(*[32]C.uint8_t)(randomnessCBytes),
 		C.uint64_t(challengeCount),
 		sectorIdsPtr,
 		sectorIdsSize,
@@ -668,8 +708,8 @@ func FinalizeTicket(partialTicket [32]byte) ([32]byte, error) {
 // GenerateCandidates creates a list of election candidates.
 func GenerateCandidates(
 	sectorBuilderPtr unsafe.Pointer,
-	sectorInfo SortedSectorInfo,
-	challengeSeed [CommitmentBytesLen]byte,
+	sectorInfo SortedPublicSectorInfo,
+	randomness [32]byte,
 	challengeCount uint64,
 	faults []uint64,
 ) ([]Candidate, error) {
@@ -692,17 +732,17 @@ func GenerateCandidates(
 	cflattened := C.CBytes(flattened)
 	defer C.free(cflattened)
 
-	challengeSeedPtr := unsafe.Pointer(&(challengeSeed)[0])
+	randomnessPtr := unsafe.Pointer(&(randomness)[0])
 
 	faultsPtr, faultsSize := cUint64s(faults)
 	defer C.free(unsafe.Pointer(faultsPtr))
 
-	// a mutable pointer to a GenerateCandidatesResponse C-struct
+	// a mutable pointer to a SectorBuilderGenerateCandidatesResponse C-struct
 	resPtr := C.sector_builder_ffi_generate_candidates(
 		(*C.sector_builder_ffi_SectorBuilder)(sectorBuilderPtr),
 		(*C.uint8_t)(cflattened),
 		C.size_t(len(flattened)),
-		(*[CommitmentBytesLen]C.uint8_t)(challengeSeedPtr),
+		(*[32]C.uint8_t)(randomnessPtr),
 		C.uint64_t(challengeCount),
 		faultsPtr,
 		faultsSize,
@@ -719,8 +759,8 @@ func GenerateCandidates(
 // GeneratePoSt produces a proof-of-spacetime for the provided replica commitments.
 func GeneratePoSt(
 	sectorBuilderPtr unsafe.Pointer,
-	sectorInfo SortedSectorInfo,
-	challengeSeed [CommitmentBytesLen]byte,
+	sectorInfo SortedPublicSectorInfo,
+	randomness [32]byte,
 	challengeCount uint64,
 	winners []Candidate,
 ) ([]byte, error) {
@@ -743,17 +783,17 @@ func GeneratePoSt(
 	cflattened := C.CBytes(flattened)
 	defer C.free(cflattened)
 
-	challengeSeedPtr := unsafe.Pointer(&(challengeSeed)[0])
+	randomnessPtr := unsafe.Pointer(&(randomness)[0])
 
 	winnersPtr, winnersSize := cCandidates(winners)
 	defer C.free(unsafe.Pointer(winnersPtr))
 
-	// a mutable pointer to a GeneratePoStResponse C-struct
+	// a mutable pointer to a SectorBuilderGeneratePoStResponse C-struct
 	resPtr := C.sector_builder_ffi_generate_post(
 		(*C.sector_builder_ffi_SectorBuilder)(sectorBuilderPtr),
 		(*C.uint8_t)(cflattened),
 		C.size_t(len(flattened)),
-		(*[CommitmentBytesLen]C.uint8_t)(challengeSeedPtr),
+		(*[32]C.uint8_t)(randomnessPtr),
 		C.uint64_t(challengeCount),
 		winnersPtr,
 		winnersSize,
@@ -982,8 +1022,8 @@ func StandaloneSealPreCommit(
 	stagedSectorPath string,
 	sealedSectorPath string,
 	sectorID uint64,
-	proverID [CommitmentBytesLen]byte,
-	ticket [CommitmentBytesLen]byte,
+	proverID [32]byte,
+	ticket [32]byte,
 	pieces []PublicPieceInfo,
 ) (RawSealPreCommitOutput, error) {
 	defer elapsed("StandaloneSealPreCommit")()
@@ -1032,9 +1072,9 @@ func StandaloneSealCommit(
 	poRepProofPartitions uint8,
 	cacheDirPath string,
 	sectorID uint64,
-	proverID [CommitmentBytesLen]byte,
-	ticket [CommitmentBytesLen]byte,
-	seed [CommitmentBytesLen]byte,
+	proverID [32]byte,
+	ticket [32]byte,
+	seed [32]byte,
 	pieces []PublicPieceInfo,
 	rspco RawSealPreCommitOutput,
 ) ([]byte, error) {
@@ -1083,8 +1123,8 @@ func StandaloneUnseal(
 	sealedSectorPath string,
 	unsealOutputPath string,
 	sectorID uint64,
-	proverID [CommitmentBytesLen]byte,
-	ticket [CommitmentBytesLen]byte,
+	proverID [32]byte,
+	ticket [32]byte,
 	commD [CommitmentBytesLen]byte,
 ) error {
 	defer elapsed("StandaloneUnseal")()
@@ -1113,8 +1153,8 @@ func StandaloneUnseal(
 		cSealedSectorPath,
 		cUnsealOutputPath,
 		C.uint64_t(sectorID),
-		(*[CommitmentBytesLen]C.uint8_t)(proverIDCBytes),
-		(*[CommitmentBytesLen]C.uint8_t)(ticketCBytes),
+		(*[32]C.uint8_t)(proverIDCBytes),
+		(*[32]C.uint8_t)(ticketCBytes),
 		(*[CommitmentBytesLen]C.uint8_t)(commDCBytes),
 	)
 	defer C.sector_builder_ffi_reexported_destroy_unseal_response(resPtr)
@@ -1124,6 +1164,79 @@ func StandaloneUnseal(
 	}
 
 	return nil
+}
+
+// StandaloneGenerateCandidates
+func StandaloneGenerateCandidates(
+	sectorSize uint64,
+	proverID [32]byte,
+	randomness [32]byte,
+	challengeCount uint64,
+	privateSectorInfo SortedPrivateSectorInfo,
+) ([]Candidate, error) {
+	defer elapsed("StandaloneGenerateCandidates")()
+
+	randomessCBytes := C.CBytes(randomness[:])
+	defer C.free(randomessCBytes)
+
+	proverIDCBytes := C.CBytes(proverID[:])
+	defer C.free(proverIDCBytes)
+
+	replicasPtr, replicasSize := cPrivateReplicaInfos(privateSectorInfo.Values())
+	defer C.free(unsafe.Pointer(replicasPtr))
+
+	resPtr := C.sector_builder_ffi_reexported_generate_candidates(
+		C.uint64_t(sectorSize),
+		(*[32]C.uint8_t)(randomessCBytes),
+		C.uint64_t(challengeCount),
+		replicasPtr,
+		replicasSize,
+		(*[32]C.uint8_t)(proverIDCBytes),
+	)
+	defer C.sector_builder_ffi_reexported_destroy_generate_candidates_response(resPtr)
+
+	if resPtr.status_code != 0 {
+		return nil, errors.New(C.GoString(resPtr.error_msg))
+	}
+
+	return goCandidates(resPtr.candidates_ptr, resPtr.candidates_len)
+}
+
+// StandaloneGeneratePoSt
+func StandaloneGeneratePoSt(
+	sectorSize uint64,
+	proverID [32]byte,
+	privateSectorInfo SortedPrivateSectorInfo,
+	randomness [32]byte,
+	winners []Candidate,
+) ([]byte, error) {
+	defer elapsed("StandaloneGeneratePoSt")()
+
+	replicasPtr, replicasSize := cPrivateReplicaInfos(privateSectorInfo.Values())
+	defer C.free(unsafe.Pointer(replicasPtr))
+
+	winnersPtr, winnersSize := cCandidates(winners)
+	defer C.free(unsafe.Pointer(winnersPtr))
+
+	proverIDCBytes := C.CBytes(proverID[:])
+	defer C.free(proverIDCBytes)
+
+	resPtr := C.sector_builder_ffi_reexported_generate_post(
+		C.uint64_t(sectorSize),
+		(*[32]C.uint8_t)(unsafe.Pointer(&(randomness)[0])),
+		replicasPtr,
+		replicasSize,
+		winnersPtr,
+		winnersSize,
+		(*[32]C.uint8_t)(proverIDCBytes),
+	)
+	defer C.sector_builder_ffi_reexported_destroy_generate_post_response(resPtr)
+
+	if resPtr.status_code != 0 {
+		return nil, errors.New(C.GoString(resPtr.error_msg))
+	}
+
+	return goBytes(resPtr.flattened_proofs_ptr, resPtr.flattened_proofs_len), nil
 }
 
 func getAllSealedSectors(sectorBuilderPtr unsafe.Pointer, performHealthchecks bool) ([]SealedSectorMetadata, error) {
