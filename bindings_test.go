@@ -172,8 +172,8 @@ func TestSectorBuilderLifecycle(t *testing.T) {
 	require.NoError(t, err)
 	require.True(t, isValid)
 
-	// enforces sort ordering of SectorPublicInfo tuples
-	sectorInfo := sb.NewSortedSectorPublicInfo(sb.SectorPublicInfo{
+	// enforces sort ordering of PublicSectorInfo tuples
+	sectorInfo := sb.NewSortedPublicSectorInfo(sb.PublicSectorInfo{
 		SectorID: statusA.SectorID,
 		CommR:    statusA.CommR,
 	})
@@ -351,14 +351,14 @@ func TestImportSector(t *testing.T) {
 
 	// generate a PoSt over the proving set before importing, just to exercise
 	// the new API
-	privateInfo := sb.NewSortedSectorPrivateInfo(sb.SectorPrivateInfo{
+	privateInfo := sb.NewSortedPrivateSectorInfo(sb.PrivateSectorInfo{
 		SectorID:         sectorID,
 		CommR:            output.CommR,
 		CacheDirPath:     sectorCacheDirPath,
 		SealedSectorPath: sealedSectorFile.Name(),
 	})
 
-	publicInfo := sb.NewSortedSectorPublicInfo(sb.SectorPublicInfo{
+	publicInfo := sb.NewSortedPublicSectorInfo(sb.PublicSectorInfo{
 		SectorID: sectorID,
 		CommR:    output.CommR,
 	})
@@ -413,9 +413,9 @@ func TestImportSector(t *testing.T) {
 
 func TestJsonMarshalSymmetry(t *testing.T) {
 	for i := 0; i < 100; i++ {
-		xs := make([]sb.SectorPublicInfo, 10)
+		xs := make([]sb.PublicSectorInfo, 10)
 		for j := 0; j < 10; j++ {
-			var x sb.SectorPublicInfo
+			var x sb.PublicSectorInfo
 			_, err := io.ReadFull(rand.Reader, x.CommR[:])
 			require.NoError(t, err)
 
@@ -424,7 +424,7 @@ func TestJsonMarshalSymmetry(t *testing.T) {
 			x.SectorID = n.Uint64()
 			xs[j] = x
 		}
-		toSerialize := sb.NewSortedSectorPublicInfo(xs...)
+		toSerialize := sb.NewSortedPublicSectorInfo(xs...)
 
 		serialized, err := toSerialize.MarshalJSON()
 		require.NoError(t, err)

@@ -106,7 +106,7 @@ func cCandidates(src []Candidate) (*C.sector_builder_ffi_FFICandidate, C.size_t)
 	return (*C.sector_builder_ffi_FFICandidate)(cCandidates), srcCSizeT
 }
 
-func cPrivateReplicaInfos(src []SectorPrivateInfo) (*C.sector_builder_ffi_FFIPrivateReplicaInfo, C.size_t) {
+func cPrivateReplicaInfos(src []PrivateSectorInfo) (*C.sector_builder_ffi_FFIPrivateReplicaInfo, C.size_t) {
 	srcCSizeT := C.size_t(len(src))
 
 	cPrivateReplicas := C.malloc(srcCSizeT * C.sizeof_sector_builder_ffi_FFIPrivateReplicaInfo)
