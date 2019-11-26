@@ -1,5 +1,5 @@
 [package]
-name = "filecoin-proofs"
+name = "filecoin"
 description = "FFI Interface to Filecoin"
 version = "0.7.3"
 authors = ["laser <l@s3r.com>"]

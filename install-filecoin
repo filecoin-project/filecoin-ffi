@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+set -Exeo pipefail
+
+cd "$(dirname "${BASH_SOURCE[0]}")"
+source "install-shared.bash"
+
+rust_sources_dir="rust"
+
+if download_release_tarball tarball_path "${rust_sources_dir}" "filecoin-ffi"; then
+    tmp_dir=$(mktemp -d)
+    tar -C "$tmp_dir" -xzf "$tarball_path"
+
+    cp "${tmp_dir}/include/filecoin.h" .
+    cp "${tmp_dir}/lib/libfilecoin.a" .
+    cp "${tmp_dir}/lib/pkgconfig/filecoin.pc" .
+    cp "${tmp_dir}/bin/paramcache" .
+else
+    (>&2 echo "failed to find or obtain precompiled assets for ${rust_sources_dir} - falling back to local build")
+    build_from_source "filecoin" "${rust_sources_dir}"
+
+    mkdir -p include
+    mkdir -p lib/pkgconfig
+
+    find -L "${rust_sources_dir}/target/release" -type f -name filecoin.h -exec cp -- "{}" . \;
+    find -L "${rust_sources_dir}/target/release" -type f -name libfilecoin.a -exec cp -- "{}" . \;
+    find -L "${rust_sources_dir}" -type f -name filecoin.pc -exec cp -- "{}" . \;
+
+    if [[ ! -f "./filecoin.h" ]]; then
+        (>&2 echo "failed to install filecoin.h")
+        exit 1
+    fi
+
+    if [[ ! -f "./libfilecoin.a" ]]; then
+        (>&2 echo "failed to install libfilecoin.a")
+        exit 1
+    fi
+
+    if [[ ! -f "./filecoin.pc" ]]; then
+        (>&2 echo "failed to install filecoin.pc")
+        exit 1
+    fi
+
+    (>&2 echo "WARNING: paramcache was not installed - you may wish to 'cargo install' it")
+fi

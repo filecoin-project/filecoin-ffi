@@ -636,7 +636,7 @@ pub unsafe extern "C" fn generate_post(
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn destroy_write_alignment_response(ptr: *mut WriteWithAlignmentResponse) {
+pub unsafe extern "C" fn destroy_write_with_alignment_response(ptr: *mut WriteWithAlignmentResponse) {
     let _ = Box::from_raw(ptr);
 }
 
