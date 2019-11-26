@@ -73,11 +73,12 @@ commands:
       - run:
           name: Configure environment variables
           command: |
-            echo 'export PATH="/usr/local/go/bin:${HOME}/.cargo/bin:${PATH}:${HOME}/go/bin:${HOME}/.bin"' >> $BASH_ENV
-            echo 'export GOPATH="${HOME}/go"' >> $BASH_ENV
-            echo 'export FIL_PROOFS_PARAMETER_CACHE="${HOME}/filecoin-proof-parameters/"' >> $BASH_ENV
-            echo 'export RUST_LOG=info' >> $BASH_ENV
             echo 'export FFI_BUILD_FROM_SOURCE=1' >> $BASH_ENV
+            echo 'export FIL_PROOFS_PARAMETER_CACHE="${HOME}/filecoin-proof-parameters/"' >> $BASH_ENV
+            echo 'export GO111MODULE=on' >> $BASH_ENV
+            echo 'export GOPATH="${HOME}/go"' >> $BASH_ENV
+            echo 'export PATH="/usr/local/go/bin:${HOME}/.cargo/bin:${PATH}:${HOME}/go/bin:${HOME}/.bin"' >> $BASH_ENV
+            echo 'export RUST_LOG=info' >> $BASH_ENV
   obtain_filecoin_parameters:
     steps:
       - run:
