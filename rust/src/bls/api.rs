@@ -12,7 +12,7 @@ use rand::OsRng;
 
 use rayon::prelude::*;
 
-use crate::bls::responses;
+use crate::bls::types;
 
 pub const SIGNATURE_BYTES: usize = 96;
 pub const PRIVATE_KEY_BYTES: usize = 32;
@@ -44,7 +44,7 @@ macro_rules! try_ffi {
 pub unsafe extern "C" fn hash(
     message_ptr: *const u8,
     message_len: libc::size_t,
-) -> *mut responses::HashResponse {
+) -> *mut types::HashResponse {
     // prep request
     let message = from_raw_parts(message_ptr, message_len);
 
@@ -55,7 +55,7 @@ pub unsafe extern "C" fn hash(
     let mut raw_digest: [u8; DIGEST_BYTES] = [0; DIGEST_BYTES];
     raw_digest.copy_from_slice(digest.into_affine().into_compressed().as_ref());
 
-    let response = responses::HashResponse { digest: raw_digest };
+    let response = types::HashResponse { digest: raw_digest };
 
     Box::into_raw(Box::new(response))
 }
@@ -72,7 +72,7 @@ pub unsafe extern "C" fn hash(
 pub unsafe extern "C" fn aggregate(
     flattened_signatures_ptr: *const u8,
     flattened_signatures_len: libc::size_t,
-) -> *mut responses::AggregateResponse {
+) -> *mut types::AggregateResponse {
     // prep request
     let signatures = try_ffi!(
         from_raw_parts(flattened_signatures_ptr, flattened_signatures_len)
@@ -87,7 +87,7 @@ pub unsafe extern "C" fn aggregate(
         .write_bytes(&mut raw_signature.as_mut())
         .expect("preallocated");
 
-    let response = responses::AggregateResponse {
+    let response = types::AggregateResponse {
         signature: raw_signature,
     };
 
@@ -160,7 +160,7 @@ pub unsafe extern "C" fn verify(
 ///
 /// * `raw_seed_ptr` - pointer to a seed byte array
 #[no_mangle]
-pub unsafe extern "C" fn private_key_generate() -> *mut responses::PrivateKeyGenerateResponse {
+pub unsafe extern "C" fn private_key_generate() -> *mut types::PrivateKeyGenerateResponse {
     let rng = &mut OsRng::new().expect("not enough randomness");
 
     let mut raw_private_key: [u8; PRIVATE_KEY_BYTES] = [0; PRIVATE_KEY_BYTES];
@@ -168,7 +168,7 @@ pub unsafe extern "C" fn private_key_generate() -> *mut responses::PrivateKeyGen
         .write_bytes(&mut raw_private_key.as_mut())
         .expect("preallocated");
 
-    let response = responses::PrivateKeyGenerateResponse {
+    let response = types::PrivateKeyGenerateResponse {
         private_key: raw_private_key,
     };
 
@@ -189,7 +189,7 @@ pub unsafe extern "C" fn private_key_sign(
     raw_private_key_ptr: *const u8,
     message_ptr: *const u8,
     message_len: libc::size_t,
-) -> *mut responses::PrivateKeySignResponse {
+) -> *mut types::PrivateKeySignResponse {
     // prep request
     let private_key_slice = from_raw_parts(raw_private_key_ptr, PRIVATE_KEY_BYTES);
     let private_key = try_ffi!(
@@ -203,7 +203,7 @@ pub unsafe extern "C" fn private_key_sign(
         .write_bytes(&mut raw_signature.as_mut())
         .expect("preallocated");
 
-    let response = responses::PrivateKeySignResponse {
+    let response = types::PrivateKeySignResponse {
         signature: raw_signature,
     };
 
@@ -220,7 +220,7 @@ pub unsafe extern "C" fn private_key_sign(
 #[no_mangle]
 pub unsafe extern "C" fn private_key_public_key(
     raw_private_key_ptr: *const u8,
-) -> *mut responses::PrivateKeyPublicKeyResponse {
+) -> *mut types::PrivateKeyPublicKeyResponse {
     let private_key_slice = from_raw_parts(raw_private_key_ptr, PRIVATE_KEY_BYTES);
     let private_key = try_ffi!(
         PrivateKey::from_bytes(private_key_slice),
@@ -233,7 +233,7 @@ pub unsafe extern "C" fn private_key_public_key(
         .write_bytes(&mut raw_public_key.as_mut())
         .expect("preallocated");
 
-    let response = responses::PrivateKeyPublicKeyResponse {
+    let response = types::PrivateKeyPublicKeyResponse {
         public_key: raw_public_key,
     };
 

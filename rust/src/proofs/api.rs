@@ -15,11 +15,10 @@ use storage_proofs::hasher::pedersen::PedersenDomain;
 use storage_proofs::hasher::Domain;
 use storage_proofs::sector::SectorId;
 
-use crate::helpers;
-use crate::helpers::{
+use super::helpers::{
     bls_12_fr_into_bytes, c_to_rust_candidates, c_to_rust_proofs, to_private_replica_info_map,
 };
-use crate::types::*;
+use super::types::*;
 
 /// TODO: document
 ///
@@ -312,16 +311,16 @@ pub unsafe extern "C" fn verify_seal(
     sector_id: u64,
     proof_ptr: *const u8,
     proof_len: libc::size_t,
-) -> *mut VerifySealResponse {
+) -> *mut super::types::VerifySealResponse {
     catch_panic_response(|| {
         init_log();
 
         info!("verify_seal: start");
 
-        let porep_bytes = helpers::try_into_porep_proof_bytes(proof_ptr, proof_len);
+        let porep_bytes = super::helpers::try_into_porep_proof_bytes(proof_ptr, proof_len);
 
         let result = porep_bytes.and_then(|bs| {
-            helpers::porep_proof_partitions_try_from_bytes(&bs).and_then(|ppp| {
+            super::helpers::porep_proof_partitions_try_from_bytes(&bs).and_then(|ppp| {
                 let cfg = api_types::PoRepConfig(api_types::SectorSize(sector_size), ppp);
 
                 api_fns::verify_seal(
@@ -410,7 +409,7 @@ pub unsafe extern "C" fn verify_post(
 
         let mut response = VerifyPoStResponse::default();
 
-        let convert = helpers::to_public_replica_info_map(
+        let convert = super::helpers::to_public_replica_info_map(
             sector_ids_ptr,
             sector_ids_len,
             flattened_comm_rs_ptr,
@@ -636,7 +635,9 @@ pub unsafe extern "C" fn generate_post(
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn destroy_write_with_alignment_response(ptr: *mut WriteWithAlignmentResponse) {
+pub unsafe extern "C" fn destroy_write_with_alignment_response(
+    ptr: *mut WriteWithAlignmentResponse,
+) {
     let _ = Box::from_raw(ptr);
 }
 
