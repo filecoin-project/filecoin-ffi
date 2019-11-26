@@ -1,6 +1,6 @@
 # Filecoin Proofs FFI
 
-> C bindings for filecoin-proofs.
+> C and CGO bindings for Filecoin's Rust libraries
 
 ## License
 

@@ -5,7 +5,7 @@ fn main() {
     println!("cargo:rerun-if-changed=src/");
 
     let out_dir = env::var("OUT_DIR").unwrap();
-    let hdr_out = Path::new(&out_dir).join("include/filecoin_proofs_ffi.h");
+    let hdr_out = Path::new(&out_dir).join("include/filecoin.h");
 
     cbindgen::generate(std::env::var("CARGO_MANIFEST_DIR").unwrap())
         .expect("Could not generate header")

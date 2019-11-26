@@ -1,10 +1,10 @@
 [package]
-name = "filecoin-proofs-ffi"
-description = "FFI Interface to filecoin-proofs"
+name = "filecoin"
+description = "FFI Interface to Filecoin"
 version = "0.7.3"
 authors = ["laser <l@s3r.com>"]
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/filecoin-project/rust-fil-proofs-ffi"
+repository = "https://github.com/filecoin-project/filecoin-ffi"
 readme = "README.md"
 edition = "2018"
 publish = false
@@ -15,18 +15,22 @@ crate-type = ["rlib", "staticlib"]
 [dependencies]
 filecoin-proofs = { git = "https://github.com/filecoin-project/rust-fil-proofs.git", branch = "master" }
 storage-proofs = { git = "https://github.com/filecoin-project/rust-fil-proofs.git", branch = "master" }
-ffi-toolkit = "0.4.0"
-failure = "0.1.5"
+bls-signatures = { git = "https://github.com/filecoin-project/bls-signatures.git", branch = "master" }
+byteorder = "1.2"
 drop_struct_macro_derive = "0.4.0"
+failure = "0.1.5"
+ff = "0.4"
+ffi-toolkit = "0.4.0"
 libc = "0.2.58"
 log = "0.4.7"
-pretty_env_logger = "0.3.0"
 once_cell = "0.2.4"
 paired = "0.16.0"
+pretty_env_logger = "0.3.0"
+rand = "0.4"
+rayon = "1"
 
 [build-dependencies]
 cbindgen = "0.9"
 
 [dev-dependencies]
-rand = "0.7.2"
 tempfile = "3.0.8"
