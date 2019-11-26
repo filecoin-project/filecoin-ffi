@@ -30,13 +30,13 @@ func elapsed(what string) func() {
 // SortedPublicSectorInfo is a slice of PublicSectorInfo sorted
 // (lexicographically, ascending) by replica commitment (CommR).
 type SortedPublicSectorInfo struct {
-	f []SectorPublicInfo
+	f []PublicSectorInfo
 }
 
 // SortedPrivateSectorInfo is a slice of PrivateSectorInfo sorted
 // (lexicographically, ascending) by replica commitment (CommR).
 type SortedPrivateSectorInfo struct {
-	f []SectorPrivateInfo
+	f []PrivateSectorInfo
 }
 
 // SealTicket is required for the first step of Interactive PoRep.
@@ -58,8 +58,8 @@ type Candidate struct {
 	SectorChallengeIndex uint64
 }
 
-// NewSortedSectorPublicInfo returns a SortedPublicSectorInfo
-func NewSortedSectorPublicInfo(sectorInfo ...SectorPublicInfo) SortedPublicSectorInfo {
+// NewSortedPublicSectorInfo returns a SortedPublicSectorInfo
+func NewSortedPublicSectorInfo(sectorInfo ...PublicSectorInfo) SortedPublicSectorInfo {
 	fn := func(i, j int) bool {
 		return bytes.Compare(sectorInfo[i].CommR[:], sectorInfo[j].CommR[:]) == -1
 	}
@@ -71,8 +71,8 @@ func NewSortedSectorPublicInfo(sectorInfo ...SectorPublicInfo) SortedPublicSecto
 	}
 }
 
-// Values returns the sorted SectorPublicInfo as a slice
-func (s *SortedPublicSectorInfo) Values() []SectorPublicInfo {
+// Values returns the sorted PublicSectorInfo as a slice
+func (s *SortedPublicSectorInfo) Values() []PublicSectorInfo {
 	return s.f
 }
 
@@ -83,20 +83,20 @@ func (s SortedPublicSectorInfo) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON parses the JSON-encoded byte slice and stores the result in the
 // value pointed to by s.f. Note that this method allows for construction of a
-// SortedPublicSectorInfo which violates its invariant (that its SectorPublicInfo are sorted
+// SortedPublicSectorInfo which violates its invariant (that its PublicSectorInfo are sorted
 // in some defined way). Callers should take care to never provide a byte slice
 // which would violate this invariant.
 func (s *SortedPublicSectorInfo) UnmarshalJSON(b []byte) error {
 	return json.Unmarshal(b, &s.f)
 }
 
-type SectorPublicInfo struct {
+type PublicSectorInfo struct {
 	SectorID uint64
 	CommR    [CommitmentBytesLen]byte
 }
 
-// NewSortedSectorPrivateInfo returns a SortedPrivateSectorInfo
-func NewSortedSectorPrivateInfo(sectorInfo ...SectorPrivateInfo) SortedPrivateSectorInfo {
+// NewSortedPrivateSectorInfo returns a SortedPrivateSectorInfo
+func NewSortedPrivateSectorInfo(sectorInfo ...PrivateSectorInfo) SortedPrivateSectorInfo {
 	fn := func(i, j int) bool {
 		return bytes.Compare(sectorInfo[i].CommR[:], sectorInfo[j].CommR[:]) == -1
 	}
@@ -108,8 +108,8 @@ func NewSortedSectorPrivateInfo(sectorInfo ...SectorPrivateInfo) SortedPrivateSe
 	}
 }
 
-// Values returns the sorted SectorPrivateInfo as a slice
-func (s *SortedPrivateSectorInfo) Values() []SectorPrivateInfo {
+// Values returns the sorted PrivateSectorInfo as a slice
+func (s *SortedPrivateSectorInfo) Values() []PrivateSectorInfo {
 	return s.f
 }
 
@@ -122,7 +122,7 @@ func (s *SortedPrivateSectorInfo) UnmarshalJSON(b []byte) error {
 	return json.Unmarshal(b, &s.f)
 }
 
-type SectorPrivateInfo struct {
+type PrivateSectorInfo struct {
 	SectorID         uint64
 	CommR            [CommitmentBytesLen]byte
 	CacheDirPath     string
@@ -309,23 +309,6 @@ func GetMaxUserBytesPerStagedSector(sectorSize uint64) uint64 {
 	defer elapsed("GetMaxUserBytesPerStagedSector")()
 
 	return uint64(C.get_max_user_bytes_per_staged_sector(C.uint64_t(sectorSize)))
-}
-
-// FinalizeTicket creates an actual ticket from a partial ticket.
-func FinalizeTicket(partialTicket [32]byte) ([32]byte, error) {
-	defer elapsed("FinalizeTicket")()
-
-	partialTicketPtr := unsafe.Pointer(&(partialTicket)[0])
-	resPtr := C.finalize_ticket(
-		(*[32]C.uint8_t)(partialTicketPtr),
-	)
-	defer C.destroy_finalize_ticket_response(resPtr)
-
-	if resPtr.status_code != 0 {
-		return [32]byte{}, errors.New(C.GoString(resPtr.error_msg))
-	}
-
-	return goCommitment(&resPtr.ticket[0]), nil
 }
 
 // GeneratePieceCommitment produces a piece commitment for the provided data

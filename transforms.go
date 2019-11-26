@@ -83,7 +83,7 @@ func cCandidates(src []Candidate) (*C.FFICandidate, C.size_t) {
 	return (*C.FFICandidate)(cCandidates), srcCSizeT
 }
 
-func cPrivateReplicaInfos(src []SectorPrivateInfo) (*C.FFIPrivateReplicaInfo, C.size_t) {
+func cPrivateReplicaInfos(src []PrivateSectorInfo) (*C.FFIPrivateReplicaInfo, C.size_t) {
 	srcCSizeT := C.size_t(len(src))
 
 	cPrivateReplicas := C.malloc(srcCSizeT * C.sizeof_FFIPrivateReplicaInfo)
