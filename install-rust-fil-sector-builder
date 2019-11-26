@@ -9,7 +9,7 @@ subm_dir="rust-fil-sector-builder"
 
 git submodule update --init --recursive $subm_dir
 
-if download_release_tarball tarball_path "${subm_dir}"; then
+if [ "${SB_BUILD_FROM_SOURCE}" != "1" ] && download_release_tarball tarball_path "${subm_dir}"; then
     tmp_dir=$(mktemp -d)
     tar -C "$tmp_dir" -xzf "$tarball_path"
 
@@ -18,8 +18,10 @@ if download_release_tarball tarball_path "${subm_dir}"; then
     cp "${tmp_dir}/lib/pkgconfig/sector_builder_ffi.pc" .
 
     cp "${tmp_dir}/bin/paramcache" .
+
+    (>&2 echo "successfully installed prebuilt libsector_builder")
 else
-    (>&2 echo "failed to find or obtain precompiled assets for ${subm_dir} - falling back to local build")
+    (>&2 echo "building libsector_builder from local sources (dir = ${subm_dir})")
     build_from_source "${subm_dir}"
 
     mkdir -p include
@@ -45,4 +47,6 @@ else
     fi
 
     (>&2 echo "WARNING: paramcache was not installed - you may wish to 'cargo install' it")
+
+    (>&2 echo "successfully built and installed libsector_builder from source")
 fi
