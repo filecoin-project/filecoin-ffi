@@ -1,0 +1,134 @@
+version: 2.1
+
+jobs:
+  build_and_test_linux:
+    docker:
+      - image: circleci/golang:1.12.1-stretch
+    working_directory: ~/go/src/github.com/filecoin-project/filecoin-ffi
+    resource_class: 2xlarge
+    steps:
+      - configure_environment_variables
+      - run:
+          name: Install Rust toolchain
+          command: |
+            (sudo apt-get update && sudo apt-get install -y ocl-icd-opencl-dev clang libssl-dev && which cargo && which rustc) || (curl https://sh.rustup.rs -sSf | sh -s -- -y)
+            rustc --version
+      - run:
+          name: Install jq
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y jq
+            jq --version
+      - checkout
+      - update_submodules
+      - build_project
+      - lint_project
+      - restore_parameter_cache
+      - obtain_filecoin_parameters
+      - save_parameter_cache
+      - build_and_run_tests
+  build_and_test_darwin:
+    macos:
+      xcode: "10.0.0"
+    working_directory: ~/go/src/github.com/filecoin-project/filecoin-ffi
+    resource_class: large
+    steps:
+      - configure_environment_variables
+      - run:
+          name: Install go
+          command: |
+            curl https://dl.google.com/go/go1.12.1.darwin-amd64.pkg -o /tmp/go.pkg && \
+            sudo installer -pkg /tmp/go.pkg -target /
+            go version
+      - run:
+          name: Install pkg-config and md5sum
+          command: HOMEBREW_NO_AUTO_UPDATE=1 brew install pkg-config md5sha1sum
+      - run:
+          name: Install Rust toolchain
+          command: |
+            curl https://sh.rustup.rs -sSf | sh -s -- -y
+            rustc --version
+      - run:
+          name: Install jq
+          command: |
+            HOMEBREW_NO_AUTO_UPDATE=1 brew install jq
+            jq --version
+      - checkout
+      - update_submodules
+      - build_project
+      - lint_project
+      - restore_parameter_cache
+      - obtain_filecoin_parameters
+      - save_parameter_cache
+      - build_and_compile_tests
+
+workflows:
+  version: 2
+  test_all:
+    jobs:
+      - build_and_test_linux
+      - build_and_test_darwin
+
+commands:
+  configure_environment_variables:
+    steps:
+      - run:
+          name: Configure environment variables
+          command: |
+            echo 'export PATH="/usr/local/go/bin:${HOME}/.cargo/bin:${PATH}:${HOME}/go/bin:${HOME}/.bin"' >> $BASH_ENV
+            echo 'export GOPATH="${HOME}/go"' >> $BASH_ENV
+            echo 'export FIL_PROOFS_PARAMETER_CACHE="${HOME}/filecoin-proof-parameters/"' >> $BASH_ENV
+            echo 'export RUST_LOG=info' >> $BASH_ENV
+            echo 'export FFI_BUILD_FROM_SOURCE=1' >> $BASH_ENV
+  obtain_filecoin_parameters:
+    steps:
+      - run:
+          command: echo "PRETENDING TO DOWNLOAD PARAMS"
+#      - run:
+#          name: Obtain filecoin groth parameters
+#          command: ./paramcache --params-for-sector-sizes=1024
+#          no_output_timeout: 30m
+  update_submodules:
+    steps:
+      - run:
+          name: Update submodules
+          command: git submodule update --init --recursive
+  build_project:
+    steps:
+      - run:
+          name: Build project
+          command: make
+      - run:
+          name: Ensure paramcache is installed to project root
+          command: |
+            test -f ./paramcache \
+              || (rustup run --install nightly cargo install filecoin-proofs --force --git=https://github.com/filecoin-project/rust-fil-proofs.git --branch=master --bin=paramcache --root=./ \
+                && mv ./bin/paramcache ./paramcache)
+  lint_project:
+    steps:
+      - run:
+          name: Lint project
+          command: go run github.com/golangci/golangci-lint/cmd/golangci-lint run
+  build_and_run_tests:
+    steps:
+      - run:
+          name: Test project
+          # command: RUST_LOG=info go test -p 1 -timeout 60m
+          command: RUST_LOG=info go test -run=^$
+          no_output_timeout: 60m
+  build_and_compile_tests:
+    steps:
+      - run:
+          name: Build project and tests, but don't actually run the tests (used to verify that build/link works with Darwin)
+          command: RUST_LOG=info go test -run=^$
+  restore_parameter_cache:
+    steps:
+      - restore_cache:
+          keys:
+            - v17-proof-params-{{ arch }}
+  save_parameter_cache:
+    steps:
+      - save_cache:
+          key: v17-proof-params-{{ arch }}
+          paths:
+            - "~/filecoin-proof-parameters/"

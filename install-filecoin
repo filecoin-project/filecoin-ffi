@@ -7,7 +7,7 @@ source "install-shared.bash"
 
 rust_sources_dir="rust"
 
-if download_release_tarball tarball_path "${rust_sources_dir}" "filecoin-ffi"; then
+if [ "${FFI_BUILD_FROM_SOURCE}" != "1" ] && download_release_tarball tarball_path "${rust_sources_dir}" "filecoin-ffi"; then
     tmp_dir=$(mktemp -d)
     tar -C "$tmp_dir" -xzf "$tarball_path"
 
@@ -15,8 +15,11 @@ if download_release_tarball tarball_path "${rust_sources_dir}" "filecoin-ffi"; t
     cp "${tmp_dir}/lib/libfilecoin.a" .
     cp "${tmp_dir}/lib/pkgconfig/filecoin.pc" .
     cp "${tmp_dir}/bin/paramcache" .
+
+    (>&2 echo "successfully installed prebuilt libfilecoin")
 else
-    (>&2 echo "failed to find or obtain precompiled assets for ${rust_sources_dir} - falling back to local build")
+    (>&2 echo "building libfilecoin from local sources (dir = ${rust_sources_dir})")
+
     build_from_source "filecoin" "${rust_sources_dir}"
 
     mkdir -p include
@@ -42,4 +45,6 @@ else
     fi
 
     (>&2 echo "WARNING: paramcache was not installed - you may wish to 'cargo install' it")
+
+    (>&2 echo "successfully built and installed libfilecoin from source")
 fi

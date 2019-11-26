@@ -11,12 +11,10 @@ fi
 TAR_PATH=`mktemp -d`
 
 mkdir -p $TAR_PATH
-mkdir -p $TAR_PATH/include
-mkdir -p $TAR_PATH/lib/pkgconfig
 
-find . -L -type f -name filecoin.h -exec cp -- "{}" $TAR_PATH/include/ \;
-find . -L -type f -name libfilecoin.a -exec cp -- "{}" $TAR_PATH/lib/ \;
-find . -L -type f -name filecoin.pc -exec cp -- "{}" $TAR_PATH/lib/pkgconfig/ \;
+find . -L -type f -name filecoin.h -exec cp -- "{}" $TAR_PATH/ \;
+find . -L -type f -name libfilecoin.a -exec cp -- "{}" $TAR_PATH/ \;
+find . -L -type f -name filecoin.pc -exec cp -- "{}" $TAR_PATH/ \;
 
 pushd $TAR_PATH
 

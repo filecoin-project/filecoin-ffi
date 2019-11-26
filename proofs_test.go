@@ -4,22 +4,16 @@ import (
 	"bytes"
 	"crypto/rand"
 	"encoding/hex"
-	"errors"
-	"fmt"
-	"github.com/filecoin-project/go-sectorbuilder/sealing_state"
-	"github.com/stretchr/testify/assert"
 	"io"
 	"io/ioutil"
 	"math/big"
 	"os"
 	"path/filepath"
 	"testing"
-	"time"
-	"unsafe"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
-
 
 func TestImportSector(t *testing.T) {
 	challengeCount := uint64(2)
@@ -27,6 +21,7 @@ func TestImportSector(t *testing.T) {
 	proverID := [32]byte{6, 7, 8}
 	randomness := [32]byte{9, 9, 9}
 	sectorSize := uint64(1024)
+	sectorID := uint64(42)
 
 	ticket := SealTicket{
 		BlockHeight: 0,
@@ -111,6 +106,9 @@ func TestImportSector(t *testing.T) {
 		CommP: commPB,
 	}}
 
+	commD, err := GenerateDataCommitment(sectorSize, publicPieces)
+	require.NoError(t, err)
+
 	privatePieces := make([]PieceMetadata, len(publicPieces))
 	for i, v := range publicPieces {
 		privatePieces[i] = PieceMetadata{
@@ -123,6 +121,8 @@ func TestImportSector(t *testing.T) {
 	// pre-commit the sector
 	output, err := SealPreCommit(sectorSize, poRepProofPartitions, sectorCacheDirPath, stagedSectorFile.Name(), sealedSectorFile.Name(), sectorID, proverID, ticket.TicketBytes, publicPieces)
 	require.NoError(t, err)
+
+	require.Equal(t, output.CommD, commD, "prover and verifier should agree on data commitment")
 
 	// commit the sector
 	proof, err := SealCommit(sectorSize, poRepProofPartitions, sectorCacheDirPath, sectorID, proverID, ticket.TicketBytes, seed.TicketBytes, publicPieces, output)
@@ -173,54 +173,22 @@ func TestImportSector(t *testing.T) {
 	candidatesA, err := GenerateCandidates(sectorSize, proverID, randomness, challengeCount, privateInfo)
 	require.NoError(t, err)
 
+	// finalize the ticket, but don't do anything with the results (simply
+	// exercise the API)
+	_, err = FinalizeTicket(candidatesA[0].PartialTicket)
+	require.NoError(t, err)
+
 	proofA, err := GeneratePoSt(sectorSize, proverID, privateInfo, randomness, candidatesA)
 	require.NoError(t, err)
 
 	isValid, err = VerifyPoSt(sectorSize, publicInfo, randomness, challengeCount, proofA, candidatesA, proverID)
 	require.NoError(t, err)
 	require.True(t, isValid, "VerifyPoSt rejected the (standalone) proof as invalid")
-
-	// import the sealed sector, transferring ownership to the sector builder
-	err = ImportSealedSector(ptr, sectorID, sectorCacheDirPath, sealedSectorFile.Name(), ticket, seed, output.CommR, output.CommD, output.CommC, output.CommRLast, proof, privatePieces)
-	require.NoError(t, err)
-
-	// it should now have a sealed sector!
-	var sealedSectorPathsB []string
-	require.NoError(t, filepath.Walk(sealedSectorsDir, visit(&sealedSectorPathsB)))
-	assert.Equal(t, 2, len(sealedSectorPathsB), sealedSectorPathsB)
-
-	// it should now have a cache dir and a bunch of goodies in the cache
-	var sectorCacheDirPathsB []string
-	require.NoError(t, filepath.Walk(sectorCacheRootDir, visit(&sectorCacheDirPathsB)))
-	assert.Less(t, 2, len(sectorCacheDirPathsB), sectorCacheDirPathsB)
-
-	// verify that it shows up in sealed sector list
-	metadata, err := GetAllSealedSectorsWithHealth(ptr)
-	require.NoError(t, err)
-	require.Equal(t, 1, len(metadata))
-	require.Equal(t, output.CommD, metadata[0].CommD)
-	require.Equal(t, output.CommR, metadata[0].CommR)
-
-	candidatesB, err := GenerateCandidates(ptr, publicInfo, randomness, challengeCount, []uint64{})
-	require.NoError(t, err)
-	require.Less(t, 0, len(candidatesB))
-
-	// finalize the ticket, but don't do anything with the results (simply
-	// exercise the API)
-	_, err = FinalizeTicket(candidatesB[0].PartialTicket)
-	require.NoError(t, err)
-
-	proofB, err := GeneratePoSt(ptr, publicInfo, randomness, challengeCount, candidatesB)
-	require.NoError(t, err)
-
-	isValid, err = VerifyPoSt(sectorSize, publicInfo, randomness, challengeCount, proofB, candidatesB, proverID)
-	require.NoError(t, err)
-	require.True(t, isValid, "VerifyPoSt rejected the proof as invalid")
 }
 
 func TestJsonMarshalSymmetry(t *testing.T) {
 	for i := 0; i < 100; i++ {
-		xs := make([]SectorPublicInfo, 10)
+		xs := make([]PublicSectorInfo, 10)
 		for j := 0; j < 10; j++ {
 			var x PublicSectorInfo
 			_, err := io.ReadFull(rand.Reader, x.CommR[:])
@@ -231,7 +199,7 @@ func TestJsonMarshalSymmetry(t *testing.T) {
 			x.SectorID = n.Uint64()
 			xs[j] = x
 		}
-		toSerialize := NewSortedSectorPublicInfo(xs...)
+		toSerialize := NewSortedPublicSectorInfo(xs...)
 
 		serialized, err := toSerialize.MarshalJSON()
 		require.NoError(t, err)

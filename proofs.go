@@ -6,10 +6,8 @@ import (
 	"os"
 	"runtime"
 	"sort"
-	"time"
 	"unsafe"
 
-	logging "github.com/ipfs/go-log"
 	"github.com/pkg/errors"
 )
 
@@ -17,15 +15,6 @@ import (
 // #cgo pkg-config: ${SRCDIR}/filecoin.pc
 // #include "./filecoin.h"
 import "C"
-
-var log = logging.Logger("libfilecoin") // nolint: deadcode
-
-func elapsed(what string) func() {
-	start := time.Now()
-	return func() {
-		log.Debugf("%s took %v\n", what, time.Since(start))
-	}
-}
 
 // SortedPublicSectorInfo is a slice of PublicSectorInfo sorted
 // (lexicographically, ascending) by replica commitment (CommR).
@@ -189,7 +178,6 @@ func VerifySeal(
 	sectorID uint64,
 	proof []byte,
 ) (bool, error) {
-	defer elapsed("VerifySeal")()
 
 	commDCBytes := C.CBytes(commD[:])
 	defer C.free(commDCBytes)
@@ -241,8 +229,6 @@ func VerifyPoSt(
 	winners []Candidate,
 	proverID [32]byte,
 ) (bool, error) {
-	defer elapsed("VerifyPoSt")()
-
 	// CommRs and sector ids must be provided to C.verify_post in the same order
 	// that they were provided to the C.generate_post
 	sortedCommRs := make([][CommitmentBytesLen]byte, len(sectorInfo.Values()))
@@ -306,8 +292,6 @@ func VerifyPoSt(
 // into a staged sector. Due to bit-padding, the number of user bytes that will
 // fit into the staged sector will be less than number of bytes in sectorSize.
 func GetMaxUserBytesPerStagedSector(sectorSize uint64) uint64 {
-	defer elapsed("GetMaxUserBytesPerStagedSector")()
-
 	return uint64(C.get_max_user_bytes_per_staged_sector(C.uint64_t(sectorSize)))
 }
 
@@ -363,8 +347,6 @@ func WriteWithAlignment(
 	stagedSectorFile *os.File,
 	existingPieceSizes []uint64,
 ) (leftAlignment, total uint64, commP [CommitmentBytesLen]byte, retErr error) {
-	defer elapsed("WriteWithAlignment")()
-
 	pieceFd := pieceFile.Fd()
 	runtime.KeepAlive(pieceFile)
 
@@ -396,8 +378,6 @@ func WriteWithoutAlignment(
 	pieceBytes uint64,
 	stagedSectorFile *os.File,
 ) (uint64, [CommitmentBytesLen]byte, error) {
-	defer elapsed("WriteWithoutAlignment")()
-
 	pieceFd := pieceFile.Fd()
 	runtime.KeepAlive(pieceFile)
 
@@ -430,8 +410,6 @@ func SealPreCommit(
 	ticket [32]byte,
 	pieces []PublicPieceInfo,
 ) (RawSealPreCommitOutput, error) {
-	defer elapsed("SealPreCommit")()
-
 	cCacheDirPath := C.CString(cacheDirPath)
 	defer C.free(unsafe.Pointer(cCacheDirPath))
 
@@ -482,8 +460,6 @@ func SealCommit(
 	pieces []PublicPieceInfo,
 	rspco RawSealPreCommitOutput,
 ) ([]byte, error) {
-	defer elapsed("SealCommit")()
-
 	cCacheDirPath := C.CString(cacheDirPath)
 	defer C.free(unsafe.Pointer(cCacheDirPath))
 
@@ -531,8 +507,6 @@ func Unseal(
 	ticket [32]byte,
 	commD [CommitmentBytesLen]byte,
 ) error {
-	defer elapsed("Unseal")()
-
 	cCacheDirPath := C.CString(cacheDirPath)
 	defer C.free(unsafe.Pointer(cCacheDirPath))
 
@@ -570,6 +544,21 @@ func Unseal(
 	return nil
 }
 
+// FinalizeTicket creates an actual ticket from a partial ticket.
+func FinalizeTicket(partialTicket [32]byte) ([32]byte, error) {
+	partialTicketPtr := unsafe.Pointer(&(partialTicket)[0])
+	resPtr := C.finalize_ticket(
+		(*[32]C.uint8_t)(partialTicketPtr),
+	)
+	defer C.destroy_finalize_ticket_response(resPtr)
+
+	if resPtr.status_code != 0 {
+		return [32]byte{}, errors.New(C.GoString(resPtr.error_msg))
+	}
+
+	return goCommitment(&resPtr.ticket[0]), nil
+}
+
 // GenerateCandidates
 func GenerateCandidates(
 	sectorSize uint64,
@@ -578,8 +567,6 @@ func GenerateCandidates(
 	challengeCount uint64,
 	privateSectorInfo SortedPrivateSectorInfo,
 ) ([]Candidate, error) {
-	defer elapsed("GenerateCandidates")()
-
 	randomessCBytes := C.CBytes(randomness[:])
 	defer C.free(randomessCBytes)
 
@@ -614,8 +601,6 @@ func GeneratePoSt(
 	randomness [32]byte,
 	winners []Candidate,
 ) ([]byte, error) {
-	defer elapsed("GeneratePoSt")()
-
 	replicasPtr, replicasSize := cPrivateReplicaInfos(privateSectorInfo.Values())
 	defer C.free(unsafe.Pointer(replicasPtr))
 
@@ -641,4 +626,140 @@ func GeneratePoSt(
 	}
 
 	return goBytes(resPtr.flattened_proofs_ptr, resPtr.flattened_proofs_len), nil
+}
+
+// SingleProofPartitionProofLen denotes the number of bytes in a proof generated
+// with a single partition. The number of bytes in a proof increases linearly
+// with the number of partitions used when creating that proof.
+const SingleProofPartitionProofLen = 192
+
+func cPublicPieceInfo(src []PublicPieceInfo) (*C.FFIPublicPieceInfo, C.size_t) {
+	srcCSizeT := C.size_t(len(src))
+
+	// allocate array in C heap
+	cPublicPieceInfos := C.malloc(srcCSizeT * C.sizeof_FFIPublicPieceInfo)
+
+	// create a Go slice backed by the C-array
+	xs := (*[1 << 30]C.FFIPublicPieceInfo)(cPublicPieceInfos)
+	for i, v := range src {
+		xs[i] = C.FFIPublicPieceInfo{
+			num_bytes: C.uint64_t(v.Size),
+			comm_p:    *(*[32]C.uint8_t)(unsafe.Pointer(&v.CommP)),
+		}
+	}
+
+	return (*C.FFIPublicPieceInfo)(cPublicPieceInfos), srcCSizeT
+}
+
+func cUint64s(src []uint64) (*C.uint64_t, C.size_t) {
+	srcCSizeT := C.size_t(len(src))
+
+	// allocate array in C heap
+	cUint64s := C.malloc(srcCSizeT * C.sizeof_uint64_t)
+
+	// create a Go slice backed by the C-array
+	pp := (*[1 << 30]C.uint64_t)(cUint64s)
+	for i, v := range src {
+		pp[i] = C.uint64_t(v)
+	}
+
+	return (*C.uint64_t)(cUint64s), srcCSizeT
+}
+
+func cSectorClass(sectorSize uint64, poRepProofPartitions uint8) C.FFISectorClass {
+	return C.FFISectorClass{
+		sector_size:            C.uint64_t(sectorSize),
+		porep_proof_partitions: C.uint8_t(poRepProofPartitions),
+	}
+}
+
+func cSealPreCommitOutput(src RawSealPreCommitOutput) C.FFISealPreCommitOutput {
+	return C.FFISealPreCommitOutput{
+		comm_d:            *(*[32]C.uint8_t)(unsafe.Pointer(&src.CommD)),
+		comm_r:            *(*[32]C.uint8_t)(unsafe.Pointer(&src.CommR)),
+		p_aux_comm_c:      *(*[32]C.uint8_t)(unsafe.Pointer(&src.CommC)),
+		p_aux_comm_r_last: *(*[32]C.uint8_t)(unsafe.Pointer(&src.CommRLast)),
+	}
+}
+
+func cCandidates(src []Candidate) (*C.FFICandidate, C.size_t) {
+	srcCSizeT := C.size_t(len(src))
+
+	// allocate array in C heap
+	cCandidates := C.malloc(srcCSizeT * C.sizeof_FFICandidate)
+
+	// create a Go slice backed by the C-array
+	pp := (*[1 << 30]C.FFICandidate)(cCandidates)
+	for i, v := range src {
+		pp[i] = C.FFICandidate{
+			sector_id:              C.uint64_t(v.SectorID),
+			partial_ticket:         *(*[32]C.uint8_t)(unsafe.Pointer(&v.PartialTicket)),
+			ticket:                 *(*[32]C.uint8_t)(unsafe.Pointer(&v.Ticket)),
+			sector_challenge_index: C.uint64_t(v.SectorChallengeIndex),
+		}
+	}
+
+	return (*C.FFICandidate)(cCandidates), srcCSizeT
+}
+
+func cPrivateReplicaInfos(src []PrivateSectorInfo) (*C.FFIPrivateReplicaInfo, C.size_t) {
+	srcCSizeT := C.size_t(len(src))
+
+	cPrivateReplicas := C.malloc(srcCSizeT * C.sizeof_FFIPrivateReplicaInfo)
+
+	pp := (*[1 << 30]C.FFIPrivateReplicaInfo)(cPrivateReplicas)
+	for i, v := range src {
+		pp[i] = C.FFIPrivateReplicaInfo{
+			cache_dir_path: C.CString(v.CacheDirPath),
+			comm_r:         *(*[32]C.uint8_t)(unsafe.Pointer(&v.CommR)),
+			replica_path:   C.CString(v.SealedSectorPath),
+			sector_id:      C.uint64_t(v.SectorID),
+		}
+	}
+
+	return (*C.FFIPrivateReplicaInfo)(cPrivateReplicas), srcCSizeT
+}
+
+func goBytes(src *C.uint8_t, size C.size_t) []byte {
+	return C.GoBytes(unsafe.Pointer(src), C.int(size))
+}
+
+func goCandidates(src *C.FFICandidate, size C.size_t) ([]Candidate, error) {
+	candidates := make([]Candidate, size)
+	if src == nil || size == 0 {
+		return candidates, nil
+	}
+
+	ptrs := (*[1 << 30]C.FFICandidate)(unsafe.Pointer(src))[:size:size]
+	for i := 0; i < int(size); i++ {
+		candidates[i] = goCandidate(ptrs[i])
+	}
+
+	return candidates, nil
+}
+
+func goCandidate(src C.FFICandidate) Candidate {
+	return Candidate{
+		SectorID:             uint64(src.sector_id),
+		PartialTicket:        goCommitment(&src.partial_ticket[0]),
+		Ticket:               goCommitment(&src.ticket[0]),
+		SectorChallengeIndex: uint64(src.sector_challenge_index),
+	}
+}
+
+func goRawSealPreCommitOutput(src C.FFISealPreCommitOutput) RawSealPreCommitOutput {
+	return RawSealPreCommitOutput{
+		CommD:     goCommitment(&src.comm_d[0]),
+		CommR:     goCommitment(&src.comm_r[0]),
+		CommRLast: goCommitment(&src.p_aux_comm_r_last[0]),
+		CommC:     goCommitment(&src.p_aux_comm_c[0]),
+	}
+}
+
+func goCommitment(src *C.uint8_t) [32]byte {
+	slice := C.GoBytes(unsafe.Pointer(src), 32)
+	var array [CommitmentBytesLen]byte
+	copy(array[:], slice)
+
+	return array
 }
