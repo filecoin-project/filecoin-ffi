@@ -22,7 +22,6 @@ jobs:
       - checkout
       - update_submodules
       - build_project
-      - lint_project
       - restore_parameter_cache
       - obtain_filecoin_parameters
       - save_parameter_cache
@@ -56,7 +55,6 @@ jobs:
       - checkout
       - update_submodules
       - build_project
-      - lint_project
       - restore_parameter_cache
       - obtain_filecoin_parameters
       - save_parameter_cache
@@ -104,11 +102,6 @@ commands:
             test -f ./paramcache \
               || (rustup run --install nightly cargo install filecoin-proofs --force --git=https://github.com/filecoin-project/rust-fil-proofs.git --branch=master --bin=paramcache --root=./ \
                 && mv ./bin/paramcache ./paramcache)
-  lint_project:
-    steps:
-      - run:
-          name: Lint project
-          command: go run github.com/golangci/golangci-lint/cmd/golangci-lint run
   build_and_run_tests:
     steps:
       - run:
