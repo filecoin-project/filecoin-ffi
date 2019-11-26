@@ -34,8 +34,8 @@ sed -e "s;@VERSION@;$(git rev-parse HEAD);" \
 
 # ensure header file was built
 #
-find . -type f -name filecoin_proofs_ffi.h | read
+find . -type f -name filecoin.h | read
 
 # ensure the archive file was built
 #
-find . -type f -name libfilecoin_proofs_ffi.a | read
+find . -type f -name libfilecoin.a | read

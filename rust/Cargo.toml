@@ -1,10 +1,10 @@
 [package]
-name = "filecoin-proofs-ffi"
-description = "FFI Interface to filecoin-proofs"
+name = "filecoin-proofs"
+description = "FFI Interface to Filecoin"
 version = "0.7.3"
 authors = ["laser <l@s3r.com>"]
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/filecoin-project/rust-fil-proofs-ffi"
+repository = "https://github.com/filecoin-project/filecoin-ffi"
 readme = "README.md"
 edition = "2018"
 publish = false

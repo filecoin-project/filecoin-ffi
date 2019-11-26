@@ -698,7 +698,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "filecoin-proofs-ffi"
+name = "filecoin-proofs"
 version = "0.7.3"
 dependencies = [
  "cbindgen 0.9.1 (registry+https://github.com/rust-lang/crates.io-index)",

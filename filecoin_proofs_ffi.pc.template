@@ -1,4 +1,0 @@
-Name: filecoin_proofs_ffi
-Version: @VERSION@
-Description: C bindings for filecoin-proofs-ffi
-Libs: @PRIVATE_LIBS@
