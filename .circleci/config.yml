@@ -20,7 +20,6 @@ jobs:
             sudo apt-get install -y jq
             jq --version
       - checkout
-      - update_submodules
       - build_project
       - restore_parameter_cache
       - obtain_filecoin_parameters
@@ -53,7 +52,6 @@ jobs:
             HOMEBREW_NO_AUTO_UPDATE=1 brew install jq
             jq --version
       - checkout
-      - update_submodules
       - build_project
       - restore_parameter_cache
       - obtain_filecoin_parameters
@@ -87,11 +85,6 @@ commands:
 #          name: Obtain filecoin groth parameters
 #          command: ./paramcache --params-for-sector-sizes=1024
 #          no_output_timeout: 30m
-  update_submodules:
-    steps:
-      - run:
-          name: Update submodules
-          command: git submodule update --init --recursive
   build_project:
     steps:
       - run:
