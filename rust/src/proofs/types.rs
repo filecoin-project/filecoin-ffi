@@ -4,6 +4,7 @@ use std::ptr;
 use drop_struct_macro_derive::DropStructMacro;
 use paired::bls12_381::Bls12;
 // `CodeAndMessage` is the trait implemented by `code_and_message_impl`
+use anyhow::Result;
 use ffi_toolkit::{code_and_message_impl, free_c_str, CodeAndMessage, FCPResponseStatus};
 use filecoin_proofs::{Candidate, PieceInfo, SectorClass, UnpaddedBytesAmount};
 use storage_proofs::fr32::bytes_into_fr;
@@ -56,6 +57,7 @@ pub struct FFISealPreCommitOutput {
 pub struct FFISectorClass {
     pub sector_size: u64,
     pub porep_proof_partitions: u8,
+    pub window_size_nodes: u32,
 }
 
 impl From<FFISectorClass> for SectorClass {
@@ -63,12 +65,14 @@ impl From<FFISectorClass> for SectorClass {
         let FFISectorClass {
             sector_size,
             porep_proof_partitions,
+            window_size_nodes,
         } = fsc;
 
-        SectorClass(
-            filecoin_proofs::SectorSize(sector_size),
-            filecoin_proofs::PoRepProofPartitions(porep_proof_partitions),
-        )
+        SectorClass {
+            sector_size: filecoin_proofs::SectorSize(sector_size),
+            partitions: filecoin_proofs::PoRepProofPartitions(porep_proof_partitions),
+            window_size_nodes: window_size_nodes as usize,
+        }
     }
 }
 
@@ -99,7 +103,7 @@ pub struct FFICandidate {
 }
 
 impl FFICandidate {
-    pub fn try_into_candidate(self) -> Result<Candidate, storage_proofs::error::Error> {
+    pub fn try_into_candidate(self) -> Result<Candidate> {
         let FFICandidate {
             sector_id,
             partial_ticket,

@@ -170,6 +170,7 @@ type PublicPieceInfo struct {
 // derived was valid, and false if not.
 func VerifySeal(
 	sectorSize uint64,
+	windowSizeNodes uint32,
 	commR [CommitmentBytesLen]byte,
 	commD [CommitmentBytesLen]byte,
 	proverID [32]byte,
@@ -200,6 +201,7 @@ func VerifySeal(
 	// a mutable pointer to a VerifySealResponse C-struct
 	resPtr := C.verify_seal(
 		C.uint64_t(sectorSize),
+		C.uint32_t(windowSizeNodes),
 		(*[CommitmentBytesLen]C.uint8_t)(commRCBytes),
 		(*[CommitmentBytesLen]C.uint8_t)(commDCBytes),
 		(*[32]C.uint8_t)(proverIDCBytes),
@@ -222,6 +224,7 @@ func VerifySeal(
 // inputs were derived was valid, and false if not.
 func VerifyPoSt(
 	sectorSize uint64,
+	windowSizeNodes uint32,
 	sectorInfo SortedPublicSectorInfo,
 	randomness [32]byte,
 	challengeCount uint64,
@@ -267,6 +270,7 @@ func VerifyPoSt(
 	// a mutable pointer to a VerifyPoStResponse C-struct
 	resPtr := C.verify_post(
 		C.uint64_t(sectorSize),
+		C.uint32_t(windowSizeNodes),
 		(*[32]C.uint8_t)(randomnessCBytes),
 		C.uint64_t(challengeCount),
 		sectorIdsPtr,
@@ -308,11 +312,11 @@ func GeneratePieceCommitment(piecePath string, pieceSize uint64) ([CommitmentByt
 
 // GenerateDataCommitment produces a commitment for the sector containing the
 // provided pieces.
-func GenerateDataCommitment(sectorSize uint64, pieces []PublicPieceInfo) ([CommitmentBytesLen]byte, error) {
+func GenerateDataCommitment(sectorSize uint64, windowSizeNodes uint32, pieces []PublicPieceInfo) ([CommitmentBytesLen]byte, error) {
 	cPiecesPtr, cPiecesLen := cPublicPieceInfo(pieces)
 	defer C.free(unsafe.Pointer(cPiecesPtr))
 
-	resPtr := C.generate_data_commitment(C.uint64_t(sectorSize), (*C.FFIPublicPieceInfo)(cPiecesPtr), cPiecesLen)
+	resPtr := C.generate_data_commitment(C.uint64_t(sectorSize), C.uint32_t(windowSizeNodes), (*C.FFIPublicPieceInfo)(cPiecesPtr), cPiecesLen)
 	defer C.destroy_generate_data_commitment_response(resPtr)
 
 	if resPtr.status_code != 0 {
@@ -401,6 +405,7 @@ func WriteWithoutAlignment(
 // SealPreCommit
 func SealPreCommit(
 	sectorSize uint64,
+	windowSizeNodes uint32,
 	poRepProofPartitions uint8,
 	cacheDirPath string,
 	stagedSectorPath string,
@@ -429,7 +434,7 @@ func SealPreCommit(
 	defer C.free(unsafe.Pointer(cPiecesPtr))
 
 	resPtr := C.seal_pre_commit(
-		cSectorClass(sectorSize, poRepProofPartitions),
+		cSectorClass(sectorSize, poRepProofPartitions, windowSizeNodes),
 		cCacheDirPath,
 		cStagedSectorPath,
 		cSealedSectorPath,
@@ -451,6 +456,7 @@ func SealPreCommit(
 // SealCommit
 func SealCommit(
 	sectorSize uint64,
+	windowSizeNodes uint32,
 	poRepProofPartitions uint8,
 	cacheDirPath string,
 	sectorID uint64,
@@ -476,7 +482,7 @@ func SealCommit(
 	defer C.free(unsafe.Pointer(cPiecesPtr))
 
 	resPtr := C.seal_commit(
-		cSectorClass(sectorSize, poRepProofPartitions),
+		cSectorClass(sectorSize, poRepProofPartitions, windowSizeNodes),
 		cCacheDirPath,
 		C.uint64_t(sectorID),
 		(*[32]C.uint8_t)(proverIDCBytes),
@@ -498,6 +504,7 @@ func SealCommit(
 // Unseal
 func Unseal(
 	sectorSize uint64,
+	windowSizeNodes uint32,
 	poRepProofPartitions uint8,
 	cacheDirPath string,
 	sealedSectorPath string,
@@ -526,7 +533,7 @@ func Unseal(
 	defer C.free(commDCBytes)
 
 	resPtr := C.unseal(
-		cSectorClass(sectorSize, poRepProofPartitions),
+		cSectorClass(sectorSize, poRepProofPartitions, windowSizeNodes),
 		cCacheDirPath,
 		cSealedSectorPath,
 		cUnsealOutputPath,
@@ -562,6 +569,7 @@ func FinalizeTicket(partialTicket [32]byte) ([32]byte, error) {
 // GenerateCandidates
 func GenerateCandidates(
 	sectorSize uint64,
+	windowSizeNodes uint32,
 	proverID [32]byte,
 	randomness [32]byte,
 	challengeCount uint64,
@@ -578,6 +586,7 @@ func GenerateCandidates(
 
 	resPtr := C.generate_candidates(
 		C.uint64_t(sectorSize),
+		C.uint32_t(windowSizeNodes),
 		(*[32]C.uint8_t)(randomessCBytes),
 		C.uint64_t(challengeCount),
 		replicasPtr,
@@ -596,6 +605,7 @@ func GenerateCandidates(
 // GeneratePoSt
 func GeneratePoSt(
 	sectorSize uint64,
+	windowSizeNodes uint32,
 	proverID [32]byte,
 	privateSectorInfo SortedPrivateSectorInfo,
 	randomness [32]byte,
@@ -612,6 +622,7 @@ func GeneratePoSt(
 
 	resPtr := C.generate_post(
 		C.uint64_t(sectorSize),
+		C.uint32_t(windowSizeNodes),
 		(*[32]C.uint8_t)(unsafe.Pointer(&(randomness)[0])),
 		replicasPtr,
 		replicasSize,
@@ -666,10 +677,11 @@ func cUint64s(src []uint64) (*C.uint64_t, C.size_t) {
 	return (*C.uint64_t)(cUint64s), srcCSizeT
 }
 
-func cSectorClass(sectorSize uint64, poRepProofPartitions uint8) C.FFISectorClass {
+func cSectorClass(sectorSize uint64, poRepProofPartitions uint8, windowSizeNodes uint32) C.FFISectorClass {
 	return C.FFISectorClass{
 		sector_size:            C.uint64_t(sectorSize),
 		porep_proof_partitions: C.uint8_t(poRepProofPartitions),
+		window_size_nodes:      C.uint32_t(windowSizeNodes),
 	}
 }
 
