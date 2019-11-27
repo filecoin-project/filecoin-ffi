@@ -21,7 +21,7 @@ func TestImportSector(t *testing.T) {
 	proverID := [32]byte{6, 7, 8}
 	randomness := [32]byte{9, 9, 9}
 	sectorSize := uint64(1024)
-	windowSizeNodes := uint32(4)
+	windowSizeNodes := uint32(16)
 	sectorID := uint64(42)
 
 	ticket := SealTicket{
