@@ -70,7 +70,7 @@ jobs:
           command: apt-get install jq -yqq
       - run:
           name: Build the release
-          command: ./scripts/build-release.sh filecoin $(cat ./rust-toolchain) --verbose --frozen --all
+          command: ./scripts/build-release.sh filecoin $(cat ./rust/rust-toolchain) --verbose --frozen --all
       - run:
           name: Publish release to GitHub
           command: bash ./scripts/publish-release.sh
