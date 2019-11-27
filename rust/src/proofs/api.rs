@@ -303,7 +303,6 @@ pub unsafe extern "C" fn unseal(
 #[no_mangle]
 pub unsafe extern "C" fn verify_seal(
     sector_size: u64,
-    window_size_nodes: u32,
     comm_r: &[u8; 32],
     comm_d: &[u8; 32],
     prover_id: &[u8; 32],
@@ -325,7 +324,6 @@ pub unsafe extern "C" fn verify_seal(
                 let cfg = api_types::PoRepConfig {
                     sector_size: api_types::SectorSize(sector_size),
                     partitions,
-                    window_size_nodes: window_size_nodes as usize,
                 };
 
                 api_fns::verify_seal(
@@ -395,7 +393,6 @@ pub unsafe extern "C" fn finalize_ticket(partial_ticket: &[u8; 32]) -> *mut Fina
 #[no_mangle]
 pub unsafe extern "C" fn verify_post(
     sector_size: u64,
-    window_size_nodes: u32,
     randomness: &[u8; 32],
     challenge_count: u64,
     sector_ids_ptr: *const u64,
@@ -427,7 +424,6 @@ pub unsafe extern "C" fn verify_post(
             let winners = c_to_rust_candidates(winners_ptr, winners_len)?;
             let cfg = api_types::PoStConfig {
                 sector_size: api_types::SectorSize(sector_size),
-                window_size_nodes: window_size_nodes as usize,
             };
             api_fns::verify_post(
                 cfg,
@@ -500,7 +496,6 @@ pub unsafe extern "C" fn generate_piece_commitment(
 #[no_mangle]
 pub unsafe extern "C" fn generate_data_commitment(
     sector_size: u64,
-    window_size_nodes: u32,
     pieces_ptr: *const FFIPublicPieceInfo,
     pieces_len: libc::size_t,
 ) -> *mut GenerateDataCommitmentResponse {
@@ -517,7 +512,6 @@ pub unsafe extern "C" fn generate_data_commitment(
             PoRepConfig {
                 sector_size: SectorSize(sector_size),
                 partitions: PoRepProofPartitions(0),
-                window_size_nodes: window_size_nodes as usize,
             },
             &public_pieces,
         );
@@ -544,7 +538,6 @@ pub unsafe extern "C" fn generate_data_commitment(
 #[no_mangle]
 pub unsafe extern "C" fn generate_candidates(
     sector_size: u64,
-    window_size_nodes: u32,
     randomness: &[u8; 32],
     challenge_count: u64,
     replicas_ptr: *const FFIPrivateReplicaInfo,
@@ -562,7 +555,6 @@ pub unsafe extern "C" fn generate_candidates(
             api_fns::generate_candidates(
                 PoStConfig {
                     sector_size: SectorSize(sector_size),
-                    window_size_nodes: window_size_nodes as usize,
                 },
                 randomness,
                 challenge_count,
@@ -605,7 +597,6 @@ pub unsafe extern "C" fn generate_candidates(
 #[no_mangle]
 pub unsafe extern "C" fn generate_post(
     sector_size: u64,
-    window_size_nodes: u32,
     randomness: &[u8; 32],
     replicas_ptr: *const FFIPrivateReplicaInfo,
     replicas_len: libc::size_t,
@@ -624,7 +615,6 @@ pub unsafe extern "C" fn generate_post(
             api_fns::generate_post(
                 PoStConfig {
                     sector_size: SectorSize(sector_size),
-                    window_size_nodes: window_size_nodes as usize,
                 },
                 randomness,
                 &rs,
@@ -829,7 +819,6 @@ pub mod tests {
         let sector_class = FFISectorClass {
             sector_size: 1024,
             porep_proof_partitions: 2,
-            window_size_nodes: 4,
         };
 
         let cache_dir = tempfile::tempdir()?;
@@ -840,7 +829,6 @@ pub mod tests {
         let randomness = [7u8; 32];
         let sector_id = 42;
         let sector_size = 1024;
-        let window_size_nodes = 4;
         let seed = [5u8; 32];
         let ticket = [6u8; 32];
 
@@ -918,7 +906,6 @@ pub mod tests {
 
             let resp_d = verify_seal(
                 sector_size,
-                window_size_nodes,
                 &(*resp_b).seal_pre_commit_output.comm_r,
                 &(*resp_b).seal_pre_commit_output.comm_d,
                 &prover_id,
@@ -973,7 +960,6 @@ pub mod tests {
 
             let resp_f = generate_candidates(
                 sector_size,
-                window_size_nodes,
                 &randomness,
                 challenge_count,
                 private_replicas.as_ptr(),
@@ -1001,7 +987,6 @@ pub mod tests {
 
             let resp_h = generate_post(
                 sector_size,
-                window_size_nodes,
                 &randomness,
                 private_replicas.as_ptr(),
                 private_replicas.len(),
@@ -1017,7 +1002,6 @@ pub mod tests {
 
             let resp_i = verify_post(
                 sector_size,
-                window_size_nodes,
                 &randomness,
                 challenge_count,
                 &sector_id as *const u64,

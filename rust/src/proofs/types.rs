@@ -57,7 +57,6 @@ pub struct FFISealPreCommitOutput {
 pub struct FFISectorClass {
     pub sector_size: u64,
     pub porep_proof_partitions: u8,
-    pub window_size_nodes: u32,
 }
 
 impl From<FFISectorClass> for SectorClass {
@@ -65,13 +64,11 @@ impl From<FFISectorClass> for SectorClass {
         let FFISectorClass {
             sector_size,
             porep_proof_partitions,
-            window_size_nodes,
         } = fsc;
 
         SectorClass {
             sector_size: filecoin_proofs::SectorSize(sector_size),
             partitions: filecoin_proofs::PoRepProofPartitions(porep_proof_partitions),
-            window_size_nodes: window_size_nodes as usize,
         }
     }
 }

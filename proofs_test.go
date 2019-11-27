@@ -21,7 +21,6 @@ func TestImportSector(t *testing.T) {
 	proverID := [32]byte{6, 7, 8}
 	randomness := [32]byte{9, 9, 9}
 	sectorSize := uint64(1024)
-	windowSizeNodes := uint32(16)
 	sectorID := uint64(42)
 
 	ticket := SealTicket{
@@ -107,7 +106,7 @@ func TestImportSector(t *testing.T) {
 		CommP: commPB,
 	}}
 
-	commD, err := GenerateDataCommitment(sectorSize, windowSizeNodes, publicPieces)
+	commD, err := GenerateDataCommitment(sectorSize, publicPieces)
 	require.NoError(t, err)
 
 	privatePieces := make([]PieceMetadata, len(publicPieces))
@@ -120,22 +119,22 @@ func TestImportSector(t *testing.T) {
 	}
 
 	// pre-commit the sector
-	output, err := SealPreCommit(sectorSize, windowSizeNodes, poRepProofPartitions, sectorCacheDirPath, stagedSectorFile.Name(), sealedSectorFile.Name(), sectorID, proverID, ticket.TicketBytes, publicPieces)
+	output, err := SealPreCommit(sectorSize, poRepProofPartitions, sectorCacheDirPath, stagedSectorFile.Name(), sealedSectorFile.Name(), sectorID, proverID, ticket.TicketBytes, publicPieces)
 	require.NoError(t, err)
 
 	require.Equal(t, output.CommD, commD, "prover and verifier should agree on data commitment")
 
 	// commit the sector
-	proof, err := SealCommit(sectorSize, windowSizeNodes, poRepProofPartitions, sectorCacheDirPath, sectorID, proverID, ticket.TicketBytes, seed.TicketBytes, publicPieces, output)
+	proof, err := SealCommit(sectorSize, poRepProofPartitions, sectorCacheDirPath, sectorID, proverID, ticket.TicketBytes, seed.TicketBytes, publicPieces, output)
 	require.NoError(t, err)
 
 	// verify the 'ole proofy
-	isValid, err := VerifySeal(sectorSize, windowSizeNodes, output.CommR, output.CommD, proverID, ticket.TicketBytes, seed.TicketBytes, sectorID, proof)
+	isValid, err := VerifySeal(sectorSize, output.CommR, output.CommD, proverID, ticket.TicketBytes, seed.TicketBytes, sectorID, proof)
 	require.NoError(t, err)
 	require.True(t, isValid, "proof wasn't valid")
 
 	// unseal and verify that things went as we planned
-	require.NoError(t, Unseal(sectorSize, windowSizeNodes, poRepProofPartitions, sectorCacheDirPath, sealedSectorFile.Name(), unsealOutputFile.Name(), sectorID, proverID, ticket.TicketBytes, output.CommD))
+	require.NoError(t, Unseal(sectorSize, poRepProofPartitions, sectorCacheDirPath, sealedSectorFile.Name(), unsealOutputFile.Name(), sectorID, proverID, ticket.TicketBytes, output.CommD))
 	contents, err := ioutil.ReadFile(unsealOutputFile.Name())
 	require.NoError(t, err)
 
@@ -171,7 +170,7 @@ func TestImportSector(t *testing.T) {
 		CommR:    output.CommR,
 	})
 
-	candidatesA, err := GenerateCandidates(sectorSize, windowSizeNodes, proverID, randomness, challengeCount, privateInfo)
+	candidatesA, err := GenerateCandidates(sectorSize, proverID, randomness, challengeCount, privateInfo)
 	require.NoError(t, err)
 
 	// finalize the ticket, but don't do anything with the results (simply
@@ -179,10 +178,10 @@ func TestImportSector(t *testing.T) {
 	_, err = FinalizeTicket(candidatesA[0].PartialTicket)
 	require.NoError(t, err)
 
-	proofA, err := GeneratePoSt(sectorSize, windowSizeNodes, proverID, privateInfo, randomness, candidatesA)
+	proofA, err := GeneratePoSt(sectorSize, proverID, privateInfo, randomness, candidatesA)
 	require.NoError(t, err)
 
-	isValid, err = VerifyPoSt(sectorSize, windowSizeNodes, publicInfo, randomness, challengeCount, proofA, candidatesA, proverID)
+	isValid, err = VerifyPoSt(sectorSize, publicInfo, randomness, challengeCount, proofA, candidatesA, proverID)
 	require.NoError(t, err)
 	require.True(t, isValid, "VerifyPoSt rejected the (standalone) proof as invalid")
 }
