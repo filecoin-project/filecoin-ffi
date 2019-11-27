@@ -167,7 +167,7 @@ commands:
       - run:
           name: Obtain filecoin groth parameters
           command: ./paramcache --params-for-sector-sizes=1024
-          no_output_timeout: 30m
+          no_output_timeout: 60m
   build_project:
     steps:
       - run:
