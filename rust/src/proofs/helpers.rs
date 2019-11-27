@@ -1,16 +1,17 @@
 use std::collections::btree_map::BTreeMap;
 use std::slice::from_raw_parts;
 
+use anyhow::Result;
 use ffi_toolkit::{c_str_to_pbuf, c_str_to_rust_str};
 use filecoin_proofs::{constants as api_constants, Commitment, PublicReplicaInfo};
 use filecoin_proofs::{types as api_types, PrivateReplicaInfo};
 use libc;
 use paired::bls12_381::{Bls12, Fr};
+use storage_proofs::election_post::Candidate;
 use storage_proofs::fr32::fr_into_bytes;
 use storage_proofs::sector::SectorId;
 
 use super::types::{FFICandidate, FFIPrivateReplicaInfo};
-use storage_proofs::election_post::Candidate;
 
 /// Produce a map from sector id to replica info by pairing sector ids and
 /// replica commitments (by index in their respective arrays), setting the
@@ -23,7 +24,7 @@ pub unsafe fn to_public_replica_info_map(
     sector_ids_len: libc::size_t,
     flattened_comm_rs_ptr: *const u8,
     flattened_comm_rs_len: libc::size_t,
-) -> super::error::Result<BTreeMap<SectorId, PublicReplicaInfo>> {
+) -> Result<BTreeMap<SectorId, PublicReplicaInfo>> {
     ensure!(!sector_ids_ptr.is_null(), "sector_ids_ptr must not be null");
     ensure!(
         !flattened_comm_rs_ptr.is_null(),
@@ -58,7 +59,7 @@ pub unsafe fn to_public_replica_info_map(
 pub unsafe fn try_into_porep_proof_bytes(
     proof_ptr: *const u8,
     proof_len: libc::size_t,
-) -> super::error::Result<Vec<u8>> {
+) -> Result<Vec<u8>> {
     into_proof_vecs(proof_len, proof_ptr, proof_len)?
         .first()
         .map(Vec::clone)
@@ -89,7 +90,7 @@ pub unsafe fn into_commitments(
 ///
 pub fn porep_proof_partitions_try_from_bytes(
     proof: &[u8],
-) -> super::error::Result<api_types::PoRepProofPartitions> {
+) -> Result<api_types::PoRepProofPartitions> {
     let n = proof.len();
 
     ensure!(
@@ -107,7 +108,7 @@ unsafe fn into_proof_vecs(
     proof_chunk: usize,
     flattened_proofs_ptr: *const u8,
     flattened_proofs_len: libc::size_t,
-) -> super::error::Result<Vec<Vec<u8>>> {
+) -> Result<Vec<Vec<u8>>> {
     ensure!(
         !flattened_proofs_ptr.is_null(),
         "flattened_proofs_ptr must not be a null pointer"
@@ -137,7 +138,7 @@ pub fn bls_12_fr_into_bytes(fr: Fr) -> [u8; 32] {
 pub unsafe fn to_private_replica_info_map(
     replicas_ptr: *const FFIPrivateReplicaInfo,
     replicas_len: libc::size_t,
-) -> super::error::Result<BTreeMap<SectorId, PrivateReplicaInfo>> {
+) -> Result<BTreeMap<SectorId, PrivateReplicaInfo>> {
     ensure!(!replicas_ptr.is_null(), "replicas_ptr must not be null");
 
     from_raw_parts(replicas_ptr, replicas_len)
@@ -168,7 +169,7 @@ pub unsafe fn to_private_replica_info_map(
 pub unsafe fn c_to_rust_candidates(
     winners_ptr: *const FFICandidate,
     winners_len: libc::size_t,
-) -> super::error::Result<Vec<Candidate>> {
+) -> Result<Vec<Candidate>> {
     ensure!(!winners_ptr.is_null(), "winners_ptr must not be null");
 
     from_raw_parts(winners_ptr, winners_len)
@@ -181,7 +182,7 @@ pub unsafe fn c_to_rust_candidates(
 pub unsafe fn c_to_rust_proofs(
     flattened_proofs_ptr: *const u8,
     flattened_proofs_len: libc::size_t,
-) -> super::error::Result<Vec<Vec<u8>>> {
+) -> Result<Vec<Vec<u8>>> {
     ensure!(
         !flattened_proofs_ptr.is_null(),
         "flattened_proof_ptr must not be null"

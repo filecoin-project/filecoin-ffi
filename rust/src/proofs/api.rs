@@ -1,5 +1,6 @@
 use std::mem;
 use std::slice::from_raw_parts;
+use std::sync::Once;
 
 use ffi_toolkit::{
     c_str_to_pbuf, catch_panic_response, raw_ptr, rust_str_to_c_str, FCPResponseStatus,
@@ -10,7 +11,6 @@ use filecoin_proofs::{
     PoStConfig, SectorClass, SectorSize, UnpaddedByteIndex, UnpaddedBytesAmount,
 };
 use libc;
-use once_cell::sync::OnceCell;
 use storage_proofs::hasher::pedersen::PedersenDomain;
 use storage_proofs::hasher::Domain;
 use storage_proofs::sector::SectorId;
@@ -320,8 +320,11 @@ pub unsafe extern "C" fn verify_seal(
         let porep_bytes = super::helpers::try_into_porep_proof_bytes(proof_ptr, proof_len);
 
         let result = porep_bytes.and_then(|bs| {
-            super::helpers::porep_proof_partitions_try_from_bytes(&bs).and_then(|ppp| {
-                let cfg = api_types::PoRepConfig(api_types::SectorSize(sector_size), ppp);
+            super::helpers::porep_proof_partitions_try_from_bytes(&bs).and_then(|partitions| {
+                let cfg = api_types::PoRepConfig {
+                    sector_size: api_types::SectorSize(sector_size),
+                    partitions,
+                };
 
                 api_fns::verify_seal(
                     cfg,
@@ -419,9 +422,11 @@ pub unsafe extern "C" fn verify_post(
         let result = convert.and_then(|map| {
             let proofs = c_to_rust_proofs(flattened_proofs_ptr, flattened_proofs_len)?;
             let winners = c_to_rust_candidates(winners_ptr, winners_len)?;
-
+            let cfg = api_types::PoStConfig {
+                sector_size: api_types::SectorSize(sector_size),
+            };
             api_fns::verify_post(
-                api_types::PoStConfig(api_types::SectorSize(sector_size)),
+                cfg,
                 randomness,
                 challenge_count,
                 &proofs,
@@ -504,7 +509,10 @@ pub unsafe extern "C" fn generate_data_commitment(
             .collect();
 
         let result = api_fns::compute_comm_d(
-            PoRepConfig(SectorSize(sector_size), PoRepProofPartitions(0)),
+            PoRepConfig {
+                sector_size: SectorSize(sector_size),
+                partitions: PoRepProofPartitions(0),
+            },
             &public_pieces,
         );
 
@@ -545,7 +553,9 @@ pub unsafe extern "C" fn generate_candidates(
 
         let result = to_private_replica_info_map(replicas_ptr, replicas_len).and_then(|rs| {
             api_fns::generate_candidates(
-                PoStConfig(SectorSize(sector_size)),
+                PoStConfig {
+                    sector_size: SectorSize(sector_size),
+                },
                 randomness,
                 challenge_count,
                 &rs,
@@ -603,7 +613,9 @@ pub unsafe extern "C" fn generate_post(
 
         let result = to_private_replica_info_map(replicas_ptr, replicas_len).and_then(|rs| {
             api_fns::generate_post(
-                PoStConfig(SectorSize(sector_size)),
+                PoStConfig {
+                    sector_size: SectorSize(sector_size),
+                },
                 randomness,
                 &rs,
                 c_to_rust_candidates(winners_ptr, winners_len)?,
@@ -718,13 +730,12 @@ pub unsafe extern "C" fn destroy_generate_candidates_response(
 }
 
 /// Protects the init off the logger.
-static LOG_INIT: OnceCell<bool> = OnceCell::new();
+static LOG_INIT: Once = Once::new();
 
 /// Ensures the logger is initialized.
 fn init_log() {
-    LOG_INIT.get_or_init(|| {
-        let _ = pretty_env_logger::try_init_timed();
-        true
+    LOG_INIT.call_once(|| {
+        fil_logger::init();
     });
 }
 
@@ -733,13 +744,14 @@ pub mod tests {
     use std::io::{Read, Seek, SeekFrom, Write};
     use std::os::unix::io::IntoRawFd;
 
+    use anyhow::Result;
     use ffi_toolkit::{c_str_to_rust_str, FCPResponseStatus};
     use rand::{thread_rng, Rng};
 
     use super::*;
 
     #[test]
-    fn test_write_with_and_without_alignment() -> Result<(), failure::Error> {
+    fn test_write_with_and_without_alignment() -> Result<()> {
         // write some bytes to a temp file to be used as the byte source
         let mut rng = thread_rng();
         let buf: Vec<u8> = (0..508).map(|_| rng.gen()).collect();
@@ -802,7 +814,7 @@ pub mod tests {
     }
 
     #[test]
-    fn test_sealing() -> Result<(), failure::Error> {
+    fn test_sealing() -> Result<()> {
         // miscellaneous setup and shared values
         let sector_class = FFISectorClass {
             sector_size: 1024,

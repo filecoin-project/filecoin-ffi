@@ -1,14 +1,14 @@
 use std::slice::from_raw_parts;
 
 use bls_signatures::{
-    aggregate as aggregate_sig, hash as hash_sig,
+    aggregate as aggregate_sig,
+    groupy::{CurveAffine, CurveProjective, EncodedPoint, GroupDecodingError},
+    hash as hash_sig,
     paired::bls12_381::{G2Affine, G2Compressed},
-    paired::GroupDecodingError,
-    paired::{CurveAffine, CurveProjective, EncodedPoint},
     verify as verify_sig, PrivateKey, PublicKey, Serialize, Signature,
 };
 use libc;
-use rand::OsRng;
+use rand::rngs::OsRng;
 
 use rayon::prelude::*;
 
@@ -161,10 +161,8 @@ pub unsafe extern "C" fn verify(
 /// * `raw_seed_ptr` - pointer to a seed byte array
 #[no_mangle]
 pub unsafe extern "C" fn private_key_generate() -> *mut types::PrivateKeyGenerateResponse {
-    let rng = &mut OsRng::new().expect("not enough randomness");
-
     let mut raw_private_key: [u8; PRIVATE_KEY_BYTES] = [0; PRIVATE_KEY_BYTES];
-    PrivateKey::generate(rng)
+    PrivateKey::generate(&mut OsRng)
         .write_bytes(&mut raw_private_key.as_mut())
         .expect("preallocated");
 
