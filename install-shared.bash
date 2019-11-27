@@ -5,7 +5,7 @@ download_release_tarball() {
     __rust_sources_path=$2
     __repo_name=$3
     __release_name="${__repo_name}-$(uname)"
-    __release_sha1=$(git rev-parse HEAD:"${__rust_sources_path}")
+    __release_sha1=$(git rev-parse HEAD)
     __release_tag="${__release_sha1:0:16}"
     __release_tag_url="https://api.github.com/repos/filecoin-project/${__repo_name}/releases/tags/${__release_tag}"
 
@@ -45,10 +45,10 @@ download_release_tarball() {
 build_from_source() {
     __library_name=$1
     __rust_sources_path=$2
-    __submodule_sha1=$(git rev-parse @:"${__rust_sources_path}")
-    __submodule_sha1_truncated="${__submodule_sha1:0:16}"
+    __repo_sha1=$(git rev-parse HEAD)
+    __repo_sha1_truncated="${__repo_sha1:0:16}"
 
-    echo "building from source @ ${__submodule_sha1_truncated}"
+    echo "building from source @ ${__repo_sha1_truncated}"
 
     if ! [ -x "$(command -v cargo)" ]; then
         (>&2 echo 'Error: cargo is not installed.')

@@ -14,7 +14,6 @@ if [ "${FFI_BUILD_FROM_SOURCE}" != "1" ] && download_release_tarball tarball_pat
     find -L "${tmp_dir}" -type f -name filecoin.h -exec cp -- "{}" . \;
     find -L "${tmp_dir}" -type f -name libfilecoin.a -exec cp -- "{}" . \;
     find -L "${tmp_dir}" -type f -name filecoin.pc -exec cp -- "{}" . \;
-    find -L "${tmp_dir}" -type f -name paramcache -exec cp -- "{}" . \;
 
     (>&2 echo "successfully installed prebuilt libfilecoin")
 else
@@ -43,8 +42,6 @@ else
         (>&2 echo "failed to install filecoin.pc")
         exit 1
     fi
-
-    (>&2 echo "WARNING: paramcache was not installed - you may wish to 'cargo install' it")
 
     (>&2 echo "successfully built and installed libfilecoin from source")
 fi
