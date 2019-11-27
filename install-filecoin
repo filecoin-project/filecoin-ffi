@@ -11,10 +11,10 @@ if [ "${FFI_BUILD_FROM_SOURCE}" != "1" ] && download_release_tarball tarball_pat
     tmp_dir=$(mktemp -d)
     tar -C "$tmp_dir" -xzf "$tarball_path"
 
-    cp "${tmp_dir}/include/filecoin.h" .
-    cp "${tmp_dir}/lib/libfilecoin.a" .
-    cp "${tmp_dir}/lib/pkgconfig/filecoin.pc" .
-    cp "${tmp_dir}/bin/paramcache" .
+    find -L "${tmp_dir}" -type f -name filecoin.h -exec cp -- "{}" . \;
+    find -L "${tmp_dir}" -type f -name libfilecoin.a -exec cp -- "{}" . \;
+    find -L "${tmp_dir}" -type f -name filecoin.pc -exec cp -- "{}" . \;
+    find -L "${tmp_dir}" -type f -name paramcache -exec cp -- "{}" . \;
 
     (>&2 echo "successfully installed prebuilt libfilecoin")
 else
