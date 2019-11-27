@@ -69,11 +69,11 @@ jobs:
           name: Install jq
           command: apt-get install jq -yqq
       - run:
-          name: Build the release
-          command: ./scripts/build-release.sh filecoin $(cat ./rust/rust-toolchain) --verbose --frozen --all
+          name: Build the Rust release
+          command: ./rust/scripts/build-release.sh filecoin $(cat ./rust/rust-toolchain) --verbose --frozen --all
       - run:
           name: Publish release to GitHub
-          command: bash ./scripts/publish-release.sh
+          command: bash ./rust/scripts/publish-release.sh
 
 workflows:
   version: 2
