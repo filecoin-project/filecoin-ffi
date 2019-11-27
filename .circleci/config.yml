@@ -69,7 +69,7 @@ jobs:
           at: "."
       - restore_cache:
           keys:
-            - cargo-v0-{{ checksum "rust-toolchain" }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}-{{ arch }}
+            - cargo-v0-{{ checksum "rust/rust-toolchain" }}-{{ checksum "rust/Cargo.toml" }}-{{ checksum "rust/Cargo.lock" }}-{{ arch }}
       - run:
           name: Install jq
           command: apt-get install jq -yqq
@@ -78,7 +78,7 @@ jobs:
           command: cd rust; ./scripts/build-release.sh filecoin $(cat ./rust-toolchain) --verbose --frozen --all
       - run:
           name: Publish release to GitHub
-          command: cd rust; bash ./scripts/publish-release.sh
+          command: bash ./scripts/publish-release.sh
   cargo_fetch:
     docker:
       - image: filecoin/rust:latest
@@ -89,7 +89,8 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - cargo-v0-{{ checksum "rust-toolchain" }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}-{{ arch }}
+            - cargo-v0-{{ checksum "rust/rust-toolchain" }}-{{ checksum "rust/Cargo.toml" }}-{{ checksum "rust/Cargo.lock" }}-{{ arch }}
+      - run: cd rust
       - run: rustup install $(cat rust-toolchain)
       - run: rustup default $(cat rust-toolchain)
       - run: rustup component add rustfmt-preview
@@ -102,7 +103,7 @@ jobs:
           paths:
             - Cargo.lock
       - save_cache:
-          key: cargo-v0-{{ checksum "rust-toolchain" }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}-{{ arch }}
+          key: cargo-v0-{{ checksum "rust/rust-toolchain" }}-{{ checksum "rust/Cargo.toml" }}-{{ checksum "rust/Cargo.lock" }}-{{ arch }}
           paths:
             - /root/.cargo
             - /root/.rustup
