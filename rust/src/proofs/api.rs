@@ -745,7 +745,7 @@ static LOG_INIT: Once = Once::new();
 /// Ensures the logger is initialized.
 fn init_log() {
     LOG_INIT.call_once(|| {
-        pretty_env_logger::init_timed();
+        fil_logger::init();
     });
 }
 
