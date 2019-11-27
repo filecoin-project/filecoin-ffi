@@ -57,13 +57,31 @@ jobs:
       - obtain_filecoin_parameters
       - save_parameter_cache
       - build_and_compile_tests
+  build_linux_release:
+    docker:
+      - image: filecoin/rust:latest
+    working_directory: /mnt/crate
+    resource_class: xlarge
+    steps:
+      - configure_environment_variables
+      - checkout
+      - run:
+          name: Install jq
+          command: apt-get install jq -yqq
+      - run:
+          name: Build the release
+          command: ./scripts/build-release.sh filecoin $(cat ./rust-toolchain) --verbose --frozen --all
+      - run:
+          name: Publish release to GitHub
+          command: bash ./scripts/publish-release.sh
 
 workflows:
   version: 2
   test_all:
     jobs:
       - build_and_test_linux
-      - build_and_test_darwin
+      # - build_and_test_darwin
+      - build_linux_release
 
 commands:
   configure_environment_variables:
