@@ -1,5 +1,6 @@
 use std::mem;
 use std::slice::from_raw_parts;
+use std::sync::Once;
 
 use ffi_toolkit::{
     c_str_to_pbuf, catch_panic_response, raw_ptr, rust_str_to_c_str, FCPResponseStatus,
@@ -10,7 +11,6 @@ use filecoin_proofs::{
     PoStConfig, SectorClass, SectorSize, UnpaddedByteIndex, UnpaddedBytesAmount,
 };
 use libc;
-use once_cell::sync::OnceCell;
 use storage_proofs::hasher::pedersen::PedersenDomain;
 use storage_proofs::hasher::Domain;
 use storage_proofs::sector::SectorId;
@@ -740,13 +740,12 @@ pub unsafe extern "C" fn destroy_generate_candidates_response(
 }
 
 /// Protects the init off the logger.
-static LOG_INIT: OnceCell<bool> = OnceCell::new();
+static LOG_INIT: Once = Once::new();
 
 /// Ensures the logger is initialized.
 fn init_log() {
-    LOG_INIT.get_or_init(|| {
-        let _ = pretty_env_logger::try_init_timed();
-        true
+    LOG_INIT.call_once(|| {
+        pretty_env_logger::init_timed();
     });
 }
 
