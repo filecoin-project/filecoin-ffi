@@ -12,9 +12,9 @@ TAR_PATH=`mktemp -d`
 
 mkdir -p $TAR_PATH
 
-find . -L -type f -name filecoin.h -exec cp -- "{}" $TAR_PATH/ \;
-find . -L -type f -name libfilecoin.a -exec cp -- "{}" $TAR_PATH/ \;
-find . -L -type f -name filecoin.pc -exec cp -- "{}" $TAR_PATH/ \;
+find -L . -type f -name filecoin.h -exec cp -- "{}" $TAR_PATH/ \;
+find -L . -type f -name libfilecoin.a -exec cp -- "{}" $TAR_PATH/ \;
+find -L . -type f -name filecoin.pc -exec cp -- "{}" $TAR_PATH/ \;
 
 pushd $TAR_PATH
 
