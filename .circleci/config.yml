@@ -79,6 +79,38 @@ jobs:
       - run:
           name: Publish release to GitHub
           command: cd rust && bash ./scripts/publish-release.sh
+  build_darwin_release:
+    macos:
+      xcode: "10.0.0"
+    working_directory: ~/crate
+    resource_class: large
+    steps:
+      - configure_environment_variables
+      - run:
+          name: Configure environment variables
+          command: |
+            echo 'export PATH="${HOME}/.cargo/bin:${HOME}/.bin:${PATH}"' >> $BASH_ENV
+            echo 'export CIRCLE_ARTIFACTS="/tmp"' >> $BASH_ENV
+      - checkout
+      - run:
+          name: Install Rust
+          command: |
+            curl https://sh.rustup.rs -sSf | sh -s -- -y
+      - run: cd rust && rustup install $(cat rust-toolchain)
+      - run: cd rust && rustup default $(cat rust-toolchain)
+      - run: cd rust && cargo fetch
+      - run:
+          name: Install jq
+          command: |
+            mkdir $HOME/.bin
+            curl --location https://github.com/stedolan/jq/releases/download/jq-1.6/jq-osx-amd64 --output $HOME/.bin/jq
+            chmod +x $HOME/.bin/jq
+      - run:
+          name: Build the release
+          command: cd rust && ./scripts/build-release.sh $(cat ./rust-toolchain) --verbose --frozen --all
+      - run:
+          name: Publish to GitHub
+          command: cd rust && bash ./scripts/publish-release.sh
   cargo_fetch:
     docker:
       - image: filecoin/rust:latest
@@ -117,6 +149,7 @@ workflows:
       - build_linux_release:
           requires:
             - cargo_fetch
+      - build_darwin_release
 
 commands:
   configure_environment_variables:
