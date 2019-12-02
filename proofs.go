@@ -586,8 +586,8 @@ func UnsealRange(
 		(*[32]C.uint8_t)(proverIDCBytes),
 		(*[32]C.uint8_t)(ticketCBytes),
 		(*[CommitmentBytesLen]C.uint8_t)(commDCBytes),
-		offset,
-		len,
+		C.uint64_t(offset),
+		C.uint64_t(len),
 	)
 	defer C.destroy_unseal_range_response(resPtr)
 
