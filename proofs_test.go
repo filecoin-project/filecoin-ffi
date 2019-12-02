@@ -55,8 +55,17 @@ func TestImportSector(t *testing.T) {
 	sealedSectorFile := requireTempFile(t, bytes.NewReader([]byte{}), 0)
 	defer sealedSectorFile.Close()
 
-	unsealOutputFile := requireTempFile(t, bytes.NewReader([]byte{}), 0)
-	defer unsealOutputFile.Close()
+	unsealOutputFileA := requireTempFile(t, bytes.NewReader([]byte{}), 0)
+	defer unsealOutputFileA.Close()
+
+	unsealOutputFileB := requireTempFile(t, bytes.NewReader([]byte{}), 0)
+	defer unsealOutputFileB.Close()
+
+	unsealOutputFileC := requireTempFile(t, bytes.NewReader([]byte{}), 0)
+	defer unsealOutputFileC.Close()
+
+	unsealOutputFileD := requireTempFile(t, bytes.NewReader([]byte{}), 0)
+	defer unsealOutputFileD.Close()
 
 	// some rando bytes
 	someBytes := make([]byte, 1016)
@@ -133,9 +142,9 @@ func TestImportSector(t *testing.T) {
 	require.NoError(t, err)
 	require.True(t, isValid, "proof wasn't valid")
 
-	// unseal and verify that things went as we planned
-	require.NoError(t, Unseal(sectorSize, poRepProofPartitions, sectorCacheDirPath, sealedSectorFile.Name(), unsealOutputFile.Name(), sectorID, proverID, ticket.TicketBytes, output.CommD))
-	contents, err := ioutil.ReadFile(unsealOutputFile.Name())
+	// unseal the entire sector and verify that things went as we planned
+	require.NoError(t, Unseal(sectorSize, poRepProofPartitions, sectorCacheDirPath, sealedSectorFile.Name(), unsealOutputFileA.Name(), sectorID, proverID, ticket.TicketBytes, output.CommD))
+	contents, err := ioutil.ReadFile(unsealOutputFileA.Name())
 	require.NoError(t, err)
 
 	// unsealed sector includes a bunch of alignment NUL-bytes
@@ -145,6 +154,22 @@ func TestImportSector(t *testing.T) {
 	require.Equal(t, someBytes[0:127], contents[0:127])
 	require.Equal(t, alignment, contents[127:508])
 	require.Equal(t, someBytes[0:508], contents[508:1016])
+
+	// unseal just the first piece
+	err = UnsealRange(sectorSize, poRepProofPartitions, sectorCacheDirPath, sealedSectorFile.Name(), unsealOutputFileB.Name(), sectorID, proverID, ticket.TicketBytes, output.CommD, 0, 127)
+	require.NoError(t, err)
+	contentsB, err := ioutil.ReadFile(unsealOutputFileB.Name())
+	require.NoError(t, err)
+	require.Equal(t, 127, len(contentsB))
+	require.Equal(t, someBytes[0:127], contentsB[0:127])
+
+	// unseal just the second piece
+	err = UnsealRange(sectorSize, poRepProofPartitions, sectorCacheDirPath, sealedSectorFile.Name(), unsealOutputFileC.Name(), sectorID, proverID, ticket.TicketBytes, output.CommD, 508, 508)
+	require.NoError(t, err)
+	contentsC, err := ioutil.ReadFile(unsealOutputFileC.Name())
+	require.NoError(t, err)
+	require.Equal(t, 508, len(contentsC))
+	require.Equal(t, someBytes[0:508], contentsC[0:508])
 
 	// verify that the sector builder owns no sealed sectors
 	var sealedSectorPaths []string
