@@ -298,6 +298,59 @@ pub unsafe extern "C" fn unseal(
     })
 }
 
+/// TODO: document
+///
+#[no_mangle]
+pub unsafe extern "C" fn unseal_range(
+    sector_class: FFISectorClass,
+    cache_dir_path: *const libc::c_char,
+    sealed_sector_path: *const libc::c_char,
+    unseal_output_path: *const libc::c_char,
+    sector_id: u64,
+    prover_id: &[u8; 32],
+    ticket: &[u8; 32],
+    comm_d: &[u8; 32],
+    offset: u64,
+    length: u64,
+) -> *mut UnsealRangeResponse {
+    catch_panic_response(|| {
+        init_log();
+
+        info!("unseal_range: start");
+
+        let sc: SectorClass = sector_class.clone().into();
+
+        let result = api_fns::get_unsealed_range(
+            sc.into(),
+            c_str_to_pbuf(cache_dir_path),
+            c_str_to_pbuf(sealed_sector_path),
+            c_str_to_pbuf(unseal_output_path),
+            *prover_id,
+            SectorId::from(sector_id),
+            *comm_d,
+            *ticket,
+            UnpaddedByteIndex(offset),
+            UnpaddedBytesAmount(length),
+        );
+
+        let mut response = UnsealRangeResponse::default();
+
+        match result {
+            Ok(_) => {
+                response.status_code = FCPResponseStatus::FCPNoError;
+            }
+            Err(err) => {
+                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                response.error_msg = rust_str_to_c_str(format!("{}", err));
+            }
+        };
+
+        info!("unseal_range: finish");
+
+        raw_ptr(response)
+    })
+}
+
 /// Verifies the output of seal.
 ///
 #[no_mangle]
@@ -672,6 +725,11 @@ pub unsafe extern "C" fn destroy_seal_commit_response(ptr: *mut SealCommitRespon
 
 #[no_mangle]
 pub unsafe extern "C" fn destroy_unseal_response(ptr: *mut UnsealResponse) {
+    let _ = Box::from_raw(ptr);
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn destroy_unseal_range_response(ptr: *mut UnsealRangeResponse) {
     let _ = Box::from_raw(ptr);
 }
 
