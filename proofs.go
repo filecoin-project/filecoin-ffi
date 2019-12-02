@@ -544,6 +544,60 @@ func Unseal(
 	return nil
 }
 
+
+// UnsealRange
+func UnsealRange(
+	sectorSize uint64,
+	poRepProofPartitions uint8,
+	cacheDirPath string,
+	sealedSectorPath string,
+	unsealOutputPath string,
+	sectorID uint64,
+	proverID [32]byte,
+	ticket [32]byte,
+	commD [CommitmentBytesLen]byte,
+	offset uint64,
+	len uint64,
+) error {
+	cCacheDirPath := C.CString(cacheDirPath)
+	defer C.free(unsafe.Pointer(cCacheDirPath))
+
+	cSealedSectorPath := C.CString(sealedSectorPath)
+	defer C.free(unsafe.Pointer(cSealedSectorPath))
+
+	cUnsealOutputPath := C.CString(unsealOutputPath)
+	defer C.free(unsafe.Pointer(cUnsealOutputPath))
+
+	proverIDCBytes := C.CBytes(proverID[:])
+	defer C.free(proverIDCBytes)
+
+	ticketCBytes := C.CBytes(ticket[:])
+	defer C.free(ticketCBytes)
+
+	commDCBytes := C.CBytes(commD[:])
+	defer C.free(commDCBytes)
+
+	resPtr := C.unseal_range(
+		cSectorClass(sectorSize, poRepProofPartitions),
+		cCacheDirPath,
+		cSealedSectorPath,
+		cUnsealOutputPath,
+		C.uint64_t(sectorID),
+		(*[32]C.uint8_t)(proverIDCBytes),
+		(*[32]C.uint8_t)(ticketCBytes),
+		(*[CommitmentBytesLen]C.uint8_t)(commDCBytes),
+		offset,
+		len,
+	)
+	defer C.destroy_unseal_range_response(resPtr)
+
+	if resPtr.status_code != 0 {
+		return errors.New(C.GoString(resPtr.error_msg))
+	}
+
+	return nil
+}
+
 // FinalizeTicket creates an actual ticket from a partial ticket.
 func FinalizeTicket(partialTicket [32]byte) ([32]byte, error) {
 	partialTicketPtr := unsafe.Pointer(&(partialTicket)[0])
