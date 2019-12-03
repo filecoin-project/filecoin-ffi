@@ -29,7 +29,7 @@ rayon = "1"
 anyhow = "1.0.23"
 
 [build-dependencies]
-cbindgen = "0.10"
+cbindgen = "= 0.10.0"
 
 [dev-dependencies]
 tempfile = "3.0.8"
