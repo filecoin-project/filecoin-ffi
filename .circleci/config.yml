@@ -166,7 +166,7 @@ commands:
     steps:
       - run:
           name: Obtain filecoin groth parameters
-          command: ./paramcache --params-for-sector-sizes='1024'
+          command: ./paramcache --params-for-sector-sizes='1024' --predictable
           no_output_timeout: 60m
   build_project:
     steps:
@@ -177,7 +177,7 @@ commands:
           name: Ensure paramcache is installed to project root
           command: |
             test -f ./paramcache \
-              || (rustup run --install nightly cargo install filecoin-proofs --force --git=https://github.com/filecoin-project/rust-fil-proofs.git --branch=master --bin=paramcache --root=./ \
+              || (rustup run --install nightly cargo install filecoin-proofs --force --git=https://github.com/filecoin-project/rust-fil-proofs.git --branch=feat/params --bin=paramcache --root=./ \
                 && mv ./bin/paramcache ./paramcache)
           no_output_timeout: 60m
   build_and_run_tests:
@@ -195,10 +195,10 @@ commands:
     steps:
       - restore_cache:
           keys:
-            - v19-proof-params-{{ arch }}
+            - v20-proof-params-{{ arch }}
   save_parameter_cache:
     steps:
       - save_cache:
-          key: v19-proof-params-{{ arch }}
+          key: v20-proof-params-{{ arch }}
           paths:
             - "~/filecoin-proof-parameters/"
