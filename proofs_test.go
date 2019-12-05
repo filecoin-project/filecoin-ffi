@@ -17,7 +17,7 @@ import (
 
 func TestImportSector(t *testing.T) {
 	challengeCount := uint64(2)
-	poRepProofPartitions := uint8(2)
+	poRepProofPartitions := uint8(10)
 	proverID := [32]byte{6, 7, 8}
 	randomness := [32]byte{9, 9, 9}
 	sectorSize := uint64(1024)
