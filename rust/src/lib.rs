@@ -8,3 +8,4 @@ extern crate log;
 
 pub mod bls;
 pub mod proofs;
+pub mod util;
