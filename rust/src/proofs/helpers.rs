@@ -48,7 +48,7 @@ pub unsafe fn to_public_replica_info_map(
     let mut m = BTreeMap::new();
 
     for i in 0..sector_ids.len() {
-        m.insert(sector_ids[i], PublicReplicaInfo::new(comm_rs[i]));
+        m.insert(sector_ids[i], PublicReplicaInfo::new(comm_rs[i])?);
     }
 
     Ok(m)
