@@ -132,14 +132,10 @@ type SealPreCommitOutput struct {
 }
 
 // RawSealPreCommitOutput is used to acquire a seed from the chain for the
-// second step of Interactive PoRep. The PersistentAux is not expected to appear
-// on-chain, but is needed for committing. This struct is useful for standalone
-// (e.g. no sector builder) sealing.
+// second step of Interactive PoRep.
 type RawSealPreCommitOutput struct {
-	CommC     [CommitmentBytesLen]byte
 	CommD     [CommitmentBytesLen]byte
 	CommR     [CommitmentBytesLen]byte
-	CommRLast [CommitmentBytesLen]byte
 }
 
 // SealCommitOutput is produced by the second step of Interactive PoRep.
@@ -731,8 +727,6 @@ func cSealPreCommitOutput(src RawSealPreCommitOutput) C.FFISealPreCommitOutput {
 	return C.FFISealPreCommitOutput{
 		comm_d:            *(*[32]C.uint8_t)(unsafe.Pointer(&src.CommD)),
 		comm_r:            *(*[32]C.uint8_t)(unsafe.Pointer(&src.CommR)),
-		p_aux_comm_c:      *(*[32]C.uint8_t)(unsafe.Pointer(&src.CommC)),
-		p_aux_comm_r_last: *(*[32]C.uint8_t)(unsafe.Pointer(&src.CommRLast)),
 	}
 }
 
@@ -805,8 +799,6 @@ func goRawSealPreCommitOutput(src C.FFISealPreCommitOutput) RawSealPreCommitOutp
 	return RawSealPreCommitOutput{
 		CommD:     goCommitment(&src.comm_d[0]),
 		CommR:     goCommitment(&src.comm_r[0]),
-		CommRLast: goCommitment(&src.p_aux_comm_r_last[0]),
-		CommC:     goCommitment(&src.p_aux_comm_c[0]),
 	}
 }
 
