@@ -48,8 +48,6 @@ impl std::io::Seek for FileDescriptorRef {
 pub struct FFISealPreCommitOutput {
     pub comm_d: [u8; 32],
     pub comm_r: [u8; 32],
-    pub p_aux_comm_c: [u8; 32],
-    pub p_aux_comm_r_last: [u8; 32],
 }
 
 #[repr(C)]

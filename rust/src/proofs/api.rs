@@ -11,8 +11,6 @@ use filecoin_proofs::{
     PoStConfig, SectorClass, SectorSize, UnpaddedByteIndex, UnpaddedBytesAmount,
 };
 use libc;
-use storage_proofs::hasher::pedersen::PedersenDomain;
-use storage_proofs::hasher::Domain;
 use storage_proofs::sector::SectorId;
 
 use super::helpers::{
@@ -188,23 +186,6 @@ pub unsafe extern "C" fn seal_commit(
         info!("seal_commit: start");
 
         let mut response = SealCommitResponse::default();
-
-        let comm_r_last = PedersenDomain::try_from_bytes(&spco.p_aux_comm_r_last[..]);
-        let comm_c = PedersenDomain::try_from_bytes(&spco.p_aux_comm_c[..]);
-
-        if comm_r_last.is_err() {
-            response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-            response.error_msg = rust_str_to_c_str("cannot xform comm_r_last to PedersenDomain");
-            info!("seal_commit: finish");
-            return raw_ptr(response);
-        }
-
-        if comm_c.is_err() {
-            response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-            response.error_msg = rust_str_to_c_str("cannot xform comm_c to PedersenDomain");
-            info!("seal_commit: finish");
-            return raw_ptr(response);
-        }
 
         let spco = api_types::SealPreCommitOutput {
             comm_r: spco.comm_r,
