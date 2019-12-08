@@ -58,7 +58,7 @@ pub unsafe extern "C" fn write_with_alignment(
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
             }
         }
 
@@ -96,7 +96,7 @@ pub unsafe extern "C" fn write_without_alignment(
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
             }
         }
 
@@ -156,7 +156,7 @@ pub unsafe extern "C" fn seal_pre_commit(
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
             }
         }
 
@@ -218,7 +218,7 @@ pub unsafe extern "C" fn seal_commit(
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
             }
         }
 
@@ -269,7 +269,7 @@ pub unsafe extern "C" fn unseal(
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
             }
         };
 
@@ -322,7 +322,7 @@ pub unsafe extern "C" fn unseal_range(
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
             }
         };
 
@@ -386,7 +386,7 @@ pub unsafe extern "C" fn verify_seal(
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
             }
         };
 
@@ -413,7 +413,7 @@ pub unsafe extern "C" fn finalize_ticket(partial_ticket: &[u8; 32]) -> *mut Fina
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
             }
         };
 
@@ -477,7 +477,7 @@ pub unsafe extern "C" fn verify_post(
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
             }
         };
 
@@ -518,7 +518,7 @@ pub unsafe extern "C" fn generate_piece_commitment(
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
             }
         }
 
@@ -559,7 +559,7 @@ pub unsafe extern "C" fn generate_data_commitment(
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
             }
         }
 
@@ -616,7 +616,7 @@ pub unsafe extern "C" fn generate_candidates(
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
             }
         }
 
@@ -670,7 +670,7 @@ pub unsafe extern "C" fn generate_post(
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
             }
         }
 
