@@ -36,6 +36,8 @@ main() {
         find -L "${__tmp_dir}" -type f -name libfilecoin.a -exec cp -- "{}" . \;
         find -L "${__tmp_dir}" -type f -name filecoin.pc -exec cp -- "{}" . \;
 
+        check_installed_files
+
         (>&2 echo "[install-filecoin/main] successfully installed prebuilt libfilecoin")
     else
         (>&2 echo "[install-filecoin/main] building libfilecoin from local sources (dir = ${rust_sources_dir})")
@@ -50,20 +52,7 @@ main() {
         find -L "${rust_sources_dir}/target/release" -type f -name libfilecoin.a -exec cp -- "{}" . \;
         find -L "${rust_sources_dir}" -type f -name filecoin.pc -exec cp -- "{}" . \;
 
-        if [[ ! -f "./filecoin.h" ]]; then
-            (>&2 echo "[install-filecoin/main] failed to install filecoin.h")
-            exit 1
-        fi
-
-        if [[ ! -f "./libfilecoin.a" ]]; then
-            (>&2 echo "[install-filecoin/main] failed to install libfilecoin.a")
-            exit 1
-        fi
-
-        if [[ ! -f "./filecoin.pc" ]]; then
-            (>&2 echo "[install-filecoin/main] failed to install filecoin.pc")
-            exit 1
-        fi
+        check_installed_files
 
         (>&2 echo "[install-filecoin/main] successfully built and installed libfilecoin from source")
     fi
@@ -194,6 +183,23 @@ get_release_type() {
     else
         (>&2 echo "[get_release_type] configuring 'standard' build")
         echo "standard"
+    fi
+}
+
+check_installed_files() {
+    if [[ ! -f "./filecoin.h" ]]; then
+        (>&2 echo "[check_installed_files] failed to install filecoin.h")
+        exit 1
+    fi
+
+    if [[ ! -f "./libfilecoin.a" ]]; then
+        (>&2 echo "[check_installed_files] failed to install libfilecoin.a")
+        exit 1
+    fi
+
+    if [[ ! -f "./filecoin.pc" ]]; then
+        (>&2 echo "[check_installed_files] failed to install filecoin.pc")
+        exit 1
     fi
 }
 
