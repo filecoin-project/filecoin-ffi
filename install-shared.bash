@@ -13,16 +13,16 @@ download_release_tarball() {
 
     __release_response=$(curl \
         --retry 3 \
-        --location $__release_tag_url)
+        --location "${__release_tag_url}")
 
-    __release_url=$(echo $__release_response | jq -r ".assets[] | select(.name | contains(\"${__release_name}\")) | .url")
+    __release_url=$(echo "${__release_response}" | jq -r ".assets[] | select(.name | contains(\"${__release_name}\")) | .url")
 
-    if [[ -z "$__release_url" ]]; then
+    if [[ -z "${__release_url}" ]]; then
         (>&2 echo "failed to download release (tag URL: ${__release_tag_url}, response: ${__release_response})")
         return 1
     fi
 
-    __tar_path="/tmp/${__release_name}_$(basename ${__release_url}).tar.gz"
+    __tar_path="/tmp/${__release_name}_$(basename "${__release_url}").tar.gz"
 
     __asset_url=$(curl \
         --head \
@@ -31,15 +31,15 @@ download_release_tarball() {
         --location \
         --output /dev/null \
         -w %{url_effective} \
-        "$__release_url")
+        "{$__release_url}")
 
-    curl --retry 3 --output "${__tar_path}" "$__asset_url"
+    curl --retry 3 --output "${__tar_path}" "${__asset_url}"
     if [[ $? -ne "0" ]]; then
         (>&2 echo "failed to download release asset (tag URL: ${__release_tag_url}, asset URL: ${__asset_url})")
         return 1
     fi
 
-    eval $__resultvar="'$__tar_path'"
+    eval $__resultvar="'${__tar_path}'"
 }
 
 build_from_source() {
@@ -62,12 +62,12 @@ build_from_source() {
         exit 1
     fi
 
-    pushd $__rust_sources_path
+    pushd "${__rust_sources_path}"
 
     cargo --version
 
     if [[ -f "./scripts/build-release.sh" ]]; then
-        ./scripts/build-release.sh $__library_name $(cat rust-toolchain)
+        ./scripts/build-release.sh "${__library_name}" "$(cat rust-toolchain)"
     else
         cargo build --release --all
     fi
