@@ -38,7 +38,7 @@ if [ "${FFI_BUILD_FROM_SOURCE}" != "1" ] && download_release_tarball tarball_pat
 else
     (>&2 echo "building libfilecoin from local sources (dir = ${rust_sources_dir})")
 
-    build_from_source "filecoin" "${rust_sources_dir}"
+    build_from_source "${rust_sources_dir}"
 
     mkdir -p include
     mkdir -p lib/pkgconfig
