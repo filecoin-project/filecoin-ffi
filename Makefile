@@ -3,14 +3,9 @@ DEPS:=filecoin.h filecoin.pc libfilecoin.a
 all: $(DEPS)
 .PHONY: all
 
-
-$(DEPS): .install-filecoin  ;
-
-.install-filecoin: rust
+$(DEPS):
 	./install-filecoin
-	@touch $@
-
 
 clean:
-	rm -rf $(DEPS) .install-filecoin
+	rm -rf $(DEPS)
 .PHONY: clean

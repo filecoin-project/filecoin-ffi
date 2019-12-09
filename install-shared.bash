@@ -42,8 +42,7 @@ download_release_tarball() {
 }
 
 build_from_source() {
-    __library_name=$1
-    __rust_sources_path=$2
+    __rust_sources_path=$1
     __repo_sha1=$(git rev-parse HEAD)
     __repo_sha1_truncated="${__repo_sha1:0:16}"
 
@@ -62,14 +61,7 @@ build_from_source() {
     fi
 
     pushd "${__rust_sources_path}" || exit
-
     cargo --version
-
-    if [[ -f "./scripts/build-release.sh" ]]; then
-        ./scripts/build-release.sh "${__library_name}" "$(cat rust-toolchain)"
-    else
-        cargo build --release --all
-    fi
-
+    cargo build --release --all
     popd || exit
 }
