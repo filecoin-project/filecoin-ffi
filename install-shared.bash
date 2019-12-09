@@ -30,11 +30,10 @@ download_release_tarball() {
         --header "Accept:application/octet-stream" \
         --location \
         --output /dev/null \
-        -w %{url_effective} \
+        -w '%{url_effective}' \
         "{$__release_url}")
 
-    curl --retry 3 --output "${__tar_path}" "${__asset_url}"
-    if [[ $? -ne "0" ]]; then
+    if ! curl --retry 3 --output "${__tar_path}" "${__asset_url}"; then
         (>&2 echo "failed to download release asset (tag URL: ${__release_tag_url}, asset URL: ${__asset_url})")
         return 1
     fi
@@ -62,7 +61,7 @@ build_from_source() {
         exit 1
     fi
 
-    pushd "${__rust_sources_path}"
+    pushd "${__rust_sources_path}" || exit
 
     cargo --version
 
@@ -72,5 +71,5 @@ build_from_source() {
         cargo build --release --all
     fi
 
-    popd
+    popd || exit
 }
