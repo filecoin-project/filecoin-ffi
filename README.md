@@ -18,9 +18,7 @@ build tooling will attempt to compile a static library from local Rust sources.
 To opt out of downloading precompiled assets, set `FFI_BUILD_FROM_SOURCE=1`:
 
 ```shell
-rm .install-filecoin \
-    ; make clean \
-    ; FFI_BUILD_FROM_SOURCE=1 make
+FFI_BUILD_FROM_SOURCE=1 make clean all
 ```
 
 ## License
