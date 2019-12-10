@@ -697,7 +697,7 @@ dependencies = [
 [[package]]
 name = "filecoin-proofs"
 version = "0.6.4"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs.git#df1f0c850cc2cdce684a22df626dfa7f9de350e5"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs.git#d815366e1adee1ea3b32fa2416f09eccf2d096b6"
 dependencies = [
  "anyhow 1.0.25 (registry+https://github.com/rust-lang/crates.io-index)",
  "bellperson 0.4.5 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1979,7 +1979,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [[package]]
 name = "storage-proofs"
 version = "0.6.2"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs.git#df1f0c850cc2cdce684a22df626dfa7f9de350e5"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs.git#d815366e1adee1ea3b32fa2416f09eccf2d096b6"
 dependencies = [
  "aes 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "anyhow 1.0.25 (registry+https://github.com/rust-lang/crates.io-index)",
