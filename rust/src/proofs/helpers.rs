@@ -177,7 +177,7 @@ pub unsafe fn to_private_replica_info_map(
             } = info;
 
             filecoin_proofs::PrivateReplicaInfo::new(replica_path, comm_r, cache_dir_path)
-                .with_context(|err| {
+                .with_context(|| {
                     format!(
                         "could not load private replica (id = {}) from cache",
                         sector_id
