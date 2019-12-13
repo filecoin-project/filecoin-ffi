@@ -1,7 +1,7 @@
 use std::collections::btree_map::BTreeMap;
 use std::slice::from_raw_parts;
 
-use anyhow::Result;
+use anyhow::{Context, Result};
 use ffi_toolkit::{c_str_to_pbuf, c_str_to_rust_str};
 use filecoin_proofs::{constants as api_constants, Commitment, PublicReplicaInfo};
 use filecoin_proofs::{types as api_types, PrivateReplicaInfo};
@@ -177,11 +177,10 @@ pub unsafe fn to_private_replica_info_map(
             } = info;
 
             filecoin_proofs::PrivateReplicaInfo::new(replica_path, comm_r, cache_dir_path)
-                .map_err(|err| {
-                    format_err!(
-                        "could not load private replica (id = {}) from cache: {}",
-                        sector_id,
-                        err
+                .with_context(|err| {
+                    format!(
+                        "could not load private replica (id = {}) from cache",
+                        sector_id
                     )
                 })
                 .map(|p| (SectorId::from(sector_id), p))
