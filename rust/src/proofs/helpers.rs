@@ -1,7 +1,7 @@
 use std::collections::btree_map::BTreeMap;
 use std::slice::from_raw_parts;
 
-use anyhow::Result;
+use anyhow::{Context, Result};
 use ffi_toolkit::{c_str_to_pbuf, c_str_to_rust_str};
 use filecoin_proofs::{constants as api_constants, Commitment, PublicReplicaInfo};
 use filecoin_proofs::{types as api_types, PrivateReplicaInfo};
@@ -135,33 +135,55 @@ pub fn bls_12_fr_into_bytes(fr: Fr) -> [u8; 32] {
     commitment
 }
 
+#[derive(Debug, Clone)]
+struct PrivateReplicaInfoTmp {
+    pub cache_dir_path: std::path::PathBuf,
+    pub comm_r: [u8; 32],
+    pub replica_path: String,
+    pub sector_id: u64,
+}
+
 pub unsafe fn to_private_replica_info_map(
     replicas_ptr: *const FFIPrivateReplicaInfo,
     replicas_len: libc::size_t,
 ) -> Result<BTreeMap<SectorId, PrivateReplicaInfo>> {
+    use rayon::prelude::*;
+
     ensure!(!replicas_ptr.is_null(), "replicas_ptr must not be null");
 
-    from_raw_parts(replicas_ptr, replicas_len)
+    let replicas: Vec<_> = from_raw_parts(replicas_ptr, replicas_len)
         .iter()
-        .cloned()
-        .map(|ffi_r| {
-            let cache_dir_path = c_str_to_pbuf(ffi_r.cache_dir_path);
-            let cloned = cache_dir_path.clone();
+        .map(|ffi_info| {
+            let cache_dir_path = c_str_to_pbuf(ffi_info.cache_dir_path);
+            let replica_path = c_str_to_rust_str(ffi_info.replica_path).to_string();
 
-            filecoin_proofs::PrivateReplicaInfo::new(
-                c_str_to_rust_str(ffi_r.replica_path).to_string(),
-                ffi_r.comm_r,
+            PrivateReplicaInfoTmp {
                 cache_dir_path,
-            )
-            .map_err(|err| {
-                format_err!(
-                    "could not load private replica (id = {}) from cache (path = {:?}): {}",
-                    ffi_r.sector_id,
-                    cloned,
-                    err
-                )
-            })
-            .map(|p| (SectorId::from(ffi_r.sector_id), p))
+                comm_r: ffi_info.comm_r,
+                replica_path,
+                sector_id: ffi_info.sector_id,
+            }
+        })
+        .collect();
+
+    replicas
+        .into_par_iter()
+        .map(|info| {
+            let PrivateReplicaInfoTmp {
+                cache_dir_path,
+                comm_r,
+                replica_path,
+                sector_id,
+            } = info;
+
+            filecoin_proofs::PrivateReplicaInfo::new(replica_path, comm_r, cache_dir_path)
+                .with_context(|| {
+                    format!(
+                        "could not load private replica (id = {}) from cache",
+                        sector_id
+                    )
+                })
+                .map(|p| (SectorId::from(sector_id), p))
         })
         .collect()
 }
