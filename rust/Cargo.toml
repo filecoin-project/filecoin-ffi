@@ -13,8 +13,8 @@ publish = false
 crate-type = ["rlib", "staticlib"]
 
 [dependencies]
-filecoin-proofs = { git = "https://github.com/filecoin-project/rust-fil-proofs.git", branch = "master" }
-storage-proofs = { git = "https://github.com/filecoin-project/rust-fil-proofs.git", branch = "master" }
+filecoin-proofs = { git = "https://github.com/filecoin-project/rust-fil-proofs.git", branch = "feat/batch-verify" }
+storage-proofs = { git = "https://github.com/filecoin-project/rust-fil-proofs.git", branch = "feat/batch-verify" }
 bls-signatures = { git = "https://github.com/filecoin-project/bls-signatures.git", branch = "master" }
 byteorder = "1.2"
 drop_struct_macro_derive = "0.4.0"
@@ -33,3 +33,6 @@ cbindgen = "= 0.10.0"
 
 [dev-dependencies]
 tempfile = "3.0.8"
+
+[patch.crates-io]
+bellperson = { git = "https://github.com/filecoin-project/bellman", branch = "feat/verify-batch" }

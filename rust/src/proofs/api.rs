@@ -7,7 +7,7 @@ use ffi_toolkit::{
 };
 use filecoin_proofs as api_fns;
 use filecoin_proofs::{
-    types as api_types, PaddedBytesAmount, PieceInfo, PoRepConfig, PoRepProofPartitions,
+    constants, types as api_types, PaddedBytesAmount, PieceInfo, PoRepConfig, PoRepProofPartitions,
     PoStConfig, SectorClass, SectorSize, UnpaddedByteIndex, UnpaddedBytesAmount,
 };
 use libc;
@@ -458,6 +458,8 @@ pub unsafe extern "C" fn verify_post(
             let winners = c_to_rust_candidates(winners_ptr, winners_len)?;
             let cfg = api_types::PoStConfig {
                 sector_size: api_types::SectorSize(sector_size),
+                challenge_count: constants::POST_CHALLENGE_COUNT,
+                challenged_nodes: constants::POST_CHALLENGED_NODES,
             };
             api_fns::verify_post(
                 cfg,
@@ -589,6 +591,8 @@ pub unsafe extern "C" fn generate_candidates(
             api_fns::generate_candidates(
                 PoStConfig {
                     sector_size: SectorSize(sector_size),
+                    challenge_count: constants::POST_CHALLENGE_COUNT,
+                    challenged_nodes: constants::POST_CHALLENGED_NODES,
                 },
                 randomness,
                 challenge_count,
@@ -649,6 +653,8 @@ pub unsafe extern "C" fn generate_post(
             api_fns::generate_post(
                 PoStConfig {
                     sector_size: SectorSize(sector_size),
+                    challenge_count: constants::POST_CHALLENGE_COUNT,
+                    challenged_nodes: constants::POST_CHALLENGED_NODES,
                 },
                 randomness,
                 &rs,
