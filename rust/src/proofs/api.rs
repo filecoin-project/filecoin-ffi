@@ -857,7 +857,7 @@ pub mod tests {
         // miscellaneous setup and shared values
         let sector_class = FFISectorClass {
             sector_size: 1024,
-            porep_proof_partitions: 2,
+            porep_proof_partitions: 10,
         };
 
         let cache_dir = tempfile::tempdir()?;
