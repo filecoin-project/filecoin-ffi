@@ -1,7 +1,5 @@
 **/*.h
 **/*.a
 **/*.pc
-.install-rust-fil-sector-builder
-bin/
-.crates.toml
-**/paramcache
+build/.filecoin-ffi-install
+build/.update-submodules

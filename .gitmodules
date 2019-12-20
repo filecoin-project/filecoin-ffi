@@ -1,3 +1,4 @@
-[submodule "rust-fil-sector-builder"]
-	path = rust-fil-sector-builder
-	url = https://github.com/filecoin-project/rust-fil-sector-builder
+[submodule "extern/filecoin-ffi"]
+	path = extern/filecoin-ffi
+	url = git@github.com:filecoin-project/filecoin-ffi
+	branch = master

@@ -1,16 +1,55 @@
-DEPS:=sector_builder_ffi.h sector_builder_ffi.pc libsector_builder_ffi.a
+SHELL=/usr/bin/env bash
 
-all: $(DEPS)
+all: build
 .PHONY: all
 
+# git submodules that need to be loaded
+SUBMODULES:=
 
-$(DEPS): .install-rust-fil-sector-builder  ;
+# things to clean up, e.g. libfilecoin.a
+CLEAN:=
 
-.install-rust-fil-sector-builder: rust-fil-sector-builder
-	./install-rust-fil-sector-builder
+FFI_PATH:=extern/filecoin-ffi/
+FFI_DEPS:=libfilecoin.a filecoin.pc filecoin.h
+FFI_DEPS:=$(addprefix $(FFI_PATH),$(FFI_DEPS))
+
+$(FFI_DEPS): build/.filecoin-ffi-install ;
+
+# dummy file that marks the last time the filecoin-ffi project was built
+build/.filecoin-ffi-install: $(FFI_PATH)
+	$(MAKE) -C $(FFI_PATH) $(FFI_DEPS:$(FFI_PATH)%=%)
 	@touch $@
 
+SUBMODULES+=$(FFI_PATH)
+BUILD_DEPS+=build/.filecoin-ffi-install
+CLEAN+=build/.filecoin-ffi-install
+
+$(SUBMODULES): build/.update-submodules ;
+
+# dummy file that marks the last time submodules were updated
+build/.update-submodules:
+	git submodule update --init --recursive
+	touch $@
+
+CLEAN+=build/.update-submodules
+
+# build and install any upstream dependencies, e.g. filecoin-ffi
+deps: $(BUILD_DEPS)
+.PHONY: deps
+
+test: $(BUILD_DEPS)
+	go test -v $(GOFLAGS) ./...
+.PHONY: test
+
+lint: $(BUILD_DEPS)
+	golangci-lint run -v  --concurrency 2 --new-from-rev origin/master
+.PHONY: lint
+
+build: $(BUILD_DEPS)
+	go build -v $(GOFLAGS) ./...
+.PHONY: build
 
 clean:
-	rm -rf $(DEPS) .install-rust-fil-sector-builder
+	rm -rf $(CLEAN)
+	-$(MAKE) -C $(FFI_PATH) clean
 .PHONY: clean
