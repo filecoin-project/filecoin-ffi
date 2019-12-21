@@ -143,10 +143,18 @@ workflows:
       - cargo_fetch
       - build_and_test_linux_cgo_bindings
       - publish_linux_staticlib:
+          filters:
+            branches:
+              only:
+                - master
           requires:
             - cargo_fetch
       - build_darwin_cgo_bindings
-      - publish_darwin_staticlib
+      - publish_darwin_staticlib:
+          filters:
+            branches:
+              only:
+                - master
 
 commands:
   configure_environment_variables:
