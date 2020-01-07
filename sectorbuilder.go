@@ -636,7 +636,7 @@ func (sb *SectorBuilder) GenerateEPostCandidates(sectorInfo SortedPublicSectorIn
 		return nil, err
 	}
 
-	challengeCount := ElectionPostChallengeCount(uint64(len(sectorInfo.Values())), len(faults))
+	challengeCount := ElectionPostChallengeCount(uint64(len(sectorInfo.Values())), uint64(len(faults)))
 
 	proverID := addressToProverID(sb.Miner)
 	return sectorbuilder.GenerateCandidates(sb.ssize, proverID, challengeSeed, challengeCount, privsectors)
@@ -680,7 +680,7 @@ func (sb *SectorBuilder) GenerateFallbackPoSt(sectorInfo SortedPublicSectorInfo,
 		return nil, nil, err
 	}
 
-	challengeCount := fallbackPostChallengeCount(uint64(len(sectorInfo.Values())), len(faults))
+	challengeCount := fallbackPostChallengeCount(uint64(len(sectorInfo.Values())), uint64(len(faults)))
 
 	proverID := addressToProverID(sb.Miner)
 	candidates, err := sectorbuilder.GenerateCandidates(sb.ssize, proverID, challengeSeed, challengeCount, privsectors)
@@ -696,7 +696,7 @@ func (sb *SectorBuilder) Stop() {
 	close(sb.stopping)
 }
 
-func fallbackPostChallengeCount(sectors uint64, faults int) uint64 {
+func fallbackPostChallengeCount(sectors uint64, faults uint64) uint64 {
 	challengeCount := ElectionPostChallengeCount(sectors, faults)
 	if challengeCount > MaxFallbackPostChallengeCount {
 		return MaxFallbackPostChallengeCount

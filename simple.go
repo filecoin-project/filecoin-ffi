@@ -40,7 +40,7 @@ func VerifyElectionPost(ctx context.Context, sectorSize uint64, sectorInfo Sorte
 	return verifyPost(ctx, sectorSize, sectorInfo, challengeCount, challengeSeed, proof, candidates, proverID)
 }
 
-func VerifyFallbackPost(ctx context.Context, sectorSize uint64, sectorInfo SortedPublicSectorInfo, challengeSeed []byte, proof []byte, candidates []EPostCandidate, proverID address.Address, faults int) (bool, error) {
+func VerifyFallbackPost(ctx context.Context, sectorSize uint64, sectorInfo SortedPublicSectorInfo, challengeSeed []byte, proof []byte, candidates []EPostCandidate, proverID address.Address, faults uint64) (bool, error) {
 	challengeCount := fallbackPostChallengeCount(uint64(len(sectorInfo.Values())), faults)
 	return verifyPost(ctx, sectorSize, sectorInfo, challengeCount, challengeSeed, proof, candidates, proverID)
 }
