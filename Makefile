@@ -38,16 +38,20 @@ deps: $(BUILD_DEPS)
 .PHONY: deps
 
 test: $(BUILD_DEPS)
-	go test -v $(GOFLAGS) ./...
+	RUST_LOG=info go test -v -timeout 120m ./...
 .PHONY: test
 
 lint: $(BUILD_DEPS)
-	golangci-lint run -v  --concurrency 2 --new-from-rev origin/master
+	golangci-lint run -v --concurrency 2 --new-from-rev origin/master
 .PHONY: lint
 
 build: $(BUILD_DEPS)
 	go build -v $(GOFLAGS) ./...
 .PHONY: build
+
+fetch-params: $(BUILD_DEPS)
+	go test -run=^TestDownloadParams
+.PHONY: fetch-params
 
 clean:
 	rm -rf $(CLEAN)

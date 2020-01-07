@@ -16,8 +16,8 @@ import (
 	"github.com/ipfs/go-datastore"
 	logging "github.com/ipfs/go-log"
 
+	paramfetch "github.com/filecoin-project/go-paramfetch"
 	sectorbuilder "github.com/filecoin-project/go-sectorbuilder"
-	"github.com/filecoin-project/go-sectorbuilder/paramfetch"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -124,10 +124,19 @@ func post(t *testing.T, sb *sectorbuilder.SectorBuilder, seals ...seal) time.Tim
 	return genCandidates
 }
 
-func TestSealAndVerify(t *testing.T) {
-	if testing.Short() {
-		t.Skip("skipping test in short mode")
+// TestDownloadParams exists only so that developers and CI can pre-download
+// Groth parameters and verifying keys before running the tests which rely on
+// those parameters and keys. To do this, run the following command:
+//
+// go test -run=^TestDownloadParams
+//
+func TestDownloadParams(t *testing.T) {
+	if err := paramfetch.GetParams(sectorSize); err != nil {
+		t.Fatalf("%+v", err)
 	}
+}
+
+func TestSealAndVerify(t *testing.T) {
 	if runtime.NumCPU() < 10 && os.Getenv("CI") == "" { // don't bother on slow hardware
 		t.Skip("this is slow")
 	}
@@ -195,9 +204,6 @@ func TestSealAndVerify(t *testing.T) {
 }
 
 func TestSealPoStNoCommit(t *testing.T) {
-	if testing.Short() {
-		t.Skip("skipping test in short mode")
-	}
 	if runtime.NumCPU() < 10 && os.Getenv("CI") == "" { // don't bother on slow hardware
 		t.Skip("this is slow")
 	}
@@ -262,9 +268,6 @@ func TestSealPoStNoCommit(t *testing.T) {
 }
 
 func TestSealAndVerify2(t *testing.T) {
-	if testing.Short() {
-		t.Skip("skipping test in short mode")
-	}
 	if runtime.NumCPU() < 10 && os.Getenv("CI") == "" { // don't bother on slow hardware
 		t.Skip("this is slow")
 	}

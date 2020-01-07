@@ -1,0 +1,202 @@
+version: 2.1
+orbs:
+  go: gotest/tools@0.0.9
+
+executors:
+  golang:
+    docker:
+      - image: circleci/golang:1.13
+    resource_class: 2xlarge
+
+commands:
+  install-deps:
+    steps:
+      - go/install-ssh
+      - go/install: {package: git}
+  prepare:
+    parameters:
+      linux:
+        default: true
+        description: is a linux build environment?
+        type: boolean
+      darwin:
+        default: false
+        description: is a darwin build environment?
+        type: boolean
+    steps:
+      - checkout
+      - when:
+          condition: << parameters.linux >>
+          steps:
+            - run: sudo apt-get update
+            - run: sudo apt-get install ocl-icd-opencl-dev
+      - run: git submodule sync
+      - run: git submodule update --init
+  download-params:
+    steps:
+      - run:
+          command: |
+            cat go.mod | grep go-paramfetch > go-paramfetch-checksum.txt
+      - restore_cache:
+          name: Restore parameters cache
+          keys:
+            - 'groth-params-and-keys-{{ checksum "go-paramfetch-checksum.txt" }}'
+          paths:
+            - /var/tmp/filecoin-proof-parameters/
+      - run:
+          name: Download Groth parameters and keys for 1KiB sector size (hard-coded in test)
+          command: make fetch-params
+      - save_cache:
+          name: Save parameters cache
+          key: 'groth-params-and-keys-{{ checksum "go-paramfetch-checksum.txt" }}'
+          paths:
+            - /var/tmp/filecoin-proof-parameters/
+
+jobs:
+  mod-tidy-check:
+    executor: golang
+    steps:
+      - install-deps
+      - prepare
+      - go/mod-download
+      - go/mod-tidy-check
+
+  build-all:
+    executor: golang
+    steps:
+      - install-deps
+      - prepare
+      - go/mod-download
+      - restore_cache:
+          name: restore go mod cache
+          key: v1-go-deps-{{ arch }}-{{ checksum "/home/circleci/project/go.mod" }}
+      - run:
+          command: make build
+
+  test: &test
+    description: |
+      Run tests.
+    parameters:
+      executor:
+        type: executor
+        default: golang
+    executor: << parameters.executor >>
+    steps:
+      - install-deps
+      - prepare
+      - go/mod-download
+      - restore_cache:
+          name: restore go mod cache
+          key: v1-go-deps-{{ arch }}-{{ checksum "/home/circleci/project/go.mod" }}
+      - run:
+          command: make deps
+          no_output_timeout: 30m
+      - download-params
+      - run:
+          name: run tests
+          command: make test
+          no_output_timeout: 60m
+      - save_cache:
+          name: save go mod cache
+          key: v1-go-deps-{{ arch }}-{{ checksum "/home/circleci/project/go.mod" }}
+          paths:
+            - "~/go/pkg"
+            - "~/go/src/github.com"
+            - "~/go/src/golang.org"
+
+  build-macos:
+    description: build with Darwin
+    macos:
+      xcode: "10.0.0"
+    working_directory: ~/go/src/github.com/filecoin-project/go-sectorbuilder
+    steps:
+      - prepare:
+          linux: false
+          darwin: true
+      - run:
+          name: Install go
+          command: |
+            curl -O https://dl.google.com/go/go1.13.4.darwin-amd64.pkg && \
+            sudo installer -pkg go1.13.4.darwin-amd64.pkg -target /
+      - run:
+          name: Install pkg-config
+          command: HOMEBREW_NO_AUTO_UPDATE=1 brew install pkg-config
+      - run: go version
+      - run:
+          name: Install Rust
+          command: |
+            curl https://sh.rustup.rs -sSf | sh -s -- -y
+      - run:
+          name: Install jq
+          command: |
+            mkdir $HOME/.bin
+            curl --location https://github.com/stedolan/jq/releases/download/jq-1.6/jq-osx-amd64 --output $HOME/.bin/jq
+            chmod +x $HOME/.bin/jq
+      - restore_cache:
+          name: restore go mod and cargo cache
+          key: v1-go-deps-{{ arch }}-{{ checksum "~/go/src/github.com/filecoin-project/go-sectorbuilder/go.sum" }}
+      - install-deps
+      - go/mod-download
+      - run:
+          command: make build
+          no_output_timeout: 30m
+      - save_cache:
+          name: save cargo cache
+          key: v1-go-deps-{{ arch }}-{{ checksum "~/go/src/github.com/filecoin-project/go-sectorbuilder/go.sum" }}
+          paths:
+            - "~/.rustup"
+            - "~/.cargo"
+
+  lint: &lint
+    description: |
+      Run golangci-lint.
+    parameters:
+      executor:
+        type: executor
+        default: golang
+      golangci-lint-version:
+        type: string
+        default: 1.17.1
+      concurrency:
+        type: string
+        default: '2'
+        description: |
+          Concurrency used to run linters. Defaults to 2 because NumCPU is not
+          aware of container CPU limits.
+      args:
+        type: string
+        default: ''
+        description: |
+          Arguments to pass to golangci-lint
+    executor: << parameters.executor >>
+    steps:
+      - install-deps
+      - prepare
+      - go/mod-download
+      - run:
+          command: make deps
+          no_output_timeout: 30m
+      - go/install-golangci-lint:
+          gobin: $HOME/.local/bin
+          version: << parameters.golangci-lint-version >>
+      - run:
+          name: Lint
+          command: |
+            $HOME/.local/bin/golangci-lint run -v \
+              --concurrency << parameters.concurrency >> << parameters.args >>
+  lint-changes:
+    <<: *lint
+
+  lint-all:
+    <<: *lint
+
+workflows:
+  version: 2.1
+  ci:
+    jobs:
+      - lint-changes:
+          args: "--new-from-rev origin/master"
+      - test
+      - mod-tidy-check
+      - build-all
+      - build-macos
