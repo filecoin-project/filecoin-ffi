@@ -53,7 +53,7 @@ func (s *seal) precommit(t *testing.T, sb *sectorbuilder.SectorBuilder, sid uint
 		TicketBytes: [32]byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 2},
 	}
 
-	s.pco, err = sb.SealPreCommit(sid, s.ticket, []sectorbuilder.PublicPieceInfo{s.ppi})
+	s.pco, err = sb.SealPreCommit(context.TODO(), sid, s.ticket, []sectorbuilder.PublicPieceInfo{s.ppi})
 	if err != nil {
 		t.Fatalf("%+v", err)
 	}
@@ -67,7 +67,7 @@ func (s *seal) commit(t *testing.T, sb *sectorbuilder.SectorBuilder, done func()
 		TicketBytes: [32]byte{0, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 9, 8, 7, 6, 45, 3, 2, 1, 0, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 9},
 	}
 
-	proof, err := sb.SealCommit(s.sid, s.ticket, seed, []sectorbuilder.PublicPieceInfo{s.ppi}, s.pco)
+	proof, err := sb.SealCommit(context.TODO(), s.sid, s.ticket, seed, []sectorbuilder.PublicPieceInfo{s.ppi}, s.pco)
 	if err != nil {
 		t.Fatalf("%+v", err)
 	}

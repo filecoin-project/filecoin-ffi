@@ -1,6 +1,7 @@
 package sectorbuilder
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -11,12 +12,11 @@ import (
 	"sync/atomic"
 
 	sectorbuilder "github.com/filecoin-project/filecoin-ffi"
-	"github.com/ipfs/go-datastore"
+	"github.com/filecoin-project/go-address"
+	datastore "github.com/ipfs/go-datastore"
 	logging "github.com/ipfs/go-log"
 	dcopy "github.com/otiai10/copy"
 	"golang.org/x/xerrors"
-
-	"github.com/filecoin-project/go-address"
 )
 
 const PoStReservedWorkers = 1
@@ -424,7 +424,7 @@ func (sb *SectorBuilder) sealPreCommitRemote(call workerCall) (RawSealPreCommitO
 	}
 }
 
-func (sb *SectorBuilder) SealPreCommit(sectorID uint64, ticket SealTicket, pieces []PublicPieceInfo) (RawSealPreCommitOutput, error) {
+func (sb *SectorBuilder) SealPreCommit(ctx context.Context, sectorID uint64, ticket SealTicket, pieces []PublicPieceInfo) (RawSealPreCommitOutput, error) {
 	fs := sb.filesystem
 
 	if err := fs.reserve(dataCache, sb.ssize); err != nil {
@@ -467,6 +467,8 @@ func (sb *SectorBuilder) SealPreCommit(sectorID uint64, ticket SealTicket, piece
 	case sb.precommitTasks <- call:
 		return sb.sealPreCommitRemote(call)
 	case rl <- struct{}{}:
+	case <-ctx.Done():
+		return RawSealPreCommitOutput{}, ctx.Err()
 	}
 
 	atomic.AddInt32(&sb.preCommitWait, -1)
@@ -506,6 +508,7 @@ func (sb *SectorBuilder) SealPreCommit(sectorID uint64, ticket SealTicket, piece
 
 	stagedPath := sb.StagedSectorPath(sectorID)
 
+	// TODO: context cancellation respect
 	rspco, err := sectorbuilder.SealPreCommit(
 		sb.ssize,
 		PoRepProofPartitions,
@@ -571,7 +574,7 @@ func (sb *SectorBuilder) sealCommitLocal(sectorID uint64, ticket SealTicket, see
 	return proof, nil
 }
 
-func (sb *SectorBuilder) SealCommit(sectorID uint64, ticket SealTicket, seed SealSeed, pieces []PublicPieceInfo, rspco RawSealPreCommitOutput) (proof []byte, err error) {
+func (sb *SectorBuilder) SealCommit(ctx context.Context, sectorID uint64, ticket SealTicket, seed SealSeed, pieces []PublicPieceInfo, rspco RawSealPreCommitOutput) (proof []byte, err error) {
 	call := workerCall{
 		task: WorkerTask{
 			Type:       WorkerCommit,
@@ -604,6 +607,8 @@ func (sb *SectorBuilder) SealCommit(sectorID uint64, ticket SealTicket, seed Sea
 			proof, err = sb.sealCommitRemote(call)
 		case rl <- struct{}{}:
 			proof, err = sb.sealCommitLocal(sectorID, ticket, seed, pieces, rspco)
+		case <-ctx.Done():
+			return nil, ctx.Err()
 		}
 	}
 	if err != nil {
