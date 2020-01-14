@@ -72,7 +72,7 @@ func (s *seal) commit(t *testing.T, sb *sectorbuilder.SectorBuilder, done func()
 		t.Fatalf("%+v", err)
 	}
 
-	ok, err := sectorbuilder.VerifySeal(sectorSize, s.pco.CommR[:], s.pco.CommD[:], sb.Miner, s.ticket.TicketBytes[:], seed.TicketBytes[:], s.sid, proof)
+	ok, err := sectorbuilder.ProofVerifier.VerifySeal(sectorSize, s.pco.CommR[:], s.pco.CommD[:], sb.Miner, s.ticket.TicketBytes[:], seed.TicketBytes[:], s.sid, proof)
 	if err != nil {
 		t.Fatalf("%+v", err)
 	}
@@ -113,7 +113,7 @@ func post(t *testing.T, sb *sectorbuilder.SectorBuilder, seals ...seal) time.Tim
 		t.Fatalf("%+v", err)
 	}
 
-	ok, err := sectorbuilder.VerifyElectionPost(context.TODO(), sb.SectorSize(), ssi, cSeed[:], postProof, candndates, sb.Miner)
+	ok, err := sectorbuilder.ProofVerifier.VerifyElectionPost(context.TODO(), sb.SectorSize(), ssi, cSeed[:], postProof, candndates, sb.Miner)
 	if err != nil {
 		t.Fatalf("%+v", err)
 	}
