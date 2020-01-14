@@ -676,7 +676,7 @@ func (sb *SectorBuilder) pubSectorToPriv(sectorInfo SortedPublicSectorInfo, faul
 			SealedSectorPath: sealedPath,
 		})
 	}
-	return NewSortedPrivateSectorInfo(out), nil
+	return newSortedPrivateSectorInfo(out), nil
 }
 
 func (sb *SectorBuilder) GenerateFallbackPoSt(sectorInfo SortedPublicSectorInfo, challengeSeed [CommLen]byte, faults []uint64) ([]EPostCandidate, []byte, error) {
