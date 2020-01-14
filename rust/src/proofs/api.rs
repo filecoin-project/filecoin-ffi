@@ -5,16 +5,14 @@ use std::sync::Once;
 use ffi_toolkit::{
     c_str_to_pbuf, catch_panic_response, raw_ptr, rust_str_to_c_str, FCPResponseStatus,
 };
-use filecoin_proofs as api_fns;
-use filecoin_proofs::{
-    types as api_types, PaddedBytesAmount, PieceInfo, PoRepConfig, PoRepProofPartitions,
-    PoStConfig, SectorClass, SectorSize, UnpaddedByteIndex, UnpaddedBytesAmount,
+use filecoin_proofs_api::{
+    seal::SealPreCommitOutput, PaddedBytesAmount, PieceInfo, RegisteredSealProof, SectorId,
+    UnpaddedByteIndex, UnpaddedBytesAmount,
 };
 use libc;
-use storage_proofs::sector::SectorId;
 
 use super::helpers::{
-    bls_12_fr_into_bytes, c_to_rust_candidates, c_to_rust_proofs, to_private_replica_info_map,
+    bls_12_fr_into_bytes, c_to_rust_candidates, c_to_rust_seal_proofs, to_private_replica_info_map,
 };
 use super::types::*;
 
@@ -23,6 +21,7 @@ use super::types::*;
 #[no_mangle]
 #[cfg(not(target_os = "windows"))]
 pub unsafe extern "C" fn write_with_alignment(
+    registered_proof: FFIRegisteredSealProof,
     src_fd: libc::c_int,
     src_size: u64,
     dst_fd: libc::c_int,
@@ -44,7 +43,8 @@ pub unsafe extern "C" fn write_with_alignment(
 
         let n = UnpaddedBytesAmount(src_size);
 
-        match api_fns::add_piece(
+        match filecoin_proofs_api::seal::add_piece(
+            registered_proof.into(),
             FileDescriptorRef::new(src_fd),
             FileDescriptorRef::new(dst_fd),
             n,
@@ -73,6 +73,7 @@ pub unsafe extern "C" fn write_with_alignment(
 #[no_mangle]
 #[cfg(not(target_os = "windows"))]
 pub unsafe extern "C" fn write_without_alignment(
+    registered_proof: FFIRegisteredSealProof,
     src_fd: libc::c_int,
     src_size: u64,
     dst_fd: libc::c_int,
@@ -84,7 +85,8 @@ pub unsafe extern "C" fn write_without_alignment(
 
         let mut response = WriteWithoutAlignmentResponse::default();
 
-        match api_fns::write_and_preprocess(
+        match filecoin_proofs_api::seal::write_and_preprocess(
+            registered_proof.into(),
             FileDescriptorRef::new(src_fd),
             FileDescriptorRef::new(dst_fd),
             UnpaddedBytesAmount(src_size),
@@ -110,7 +112,7 @@ pub unsafe extern "C" fn write_without_alignment(
 ///
 #[no_mangle]
 pub unsafe extern "C" fn seal_pre_commit(
-    sector_class: FFISectorClass,
+    registered_proof: FFIRegisteredSealProof,
     cache_dir_path: *const libc::c_char,
     staged_sector_path: *const libc::c_char,
     sealed_sector_path: *const libc::c_char,
@@ -133,10 +135,8 @@ pub unsafe extern "C" fn seal_pre_commit(
             .map(Into::into)
             .collect();
 
-        let sc: SectorClass = sector_class.into();
-
-        match api_fns::seal_pre_commit(
-            sc.into(),
+        match filecoin_proofs_api::seal::seal_pre_commit(
+            registered_proof.into(),
             c_str_to_pbuf(cache_dir_path),
             c_str_to_pbuf(staged_sector_path),
             c_str_to_pbuf(sealed_sector_path),
@@ -148,9 +148,11 @@ pub unsafe extern "C" fn seal_pre_commit(
             Ok(output) => {
                 response.status_code = FCPResponseStatus::FCPNoError;
 
-                let mut x: FFISealPreCommitOutput = Default::default();
-                x.comm_r = output.comm_r;
-                x.comm_d = output.comm_d;
+                let mut x = FFISealPreCommitOutput {
+                    registered_proof: output.registered_proof.into(),
+                    comm_r: output.comm_r,
+                    comm_d: output.comm_d,
+                };
 
                 response.seal_pre_commit_output = x;
             }
@@ -170,7 +172,6 @@ pub unsafe extern "C" fn seal_pre_commit(
 ///
 #[no_mangle]
 pub unsafe extern "C" fn seal_commit(
-    sector_class: FFISectorClass,
     cache_dir_path: *const libc::c_char,
     sector_id: u64,
     prover_id: &[u8; 32],
@@ -187,7 +188,8 @@ pub unsafe extern "C" fn seal_commit(
 
         let mut response = SealCommitResponse::default();
 
-        let spco = api_types::SealPreCommitOutput {
+        let spco = SealPreCommitOutput {
+            registered_proof: spco.registered_proof.into(),
             comm_r: spco.comm_r,
             comm_d: spco.comm_d,
         };
@@ -198,10 +200,7 @@ pub unsafe extern "C" fn seal_commit(
             .map(Into::into)
             .collect();
 
-        let sc: SectorClass = sector_class.into();
-
-        match api_fns::seal_commit(
-            sc.into(),
+        match filecoin_proofs_api::seal::seal_commit(
             c_str_to_pbuf(cache_dir_path),
             *prover_id,
             SectorId::from(sector_id),
@@ -229,10 +228,9 @@ pub unsafe extern "C" fn seal_commit(
 }
 
 /// TODO: document
-///
 #[no_mangle]
 pub unsafe extern "C" fn unseal(
-    sector_class: FFISectorClass,
+    registered_proof: FFIRegisteredSealProof,
     cache_dir_path: *const libc::c_char,
     sealed_sector_path: *const libc::c_char,
     unseal_output_path: *const libc::c_char,
@@ -245,11 +243,9 @@ pub unsafe extern "C" fn unseal(
         init_log();
 
         info!("unseal: start");
-
-        let sc: SectorClass = sector_class.clone().into();
-
-        let result = api_fns::get_unsealed_range(
-            sc.into(),
+        let registered_proof: RegisteredSealProof = registered_proof.into();
+        let result = filecoin_proofs_api::seal::get_unsealed_range(
+            registered_proof,
             c_str_to_pbuf(cache_dir_path),
             c_str_to_pbuf(sealed_sector_path),
             c_str_to_pbuf(unseal_output_path),
@@ -258,7 +254,9 @@ pub unsafe extern "C" fn unseal(
             *comm_d,
             *ticket,
             UnpaddedByteIndex(0u64),
-            UnpaddedBytesAmount::from(PaddedBytesAmount(sector_class.sector_size)),
+            UnpaddedBytesAmount::from(PaddedBytesAmount(u64::from(
+                RegisteredSealProof::from(registered_proof).sector_size(),
+            ))),
         );
 
         let mut response = UnsealResponse::default();
@@ -280,10 +278,9 @@ pub unsafe extern "C" fn unseal(
 }
 
 /// TODO: document
-///
 #[no_mangle]
 pub unsafe extern "C" fn unseal_range(
-    sector_class: FFISectorClass,
+    registered_proof: FFIRegisteredSealProof,
     cache_dir_path: *const libc::c_char,
     sealed_sector_path: *const libc::c_char,
     unseal_output_path: *const libc::c_char,
@@ -299,10 +296,8 @@ pub unsafe extern "C" fn unseal_range(
 
         info!("unseal_range: start");
 
-        let sc: SectorClass = sector_class.clone().into();
-
-        let result = api_fns::get_unsealed_range(
-            sc.into(),
+        let result = filecoin_proofs_api::seal::get_unsealed_range(
+            registered_proof.into(),
             c_str_to_pbuf(cache_dir_path),
             c_str_to_pbuf(sealed_sector_path),
             c_str_to_pbuf(unseal_output_path),
@@ -336,7 +331,7 @@ pub unsafe extern "C" fn unseal_range(
 ///
 #[no_mangle]
 pub unsafe extern "C" fn verify_seal(
-    sector_size: u64,
+    registered_proof: FFIRegisteredSealProof,
     comm_r: &[u8; 32],
     comm_d: &[u8; 32],
     prover_id: &[u8; 32],
@@ -354,23 +349,16 @@ pub unsafe extern "C" fn verify_seal(
         let porep_bytes = super::helpers::try_into_porep_proof_bytes(proof_ptr, proof_len);
 
         let result = porep_bytes.and_then(|bs| {
-            super::helpers::porep_proof_partitions_try_from_bytes(&bs).and_then(|partitions| {
-                let cfg = api_types::PoRepConfig {
-                    sector_size: api_types::SectorSize(sector_size),
-                    partitions,
-                };
-
-                api_fns::verify_seal(
-                    cfg,
-                    *comm_r,
-                    *comm_d,
-                    *prover_id,
-                    SectorId::from(sector_id),
-                    *ticket,
-                    *seed,
-                    &bs,
-                )
-            })
+            filecoin_proofs_api::seal::verify_seal(
+                registered_proof.into(),
+                *comm_r,
+                *comm_d,
+                *prover_id,
+                SectorId::from(sector_id),
+                *ticket,
+                *seed,
+                &bs,
+            )
         });
 
         let mut response = VerifySealResponse::default();
@@ -406,7 +394,7 @@ pub unsafe extern "C" fn finalize_ticket(partial_ticket: &[u8; 32]) -> *mut Fina
 
         let mut response = FinalizeTicketResponse::default();
 
-        match filecoin_proofs::finalize_ticket(partial_ticket) {
+        match filecoin_proofs_api::post::finalize_ticket(partial_ticket) {
             Ok(ticket) => {
                 response.status_code = FCPResponseStatus::FCPNoError;
                 response.ticket = ticket;
@@ -426,13 +414,10 @@ pub unsafe extern "C" fn finalize_ticket(partial_ticket: &[u8; 32]) -> *mut Fina
 /// Verifies that a proof-of-spacetime is valid.
 #[no_mangle]
 pub unsafe extern "C" fn verify_post(
-    sector_size: u64,
     randomness: &[u8; 32],
     challenge_count: u64,
-    sector_ids_ptr: *const u64,
-    sector_ids_len: libc::size_t,
-    flattened_comm_rs_ptr: *const u8,
-    flattened_comm_rs_len: libc::size_t,
+    replicas_ptr: *const FFIPublicReplicaInfo,
+    replicas_len: libc::size_t,
     flattened_proofs_ptr: *const u8,
     flattened_proofs_len: libc::size_t,
     winners_ptr: *const FFICandidate,
@@ -446,21 +431,17 @@ pub unsafe extern "C" fn verify_post(
 
         let mut response = VerifyPoStResponse::default();
 
-        let convert = super::helpers::to_public_replica_info_map(
-            sector_ids_ptr,
-            sector_ids_len,
-            flattened_comm_rs_ptr,
-            flattened_comm_rs_len,
-        );
+        let convert = super::helpers::to_public_replica_info_map(replicas_ptr, replicas_len);
 
         let result = convert.and_then(|map| {
-            let proofs = c_to_rust_proofs(flattened_proofs_ptr, flattened_proofs_len)?;
+            let proofs = c_to_rust_post_proofs(
+                registered_proof,
+                flattened_proofs_ptr,
+                flattened_proofs_len,
+            )?;
             let winners = c_to_rust_candidates(winners_ptr, winners_len)?;
-            let cfg = api_types::PoStConfig {
-                sector_size: api_types::SectorSize(sector_size),
-            };
-            api_fns::verify_post(
-                cfg,
+            filecoin_proofs_api::post::verify_post(
+                registered_proof.into(),
                 randomness,
                 challenge_count,
                 &proofs,
@@ -501,9 +482,11 @@ pub unsafe extern "C" fn generate_piece_commitment(
 
         let mut piece_file = std::fs::File::from_raw_fd(piece_fd_raw);
 
-        let unpadded_piece_size = api_types::UnpaddedBytesAmount(unpadded_piece_size);
-
-        let result = api_fns::generate_piece_commitment(&mut piece_file, unpadded_piece_size);
+        let unpadded_piece_size = UnpaddedBytesAmount(unpadded_piece_size);
+        let result = filecoin_proofs_api::seal::generate_piece_commitment(
+            &mut piece_file,
+            unpadded_piece_size,
+        );
 
         // avoid dropping the File which closes it
         let _ = piece_file.into_raw_fd();
@@ -529,7 +512,7 @@ pub unsafe extern "C" fn generate_piece_commitment(
 /// Returns the merkle root for a sector containing the provided pieces.
 #[no_mangle]
 pub unsafe extern "C" fn generate_data_commitment(
-    sector_size: u64,
+    registered_proof: FFIRegisteredSealProof,
     pieces_ptr: *const FFIPublicPieceInfo,
     pieces_len: libc::size_t,
 ) -> *mut GenerateDataCommitmentResponse {
@@ -542,13 +525,8 @@ pub unsafe extern "C" fn generate_data_commitment(
             .map(Into::into)
             .collect();
 
-        let result = api_fns::compute_comm_d(
-            PoRepConfig {
-                sector_size: SectorSize(sector_size),
-                partitions: PoRepProofPartitions(0),
-            },
-            &public_pieces,
-        );
+        let result =
+            filecoin_proofs_api::seal::compute_comm_d(registered_proof.into(), &public_pieces);
 
         let mut response = GenerateDataCommitmentResponse::default();
 
@@ -571,7 +549,6 @@ pub unsafe extern "C" fn generate_data_commitment(
 ///
 #[no_mangle]
 pub unsafe extern "C" fn generate_candidates(
-    sector_size: u64,
     randomness: &[u8; 32],
     challenge_count: u64,
     replicas_ptr: *const FFIPrivateReplicaInfo,
@@ -586,10 +563,7 @@ pub unsafe extern "C" fn generate_candidates(
         let mut response = GenerateCandidatesResponse::default();
 
         let result = to_private_replica_info_map(replicas_ptr, replicas_len).and_then(|rs| {
-            api_fns::generate_candidates(
-                PoStConfig {
-                    sector_size: SectorSize(sector_size),
-                },
+            filecoin_proofs_api::post::generate_candidates(
                 randomness,
                 challenge_count,
                 &rs,
@@ -630,7 +604,6 @@ pub unsafe extern "C" fn generate_candidates(
 ///
 #[no_mangle]
 pub unsafe extern "C" fn generate_post(
-    sector_size: u64,
     randomness: &[u8; 32],
     replicas_ptr: *const FFIPrivateReplicaInfo,
     replicas_len: libc::size_t,
@@ -646,10 +619,7 @@ pub unsafe extern "C" fn generate_post(
         let mut response = GeneratePoStResponse::default();
 
         let result = to_private_replica_info_map(replicas_ptr, replicas_len).and_then(|rs| {
-            api_fns::generate_post(
-                PoStConfig {
-                    sector_size: SectorSize(sector_size),
-                },
+            filecoin_proofs_api::post::generate_post(
                 randomness,
                 &rs,
                 c_to_rust_candidates(winners_ptr, winners_len)?,
@@ -731,10 +701,12 @@ pub unsafe extern "C" fn destroy_generate_data_commitment_response(
 /// Returns the number of user bytes that will fit into a staged sector.
 ///
 #[no_mangle]
-pub unsafe extern "C" fn get_max_user_bytes_per_staged_sector(sector_size: u64) -> u64 {
-    u64::from(api_types::UnpaddedBytesAmount::from(api_types::SectorSize(
-        sector_size,
-    )))
+pub unsafe extern "C" fn get_max_user_bytes_per_staged_sector(
+    registered_proof: FFIRegisteredSealProof,
+) -> u64 {
+    u64::from(UnpaddedBytesAmount::from(
+        RegisteredSealProof::from(registered_proof).sector_size(),
+    ))
 }
 
 /// Deallocates a VerifySealResponse.
@@ -855,10 +827,7 @@ pub mod tests {
     #[test]
     fn test_sealing() -> Result<()> {
         // miscellaneous setup and shared values
-        let sector_class = FFISectorClass {
-            sector_size: 1024,
-            porep_proof_partitions: 2,
-        };
+        let registered_proof = FFIRegisteredSealProof::StackedDrg32GiBV1; // TODO: 1KiB
 
         let cache_dir = tempfile::tempdir()?;
         let cache_dir_path = cache_dir.into_path();
@@ -910,7 +879,7 @@ pub mod tests {
             let unseal_path_c_str = rust_str_to_c_str(unseal_path.to_str().unwrap());
 
             let resp_b = seal_pre_commit(
-                sector_class.clone(),
+                registered_proof,
                 cache_dir_path_c_str,
                 staged_path_c_str,
                 sealed_path_c_str,
@@ -927,7 +896,7 @@ pub mod tests {
             }
 
             let resp_c = seal_commit(
-                sector_class.clone(),
+                registered_proof,
                 cache_dir_path_c_str,
                 sector_id,
                 &prover_id,
@@ -963,7 +932,7 @@ pub mod tests {
             assert!((*resp_d).is_valid, "proof was not valid");
 
             let resp_e = unseal(
-                sector_class.clone(),
+                registered_proof,
                 cache_dir_path_c_str,
                 sealed_path_c_str,
                 unseal_path_c_str,
