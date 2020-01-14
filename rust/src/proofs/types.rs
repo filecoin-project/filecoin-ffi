@@ -6,8 +6,10 @@ use paired::bls12_381::Bls12;
 // `CodeAndMessage` is the trait implemented by `code_and_message_impl`
 use anyhow::Result;
 use ffi_toolkit::{code_and_message_impl, free_c_str, CodeAndMessage, FCPResponseStatus};
-use filecoin_proofs::{Candidate, PieceInfo, SectorClass, UnpaddedBytesAmount};
-use storage_proofs::fr32::bytes_into_fr;
+use filecoin_proofs_api::{
+    fr32::bytes_into_fr, Candidate, PieceInfo, RegisteredPoStProof, RegisteredSealProof,
+    UnpaddedBytesAmount,
+};
 
 /// FileDescriptorRef does not drop its file descriptor when it is dropped. Its
 /// owner must manage the lifecycle of the file descriptor.
@@ -44,31 +46,55 @@ impl std::io::Seek for FileDescriptorRef {
 }
 
 #[repr(C)]
-#[derive(Clone, Copy, Default)]
-pub struct FFISealPreCommitOutput {
-    pub comm_d: [u8; 32],
-    pub comm_r: [u8; 32],
+#[derive(Debug, Clone, Copy)]
+pub enum FFIRegisteredSealProof {
+    StackedDrg32GiBV1,
+}
+
+impl From<RegisteredSealProof> for FFIRegisteredSealProof {
+    fn from(other: RegisteredSealProof) -> Self {
+        match other {
+            RegisteredSealProof::StackedDrg32GiBV1 => FFIRegisteredSealProof::StackedDrg32GiBV1,
+        }
+    }
+}
+
+impl From<FFIRegisteredSealProof> for RegisteredSealProof {
+    fn from(other: FFIRegisteredSealProof) -> Self {
+        match other {
+            FFIRegisteredSealProof::StackedDrg32GiBV1 => RegisteredSealProof::StackedDrg32GiBV1,
+        }
+    }
 }
 
 #[repr(C)]
-#[derive(Clone)]
-pub struct FFISectorClass {
-    pub sector_size: u64,
-    pub porep_proof_partitions: u8,
+#[derive(Debug, Clone, Copy)]
+pub enum FFIRegisteredPoStProof {
+    StackedDrg32GiBV1,
 }
 
-impl From<FFISectorClass> for SectorClass {
-    fn from(fsc: FFISectorClass) -> Self {
-        let FFISectorClass {
-            sector_size,
-            porep_proof_partitions,
-        } = fsc;
-
-        SectorClass {
-            sector_size: filecoin_proofs::SectorSize(sector_size),
-            partitions: filecoin_proofs::PoRepProofPartitions(porep_proof_partitions),
+impl From<RegisteredPoStProof> for FFIRegisteredPoStProof {
+    fn from(other: RegisteredPoStProof) -> Self {
+        match other {
+            RegisteredPoStProof::StackedDrg32GiBV1 => FFIRegisteredPoStProof::StackedDrg32GiBV1,
         }
     }
+}
+
+impl From<FFIRegisteredPoStProof> for RegisteredPoStProof {
+    fn from(other: FFIRegisteredPoStProof) -> Self {
+        match other {
+            FFIRegisteredPoStProof::StackedDrg32GiBV1 => RegisteredPoStProof::StackedDrg32GiBV1,
+        }
+    }
+}
+
+#[repr(C)]
+#[derive(Clone, Copy)]
+pub struct FFISealPreCommitOutput {
+    pub registered_proof: FFIRegisteredSealProof,
+    pub comm_d: [u8; 32],
+    pub comm_r: [u8; 32],
 }
 
 #[repr(C)]
@@ -119,9 +145,18 @@ impl FFICandidate {
 #[repr(C)]
 #[derive(Clone)]
 pub struct FFIPrivateReplicaInfo {
+    pub registered_proof: FFIRegisteredSealProof,
     pub cache_dir_path: *const libc::c_char,
     pub comm_r: [u8; 32],
     pub replica_path: *const libc::c_char,
+    pub sector_id: u64,
+}
+
+#[repr(C)]
+#[derive(Clone)]
+pub struct FFIPublicReplicaInfo {
+    pub registered_proof: FFIRegisteredSealProof,
+    pub comm_r: [u8; 32],
     pub sector_id: u64,
 }
 
