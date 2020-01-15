@@ -6,15 +6,15 @@ use ffi_toolkit::{
     c_str_to_pbuf, catch_panic_response, raw_ptr, rust_str_to_c_str, FCPResponseStatus,
 };
 use filecoin_proofs_api::{
-    seal::SealPreCommitOutput, PaddedBytesAmount, PieceInfo, RegisteredSealProof, SectorId,
+    PaddedBytesAmount, PieceInfo, RegisteredPoStProof, RegisteredSealProof, SectorId,
     UnpaddedByteIndex, UnpaddedBytesAmount,
 };
 use libc;
 
-use super::helpers::{
-    bls_12_fr_into_bytes, c_to_rust_candidates, c_to_rust_seal_proofs, to_private_replica_info_map,
-};
+use super::helpers::{bls_12_fr_into_bytes, c_to_rust_candidates, to_private_replica_info_map};
 use super::types::*;
+use filecoin_proofs_api::seal::SealPreCommitPhase2Output;
+use std::path::PathBuf;
 
 /// TODO: document
 ///
@@ -111,7 +111,7 @@ pub unsafe extern "C" fn write_without_alignment(
 /// TODO: document
 ///
 #[no_mangle]
-pub unsafe extern "C" fn seal_pre_commit(
+pub unsafe extern "C" fn seal_pre_commit_phase1(
     registered_proof: FFIRegisteredSealProof,
     cache_dir_path: *const libc::c_char,
     staged_sector_path: *const libc::c_char,
@@ -121,13 +121,11 @@ pub unsafe extern "C" fn seal_pre_commit(
     ticket: &[u8; 32],
     pieces_ptr: *const FFIPublicPieceInfo,
     pieces_len: libc::size_t,
-) -> *mut SealPreCommitResponse {
+) -> *mut SealPreCommitPhase1Response {
     catch_panic_response(|| {
         init_log();
 
-        info!("seal_pre_commit: start");
-
-        let mut response = SealPreCommitResponse::default();
+        info!("seal_pre_commit_phase1: start");
 
         let public_pieces: Vec<PieceInfo> = from_raw_parts(pieces_ptr, pieces_len)
             .iter()
@@ -135,7 +133,9 @@ pub unsafe extern "C" fn seal_pre_commit(
             .map(Into::into)
             .collect();
 
-        match filecoin_proofs_api::seal::seal_pre_commit(
+        let mut response: SealPreCommitPhase1Response = Default::default();
+
+        let result = filecoin_proofs_api::seal::seal_pre_commit_phase1(
             registered_proof.into(),
             c_str_to_pbuf(cache_dir_path),
             c_str_to_pbuf(staged_sector_path),
@@ -144,17 +144,15 @@ pub unsafe extern "C" fn seal_pre_commit(
             SectorId::from(sector_id),
             *ticket,
             &public_pieces,
-        ) {
+        )
+        .and_then(|output| serde_json::to_vec(&output).map_err(Into::into));
+
+        match result {
             Ok(output) => {
                 response.status_code = FCPResponseStatus::FCPNoError;
-
-                let mut x = FFISealPreCommitOutput {
-                    registered_proof: output.registered_proof.into(),
-                    comm_r: output.comm_r,
-                    comm_d: output.comm_d,
-                };
-
-                response.seal_pre_commit_output = x;
+                response.seal_pre_commit_phase1_output_ptr = output.as_ptr();
+                response.seal_pre_commit_phase1_output_len = output.len();
+                mem::forget(output);
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
@@ -162,7 +160,7 @@ pub unsafe extern "C" fn seal_pre_commit(
             }
         }
 
-        info!("seal_pre_commit: finish");
+        info!("seal_pre_commit_phase1: finish");
 
         raw_ptr(response)
     })
@@ -171,7 +169,59 @@ pub unsafe extern "C" fn seal_pre_commit(
 /// TODO: document
 ///
 #[no_mangle]
-pub unsafe extern "C" fn seal_commit(
+pub unsafe extern "C" fn seal_pre_commit_phase2(
+    seal_pre_commit_phase1_output_ptr: *const u8,
+    seal_pre_commit_phase1_output_len: libc::size_t,
+    cache_dir_path: *const libc::c_char,
+    sealed_sector_path: *const libc::c_char,
+) -> *mut SealPreCommitPhase2Response {
+    catch_panic_response(|| {
+        init_log();
+
+        info!("seal_pre_commit_phase2: start");
+
+        let mut response: SealPreCommitPhase2Response = Default::default();
+
+        let phase_1_output = serde_json::from_slice(from_raw_parts(
+            seal_pre_commit_phase1_output_ptr,
+            seal_pre_commit_phase1_output_len,
+        ))
+        .map_err(Into::into);
+
+        let result = phase_1_output.and_then(|o| {
+            filecoin_proofs_api::seal::seal_pre_commit_phase2::<PathBuf, PathBuf>(
+                o,
+                c_str_to_pbuf(cache_dir_path),
+                c_str_to_pbuf(sealed_sector_path),
+            )
+        });
+
+        match result {
+            Ok(output) => {
+                response.status_code = FCPResponseStatus::FCPNoError;
+                response.comm_r = output.comm_r;
+                response.comm_d = output.comm_d;
+                response.registered_proof = output.registered_proof.into();
+            }
+            Err(err) => {
+                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+            }
+        }
+
+        info!("seal_pre_commit_phase2: finish");
+
+        raw_ptr(response)
+    })
+}
+
+/// TODO: document
+///
+#[no_mangle]
+pub unsafe extern "C" fn seal_commit_phase1(
+    registered_proof: FFIRegisteredSealProof,
+    comm_r: &[u8; 32],
+    comm_d: &[u8; 32],
     cache_dir_path: *const libc::c_char,
     sector_id: u64,
     prover_id: &[u8; 32],
@@ -179,19 +229,18 @@ pub unsafe extern "C" fn seal_commit(
     seed: &[u8; 32],
     pieces_ptr: *const FFIPublicPieceInfo,
     pieces_len: libc::size_t,
-    spco: FFISealPreCommitOutput,
-) -> *mut SealCommitResponse {
+) -> *mut SealCommitPhase1Response {
     catch_panic_response(|| {
         init_log();
 
-        info!("seal_commit: start");
+        info!("seal_commit_phase1: start");
 
-        let mut response = SealCommitResponse::default();
+        let mut response = SealCommitPhase1Response::default();
 
-        let spco = SealPreCommitOutput {
-            registered_proof: spco.registered_proof.into(),
-            comm_r: spco.comm_r,
-            comm_d: spco.comm_d,
+        let spcp2o = SealPreCommitPhase2Output {
+            registered_proof: registered_proof.into(),
+            comm_r: *comm_r,
+            comm_d: *comm_d,
         };
 
         let public_pieces: Vec<PieceInfo> = from_raw_parts(pieces_ptr, pieces_len)
@@ -200,15 +249,60 @@ pub unsafe extern "C" fn seal_commit(
             .map(Into::into)
             .collect();
 
-        match filecoin_proofs_api::seal::seal_commit(
+        let result = filecoin_proofs_api::seal::seal_commit_phase1(
             c_str_to_pbuf(cache_dir_path),
             *prover_id,
             SectorId::from(sector_id),
             *ticket,
             *seed,
-            spco,
+            spcp2o,
             &public_pieces,
-        ) {
+        );
+
+        match result.and_then(|output| serde_json::to_vec(&output).map_err(Into::into)) {
+            Ok(output) => {
+                response.status_code = FCPResponseStatus::FCPNoError;
+                response.seal_commit_phase1_output_ptr = output.as_ptr();
+                response.seal_commit_phase1_output_len = output.len();
+                mem::forget(output);
+            }
+            Err(err) => {
+                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+            }
+        }
+
+        info!("seal_commit_phase1: finish");
+
+        raw_ptr(response)
+    })
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn seal_commit_phase2(
+    seal_commit_phase1_output_ptr: *const u8,
+    seal_commit_phase1_output_len: libc::size_t,
+    sector_id: u64,
+    prover_id: &[u8; 32],
+) -> *mut SealCommitPhase2Response {
+    catch_panic_response(|| {
+        init_log();
+
+        info!("seal_commit_phase2: start");
+
+        let mut response = SealCommitPhase2Response::default();
+
+        let scp1o = serde_json::from_slice(from_raw_parts(
+            seal_commit_phase1_output_ptr,
+            seal_commit_phase1_output_len,
+        ))
+        .map_err(Into::into);
+
+        let result = scp1o.and_then(|o| {
+            filecoin_proofs_api::seal::seal_commit_phase2(o, *prover_id, SectorId::from(sector_id))
+        });
+
+        match result {
             Ok(output) => {
                 response.status_code = FCPResponseStatus::FCPNoError;
                 response.proof_ptr = output.proof.as_ptr();
@@ -221,7 +315,7 @@ pub unsafe extern "C" fn seal_commit(
             }
         }
 
-        info!("seal_commit: finish");
+        info!("seal_commit_phase2: finish");
 
         raw_ptr(response)
     })
@@ -254,9 +348,7 @@ pub unsafe extern "C" fn unseal(
             *comm_d,
             *ticket,
             UnpaddedByteIndex(0u64),
-            UnpaddedBytesAmount::from(PaddedBytesAmount(u64::from(
-                RegisteredSealProof::from(registered_proof).sector_size(),
-            ))),
+            UnpaddedBytesAmount::from(PaddedBytesAmount(u64::from(registered_proof.sector_size()))),
         );
 
         let mut response = UnsealResponse::default();
@@ -346,7 +438,8 @@ pub unsafe extern "C" fn verify_seal(
 
         info!("verify_seal: start");
 
-        let porep_bytes = super::helpers::try_into_porep_proof_bytes(proof_ptr, proof_len);
+        let porep_bytes =
+            super::helpers::try_into_porep_proof_bytes(registered_proof, proof_ptr, proof_len);
 
         let result = porep_bytes.and_then(|bs| {
             filecoin_proofs_api::seal::verify_seal(
@@ -431,17 +524,19 @@ pub unsafe extern "C" fn verify_post(
 
         let mut response = VerifyPoStResponse::default();
 
-        let convert = super::helpers::to_public_replica_info_map(replicas_ptr, replicas_len);
+        let convert = super::helpers::to_public_replica_info_map(
+            replicas_ptr,
+            replicas_len,
+            flattened_proofs_ptr,
+            flattened_proofs_len,
+            winners_ptr,
+            winners_len,
+        );
 
-        let result = convert.and_then(|map| {
-            let proofs = c_to_rust_post_proofs(
-                registered_proof,
-                flattened_proofs_ptr,
-                flattened_proofs_len,
-            )?;
+        let result = convert.and_then(|(map, proofs)| {
             let winners = c_to_rust_candidates(winners_ptr, winners_len)?;
+
             filecoin_proofs_api::post::verify_post(
-                registered_proof.into(),
                 randomness,
                 challenge_count,
                 &proofs,
@@ -472,6 +567,7 @@ pub unsafe extern "C" fn verify_post(
 #[no_mangle]
 #[cfg(not(target_os = "windows"))]
 pub unsafe extern "C" fn generate_piece_commitment(
+    registered_proof: FFIRegisteredSealProof,
     piece_fd_raw: libc::c_int,
     unpadded_piece_size: u64,
 ) -> *mut GeneratePieceCommitmentResponse {
@@ -484,6 +580,7 @@ pub unsafe extern "C" fn generate_piece_commitment(
 
         let unpadded_piece_size = UnpaddedBytesAmount(unpadded_piece_size);
         let result = filecoin_proofs_api::seal::generate_piece_commitment(
+            registered_proof.into(),
             &mut piece_file,
             unpadded_piece_size,
         );
@@ -665,12 +762,26 @@ pub unsafe extern "C" fn destroy_write_without_alignment_response(
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn destroy_seal_pre_commit_response(ptr: *mut SealPreCommitResponse) {
+pub unsafe extern "C" fn destroy_seal_pre_commit_phase1_response(
+    ptr: *mut SealPreCommitPhase1Response,
+) {
     let _ = Box::from_raw(ptr);
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn destroy_seal_commit_response(ptr: *mut SealCommitResponse) {
+pub unsafe extern "C" fn destroy_seal_pre_commit_phase2_response(
+    ptr: *mut SealPreCommitPhase2Response,
+) {
+    let _ = Box::from_raw(ptr);
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn destroy_seal_commit_phase1_response(ptr: *mut SealCommitPhase1Response) {
+    let _ = Box::from_raw(ptr);
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn destroy_seal_commit_phase2_response(ptr: *mut SealCommitPhase2Response) {
     let _ = Box::from_raw(ptr);
 }
 
@@ -698,6 +809,11 @@ pub unsafe extern "C" fn destroy_generate_data_commitment_response(
     let _ = Box::from_raw(ptr);
 }
 
+#[no_mangle]
+pub unsafe extern "C" fn destroy_string_response(ptr: *mut StringResponse) {
+    let _ = Box::from_raw(ptr);
+}
+
 /// Returns the number of user bytes that will fit into a staged sector.
 ///
 #[no_mangle]
@@ -707,6 +823,174 @@ pub unsafe extern "C" fn get_max_user_bytes_per_staged_sector(
     u64::from(UnpaddedBytesAmount::from(
         RegisteredSealProof::from(registered_proof).sector_size(),
     ))
+}
+
+/// Returns the CID of the Groth parameter file for sealing.
+///
+#[no_mangle]
+pub unsafe extern "C" fn get_seal_params_cid(
+    registered_proof: FFIRegisteredSealProof,
+) -> *mut StringResponse {
+    registered_seal_proof_accessor(registered_proof, RegisteredSealProof::params_cid)
+}
+
+/// Returns the CID of the verifying key-file for verifying a seal proof.
+///
+#[no_mangle]
+pub unsafe extern "C" fn get_seal_verifying_key_cid(
+    registered_proof: FFIRegisteredSealProof,
+) -> *mut StringResponse {
+    registered_seal_proof_accessor(registered_proof, RegisteredSealProof::verifying_key_cid)
+}
+
+/// Returns the path from which the proofs library expects to find the Groth
+/// parameter file used when sealing.
+///
+#[no_mangle]
+pub unsafe extern "C" fn get_seal_params_path(
+    registered_proof: FFIRegisteredSealProof,
+) -> *mut StringResponse {
+    registered_seal_proof_accessor(registered_proof, |p| {
+        p.cache_params_path()
+            .map(|pb| String::from(pb.to_string_lossy()))
+    })
+}
+
+/// Returns the path from which the proofs library expects to find the verifying
+/// key-file used when verifying a seal proof.
+///
+#[no_mangle]
+pub unsafe extern "C" fn get_seal_verifying_key_path(
+    registered_proof: FFIRegisteredSealProof,
+) -> *mut StringResponse {
+    registered_seal_proof_accessor(registered_proof, |p| {
+        p.cache_verifying_key_path()
+            .map(|pb| String::from(pb.to_string_lossy()))
+    })
+}
+
+/// Returns the identity of the circuit for the provided seal proof.
+///
+#[no_mangle]
+pub unsafe extern "C" fn get_seal_circuit_identifier(
+    registered_proof: FFIRegisteredSealProof,
+) -> *mut StringResponse {
+    registered_seal_proof_accessor(registered_proof, RegisteredSealProof::circuit_identifier)
+}
+
+/// Returns the version of the provided seal proof type.
+///
+#[no_mangle]
+pub unsafe extern "C" fn get_seal_version(
+    registered_proof: FFIRegisteredSealProof,
+) -> *mut StringResponse {
+    registered_seal_proof_accessor(registered_proof, |p| Ok(format!("{:?}", p)))
+}
+
+/// Returns the CID of the Groth parameter file for generating a PoSt.
+///
+#[no_mangle]
+pub unsafe extern "C" fn get_post_params_cid(
+    registered_proof: FFIRegisteredPoStProof,
+) -> *mut StringResponse {
+    registered_post_proof_accessor(registered_proof, RegisteredPoStProof::params_cid)
+}
+
+/// Returns the CID of the verifying key-file for verifying a PoSt proof.
+///
+#[no_mangle]
+pub unsafe extern "C" fn get_post_verifying_key_cid(
+    registered_proof: FFIRegisteredPoStProof,
+) -> *mut StringResponse {
+    registered_post_proof_accessor(registered_proof, RegisteredPoStProof::verifying_key_cid)
+}
+
+/// Returns the path from which the proofs library expects to find the Groth
+/// parameter file used when generating a PoSt.
+///
+#[no_mangle]
+pub unsafe extern "C" fn get_post_params_path(
+    registered_proof: FFIRegisteredPoStProof,
+) -> *mut StringResponse {
+    registered_post_proof_accessor(registered_proof, |p| {
+        p.cache_params_path()
+            .map(|pb| String::from(pb.to_string_lossy()))
+    })
+}
+
+/// Returns the path from which the proofs library expects to find the verifying
+/// key-file used when verifying a PoSt proof.
+///
+#[no_mangle]
+pub unsafe extern "C" fn get_post_verifying_key_path(
+    registered_proof: FFIRegisteredPoStProof,
+) -> *mut StringResponse {
+    registered_post_proof_accessor(registered_proof, |p| {
+        p.cache_verifying_key_path()
+            .map(|pb| String::from(pb.to_string_lossy()))
+    })
+}
+
+/// Returns the identity of the circuit for the provided PoSt proof type.
+///
+#[no_mangle]
+pub unsafe extern "C" fn get_post_circuit_identifier(
+    registered_proof: FFIRegisteredPoStProof,
+) -> *mut StringResponse {
+    registered_post_proof_accessor(registered_proof, RegisteredPoStProof::circuit_identifier)
+}
+
+/// Returns the version of the provided seal proof.
+///
+#[no_mangle]
+pub unsafe extern "C" fn get_post_version(
+    registered_proof: FFIRegisteredPoStProof,
+) -> *mut StringResponse {
+    registered_post_proof_accessor(registered_proof, |p| Ok(format!("{:?}", p)))
+}
+
+unsafe fn registered_seal_proof_accessor(
+    registered_proof: FFIRegisteredSealProof,
+    op: fn(RegisteredSealProof) -> anyhow::Result<String>,
+) -> *mut StringResponse {
+    let mut response = StringResponse::default();
+
+    let rsp: RegisteredSealProof = registered_proof.into();
+
+    match op(rsp) {
+        Ok(s) => {
+            response.status_code = FCPResponseStatus::FCPNoError;
+            response.string_val = rust_str_to_c_str(s);
+        }
+        Err(err) => {
+            response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+            response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+        }
+    }
+
+    raw_ptr(response)
+}
+
+unsafe fn registered_post_proof_accessor(
+    registered_proof: FFIRegisteredPoStProof,
+    op: fn(RegisteredPoStProof) -> anyhow::Result<String>,
+) -> *mut StringResponse {
+    let mut response = StringResponse::default();
+
+    let rsp: RegisteredPoStProof = registered_proof.into();
+
+    match op(rsp) {
+        Ok(s) => {
+            response.status_code = FCPResponseStatus::FCPNoError;
+            response.string_val = rust_str_to_c_str(s);
+        }
+        Err(err) => {
+            response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+            response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+        }
+    }
+
+    raw_ptr(response)
 }
 
 /// Deallocates a VerifySealResponse.
@@ -760,9 +1044,12 @@ pub mod tests {
     use rand::{thread_rng, Rng};
 
     use super::*;
+    use std::ffi::CString;
 
     #[test]
     fn test_write_with_and_without_alignment() -> Result<()> {
+        let registered_proof = FFIRegisteredSealProof::StackedDrg1KiBV1;
+
         // write some bytes to a temp file to be used as the byte source
         let mut rng = thread_rng();
         let buf: Vec<u8> = (0..508).map(|_| rng.gen()).collect();
@@ -788,7 +1075,7 @@ pub mod tests {
 
         // write the first file
         unsafe {
-            let resp = write_without_alignment(src_fd_a, 127, dst_fd);
+            let resp = write_without_alignment(registered_proof, src_fd_a, 127, dst_fd);
 
             if (*resp).status_code != FCPResponseStatus::FCPNoError {
                 let msg = c_str_to_rust_str((*resp).error_msg);
@@ -806,8 +1093,14 @@ pub mod tests {
         unsafe {
             let existing = vec![127u64];
 
-            let resp =
-                write_with_alignment(src_fd_b, 508, dst_fd, existing.as_ptr(), existing.len());
+            let resp = write_with_alignment(
+                registered_proof,
+                src_fd_b,
+                508,
+                dst_fd,
+                existing.as_ptr(),
+                existing.len(),
+            );
 
             if (*resp).status_code != FCPResponseStatus::FCPNoError {
                 let msg = c_str_to_rust_str((*resp).error_msg);
@@ -825,18 +1118,91 @@ pub mod tests {
     }
 
     #[test]
+    fn test_proof_types() -> Result<()> {
+        let seal_types = vec![
+            FFIRegisteredSealProof::StackedDrg1KiBV1,
+            FFIRegisteredSealProof::StackedDrg16MiBV1,
+            FFIRegisteredSealProof::StackedDrg256MiBV1,
+            FFIRegisteredSealProof::StackedDrg1GiBV1,
+            FFIRegisteredSealProof::StackedDrg32GiBV1,
+        ];
+
+        let post_types = vec![
+            FFIRegisteredPoStProof::StackedDrg1KiBV1,
+            FFIRegisteredPoStProof::StackedDrg16MiBV1,
+            FFIRegisteredPoStProof::StackedDrg256MiBV1,
+            FFIRegisteredPoStProof::StackedDrg1GiBV1,
+            FFIRegisteredPoStProof::StackedDrg32GiBV1,
+        ];
+
+        let num_ops = (seal_types.len() + post_types.len()) * 6;
+
+        let mut pairs: Vec<(&str, *mut StringResponse)> = Vec::with_capacity(num_ops);
+
+        unsafe {
+            for st in seal_types {
+                pairs.push(("get_seal_params_cid", get_seal_params_cid(st)));
+                pairs.push(("get_seal_verify_key_cid", get_seal_verifying_key_cid(st)));
+                pairs.push(("get_seal_verify_key_cid", get_seal_params_path(st)));
+                pairs.push(("get_seal_verify_key_cid", get_seal_verifying_key_path(st)));
+                pairs.push((
+                    "get_seal_circuit_identifier",
+                    get_seal_circuit_identifier(st),
+                ));
+                pairs.push(("get_seal_version", get_seal_version(st)));
+            }
+
+            for pt in post_types {
+                pairs.push(("get_post_params_cid", get_post_params_cid(pt)));
+                pairs.push(("get_post_verify_key_cid", get_post_verifying_key_cid(pt)));
+                pairs.push(("get_post_params_path", get_post_params_path(pt)));
+                pairs.push((
+                    "get_post_verifying_key_path",
+                    get_post_verifying_key_path(pt),
+                ));
+                pairs.push((
+                    "get_post_circuit_identifier",
+                    get_post_circuit_identifier(pt),
+                ));
+                pairs.push(("get_post_version", get_post_version(pt)));
+            }
+        }
+
+        for (label, r) in pairs {
+            unsafe {
+                assert_eq!(
+                    (*r).status_code,
+                    FCPResponseStatus::FCPNoError,
+                    "non-success exit code from {:?}: {:?}",
+                    label,
+                    c_str_to_rust_str((*r).error_msg)
+                );
+
+                let x = CString::from_raw((*r).string_val as *mut libc::c_char);
+                let y = x.into_string().unwrap_or(String::from(""));
+
+                assert!(y.len() > 0);
+
+                destroy_string_response(r);
+            }
+        }
+
+        Ok(())
+    }
+
+    #[test]
     fn test_sealing() -> Result<()> {
         // miscellaneous setup and shared values
-        let registered_proof = FFIRegisteredSealProof::StackedDrg32GiBV1; // TODO: 1KiB
+        let registered_proof_seal = FFIRegisteredSealProof::StackedDrg1KiBV1;
+        let registered_proof_post = FFIRegisteredPoStProof::StackedDrg1KiBV1;
 
         let cache_dir = tempfile::tempdir()?;
         let cache_dir_path = cache_dir.into_path();
 
-        let challenge_count = 1;
+        let challenge_count = 2;
         let prover_id = [1u8; 32];
         let randomness = [7u8; 32];
         let sector_id = 42;
-        let sector_size = 1024;
         let seed = [5u8; 32];
         let ticket = [6u8; 32];
 
@@ -861,7 +1227,12 @@ pub mod tests {
         let staged_sector_fd = staged_file.into_raw_fd();
 
         unsafe {
-            let resp_a = write_without_alignment(piece_file_fd, 1016, staged_sector_fd);
+            let resp_a = write_without_alignment(
+                registered_proof_seal,
+                piece_file_fd,
+                1016,
+                staged_sector_fd,
+            );
 
             if (*resp_a).status_code != FCPResponseStatus::FCPNoError {
                 let msg = c_str_to_rust_str((*resp_a).error_msg);
@@ -878,8 +1249,8 @@ pub mod tests {
             let sealed_path_c_str = rust_str_to_c_str(sealed_path.to_str().unwrap());
             let unseal_path_c_str = rust_str_to_c_str(unseal_path.to_str().unwrap());
 
-            let resp_b = seal_pre_commit(
-                registered_proof,
+            let resp_b1 = seal_pre_commit_phase1(
+                registered_proof_seal,
                 cache_dir_path_c_str,
                 staged_path_c_str,
                 sealed_path_c_str,
@@ -890,13 +1261,27 @@ pub mod tests {
                 pieces.len(),
             );
 
-            if (*resp_b).status_code != FCPResponseStatus::FCPNoError {
-                let msg = c_str_to_rust_str((*resp_b).error_msg);
-                panic!("seal_pre_commit failed: {:?}", msg);
+            if (*resp_b1).status_code != FCPResponseStatus::FCPNoError {
+                let msg = c_str_to_rust_str((*resp_b1).error_msg);
+                panic!("seal_pre_commit_phase1 failed: {:?}", msg);
             }
 
-            let resp_c = seal_commit(
-                registered_proof,
+            let resp_b2 = seal_pre_commit_phase2(
+                (*resp_b1).seal_pre_commit_phase1_output_ptr,
+                (*resp_b1).seal_pre_commit_phase1_output_len,
+                cache_dir_path_c_str,
+                sealed_path_c_str,
+            );
+
+            if (*resp_b2).status_code != FCPResponseStatus::FCPNoError {
+                let msg = c_str_to_rust_str((*resp_b2).error_msg);
+                panic!("seal_pre_commit_phase2 failed: {:?}", msg);
+            }
+
+            let resp_c1 = seal_commit_phase1(
+                registered_proof_seal,
+                &(*resp_b2).comm_r,
+                &(*resp_b2).comm_d,
                 cache_dir_path_c_str,
                 sector_id,
                 &prover_id,
@@ -904,24 +1289,35 @@ pub mod tests {
                 &seed,
                 pieces.as_ptr(),
                 pieces.len(),
-                (*(resp_b)).seal_pre_commit_output,
             );
 
-            if (*resp_c).status_code != FCPResponseStatus::FCPNoError {
-                let msg = c_str_to_rust_str((*resp_c).error_msg);
-                panic!("seal_commit failed: {:?}", msg);
+            if (*resp_c1).status_code != FCPResponseStatus::FCPNoError {
+                let msg = c_str_to_rust_str((*resp_c1).error_msg);
+                panic!("seal_commit_phase1 failed: {:?}", msg);
+            }
+
+            let resp_c2 = seal_commit_phase2(
+                (*resp_c1).seal_commit_phase1_output_ptr,
+                (*resp_c1).seal_commit_phase1_output_len,
+                sector_id,
+                &prover_id,
+            );
+
+            if (*resp_c2).status_code != FCPResponseStatus::FCPNoError {
+                let msg = c_str_to_rust_str((*resp_c2).error_msg);
+                panic!("seal_commit_phase2 failed: {:?}", msg);
             }
 
             let resp_d = verify_seal(
-                sector_size,
-                &(*resp_b).seal_pre_commit_output.comm_r,
-                &(*resp_b).seal_pre_commit_output.comm_d,
+                registered_proof_seal,
+                &(*resp_b2).comm_r,
+                &(*resp_b2).comm_d,
                 &prover_id,
                 &ticket,
                 &seed,
                 sector_id,
-                (*resp_c).proof_ptr,
-                (*resp_c).proof_len,
+                (*resp_c2).proof_ptr,
+                (*resp_c2).proof_len,
             );
 
             if (*resp_d).status_code != FCPResponseStatus::FCPNoError {
@@ -932,14 +1328,14 @@ pub mod tests {
             assert!((*resp_d).is_valid, "proof was not valid");
 
             let resp_e = unseal(
-                registered_proof,
+                registered_proof_seal,
                 cache_dir_path_c_str,
                 sealed_path_c_str,
                 unseal_path_c_str,
                 sector_id,
                 &prover_id,
                 &ticket,
-                &(*resp_b).seal_pre_commit_output.comm_d,
+                &(*resp_b2).comm_d,
             );
 
             if (*resp_e).status_code != FCPResponseStatus::FCPNoError {
@@ -960,14 +1356,14 @@ pub mod tests {
             // generate a PoSt
 
             let private_replicas = vec![FFIPrivateReplicaInfo {
+                registered_proof: registered_proof_post,
                 cache_dir_path: cache_dir_path_c_str,
-                comm_r: (*resp_b).seal_pre_commit_output.comm_r,
+                comm_r: (*resp_b2).comm_r,
                 replica_path: sealed_path_c_str,
                 sector_id,
             }];
 
             let resp_f = generate_candidates(
-                sector_size,
                 &randomness,
                 challenge_count,
                 private_replicas.as_ptr(),
@@ -994,7 +1390,6 @@ pub mod tests {
             }
 
             let resp_h = generate_post(
-                sector_size,
                 &randomness,
                 private_replicas.as_ptr(),
                 private_replicas.len(),
@@ -1007,15 +1402,17 @@ pub mod tests {
                 let msg = c_str_to_rust_str((*resp_h).error_msg);
                 panic!("generate_post failed: {:?}", msg);
             }
+            let public_replicas = vec![FFIPublicReplicaInfo {
+                registered_proof: registered_proof_post,
+                sector_id,
+                comm_r: (*resp_b2).comm_r,
+            }];
 
             let resp_i = verify_post(
-                sector_size,
                 &randomness,
                 challenge_count,
-                &sector_id as *const u64,
-                1,
-                &(*resp_b).seal_pre_commit_output.comm_r[0],
-                32,
+                public_replicas.as_ptr(),
+                public_replicas.len(),
                 (*resp_h).flattened_proofs_ptr,
                 (*resp_h).flattened_proofs_len,
                 (*resp_f).candidates_ptr,
@@ -1033,8 +1430,10 @@ pub mod tests {
             }
 
             destroy_write_without_alignment_response(resp_a);
-            destroy_seal_pre_commit_response(resp_b);
-            destroy_seal_commit_response(resp_c);
+            destroy_seal_pre_commit_phase1_response(resp_b1);
+            destroy_seal_pre_commit_phase2_response(resp_b2);
+            destroy_seal_commit_phase1_response(resp_c1);
+            destroy_seal_commit_phase2_response(resp_c2);
             destroy_verify_seal_response(resp_d);
             destroy_unseal_response(resp_e);
             destroy_generate_candidates_response(resp_f);

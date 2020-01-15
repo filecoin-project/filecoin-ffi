@@ -3,8 +3,10 @@ package ffi
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/filecoin-project/specs-actors/actors/abi"
 	"sort"
+
+	"github.com/filecoin-project/specs-actors/actors/abi"
+	"github.com/ipfs/go-cid"
 )
 
 // BLS
@@ -39,20 +41,20 @@ type Digest [DigestBytes]byte
 // Proofs
 
 // SortedPublicSectorInfo is a slice of PublicSectorInfo sorted
-// (lexicographically, ascending) by replica commitment (CommR).
+// (lexicographically, ascending) by sealed (replica) CID.
 type SortedPublicSectorInfo struct {
 	f []PublicSectorInfo
 }
 
 // SortedPrivateSectorInfo is a slice of PrivateSectorInfo sorted
-// (lexicographically, ascending) by replica commitment (CommR).
+// (lexicographically, ascending) by sealed (replica) CID.
 type SortedPrivateSectorInfo struct {
 	f []PrivateSectorInfo
 }
 
 func NewSortedPublicSectorInfo(sectorInfo ...PublicSectorInfo) SortedPublicSectorInfo {
 	fn := func(i, j int) bool {
-		return bytes.Compare(sectorInfo[i].CommR[:], sectorInfo[j].CommR[:]) == -1
+		return bytes.Compare(sectorInfo[i].SealedCID.Bytes(), sectorInfo[j].SealedCID.Bytes()) == -1
 	}
 
 	sort.Slice(sectorInfo[:], fn)
@@ -84,7 +86,7 @@ func (s *SortedPublicSectorInfo) UnmarshalJSON(b []byte) error {
 // NewSortedPrivateSectorInfo returns a SortedPrivateSectorInfo
 func NewSortedPrivateSectorInfo(sectorInfo ...PrivateSectorInfo) SortedPrivateSectorInfo {
 	fn := func(i, j int) bool {
-		return bytes.Compare(sectorInfo[i].CommR[:], sectorInfo[j].CommR[:]) == -1
+		return bytes.Compare(sectorInfo[i].SealedCID.Bytes(), sectorInfo[j].SealedCID.Bytes()) == -1
 	}
 
 	sort.Slice(sectorInfo[:], fn)
@@ -108,49 +110,24 @@ func (s *SortedPrivateSectorInfo) UnmarshalJSON(b []byte) error {
 	return json.Unmarshal(b, &s.f)
 }
 
-// SealTicket is required for the first step of Interactive PoRep.
-type SealTicket struct {
-	BlockHeight uint64
-	TicketBytes [32]byte
-}
-
-// SealSeed is required for the second step of Interactive PoRep.
-type SealSeed struct {
-	BlockHeight uint64
-	TicketBytes [32]byte
-}
-
-type Candidate struct {
-	SectorNum            abi.SectorNumber
-	PartialTicket        [32]byte
-	Ticket               [32]byte
-	SectorChallengeIndex uint64
-}
-
 type PublicSectorInfo struct {
-	SectorNum abi.SectorNumber
-	CommR     [CommitmentBytesLen]byte
+	PoStProofType abi.RegisteredProof
+	SealedCID     cid.Cid
+	SectorNum     abi.SectorNumber
 }
 
 type PrivateSectorInfo struct {
-	SectorNum        abi.SectorNumber
-	CommR            [CommitmentBytesLen]byte
 	CacheDirPath     string
+	PoStProofType    abi.RegisteredProof
+	SealedCID        cid.Cid
 	SealedSectorPath string
+	SectorNum        abi.SectorNumber
 }
 
 // CommitmentBytesLen is the number of bytes in a CommR, CommD, CommP, and CommRStar.
 const CommitmentBytesLen = 32
 
-// RawSealPreCommitOutput is used to acquire a seed from the chain for the
-// second step of Interactive PoRep.
-type RawSealPreCommitOutput struct {
-	CommD [CommitmentBytesLen]byte
-	CommR [CommitmentBytesLen]byte
-}
-
-// PublicPieceInfo is an on-chain tuple of CommP and aligned piece-size.
-type PublicPieceInfo struct {
-	Size  abi.UnpaddedPieceSize
-	CommP [CommitmentBytesLen]byte
+type PoStCandidateWithTicket struct {
+	Candidate abi.PoStCandidate
+	Ticket    [32]byte
 }
