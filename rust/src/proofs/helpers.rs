@@ -5,18 +5,20 @@ use anyhow::Result;
 use ffi_toolkit::{c_str_to_pbuf, c_str_to_rust_str};
 use filecoin_proofs_api::fr32::fr_into_bytes;
 use filecoin_proofs_api::{
-    Candidate, PrivateReplicaInfo, PublicReplicaInfo, RegisteredSealProof, SectorId,
+    Candidate, PrivateReplicaInfo, PublicReplicaInfo, RegisteredPoStProof, RegisteredSealProof,
+    SectorId,
 };
 use libc;
 use paired::bls12_381::{Bls12, Fr};
 
 use super::types::{
-    FFICandidate, FFIPrivateReplicaInfo, FFIPublicReplicaInfo, FFIRegisteredSealProof,
+    FFICandidate, FFIPrivateReplicaInfo, FFIPublicReplicaInfo, FFIRegisteredPoStProof,
+    FFIRegisteredSealProof,
 };
 
 #[derive(Debug, Clone)]
 struct PublicReplicaInfoTmp {
-    pub registered_proof: FFIRegisteredSealProof,
+    pub registered_proof: FFIRegisteredPoStProof,
     pub comm_r: [u8; 32],
     pub sector_id: u64,
 }
@@ -29,19 +31,35 @@ struct PublicReplicaInfoTmp {
 pub unsafe fn to_public_replica_info_map(
     replicas_ptr: *const FFIPublicReplicaInfo,
     replicas_len: libc::size_t,
-) -> Result<BTreeMap<SectorId, PublicReplicaInfo>> {
+    flattened_proofs_ptr: *const u8,
+    flattened_proofs_len: libc::size_t,
+) -> Result<(BTreeMap<SectorId, PublicReplicaInfo>, Vec<Vec<u8>>)> {
     use rayon::prelude::*;
 
     ensure!(!replicas_ptr.is_null(), "replicas_ptr must not be null");
+    ensure!(
+        !flattened_proofs_ptr.is_null(),
+        "flattened_proof_ptr must not be null"
+    );
 
-    let replicas: Vec<_> = from_raw_parts(replicas_ptr, replicas_len)
-        .iter()
-        .map(|ffi_info| PublicReplicaInfoTmp {
+    let proofs_slice = from_raw_parts(flattened_proofs_ptr, flattened_proofs_len);
+    let mut proofs_index = 0;
+
+    let mut replicas = Vec::new();
+    let mut proofs = Vec::new();
+
+    for ffi_info in from_raw_parts(replicas_ptr, replicas_len) {
+        replicas.push(PublicReplicaInfoTmp {
             sector_id: ffi_info.sector_id,
             registered_proof: ffi_info.registered_proof,
             comm_r: ffi_info.comm_r,
-        })
-        .collect();
+        });
+
+        let proof_len =
+            RegisteredPoStProof::from(ffi_info.registered_proof).single_partition_proof_len();
+        proofs.push(proofs_slice[proofs_index..proofs_index + proof_len].to_vec());
+        proofs_index += proof_len;
+    }
 
     let map = replicas
         .into_par_iter()
@@ -59,43 +77,23 @@ pub unsafe fn to_public_replica_info_map(
         })
         .collect();
 
-    Ok(map)
+    Ok((map, proofs))
 }
 
 /// Copy the provided dynamic array's bytes into a vector and return the vector.
 pub unsafe fn try_into_porep_proof_bytes(
+    registered_proof: FFIRegisteredSealProof,
     proof_ptr: *const u8,
     proof_len: libc::size_t,
 ) -> Result<Vec<u8>> {
-    into_proof_vecs(proof_len, proof_ptr, proof_len)?
-        .first()
-        .map(Vec::clone)
-        .ok_or_else(|| format_err!("no proofs in chunked vec"))
-}
-
-/// Splits the flattened, dynamic array of CommR bytes into a vector of
-/// 32-element byte arrays and returns the vector. Each byte array's
-/// little-endian value represents an Fr.
-///
-pub unsafe fn into_commitments(
-    flattened_comms_ptr: *const u8,
-    flattened_comms_len: libc::size_t,
-) -> Vec<[u8; 32]> {
-    from_raw_parts(flattened_comms_ptr, flattened_comms_len)
-        .iter()
-        .step_by(32)
-        .fold(Default::default(), |mut acc: Vec<[u8; 32]>, item| {
-            let sliced = from_raw_parts(item, 32);
-            let mut x: [u8; 32] = Default::default();
-            x.copy_from_slice(&sliced[..32]);
-            acc.push(x);
-            acc
-        })
-}
-
-/// Return the expected number of partitions for
-pub fn get_porep_proof_partitions(registered_proof: RegisteredSealProof) -> u8 {
-    registered_proof.partitions()
+    into_proof_vecs(
+        RegisteredSealProof::from(registered_proof).single_partition_proof_len(),
+        proof_ptr,
+        proof_len,
+    )?
+    .first()
+    .map(Vec::clone)
+    .ok_or_else(|| format_err!("no proofs in chunked vec"))
 }
 
 unsafe fn into_proof_vecs(
@@ -131,7 +129,7 @@ pub fn bls_12_fr_into_bytes(fr: Fr) -> [u8; 32] {
 
 #[derive(Debug, Clone)]
 struct PrivateReplicaInfoTmp {
-    pub registered_proof: FFIRegisteredSealProof,
+    pub registered_proof: FFIRegisteredPoStProof,
     pub cache_dir_path: std::path::PathBuf,
     pub comm_r: [u8; 32],
     pub replica_path: String,
@@ -199,20 +197,4 @@ pub unsafe fn c_to_rust_candidates(
         .cloned()
         .map(|c| c.try_into_candidate().map_err(Into::into))
         .collect()
-}
-
-pub unsafe fn c_to_rust_seal_proofs(
-    registered_proof: FFIRegisteredSealProof,
-    flattened_proofs_ptr: *const u8,
-    flattened_proofs_len: libc::size_t,
-) -> Result<Vec<Vec<u8>>> {
-    ensure!(
-        !flattened_proofs_ptr.is_null(),
-        "flattened_proof_ptr must not be null"
-    );
-
-    Ok(from_raw_parts(flattened_proofs_ptr, flattened_proofs_len)
-        .chunks(RegisteredSealProof::from(registered_proof).single_partition_len())
-        .map(Into::into)
-        .collect::<Vec<Vec<u8>>>())
 }

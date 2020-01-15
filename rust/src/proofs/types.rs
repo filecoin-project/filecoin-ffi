@@ -48,12 +48,20 @@ impl std::io::Seek for FileDescriptorRef {
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub enum FFIRegisteredSealProof {
+    StackedDrg1KiBV1,
+    StackedDrg16MiBV1,
+    StackedDrg256MiBV1,
+    StackedDrg1GiBV1,
     StackedDrg32GiBV1,
 }
 
 impl From<RegisteredSealProof> for FFIRegisteredSealProof {
     fn from(other: RegisteredSealProof) -> Self {
         match other {
+            RegisteredSealProof::StackedDrg1KiBV1 => FFIRegisteredSealProof::StackedDrg1KiBV1,
+            RegisteredSealProof::StackedDrg16MiBV1 => FFIRegisteredSealProof::StackedDrg16MiBV1,
+            RegisteredSealProof::StackedDrg256MiBV1 => FFIRegisteredSealProof::StackedDrg256MiBV1,
+            RegisteredSealProof::StackedDrg1GiBV1 => FFIRegisteredSealProof::StackedDrg1GiBV1,
             RegisteredSealProof::StackedDrg32GiBV1 => FFIRegisteredSealProof::StackedDrg32GiBV1,
         }
     }
@@ -62,6 +70,10 @@ impl From<RegisteredSealProof> for FFIRegisteredSealProof {
 impl From<FFIRegisteredSealProof> for RegisteredSealProof {
     fn from(other: FFIRegisteredSealProof) -> Self {
         match other {
+            FFIRegisteredSealProof::StackedDrg1KiBV1 => RegisteredSealProof::StackedDrg1KiBV1,
+            FFIRegisteredSealProof::StackedDrg16MiBV1 => RegisteredSealProof::StackedDrg16MiBV1,
+            FFIRegisteredSealProof::StackedDrg256MiBV1 => RegisteredSealProof::StackedDrg256MiBV1,
+            FFIRegisteredSealProof::StackedDrg1GiBV1 => RegisteredSealProof::StackedDrg1GiBV1,
             FFIRegisteredSealProof::StackedDrg32GiBV1 => RegisteredSealProof::StackedDrg32GiBV1,
         }
     }
@@ -70,12 +82,20 @@ impl From<FFIRegisteredSealProof> for RegisteredSealProof {
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub enum FFIRegisteredPoStProof {
+    StackedDrg1KiBV1,
+    StackedDrg16MiBV1,
+    StackedDrg256MiBV1,
+    StackedDrg1GiBV1,
     StackedDrg32GiBV1,
 }
 
 impl From<RegisteredPoStProof> for FFIRegisteredPoStProof {
     fn from(other: RegisteredPoStProof) -> Self {
         match other {
+            RegisteredPoStProof::StackedDrg1KiBV1 => FFIRegisteredPoStProof::StackedDrg1KiBV1,
+            RegisteredPoStProof::StackedDrg16MiBV1 => FFIRegisteredPoStProof::StackedDrg16MiBV1,
+            RegisteredPoStProof::StackedDrg256MiBV1 => FFIRegisteredPoStProof::StackedDrg256MiBV1,
+            RegisteredPoStProof::StackedDrg1GiBV1 => FFIRegisteredPoStProof::StackedDrg1GiBV1,
             RegisteredPoStProof::StackedDrg32GiBV1 => FFIRegisteredPoStProof::StackedDrg32GiBV1,
         }
     }
@@ -84,6 +104,10 @@ impl From<RegisteredPoStProof> for FFIRegisteredPoStProof {
 impl From<FFIRegisteredPoStProof> for RegisteredPoStProof {
     fn from(other: FFIRegisteredPoStProof) -> Self {
         match other {
+            FFIRegisteredPoStProof::StackedDrg1KiBV1 => RegisteredPoStProof::StackedDrg1KiBV1,
+            FFIRegisteredPoStProof::StackedDrg16MiBV1 => RegisteredPoStProof::StackedDrg16MiBV1,
+            FFIRegisteredPoStProof::StackedDrg256MiBV1 => RegisteredPoStProof::StackedDrg256MiBV1,
+            FFIRegisteredPoStProof::StackedDrg1GiBV1 => RegisteredPoStProof::StackedDrg1GiBV1,
             FFIRegisteredPoStProof::StackedDrg32GiBV1 => RegisteredPoStProof::StackedDrg32GiBV1,
         }
     }
@@ -145,7 +169,7 @@ impl FFICandidate {
 #[repr(C)]
 #[derive(Clone)]
 pub struct FFIPrivateReplicaInfo {
-    pub registered_proof: FFIRegisteredSealProof,
+    pub registered_proof: FFIRegisteredPoStProof,
     pub cache_dir_path: *const libc::c_char,
     pub comm_r: [u8; 32],
     pub replica_path: *const libc::c_char,
@@ -155,7 +179,7 @@ pub struct FFIPrivateReplicaInfo {
 #[repr(C)]
 #[derive(Clone)]
 pub struct FFIPublicReplicaInfo {
-    pub registered_proof: FFIRegisteredSealProof,
+    pub registered_proof: FFIRegisteredPoStProof,
     pub comm_r: [u8; 32],
     pub sector_id: u64,
 }
@@ -255,14 +279,14 @@ code_and_message_impl!(WriteWithoutAlignmentResponse);
 pub struct SealPreCommitResponse {
     pub error_msg: *const libc::c_char,
     pub status_code: FCPResponseStatus,
-    pub seal_pre_commit_output: FFISealPreCommitOutput,
+    pub seal_pre_commit_output: Option<FFISealPreCommitOutput>,
 }
 
 impl Default for SealPreCommitResponse {
     fn default() -> SealPreCommitResponse {
         SealPreCommitResponse {
             error_msg: ptr::null(),
-            seal_pre_commit_output: Default::default(),
+            seal_pre_commit_output: None,
             status_code: FCPResponseStatus::FCPNoError,
         }
     }

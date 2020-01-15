@@ -11,9 +11,7 @@ use filecoin_proofs_api::{
 };
 use libc;
 
-use super::helpers::{
-    bls_12_fr_into_bytes, c_to_rust_candidates, c_to_rust_seal_proofs, to_private_replica_info_map,
-};
+use super::helpers::{bls_12_fr_into_bytes, c_to_rust_candidates, to_private_replica_info_map};
 use super::types::*;
 
 /// TODO: document
@@ -127,13 +125,13 @@ pub unsafe extern "C" fn seal_pre_commit(
 
         info!("seal_pre_commit: start");
 
-        let mut response = SealPreCommitResponse::default();
-
         let public_pieces: Vec<PieceInfo> = from_raw_parts(pieces_ptr, pieces_len)
             .iter()
             .cloned()
             .map(Into::into)
             .collect();
+
+        let mut response: SealPreCommitResponse = Default::default();
 
         match filecoin_proofs_api::seal::seal_pre_commit(
             registered_proof.into(),
@@ -148,13 +146,13 @@ pub unsafe extern "C" fn seal_pre_commit(
             Ok(output) => {
                 response.status_code = FCPResponseStatus::FCPNoError;
 
-                let mut x = FFISealPreCommitOutput {
+                let x = FFISealPreCommitOutput {
                     registered_proof: output.registered_proof.into(),
                     comm_r: output.comm_r,
                     comm_d: output.comm_d,
                 };
 
-                response.seal_pre_commit_output = x;
+                response.seal_pre_commit_output = Some(x);
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
@@ -346,7 +344,8 @@ pub unsafe extern "C" fn verify_seal(
 
         info!("verify_seal: start");
 
-        let porep_bytes = super::helpers::try_into_porep_proof_bytes(proof_ptr, proof_len);
+        let porep_bytes =
+            super::helpers::try_into_porep_proof_bytes(registered_proof, proof_ptr, proof_len);
 
         let result = porep_bytes.and_then(|bs| {
             filecoin_proofs_api::seal::verify_seal(
@@ -431,17 +430,17 @@ pub unsafe extern "C" fn verify_post(
 
         let mut response = VerifyPoStResponse::default();
 
-        let convert = super::helpers::to_public_replica_info_map(replicas_ptr, replicas_len);
+        let convert = super::helpers::to_public_replica_info_map(
+            replicas_ptr,
+            replicas_len,
+            flattened_proofs_ptr,
+            flattened_proofs_len,
+        );
 
-        let result = convert.and_then(|map| {
-            let proofs = c_to_rust_post_proofs(
-                registered_proof,
-                flattened_proofs_ptr,
-                flattened_proofs_len,
-            )?;
+        let result = convert.and_then(|(map, proofs)| {
             let winners = c_to_rust_candidates(winners_ptr, winners_len)?;
+
             filecoin_proofs_api::post::verify_post(
-                registered_proof.into(),
                 randomness,
                 challenge_count,
                 &proofs,
@@ -472,6 +471,7 @@ pub unsafe extern "C" fn verify_post(
 #[no_mangle]
 #[cfg(not(target_os = "windows"))]
 pub unsafe extern "C" fn generate_piece_commitment(
+    registered_proof: FFIRegisteredSealProof,
     piece_fd_raw: libc::c_int,
     unpadded_piece_size: u64,
 ) -> *mut GeneratePieceCommitmentResponse {
@@ -484,6 +484,7 @@ pub unsafe extern "C" fn generate_piece_commitment(
 
         let unpadded_piece_size = UnpaddedBytesAmount(unpadded_piece_size);
         let result = filecoin_proofs_api::seal::generate_piece_commitment(
+            registered_proof.into(),
             &mut piece_file,
             unpadded_piece_size,
         );
@@ -763,6 +764,8 @@ pub mod tests {
 
     #[test]
     fn test_write_with_and_without_alignment() -> Result<()> {
+        let registered_proof = FFIRegisteredSealProof::StackedDrg1KiBV1;
+
         // write some bytes to a temp file to be used as the byte source
         let mut rng = thread_rng();
         let buf: Vec<u8> = (0..508).map(|_| rng.gen()).collect();
@@ -788,7 +791,7 @@ pub mod tests {
 
         // write the first file
         unsafe {
-            let resp = write_without_alignment(src_fd_a, 127, dst_fd);
+            let resp = write_without_alignment(registered_proof, src_fd_a, 127, dst_fd);
 
             if (*resp).status_code != FCPResponseStatus::FCPNoError {
                 let msg = c_str_to_rust_str((*resp).error_msg);
@@ -806,8 +809,14 @@ pub mod tests {
         unsafe {
             let existing = vec![127u64];
 
-            let resp =
-                write_with_alignment(src_fd_b, 508, dst_fd, existing.as_ptr(), existing.len());
+            let resp = write_with_alignment(
+                registered_proof,
+                src_fd_b,
+                508,
+                dst_fd,
+                existing.as_ptr(),
+                existing.len(),
+            );
 
             if (*resp).status_code != FCPResponseStatus::FCPNoError {
                 let msg = c_str_to_rust_str((*resp).error_msg);
@@ -827,7 +836,8 @@ pub mod tests {
     #[test]
     fn test_sealing() -> Result<()> {
         // miscellaneous setup and shared values
-        let registered_proof = FFIRegisteredSealProof::StackedDrg32GiBV1; // TODO: 1KiB
+        let registered_proof_seal = FFIRegisteredSealProof::StackedDrg1KiBV1;
+        let registered_proof_post = FFIRegisteredPoStProof::StackedDrg1KiBV1;
 
         let cache_dir = tempfile::tempdir()?;
         let cache_dir_path = cache_dir.into_path();
@@ -836,7 +846,6 @@ pub mod tests {
         let prover_id = [1u8; 32];
         let randomness = [7u8; 32];
         let sector_id = 42;
-        let sector_size = 1024;
         let seed = [5u8; 32];
         let ticket = [6u8; 32];
 
@@ -861,7 +870,12 @@ pub mod tests {
         let staged_sector_fd = staged_file.into_raw_fd();
 
         unsafe {
-            let resp_a = write_without_alignment(piece_file_fd, 1016, staged_sector_fd);
+            let resp_a = write_without_alignment(
+                registered_proof_seal,
+                piece_file_fd,
+                1016,
+                staged_sector_fd,
+            );
 
             if (*resp_a).status_code != FCPResponseStatus::FCPNoError {
                 let msg = c_str_to_rust_str((*resp_a).error_msg);
@@ -879,7 +893,7 @@ pub mod tests {
             let unseal_path_c_str = rust_str_to_c_str(unseal_path.to_str().unwrap());
 
             let resp_b = seal_pre_commit(
-                registered_proof,
+                registered_proof_seal,
                 cache_dir_path_c_str,
                 staged_path_c_str,
                 sealed_path_c_str,
@@ -896,7 +910,6 @@ pub mod tests {
             }
 
             let resp_c = seal_commit(
-                registered_proof,
                 cache_dir_path_c_str,
                 sector_id,
                 &prover_id,
@@ -904,7 +917,9 @@ pub mod tests {
                 &seed,
                 pieces.as_ptr(),
                 pieces.len(),
-                (*(resp_b)).seal_pre_commit_output,
+                (*(resp_b))
+                    .seal_pre_commit_output
+                    .expect("missing pre_commit_output"),
             );
 
             if (*resp_c).status_code != FCPResponseStatus::FCPNoError {
@@ -913,9 +928,9 @@ pub mod tests {
             }
 
             let resp_d = verify_seal(
-                sector_size,
-                &(*resp_b).seal_pre_commit_output.comm_r,
-                &(*resp_b).seal_pre_commit_output.comm_d,
+                registered_proof_seal,
+                &(*resp_b).seal_pre_commit_output.as_ref().unwrap().comm_r,
+                &(*resp_b).seal_pre_commit_output.as_ref().unwrap().comm_d,
                 &prover_id,
                 &ticket,
                 &seed,
@@ -932,14 +947,14 @@ pub mod tests {
             assert!((*resp_d).is_valid, "proof was not valid");
 
             let resp_e = unseal(
-                registered_proof,
+                registered_proof_seal,
                 cache_dir_path_c_str,
                 sealed_path_c_str,
                 unseal_path_c_str,
                 sector_id,
                 &prover_id,
                 &ticket,
-                &(*resp_b).seal_pre_commit_output.comm_d,
+                &(*resp_b).seal_pre_commit_output.as_ref().unwrap().comm_d,
             );
 
             if (*resp_e).status_code != FCPResponseStatus::FCPNoError {
@@ -960,14 +975,14 @@ pub mod tests {
             // generate a PoSt
 
             let private_replicas = vec![FFIPrivateReplicaInfo {
+                registered_proof: registered_proof_post,
                 cache_dir_path: cache_dir_path_c_str,
-                comm_r: (*resp_b).seal_pre_commit_output.comm_r,
+                comm_r: (*resp_b).seal_pre_commit_output.as_ref().unwrap().comm_r,
                 replica_path: sealed_path_c_str,
                 sector_id,
             }];
 
             let resp_f = generate_candidates(
-                sector_size,
                 &randomness,
                 challenge_count,
                 private_replicas.as_ptr(),
@@ -994,7 +1009,6 @@ pub mod tests {
             }
 
             let resp_h = generate_post(
-                sector_size,
                 &randomness,
                 private_replicas.as_ptr(),
                 private_replicas.len(),
@@ -1007,15 +1021,17 @@ pub mod tests {
                 let msg = c_str_to_rust_str((*resp_h).error_msg);
                 panic!("generate_post failed: {:?}", msg);
             }
+            let public_replicas = vec![FFIPublicReplicaInfo {
+                registered_proof: registered_proof_post,
+                sector_id,
+                comm_r: (*resp_b).seal_pre_commit_output.as_ref().unwrap().comm_r,
+            }];
 
             let resp_i = verify_post(
-                sector_size,
                 &randomness,
                 challenge_count,
-                &sector_id as *const u64,
-                1,
-                &(*resp_b).seal_pre_commit_output.comm_r[0],
-                32,
+                public_replicas.as_ptr(),
+                public_replicas.len(),
                 (*resp_h).flattened_proofs_ptr,
                 (*resp_h).flattened_proofs_len,
                 (*resp_f).candidates_ptr,
