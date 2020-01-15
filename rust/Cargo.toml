@@ -13,12 +13,12 @@ publish = false
 crate-type = ["rlib", "staticlib"]
 
 [dependencies]
-filecoin-proofs = { git = "https://github.com/filecoin-project/rust-fil-proofs.git", branch = "master" }
-storage-proofs = { git = "https://github.com/filecoin-project/rust-fil-proofs.git", branch = "master" }
+filecoin-proofs = { git = "https://github.com/filecoin-project/rust-fil-proofs.git", branch = "feat/parallel-validation" }
+storage-proofs = { git = "https://github.com/filecoin-project/rust-fil-proofs.git", branch = "feat/parallel-validation" }
 bls-signatures = { git = "https://github.com/filecoin-project/bls-signatures.git", branch = "master" }
 byteorder = "1.2"
 drop_struct_macro_derive = "0.4.0"
-ff = "0.5"
+ff = "=0.5.0"
 ffi-toolkit = "0.4.0"
 libc = "0.2.58"
 log = "0.4.7"
