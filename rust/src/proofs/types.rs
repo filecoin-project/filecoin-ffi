@@ -121,6 +121,16 @@ pub struct FFISealPreCommitOutput {
     pub comm_r: [u8; 32],
 }
 
+impl Default for FFISealPreCommitOutput {
+    fn default() -> Self {
+        FFISealPreCommitOutput {
+            registered_proof: FFIRegisteredSealProof::StackedDrg32GiBV1,
+            comm_d: [0u8; 32],
+            comm_r: [0u8; 32],
+        }
+    }
+}
+
 #[repr(C)]
 #[derive(Clone)]
 pub struct FFIPublicPieceInfo {
@@ -279,14 +289,14 @@ code_and_message_impl!(WriteWithoutAlignmentResponse);
 pub struct SealPreCommitResponse {
     pub error_msg: *const libc::c_char,
     pub status_code: FCPResponseStatus,
-    pub seal_pre_commit_output: Option<FFISealPreCommitOutput>,
+    pub seal_pre_commit_output: FFISealPreCommitOutput,
 }
 
 impl Default for SealPreCommitResponse {
     fn default() -> SealPreCommitResponse {
         SealPreCommitResponse {
             error_msg: ptr::null(),
-            seal_pre_commit_output: None,
+            seal_pre_commit_output: Default::default(),
             status_code: FCPResponseStatus::FCPNoError,
         }
     }

@@ -146,13 +146,11 @@ pub unsafe extern "C" fn seal_pre_commit(
             Ok(output) => {
                 response.status_code = FCPResponseStatus::FCPNoError;
 
-                let x = FFISealPreCommitOutput {
+                response.seal_pre_commit_output = FFISealPreCommitOutput {
                     registered_proof: output.registered_proof.into(),
                     comm_r: output.comm_r,
                     comm_d: output.comm_d,
                 };
-
-                response.seal_pre_commit_output = Some(x);
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
@@ -917,9 +915,7 @@ pub mod tests {
                 &seed,
                 pieces.as_ptr(),
                 pieces.len(),
-                (*(resp_b))
-                    .seal_pre_commit_output
-                    .expect("missing pre_commit_output"),
+                (*(resp_b)).seal_pre_commit_output,
             );
 
             if (*resp_c).status_code != FCPResponseStatus::FCPNoError {
@@ -929,8 +925,8 @@ pub mod tests {
 
             let resp_d = verify_seal(
                 registered_proof_seal,
-                &(*resp_b).seal_pre_commit_output.as_ref().unwrap().comm_r,
-                &(*resp_b).seal_pre_commit_output.as_ref().unwrap().comm_d,
+                &(*resp_b).seal_pre_commit_output.comm_r,
+                &(*resp_b).seal_pre_commit_output.comm_d,
                 &prover_id,
                 &ticket,
                 &seed,
@@ -954,7 +950,7 @@ pub mod tests {
                 sector_id,
                 &prover_id,
                 &ticket,
-                &(*resp_b).seal_pre_commit_output.as_ref().unwrap().comm_d,
+                &(*resp_b).seal_pre_commit_output.comm_d,
             );
 
             if (*resp_e).status_code != FCPResponseStatus::FCPNoError {
@@ -977,7 +973,7 @@ pub mod tests {
             let private_replicas = vec![FFIPrivateReplicaInfo {
                 registered_proof: registered_proof_post,
                 cache_dir_path: cache_dir_path_c_str,
-                comm_r: (*resp_b).seal_pre_commit_output.as_ref().unwrap().comm_r,
+                comm_r: (*resp_b).seal_pre_commit_output.comm_r,
                 replica_path: sealed_path_c_str,
                 sector_id,
             }];
@@ -1024,7 +1020,7 @@ pub mod tests {
             let public_replicas = vec![FFIPublicReplicaInfo {
                 registered_proof: registered_proof_post,
                 sector_id,
-                comm_r: (*resp_b).seal_pre_commit_output.as_ref().unwrap().comm_r,
+                comm_r: (*resp_b).seal_pre_commit_output.comm_r,
             }];
 
             let resp_i = verify_post(
