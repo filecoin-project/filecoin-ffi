@@ -134,8 +134,8 @@ type SealPreCommitOutput struct {
 // RawSealPreCommitOutput is used to acquire a seed from the chain for the
 // second step of Interactive PoRep.
 type RawSealPreCommitOutput struct {
-	CommD     [CommitmentBytesLen]byte
-	CommR     [CommitmentBytesLen]byte
+	CommD [CommitmentBytesLen]byte
+	CommR [CommitmentBytesLen]byte
 }
 
 // SealCommitOutput is produced by the second step of Interactive PoRep.
@@ -540,7 +540,6 @@ func Unseal(
 	return nil
 }
 
-
 // UnsealRange
 func UnsealRange(
 	sectorSize uint64,
@@ -725,8 +724,8 @@ func cSectorClass(sectorSize uint64, poRepProofPartitions uint8) C.FFISectorClas
 
 func cSealPreCommitOutput(src RawSealPreCommitOutput) C.FFISealPreCommitOutput {
 	return C.FFISealPreCommitOutput{
-		comm_d:            *(*[32]C.uint8_t)(unsafe.Pointer(&src.CommD)),
-		comm_r:            *(*[32]C.uint8_t)(unsafe.Pointer(&src.CommR)),
+		comm_d: *(*[32]C.uint8_t)(unsafe.Pointer(&src.CommD)),
+		comm_r: *(*[32]C.uint8_t)(unsafe.Pointer(&src.CommR)),
 	}
 }
 
@@ -797,8 +796,8 @@ func goCandidate(src C.FFICandidate) Candidate {
 
 func goRawSealPreCommitOutput(src C.FFISealPreCommitOutput) RawSealPreCommitOutput {
 	return RawSealPreCommitOutput{
-		CommD:     goCommitment(&src.comm_d[0]),
-		CommR:     goCommitment(&src.comm_r[0]),
+		CommD: goCommitment(&src.comm_d[0]),
+		CommR: goCommitment(&src.comm_r[0]),
 	}
 }
 
