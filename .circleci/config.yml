@@ -179,6 +179,9 @@ commands:
           name: Build project
           command: make
       - run:
+          name: Build project without CGO
+          command: env CGO_ENABLED=0 go build .
+      - run:
           name: Ensure paramcache is installed to project root
           command: |
             test -f ./paramcache \
