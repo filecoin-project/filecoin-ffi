@@ -3,11 +3,8 @@
 package ffi
 
 import (
-	"bytes"
-	"encoding/json"
 	"os"
 	"runtime"
-	"sort"
 	"unsafe"
 
 	"github.com/pkg/errors"
@@ -19,63 +16,6 @@ import (
 import "C"
 
 // NewSortedPublicSectorInfo returns a SortedPublicSectorInfo
-func NewSortedPublicSectorInfo(sectorInfo ...PublicSectorInfo) SortedPublicSectorInfo {
-	fn := func(i, j int) bool {
-		return bytes.Compare(sectorInfo[i].CommR[:], sectorInfo[j].CommR[:]) == -1
-	}
-
-	sort.Slice(sectorInfo[:], fn)
-
-	return SortedPublicSectorInfo{
-		f: sectorInfo,
-	}
-}
-
-// Values returns the sorted PublicSectorInfo as a slice
-func (s *SortedPublicSectorInfo) Values() []PublicSectorInfo {
-	return s.f
-}
-
-// MarshalJSON JSON-encodes and serializes the SortedPublicSectorInfo.
-func (s SortedPublicSectorInfo) MarshalJSON() ([]byte, error) {
-	return json.Marshal(s.f)
-}
-
-// UnmarshalJSON parses the JSON-encoded byte slice and stores the result in the
-// value pointed to by s.f. Note that this method allows for construction of a
-// SortedPublicSectorInfo which violates its invariant (that its PublicSectorInfo are sorted
-// in some defined way). Callers should take care to never provide a byte slice
-// which would violate this invariant.
-func (s *SortedPublicSectorInfo) UnmarshalJSON(b []byte) error {
-	return json.Unmarshal(b, &s.f)
-}
-
-// NewSortedPrivateSectorInfo returns a SortedPrivateSectorInfo
-func NewSortedPrivateSectorInfo(sectorInfo ...PrivateSectorInfo) SortedPrivateSectorInfo {
-	fn := func(i, j int) bool {
-		return bytes.Compare(sectorInfo[i].CommR[:], sectorInfo[j].CommR[:]) == -1
-	}
-
-	sort.Slice(sectorInfo[:], fn)
-
-	return SortedPrivateSectorInfo{
-		f: sectorInfo,
-	}
-}
-
-// Values returns the sorted PrivateSectorInfo as a slice
-func (s *SortedPrivateSectorInfo) Values() []PrivateSectorInfo {
-	return s.f
-}
-
-// MarshalJSON JSON-encodes and serializes the SortedPrivateSectorInfo.
-func (s SortedPrivateSectorInfo) MarshalJSON() ([]byte, error) {
-	return json.Marshal(s.f)
-}
-
-func (s *SortedPrivateSectorInfo) UnmarshalJSON(b []byte) error {
-	return json.Unmarshal(b, &s.f)
-}
 
 // VerifySeal returns true if the sealing operation from which its inputs were
 // derived was valid, and false if not.
