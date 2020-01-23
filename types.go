@@ -1,6 +1,5 @@
 package ffi
 
-import "C"
 import (
 	"bytes"
 	"encoding/json"
