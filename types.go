@@ -156,8 +156,9 @@ type SealPreCommitOutput struct {
 // RawSealPreCommitOutput is used to acquire a seed from the chain for the
 // second step of Interactive PoRep.
 type RawSealPreCommitOutput struct {
-	CommD [CommitmentBytesLen]byte
-	CommR [CommitmentBytesLen]byte
+	CommD     [CommitmentBytesLen]byte
+	CommR     [CommitmentBytesLen]byte
+	ProofType RegisteredSealProof
 }
 
 // SealCommitOutput is produced by the second step of Interactive PoRep.

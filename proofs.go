@@ -16,7 +16,7 @@ import (
 // #include "./filecoin.h"
 import "C"
 
-func toFFIRegisteredPoStProof(p RegisteredPoStProof) C.FFIRegisteredPoStProof {
+func cRegisteredPoStProof(p RegisteredPoStProof) C.FFIRegisteredPoStProof {
 	switch p {
 	case PoStProofStackedDrg1KiBV1:
 		return C.FFIRegisteredPoStProof_StackedDrg1KiBV1
@@ -33,7 +33,7 @@ func toFFIRegisteredPoStProof(p RegisteredPoStProof) C.FFIRegisteredPoStProof {
 	}
 }
 
-func toFFIRegisteredSealProof(p RegisteredSealProof) C.FFIRegisteredSealProof {
+func cRegisteredSealProof(p RegisteredSealProof) C.FFIRegisteredSealProof {
 	switch p {
 	case SealProofStackedDrg1KiBV1:
 		return C.FFIRegisteredSealProof_StackedDrg1KiBV1
@@ -83,7 +83,7 @@ func VerifySeal(
 
 	// a mutable pointer to a VerifySealResponse C-struct
 	resPtr := C.verify_seal(
-		toFFIRegisteredSealProof(proofType),
+		cRegisteredSealProof(proofType),
 		(*[CommitmentBytesLen]C.uint8_t)(commRCBytes),
 		(*[CommitmentBytesLen]C.uint8_t)(commDCBytes),
 		(*[32]C.uint8_t)(proverIDCBytes),
@@ -152,7 +152,7 @@ func VerifyPoSt(
 // into a staged sector. Due to bit-padding, the number of user bytes that will
 // fit into the staged sector will be less than number of bytes in sectorSize.
 func GetMaxUserBytesPerStagedSector(proofType RegisteredSealProof) uint64 {
-	return uint64(C.get_max_user_bytes_per_staged_sector(toFFIRegisteredSealProof(proofType)))
+	return uint64(C.get_max_user_bytes_per_staged_sector(cRegisteredSealProof(proofType)))
 }
 
 // GeneratePieceCommitment produces a piece commitment for the provided data
@@ -172,7 +172,7 @@ func GenerateDataCommitment(proofType RegisteredSealProof, pieces []PublicPieceI
 	cPiecesPtr, cPiecesLen := cPublicPieceInfo(pieces)
 	defer C.free(unsafe.Pointer(cPiecesPtr))
 
-	resPtr := C.generate_data_commitment(toFFIRegisteredSealProof(proofType), (*C.FFIPublicPieceInfo)(cPiecesPtr), cPiecesLen)
+	resPtr := C.generate_data_commitment(cRegisteredSealProof(proofType), (*C.FFIPublicPieceInfo)(cPiecesPtr), cPiecesLen)
 	defer C.destroy_generate_data_commitment_response(resPtr)
 
 	if resPtr.status_code != 0 {
@@ -187,7 +187,7 @@ func GenerateDataCommitment(proofType RegisteredSealProof, pieces []PublicPieceI
 func GeneratePieceCommitmentFromFile(sealProof RegisteredSealProof, pieceFile *os.File, pieceSize uint64) (commP [CommitmentBytesLen]byte, err error) {
 	pieceFd := pieceFile.Fd()
 
-	resPtr := C.generate_piece_commitment(toFFIRegisteredSealProof(sealProof), C.int(pieceFd), C.uint64_t(pieceSize))
+	resPtr := C.generate_piece_commitment(cRegisteredSealProof(sealProof), C.int(pieceFd), C.uint64_t(pieceSize))
 	defer C.destroy_generate_piece_commitment_response(resPtr)
 
 	// Make sure our filedescriptor stays alive, stayin alive
@@ -218,7 +218,7 @@ func WriteWithAlignment(
 	defer C.free(unsafe.Pointer(ptr))
 
 	resPtr := C.write_with_alignment(
-		toFFIRegisteredSealProof(proofType),
+		cRegisteredSealProof(proofType),
 		C.int(pieceFd),
 		C.uint64_t(pieceBytes),
 		C.int(stagedSectorFd),
@@ -248,7 +248,7 @@ func WriteWithoutAlignment(
 	runtime.KeepAlive(stagedSectorFile)
 
 	resPtr := C.write_without_alignment(
-		toFFIRegisteredSealProof(proofType),
+		cRegisteredSealProof(proofType),
 		C.int(pieceFd),
 		C.uint64_t(pieceBytes),
 		C.int(stagedSectorFd),
@@ -292,7 +292,7 @@ func SealPreCommit(
 	defer C.free(unsafe.Pointer(cPiecesPtr))
 
 	resPtr := C.seal_pre_commit(
-		toFFIRegisteredSealProof(proofType),
+		cRegisteredSealProof(proofType),
 		cCacheDirPath,
 		cStagedSectorPath,
 		cSealedSectorPath,
@@ -385,7 +385,7 @@ func Unseal(
 	defer C.free(commDCBytes)
 
 	resPtr := C.unseal(
-		toFFIRegisteredSealProof(proofType),
+		cRegisteredSealProof(proofType),
 		cCacheDirPath,
 		cSealedSectorPath,
 		cUnsealOutputPath,
@@ -435,7 +435,7 @@ func UnsealRange(
 	defer C.free(commDCBytes)
 
 	resPtr := C.unseal_range(
-		toFFIRegisteredSealProof(proofType),
+		cRegisteredSealProof(proofType),
 		cCacheDirPath,
 		cSealedSectorPath,
 		cUnsealOutputPath,
@@ -551,7 +551,7 @@ func cPublicReplicaInfos(src []PublicSectorInfo) (*C.FFIPublicReplicaInfo, C.siz
 	for i, v := range src {
 		xs[i] = C.FFIPublicReplicaInfo{
 			comm_r:           *(*[32]C.uint8_t)(unsafe.Pointer(&v.CommR)),
-			registered_proof: toFFIRegisteredPoStProof(v.PoStProofType),
+			registered_proof: cRegisteredPoStProof(v.PoStProofType),
 			sector_id:        C.uint64_t(v.SectorID),
 		}
 	}
@@ -594,8 +594,9 @@ func cUint64s(src []uint64) (*C.uint64_t, C.size_t) {
 
 func cSealPreCommitOutput(src RawSealPreCommitOutput) C.FFISealPreCommitOutput {
 	return C.FFISealPreCommitOutput{
-		comm_d: *(*[32]C.uint8_t)(unsafe.Pointer(&src.CommD)),
-		comm_r: *(*[32]C.uint8_t)(unsafe.Pointer(&src.CommR)),
+		comm_d:           *(*[32]C.uint8_t)(unsafe.Pointer(&src.CommD)),
+		comm_r:           *(*[32]C.uint8_t)(unsafe.Pointer(&src.CommR)),
+		registered_proof: cRegisteredSealProof(src.ProofType),
 	}
 }
 
@@ -631,7 +632,7 @@ func cPrivateReplicaInfos(src []PrivateSectorInfo) (*C.FFIPrivateReplicaInfo, C.
 			comm_r:           *(*[32]C.uint8_t)(unsafe.Pointer(&v.CommR)),
 			replica_path:     C.CString(v.SealedSectorPath),
 			sector_id:        C.uint64_t(v.SectorID),
-			registered_proof: toFFIRegisteredPoStProof(v.PoStProofType),
+			registered_proof: cRegisteredPoStProof(v.PoStProofType),
 		}
 	}
 
@@ -667,8 +668,9 @@ func goCandidate(src C.FFICandidate) Candidate {
 
 func goRawSealPreCommitOutput(src C.FFISealPreCommitOutput) RawSealPreCommitOutput {
 	return RawSealPreCommitOutput{
-		CommD: goCommitment(&src.comm_d[0]),
-		CommR: goCommitment(&src.comm_r[0]),
+		CommD:     goCommitment(&src.comm_d[0]),
+		CommR:     goCommitment(&src.comm_r[0]),
+		ProofType: goRegisteredSealProof(src.registered_proof),
 	}
 }
 
@@ -678,4 +680,38 @@ func goCommitment(src *C.uint8_t) [32]byte {
 	copy(array[:], slice)
 
 	return array
+}
+
+func goRegisteredPoStProof(p C.FFIRegisteredPoStProof) RegisteredPoStProof {
+	switch p {
+	case C.FFIRegisteredPoStProof_StackedDrg1KiBV1:
+		return C.FFIRegisteredPoStProof_StackedDrg1KiBV1
+	case C.FFIRegisteredPoStProof_StackedDrg16MiBV1:
+		return C.FFIRegisteredPoStProof_StackedDrg16MiBV1
+	case C.FFIRegisteredPoStProof_StackedDrg256MiBV1:
+		return C.FFIRegisteredPoStProof_StackedDrg256MiBV1
+	case C.FFIRegisteredPoStProof_StackedDrg1GiBV1:
+		return C.FFIRegisteredPoStProof_StackedDrg1GiBV1
+	case C.FFIRegisteredPoStProof_StackedDrg32GiBV1:
+		return C.FFIRegisteredPoStProof_StackedDrg32GiBV1
+	default:
+		panic(fmt.Sprintf("unsupported FFIRegisteredPoStProof value: %v", p))
+	}
+}
+
+func goRegisteredSealProof(p C.FFIRegisteredSealProof) RegisteredSealProof {
+	switch p {
+	case C.FFIRegisteredSealProof_StackedDrg1KiBV1:
+		return C.FFIRegisteredSealProof_StackedDrg1KiBV1
+	case C.FFIRegisteredSealProof_StackedDrg16MiBV1:
+		return C.FFIRegisteredSealProof_StackedDrg16MiBV1
+	case C.FFIRegisteredSealProof_StackedDrg256MiBV1:
+		return C.FFIRegisteredSealProof_StackedDrg256MiBV1
+	case C.FFIRegisteredSealProof_StackedDrg1GiBV1:
+		return C.FFIRegisteredSealProof_StackedDrg1GiBV1
+	case C.FFIRegisteredSealProof_StackedDrg32GiBV1:
+		return C.FFIRegisteredSealProof_StackedDrg32GiBV1
+	default:
+		panic(fmt.Sprintf("unsupported FFIRegisteredSealProof value: %v", p))
+	}
 }
