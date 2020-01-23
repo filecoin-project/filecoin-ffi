@@ -1,5 +1,6 @@
 package ffi
 
+import "C"
 import (
 	"bytes"
 	"encoding/json"
@@ -127,15 +128,17 @@ type Candidate struct {
 }
 
 type PublicSectorInfo struct {
-	SectorID uint64
-	CommR    [CommitmentBytesLen]byte
+	CommR         [CommitmentBytesLen]byte
+	PoStProofType RegisteredPoStProof
+	SectorID      uint64
 }
 
 type PrivateSectorInfo struct {
-	SectorID         uint64
-	CommR            [CommitmentBytesLen]byte
 	CacheDirPath     string
+	CommR            [CommitmentBytesLen]byte
+	PoStProofType    RegisteredPoStProof
 	SealedSectorPath string
+	SectorID         uint64
 }
 
 // CommitmentBytesLen is the number of bytes in a CommR, CommD, CommP, and CommRStar.
@@ -181,3 +184,27 @@ type PublicPieceInfo struct {
 	Size  uint64
 	CommP [CommitmentBytesLen]byte
 }
+
+// RegisteredSealProof denotes a seal proof type
+type RegisteredSealProof int
+
+const (
+	SealProofUnset              RegisteredSealProof = 0
+	SealProofStackedDrg1KiBV1   RegisteredSealProof = 1
+	SealProofStackedDrg16MiBV1  RegisteredSealProof = 2
+	SealProofStackedDrg256MiBV1 RegisteredSealProof = 3
+	SealProofStackedDrg1GiBV1   RegisteredSealProof = 4
+	SealProofStackedDrg32GiBV1  RegisteredSealProof = 5
+)
+
+// RegisteredPoStProof denotes a PoSt proof type
+type RegisteredPoStProof int
+
+const (
+	PoStProofUnset            RegisteredPoStProof = 0
+	PoStProofStackedDrg1KiBV1 RegisteredPoStProof = 1
+	StackedDrg16MiBV1PoSt     RegisteredPoStProof = 2
+	StackedDrg256MiBV1PoSt    RegisteredPoStProof = 3
+	StackedDrg1GiBV1PoSt      RegisteredPoStProof = 4
+	StackedDrg32GiBV1PoSt     RegisteredPoStProof = 5
+)
