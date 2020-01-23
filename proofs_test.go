@@ -11,7 +11,6 @@ import (
 	"path/filepath"
 	"testing"
 
-	pf "github.com/filecoin-project/go-paramfetch"
 	"github.com/pkg/errors"
 
 	"github.com/stretchr/testify/assert"
@@ -19,8 +18,6 @@ import (
 )
 
 func TestImportSector(t *testing.T) {
-	downloadGrothParametersOneKiBSectors()
-
 	challengeCount := uint64(2)
 	proverID := [32]byte{6, 7, 8}
 	randomness := [32]byte{9, 9, 9}
@@ -276,17 +273,5 @@ func visit(paths *[]string) filepath.WalkFunc {
 		}
 		*paths = append(*paths, path)
 		return nil
-	}
-}
-
-func downloadGrothParametersOneKiBSectors() {
-	dat, err := ioutil.ReadFile("./parameters.json")
-	if err != nil {
-		panic(errors.Wrap(err, "failed to read contents of ./parameters.json"))
-	}
-
-	err = pf.GetParams(dat, 1024)
-	if err != nil {
-		panic(errors.Wrap(err, "failed to acquire Groth parameters for 1KiB sectors"))
 	}
 }

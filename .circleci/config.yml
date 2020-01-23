@@ -22,8 +22,9 @@ jobs:
       - checkout
       - build_project
       - restore_parameter_cache
-      - build_and_run_tests
+      - obtain_filecoin_parameters
       - save_parameter_cache
+      - build_and_run_tests
   build_darwin_cgo_bindings:
     macos:
       xcode: "10.0.0"
@@ -166,10 +167,16 @@ commands:
             echo 'export GOPATH="${HOME}/go"' >> $BASH_ENV
             echo 'export PATH="/usr/local/go/bin:${HOME}/.cargo/bin:${PATH}:${HOME}/go/bin:${HOME}/.bin"' >> $BASH_ENV
             echo 'export RUST_LOG=info' >> $BASH_ENV
+  obtain_filecoin_parameters:
+    steps:
+      - run:
+          name: Obtain filecoin groth parameters
+          command: ./paramcache --params-for-sector-sizes='1024' --predictable
+          no_output_timeout: 60m
   build_project:
     steps:
       - run:
-          name: Build or download libfilecoin and then link with Golang sources
+          name: Build project
           command: make
       - run:
           name: Build project without CGO
@@ -184,7 +191,7 @@ commands:
   build_and_run_tests:
     steps:
       - run:
-          name: Test project (downloads Groth parameters and keys)
+          name: Test project
           command: RUST_LOG=info go test -p 1 -timeout 60m
           no_output_timeout: 60m
   build_and_compile_tests:
