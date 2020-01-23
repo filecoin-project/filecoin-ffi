@@ -81,8 +81,9 @@ func (s *SortedPublicSectorInfo) UnmarshalJSON(b []byte) error {
 }
 
 type PublicSectorInfo struct {
-	SectorID uint64
-	CommR    [CommitmentBytesLen]byte
+	CommR         [CommitmentBytesLen]byte
+	PoStProofType RegisteredPoStProof
+	SectorID      uint64
 }
 
 // NewSortedPrivateSectorInfo returns a SortedPrivateSectorInfo
@@ -113,10 +114,11 @@ func (s *SortedPrivateSectorInfo) UnmarshalJSON(b []byte) error {
 }
 
 type PrivateSectorInfo struct {
-	SectorID         uint64
-	CommR            [CommitmentBytesLen]byte
 	CacheDirPath     string
+	CommR            [CommitmentBytesLen]byte
+	PoStProofType    RegisteredPoStProof
 	SealedSectorPath string
+	SectorID         uint64
 }
 
 // CommitmentBytesLen is the number of bytes in a CommR, CommD, CommP, and CommRStar.
@@ -222,7 +224,7 @@ func (p RegisteredPoStProof) toFFI() C.FFIRegisteredPoStProof {
 // VerifySeal returns true if the sealing operation from which its inputs were
 // derived was valid, and false if not.
 func VerifySeal(
-	sectorSize uint64,
+	proofType RegisteredSealProof,
 	commR [CommitmentBytesLen]byte,
 	commD [CommitmentBytesLen]byte,
 	proverID [32]byte,
@@ -252,7 +254,7 @@ func VerifySeal(
 
 	// a mutable pointer to a VerifySealResponse C-struct
 	resPtr := C.verify_seal(
-		C.uint64_t(sectorSize),
+		proofType.toFFI(),
 		(*[CommitmentBytesLen]C.uint8_t)(commRCBytes),
 		(*[CommitmentBytesLen]C.uint8_t)(commDCBytes),
 		(*[32]C.uint8_t)(proverIDCBytes),
@@ -274,7 +276,6 @@ func VerifySeal(
 // VerifyPoSt returns true if the PoSt-generation operation from which its
 // inputs were derived was valid, and false if not.
 func VerifyPoSt(
-	sectorSize uint64,
 	sectorInfo SortedPublicSectorInfo,
 	randomness [32]byte,
 	challengeCount uint64,
@@ -282,34 +283,14 @@ func VerifyPoSt(
 	winners []Candidate,
 	proverID [32]byte,
 ) (bool, error) {
-	// CommRs and sector ids must be provided to C.verify_post in the same order
-	// that they were provided to the C.generate_post
-	sortedCommRs := make([][CommitmentBytesLen]byte, len(sectorInfo.Values()))
-	sortedSectorIds := make([]uint64, len(sectorInfo.Values()))
-	for idx, v := range sectorInfo.Values() {
-		sortedCommRs[idx] = v.CommR
-		sortedSectorIds[idx] = v.SectorID
-	}
-
-	// flattening the byte slice makes it easier to copy into the C heap
-	flattened := make([]byte, CommitmentBytesLen*len(sortedCommRs))
-	for idx, commR := range sortedCommRs {
-		copy(flattened[(CommitmentBytesLen*idx):(CommitmentBytesLen*(1+idx))], commR[:])
-	}
-
-	// copy bytes from Go to C heap
-	flattenedCommRsCBytes := C.CBytes(flattened)
-	defer C.free(flattenedCommRsCBytes)
+	cInfoPtr, cInfoSize := cPublicReplicaInfos(sectorInfo.Values())
+	defer C.free(unsafe.Pointer(cInfoPtr))
 
 	randomnessCBytes := C.CBytes(randomness[:])
 	defer C.free(randomnessCBytes)
 
 	proofCBytes := C.CBytes(proof)
 	defer C.free(proofCBytes)
-
-	// allocate fixed-length array of uint64s in C heap
-	sectorIdsPtr, sectorIdsSize := cUint64s(sortedSectorIds)
-	defer C.free(unsafe.Pointer(sectorIdsPtr))
 
 	winnersPtr, winnersSize := cCandidates(winners)
 	defer C.free(unsafe.Pointer(winnersPtr))
@@ -319,13 +300,10 @@ func VerifyPoSt(
 
 	// a mutable pointer to a VerifyPoStResponse C-struct
 	resPtr := C.verify_post(
-		C.uint64_t(sectorSize),
 		(*[32]C.uint8_t)(randomnessCBytes),
 		C.uint64_t(challengeCount),
-		sectorIdsPtr,
-		sectorIdsSize,
-		(*C.uint8_t)(flattenedCommRsCBytes),
-		C.size_t(len(flattened)),
+		cInfoPtr,
+		cInfoSize,
 		(*C.uint8_t)(proofCBytes),
 		C.size_t(len(proof)),
 		winnersPtr,
@@ -344,28 +322,28 @@ func VerifyPoSt(
 // GetMaxUserBytesPerStagedSector returns the number of user bytes that will fit
 // into a staged sector. Due to bit-padding, the number of user bytes that will
 // fit into the staged sector will be less than number of bytes in sectorSize.
-func GetMaxUserBytesPerStagedSector(sectorSize uint64) uint64 {
-	return uint64(C.get_max_user_bytes_per_staged_sector(C.uint64_t(sectorSize)))
+func GetMaxUserBytesPerStagedSector(proofType RegisteredSealProof) uint64 {
+	return uint64(C.get_max_user_bytes_per_staged_sector(proofType.toFFI()))
 }
 
 // GeneratePieceCommitment produces a piece commitment for the provided data
 // stored at a given path.
-func GeneratePieceCommitment(piecePath string, pieceSize uint64) ([CommitmentBytesLen]byte, error) {
+func GeneratePieceCommitment(sealProofType RegisteredSealProof, piecePath string, pieceSize uint64) ([CommitmentBytesLen]byte, error) {
 	pieceFile, err := os.Open(piecePath)
 	if err != nil {
 		return [CommitmentBytesLen]byte{}, err
 	}
 
-	return GeneratePieceCommitmentFromFile(pieceFile, pieceSize)
+	return GeneratePieceCommitmentFromFile(sealProofType, pieceFile, pieceSize)
 }
 
 // GenerateDataCommitment produces a commitment for the sector containing the
 // provided pieces.
-func GenerateDataCommitment(sectorSize uint64, pieces []PublicPieceInfo) ([CommitmentBytesLen]byte, error) {
+func GenerateDataCommitment(sealProofType RegisteredSealProof, pieces []PublicPieceInfo) ([CommitmentBytesLen]byte, error) {
 	cPiecesPtr, cPiecesLen := cPublicPieceInfo(pieces)
 	defer C.free(unsafe.Pointer(cPiecesPtr))
 
-	resPtr := C.generate_data_commitment(C.uint64_t(sectorSize), (*C.FFIPublicPieceInfo)(cPiecesPtr), cPiecesLen)
+	resPtr := C.generate_data_commitment(sealProofType.toFFI(), (*C.FFIPublicPieceInfo)(cPiecesPtr), cPiecesLen)
 	defer C.destroy_generate_data_commitment_response(resPtr)
 
 	if resPtr.status_code != 0 {
@@ -377,10 +355,10 @@ func GenerateDataCommitment(sectorSize uint64, pieces []PublicPieceInfo) ([Commi
 
 // GeneratePieceCommitmentFromFile produces a piece commitment for the provided data
 // stored in a given file.
-func GeneratePieceCommitmentFromFile(pieceFile *os.File, pieceSize uint64) (commP [CommitmentBytesLen]byte, err error) {
+func GeneratePieceCommitmentFromFile(sealProofType RegisteredSealProof, pieceFile *os.File, pieceSize uint64) (commP [CommitmentBytesLen]byte, err error) {
 	pieceFd := pieceFile.Fd()
 
-	resPtr := C.generate_piece_commitment(C.int(pieceFd), C.uint64_t(pieceSize))
+	resPtr := C.generate_piece_commitment(sealProofType.toFFI(), C.int(pieceFd), C.uint64_t(pieceSize))
 	defer C.destroy_generate_piece_commitment_response(resPtr)
 
 	// Make sure our filedescriptor stays alive, stayin alive
@@ -395,6 +373,7 @@ func GeneratePieceCommitmentFromFile(pieceFile *os.File, pieceSize uint64) (comm
 
 // WriteWithAlignment
 func WriteWithAlignment(
+	proofType RegisteredSealProof,
 	pieceFile *os.File,
 	pieceBytes uint64,
 	stagedSectorFile *os.File,
@@ -410,6 +389,7 @@ func WriteWithAlignment(
 	defer C.free(unsafe.Pointer(ptr))
 
 	resPtr := C.write_with_alignment(
+		proofType.toFFI(),
 		C.int(pieceFd),
 		C.uint64_t(pieceBytes),
 		C.int(stagedSectorFd),
@@ -427,6 +407,7 @@ func WriteWithAlignment(
 
 // WriteWithoutAlignment
 func WriteWithoutAlignment(
+	proofType RegisteredSealProof,
 	pieceFile *os.File,
 	pieceBytes uint64,
 	stagedSectorFile *os.File,
@@ -438,6 +419,7 @@ func WriteWithoutAlignment(
 	runtime.KeepAlive(stagedSectorFile)
 
 	resPtr := C.write_without_alignment(
+		proofType.toFFI(),
 		C.int(pieceFd),
 		C.uint64_t(pieceBytes),
 		C.int(stagedSectorFd),
@@ -453,8 +435,7 @@ func WriteWithoutAlignment(
 
 // SealPreCommit
 func SealPreCommit(
-	sectorSize uint64,
-	poRepProofPartitions uint8,
+	proofType RegisteredSealProof,
 	cacheDirPath string,
 	stagedSectorPath string,
 	sealedSectorPath string,
@@ -482,7 +463,7 @@ func SealPreCommit(
 	defer C.free(unsafe.Pointer(cPiecesPtr))
 
 	resPtr := C.seal_pre_commit(
-		cSectorClass(sectorSize, poRepProofPartitions),
+		proofType.toFFI(),
 		cCacheDirPath,
 		cStagedSectorPath,
 		cSealedSectorPath,
@@ -503,8 +484,6 @@ func SealPreCommit(
 
 // SealCommit
 func SealCommit(
-	sectorSize uint64,
-	poRepProofPartitions uint8,
 	cacheDirPath string,
 	sectorID uint64,
 	proverID [32]byte,
@@ -529,7 +508,6 @@ func SealCommit(
 	defer C.free(unsafe.Pointer(cPiecesPtr))
 
 	resPtr := C.seal_commit(
-		cSectorClass(sectorSize, poRepProofPartitions),
 		cCacheDirPath,
 		C.uint64_t(sectorID),
 		(*[32]C.uint8_t)(proverIDCBytes),
@@ -550,8 +528,7 @@ func SealCommit(
 
 // Unseal
 func Unseal(
-	sectorSize uint64,
-	poRepProofPartitions uint8,
+	proofType RegisteredSealProof,
 	cacheDirPath string,
 	sealedSectorPath string,
 	unsealOutputPath string,
@@ -579,7 +556,7 @@ func Unseal(
 	defer C.free(commDCBytes)
 
 	resPtr := C.unseal(
-		cSectorClass(sectorSize, poRepProofPartitions),
+		proofType.toFFI(),
 		cCacheDirPath,
 		cSealedSectorPath,
 		cUnsealOutputPath,
@@ -599,8 +576,7 @@ func Unseal(
 
 // UnsealRange
 func UnsealRange(
-	sectorSize uint64,
-	poRepProofPartitions uint8,
+	proofType RegisteredSealProof,
 	cacheDirPath string,
 	sealedSectorPath string,
 	unsealOutputPath string,
@@ -630,7 +606,7 @@ func UnsealRange(
 	defer C.free(commDCBytes)
 
 	resPtr := C.unseal_range(
-		cSectorClass(sectorSize, poRepProofPartitions),
+		proofType.toFFI(),
 		cCacheDirPath,
 		cSealedSectorPath,
 		cUnsealOutputPath,
@@ -667,7 +643,6 @@ func FinalizeTicket(partialTicket [32]byte) ([32]byte, error) {
 
 // GenerateCandidates
 func GenerateCandidates(
-	sectorSize uint64,
 	proverID [32]byte,
 	randomness [32]byte,
 	challengeCount uint64,
@@ -683,7 +658,6 @@ func GenerateCandidates(
 	defer C.free(unsafe.Pointer(replicasPtr))
 
 	resPtr := C.generate_candidates(
-		C.uint64_t(sectorSize),
 		(*[32]C.uint8_t)(randomessCBytes),
 		C.uint64_t(challengeCount),
 		replicasPtr,
@@ -701,7 +675,6 @@ func GenerateCandidates(
 
 // GeneratePoSt
 func GeneratePoSt(
-	sectorSize uint64,
 	proverID [32]byte,
 	privateSectorInfo SortedPrivateSectorInfo,
 	randomness [32]byte,
@@ -717,7 +690,6 @@ func GeneratePoSt(
 	defer C.free(proverIDCBytes)
 
 	resPtr := C.generate_post(
-		C.uint64_t(sectorSize),
 		(*[32]C.uint8_t)(unsafe.Pointer(&(randomness)[0])),
 		replicasPtr,
 		replicasSize,
@@ -738,6 +710,25 @@ func GeneratePoSt(
 // with a single partition. The number of bytes in a proof increases linearly
 // with the number of partitions used when creating that proof.
 const SingleProofPartitionProofLen = 192
+
+func cPublicReplicaInfos(src []PublicSectorInfo) (*C.FFIPublicReplicaInfo, C.size_t) {
+	srcCSizeT := C.size_t(len(src))
+
+	// allocate array in C heap
+	cPublicReplicas := C.malloc(srcCSizeT * C.sizeof_FFIPublicReplicaInfo)
+
+	// create a Go slice backed by the C-array
+	xs := (*[1 << 30]C.FFIPublicReplicaInfo)(cPublicReplicas)
+	for i, v := range src {
+		xs[i] = C.FFIPublicReplicaInfo{
+			comm_r:           *(*[32]C.uint8_t)(unsafe.Pointer(&v.CommR)),
+			registered_proof: v.PoStProofType.toFFI(),
+			sector_id:        C.uint64_t(v.SectorID),
+		}
+	}
+
+	return (*C.FFIPublicReplicaInfo)(cPublicReplicas), srcCSizeT
+}
 
 func cPublicPieceInfo(src []PublicPieceInfo) (*C.FFIPublicPieceInfo, C.size_t) {
 	srcCSizeT := C.size_t(len(src))
@@ -807,10 +798,11 @@ func cPrivateReplicaInfos(src []PrivateSectorInfo) (*C.FFIPrivateReplicaInfo, C.
 	pp := (*[1 << 30]C.FFIPrivateReplicaInfo)(cPrivateReplicas)
 	for i, v := range src {
 		pp[i] = C.FFIPrivateReplicaInfo{
-			cache_dir_path: C.CString(v.CacheDirPath),
-			comm_r:         *(*[32]C.uint8_t)(unsafe.Pointer(&v.CommR)),
-			replica_path:   C.CString(v.SealedSectorPath),
-			sector_id:      C.uint64_t(v.SectorID),
+			cache_dir_path:   C.CString(v.CacheDirPath),
+			comm_r:           *(*[32]C.uint8_t)(unsafe.Pointer(&v.CommR)),
+			replica_path:     C.CString(v.SealedSectorPath),
+			sector_id:        C.uint64_t(v.SectorID),
+			registered_proof: v.PoStProofType.toFFI(),
 		}
 	}
 

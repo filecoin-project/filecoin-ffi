@@ -11,16 +11,21 @@ import (
 	"path/filepath"
 	"testing"
 
+	pf "github.com/filecoin-project/go-paramfetch"
+	"github.com/pkg/errors"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestImportSector(t *testing.T) {
+	downloadGrothParametersOneKiBSectors()
+
 	challengeCount := uint64(2)
-	poRepProofPartitions := uint8(10)
 	proverID := [32]byte{6, 7, 8}
 	randomness := [32]byte{9, 9, 9}
-	sectorSize := uint64(1024)
+	sealProofType := SealProofStackedDrg1KiBV1
+	postProofType := PoStProofStackedDrg1KiBV1
 	sectorID := uint64(42)
 
 	ticket := SealTicket{
@@ -76,7 +81,7 @@ func TestImportSector(t *testing.T) {
 	require.NoError(t, err)
 	pieceFileA := requireTempFile(t, bytes.NewReader(someBytes[0:127]), 127)
 
-	commPA, err := GeneratePieceCommitmentFromFile(pieceFileA, 127)
+	commPA, err := GeneratePieceCommitmentFromFile(sealProofType, pieceFileA, 127)
 	require.NoError(t, err)
 
 	// seek back to head (generating piece commitment moves offset)
@@ -84,7 +89,7 @@ func TestImportSector(t *testing.T) {
 	require.NoError(t, err)
 
 	// write the first piece using the alignment-free function
-	n, commP, err := WriteWithoutAlignment(pieceFileA, 127, stagedSectorFile)
+	n, commP, err := WriteWithoutAlignment(sealProofType, pieceFileA, 127, stagedSectorFile)
 	require.NoError(t, err)
 	require.Equal(t, int(n), 127)
 	require.Equal(t, commP, commPA)
@@ -93,7 +98,7 @@ func TestImportSector(t *testing.T) {
 	require.NoError(t, err)
 	pieceFileB := requireTempFile(t, bytes.NewReader(someBytes[0:508]), 508)
 
-	commPB, err := GeneratePieceCommitmentFromFile(pieceFileB, 508)
+	commPB, err := GeneratePieceCommitmentFromFile(sealProofType, pieceFileB, 508)
 	require.NoError(t, err)
 
 	// seek back to head
@@ -101,7 +106,7 @@ func TestImportSector(t *testing.T) {
 	require.NoError(t, err)
 
 	// second piece relies on the alignment-computing version
-	left, tot, commP, err := WriteWithAlignment(pieceFileB, 508, stagedSectorFile, []uint64{127})
+	left, tot, commP, err := WriteWithAlignment(sealProofType, pieceFileB, 508, stagedSectorFile, []uint64{127})
 	require.NoError(t, err)
 	require.Equal(t, int(left), 381)
 	require.Equal(t, int(tot), 889)
@@ -115,7 +120,7 @@ func TestImportSector(t *testing.T) {
 		CommP: commPB,
 	}}
 
-	commD, err := GenerateDataCommitment(sectorSize, publicPieces)
+	commD, err := GenerateDataCommitment(sealProofType, publicPieces)
 	require.NoError(t, err)
 
 	privatePieces := make([]PieceMetadata, len(publicPieces))
@@ -128,22 +133,22 @@ func TestImportSector(t *testing.T) {
 	}
 
 	// pre-commit the sector
-	output, err := SealPreCommit(sectorSize, poRepProofPartitions, sectorCacheDirPath, stagedSectorFile.Name(), sealedSectorFile.Name(), sectorID, proverID, ticket.TicketBytes, publicPieces)
+	output, err := SealPreCommit(sealProofType, sectorCacheDirPath, stagedSectorFile.Name(), sealedSectorFile.Name(), sectorID, proverID, ticket.TicketBytes, publicPieces)
 	require.NoError(t, err)
 
 	require.Equal(t, output.CommD, commD, "prover and verifier should agree on data commitment")
 
 	// commit the sector
-	proof, err := SealCommit(sectorSize, poRepProofPartitions, sectorCacheDirPath, sectorID, proverID, ticket.TicketBytes, seed.TicketBytes, publicPieces, output)
+	proof, err := SealCommit(sectorCacheDirPath, sectorID, proverID, ticket.TicketBytes, seed.TicketBytes, publicPieces, output)
 	require.NoError(t, err)
 
 	// verify the 'ole proofy
-	isValid, err := VerifySeal(sectorSize, output.CommR, output.CommD, proverID, ticket.TicketBytes, seed.TicketBytes, sectorID, proof)
+	isValid, err := VerifySeal(sealProofType, output.CommR, output.CommD, proverID, ticket.TicketBytes, seed.TicketBytes, sectorID, proof)
 	require.NoError(t, err)
 	require.True(t, isValid, "proof wasn't valid")
 
 	// unseal the entire sector and verify that things went as we planned
-	require.NoError(t, Unseal(sectorSize, poRepProofPartitions, sectorCacheDirPath, sealedSectorFile.Name(), unsealOutputFileA.Name(), sectorID, proverID, ticket.TicketBytes, output.CommD))
+	require.NoError(t, Unseal(sealProofType, sectorCacheDirPath, sealedSectorFile.Name(), unsealOutputFileA.Name(), sectorID, proverID, ticket.TicketBytes, output.CommD))
 	contents, err := ioutil.ReadFile(unsealOutputFileA.Name())
 	require.NoError(t, err)
 
@@ -156,7 +161,7 @@ func TestImportSector(t *testing.T) {
 	require.Equal(t, someBytes[0:508], contents[508:1016])
 
 	// unseal just the first piece
-	err = UnsealRange(sectorSize, poRepProofPartitions, sectorCacheDirPath, sealedSectorFile.Name(), unsealOutputFileB.Name(), sectorID, proverID, ticket.TicketBytes, output.CommD, 0, 127)
+	err = UnsealRange(sealProofType, sectorCacheDirPath, sealedSectorFile.Name(), unsealOutputFileB.Name(), sectorID, proverID, ticket.TicketBytes, output.CommD, 0, 127)
 	require.NoError(t, err)
 	contentsB, err := ioutil.ReadFile(unsealOutputFileB.Name())
 	require.NoError(t, err)
@@ -164,7 +169,7 @@ func TestImportSector(t *testing.T) {
 	require.Equal(t, someBytes[0:127], contentsB[0:127])
 
 	// unseal just the second piece
-	err = UnsealRange(sectorSize, poRepProofPartitions, sectorCacheDirPath, sealedSectorFile.Name(), unsealOutputFileC.Name(), sectorID, proverID, ticket.TicketBytes, output.CommD, 508, 508)
+	err = UnsealRange(sealProofType, sectorCacheDirPath, sealedSectorFile.Name(), unsealOutputFileC.Name(), sectorID, proverID, ticket.TicketBytes, output.CommD, 508, 508)
 	require.NoError(t, err)
 	contentsC, err := ioutil.ReadFile(unsealOutputFileC.Name())
 	require.NoError(t, err)
@@ -184,18 +189,20 @@ func TestImportSector(t *testing.T) {
 	// generate a PoSt over the proving set before importing, just to exercise
 	// the new API
 	privateInfo := NewSortedPrivateSectorInfo(PrivateSectorInfo{
-		SectorID:         sectorID,
-		CommR:            output.CommR,
 		CacheDirPath:     sectorCacheDirPath,
+		CommR:            output.CommR,
+		PoStProofType:    postProofType,
 		SealedSectorPath: sealedSectorFile.Name(),
+		SectorID:         sectorID,
 	})
 
 	publicInfo := NewSortedPublicSectorInfo(PublicSectorInfo{
-		SectorID: sectorID,
-		CommR:    output.CommR,
+		CommR:         output.CommR,
+		PoStProofType: postProofType,
+		SectorID:      sectorID,
 	})
 
-	candidatesA, err := GenerateCandidates(sectorSize, proverID, randomness, challengeCount, privateInfo)
+	candidatesA, err := GenerateCandidates(proverID, randomness, challengeCount, privateInfo)
 	require.NoError(t, err)
 
 	// finalize the ticket, but don't do anything with the results (simply
@@ -203,10 +210,10 @@ func TestImportSector(t *testing.T) {
 	_, err = FinalizeTicket(candidatesA[0].PartialTicket)
 	require.NoError(t, err)
 
-	proofA, err := GeneratePoSt(sectorSize, proverID, privateInfo, randomness, candidatesA)
+	proofA, err := GeneratePoSt(proverID, privateInfo, randomness, candidatesA)
 	require.NoError(t, err)
 
-	isValid, err = VerifyPoSt(sectorSize, publicInfo, randomness, challengeCount, proofA, candidatesA, proverID)
+	isValid, err = VerifyPoSt(publicInfo, randomness, challengeCount, proofA, candidatesA, proverID)
 	require.NoError(t, err)
 	require.True(t, isValid, "VerifyPoSt rejected the (standalone) proof as invalid")
 }
@@ -269,5 +276,17 @@ func visit(paths *[]string) filepath.WalkFunc {
 		}
 		*paths = append(*paths, path)
 		return nil
+	}
+}
+
+func downloadGrothParametersOneKiBSectors() {
+	dat, err := ioutil.ReadFile("./parameters.json")
+	if err != nil {
+		panic(errors.Wrap(err, "failed to read contents of ./parameters.json"))
+	}
+
+	err = pf.GetParams(dat, 1024)
+	if err != nil {
+		panic(errors.Wrap(err, "failed to acquire Groth parameters for 1KiB sectors"))
 	}
 }
