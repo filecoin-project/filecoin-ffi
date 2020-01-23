@@ -1,10 +1,12 @@
-//+build cgo
-
 package ffi
 
 import (
+	"bytes"
+	"encoding/json"
+	"fmt"
 	"os"
 	"runtime"
+	"sort"
 	"unsafe"
 
 	"github.com/pkg/errors"
@@ -15,7 +17,207 @@ import (
 // #include "./filecoin.h"
 import "C"
 
+// SortedPublicSectorInfo is a slice of PublicSectorInfo sorted
+// (lexicographically, ascending) by replica commitment (CommR).
+type SortedPublicSectorInfo struct {
+	f []PublicSectorInfo
+}
+
+// SortedPrivateSectorInfo is a slice of PrivateSectorInfo sorted
+// (lexicographically, ascending) by replica commitment (CommR).
+type SortedPrivateSectorInfo struct {
+	f []PrivateSectorInfo
+}
+
+// SealTicket is required for the first step of Interactive PoRep.
+type SealTicket struct {
+	BlockHeight uint64
+	TicketBytes [32]byte
+}
+
+// SealSeed is required for the second step of Interactive PoRep.
+type SealSeed struct {
+	BlockHeight uint64
+	TicketBytes [32]byte
+}
+
+type Candidate struct {
+	SectorID             uint64
+	PartialTicket        [32]byte
+	Ticket               [32]byte
+	SectorChallengeIndex uint64
+}
+
 // NewSortedPublicSectorInfo returns a SortedPublicSectorInfo
+func NewSortedPublicSectorInfo(sectorInfo ...PublicSectorInfo) SortedPublicSectorInfo {
+	fn := func(i, j int) bool {
+		return bytes.Compare(sectorInfo[i].CommR[:], sectorInfo[j].CommR[:]) == -1
+	}
+
+	sort.Slice(sectorInfo[:], fn)
+
+	return SortedPublicSectorInfo{
+		f: sectorInfo,
+	}
+}
+
+// Values returns the sorted PublicSectorInfo as a slice
+func (s *SortedPublicSectorInfo) Values() []PublicSectorInfo {
+	return s.f
+}
+
+// MarshalJSON JSON-encodes and serializes the SortedPublicSectorInfo.
+func (s SortedPublicSectorInfo) MarshalJSON() ([]byte, error) {
+	return json.Marshal(s.f)
+}
+
+// UnmarshalJSON parses the JSON-encoded byte slice and stores the result in the
+// value pointed to by s.f. Note that this method allows for construction of a
+// SortedPublicSectorInfo which violates its invariant (that its PublicSectorInfo are sorted
+// in some defined way). Callers should take care to never provide a byte slice
+// which would violate this invariant.
+func (s *SortedPublicSectorInfo) UnmarshalJSON(b []byte) error {
+	return json.Unmarshal(b, &s.f)
+}
+
+type PublicSectorInfo struct {
+	SectorID uint64
+	CommR    [CommitmentBytesLen]byte
+}
+
+// NewSortedPrivateSectorInfo returns a SortedPrivateSectorInfo
+func NewSortedPrivateSectorInfo(sectorInfo ...PrivateSectorInfo) SortedPrivateSectorInfo {
+	fn := func(i, j int) bool {
+		return bytes.Compare(sectorInfo[i].CommR[:], sectorInfo[j].CommR[:]) == -1
+	}
+
+	sort.Slice(sectorInfo[:], fn)
+
+	return SortedPrivateSectorInfo{
+		f: sectorInfo,
+	}
+}
+
+// Values returns the sorted PrivateSectorInfo as a slice
+func (s *SortedPrivateSectorInfo) Values() []PrivateSectorInfo {
+	return s.f
+}
+
+// MarshalJSON JSON-encodes and serializes the SortedPrivateSectorInfo.
+func (s SortedPrivateSectorInfo) MarshalJSON() ([]byte, error) {
+	return json.Marshal(s.f)
+}
+
+func (s *SortedPrivateSectorInfo) UnmarshalJSON(b []byte) error {
+	return json.Unmarshal(b, &s.f)
+}
+
+type PrivateSectorInfo struct {
+	SectorID         uint64
+	CommR            [CommitmentBytesLen]byte
+	CacheDirPath     string
+	SealedSectorPath string
+}
+
+// CommitmentBytesLen is the number of bytes in a CommR, CommD, CommP, and CommRStar.
+const CommitmentBytesLen = 32
+
+// SealPreCommitOutput is used to acquire a seed from the chain for the second
+// step of Interactive PoRep.
+type SealPreCommitOutput struct {
+	SectorID uint64
+	CommD    [CommitmentBytesLen]byte
+	CommR    [CommitmentBytesLen]byte
+	Pieces   []PieceMetadata
+	Ticket   SealTicket
+}
+
+// RawSealPreCommitOutput is used to acquire a seed from the chain for the
+// second step of Interactive PoRep.
+type RawSealPreCommitOutput struct {
+	CommD [CommitmentBytesLen]byte
+	CommR [CommitmentBytesLen]byte
+}
+
+// SealCommitOutput is produced by the second step of Interactive PoRep.
+type SealCommitOutput struct {
+	SectorID uint64
+	CommD    [CommitmentBytesLen]byte
+	CommR    [CommitmentBytesLen]byte
+	Proof    []byte
+	Pieces   []PieceMetadata
+	Ticket   SealTicket
+	Seed     SealSeed
+}
+
+// PieceMetadata represents a piece stored by the sector builder.
+type PieceMetadata struct {
+	Key   string
+	Size  uint64
+	CommP [CommitmentBytesLen]byte
+}
+
+// PublicPieceInfo is an on-chain tuple of CommP and aligned piece-size.
+type PublicPieceInfo struct {
+	Size  uint64
+	CommP [CommitmentBytesLen]byte
+}
+
+type RegisteredSealProof int
+
+const (
+	SealProofUnset              RegisteredSealProof = 0
+	SealProofStackedDrg1KiBV1   RegisteredSealProof = 1
+	SealProofStackedDrg16MiBV1  RegisteredSealProof = 2
+	SealProofStackedDrg256MiBV1 RegisteredSealProof = 3
+	SealProofStackedDrg1GiBV1   RegisteredSealProof = 4
+	SealProofStackedDrg32GiBV1  RegisteredSealProof = 5
+)
+
+func (p RegisteredSealProof) toFFI() C.FFIRegisteredSealProof {
+	switch p {
+	case SealProofStackedDrg1KiBV1:
+		return C.FFIRegisteredSealProof_StackedDrg1KiBV1
+	case SealProofStackedDrg16MiBV1:
+		return C.FFIRegisteredSealProof_StackedDrg16MiBV1
+	case SealProofStackedDrg256MiBV1:
+		return C.FFIRegisteredSealProof_StackedDrg256MiBV1
+	case SealProofStackedDrg1GiBV1:
+		return C.FFIRegisteredSealProof_StackedDrg1GiBV1
+	case SealProofStackedDrg32GiBV1:
+		return C.FFIRegisteredSealProof_StackedDrg32GiBV1
+	default:
+		panic(fmt.Sprintf("unsupported RegisteredSealProof value: %v", p))
+	}
+}
+
+type RegisteredPoStProof int
+
+const (
+	PoStProofUnset            RegisteredPoStProof = 0
+	PoStProofStackedDrg1KiBV1 RegisteredPoStProof = 1
+	StackedDrg16MiBV1PoSt     RegisteredPoStProof = 2
+	StackedDrg256MiBV1PoSt    RegisteredPoStProof = 3
+	StackedDrg1GiBV1PoSt      RegisteredPoStProof = 4
+	StackedDrg32GiBV1PoSt     RegisteredPoStProof = 5
+)
+
+func (p RegisteredPoStProof) toFFI() C.FFIRegisteredPoStProof {
+	switch p {
+	case PoStProofStackedDrg1KiBV1:
+		return C.FFIRegisteredPoStProof_StackedDrg1KiBV1
+	case StackedDrg16MiBV1PoSt:
+		return C.FFIRegisteredPoStProof_StackedDrg16MiBV1
+	case StackedDrg256MiBV1PoSt:
+		return C.FFIRegisteredPoStProof_StackedDrg256MiBV1
+	case StackedDrg1GiBV1PoSt:
+		return C.FFIRegisteredPoStProof_StackedDrg1GiBV1
+	case StackedDrg32GiBV1PoSt:
+		return C.FFIRegisteredPoStProof_StackedDrg32GiBV1
+	default:
+		panic(fmt.Sprintf("unsupported RegisteredPoStProof value: %v", p))
+	}
+}
 
 // VerifySeal returns true if the sealing operation from which its inputs were
 // derived was valid, and false if not.
@@ -568,13 +770,6 @@ func cUint64s(src []uint64) (*C.uint64_t, C.size_t) {
 	}
 
 	return (*C.uint64_t)(cUint64s), srcCSizeT
-}
-
-func cSectorClass(sectorSize uint64, poRepProofPartitions uint8) C.FFISectorClass {
-	return C.FFISectorClass{
-		sector_size:            C.uint64_t(sectorSize),
-		porep_proof_partitions: C.uint8_t(poRepProofPartitions),
-	}
 }
 
 func cSealPreCommitOutput(src RawSealPreCommitOutput) C.FFISealPreCommitOutput {
