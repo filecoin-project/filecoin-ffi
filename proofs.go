@@ -273,7 +273,7 @@ func SealPreCommit(
 	ticket [32]byte,
 	pieces []PublicPieceInfo,
 ) (RawSealPreCommitOutput, error) {
-	fmt.Printf("SealPreCommit (input): proofType %v, cacheDirPath %s, stagedSectorPath %s, sealedSectorPath %s, sectorID %d, proverID %+v ticket %+v seed %+v pieces %+v rspco %+v\n", proofType, cacheDirPath, stagedSectorPath, sealedSectorPath, sectorID, proverID, ticket, pieces)
+	fmt.Printf("SealPreCommit (input): proofType %v, cacheDirPath %s, stagedSectorPath %s, sealedSectorPath %s, sectorID %d, proverID %+v ticket %+v pieces %+v\n", proofType, cacheDirPath, stagedSectorPath, sealedSectorPath, sectorID, proverID, ticket, pieces)
 
 	cCacheDirPath := C.CString(cacheDirPath)
 	defer C.free(unsafe.Pointer(cCacheDirPath))
