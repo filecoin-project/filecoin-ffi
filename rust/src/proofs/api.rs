@@ -146,8 +146,12 @@ pub unsafe extern "C" fn seal_pre_commit(
             Ok(output) => {
                 response.status_code = FCPResponseStatus::FCPNoError;
 
+                let meow = output.registered_proof.into();
+
+                info!("meow: {:?}", meow);
+
                 response.seal_pre_commit_output = FFISealPreCommitOutput {
-                    registered_proof: output.registered_proof.into(),
+                    registered_proof: meow,
                     comm_r: output.comm_r,
                     comm_d: output.comm_d,
                 };

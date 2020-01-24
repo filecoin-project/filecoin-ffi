@@ -20,13 +20,13 @@ func cRegisteredPoStProof(p RegisteredPoStProof) C.FFIRegisteredPoStProof {
 	switch p {
 	case PoStProofStackedDrg1KiBV1:
 		return C.FFIRegisteredPoStProof_StackedDrg1KiBV1
-	case StackedDrg16MiBV1PoSt:
+	case PoStProofStackedDrg16MiBV1:
 		return C.FFIRegisteredPoStProof_StackedDrg16MiBV1
-	case StackedDrg256MiBV1PoSt:
+	case PoStProofStackedDrg256MiBV1:
 		return C.FFIRegisteredPoStProof_StackedDrg256MiBV1
-	case StackedDrg1GiBV1PoSt:
+	case PoStProofStackedDrg1GiBV1:
 		return C.FFIRegisteredPoStProof_StackedDrg1GiBV1
-	case StackedDrg32GiBV1PoSt:
+	case PoStProofStackedDrg32GiBV1:
 		return C.FFIRegisteredPoStProof_StackedDrg32GiBV1
 	default:
 		panic(fmt.Sprintf("unsupported RegisteredPoStProof value: %v", p))
@@ -184,10 +184,10 @@ func GenerateDataCommitment(proofType RegisteredSealProof, pieces []PublicPieceI
 
 // GeneratePieceCommitmentFromFile produces a piece commitment for the provided data
 // stored in a given file.
-func GeneratePieceCommitmentFromFile(sealProof RegisteredSealProof, pieceFile *os.File, pieceSize uint64) (commP [CommitmentBytesLen]byte, err error) {
+func GeneratePieceCommitmentFromFile(proofType RegisteredSealProof, pieceFile *os.File, pieceSize uint64) (commP [CommitmentBytesLen]byte, err error) {
 	pieceFd := pieceFile.Fd()
 
-	resPtr := C.generate_piece_commitment(cRegisteredSealProof(sealProof), C.int(pieceFd), C.uint64_t(pieceSize))
+	resPtr := C.generate_piece_commitment(cRegisteredSealProof(proofType), C.int(pieceFd), C.uint64_t(pieceSize))
 	defer C.destroy_generate_piece_commitment_response(resPtr)
 
 	// Make sure our filedescriptor stays alive, stayin alive
@@ -685,15 +685,15 @@ func goCommitment(src *C.uint8_t) [32]byte {
 func goRegisteredPoStProof(p C.FFIRegisteredPoStProof) RegisteredPoStProof {
 	switch p {
 	case C.FFIRegisteredPoStProof_StackedDrg1KiBV1:
-		return C.FFIRegisteredPoStProof_StackedDrg1KiBV1
+		return PoStProofStackedDrg1KiBV1
 	case C.FFIRegisteredPoStProof_StackedDrg16MiBV1:
-		return C.FFIRegisteredPoStProof_StackedDrg16MiBV1
+		return PoStProofStackedDrg16MiBV1
 	case C.FFIRegisteredPoStProof_StackedDrg256MiBV1:
-		return C.FFIRegisteredPoStProof_StackedDrg256MiBV1
+		return PoStProofStackedDrg256MiBV1
 	case C.FFIRegisteredPoStProof_StackedDrg1GiBV1:
-		return C.FFIRegisteredPoStProof_StackedDrg1GiBV1
+		return PoStProofStackedDrg1GiBV1
 	case C.FFIRegisteredPoStProof_StackedDrg32GiBV1:
-		return C.FFIRegisteredPoStProof_StackedDrg32GiBV1
+		return PoStProofStackedDrg32GiBV1
 	default:
 		panic(fmt.Sprintf("unsupported FFIRegisteredPoStProof value: %v", p))
 	}
@@ -702,15 +702,15 @@ func goRegisteredPoStProof(p C.FFIRegisteredPoStProof) RegisteredPoStProof {
 func goRegisteredSealProof(p C.FFIRegisteredSealProof) RegisteredSealProof {
 	switch p {
 	case C.FFIRegisteredSealProof_StackedDrg1KiBV1:
-		return C.FFIRegisteredSealProof_StackedDrg1KiBV1
+		return SealProofStackedDrg1KiBV1
 	case C.FFIRegisteredSealProof_StackedDrg16MiBV1:
-		return C.FFIRegisteredSealProof_StackedDrg16MiBV1
+		return SealProofStackedDrg16MiBV1
 	case C.FFIRegisteredSealProof_StackedDrg256MiBV1:
-		return C.FFIRegisteredSealProof_StackedDrg256MiBV1
+		return SealProofStackedDrg256MiBV1
 	case C.FFIRegisteredSealProof_StackedDrg1GiBV1:
-		return C.FFIRegisteredSealProof_StackedDrg1GiBV1
+		return SealProofStackedDrg1GiBV1
 	case C.FFIRegisteredSealProof_StackedDrg32GiBV1:
-		return C.FFIRegisteredSealProof_StackedDrg32GiBV1
+		return SealProofStackedDrg32GiBV1
 	default:
 		panic(fmt.Sprintf("unsupported FFIRegisteredSealProof value: %v", p))
 	}

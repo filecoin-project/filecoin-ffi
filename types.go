@@ -201,10 +201,10 @@ const (
 type RegisteredPoStProof int
 
 const (
-	PoStProofUnset            RegisteredPoStProof = 0
-	PoStProofStackedDrg1KiBV1 RegisteredPoStProof = 1
-	StackedDrg16MiBV1PoSt     RegisteredPoStProof = 2
-	StackedDrg256MiBV1PoSt    RegisteredPoStProof = 3
-	StackedDrg1GiBV1PoSt      RegisteredPoStProof = 4
-	StackedDrg32GiBV1PoSt     RegisteredPoStProof = 5
+	PoStProofUnset              RegisteredPoStProof = 0
+	PoStProofStackedDrg1KiBV1   RegisteredPoStProof = 1
+	PoStProofStackedDrg16MiBV1  RegisteredPoStProof = 2
+	PoStProofStackedDrg256MiBV1 RegisteredPoStProof = 3
+	PoStProofStackedDrg1GiBV1   RegisteredPoStProof = 4
+	PoStProofStackedDrg32GiBV1  RegisteredPoStProof = 5
 )
