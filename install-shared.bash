@@ -24,7 +24,8 @@ download_release_tarball() {
 
     __tar_path="/tmp/${__release_name}_$(basename ${__release_url}).tar.gz"
 
-    __asset_url=$(curl \
+    if [ ! -f "${__tar_path}" ];then
+        __asset_url=$(curl \
         --head \
         --retry 3 \
         --header "Accept:application/octet-stream" \
@@ -33,12 +34,12 @@ download_release_tarball() {
         -w %{url_effective} \
         "$__release_url")
 
-    curl --retry 3 --output "${__tar_path}" "$__asset_url"
-    if [[ $? -ne "0" ]]; then
-        (>&2 echo "failed to download release asset (tag URL: ${__release_tag_url}, asset URL: ${__asset_url})")
-        return 1
+        curl --retry 3 --output "${__tar_path}" "$__asset_url"
+        if [[ $? -ne "0" ]]; then
+            (>&2 echo "failed to download release asset (tag URL: ${__release_tag_url}, asset URL: ${__asset_url})")
+            return 1
+        fi
     fi
-
     eval $__resultvar="'$__tar_path'"
 }
 
