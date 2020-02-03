@@ -677,6 +677,7 @@ name = "filecoin"
 version = "0.7.3"
 dependencies = [
  "anyhow 1.0.25 (registry+https://github.com/rust-lang/crates.io-index)",
+ "bellperson 0.4.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "bls-signatures 0.3.0 (git+https://github.com/filecoin-project/bls-signatures.git)",
  "byteorder 1.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "cbindgen 0.10.0 (registry+https://github.com/rust-lang/crates.io-index)",

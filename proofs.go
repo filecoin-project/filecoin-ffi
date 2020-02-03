@@ -532,6 +532,27 @@ func GeneratePoSt(
 	return goBytes(resPtr.flattened_proofs_ptr, resPtr.flattened_proofs_len), nil
 }
 
+func GetGPUDevices() ([]string, error) {
+	resPtr := C.get_gpu_devices()
+	defer C.destroy_gpu_device_response(resPtr)
+
+	if resPtr.status_code != 0 {
+		return nil, errors.New(C.GoString(resPtr.error_msg))
+	}
+
+	devices := make([]string, resPtr.devices_len)
+	if resPtr.devices_ptr == nil || resPtr.devices_len == 0 {
+		return devices, nil
+	}
+
+	ptrs := (*[1 << 30]*C.char)(unsafe.Pointer(resPtr.devices_ptr))[:resPtr.devices_len:resPtr.devices_len]
+	for i := 0; i < int(resPtr.devices_len); i++ {
+		devices[i] = C.GoString(ptrs[i])
+	}
+
+	return devices, nil
+}
+
 // SingleProofPartitionProofLen denotes the number of bytes in a proof generated
 // with a single partition. The number of bytes in a proof increases linearly
 // with the number of partitions used when creating that proof.
