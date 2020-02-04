@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/rand"
 	"encoding/hex"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"math/big"
@@ -235,6 +236,12 @@ func TestJsonMarshalSymmetry(t *testing.T) {
 
 		require.Equal(t, toSerialize, fromSerialized)
 	}
+}
+
+func TestGetGPUDevicesDoesNotProduceAnError(t *testing.T) {
+	devices, err := GetGPUDevices()
+	require.NoError(t, err)
+	fmt.Printf("devices: %+v\n", devices) // clutters up test output, but useful
 }
 
 func requireTempFile(t *testing.T, fileContentsReader io.Reader, size uint64) *os.File {
