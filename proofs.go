@@ -532,6 +532,8 @@ func GeneratePoSt(
 	return goBytes(resPtr.flattened_proofs_ptr, resPtr.flattened_proofs_len), nil
 }
 
+// GetGPUDevices produces a slice of strings, each representing the name of a
+// detected GPU device.
 func GetGPUDevices() ([]string, error) {
 	resPtr := C.get_gpu_devices()
 	defer C.destroy_gpu_device_response(resPtr)
