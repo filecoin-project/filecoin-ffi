@@ -53,9 +53,6 @@ jobs:
             jq --version
       - checkout
       - build_project
-      - restore_parameter_cache
-      - obtain_filecoin_parameters
-      - save_parameter_cache
       - build_and_compile_tests
   publish_linux_staticlib:
     docker:
@@ -146,10 +143,18 @@ workflows:
       - cargo_fetch
       - build_and_test_linux_cgo_bindings
       - publish_linux_staticlib:
+          filters:
+            branches:
+              only:
+                - master
           requires:
             - cargo_fetch
       - build_darwin_cgo_bindings
-      - publish_darwin_staticlib
+      - publish_darwin_staticlib:
+          filters:
+            branches:
+              only:
+                - master
 
 commands:
   configure_environment_variables:
@@ -166,7 +171,7 @@ commands:
     steps:
       - run:
           name: Obtain filecoin groth parameters
-          command: ./paramcache --params-for-sector-sizes='1024'
+          command: ./paramcache --params-for-sector-sizes='1024' --predictable
           no_output_timeout: 60m
   build_project:
     steps:
@@ -174,10 +179,13 @@ commands:
           name: Build project
           command: make
       - run:
+          name: Build project without CGO
+          command: env CGO_ENABLED=0 go build .
+      - run:
           name: Ensure paramcache is installed to project root
           command: |
             test -f ./paramcache \
-              || (rustup run --install nightly cargo install filecoin-proofs --force --git=https://github.com/filecoin-project/rust-fil-proofs.git --branch=master --bin=paramcache --root=./ \
+              || (rustup run --install nightly cargo install filecoin-proofs --force --git=https://github.com/filecoin-project/rust-fil-proofs.git --branch=temp/v20-params --bin=paramcache --root=./ \
                 && mv ./bin/paramcache ./paramcache)
           no_output_timeout: 60m
   build_and_run_tests:
@@ -195,10 +203,10 @@ commands:
     steps:
       - restore_cache:
           keys:
-            - v19-proof-params-{{ arch }}
+            - v20c-proof-params-{{ arch }}
   save_parameter_cache:
     steps:
       - save_cache:
-          key: v19-proof-params-{{ arch }}
+          key: v20c-proof-params-{{ arch }}
           paths:
             - "~/filecoin-proof-parameters/"

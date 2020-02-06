@@ -48,8 +48,6 @@ impl std::io::Seek for FileDescriptorRef {
 pub struct FFISealPreCommitOutput {
     pub comm_d: [u8; 32],
     pub comm_r: [u8; 32],
-    pub p_aux_comm_c: [u8; 32],
-    pub p_aux_comm_r_last: [u8; 32],
 }
 
 #[repr(C)]
@@ -276,6 +274,24 @@ impl Default for UnsealResponse {
 }
 
 code_and_message_impl!(UnsealResponse);
+
+#[repr(C)]
+#[derive(DropStructMacro)]
+pub struct UnsealRangeResponse {
+    pub status_code: FCPResponseStatus,
+    pub error_msg: *const libc::c_char,
+}
+
+impl Default for UnsealRangeResponse {
+    fn default() -> UnsealRangeResponse {
+        UnsealRangeResponse {
+            status_code: FCPResponseStatus::FCPNoError,
+            error_msg: ptr::null(),
+        }
+    }
+}
+
+code_and_message_impl!(UnsealRangeResponse);
 
 #[repr(C)]
 #[derive(DropStructMacro)]

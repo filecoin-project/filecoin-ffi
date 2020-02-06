@@ -1,11 +1,10 @@
+//+build cgo
+
 package ffi
 
 import (
-	"bytes"
-	"encoding/json"
 	"os"
 	"runtime"
-	"sort"
 	"unsafe"
 
 	"github.com/pkg/errors"
@@ -16,155 +15,7 @@ import (
 // #include "./filecoin.h"
 import "C"
 
-// SortedPublicSectorInfo is a slice of PublicSectorInfo sorted
-// (lexicographically, ascending) by replica commitment (CommR).
-type SortedPublicSectorInfo struct {
-	f []PublicSectorInfo
-}
-
-// SortedPrivateSectorInfo is a slice of PrivateSectorInfo sorted
-// (lexicographically, ascending) by replica commitment (CommR).
-type SortedPrivateSectorInfo struct {
-	f []PrivateSectorInfo
-}
-
-// SealTicket is required for the first step of Interactive PoRep.
-type SealTicket struct {
-	BlockHeight uint64
-	TicketBytes [32]byte
-}
-
-// SealSeed is required for the second step of Interactive PoRep.
-type SealSeed struct {
-	BlockHeight uint64
-	TicketBytes [32]byte
-}
-
-type Candidate struct {
-	SectorID             uint64
-	PartialTicket        [32]byte
-	Ticket               [32]byte
-	SectorChallengeIndex uint64
-}
-
 // NewSortedPublicSectorInfo returns a SortedPublicSectorInfo
-func NewSortedPublicSectorInfo(sectorInfo ...PublicSectorInfo) SortedPublicSectorInfo {
-	fn := func(i, j int) bool {
-		return bytes.Compare(sectorInfo[i].CommR[:], sectorInfo[j].CommR[:]) == -1
-	}
-
-	sort.Slice(sectorInfo[:], fn)
-
-	return SortedPublicSectorInfo{
-		f: sectorInfo,
-	}
-}
-
-// Values returns the sorted PublicSectorInfo as a slice
-func (s *SortedPublicSectorInfo) Values() []PublicSectorInfo {
-	return s.f
-}
-
-// MarshalJSON JSON-encodes and serializes the SortedPublicSectorInfo.
-func (s SortedPublicSectorInfo) MarshalJSON() ([]byte, error) {
-	return json.Marshal(s.f)
-}
-
-// UnmarshalJSON parses the JSON-encoded byte slice and stores the result in the
-// value pointed to by s.f. Note that this method allows for construction of a
-// SortedPublicSectorInfo which violates its invariant (that its PublicSectorInfo are sorted
-// in some defined way). Callers should take care to never provide a byte slice
-// which would violate this invariant.
-func (s *SortedPublicSectorInfo) UnmarshalJSON(b []byte) error {
-	return json.Unmarshal(b, &s.f)
-}
-
-type PublicSectorInfo struct {
-	SectorID uint64
-	CommR    [CommitmentBytesLen]byte
-}
-
-// NewSortedPrivateSectorInfo returns a SortedPrivateSectorInfo
-func NewSortedPrivateSectorInfo(sectorInfo ...PrivateSectorInfo) SortedPrivateSectorInfo {
-	fn := func(i, j int) bool {
-		return bytes.Compare(sectorInfo[i].CommR[:], sectorInfo[j].CommR[:]) == -1
-	}
-
-	sort.Slice(sectorInfo[:], fn)
-
-	return SortedPrivateSectorInfo{
-		f: sectorInfo,
-	}
-}
-
-// Values returns the sorted PrivateSectorInfo as a slice
-func (s *SortedPrivateSectorInfo) Values() []PrivateSectorInfo {
-	return s.f
-}
-
-// MarshalJSON JSON-encodes and serializes the SortedPrivateSectorInfo.
-func (s SortedPrivateSectorInfo) MarshalJSON() ([]byte, error) {
-	return json.Marshal(s.f)
-}
-
-func (s *SortedPrivateSectorInfo) UnmarshalJSON(b []byte) error {
-	return json.Unmarshal(b, &s.f)
-}
-
-type PrivateSectorInfo struct {
-	SectorID         uint64
-	CommR            [CommitmentBytesLen]byte
-	CacheDirPath     string
-	SealedSectorPath string
-}
-
-// CommitmentBytesLen is the number of bytes in a CommR, CommD, CommP, and CommRStar.
-const CommitmentBytesLen = 32
-
-// SealPreCommitOutput is used to acquire a seed from the chain for the second
-// step of Interactive PoRep.
-type SealPreCommitOutput struct {
-	SectorID uint64
-	CommD    [CommitmentBytesLen]byte
-	CommR    [CommitmentBytesLen]byte
-	Pieces   []PieceMetadata
-	Ticket   SealTicket
-}
-
-// RawSealPreCommitOutput is used to acquire a seed from the chain for the
-// second step of Interactive PoRep. The PersistentAux is not expected to appear
-// on-chain, but is needed for committing. This struct is useful for standalone
-// (e.g. no sector builder) sealing.
-type RawSealPreCommitOutput struct {
-	CommC     [CommitmentBytesLen]byte
-	CommD     [CommitmentBytesLen]byte
-	CommR     [CommitmentBytesLen]byte
-	CommRLast [CommitmentBytesLen]byte
-}
-
-// SealCommitOutput is produced by the second step of Interactive PoRep.
-type SealCommitOutput struct {
-	SectorID uint64
-	CommD    [CommitmentBytesLen]byte
-	CommR    [CommitmentBytesLen]byte
-	Proof    []byte
-	Pieces   []PieceMetadata
-	Ticket   SealTicket
-	Seed     SealSeed
-}
-
-// PieceMetadata represents a piece stored by the sector builder.
-type PieceMetadata struct {
-	Key   string
-	Size  uint64
-	CommP [CommitmentBytesLen]byte
-}
-
-// PublicPieceInfo is an on-chain tuple of CommP and aligned piece-size.
-type PublicPieceInfo struct {
-	Size  uint64
-	CommP [CommitmentBytesLen]byte
-}
 
 // VerifySeal returns true if the sealing operation from which its inputs were
 // derived was valid, and false if not.
@@ -544,6 +395,59 @@ func Unseal(
 	return nil
 }
 
+// UnsealRange
+func UnsealRange(
+	sectorSize uint64,
+	poRepProofPartitions uint8,
+	cacheDirPath string,
+	sealedSectorPath string,
+	unsealOutputPath string,
+	sectorID uint64,
+	proverID [32]byte,
+	ticket [32]byte,
+	commD [CommitmentBytesLen]byte,
+	offset uint64,
+	len uint64,
+) error {
+	cCacheDirPath := C.CString(cacheDirPath)
+	defer C.free(unsafe.Pointer(cCacheDirPath))
+
+	cSealedSectorPath := C.CString(sealedSectorPath)
+	defer C.free(unsafe.Pointer(cSealedSectorPath))
+
+	cUnsealOutputPath := C.CString(unsealOutputPath)
+	defer C.free(unsafe.Pointer(cUnsealOutputPath))
+
+	proverIDCBytes := C.CBytes(proverID[:])
+	defer C.free(proverIDCBytes)
+
+	ticketCBytes := C.CBytes(ticket[:])
+	defer C.free(ticketCBytes)
+
+	commDCBytes := C.CBytes(commD[:])
+	defer C.free(commDCBytes)
+
+	resPtr := C.unseal_range(
+		cSectorClass(sectorSize, poRepProofPartitions),
+		cCacheDirPath,
+		cSealedSectorPath,
+		cUnsealOutputPath,
+		C.uint64_t(sectorID),
+		(*[32]C.uint8_t)(proverIDCBytes),
+		(*[32]C.uint8_t)(ticketCBytes),
+		(*[CommitmentBytesLen]C.uint8_t)(commDCBytes),
+		C.uint64_t(offset),
+		C.uint64_t(len),
+	)
+	defer C.destroy_unseal_range_response(resPtr)
+
+	if resPtr.status_code != 0 {
+		return errors.New(C.GoString(resPtr.error_msg))
+	}
+
+	return nil
+}
+
 // FinalizeTicket creates an actual ticket from a partial ticket.
 func FinalizeTicket(partialTicket [32]byte) ([32]byte, error) {
 	partialTicketPtr := unsafe.Pointer(&(partialTicket)[0])
@@ -628,6 +532,29 @@ func GeneratePoSt(
 	return goBytes(resPtr.flattened_proofs_ptr, resPtr.flattened_proofs_len), nil
 }
 
+// GetGPUDevices produces a slice of strings, each representing the name of a
+// detected GPU device.
+func GetGPUDevices() ([]string, error) {
+	resPtr := C.get_gpu_devices()
+	defer C.destroy_gpu_device_response(resPtr)
+
+	if resPtr.status_code != 0 {
+		return nil, errors.New(C.GoString(resPtr.error_msg))
+	}
+
+	devices := make([]string, resPtr.devices_len)
+	if resPtr.devices_ptr == nil || resPtr.devices_len == 0 {
+		return devices, nil
+	}
+
+	ptrs := (*[1 << 30]*C.char)(unsafe.Pointer(resPtr.devices_ptr))[:resPtr.devices_len:resPtr.devices_len]
+	for i := 0; i < int(resPtr.devices_len); i++ {
+		devices[i] = C.GoString(ptrs[i])
+	}
+
+	return devices, nil
+}
+
 // SingleProofPartitionProofLen denotes the number of bytes in a proof generated
 // with a single partition. The number of bytes in a proof increases linearly
 // with the number of partitions used when creating that proof.
@@ -675,10 +602,8 @@ func cSectorClass(sectorSize uint64, poRepProofPartitions uint8) C.FFISectorClas
 
 func cSealPreCommitOutput(src RawSealPreCommitOutput) C.FFISealPreCommitOutput {
 	return C.FFISealPreCommitOutput{
-		comm_d:            *(*[32]C.uint8_t)(unsafe.Pointer(&src.CommD)),
-		comm_r:            *(*[32]C.uint8_t)(unsafe.Pointer(&src.CommR)),
-		p_aux_comm_c:      *(*[32]C.uint8_t)(unsafe.Pointer(&src.CommC)),
-		p_aux_comm_r_last: *(*[32]C.uint8_t)(unsafe.Pointer(&src.CommRLast)),
+		comm_d: *(*[32]C.uint8_t)(unsafe.Pointer(&src.CommD)),
+		comm_r: *(*[32]C.uint8_t)(unsafe.Pointer(&src.CommR)),
 	}
 }
 
@@ -749,10 +674,8 @@ func goCandidate(src C.FFICandidate) Candidate {
 
 func goRawSealPreCommitOutput(src C.FFISealPreCommitOutput) RawSealPreCommitOutput {
 	return RawSealPreCommitOutput{
-		CommD:     goCommitment(&src.comm_d[0]),
-		CommR:     goCommitment(&src.comm_r[0]),
-		CommRLast: goCommitment(&src.p_aux_comm_r_last[0]),
-		CommC:     goCommitment(&src.p_aux_comm_c[0]),
+		CommD: goCommitment(&src.comm_d[0]),
+		CommR: goCommitment(&src.comm_r[0]),
 	}
 }
 

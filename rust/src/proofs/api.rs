@@ -11,8 +11,6 @@ use filecoin_proofs::{
     PoStConfig, SectorClass, SectorSize, UnpaddedByteIndex, UnpaddedBytesAmount,
 };
 use libc;
-use storage_proofs::hasher::pedersen::PedersenDomain;
-use storage_proofs::hasher::Domain;
 use storage_proofs::sector::SectorId;
 
 use super::helpers::{
@@ -60,7 +58,7 @@ pub unsafe extern "C" fn write_with_alignment(
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
             }
         }
 
@@ -98,7 +96,7 @@ pub unsafe extern "C" fn write_without_alignment(
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
             }
         }
 
@@ -158,7 +156,7 @@ pub unsafe extern "C" fn seal_pre_commit(
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
             }
         }
 
@@ -188,23 +186,6 @@ pub unsafe extern "C" fn seal_commit(
         info!("seal_commit: start");
 
         let mut response = SealCommitResponse::default();
-
-        let comm_r_last = PedersenDomain::try_from_bytes(&spco.p_aux_comm_r_last[..]);
-        let comm_c = PedersenDomain::try_from_bytes(&spco.p_aux_comm_c[..]);
-
-        if comm_r_last.is_err() {
-            response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-            response.error_msg = rust_str_to_c_str("cannot xform comm_r_last to PedersenDomain");
-            info!("seal_commit: finish");
-            return raw_ptr(response);
-        }
-
-        if comm_c.is_err() {
-            response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-            response.error_msg = rust_str_to_c_str("cannot xform comm_c to PedersenDomain");
-            info!("seal_commit: finish");
-            return raw_ptr(response);
-        }
 
         let spco = api_types::SealPreCommitOutput {
             comm_r: spco.comm_r,
@@ -237,7 +218,7 @@ pub unsafe extern "C" fn seal_commit(
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
             }
         }
 
@@ -288,11 +269,64 @@ pub unsafe extern "C" fn unseal(
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
             }
         };
 
         info!("unseal: finish");
+
+        raw_ptr(response)
+    })
+}
+
+/// TODO: document
+///
+#[no_mangle]
+pub unsafe extern "C" fn unseal_range(
+    sector_class: FFISectorClass,
+    cache_dir_path: *const libc::c_char,
+    sealed_sector_path: *const libc::c_char,
+    unseal_output_path: *const libc::c_char,
+    sector_id: u64,
+    prover_id: &[u8; 32],
+    ticket: &[u8; 32],
+    comm_d: &[u8; 32],
+    offset: u64,
+    length: u64,
+) -> *mut UnsealRangeResponse {
+    catch_panic_response(|| {
+        init_log();
+
+        info!("unseal_range: start");
+
+        let sc: SectorClass = sector_class.clone().into();
+
+        let result = api_fns::get_unsealed_range(
+            sc.into(),
+            c_str_to_pbuf(cache_dir_path),
+            c_str_to_pbuf(sealed_sector_path),
+            c_str_to_pbuf(unseal_output_path),
+            *prover_id,
+            SectorId::from(sector_id),
+            *comm_d,
+            *ticket,
+            UnpaddedByteIndex(offset),
+            UnpaddedBytesAmount(length),
+        );
+
+        let mut response = UnsealRangeResponse::default();
+
+        match result {
+            Ok(_) => {
+                response.status_code = FCPResponseStatus::FCPNoError;
+            }
+            Err(err) => {
+                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+            }
+        };
+
+        info!("unseal_range: finish");
 
         raw_ptr(response)
     })
@@ -352,7 +386,7 @@ pub unsafe extern "C" fn verify_seal(
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
             }
         };
 
@@ -379,7 +413,7 @@ pub unsafe extern "C" fn finalize_ticket(partial_ticket: &[u8; 32]) -> *mut Fina
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
             }
         };
 
@@ -443,7 +477,7 @@ pub unsafe extern "C" fn verify_post(
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
             }
         };
 
@@ -484,7 +518,7 @@ pub unsafe extern "C" fn generate_piece_commitment(
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
             }
         }
 
@@ -525,7 +559,7 @@ pub unsafe extern "C" fn generate_data_commitment(
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
             }
         }
 
@@ -582,7 +616,7 @@ pub unsafe extern "C" fn generate_candidates(
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
             }
         }
 
@@ -636,7 +670,7 @@ pub unsafe extern "C" fn generate_post(
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
             }
         }
 
@@ -672,6 +706,11 @@ pub unsafe extern "C" fn destroy_seal_commit_response(ptr: *mut SealCommitRespon
 
 #[no_mangle]
 pub unsafe extern "C" fn destroy_unseal_response(ptr: *mut UnsealResponse) {
+    let _ = Box::from_raw(ptr);
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn destroy_unseal_range_response(ptr: *mut UnsealRangeResponse) {
     let _ = Box::from_raw(ptr);
 }
 
