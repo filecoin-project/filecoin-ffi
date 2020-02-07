@@ -7,7 +7,7 @@ download_release_tarball() {
     __release_name="${__repo_name}-$(uname)"
     __release_sha1=$(git rev-parse HEAD)
     __release_tag="${__release_sha1:0:16}"
-    __release_tag_url="https://api.github.com/repos/filecoin-project/${__repo_name}/releases/tags/${__release_tag}"
+    __release_tag_url="https://api.github.com/repos/xjrwfilecoin/${__repo_name}/releases/tags/${__release_tag}"
 
     echo "acquiring release @ ${__release_tag}"
 
