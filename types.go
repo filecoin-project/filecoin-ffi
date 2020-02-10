@@ -3,6 +3,7 @@ package ffi
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/filecoin-project/specs-actors/actors/abi"
 	"sort"
 )
 
@@ -120,19 +121,19 @@ type SealSeed struct {
 }
 
 type Candidate struct {
-	SectorID             uint64
+	SectorNum            abi.SectorNumber
 	PartialTicket        [32]byte
 	Ticket               [32]byte
 	SectorChallengeIndex uint64
 }
 
 type PublicSectorInfo struct {
-	SectorID uint64
-	CommR    [CommitmentBytesLen]byte
+	SectorNum abi.SectorNumber
+	CommR     [CommitmentBytesLen]byte
 }
 
 type PrivateSectorInfo struct {
-	SectorID         uint64
+	SectorNum        abi.SectorNumber
 	CommR            [CommitmentBytesLen]byte
 	CacheDirPath     string
 	SealedSectorPath string
@@ -141,39 +142,11 @@ type PrivateSectorInfo struct {
 // CommitmentBytesLen is the number of bytes in a CommR, CommD, CommP, and CommRStar.
 const CommitmentBytesLen = 32
 
-// SealPreCommitOutput is used to acquire a seed from the chain for the second
-// step of Interactive PoRep.
-type SealPreCommitOutput struct {
-	SectorID uint64
-	CommD    [CommitmentBytesLen]byte
-	CommR    [CommitmentBytesLen]byte
-	Pieces   []PieceMetadata
-	Ticket   SealTicket
-}
-
 // RawSealPreCommitOutput is used to acquire a seed from the chain for the
 // second step of Interactive PoRep.
 type RawSealPreCommitOutput struct {
 	CommD [CommitmentBytesLen]byte
 	CommR [CommitmentBytesLen]byte
-}
-
-// SealCommitOutput is produced by the second step of Interactive PoRep.
-type SealCommitOutput struct {
-	SectorID uint64
-	CommD    [CommitmentBytesLen]byte
-	CommR    [CommitmentBytesLen]byte
-	Proof    []byte
-	Pieces   []PieceMetadata
-	Ticket   SealTicket
-	Seed     SealSeed
-}
-
-// PieceMetadata represents a piece stored by the sector builder.
-type PieceMetadata struct {
-	Key   string
-	Size  uint64
-	CommP [CommitmentBytesLen]byte
 }
 
 // PublicPieceInfo is an on-chain tuple of CommP and aligned piece-size.

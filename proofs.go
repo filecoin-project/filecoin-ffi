@@ -7,6 +7,7 @@ import (
 	"runtime"
 	"unsafe"
 
+	"github.com/filecoin-project/specs-actors/actors/abi"
 	"github.com/pkg/errors"
 )
 
@@ -20,16 +21,15 @@ import "C"
 // VerifySeal returns true if the sealing operation from which its inputs were
 // derived was valid, and false if not.
 func VerifySeal(
-	sectorSize uint64,
+	sectorSize abi.SectorSize,
 	commR [CommitmentBytesLen]byte,
 	commD [CommitmentBytesLen]byte,
 	proverID [32]byte,
 	ticket [32]byte,
 	seed [32]byte,
-	sectorID uint64,
+	sectorNum abi.SectorNumber,
 	proof []byte,
 ) (bool, error) {
-
 	commDCBytes := C.CBytes(commD[:])
 	defer C.free(commDCBytes)
 
@@ -56,7 +56,7 @@ func VerifySeal(
 		(*[32]C.uint8_t)(proverIDCBytes),
 		(*[32]C.uint8_t)(ticketCBytes),
 		(*[32]C.uint8_t)(seedCBytes),
-		C.uint64_t(sectorID),
+		C.uint64_t(uint64(sectorNum)),
 		(*C.uint8_t)(proofCBytes),
 		C.size_t(len(proof)),
 	)
@@ -72,7 +72,7 @@ func VerifySeal(
 // VerifyPoSt returns true if the PoSt-generation operation from which its
 // inputs were derived was valid, and false if not.
 func VerifyPoSt(
-	sectorSize uint64,
+	sectorSize abi.SectorSize,
 	sectorInfo SortedPublicSectorInfo,
 	randomness [32]byte,
 	challengeCount uint64,
@@ -83,10 +83,10 @@ func VerifyPoSt(
 	// CommRs and sector ids must be provided to C.verify_post in the same order
 	// that they were provided to the C.generate_post
 	sortedCommRs := make([][CommitmentBytesLen]byte, len(sectorInfo.Values()))
-	sortedSectorIds := make([]uint64, len(sectorInfo.Values()))
+	sortedSectorNumsRaw := make([]uint64, len(sectorInfo.Values()))
 	for idx, v := range sectorInfo.Values() {
 		sortedCommRs[idx] = v.CommR
-		sortedSectorIds[idx] = v.SectorID
+		sortedSectorNumsRaw[idx] = uint64(v.SectorNum)
 	}
 
 	// flattening the byte slice makes it easier to copy into the C heap
@@ -106,7 +106,7 @@ func VerifyPoSt(
 	defer C.free(proofCBytes)
 
 	// allocate fixed-length array of uint64s in C heap
-	sectorIdsPtr, sectorIdsSize := cUint64s(sortedSectorIds)
+	sectorIdsPtr, sectorIdsSize := cUint64s(sortedSectorNumsRaw)
 	defer C.free(unsafe.Pointer(sectorIdsPtr))
 
 	winnersPtr, winnersSize := cCandidates(winners)
@@ -142,13 +142,13 @@ func VerifyPoSt(
 // GetMaxUserBytesPerStagedSector returns the number of user bytes that will fit
 // into a staged sector. Due to bit-padding, the number of user bytes that will
 // fit into the staged sector will be less than number of bytes in sectorSize.
-func GetMaxUserBytesPerStagedSector(sectorSize uint64) uint64 {
-	return uint64(C.get_max_user_bytes_per_staged_sector(C.uint64_t(sectorSize)))
+func GetMaxUserBytesPerStagedSector(sectorSize abi.SectorSize) uint64 {
+	return uint64(C.get_max_user_bytes_per_staged_sector(C.uint64_t(uint64(sectorSize))))
 }
 
 // GeneratePieceCommitment produces a piece commitment for the provided data
 // stored at a given path.
-func GeneratePieceCommitment(piecePath string, pieceSize uint64) ([CommitmentBytesLen]byte, error) {
+func GeneratePieceCommitment(piecePath string, pieceSize abi.UnpaddedPieceSize) ([CommitmentBytesLen]byte, error) {
 	pieceFile, err := os.Open(piecePath)
 	if err != nil {
 		return [CommitmentBytesLen]byte{}, err
@@ -159,7 +159,7 @@ func GeneratePieceCommitment(piecePath string, pieceSize uint64) ([CommitmentByt
 
 // GenerateDataCommitment produces a commitment for the sector containing the
 // provided pieces.
-func GenerateDataCommitment(sectorSize uint64, pieces []PublicPieceInfo) ([CommitmentBytesLen]byte, error) {
+func GenerateDataCommitment(sectorSize abi.SectorSize, pieces []PublicPieceInfo) ([CommitmentBytesLen]byte, error) {
 	cPiecesPtr, cPiecesLen := cPublicPieceInfo(pieces)
 	defer C.free(unsafe.Pointer(cPiecesPtr))
 
@@ -175,7 +175,7 @@ func GenerateDataCommitment(sectorSize uint64, pieces []PublicPieceInfo) ([Commi
 
 // GeneratePieceCommitmentFromFile produces a piece commitment for the provided data
 // stored in a given file.
-func GeneratePieceCommitmentFromFile(pieceFile *os.File, pieceSize uint64) (commP [CommitmentBytesLen]byte, err error) {
+func GeneratePieceCommitmentFromFile(pieceFile *os.File, pieceSize abi.UnpaddedPieceSize) (commP [CommitmentBytesLen]byte, err error) {
 	pieceFd := pieceFile.Fd()
 
 	resPtr := C.generate_piece_commitment(C.int(pieceFd), C.uint64_t(pieceSize))
@@ -194,22 +194,27 @@ func GeneratePieceCommitmentFromFile(pieceFile *os.File, pieceSize uint64) (comm
 // WriteWithAlignment
 func WriteWithAlignment(
 	pieceFile *os.File,
-	pieceBytes uint64,
+	pieceBytes abi.UnpaddedPieceSize,
 	stagedSectorFile *os.File,
-	existingPieceSizes []uint64,
-) (leftAlignment, total uint64, commP [CommitmentBytesLen]byte, retErr error) {
+	existingPieceSizes []abi.UnpaddedPieceSize,
+) (leftAlignment, total abi.UnpaddedPieceSize, commP [CommitmentBytesLen]byte, retErr error) {
 	pieceFd := pieceFile.Fd()
 	runtime.KeepAlive(pieceFile)
 
 	stagedSectorFd := stagedSectorFile.Fd()
 	runtime.KeepAlive(stagedSectorFile)
 
-	ptr, len := cUint64s(existingPieceSizes)
+	raw := make([]uint64, len(existingPieceSizes))
+	for idx := range existingPieceSizes {
+		raw[idx] = uint64(existingPieceSizes[idx])
+	}
+
+	ptr, len := cUint64s(raw)
 	defer C.free(unsafe.Pointer(ptr))
 
 	resPtr := C.write_with_alignment(
 		C.int(pieceFd),
-		C.uint64_t(pieceBytes),
+		C.uint64_t(uint64(pieceBytes)),
 		C.int(stagedSectorFd),
 		ptr,
 		len,
@@ -220,15 +225,15 @@ func WriteWithAlignment(
 		return 0, 0, [CommitmentBytesLen]byte{}, errors.New(C.GoString(resPtr.error_msg))
 	}
 
-	return uint64(resPtr.left_alignment_unpadded), uint64(resPtr.total_write_unpadded), goCommitment(&resPtr.comm_p[0]), nil
+	return abi.UnpaddedPieceSize(uint64(resPtr.left_alignment_unpadded)), abi.UnpaddedPieceSize(uint64(resPtr.total_write_unpadded)), goCommitment(&resPtr.comm_p[0]), nil
 }
 
 // WriteWithoutAlignment
 func WriteWithoutAlignment(
 	pieceFile *os.File,
-	pieceBytes uint64,
+	pieceBytes abi.UnpaddedPieceSize,
 	stagedSectorFile *os.File,
-) (uint64, [CommitmentBytesLen]byte, error) {
+) (abi.UnpaddedPieceSize, [CommitmentBytesLen]byte, error) {
 	pieceFd := pieceFile.Fd()
 	runtime.KeepAlive(pieceFile)
 
@@ -246,17 +251,17 @@ func WriteWithoutAlignment(
 		return 0, [CommitmentBytesLen]byte{}, errors.New(C.GoString(resPtr.error_msg))
 	}
 
-	return uint64(resPtr.total_write_unpadded), goCommitment(&resPtr.comm_p[0]), nil
+	return abi.UnpaddedPieceSize(uint64(resPtr.total_write_unpadded)), goCommitment(&resPtr.comm_p[0]), nil
 }
 
 // SealPreCommit
 func SealPreCommit(
-	sectorSize uint64,
+	sectorSize abi.SectorSize,
 	poRepProofPartitions uint8,
 	cacheDirPath string,
 	stagedSectorPath string,
 	sealedSectorPath string,
-	sectorID uint64,
+	sectorNum abi.SectorNumber,
 	proverID [32]byte,
 	ticket [32]byte,
 	pieces []PublicPieceInfo,
@@ -284,7 +289,7 @@ func SealPreCommit(
 		cCacheDirPath,
 		cStagedSectorPath,
 		cSealedSectorPath,
-		C.uint64_t(sectorID),
+		C.uint64_t(uint64(sectorNum)),
 		(*[32]C.uint8_t)(proverIDCBytes),
 		(*[32]C.uint8_t)(ticketCBytes),
 		(*C.FFIPublicPieceInfo)(cPiecesPtr),
@@ -301,10 +306,10 @@ func SealPreCommit(
 
 // SealCommit
 func SealCommit(
-	sectorSize uint64,
+	sectorSize abi.SectorSize,
 	poRepProofPartitions uint8,
 	cacheDirPath string,
-	sectorID uint64,
+	sectorNum abi.SectorNumber,
 	proverID [32]byte,
 	ticket [32]byte,
 	seed [32]byte,
@@ -329,7 +334,7 @@ func SealCommit(
 	resPtr := C.seal_commit(
 		cSectorClass(sectorSize, poRepProofPartitions),
 		cCacheDirPath,
-		C.uint64_t(sectorID),
+		C.uint64_t(uint64(sectorNum)),
 		(*[32]C.uint8_t)(proverIDCBytes),
 		(*[32]C.uint8_t)(ticketCBytes),
 		(*[32]C.uint8_t)(seedCBytes),
@@ -348,12 +353,12 @@ func SealCommit(
 
 // Unseal
 func Unseal(
-	sectorSize uint64,
+	sectorSize abi.SectorSize,
 	poRepProofPartitions uint8,
 	cacheDirPath string,
 	sealedSectorPath string,
 	unsealOutputPath string,
-	sectorID uint64,
+	sectorNum abi.SectorNumber,
 	proverID [32]byte,
 	ticket [32]byte,
 	commD [CommitmentBytesLen]byte,
@@ -381,7 +386,7 @@ func Unseal(
 		cCacheDirPath,
 		cSealedSectorPath,
 		cUnsealOutputPath,
-		C.uint64_t(sectorID),
+		C.uint64_t(uint64(sectorNum)),
 		(*[32]C.uint8_t)(proverIDCBytes),
 		(*[32]C.uint8_t)(ticketCBytes),
 		(*[CommitmentBytesLen]C.uint8_t)(commDCBytes),
@@ -397,12 +402,12 @@ func Unseal(
 
 // UnsealRange
 func UnsealRange(
-	sectorSize uint64,
+	sectorSize abi.SectorSize,
 	poRepProofPartitions uint8,
 	cacheDirPath string,
 	sealedSectorPath string,
 	unsealOutputPath string,
-	sectorID uint64,
+	sectorNum abi.SectorNumber,
 	proverID [32]byte,
 	ticket [32]byte,
 	commD [CommitmentBytesLen]byte,
@@ -432,7 +437,7 @@ func UnsealRange(
 		cCacheDirPath,
 		cSealedSectorPath,
 		cUnsealOutputPath,
-		C.uint64_t(sectorID),
+		C.uint64_t(uint64(sectorNum)),
 		(*[32]C.uint8_t)(proverIDCBytes),
 		(*[32]C.uint8_t)(ticketCBytes),
 		(*[CommitmentBytesLen]C.uint8_t)(commDCBytes),
@@ -465,7 +470,7 @@ func FinalizeTicket(partialTicket [32]byte) ([32]byte, error) {
 
 // GenerateCandidates
 func GenerateCandidates(
-	sectorSize uint64,
+	sectorSize abi.SectorSize,
 	proverID [32]byte,
 	randomness [32]byte,
 	challengeCount uint64,
@@ -499,7 +504,7 @@ func GenerateCandidates(
 
 // GeneratePoSt
 func GeneratePoSt(
-	sectorSize uint64,
+	sectorSize abi.SectorSize,
 	proverID [32]byte,
 	privateSectorInfo SortedPrivateSectorInfo,
 	randomness [32]byte,
@@ -593,7 +598,7 @@ func cUint64s(src []uint64) (*C.uint64_t, C.size_t) {
 	return (*C.uint64_t)(cUint64s), srcCSizeT
 }
 
-func cSectorClass(sectorSize uint64, poRepProofPartitions uint8) C.FFISectorClass {
+func cSectorClass(sectorSize abi.SectorSize, poRepProofPartitions uint8) C.FFISectorClass {
 	return C.FFISectorClass{
 		sector_size:            C.uint64_t(sectorSize),
 		porep_proof_partitions: C.uint8_t(poRepProofPartitions),
@@ -617,7 +622,7 @@ func cCandidates(src []Candidate) (*C.FFICandidate, C.size_t) {
 	pp := (*[1 << 30]C.FFICandidate)(cCandidates)
 	for i, v := range src {
 		pp[i] = C.FFICandidate{
-			sector_id:              C.uint64_t(v.SectorID),
+			sector_id:              C.uint64_t(v.SectorNum),
 			partial_ticket:         *(*[32]C.uint8_t)(unsafe.Pointer(&v.PartialTicket)),
 			ticket:                 *(*[32]C.uint8_t)(unsafe.Pointer(&v.Ticket)),
 			sector_challenge_index: C.uint64_t(v.SectorChallengeIndex),
@@ -638,7 +643,7 @@ func cPrivateReplicaInfos(src []PrivateSectorInfo) (*C.FFIPrivateReplicaInfo, C.
 			cache_dir_path: C.CString(v.CacheDirPath),
 			comm_r:         *(*[32]C.uint8_t)(unsafe.Pointer(&v.CommR)),
 			replica_path:   C.CString(v.SealedSectorPath),
-			sector_id:      C.uint64_t(v.SectorID),
+			sector_id:      C.uint64_t(v.SectorNum),
 		}
 	}
 
@@ -665,7 +670,7 @@ func goCandidates(src *C.FFICandidate, size C.size_t) ([]Candidate, error) {
 
 func goCandidate(src C.FFICandidate) Candidate {
 	return Candidate{
-		SectorID:             uint64(src.sector_id),
+		SectorNum:            abi.SectorNumber(uint64(src.sector_id)),
 		PartialTicket:        goCommitment(&src.partial_ticket[0]),
 		Ticket:               goCommitment(&src.ticket[0]),
 		SectorChallengeIndex: uint64(src.sector_challenge_index),
