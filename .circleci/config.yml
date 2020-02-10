@@ -35,7 +35,7 @@ jobs:
       - run:
           name: Install go
           command: |
-            curl https://dl.google.com/go/go1.12.1.darwin-amd64.pkg -o /tmp/go.pkg && \
+            curl https://dl.google.com/go/go1.13.7.darwin-amd64.pkg -o /tmp/go.pkg && \
             sudo installer -pkg /tmp/go.pkg -target /
             go version
       - run:
