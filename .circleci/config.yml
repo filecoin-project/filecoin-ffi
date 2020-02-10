@@ -3,7 +3,7 @@ version: 2.1
 jobs:
   build_and_test_linux_cgo_bindings:
     docker:
-      - image: circleci/golang:1.12.1-stretch
+      - image: circleci/golang:1.13
     working_directory: ~/go/src/github.com/filecoin-project/filecoin-ffi
     resource_class: 2xlarge
     steps:
@@ -35,7 +35,7 @@ jobs:
       - run:
           name: Install go
           command: |
-            curl https://dl.google.com/go/go1.12.1.darwin-amd64.pkg -o /tmp/go.pkg && \
+            curl https://dl.google.com/go/go1.13.7.darwin-amd64.pkg -o /tmp/go.pkg && \
             sudo installer -pkg /tmp/go.pkg -target /
             go version
       - run:
