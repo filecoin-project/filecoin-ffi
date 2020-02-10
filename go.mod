@@ -1,6 +1,6 @@
 module github.com/filecoin-project/filecoin-ffi
 
-go 1.12
+go 1.13
 
 require (
 	github.com/filecoin-project/specs-actors v0.0.0-20200210130641-2d1fbd8672cf
