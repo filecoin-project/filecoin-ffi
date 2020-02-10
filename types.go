@@ -151,6 +151,6 @@ type RawSealPreCommitOutput struct {
 
 // PublicPieceInfo is an on-chain tuple of CommP and aligned piece-size.
 type PublicPieceInfo struct {
-	Size  uint64
+	Size  abi.UnpaddedPieceSize
 	CommP [CommitmentBytesLen]byte
 }

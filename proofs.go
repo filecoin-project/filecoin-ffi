@@ -142,8 +142,8 @@ func VerifyPoSt(
 // GetMaxUserBytesPerStagedSector returns the number of user bytes that will fit
 // into a staged sector. Due to bit-padding, the number of user bytes that will
 // fit into the staged sector will be less than number of bytes in sectorSize.
-func GetMaxUserBytesPerStagedSector(sectorSize abi.SectorSize) uint64 {
-	return uint64(C.get_max_user_bytes_per_staged_sector(C.uint64_t(uint64(sectorSize))))
+func GetMaxUserBytesPerStagedSector(sectorSize abi.SectorSize) abi.UnpaddedPieceSize {
+	return abi.UnpaddedPieceSize(uint64(C.get_max_user_bytes_per_staged_sector(C.uint64_t(uint64(sectorSize)))))
 }
 
 // GeneratePieceCommitment produces a piece commitment for the provided data
