@@ -71,7 +71,6 @@ func TestImportSector(t *testing.T) {
 	require.NoError(t, err)
 
 	// write first piece
-	require.NoError(t, err)
 	pieceFileA := requireTempFile(t, bytes.NewReader(someBytes[0:127]), 127)
 
 	pieceCIDA, err := GeneratePieceCIDFromFile(sealProofType, pieceFileA, 127)

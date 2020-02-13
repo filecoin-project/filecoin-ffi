@@ -79,10 +79,10 @@ func VerifySeal(
 		return false, errors.Wrap(err, "failed to convert unsealed CID to CommR")
 	}
 
-	commDCBytes := C.CBytes(commD[:])
+	commDCBytes := C.CBytes(from32ByteArray(to32ByteArray(commD)))
 	defer C.free(commDCBytes)
 
-	commRCBytes := C.CBytes(commR[:])
+	commRCBytes := C.CBytes(from32ByteArray(to32ByteArray(commR)))
 	defer C.free(commRCBytes)
 
 	proofCBytes := C.CBytes(proof.ProofBytes[:])
@@ -91,10 +91,10 @@ func VerifySeal(
 	proverIDCBytes := C.CBytes(proverID[:])
 	defer C.free(proverIDCBytes)
 
-	ticketCBytes := C.CBytes(ticket[:])
+	ticketCBytes := C.CBytes(from32ByteArray(to32ByteArray(ticket)))
 	defer C.free(ticketCBytes)
 
-	seedCBytes := C.CBytes(seed[:])
+	seedCBytes := C.CBytes(from32ByteArray(to32ByteArray(seed)))
 	defer C.free(seedCBytes)
 
 	// a mutable pointer to a VerifySealResponse C-struct
@@ -135,7 +135,7 @@ func VerifyPoSt(
 
 	defer C.free(unsafe.Pointer(cInfoPtr))
 
-	randomnessCBytes := C.CBytes(randomness[:])
+	randomnessCBytes := C.CBytes(from32ByteArray(to32ByteArray(randomness)))
 	defer C.free(randomnessCBytes)
 
 	flattenedProofsCBytes := C.CBytes(proof)
@@ -363,7 +363,7 @@ func SealPreCommitPhase1(
 	proverIDCBytes := C.CBytes(proverID[:])
 	defer C.free(proverIDCBytes)
 
-	ticketCBytes := C.CBytes(ticket[:])
+	ticketCBytes := C.CBytes(from32ByteArray(to32ByteArray(ticket)))
 	defer C.free(ticketCBytes)
 
 	cPiecesPtr, cPiecesLen, err := cPublicPieceInfo(pieces)
@@ -448,15 +448,15 @@ func SealCommitPhase1(
 		return nil, errors.Wrap(err, "failed to compute CommR from sealed CID")
 	}
 
-	commD, err := commcid.CIDToReplicaCommitmentV1(unsealedCID)
+	commD, err := commcid.CIDToDataCommitmentV1(unsealedCID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to compute CommD from sealed CID")
 	}
 
-	commRCBytes := C.CBytes(commR)
+	commRCBytes := C.CBytes(from32ByteArray(to32ByteArray(commR)))
 	defer C.free(commRCBytes)
 
-	commDCBytes := C.CBytes(commD)
+	commDCBytes := C.CBytes(from32ByteArray(to32ByteArray(commD)))
 	defer C.free(commDCBytes)
 
 	cCacheDirPath := C.CString(cacheDirPath)
@@ -465,10 +465,10 @@ func SealCommitPhase1(
 	proverIDCBytes := C.CBytes(proverID[:])
 	defer C.free(proverIDCBytes)
 
-	ticketCBytes := C.CBytes(ticket[:])
+	ticketCBytes := C.CBytes(from32ByteArray(to32ByteArray(ticket)))
 	defer C.free(ticketCBytes)
 
-	seedCBytes := C.CBytes(seed[:])
+	seedCBytes := C.CBytes(from32ByteArray(to32ByteArray(seed)))
 	defer C.free(seedCBytes)
 
 	cPiecesPtr, cPiecesLen, err := cPublicPieceInfo(pieces)
@@ -559,10 +559,10 @@ func Unseal(
 	proverIDCBytes := C.CBytes(proverID[:])
 	defer C.free(proverIDCBytes)
 
-	ticketCBytes := C.CBytes(ticket[:])
+	ticketCBytes := C.CBytes(from32ByteArray(to32ByteArray(ticket)))
 	defer C.free(ticketCBytes)
 
-	commDCBytes := C.CBytes(commD[:])
+	commDCBytes := C.CBytes(from32ByteArray(to32ByteArray(commD)))
 	defer C.free(commDCBytes)
 
 	resPtr := C.unseal(
@@ -619,10 +619,10 @@ func UnsealRange(
 	proverIDCBytes := C.CBytes(proverID[:])
 	defer C.free(proverIDCBytes)
 
-	ticketCBytes := C.CBytes(ticket[:])
+	ticketCBytes := C.CBytes(from32ByteArray(to32ByteArray(ticket)))
 	defer C.free(ticketCBytes)
 
-	commDCBytes := C.CBytes(commD[:])
+	commDCBytes := C.CBytes(from32ByteArray(to32ByteArray(commD)))
 	defer C.free(commDCBytes)
 
 	resPtr := C.unseal_range(
@@ -648,9 +648,11 @@ func UnsealRange(
 
 // FinalizeTicket creates an actual ticket from a partial ticket.
 func FinalizeTicket(partialTicket abi.PartialTicket) ([32]byte, error) {
-	partialTicketPtr := unsafe.Pointer(&(partialTicket)[0])
+	partialTicketCBytes := C.CBytes(from32ByteArray(to32ByteArray(partialTicket)))
+	defer C.free(partialTicketCBytes)
+
 	resPtr := C.finalize_ticket(
-		(*[32]C.uint8_t)(partialTicketPtr),
+		(*[32]C.uint8_t)(partialTicketCBytes),
 	)
 	defer C.destroy_finalize_ticket_response(resPtr)
 
@@ -668,7 +670,7 @@ func GenerateCandidates(
 	challengeCount uint64,
 	privateSectorInfo SortedPrivateSectorInfo,
 ) ([]PoStCandidateWithTicket, error) {
-	randomessCBytes := C.CBytes(randomness[:])
+	randomessCBytes := C.CBytes(from32ByteArray(to32ByteArray(randomness)))
 	defer C.free(randomessCBytes)
 
 	proverIDCBytes := C.CBytes(proverID[:])
@@ -1038,9 +1040,11 @@ func cPublicPieceInfo(src []abi.PieceInfo) (*C.FFIPublicPieceInfo, C.size_t, err
 			return (*C.FFIPublicPieceInfo)(unsafe.Pointer(nil)), 0, errors.Wrap(err, "failed to create CommP from PieceCID")
 		}
 
+		commPAry := to32ByteArray(commP)
+
 		xs[i] = C.FFIPublicPieceInfo{
 			num_bytes: C.uint64_t(v.Size.Unpadded()),
-			comm_p:    *(*[CommitmentBytesLen]C.uint8_t)(unsafe.Pointer(&commP)),
+			comm_p:    *(*[CommitmentBytesLen]C.uint8_t)(unsafe.Pointer(&commPAry)),
 		}
 	}
 
@@ -1094,6 +1098,8 @@ func cPrivateReplicaInfos(src []PrivateSectorInfo) (*C.FFIPrivateReplicaInfo, C.
 			return (*C.FFIPrivateReplicaInfo)(unsafe.Pointer(nil)), 0, errors.Wrap(err, "failed to transform sealed CID to CommR")
 		}
 
+		commRAry := to32ByteArray(commR)
+
 		proofType, err := cRegisteredPoStProof(v.PoStProofType)
 		if err != nil {
 			return (*C.FFIPrivateReplicaInfo)(unsafe.Pointer(nil)), 0, errors.Wrap(err, "failed to create PoSt proof type")
@@ -1101,7 +1107,7 @@ func cPrivateReplicaInfos(src []PrivateSectorInfo) (*C.FFIPrivateReplicaInfo, C.
 
 		pp[i] = C.FFIPrivateReplicaInfo{
 			cache_dir_path:   C.CString(v.CacheDirPath),
-			comm_r:           *(*[CommitmentBytesLen]C.uint8_t)(unsafe.Pointer(&commR)),
+			comm_r:           *(*[CommitmentBytesLen]C.uint8_t)(unsafe.Pointer(&commRAry)),
 			replica_path:     C.CString(v.SealedSectorPath),
 			sector_id:        C.uint64_t(v.SectorNum),
 			registered_proof: proofType,
@@ -1146,9 +1152,16 @@ func goCandidateWithTicket(src C.FFICandidate) PoStCandidateWithTicket {
 }
 
 func goCommitment(src *C.uint8_t) [CommitmentBytesLen]byte {
-	slice := C.GoBytes(unsafe.Pointer(src), 32)
-	var array [CommitmentBytesLen]byte
-	copy(array[:], slice)
+	return to32ByteArray(C.GoBytes(unsafe.Pointer(src), 32))
+}
 
-	return array
+func to32ByteArray(in []byte) [32]byte {
+	var out [32]byte
+	copy(out[:], in)
+
+	return out
+}
+
+func from32ByteArray(in [32]byte) []byte {
+	return in[:]
 }
