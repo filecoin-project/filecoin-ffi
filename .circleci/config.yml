@@ -171,7 +171,7 @@ commands:
     steps:
       - run:
           name: Obtain filecoin groth parameters
-          command: ./paramcache --params-for-sector-sizes='1024' --predictable
+          command: ./paramcache --params-for-sector-sizes='1024'
           no_output_timeout: 60m
   build_project:
     steps:
@@ -203,10 +203,10 @@ commands:
     steps:
       - restore_cache:
           keys:
-            - v21d-proof-params-{{ arch }}
+            - v22a-proof-params-{{ arch }}
   save_parameter_cache:
     steps:
       - save_cache:
-          key: v21d-proof-params-{{ arch }}
+          key: v22a-proof-params-{{ arch }}
           paths:
             - "~/filecoin-proof-parameters/"
