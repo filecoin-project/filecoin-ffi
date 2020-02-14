@@ -616,6 +616,8 @@ pub unsafe extern "C" fn generate_data_commitment(
     catch_panic_response(|| {
         init_log();
 
+        info!("generate_data_commitment: start");
+
         let public_pieces: Vec<PieceInfo> = from_raw_parts(pieces_ptr, pieces_len)
             .iter()
             .cloned()
@@ -637,6 +639,8 @@ pub unsafe extern "C" fn generate_data_commitment(
                 response.error_msg = rust_str_to_c_str(format!("{:?}", err));
             }
         }
+
+        info!("generate_data_commitment: finish");
 
         raw_ptr(response)
     })
@@ -1209,9 +1213,14 @@ pub mod tests {
         // create a byte source (a user's piece)
         let mut rng = thread_rng();
         let buf_a: Vec<u8> = (0..1016).map(|_| rng.gen()).collect();
-        let mut piece_file = tempfile::tempfile()?;
-        let _ = piece_file.write_all(&buf_a)?;
-        piece_file.seek(SeekFrom::Start(0))?;
+
+        let mut piece_file_a = tempfile::tempfile()?;
+        let _ = piece_file_a.write_all(&buf_a[0..127])?;
+        piece_file_a.seek(SeekFrom::Start(0))?;
+
+        let mut piece_file_b = tempfile::tempfile()?;
+        let _ = piece_file_b.write_all(&buf_a[0..508])?;
+        piece_file_b.seek(SeekFrom::Start(0))?;
 
         // create the staged sector (the byte destination)
         let (staged_file, staged_path) = tempfile::NamedTempFile::new()?.keep()?;
@@ -1223,26 +1232,57 @@ pub mod tests {
         let (_, unseal_path) = tempfile::NamedTempFile::new()?.keep()?;
 
         // transmute temp files to file descriptors
-        let piece_file_fd = piece_file.into_raw_fd();
+        let piece_file_a_fd = piece_file_a.into_raw_fd();
+        let piece_file_b_fd = piece_file_b.into_raw_fd();
         let staged_sector_fd = staged_file.into_raw_fd();
 
         unsafe {
-            let resp_a = write_without_alignment(
+            let resp_a1 = write_without_alignment(
                 registered_proof_seal,
-                piece_file_fd,
-                1016,
+                piece_file_a_fd,
+                127,
                 staged_sector_fd,
             );
 
-            if (*resp_a).status_code != FCPResponseStatus::FCPNoError {
-                let msg = c_str_to_rust_str((*resp_a).error_msg);
+            if (*resp_a1).status_code != FCPResponseStatus::FCPNoError {
+                let msg = c_str_to_rust_str((*resp_a1).error_msg);
                 panic!("write_without_alignment failed: {:?}", msg);
             }
 
-            let pieces = vec![FFIPublicPieceInfo {
-                num_bytes: 1016,
-                comm_p: (*resp_a).comm_p,
-            }];
+            let existing_piece_sizes = vec![127];
+
+            let resp_a2 = write_with_alignment(
+                registered_proof_seal,
+                piece_file_b_fd,
+                508,
+                staged_sector_fd,
+                existing_piece_sizes.as_ptr(),
+                existing_piece_sizes.len(),
+            );
+
+            if (*resp_a2).status_code != FCPResponseStatus::FCPNoError {
+                let msg = c_str_to_rust_str((*resp_a2).error_msg);
+                panic!("write_with_alignment failed: {:?}", msg);
+            }
+
+            let pieces = vec![
+                FFIPublicPieceInfo {
+                    num_bytes: 127,
+                    comm_p: (*resp_a1).comm_p,
+                },
+                FFIPublicPieceInfo {
+                    num_bytes: 508,
+                    comm_p: (*resp_a2).comm_p,
+                },
+            ];
+
+            let resp_x =
+                generate_data_commitment(registered_proof_seal, pieces.as_ptr(), pieces.len());
+
+            if (*resp_x).status_code != FCPResponseStatus::FCPNoError {
+                let msg = c_str_to_rust_str((*resp_x).error_msg);
+                panic!("generate_data_commitment failed: {:?}", msg);
+            }
 
             let cache_dir_path_c_str = rust_str_to_c_str(cache_dir_path.to_str().unwrap());
             let staged_path_c_str = rust_str_to_c_str(staged_path.to_str().unwrap());
@@ -1277,6 +1317,15 @@ pub mod tests {
                 let msg = c_str_to_rust_str((*resp_b2).error_msg);
                 panic!("seal_pre_commit_phase2 failed: {:?}", msg);
             }
+
+            let pre_computed_comm_d = &(*resp_x).comm_d;
+            let pre_commit_comm_d = &(*resp_b2).comm_d;
+
+            assert_eq!(
+                format!("{:x?}", &pre_computed_comm_d),
+                format!("{:x?}", &pre_commit_comm_d),
+                "pre-computed CommD and pre-commit CommD don't match"
+            );
 
             let resp_c1 = seal_commit_phase1(
                 registered_proof_seal,
@@ -1347,8 +1396,22 @@ pub mod tests {
             let mut buf_b = Vec::with_capacity(1016);
             let mut f = std::fs::File::open(unseal_path)?;
             let _ = f.read_to_end(&mut buf_b)?;
+
+            let piece_a_len = (*resp_a1).total_write_unpadded as usize;
+            let piece_b_len = (*resp_a2).total_write_unpadded as usize;
+            let piece_b_prefix_len = (*resp_a2).left_alignment_unpadded as usize;
+
+            let alignment = vec![0; piece_b_prefix_len];
+
+            let expected = [
+                &buf_a[0..piece_a_len],
+                &alignment[..],
+                &buf_a[0..(piece_b_len - piece_b_prefix_len)],
+            ]
+            .concat();
+
             assert_eq!(
-                format!("{:x?}", &buf_a),
+                format!("{:x?}", &expected),
                 format!("{:x?}", &buf_b),
                 "original bytes don't match unsealed bytes"
             );
@@ -1429,7 +1492,9 @@ pub mod tests {
                 panic!("verify_post rejected the provided proof as invalid");
             }
 
-            destroy_write_without_alignment_response(resp_a);
+            destroy_write_without_alignment_response(resp_a1);
+            destroy_write_with_alignment_response(resp_a2);
+            destroy_generate_data_commitment_response(resp_x);
             destroy_seal_pre_commit_phase1_response(resp_b1);
             destroy_seal_pre_commit_phase2_response(resp_b2);
             destroy_seal_commit_phase1_response(resp_c1);
