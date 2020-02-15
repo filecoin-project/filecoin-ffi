@@ -19,7 +19,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestImportSector(t *testing.T) {
+func TestProofsLifecycle(t *testing.T) {
 	challengeCount := uint64(2)
 	proverID := [32]byte{6, 7, 8}
 	randomness := [32]byte{9, 9, 9}

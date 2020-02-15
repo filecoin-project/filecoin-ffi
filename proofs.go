@@ -718,6 +718,9 @@ func GeneratePoSt(
 
 	defer C.free(unsafe.Pointer(replicasPtr))
 
+	randomnessCBytes := C.CBytes(from32ByteArray(to32ByteArray(randomness)))
+	defer C.free(randomnessCBytes)
+
 	winnersPtr, winnersSize := cCandidates(winners)
 	defer C.free(unsafe.Pointer(winnersPtr))
 
@@ -725,7 +728,7 @@ func GeneratePoSt(
 	defer C.free(proverIDCBytes)
 
 	resPtr := C.generate_post(
-		(*[32]C.uint8_t)(unsafe.Pointer(&(randomness)[0])),
+		(*[32]C.uint8_t)(randomnessCBytes),
 		replicasPtr,
 		replicasSize,
 		winnersPtr,
@@ -1011,13 +1014,15 @@ func cPublicReplicaInfos(src []PublicSectorInfo) (*C.FFIPublicReplicaInfo, C.siz
 			return (*C.FFIPublicReplicaInfo)(unsafe.Pointer(nil)), 0, errors.Wrap(err, "failed to transform sealed CID to CommR")
 		}
 
+		commRAry := to32ByteArray(commR)
+
 		cProofType, err := cRegisteredPoStProof(v.PoStProofType)
 		if err != nil {
 			return (*C.FFIPublicReplicaInfo)(unsafe.Pointer(nil)), 0, errors.Wrap(err, "failed to create registered PoSt proof type for FFI")
 		}
 
 		xs[i] = C.FFIPublicReplicaInfo{
-			comm_r:           *(*[CommitmentBytesLen]C.uint8_t)(unsafe.Pointer(&commR)),
+			comm_r:           *(*[CommitmentBytesLen]C.uint8_t)(unsafe.Pointer(&commRAry)),
 			registered_proof: cProofType,
 			sector_id:        C.uint64_t(v.SectorNum),
 		}
@@ -1075,10 +1080,12 @@ func cCandidates(src []abi.PoStCandidate) (*C.FFICandidate, C.size_t) {
 	// create a Go slice backed by the C-array
 	pp := (*[1 << 30]C.FFICandidate)(cCandidates)
 	for i, v := range src {
+		pt := to32ByteArray(v.PartialTicket)
+
 		pp[i] = C.FFICandidate{
 			sector_id:              C.uint64_t(uint64(v.SectorID.Number)),
-			partial_ticket:         *(*[32]C.uint8_t)(unsafe.Pointer(&v.PartialTicket)),
-			ticket:                 *(*[32]C.uint8_t)(unsafe.Pointer(&v.PartialTicket)), // this field is ignored by verify_post and generate_post
+			partial_ticket:         *(*[32]C.uint8_t)(unsafe.Pointer(&pt)),
+			ticket:                 *(*[32]C.uint8_t)(unsafe.Pointer(&pt)), // this field is ignored by verify_post and generate_post
 			sector_challenge_index: C.uint64_t(v.ChallengeIndex),
 		}
 	}
