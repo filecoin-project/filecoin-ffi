@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"crypto/rand"
 	"fmt"
-	"github.com/filecoin-project/specs-actors/actors/abi"
 	"io"
 	"io/ioutil"
 	"math/big"
@@ -12,27 +11,25 @@ import (
 	"path/filepath"
 	"testing"
 
+	commcid "github.com/filecoin-project/go-fil-commcid"
+
+	"github.com/filecoin-project/specs-actors/actors/abi"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func TestImportSector(t *testing.T) {
+func TestProofsLifecycle(t *testing.T) {
 	challengeCount := uint64(2)
-	poRepProofPartitions := uint8(10)
 	proverID := [32]byte{6, 7, 8}
 	randomness := [32]byte{9, 9, 9}
-	sectorSize := abi.SectorSize(1024)
+	sealProofType := abi.RegisteredProof_StackedDRG1KiBSeal
+	postProofType := abi.RegisteredProof_StackedDRG1KiBPoSt
 	sectorNum := abi.SectorNumber(42)
 
-	ticket := SealTicket{
-		BlockHeight: 0,
-		TicketBytes: [32]byte{5, 4, 2},
-	}
+	ticket := abi.SealRandomness{5, 4, 2}
 
-	seed := SealSeed{
-		BlockHeight: 50,
-		TicketBytes: [32]byte{7, 4, 2},
-	}
+	seed := abi.InteractiveSealRandomness{7, 4, 2}
 
 	// initialize a sector builder
 	metadataDir := requireTempDirPath(t, "metadata")
@@ -74,10 +71,9 @@ func TestImportSector(t *testing.T) {
 	require.NoError(t, err)
 
 	// write first piece
-	require.NoError(t, err)
 	pieceFileA := requireTempFile(t, bytes.NewReader(someBytes[0:127]), 127)
 
-	commPA, err := GeneratePieceCommitmentFromFile(pieceFileA, 127)
+	pieceCIDA, err := GeneratePieceCIDFromFile(sealProofType, pieceFileA, 127)
 	require.NoError(t, err)
 
 	// seek back to head (generating piece commitment moves offset)
@@ -85,16 +81,16 @@ func TestImportSector(t *testing.T) {
 	require.NoError(t, err)
 
 	// write the first piece using the alignment-free function
-	n, commP, err := WriteWithoutAlignment(pieceFileA, 127, stagedSectorFile)
+	n, pieceCID, err := WriteWithoutAlignment(sealProofType, pieceFileA, 127, stagedSectorFile)
 	require.NoError(t, err)
 	require.Equal(t, int(n), 127)
-	require.Equal(t, commP, commPA)
+	require.Equal(t, pieceCID, pieceCIDA)
 
 	// write second piece + alignment
 	require.NoError(t, err)
 	pieceFileB := requireTempFile(t, bytes.NewReader(someBytes[0:508]), 508)
 
-	commPB, err := GeneratePieceCommitmentFromFile(pieceFileB, 508)
+	pieceCIDB, err := GeneratePieceCIDFromFile(sealProofType, pieceFileB, 508)
 	require.NoError(t, err)
 
 	// seek back to head
@@ -102,40 +98,46 @@ func TestImportSector(t *testing.T) {
 	require.NoError(t, err)
 
 	// second piece relies on the alignment-computing version
-	left, tot, commP, err := WriteWithAlignment(pieceFileB, 508, stagedSectorFile, []abi.UnpaddedPieceSize{127})
+	left, tot, pieceCID, err := WriteWithAlignment(sealProofType, pieceFileB, 508, stagedSectorFile, []abi.UnpaddedPieceSize{127})
 	require.NoError(t, err)
 	require.Equal(t, int(left), 381)
 	require.Equal(t, int(tot), 889)
-	require.Equal(t, commP, commPB)
+	require.Equal(t, pieceCID, pieceCIDB)
 
-	publicPieces := []PublicPieceInfo{{
-		Size:  127,
-		CommP: commPA,
+	publicPieces := []abi.PieceInfo{{
+		Size:     abi.UnpaddedPieceSize(127).Padded(),
+		PieceCID: pieceCIDA,
 	}, {
-		Size:  508,
-		CommP: commPB,
+		Size:     abi.UnpaddedPieceSize(508).Padded(),
+		PieceCID: pieceCIDB,
 	}}
 
-	commD, err := GenerateDataCommitment(sectorSize, publicPieces)
+	preGeneratedUnsealedCID, err := GenerateUnsealedCID(sealProofType, publicPieces)
 	require.NoError(t, err)
 
 	// pre-commit the sector
-	output, err := SealPreCommit(sectorSize, poRepProofPartitions, sectorCacheDirPath, stagedSectorFile.Name(), sealedSectorFile.Name(), sectorNum, proverID, ticket.TicketBytes, publicPieces)
+	sealPreCommitPhase1Output, err := SealPreCommitPhase1(sealProofType, sectorCacheDirPath, stagedSectorFile.Name(), sealedSectorFile.Name(), sectorNum, proverID, ticket, publicPieces)
 	require.NoError(t, err)
 
-	require.Equal(t, output.CommD, commD, "prover and verifier should agree on data commitment")
+	sealedCID, unsealedCID, err := SealPreCommitPhase2(sealPreCommitPhase1Output, sectorCacheDirPath, sealedSectorFile.Name())
+	require.NoError(t, err)
+
+	require.Equal(t, unsealedCID, preGeneratedUnsealedCID, "prover and verifier should agree on data commitment")
 
 	// commit the sector
-	proof, err := SealCommit(sectorSize, poRepProofPartitions, sectorCacheDirPath, sectorNum, proverID, ticket.TicketBytes, seed.TicketBytes, publicPieces, output)
+	sealCommitPhase1Output, err := SealCommitPhase1(sealProofType, sealedCID, unsealedCID, sectorCacheDirPath, sectorNum, proverID, ticket, seed, publicPieces)
+	require.NoError(t, err)
+
+	proof, err := SealCommitPhase2(sealCommitPhase1Output, sectorNum, proverID)
 	require.NoError(t, err)
 
 	// verify the 'ole proofy
-	isValid, err := VerifySeal(sectorSize, output.CommR, output.CommD, proverID, ticket.TicketBytes, seed.TicketBytes, sectorNum, proof)
+	isValid, err := VerifySeal(sealProofType, sealedCID, unsealedCID, proverID, ticket, seed, sectorNum, proof)
 	require.NoError(t, err)
 	require.True(t, isValid, "proof wasn't valid")
 
 	// unseal the entire sector and verify that things went as we planned
-	require.NoError(t, Unseal(sectorSize, poRepProofPartitions, sectorCacheDirPath, sealedSectorFile.Name(), unsealOutputFileA.Name(), sectorNum, proverID, ticket.TicketBytes, output.CommD))
+	require.NoError(t, Unseal(sealProofType, sectorCacheDirPath, sealedSectorFile.Name(), unsealOutputFileA.Name(), sectorNum, proverID, ticket, unsealedCID))
 	contents, err := ioutil.ReadFile(unsealOutputFileA.Name())
 	require.NoError(t, err)
 
@@ -148,7 +150,7 @@ func TestImportSector(t *testing.T) {
 	require.Equal(t, someBytes[0:508], contents[508:1016])
 
 	// unseal just the first piece
-	err = UnsealRange(sectorSize, poRepProofPartitions, sectorCacheDirPath, sealedSectorFile.Name(), unsealOutputFileB.Name(), sectorNum, proverID, ticket.TicketBytes, output.CommD, 0, 127)
+	err = UnsealRange(sealProofType, sectorCacheDirPath, sealedSectorFile.Name(), unsealOutputFileB.Name(), sectorNum, proverID, ticket, unsealedCID, 0, 127)
 	require.NoError(t, err)
 	contentsB, err := ioutil.ReadFile(unsealOutputFileB.Name())
 	require.NoError(t, err)
@@ -156,7 +158,7 @@ func TestImportSector(t *testing.T) {
 	require.Equal(t, someBytes[0:127], contentsB[0:127])
 
 	// unseal just the second piece
-	err = UnsealRange(sectorSize, poRepProofPartitions, sectorCacheDirPath, sealedSectorFile.Name(), unsealOutputFileC.Name(), sectorNum, proverID, ticket.TicketBytes, output.CommD, 508, 508)
+	err = UnsealRange(sealProofType, sectorCacheDirPath, sealedSectorFile.Name(), unsealOutputFileC.Name(), sectorNum, proverID, ticket, unsealedCID, 508, 508)
 	require.NoError(t, err)
 	contentsC, err := ioutil.ReadFile(unsealOutputFileC.Name())
 	require.NoError(t, err)
@@ -176,29 +178,36 @@ func TestImportSector(t *testing.T) {
 	// generate a PoSt over the proving set before importing, just to exercise
 	// the new API
 	privateInfo := NewSortedPrivateSectorInfo(PrivateSectorInfo{
-		SectorNum:        sectorNum,
-		CommR:            output.CommR,
 		CacheDirPath:     sectorCacheDirPath,
+		SealedCID:        sealedCID,
+		PoStProofType:    postProofType,
 		SealedSectorPath: sealedSectorFile.Name(),
+		SectorNum:        sectorNum,
 	})
 
 	publicInfo := NewSortedPublicSectorInfo(PublicSectorInfo{
-		SectorNum: sectorNum,
-		CommR:     output.CommR,
+		SealedCID:     sealedCID,
+		PoStProofType: postProofType,
+		SectorNum:     sectorNum,
 	})
 
-	candidatesA, err := GenerateCandidates(sectorSize, proverID, randomness, challengeCount, privateInfo)
+	candidatesWithTicketsA, err := GenerateCandidates(proverID, randomness[:], challengeCount, privateInfo)
 	require.NoError(t, err)
+
+	candidatesA := make([]abi.PoStCandidate, len(candidatesWithTicketsA))
+	for idx := range candidatesWithTicketsA {
+		candidatesA[idx] = candidatesWithTicketsA[idx].Candidate
+	}
 
 	// finalize the ticket, but don't do anything with the results (simply
 	// exercise the API)
 	_, err = FinalizeTicket(candidatesA[0].PartialTicket)
 	require.NoError(t, err)
 
-	proofA, err := GeneratePoSt(sectorSize, proverID, privateInfo, randomness, candidatesA)
+	proofA, err := GeneratePoSt(proverID, privateInfo, randomness[:], candidatesA)
 	require.NoError(t, err)
 
-	isValid, err = VerifyPoSt(sectorSize, publicInfo, randomness, challengeCount, proofA, candidatesA, proverID)
+	isValid, err = VerifyPoSt(publicInfo, randomness[:], challengeCount, proofA, candidatesA, proverID)
 	require.NoError(t, err)
 	require.True(t, isValid, "VerifyPoSt rejected the (standalone) proof as invalid")
 }
@@ -208,8 +217,11 @@ func TestJsonMarshalSymmetry(t *testing.T) {
 		xs := make([]PublicSectorInfo, 10)
 		for j := 0; j < 10; j++ {
 			var x PublicSectorInfo
-			_, err := io.ReadFull(rand.Reader, x.CommR[:])
+			var commR [32]byte
+			_, err := io.ReadFull(rand.Reader, commR[:])
 			require.NoError(t, err)
+
+			x.SealedCID = commcid.ReplicaCommitmentV1ToCID(commR[:])
 
 			n, err := rand.Int(rand.Reader, big.NewInt(500))
 			require.NoError(t, err)
@@ -233,6 +245,38 @@ func TestGetGPUDevicesDoesNotProduceAnError(t *testing.T) {
 	devices, err := GetGPUDevices()
 	require.NoError(t, err)
 	fmt.Printf("devices: %+v\n", devices) // clutters up test output, but useful
+}
+
+func TestRegisteredSealProofFunctions(t *testing.T) {
+	sealTypes := []abi.RegisteredProof{
+		abi.RegisteredProof_StackedDRG16MiBSeal,
+		abi.RegisteredProof_StackedDRG1GiBSeal,
+		abi.RegisteredProof_StackedDRG1KiBSeal,
+		abi.RegisteredProof_StackedDRG256MiBSeal,
+		abi.RegisteredProof_StackedDRG32GiBSeal,
+	}
+
+	for _, st := range sealTypes {
+		v, err := GetSealVersion(st)
+		assert.NoError(t, err)
+		assert.True(t, len(v) > 0)
+	}
+}
+
+func TestRegisteredPoStProofFunctions(t *testing.T) {
+	postTypes := []abi.RegisteredProof{
+		abi.RegisteredProof_StackedDRG16MiBPoSt,
+		abi.RegisteredProof_StackedDRG1GiBPoSt,
+		abi.RegisteredProof_StackedDRG1KiBPoSt,
+		abi.RegisteredProof_StackedDRG256MiBPoSt,
+		abi.RegisteredProof_StackedDRG32GiBPoSt,
+	}
+
+	for _, pt := range postTypes {
+		v, err := GetPoStVersion(pt)
+		assert.NoError(t, err)
+		assert.True(t, len(v) > 0)
+	}
 }
 
 func requireTempFile(t *testing.T, fileContentsReader io.Reader, size uint64) *os.File {

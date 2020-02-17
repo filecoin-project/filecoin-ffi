@@ -6,8 +6,10 @@ use paired::bls12_381::Bls12;
 // `CodeAndMessage` is the trait implemented by `code_and_message_impl`
 use anyhow::Result;
 use ffi_toolkit::{code_and_message_impl, free_c_str, CodeAndMessage, FCPResponseStatus};
-use filecoin_proofs::{Candidate, PieceInfo, SectorClass, UnpaddedBytesAmount};
-use storage_proofs::fr32::bytes_into_fr;
+use filecoin_proofs_api::{
+    fr32::bytes_into_fr, Candidate, PieceInfo, RegisteredPoStProof, RegisteredSealProof,
+    UnpaddedBytesAmount,
+};
 
 /// FileDescriptorRef does not drop its file descriptor when it is dropped. Its
 /// owner must manage the lifecycle of the file descriptor.
@@ -44,29 +46,69 @@ impl std::io::Seek for FileDescriptorRef {
 }
 
 #[repr(C)]
-#[derive(Clone, Copy, Default)]
-pub struct FFISealPreCommitOutput {
-    pub comm_d: [u8; 32],
-    pub comm_r: [u8; 32],
+#[derive(Debug, Clone, Copy)]
+pub enum FFIRegisteredSealProof {
+    StackedDrg1KiBV1,
+    StackedDrg16MiBV1,
+    StackedDrg256MiBV1,
+    StackedDrg1GiBV1,
+    StackedDrg32GiBV1,
+}
+
+impl From<RegisteredSealProof> for FFIRegisteredSealProof {
+    fn from(other: RegisteredSealProof) -> Self {
+        match other {
+            RegisteredSealProof::StackedDrg1KiBV1 => FFIRegisteredSealProof::StackedDrg1KiBV1,
+            RegisteredSealProof::StackedDrg16MiBV1 => FFIRegisteredSealProof::StackedDrg16MiBV1,
+            RegisteredSealProof::StackedDrg256MiBV1 => FFIRegisteredSealProof::StackedDrg256MiBV1,
+            RegisteredSealProof::StackedDrg1GiBV1 => FFIRegisteredSealProof::StackedDrg1GiBV1,
+            RegisteredSealProof::StackedDrg32GiBV1 => FFIRegisteredSealProof::StackedDrg32GiBV1,
+        }
+    }
+}
+
+impl From<FFIRegisteredSealProof> for RegisteredSealProof {
+    fn from(other: FFIRegisteredSealProof) -> Self {
+        match other {
+            FFIRegisteredSealProof::StackedDrg1KiBV1 => RegisteredSealProof::StackedDrg1KiBV1,
+            FFIRegisteredSealProof::StackedDrg16MiBV1 => RegisteredSealProof::StackedDrg16MiBV1,
+            FFIRegisteredSealProof::StackedDrg256MiBV1 => RegisteredSealProof::StackedDrg256MiBV1,
+            FFIRegisteredSealProof::StackedDrg1GiBV1 => RegisteredSealProof::StackedDrg1GiBV1,
+            FFIRegisteredSealProof::StackedDrg32GiBV1 => RegisteredSealProof::StackedDrg32GiBV1,
+        }
+    }
 }
 
 #[repr(C)]
-#[derive(Clone)]
-pub struct FFISectorClass {
-    pub sector_size: u64,
-    pub porep_proof_partitions: u8,
+#[derive(Debug, Clone, Copy)]
+pub enum FFIRegisteredPoStProof {
+    StackedDrg1KiBV1,
+    StackedDrg16MiBV1,
+    StackedDrg256MiBV1,
+    StackedDrg1GiBV1,
+    StackedDrg32GiBV1,
 }
 
-impl From<FFISectorClass> for SectorClass {
-    fn from(fsc: FFISectorClass) -> Self {
-        let FFISectorClass {
-            sector_size,
-            porep_proof_partitions,
-        } = fsc;
+impl From<RegisteredPoStProof> for FFIRegisteredPoStProof {
+    fn from(other: RegisteredPoStProof) -> Self {
+        match other {
+            RegisteredPoStProof::StackedDrg1KiBV1 => FFIRegisteredPoStProof::StackedDrg1KiBV1,
+            RegisteredPoStProof::StackedDrg16MiBV1 => FFIRegisteredPoStProof::StackedDrg16MiBV1,
+            RegisteredPoStProof::StackedDrg256MiBV1 => FFIRegisteredPoStProof::StackedDrg256MiBV1,
+            RegisteredPoStProof::StackedDrg1GiBV1 => FFIRegisteredPoStProof::StackedDrg1GiBV1,
+            RegisteredPoStProof::StackedDrg32GiBV1 => FFIRegisteredPoStProof::StackedDrg32GiBV1,
+        }
+    }
+}
 
-        SectorClass {
-            sector_size: filecoin_proofs::SectorSize(sector_size),
-            partitions: filecoin_proofs::PoRepProofPartitions(porep_proof_partitions),
+impl From<FFIRegisteredPoStProof> for RegisteredPoStProof {
+    fn from(other: FFIRegisteredPoStProof) -> Self {
+        match other {
+            FFIRegisteredPoStProof::StackedDrg1KiBV1 => RegisteredPoStProof::StackedDrg1KiBV1,
+            FFIRegisteredPoStProof::StackedDrg16MiBV1 => RegisteredPoStProof::StackedDrg16MiBV1,
+            FFIRegisteredPoStProof::StackedDrg256MiBV1 => RegisteredPoStProof::StackedDrg256MiBV1,
+            FFIRegisteredPoStProof::StackedDrg1GiBV1 => RegisteredPoStProof::StackedDrg1GiBV1,
+            FFIRegisteredPoStProof::StackedDrg32GiBV1 => RegisteredPoStProof::StackedDrg32GiBV1,
         }
     }
 }
@@ -119,9 +161,18 @@ impl FFICandidate {
 #[repr(C)]
 #[derive(Clone)]
 pub struct FFIPrivateReplicaInfo {
+    pub registered_proof: FFIRegisteredPoStProof,
     pub cache_dir_path: *const libc::c_char,
     pub comm_r: [u8; 32],
     pub replica_path: *const libc::c_char,
+    pub sector_id: u64,
+}
+
+#[repr(C)]
+#[derive(Clone)]
+pub struct FFIPublicReplicaInfo {
+    pub registered_proof: FFIRegisteredPoStProof,
+    pub comm_r: [u8; 32],
     pub sector_id: u64,
 }
 
@@ -217,36 +268,84 @@ code_and_message_impl!(WriteWithoutAlignmentResponse);
 
 #[repr(C)]
 #[derive(DropStructMacro)]
-pub struct SealPreCommitResponse {
+pub struct SealPreCommitPhase1Response {
     pub error_msg: *const libc::c_char,
     pub status_code: FCPResponseStatus,
-    pub seal_pre_commit_output: FFISealPreCommitOutput,
+    pub seal_pre_commit_phase1_output_ptr: *const u8,
+    pub seal_pre_commit_phase1_output_len: libc::size_t,
 }
 
-impl Default for SealPreCommitResponse {
-    fn default() -> SealPreCommitResponse {
-        SealPreCommitResponse {
+impl Default for SealPreCommitPhase1Response {
+    fn default() -> SealPreCommitPhase1Response {
+        SealPreCommitPhase1Response {
             error_msg: ptr::null(),
-            seal_pre_commit_output: Default::default(),
             status_code: FCPResponseStatus::FCPNoError,
+            seal_pre_commit_phase1_output_ptr: ptr::null(),
+            seal_pre_commit_phase1_output_len: 0,
         }
     }
 }
 
-code_and_message_impl!(SealPreCommitResponse);
+code_and_message_impl!(SealPreCommitPhase1Response);
 
 #[repr(C)]
 #[derive(DropStructMacro)]
-pub struct SealCommitResponse {
+pub struct SealPreCommitPhase2Response {
+    pub error_msg: *const libc::c_char,
+    pub status_code: FCPResponseStatus,
+    pub registered_proof: FFIRegisteredSealProof,
+    pub comm_d: [u8; 32],
+    pub comm_r: [u8; 32],
+}
+
+impl Default for SealPreCommitPhase2Response {
+    fn default() -> SealPreCommitPhase2Response {
+        SealPreCommitPhase2Response {
+            error_msg: ptr::null(),
+            status_code: FCPResponseStatus::FCPNoError,
+            registered_proof: FFIRegisteredSealProof::StackedDrg1KiBV1,
+            comm_d: Default::default(),
+            comm_r: Default::default(),
+        }
+    }
+}
+
+code_and_message_impl!(SealPreCommitPhase2Response);
+
+#[repr(C)]
+#[derive(DropStructMacro)]
+pub struct SealCommitPhase1Response {
+    pub status_code: FCPResponseStatus,
+    pub error_msg: *const libc::c_char,
+    pub seal_commit_phase1_output_ptr: *const u8,
+    pub seal_commit_phase1_output_len: libc::size_t,
+}
+
+impl Default for SealCommitPhase1Response {
+    fn default() -> SealCommitPhase1Response {
+        SealCommitPhase1Response {
+            status_code: FCPResponseStatus::FCPNoError,
+            error_msg: ptr::null(),
+            seal_commit_phase1_output_ptr: ptr::null(),
+            seal_commit_phase1_output_len: 0,
+        }
+    }
+}
+
+code_and_message_impl!(SealCommitPhase1Response);
+
+#[repr(C)]
+#[derive(DropStructMacro)]
+pub struct SealCommitPhase2Response {
     pub status_code: FCPResponseStatus,
     pub error_msg: *const libc::c_char,
     pub proof_ptr: *const u8,
     pub proof_len: libc::size_t,
 }
 
-impl Default for SealCommitResponse {
-    fn default() -> SealCommitResponse {
-        SealCommitResponse {
+impl Default for SealCommitPhase2Response {
+    fn default() -> SealCommitPhase2Response {
+        SealCommitPhase2Response {
             status_code: FCPResponseStatus::FCPNoError,
             error_msg: ptr::null(),
             proof_ptr: ptr::null(),
@@ -255,7 +354,7 @@ impl Default for SealCommitResponse {
     }
 }
 
-code_and_message_impl!(SealCommitResponse);
+code_and_message_impl!(SealCommitPhase2Response);
 
 #[repr(C)]
 #[derive(DropStructMacro)]
@@ -396,3 +495,25 @@ impl Default for GenerateDataCommitmentResponse {
 }
 
 code_and_message_impl!(GenerateDataCommitmentResponse);
+
+///
+
+#[repr(C)]
+#[derive(DropStructMacro)]
+pub struct StringResponse {
+    pub status_code: FCPResponseStatus,
+    pub error_msg: *const libc::c_char,
+    pub string_val: *const libc::c_char,
+}
+
+impl Default for StringResponse {
+    fn default() -> StringResponse {
+        StringResponse {
+            status_code: FCPResponseStatus::FCPNoError,
+            error_msg: ptr::null(),
+            string_val: ptr::null(),
+        }
+    }
+}
+
+code_and_message_impl!(StringResponse);
