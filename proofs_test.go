@@ -248,8 +248,6 @@ func TestGetGPUDevicesDoesNotProduceAnError(t *testing.T) {
 }
 
 func TestRegisteredSealProofFunctions(t *testing.T) {
-	t.Skip("something is amiss with the Rust side of this CGO call")
-
 	sealTypes := []abi.RegisteredProof{
 		abi.RegisteredProof_StackedDRG16MiBSeal,
 		abi.RegisteredProof_StackedDRG1GiBSeal,
@@ -259,35 +257,13 @@ func TestRegisteredSealProofFunctions(t *testing.T) {
 	}
 
 	for _, st := range sealTypes {
-		v, err := GetSealParamsCid(st)
-		assert.NoError(t, err)
-		assert.True(t, len(v) > 0)
-
-		v, err = GetSealVerifyingKeyCid(st)
-		assert.NoError(t, err)
-		assert.True(t, len(v) > 0)
-
-		v, err = GetSealParamsPath(st)
-		assert.NoError(t, err)
-		assert.True(t, len(v) > 0)
-
-		v, err = GetSealVerifyingKeyPath(st)
-		assert.NoError(t, err)
-		assert.True(t, len(v) > 0)
-
-		v, err = GetSealCircuitIdentifier(st)
-		assert.NoError(t, err)
-		assert.True(t, len(v) > 0)
-
-		v, err = GetSealVersion(st)
+		v, err := GetSealVersion(st)
 		assert.NoError(t, err)
 		assert.True(t, len(v) > 0)
 	}
 }
 
 func TestRegisteredPoStProofFunctions(t *testing.T) {
-	t.Skip("something is amiss with the Rust side of this CGO call")
-
 	postTypes := []abi.RegisteredProof{
 		abi.RegisteredProof_StackedDRG16MiBPoSt,
 		abi.RegisteredProof_StackedDRG1GiBPoSt,
@@ -297,27 +273,7 @@ func TestRegisteredPoStProofFunctions(t *testing.T) {
 	}
 
 	for _, pt := range postTypes {
-		v, err := GetPoStParamsCid(pt)
-		assert.NoError(t, err)
-		assert.True(t, len(v) > 0)
-
-		v, err = GetPoStVerifyingKeyCid(pt)
-		assert.NoError(t, err)
-		assert.True(t, len(v) > 0)
-
-		v, err = GetPoStParamsPath(pt)
-		assert.NoError(t, err)
-		assert.True(t, len(v) > 0)
-
-		v, err = GetPoStVerifyingKeyPath(pt)
-		assert.NoError(t, err)
-		assert.True(t, len(v) > 0)
-
-		v, err = GetPoStCircuitIdentifier(pt)
-		assert.NoError(t, err)
-		assert.True(t, len(v) > 0)
-
-		v, err = GetPoStVersion(pt)
+		v, err := GetPoStVersion(pt)
 		assert.NoError(t, err)
 		assert.True(t, len(v) > 0)
 	}
