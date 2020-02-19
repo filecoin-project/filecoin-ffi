@@ -9,6 +9,8 @@ use bls_signatures::{
 };
 use libc;
 use rand::rngs::OsRng;
+use rand::SeedableRng;
+use rand_chacha::ChaChaRng;
 
 use rayon::prelude::*;
 
@@ -155,14 +157,41 @@ pub unsafe extern "C" fn verify(
 }
 
 /// Generate a new private key
-///
-/// # Arguments
-///
-/// * `raw_seed_ptr` - pointer to a seed byte array
 #[no_mangle]
 pub unsafe extern "C" fn private_key_generate() -> *mut types::PrivateKeyGenerateResponse {
     let mut raw_private_key: [u8; PRIVATE_KEY_BYTES] = [0; PRIVATE_KEY_BYTES];
     PrivateKey::generate(&mut OsRng)
+        .write_bytes(&mut raw_private_key.as_mut())
+        .expect("preallocated");
+
+    let response = types::PrivateKeyGenerateResponse {
+        private_key: raw_private_key,
+    };
+
+    Box::into_raw(Box::new(response))
+}
+
+/// Generate a new private key with seed
+///
+/// **Warning**: Use this function only for testing or with very secure seeds
+///
+/// # Arguments
+///
+/// * `raw_seed_ptr` - pointer to a seed byte array with 32 bytes
+///
+/// Returns `NULL` when passed a NULL pointer.
+#[no_mangle]
+pub unsafe extern "C" fn private_key_generate_with_seed(
+    raw_seed_ptr: *const [u8; 32],
+) -> *mut types::PrivateKeyGenerateResponse {
+    if raw_seed_ptr.is_null() {
+        return std::ptr::null_mut();
+    }
+
+    let rng = &mut ChaChaRng::from_seed(*raw_seed_ptr);
+
+    let mut raw_private_key: [u8; PRIVATE_KEY_BYTES] = [0; PRIVATE_KEY_BYTES];
+    PrivateKey::generate(rng)
         .write_bytes(&mut raw_private_key.as_mut())
         .expect("preallocated");
 
@@ -284,6 +313,22 @@ mod tests {
             );
 
             assert_eq!(0, not_verified);
+        }
+    }
+
+    #[test]
+    fn private_key_with_seed() {
+        unsafe {
+            let seed = [5u8; 32];
+            let private_key = (*private_key_generate_with_seed(seed.as_ptr() as _)).private_key;
+            assert_eq!(
+                [
+                    0x05, 0x39, 0x32, 0xee, 0xae, 0x65, 0x01, 0x03, 0x9a, 0x3a, 0x62, 0x3a, 0x44,
+                    0x83, 0xc4, 0x48, 0x2c, 0x92, 0x71, 0xd5, 0x6a, 0x3d, 0xbc, 0x34, 0x27, 0xa6,
+                    0x42, 0x74, 0x30, 0x18, 0xc1, 0x59,
+                ],
+                private_key
+            );
         }
     }
 }
