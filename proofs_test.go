@@ -21,7 +21,7 @@ import (
 
 func TestProofsLifecycle(t *testing.T) {
 	challengeCount := uint64(2)
-	proverID := [32]byte{6, 7, 8}
+	minerID := abi.ActorID(42)
 	randomness := [32]byte{9, 9, 9}
 	sealProofType := abi.RegisteredProof_StackedDRG1KiBSeal
 	postProofType := abi.RegisteredProof_StackedDRG1KiBPoSt
@@ -116,7 +116,7 @@ func TestProofsLifecycle(t *testing.T) {
 	require.NoError(t, err)
 
 	// pre-commit the sector
-	sealPreCommitPhase1Output, err := SealPreCommitPhase1(sealProofType, sectorCacheDirPath, stagedSectorFile.Name(), sealedSectorFile.Name(), sectorNum, proverID, ticket, publicPieces)
+	sealPreCommitPhase1Output, err := SealPreCommitPhase1(sealProofType, sectorCacheDirPath, stagedSectorFile.Name(), sealedSectorFile.Name(), sectorNum, minerID, ticket, publicPieces)
 	require.NoError(t, err)
 
 	sealedCID, unsealedCID, err := SealPreCommitPhase2(sealPreCommitPhase1Output, sectorCacheDirPath, sealedSectorFile.Name())
@@ -125,19 +125,19 @@ func TestProofsLifecycle(t *testing.T) {
 	require.Equal(t, unsealedCID, preGeneratedUnsealedCID, "prover and verifier should agree on data commitment")
 
 	// commit the sector
-	sealCommitPhase1Output, err := SealCommitPhase1(sealProofType, sealedCID, unsealedCID, sectorCacheDirPath, sectorNum, proverID, ticket, seed, publicPieces)
+	sealCommitPhase1Output, err := SealCommitPhase1(sealProofType, sealedCID, unsealedCID, sectorCacheDirPath, sectorNum, minerID, ticket, seed, publicPieces)
 	require.NoError(t, err)
 
-	proof, err := SealCommitPhase2(sealCommitPhase1Output, sectorNum, proverID)
+	proof, err := SealCommitPhase2(sealCommitPhase1Output, sectorNum, minerID)
 	require.NoError(t, err)
 
 	// verify the 'ole proofy
-	isValid, err := VerifySeal(sealProofType, sealedCID, unsealedCID, proverID, ticket, seed, sectorNum, proof)
+	isValid, err := VerifySeal(sealProofType, sealedCID, unsealedCID, minerID, ticket, seed, sectorNum, proof)
 	require.NoError(t, err)
 	require.True(t, isValid, "proof wasn't valid")
 
 	// unseal the entire sector and verify that things went as we planned
-	require.NoError(t, Unseal(sealProofType, sectorCacheDirPath, sealedSectorFile.Name(), unsealOutputFileA.Name(), sectorNum, proverID, ticket, unsealedCID))
+	require.NoError(t, Unseal(sealProofType, sectorCacheDirPath, sealedSectorFile.Name(), unsealOutputFileA.Name(), sectorNum, minerID, ticket, unsealedCID))
 	contents, err := ioutil.ReadFile(unsealOutputFileA.Name())
 	require.NoError(t, err)
 
@@ -150,7 +150,7 @@ func TestProofsLifecycle(t *testing.T) {
 	require.Equal(t, someBytes[0:508], contents[508:1016])
 
 	// unseal just the first piece
-	err = UnsealRange(sealProofType, sectorCacheDirPath, sealedSectorFile.Name(), unsealOutputFileB.Name(), sectorNum, proverID, ticket, unsealedCID, 0, 127)
+	err = UnsealRange(sealProofType, sectorCacheDirPath, sealedSectorFile.Name(), unsealOutputFileB.Name(), sectorNum, minerID, ticket, unsealedCID, 0, 127)
 	require.NoError(t, err)
 	contentsB, err := ioutil.ReadFile(unsealOutputFileB.Name())
 	require.NoError(t, err)
@@ -158,7 +158,7 @@ func TestProofsLifecycle(t *testing.T) {
 	require.Equal(t, someBytes[0:127], contentsB[0:127])
 
 	// unseal just the second piece
-	err = UnsealRange(sealProofType, sectorCacheDirPath, sealedSectorFile.Name(), unsealOutputFileC.Name(), sectorNum, proverID, ticket, unsealedCID, 508, 508)
+	err = UnsealRange(sealProofType, sectorCacheDirPath, sealedSectorFile.Name(), unsealOutputFileC.Name(), sectorNum, minerID, ticket, unsealedCID, 508, 508)
 	require.NoError(t, err)
 	contentsC, err := ioutil.ReadFile(unsealOutputFileC.Name())
 	require.NoError(t, err)
@@ -191,7 +191,7 @@ func TestProofsLifecycle(t *testing.T) {
 		SectorNum:     sectorNum,
 	})
 
-	candidatesWithTicketsA, err := GenerateCandidates(proverID, randomness[:], challengeCount, privateInfo)
+	candidatesWithTicketsA, err := GenerateCandidates(minerID, randomness[:], challengeCount, privateInfo)
 	require.NoError(t, err)
 
 	candidatesA := make([]abi.PoStCandidate, len(candidatesWithTicketsA))
@@ -204,10 +204,10 @@ func TestProofsLifecycle(t *testing.T) {
 	_, err = FinalizeTicket(candidatesA[0].PartialTicket)
 	require.NoError(t, err)
 
-	proofA, err := GeneratePoSt(proverID, privateInfo, randomness[:], candidatesA)
+	proofA, err := GeneratePoSt(minerID, privateInfo, randomness[:], candidatesA)
 	require.NoError(t, err)
 
-	isValid, err = VerifyPoSt(publicInfo, randomness[:], challengeCount, proofA, candidatesA, proverID)
+	isValid, err = VerifyPoSt(publicInfo, randomness[:], challengeCount, proofA, candidatesA, minerID)
 	require.NoError(t, err)
 	require.True(t, isValid, "VerifyPoSt rejected the (standalone) proof as invalid")
 }
