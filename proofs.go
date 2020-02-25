@@ -758,7 +758,7 @@ func GeneratePoSt(
 	privateSectorInfo SortedPrivateSectorInfo,
 	randomness abi.PoStRandomness,
 	winners []abi.PoStCandidate,
-) ([]byte, error) {
+) ([]abi.PoStProof, error) {
 	proverID, err := toProverID(minerID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to convert ActorID to prover id ([32]byte) for FFI")

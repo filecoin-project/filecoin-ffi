@@ -13,6 +13,7 @@ use libc;
 
 use super::helpers::{bls_12_fr_into_bytes, c_to_rust_candidates, to_private_replica_info_map};
 use super::types::*;
+use crate::proofs::helpers::c_to_rust_post_proofs;
 use filecoin_proofs_api::seal::SealPreCommitPhase2Output;
 use std::path::PathBuf;
 
@@ -513,8 +514,8 @@ pub unsafe extern "C" fn verify_post(
     challenge_count: u64,
     replicas_ptr: *const FFIPublicReplicaInfo,
     replicas_len: libc::size_t,
-    flattened_proofs_ptr: *const u8,
-    flattened_proofs_len: libc::size_t,
+    proofs_ptr: *const FFIPoStProof,
+    proofs_len: libc::size_t,
     winners_ptr: *const FFICandidate,
     winners_len: libc::size_t,
     prover_id: &[u8; 32],
@@ -526,17 +527,13 @@ pub unsafe extern "C" fn verify_post(
 
         let mut response = VerifyPoStResponse::default();
 
-        let convert = super::helpers::to_public_replica_info_map(
-            replicas_ptr,
-            replicas_len,
-            flattened_proofs_ptr,
-            flattened_proofs_len,
-            winners_ptr,
-            winners_len,
-        );
+        let convert = super::helpers::to_public_replica_info_map(replicas_ptr, replicas_len);
 
-        let result = convert.and_then(|(map, proofs)| {
+        let result = convert.and_then(|map| {
             let winners = c_to_rust_candidates(winners_ptr, winners_len)?;
+            let post_proofs = c_to_rust_post_proofs(proofs_ptr, proofs_len)?;
+
+            let proofs: Vec<Vec<u8>> = post_proofs.iter().map(|pp| pp.clone().proof).collect();
 
             filecoin_proofs_api::post::verify_post(
                 randomness,
@@ -731,16 +728,20 @@ pub unsafe extern "C" fn generate_post(
         });
 
         match result {
-            Ok(proof) => {
+            Ok(output) => {
+                let mapped: Vec<FFIPoStProof> = output
+                    .iter()
+                    .map(|(t, proof)| FFIPoStProof {
+                        registered_proof: (*t).into(),
+                        proof_len: proof.len(),
+                        proof_ptr: proof.as_ptr(),
+                    })
+                    .collect();
+
                 response.status_code = FCPResponseStatus::FCPNoError;
-
-                let flattened_proofs: Vec<u8> =
-                    proof.into_iter().map(|(_, y)| y).flatten().collect();
-
-                response.flattened_proofs_len = flattened_proofs.len();
-                response.flattened_proofs_ptr = flattened_proofs.as_ptr();
-
-                mem::forget(flattened_proofs);
+                response.proofs_ptr = mapped.as_ptr();
+                response.proofs_len = mapped.len();
+                mem::forget(mapped);
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
@@ -1478,8 +1479,8 @@ pub mod tests {
                 challenge_count,
                 public_replicas.as_ptr(),
                 public_replicas.len(),
-                (*resp_h).flattened_proofs_ptr,
-                (*resp_h).flattened_proofs_len,
+                (*resp_h).proofs_ptr,
+                (*resp_h).proofs_len,
                 (*resp_f).candidates_ptr,
                 (*resp_f).candidates_len,
                 &prover_id,

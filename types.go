@@ -117,11 +117,10 @@ type publicSectorInfo struct {
 }
 
 type PrivateSectorInfo struct {
+	abi.SectorInfo
 	CacheDirPath     string
 	PoStProofType    abi.RegisteredProof
-	SealedCID        cid.Cid
 	SealedSectorPath string
-	SectorNum        abi.SectorNumber
 }
 
 // CommitmentBytesLen is the number of bytes in a CommR, CommD, CommP, and CommRStar.

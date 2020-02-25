@@ -2,8 +2,7 @@ use anyhow::Result;
 use ffi_toolkit::{c_str_to_pbuf, c_str_to_rust_str};
 use filecoin_proofs_api::fr32::fr_into_bytes;
 use filecoin_proofs_api::{
-    Candidate, PrivateReplicaInfo, PublicReplicaInfo, RegisteredPoStProof, RegisteredSealProof,
-    SectorId,
+    Candidate, PrivateReplicaInfo, PublicReplicaInfo, RegisteredSealProof, SectorId,
 };
 use libc;
 use paired::bls12_381::{Bls12, Fr};
@@ -15,6 +14,7 @@ use super::types::{
     FFICandidate, FFIPrivateReplicaInfo, FFIPublicReplicaInfo, FFIRegisteredPoStProof,
     FFIRegisteredSealProof,
 };
+use crate::proofs::types::{FFIPoStProof, PoStProof};
 
 #[derive(Debug, Clone)]
 struct PublicReplicaInfoTmp {
@@ -23,49 +23,16 @@ struct PublicReplicaInfoTmp {
     pub sector_id: u64,
 }
 
-/// Produce a map from sector id to replica info by pairing sector ids and
-/// replica commitments (by index in their respective arrays), setting the
-/// storage fault-boolean if the sector id is present in the provided dynamic
-/// array. This function's return value should be provided to the verify_post
-/// call.
 #[allow(clippy::type_complexity)]
 pub unsafe fn to_public_replica_info_map(
     replicas_ptr: *const FFIPublicReplicaInfo,
     replicas_len: libc::size_t,
-    flattened_proofs_ptr: *const u8,
-    flattened_proofs_len: libc::size_t,
-    winners_ptr: *const FFICandidate,
-    winners_len: libc::size_t,
-) -> Result<(BTreeMap<SectorId, PublicReplicaInfo>, Vec<Vec<u8>>)> {
+) -> Result<BTreeMap<SectorId, PublicReplicaInfo>> {
     use rayon::prelude::*;
 
     ensure!(!replicas_ptr.is_null(), "replicas_ptr must not be null");
-    ensure!(
-        !flattened_proofs_ptr.is_null(),
-        "flattened_proof_ptr must not be null"
-    );
-
-    let mut sector_id_to_num_times_won: BTreeMap<SectorId, usize> = Default::default();
-
-    let winners = from_raw_parts(winners_ptr, winners_len);
-
-    for winner in winners {
-        let k = SectorId::from(winner.sector_id);
-
-        let r = if let Some(v) = sector_id_to_num_times_won.get(&k) {
-            *v
-        } else {
-            0
-        };
-
-        sector_id_to_num_times_won.insert(k, r + 1);
-    }
-
-    let proofs_slice = from_raw_parts(flattened_proofs_ptr, flattened_proofs_len);
-    let mut proofs_index = 0;
 
     let mut replicas = Vec::new();
-    let mut proofs = Vec::new();
 
     for ffi_info in from_raw_parts(replicas_ptr, replicas_len) {
         replicas.push(PublicReplicaInfoTmp {
@@ -73,22 +40,6 @@ pub unsafe fn to_public_replica_info_map(
             registered_proof: ffi_info.registered_proof,
             comm_r: ffi_info.comm_r,
         });
-
-        let proof_len =
-            RegisteredPoStProof::from(ffi_info.registered_proof).single_partition_proof_len();
-
-        let num_times_won =
-            if let Some(n) = sector_id_to_num_times_won.get(&SectorId::from(ffi_info.sector_id)) {
-                *n
-            } else {
-                0
-            };
-
-        // handle the scenario in which a single replica won multiple times
-        for _ in 0..num_times_won {
-            proofs.push(proofs_slice[proofs_index..proofs_index + proof_len].to_vec());
-            proofs_index += proof_len;
-        }
     }
 
     let map = replicas
@@ -107,7 +58,7 @@ pub unsafe fn to_public_replica_info_map(
         })
         .collect();
 
-    Ok((map, proofs))
+    Ok(map)
 }
 
 /// Copy the provided dynamic array's bytes into a vector and return the vector.
@@ -227,4 +178,20 @@ pub unsafe fn c_to_rust_candidates(
         .cloned()
         .map(|c| c.try_into_candidate().map_err(Into::into))
         .collect()
+}
+
+pub unsafe fn c_to_rust_post_proofs(
+    post_proofs_ptr: *const FFIPoStProof,
+    post_proofs_len: libc::size_t,
+) -> Result<Vec<PoStProof>> {
+    ensure!(
+        !post_proofs_ptr.is_null(),
+        "post_proofs_ptr must not be null"
+    );
+
+    Ok(from_raw_parts(post_proofs_ptr, post_proofs_len)
+        .iter()
+        .cloned()
+        .map(|x| x.into())
+        .collect())
 }

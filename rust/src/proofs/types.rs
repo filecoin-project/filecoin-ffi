@@ -10,6 +10,7 @@ use filecoin_proofs_api::{
     fr32::bytes_into_fr, Candidate, PieceInfo, RegisteredPoStProof, RegisteredSealProof,
     UnpaddedBytesAmount,
 };
+use std::slice::from_raw_parts;
 
 /// FileDescriptorRef does not drop its file descriptor when it is dropped. Its
 /// owner must manage the lifecycle of the file descriptor.
@@ -126,6 +127,36 @@ impl From<FFIPublicPieceInfo> for PieceInfo {
 
 #[repr(C)]
 #[derive(Clone)]
+pub struct FFIPoStProof {
+    pub registered_proof: FFIRegisteredPoStProof,
+    pub proof_len: libc::size_t,
+    pub proof_ptr: *const u8,
+}
+
+#[derive(Clone)]
+pub struct PoStProof {
+    pub registered_proof: RegisteredPoStProof,
+    pub proof: Vec<u8>,
+}
+
+impl From<FFIPoStProof> for PoStProof {
+    fn from(other: FFIPoStProof) -> Self {
+        let proof = unsafe {
+            from_raw_parts(other.proof_ptr, other.proof_len)
+                .iter()
+                .cloned()
+                .collect()
+        };
+
+        PoStProof {
+            registered_proof: other.registered_proof.into(),
+            proof,
+        }
+    }
+}
+
+#[repr(C)]
+#[derive(Clone)]
 pub struct FFICandidate {
     pub sector_id: u64,
     pub partial_ticket: [u8; 32],
@@ -196,8 +227,8 @@ code_and_message_impl!(GenerateCandidatesResponse);
 #[derive(DropStructMacro)]
 pub struct GeneratePoStResponse {
     pub error_msg: *const libc::c_char,
-    pub flattened_proofs_len: libc::size_t,
-    pub flattened_proofs_ptr: *const u8,
+    pub proofs_len: libc::size_t,
+    pub proofs_ptr: *const FFIPoStProof,
     pub status_code: FCPResponseStatus,
 }
 
@@ -205,8 +236,8 @@ impl Default for GeneratePoStResponse {
     fn default() -> GeneratePoStResponse {
         GeneratePoStResponse {
             error_msg: ptr::null(),
-            flattened_proofs_len: 0,
-            flattened_proofs_ptr: ptr::null(),
+            proofs_len: 0,
+            proofs_ptr: ptr::null(),
             status_code: FCPResponseStatus::FCPNoError,
         }
     }
