@@ -40,10 +40,10 @@ type Digest [DigestBytes]byte
 
 // Proofs
 
-// SortedPublicSectorInfo is a slice of PublicSectorInfo sorted
+// SortedPublicSectorInfo is a slice of publicSectorInfo sorted
 // (lexicographically, ascending) by sealed (replica) CID.
 type SortedPublicSectorInfo struct {
-	f []PublicSectorInfo
+	f []publicSectorInfo
 }
 
 // SortedPrivateSectorInfo is a slice of PrivateSectorInfo sorted
@@ -52,7 +52,7 @@ type SortedPrivateSectorInfo struct {
 	f []PrivateSectorInfo
 }
 
-func NewSortedPublicSectorInfo(sectorInfo ...PublicSectorInfo) SortedPublicSectorInfo {
+func newSortedPublicSectorInfo(sectorInfo ...publicSectorInfo) SortedPublicSectorInfo {
 	fn := func(i, j int) bool {
 		return bytes.Compare(sectorInfo[i].SealedCID.Bytes(), sectorInfo[j].SealedCID.Bytes()) == -1
 	}
@@ -64,8 +64,8 @@ func NewSortedPublicSectorInfo(sectorInfo ...PublicSectorInfo) SortedPublicSecto
 	}
 }
 
-// Values returns the sorted PublicSectorInfo as a slice
-func (s *SortedPublicSectorInfo) Values() []PublicSectorInfo {
+// Values returns the sorted publicSectorInfo as a slice
+func (s *SortedPublicSectorInfo) Values() []publicSectorInfo {
 	return s.f
 }
 
@@ -76,7 +76,7 @@ func (s SortedPublicSectorInfo) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON parses the JSON-encoded byte slice and stores the result in the
 // value pointed to by s.f. Note that this method allows for construction of a
-// SortedPublicSectorInfo which violates its invariant (that its PublicSectorInfo are sorted
+// SortedPublicSectorInfo which violates its invariant (that its publicSectorInfo are sorted
 // in some defined way). Callers should take care to never provide a byte slice
 // which would violate this invariant.
 func (s *SortedPublicSectorInfo) UnmarshalJSON(b []byte) error {
@@ -110,7 +110,7 @@ func (s *SortedPrivateSectorInfo) UnmarshalJSON(b []byte) error {
 	return json.Unmarshal(b, &s.f)
 }
 
-type PublicSectorInfo struct {
+type publicSectorInfo struct {
 	PoStProofType abi.RegisteredProof
 	SealedCID     cid.Cid
 	SectorNum     abi.SectorNumber
