@@ -132,7 +132,24 @@ func TestProofsLifecycle(t *testing.T) {
 	require.NoError(t, err)
 
 	// verify the 'ole proofy
-	isValid, err := VerifySeal(sealProofType, sealedCID, unsealedCID, minerID, ticket, seed, sectorNum, proof)
+	isValid, err := VerifySeal(abi.SealVerifyInfo{
+		SectorID: abi.SectorID{
+			Miner:  minerID,
+			Number: sectorNum,
+		},
+		OnChain: abi.OnChainSealVerifyInfo{
+			SealedCID:        sealedCID,
+			InteractiveEpoch: abi.ChainEpoch(42),
+			RegisteredProof:  sealProofType,
+			Proof:            proof,
+			DealIDs:          []abi.DealID{},
+			SectorNumber:     sectorNum,
+			SealRandEpoch:    abi.ChainEpoch(42),
+		},
+		Randomness:            ticket,
+		InteractiveRandomness: seed,
+		UnsealedCID:           unsealedCID,
+	})
 	require.NoError(t, err)
 	require.True(t, isValid, "proof wasn't valid")
 
@@ -185,11 +202,10 @@ func TestProofsLifecycle(t *testing.T) {
 		SectorNum:        sectorNum,
 	})
 
-	publicInfo := NewSortedPublicSectorInfo(PublicSectorInfo{
-		SealedCID:     sealedCID,
-		PoStProofType: postProofType,
-		SectorNum:     sectorNum,
-	})
+	eligibleSectors := []abi.SectorInfo{{
+		SectorNumber: sectorNum,
+		SealedCID:    sealedCID,
+	}}
 
 	candidatesWithTicketsA, err := GenerateCandidates(minerID, randomness[:], challengeCount, privateInfo)
 	require.NoError(t, err)
@@ -207,16 +223,26 @@ func TestProofsLifecycle(t *testing.T) {
 	proofA, err := GeneratePoSt(minerID, privateInfo, randomness[:], candidatesA)
 	require.NoError(t, err)
 
-	isValid, err = VerifyPoSt(publicInfo, randomness[:], challengeCount, proofA, candidatesA, minerID)
+	isValid, err = VerifyPoSt(abi.PoStVerifyInfo{
+		Randomness: randomness[:],
+		Candidates: candidatesA,
+		Proofs: []abi.PoStProof{{
+			RegisteredProof: postProofType,
+			ProofBytes:      proofA,
+		}},
+		EligibleSectors: eligibleSectors,
+		Prover:          minerID,
+		ChallengeCount:  challengeCount,
+	})
 	require.NoError(t, err)
 	require.True(t, isValid, "VerifyPoSt rejected the (standalone) proof as invalid")
 }
 
 func TestJsonMarshalSymmetry(t *testing.T) {
 	for i := 0; i < 100; i++ {
-		xs := make([]PublicSectorInfo, 10)
+		xs := make([]publicSectorInfo, 10)
 		for j := 0; j < 10; j++ {
-			var x PublicSectorInfo
+			var x publicSectorInfo
 			var commR [32]byte
 			_, err := io.ReadFull(rand.Reader, commR[:])
 			require.NoError(t, err)
@@ -228,7 +254,7 @@ func TestJsonMarshalSymmetry(t *testing.T) {
 			x.SectorNum = abi.SectorNumber(n.Uint64())
 			xs[j] = x
 		}
-		toSerialize := NewSortedPublicSectorInfo(xs...)
+		toSerialize := newSortedPublicSectorInfo(xs...)
 
 		serialized, err := toSerialize.MarshalJSON()
 		require.NoError(t, err)
