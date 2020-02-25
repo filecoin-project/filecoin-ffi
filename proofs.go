@@ -22,14 +22,12 @@ import "C"
 
 func cRegisteredPoStProof(p abi.RegisteredProof) (C.FFIRegisteredPoStProof, error) {
 	switch p {
-	case abi.RegisteredProof_StackedDRG1KiBPoSt:
-		return C.FFIRegisteredPoStProof_StackedDrg1KiBV1, nil
-	case abi.RegisteredProof_StackedDRG16MiBPoSt:
-		return C.FFIRegisteredPoStProof_StackedDrg16MiBV1, nil
-	case abi.RegisteredProof_StackedDRG256MiBPoSt:
-		return C.FFIRegisteredPoStProof_StackedDrg256MiBV1, nil
-	case abi.RegisteredProof_StackedDRG1GiBPoSt:
-		return C.FFIRegisteredPoStProof_StackedDrg1GiBV1, nil
+	case abi.RegisteredProof_StackedDRG2KiBPoSt:
+		return C.FFIRegisteredPoStProof_StackedDrg2KiBV1, nil
+	case abi.RegisteredProof_StackedDRG8MiBPoSt:
+		return C.FFIRegisteredPoStProof_StackedDrg8MiBV1, nil
+	case abi.RegisteredProof_StackedDRG512MiBPoSt:
+		return C.FFIRegisteredPoStProof_StackedDrg512MiBV1, nil
 	case abi.RegisteredProof_StackedDRG32GiBPoSt:
 		return C.FFIRegisteredPoStProof_StackedDrg32GiBV1, nil
 	default:
@@ -39,14 +37,12 @@ func cRegisteredPoStProof(p abi.RegisteredProof) (C.FFIRegisteredPoStProof, erro
 
 func cRegisteredSealProof(p abi.RegisteredProof) (C.FFIRegisteredSealProof, error) {
 	switch p {
-	case abi.RegisteredProof_StackedDRG1KiBSeal:
-		return C.FFIRegisteredSealProof_StackedDrg1KiBV1, nil
-	case abi.RegisteredProof_StackedDRG16MiBSeal:
-		return C.FFIRegisteredSealProof_StackedDrg16MiBV1, nil
-	case abi.RegisteredProof_StackedDRG256MiBSeal:
-		return C.FFIRegisteredSealProof_StackedDrg256MiBV1, nil
-	case abi.RegisteredProof_StackedDRG1GiBSeal:
-		return C.FFIRegisteredSealProof_StackedDrg1GiBV1, nil
+	case abi.RegisteredProof_StackedDRG2KiBSeal:
+		return C.FFIRegisteredSealProof_StackedDrg2KiBV1, nil
+	case abi.RegisteredProof_StackedDRG8MiBSeal:
+		return C.FFIRegisteredSealProof_StackedDrg8MiBV1, nil
+	case abi.RegisteredProof_StackedDRG512MiBSeal:
+		return C.FFIRegisteredSealProof_StackedDrg512MiBV1, nil
 	case abi.RegisteredProof_StackedDRG32GiBSeal:
 		return C.FFIRegisteredSealProof_StackedDrg32GiBV1, nil
 	default:
@@ -454,6 +450,7 @@ func SealCommitPhase1(
 	sealedCID cid.Cid,
 	unsealedCID cid.Cid,
 	cacheDirPath string,
+	sealedSectorPath string,
 	sectorNum abi.SectorNumber,
 	minerID abi.ActorID,
 	ticket abi.SealRandomness,
@@ -489,6 +486,9 @@ func SealCommitPhase1(
 	cCacheDirPath := C.CString(cacheDirPath)
 	defer C.free(unsafe.Pointer(cCacheDirPath))
 
+	cSealedSectorPath := C.CString(sealedSectorPath)
+	defer C.free(unsafe.Pointer(cSealedSectorPath))
+
 	proverIDCBytes := C.CBytes(proverID[:])
 	defer C.free(proverIDCBytes)
 
@@ -510,6 +510,7 @@ func SealCommitPhase1(
 		(*[CommitmentBytesLen]C.uint8_t)(commRCBytes),
 		(*[CommitmentBytesLen]C.uint8_t)(commDCBytes),
 		cCacheDirPath,
+		cSealedSectorPath,
 		C.uint64_t(uint64(sectorNum)),
 		(*[32]C.uint8_t)(proverIDCBytes),
 		(*[32]C.uint8_t)(ticketCBytes),

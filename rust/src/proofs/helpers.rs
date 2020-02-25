@@ -1,6 +1,3 @@
-use std::collections::btree_map::BTreeMap;
-use std::slice::from_raw_parts;
-
 use anyhow::Result;
 use ffi_toolkit::{c_str_to_pbuf, c_str_to_rust_str};
 use filecoin_proofs_api::fr32::fr_into_bytes;
@@ -10,6 +7,9 @@ use filecoin_proofs_api::{
 };
 use libc;
 use paired::bls12_381::{Bls12, Fr};
+use std::collections::btree_map::BTreeMap;
+use std::path::PathBuf;
+use std::slice::from_raw_parts;
 
 use super::types::{
     FFICandidate, FFIPrivateReplicaInfo, FFIPublicReplicaInfo, FFIRegisteredPoStProof,
@@ -162,7 +162,7 @@ struct PrivateReplicaInfoTmp {
     pub registered_proof: FFIRegisteredPoStProof,
     pub cache_dir_path: std::path::PathBuf,
     pub comm_r: [u8; 32],
-    pub replica_path: String,
+    pub replica_path: std::path::PathBuf,
     pub sector_id: u64,
 }
 
@@ -184,7 +184,7 @@ pub unsafe fn to_private_replica_info_map(
                 registered_proof: ffi_info.registered_proof,
                 cache_dir_path,
                 comm_r: ffi_info.comm_r,
-                replica_path,
+                replica_path: PathBuf::from(replica_path),
                 sector_id: ffi_info.sector_id,
             }
         })
@@ -205,9 +205,9 @@ pub unsafe fn to_private_replica_info_map(
                 SectorId::from(sector_id),
                 PrivateReplicaInfo::new(
                     registered_proof.into(),
-                    replica_path,
                     comm_r,
                     cache_dir_path,
+                    replica_path,
                 ),
             )
         })

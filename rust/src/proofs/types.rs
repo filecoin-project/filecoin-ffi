@@ -48,20 +48,18 @@ impl std::io::Seek for FileDescriptorRef {
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub enum FFIRegisteredSealProof {
-    StackedDrg1KiBV1,
-    StackedDrg16MiBV1,
-    StackedDrg256MiBV1,
-    StackedDrg1GiBV1,
+    StackedDrg2KiBV1,
+    StackedDrg8MiBV1,
+    StackedDrg512MiBV1,
     StackedDrg32GiBV1,
 }
 
 impl From<RegisteredSealProof> for FFIRegisteredSealProof {
     fn from(other: RegisteredSealProof) -> Self {
         match other {
-            RegisteredSealProof::StackedDrg1KiBV1 => FFIRegisteredSealProof::StackedDrg1KiBV1,
-            RegisteredSealProof::StackedDrg16MiBV1 => FFIRegisteredSealProof::StackedDrg16MiBV1,
-            RegisteredSealProof::StackedDrg256MiBV1 => FFIRegisteredSealProof::StackedDrg256MiBV1,
-            RegisteredSealProof::StackedDrg1GiBV1 => FFIRegisteredSealProof::StackedDrg1GiBV1,
+            RegisteredSealProof::StackedDrg2KiBV1 => FFIRegisteredSealProof::StackedDrg2KiBV1,
+            RegisteredSealProof::StackedDrg8MiBV1 => FFIRegisteredSealProof::StackedDrg8MiBV1,
+            RegisteredSealProof::StackedDrg512MiBV1 => FFIRegisteredSealProof::StackedDrg512MiBV1,
             RegisteredSealProof::StackedDrg32GiBV1 => FFIRegisteredSealProof::StackedDrg32GiBV1,
         }
     }
@@ -70,10 +68,9 @@ impl From<RegisteredSealProof> for FFIRegisteredSealProof {
 impl From<FFIRegisteredSealProof> for RegisteredSealProof {
     fn from(other: FFIRegisteredSealProof) -> Self {
         match other {
-            FFIRegisteredSealProof::StackedDrg1KiBV1 => RegisteredSealProof::StackedDrg1KiBV1,
-            FFIRegisteredSealProof::StackedDrg16MiBV1 => RegisteredSealProof::StackedDrg16MiBV1,
-            FFIRegisteredSealProof::StackedDrg256MiBV1 => RegisteredSealProof::StackedDrg256MiBV1,
-            FFIRegisteredSealProof::StackedDrg1GiBV1 => RegisteredSealProof::StackedDrg1GiBV1,
+            FFIRegisteredSealProof::StackedDrg2KiBV1 => RegisteredSealProof::StackedDrg2KiBV1,
+            FFIRegisteredSealProof::StackedDrg8MiBV1 => RegisteredSealProof::StackedDrg8MiBV1,
+            FFIRegisteredSealProof::StackedDrg512MiBV1 => RegisteredSealProof::StackedDrg512MiBV1,
             FFIRegisteredSealProof::StackedDrg32GiBV1 => RegisteredSealProof::StackedDrg32GiBV1,
         }
     }
@@ -82,20 +79,18 @@ impl From<FFIRegisteredSealProof> for RegisteredSealProof {
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub enum FFIRegisteredPoStProof {
-    StackedDrg1KiBV1,
-    StackedDrg16MiBV1,
-    StackedDrg256MiBV1,
-    StackedDrg1GiBV1,
+    StackedDrg2KiBV1,
+    StackedDrg8MiBV1,
+    StackedDrg512MiBV1,
     StackedDrg32GiBV1,
 }
 
 impl From<RegisteredPoStProof> for FFIRegisteredPoStProof {
     fn from(other: RegisteredPoStProof) -> Self {
         match other {
-            RegisteredPoStProof::StackedDrg1KiBV1 => FFIRegisteredPoStProof::StackedDrg1KiBV1,
-            RegisteredPoStProof::StackedDrg16MiBV1 => FFIRegisteredPoStProof::StackedDrg16MiBV1,
-            RegisteredPoStProof::StackedDrg256MiBV1 => FFIRegisteredPoStProof::StackedDrg256MiBV1,
-            RegisteredPoStProof::StackedDrg1GiBV1 => FFIRegisteredPoStProof::StackedDrg1GiBV1,
+            RegisteredPoStProof::StackedDrg2KiBV1 => FFIRegisteredPoStProof::StackedDrg2KiBV1,
+            RegisteredPoStProof::StackedDrg8MiBV1 => FFIRegisteredPoStProof::StackedDrg8MiBV1,
+            RegisteredPoStProof::StackedDrg512MiBV1 => FFIRegisteredPoStProof::StackedDrg512MiBV1,
             RegisteredPoStProof::StackedDrg32GiBV1 => FFIRegisteredPoStProof::StackedDrg32GiBV1,
         }
     }
@@ -104,10 +99,9 @@ impl From<RegisteredPoStProof> for FFIRegisteredPoStProof {
 impl From<FFIRegisteredPoStProof> for RegisteredPoStProof {
     fn from(other: FFIRegisteredPoStProof) -> Self {
         match other {
-            FFIRegisteredPoStProof::StackedDrg1KiBV1 => RegisteredPoStProof::StackedDrg1KiBV1,
-            FFIRegisteredPoStProof::StackedDrg16MiBV1 => RegisteredPoStProof::StackedDrg16MiBV1,
-            FFIRegisteredPoStProof::StackedDrg256MiBV1 => RegisteredPoStProof::StackedDrg256MiBV1,
-            FFIRegisteredPoStProof::StackedDrg1GiBV1 => RegisteredPoStProof::StackedDrg1GiBV1,
+            FFIRegisteredPoStProof::StackedDrg2KiBV1 => RegisteredPoStProof::StackedDrg2KiBV1,
+            FFIRegisteredPoStProof::StackedDrg8MiBV1 => RegisteredPoStProof::StackedDrg8MiBV1,
+            FFIRegisteredPoStProof::StackedDrg512MiBV1 => RegisteredPoStProof::StackedDrg512MiBV1,
             FFIRegisteredPoStProof::StackedDrg32GiBV1 => RegisteredPoStProof::StackedDrg32GiBV1,
         }
     }
@@ -303,7 +297,7 @@ impl Default for SealPreCommitPhase2Response {
         SealPreCommitPhase2Response {
             error_msg: ptr::null(),
             status_code: FCPResponseStatus::FCPNoError,
-            registered_proof: FFIRegisteredSealProof::StackedDrg1KiBV1,
+            registered_proof: FFIRegisteredSealProof::StackedDrg2KiBV1,
             comm_d: Default::default(),
             comm_r: Default::default(),
         }
