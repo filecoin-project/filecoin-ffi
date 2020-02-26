@@ -236,30 +236,6 @@ func GenerateUnsealedCID(proofType abi.RegisteredProof, pieces []abi.PieceInfo) 
 	return commcid.DataCommitmentV1ToCID(commD[:]), nil
 }
 
-func GenerateUnsealedCIDMeow(proofType abi.RegisteredProof, pieces []abi.PieceInfo) (cid.Cid, [32]byte, error) {
-	cProofType, err := cRegisteredSealProof(proofType)
-	if err != nil {
-		return cid.Undef, [32]byte{}, errors.Wrap(err, "failed to create registered seal proof type for FFI")
-	}
-
-	cPiecesPtr, cPiecesLen, err := cPublicPieceInfo(pieces)
-	if err != nil {
-		return cid.Undef, [32]byte{}, errors.Wrap(err, "failed to create public piece info array for FFI")
-	}
-	defer C.free(unsafe.Pointer(cPiecesPtr))
-
-	resPtr := C.generate_data_commitment(cProofType, (*C.FFIPublicPieceInfo)(cPiecesPtr), cPiecesLen)
-	defer C.destroy_generate_data_commitment_response(resPtr)
-
-	if resPtr.status_code != 0 {
-		return cid.Undef, [32]byte{}, errors.New(C.GoString(resPtr.error_msg))
-	}
-
-	commD := goCommitment(&resPtr.comm_d[0])
-
-	return commcid.DataCommitmentV1ToCID(commD[:]), commD, nil
-}
-
 // GeneratePieceCIDFromFile produces a piece CID for the provided data stored in
 //a given file.
 func GeneratePieceCIDFromFile(proofType abi.RegisteredProof, pieceFile *os.File, pieceSize abi.UnpaddedPieceSize) (cid.Cid, error) {
