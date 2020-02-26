@@ -731,10 +731,17 @@ pub unsafe extern "C" fn generate_post(
             Ok(output) => {
                 let mapped: Vec<FFIPoStProof> = output
                     .iter()
-                    .map(|(t, proof)| FFIPoStProof {
-                        registered_proof: (*t).into(),
-                        proof_len: proof.len(),
-                        proof_ptr: proof.as_ptr(),
+                    .cloned()
+                    .map(|(t, proof)| {
+                        let out = FFIPoStProof {
+                            registered_proof: (t).into(),
+                            proof_len: proof.len(),
+                            proof_ptr: proof.as_ptr(),
+                        };
+
+                        mem::forget(proof);
+
+                        out
                     })
                     .collect();
 

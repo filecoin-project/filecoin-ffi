@@ -2,7 +2,8 @@ use anyhow::Result;
 use ffi_toolkit::{c_str_to_pbuf, c_str_to_rust_str};
 use filecoin_proofs_api::fr32::fr_into_bytes;
 use filecoin_proofs_api::{
-    Candidate, PrivateReplicaInfo, PublicReplicaInfo, RegisteredSealProof, SectorId,
+    Candidate, PrivateReplicaInfo, PublicReplicaInfo, RegisteredPoStProof, RegisteredSealProof,
+    SectorId,
 };
 use libc;
 use paired::bls12_381::{Bls12, Fr};
@@ -189,9 +190,16 @@ pub unsafe fn c_to_rust_post_proofs(
         "post_proofs_ptr must not be null"
     );
 
-    Ok(from_raw_parts(post_proofs_ptr, post_proofs_len)
+    let out = from_raw_parts(post_proofs_ptr, post_proofs_len)
         .iter()
-        .cloned()
-        .map(|x| x.into())
-        .collect())
+        .map(|fpp| PoStProof {
+            registered_proof: RegisteredPoStProof::StackedDrg2KiBV1,
+            proof: from_raw_parts(fpp.proof_ptr, fpp.proof_len)
+                .iter()
+                .cloned()
+                .collect(),
+        })
+        .collect();
+
+    Ok(out)
 }
