@@ -133,7 +133,7 @@ pub struct FFIPoStProof {
     pub proof_ptr: *const u8,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct PoStProof {
     pub registered_proof: RegisteredPoStProof,
     pub proof: Vec<u8>,

@@ -20,6 +20,21 @@ import (
 // #include "./filecoin.h"
 import "C"
 
+func goRegisteredPoStProof(p C.FFIRegisteredPoStProof) (abi.RegisteredProof, error) {
+	switch p {
+	case C.FFIRegisteredPoStProof_StackedDrg2KiBV1:
+		return abi.RegisteredProof_StackedDRG2KiBPoSt, nil
+	case C.FFIRegisteredPoStProof_StackedDrg8MiBV1:
+		return abi.RegisteredProof_StackedDRG8MiBPoSt, nil
+	case C.FFIRegisteredPoStProof_StackedDrg512MiBV1:
+		return abi.RegisteredProof_StackedDRG512MiBPoSt, nil
+	case C.FFIRegisteredPoStProof_StackedDrg32GiBV1:
+		return abi.RegisteredProof_StackedDRG32GiBPoSt, nil
+	default:
+		return 0, errors.Errorf("no mapping from C.FFIRegisteredPoStProof value available for: %v", p)
+	}
+}
+
 func cRegisteredPoStProof(p abi.RegisteredProof) (C.FFIRegisteredPoStProof, error) {
 	switch p {
 	case abi.RegisteredProof_StackedDRG2KiBPoSt:
@@ -124,16 +139,6 @@ func VerifyPoSt(info abi.PoStVerifyInfo) (bool, error) {
 		}
 	}
 
-	// TODO: This code makes a lot of assumptions, one of which is that
-	// libfilecoin isn't going to need the RegisteredProof version for each of
-	// the provided proofs (which is wrong; it will). This code can work for the
-	// time being (Feb. 25, 2020) because libfilecoin assumes all provided
-	// proofs are V1.
-	var flattenedProofs []byte
-	for idx := range info.Proofs {
-		flattenedProofs = append(flattenedProofs, info.Proofs[idx].ProofBytes...)
-	}
-
 	sectorInfo := newSortedPublicSectorInfo(psis...)
 
 	proverID, err := toProverID(info.Prover)
@@ -151,8 +156,8 @@ func VerifyPoSt(info abi.PoStVerifyInfo) (bool, error) {
 	randomnessCBytes := C.CBytes(from32ByteArray(to32ByteArray(info.Randomness)))
 	defer C.free(randomnessCBytes)
 
-	flattenedProofsCBytes := C.CBytes(flattenedProofs)
-	defer C.free(flattenedProofsCBytes)
+	proofsPtr, proofsSize, err := cPoStProofs(info.Proofs)
+	defer C.free(unsafe.Pointer(proofsPtr))
 
 	winnersPtr, winnersSize := cCandidates(info.Candidates)
 	defer C.free(unsafe.Pointer(winnersPtr))
@@ -166,8 +171,8 @@ func VerifyPoSt(info abi.PoStVerifyInfo) (bool, error) {
 		C.uint64_t(info.ChallengeCount),
 		cInfoPtr,
 		cInfoSize,
-		(*C.uint8_t)(flattenedProofsCBytes),
-		C.size_t(len(flattenedProofs)),
+		proofsPtr,
+		proofsSize,
 		winnersPtr,
 		winnersSize,
 		(*[32]C.uint8_t)(proverIDCBytes),
@@ -794,7 +799,7 @@ func GeneratePoSt(
 		return nil, errors.New(C.GoString(resPtr.error_msg))
 	}
 
-	return goBytes(resPtr.flattened_proofs_ptr, resPtr.flattened_proofs_len), nil
+	return goPoStProofs(resPtr.proofs_ptr, resPtr.proofs_len)
 }
 
 // GetGPUDevices produces a slice of strings, each representing the name of a
@@ -958,7 +963,7 @@ func cPrivateReplicaInfos(src []PrivateSectorInfo) (*C.FFIPrivateReplicaInfo, C.
 
 	pp := (*[1 << 30]C.FFIPrivateReplicaInfo)(cPrivateReplicas)
 	for i, v := range src {
-		commR, err := commcid.CIDToReplicaCommitmentV1(v.SealedCID)
+		commR, err := commcid.CIDToReplicaCommitmentV1(v.SectorInfo.SealedCID)
 		if err != nil {
 			return (*C.FFIPrivateReplicaInfo)(unsafe.Pointer(nil)), 0, errors.Wrap(err, "failed to transform sealed CID to CommR")
 		}
@@ -974,12 +979,36 @@ func cPrivateReplicaInfos(src []PrivateSectorInfo) (*C.FFIPrivateReplicaInfo, C.
 			cache_dir_path:   C.CString(v.CacheDirPath),
 			comm_r:           *(*[CommitmentBytesLen]C.uint8_t)(unsafe.Pointer(&commRAry)),
 			replica_path:     C.CString(v.SealedSectorPath),
-			sector_id:        C.uint64_t(v.SectorNum),
+			sector_id:        C.uint64_t(v.SectorInfo.SectorNumber),
 			registered_proof: proofType,
 		}
 	}
 
 	return (*C.FFIPrivateReplicaInfo)(cPrivateReplicas), srcCSizeT, nil
+}
+
+func cPoStProofs(src []abi.PoStProof) (*C.FFIPoStProof, C.size_t, error) {
+	srcCSizeT := C.size_t(len(src))
+
+	cPoStProofs := C.malloc(srcCSizeT * C.sizeof_FFIPoStProof)
+
+	pp := (*[1 << 30]C.FFIPoStProof)(cPoStProofs)
+	for i, v := range src {
+		proofType, err := cRegisteredPoStProof(v.RegisteredProof)
+		if err != nil {
+			return (*C.FFIPoStProof)(unsafe.Pointer(nil)), 0, errors.Wrap(err, "failed to create PoSt proof type")
+		}
+
+		proofBytes := C.CBytes(v.ProofBytes)
+
+		pp[i] = C.FFIPoStProof{
+			proof_ptr:        (*C.uint8_t)(proofBytes),
+			proof_len:        C.size_t(len(v.ProofBytes)),
+			registered_proof: proofType,
+		}
+	}
+
+	return (*C.FFIPoStProof)(cPoStProofs), srcCSizeT, nil
 }
 
 func goBytes(src *C.uint8_t, size C.size_t) []byte {
@@ -1014,6 +1043,37 @@ func goCandidateWithTicket(src C.FFICandidate) PoStCandidateWithTicket {
 		},
 		Ticket: goCommitment(&src.ticket[0]),
 	}
+}
+
+func goPoStProofs(src *C.FFIPoStProof, size C.size_t) ([]abi.PoStProof, error) {
+	proofs := make([]abi.PoStProof, size)
+	if src == nil || size == 0 {
+		return proofs, nil
+	}
+
+	ptrs := (*[1 << 30]C.FFIPoStProof)(unsafe.Pointer(src))[:size:size]
+	for i := 0; i < int(size); i++ {
+		proof, err := goPoStProof(ptrs[i])
+		if err != nil {
+			return nil, err
+		}
+
+		proofs[i] = proof
+	}
+
+	return proofs, nil
+}
+
+func goPoStProof(src C.FFIPoStProof) (abi.PoStProof, error) {
+	rp, err := goRegisteredPoStProof(src.registered_proof)
+	if err != nil {
+		return abi.PoStProof{}, err
+	}
+
+	return abi.PoStProof{
+		RegisteredProof: rp,
+		ProofBytes:      C.GoBytes(unsafe.Pointer(src.proof_ptr), C.int(src.proof_len)),
+	}, nil
 }
 
 func goCommitment(src *C.uint8_t) [CommitmentBytesLen]byte {

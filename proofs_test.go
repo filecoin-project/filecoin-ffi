@@ -195,11 +195,13 @@ func TestProofsLifecycle(t *testing.T) {
 	// generate a PoSt over the proving set before importing, just to exercise
 	// the new API
 	privateInfo := NewSortedPrivateSectorInfo(PrivateSectorInfo{
+		SectorInfo: abi.SectorInfo{
+			SectorNumber: sectorNum,
+			SealedCID:    sealedCID,
+		},
 		CacheDirPath:     sectorCacheDirPath,
-		SealedCID:        sealedCID,
 		PoStProofType:    postProofType,
 		SealedSectorPath: sealedSectorFile.Name(),
-		SectorNum:        sectorNum,
 	})
 
 	eligibleSectors := []abi.SectorInfo{{
@@ -220,16 +222,13 @@ func TestProofsLifecycle(t *testing.T) {
 	_, err = FinalizeTicket(candidatesA[0].PartialTicket)
 	require.NoError(t, err)
 
-	proofA, err := GeneratePoSt(minerID, privateInfo, randomness[:], candidatesA)
+	proofs, err := GeneratePoSt(minerID, privateInfo, randomness[:], candidatesA)
 	require.NoError(t, err)
 
 	isValid, err = VerifyPoSt(abi.PoStVerifyInfo{
-		Randomness: randomness[:],
-		Candidates: candidatesA,
-		Proofs: []abi.PoStProof{{
-			RegisteredProof: postProofType,
-			ProofBytes:      proofA,
-		}},
+		Randomness:      randomness[:],
+		Candidates:      candidatesA,
+		Proofs:          proofs,
 		EligibleSectors: eligibleSectors,
 		Prover:          minerID,
 		ChallengeCount:  challengeCount,
