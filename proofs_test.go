@@ -205,8 +205,9 @@ func TestProofsLifecycle(t *testing.T) {
 	})
 
 	eligibleSectors := []abi.SectorInfo{{
-		SectorNumber: sectorNum,
-		SealedCID:    sealedCID,
+		RegisteredProof: sealProofType,
+		SectorNumber:    sectorNum,
+		SealedCID:       sealedCID,
 	}}
 
 	candidatesWithTicketsA, err := GenerateCandidates(minerID, randomness[:], challengeCount, privateInfo)

@@ -36,7 +36,12 @@ func goRegisteredPoStProof(p C.FFIRegisteredPoStProof) (abi.RegisteredProof, err
 }
 
 func cRegisteredPoStProof(p abi.RegisteredProof) (C.FFIRegisteredPoStProof, error) {
-	switch p {
+	pp, err := p.RegisteredPoStProof()
+	if err != nil {
+		return 0, err
+	}
+
+	switch pp {
 	case abi.RegisteredProof_StackedDRG2KiBPoSt:
 		return C.FFIRegisteredPoStProof_StackedDrg2KiBV1, nil
 	case abi.RegisteredProof_StackedDRG8MiBPoSt:
@@ -51,7 +56,12 @@ func cRegisteredPoStProof(p abi.RegisteredProof) (C.FFIRegisteredPoStProof, erro
 }
 
 func cRegisteredSealProof(p abi.RegisteredProof) (C.FFIRegisteredSealProof, error) {
-	switch p {
+	pp, err := p.RegisteredSealProof()
+	if err != nil {
+		return 0, err
+	}
+
+	switch pp {
 	case abi.RegisteredProof_StackedDRG2KiBSeal:
 		return C.FFIRegisteredSealProof_StackedDrg2KiBV1, nil
 	case abi.RegisteredProof_StackedDRG8MiBSeal:
@@ -94,7 +104,7 @@ func VerifySeal(info abi.SealVerifyInfo) (bool, error) {
 	commRCBytes := C.CBytes(from32ByteArray(to32ByteArray(commR)))
 	defer C.free(commRCBytes)
 
-	proofCBytes := C.CBytes(info.OnChain.Proof.ProofBytes[:])
+	proofCBytes := C.CBytes(info.OnChain.Proof)
 	defer C.free(proofCBytes)
 
 	proverIDCBytes := C.CBytes(proverID[:])
@@ -116,7 +126,7 @@ func VerifySeal(info abi.SealVerifyInfo) (bool, error) {
 		(*[32]C.uint8_t)(seedCBytes),
 		C.uint64_t(uint64(info.OnChain.SectorNumber)),
 		(*C.uint8_t)(proofCBytes),
-		C.size_t(len(info.OnChain.Proof.ProofBytes)),
+		C.size_t(len(info.OnChain.Proof)),
 	)
 	defer C.destroy_verify_seal_response(resPtr)
 
@@ -133,7 +143,7 @@ func VerifyPoSt(info abi.PoStVerifyInfo) (bool, error) {
 	psis := make([]publicSectorInfo, len(info.EligibleSectors))
 	for idx := range psis {
 		psis[idx] = publicSectorInfo{
-			PoStProofType: info.Proofs[idx].RegisteredProof,
+			PoStProofType: info.EligibleSectors[idx].RegisteredProof,
 			SealedCID:     info.EligibleSectors[idx].SealedCID,
 			SectorNum:     info.EligibleSectors[idx].SectorNumber,
 		}
@@ -540,10 +550,10 @@ func SealCommitPhase2(
 	phase1Output []byte,
 	sectorID abi.SectorNumber,
 	minerID abi.ActorID,
-) (abi.SealProof, error) {
+) ([]byte, error) {
 	proverID, err := toProverID(minerID)
 	if err != nil {
-		return abi.SealProof{}, errors.Wrap(err, "failed to convert ActorID to prover id ([32]byte) for FFI")
+		return nil, errors.Wrap(err, "failed to convert ActorID to prover id ([32]byte) for FFI")
 	}
 
 	phase1OutputCBytes := C.CBytes(phase1Output)
@@ -561,10 +571,10 @@ func SealCommitPhase2(
 	defer C.destroy_seal_commit_phase2_response(resPtr)
 
 	if resPtr.status_code != 0 {
-		return abi.SealProof{}, errors.New(C.GoString(resPtr.error_msg))
+		return nil, errors.New(C.GoString(resPtr.error_msg))
 	}
 
-	return abi.SealProof{ProofBytes: goBytes(resPtr.proof_ptr, resPtr.proof_len)}, nil
+	return goBytes(resPtr.proof_ptr, resPtr.proof_len), nil
 }
 
 // Unseal
