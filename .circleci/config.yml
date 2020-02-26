@@ -203,10 +203,10 @@ commands:
     steps:
       - restore_cache:
           keys:
-            - v22b-proof-params-{{ arch }}
+            - v23a-proof-params-{{ arch }}
   save_parameter_cache:
     steps:
       - save_cache:
-          key: v22b-proof-params-{{ arch }}
+          key: v23a-proof-params-{{ arch }}
           paths:
             - "~/filecoin-proof-parameters/"

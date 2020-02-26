@@ -13,6 +13,7 @@ use libc;
 
 use super::helpers::{bls_12_fr_into_bytes, c_to_rust_candidates, to_private_replica_info_map};
 use super::types::*;
+use crate::proofs::helpers::c_to_rust_post_proofs;
 use filecoin_proofs_api::seal::SealPreCommitPhase2Output;
 use std::path::PathBuf;
 
@@ -223,6 +224,7 @@ pub unsafe extern "C" fn seal_commit_phase1(
     comm_r: &[u8; 32],
     comm_d: &[u8; 32],
     cache_dir_path: *const libc::c_char,
+    replica_path: *const libc::c_char,
     sector_id: u64,
     prover_id: &[u8; 32],
     ticket: &[u8; 32],
@@ -251,6 +253,7 @@ pub unsafe extern "C" fn seal_commit_phase1(
 
         let result = filecoin_proofs_api::seal::seal_commit_phase1(
             c_str_to_pbuf(cache_dir_path),
+            c_str_to_pbuf(replica_path),
             *prover_id,
             SectorId::from(sector_id),
             *ticket,
@@ -511,8 +514,8 @@ pub unsafe extern "C" fn verify_post(
     challenge_count: u64,
     replicas_ptr: *const FFIPublicReplicaInfo,
     replicas_len: libc::size_t,
-    flattened_proofs_ptr: *const u8,
-    flattened_proofs_len: libc::size_t,
+    proofs_ptr: *const FFIPoStProof,
+    proofs_len: libc::size_t,
     winners_ptr: *const FFICandidate,
     winners_len: libc::size_t,
     prover_id: &[u8; 32],
@@ -524,17 +527,13 @@ pub unsafe extern "C" fn verify_post(
 
         let mut response = VerifyPoStResponse::default();
 
-        let convert = super::helpers::to_public_replica_info_map(
-            replicas_ptr,
-            replicas_len,
-            flattened_proofs_ptr,
-            flattened_proofs_len,
-            winners_ptr,
-            winners_len,
-        );
+        let convert = super::helpers::to_public_replica_info_map(replicas_ptr, replicas_len);
 
-        let result = convert.and_then(|(map, proofs)| {
+        let result = convert.and_then(|map| {
             let winners = c_to_rust_candidates(winners_ptr, winners_len)?;
+            let post_proofs = c_to_rust_post_proofs(proofs_ptr, proofs_len)?;
+
+            let proofs: Vec<Vec<u8>> = post_proofs.iter().map(|pp| pp.clone().proof).collect();
 
             filecoin_proofs_api::post::verify_post(
                 randomness,
@@ -729,15 +728,27 @@ pub unsafe extern "C" fn generate_post(
         });
 
         match result {
-            Ok(proof) => {
+            Ok(output) => {
+                let mapped: Vec<FFIPoStProof> = output
+                    .iter()
+                    .cloned()
+                    .map(|(t, proof)| {
+                        let out = FFIPoStProof {
+                            registered_proof: (t).into(),
+                            proof_len: proof.len(),
+                            proof_ptr: proof.as_ptr(),
+                        };
+
+                        mem::forget(proof);
+
+                        out
+                    })
+                    .collect();
+
                 response.status_code = FCPResponseStatus::FCPNoError;
-
-                let flattened_proofs: Vec<u8> = proof.into_iter().flatten().collect();
-
-                response.flattened_proofs_len = flattened_proofs.len();
-                response.flattened_proofs_ptr = flattened_proofs.as_ptr();
-
-                mem::forget(flattened_proofs);
+                response.proofs_ptr = mapped.as_ptr();
+                response.proofs_len = mapped.len();
+                mem::forget(mapped);
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
@@ -1052,7 +1063,7 @@ pub mod tests {
 
     #[test]
     fn test_write_with_and_without_alignment() -> Result<()> {
-        let registered_proof = FFIRegisteredSealProof::StackedDrg1KiBV1;
+        let registered_proof = FFIRegisteredSealProof::StackedDrg2KiBV1;
 
         // write some bytes to a temp file to be used as the byte source
         let mut rng = thread_rng();
@@ -1124,18 +1135,16 @@ pub mod tests {
     #[test]
     fn test_proof_types() -> Result<()> {
         let seal_types = vec![
-            FFIRegisteredSealProof::StackedDrg1KiBV1,
-            FFIRegisteredSealProof::StackedDrg16MiBV1,
-            FFIRegisteredSealProof::StackedDrg256MiBV1,
-            FFIRegisteredSealProof::StackedDrg1GiBV1,
+            FFIRegisteredSealProof::StackedDrg2KiBV1,
+            FFIRegisteredSealProof::StackedDrg8MiBV1,
+            FFIRegisteredSealProof::StackedDrg512MiBV1,
             FFIRegisteredSealProof::StackedDrg32GiBV1,
         ];
 
         let post_types = vec![
-            FFIRegisteredPoStProof::StackedDrg1KiBV1,
-            FFIRegisteredPoStProof::StackedDrg16MiBV1,
-            FFIRegisteredPoStProof::StackedDrg256MiBV1,
-            FFIRegisteredPoStProof::StackedDrg1GiBV1,
+            FFIRegisteredPoStProof::StackedDrg2KiBV1,
+            FFIRegisteredPoStProof::StackedDrg8MiBV1,
+            FFIRegisteredPoStProof::StackedDrg512MiBV1,
             FFIRegisteredPoStProof::StackedDrg32GiBV1,
         ];
 
@@ -1197,8 +1206,8 @@ pub mod tests {
     #[test]
     fn test_sealing() -> Result<()> {
         // miscellaneous setup and shared values
-        let registered_proof_seal = FFIRegisteredSealProof::StackedDrg1KiBV1;
-        let registered_proof_post = FFIRegisteredPoStProof::StackedDrg1KiBV1;
+        let registered_proof_seal = FFIRegisteredSealProof::StackedDrg2KiBV1;
+        let registered_proof_post = FFIRegisteredPoStProof::StackedDrg2KiBV1;
 
         let cache_dir = tempfile::tempdir()?;
         let cache_dir_path = cache_dir.into_path();
@@ -1212,14 +1221,14 @@ pub mod tests {
 
         // create a byte source (a user's piece)
         let mut rng = thread_rng();
-        let buf_a: Vec<u8> = (0..1016).map(|_| rng.gen()).collect();
+        let buf_a: Vec<u8> = (0..2032).map(|_| rng.gen()).collect();
 
         let mut piece_file_a = tempfile::tempfile()?;
         let _ = piece_file_a.write_all(&buf_a[0..127])?;
         piece_file_a.seek(SeekFrom::Start(0))?;
 
         let mut piece_file_b = tempfile::tempfile()?;
-        let _ = piece_file_b.write_all(&buf_a[0..508])?;
+        let _ = piece_file_b.write_all(&buf_a[0..1016])?;
         piece_file_b.seek(SeekFrom::Start(0))?;
 
         // create the staged sector (the byte destination)
@@ -1254,7 +1263,7 @@ pub mod tests {
             let resp_a2 = write_with_alignment(
                 registered_proof_seal,
                 piece_file_b_fd,
-                508,
+                1016,
                 staged_sector_fd,
                 existing_piece_sizes.as_ptr(),
                 existing_piece_sizes.len(),
@@ -1271,7 +1280,7 @@ pub mod tests {
                     comm_p: (*resp_a1).comm_p,
                 },
                 FFIPublicPieceInfo {
-                    num_bytes: 508,
+                    num_bytes: 1016,
                     comm_p: (*resp_a2).comm_p,
                 },
             ];
@@ -1286,14 +1295,14 @@ pub mod tests {
 
             let cache_dir_path_c_str = rust_str_to_c_str(cache_dir_path.to_str().unwrap());
             let staged_path_c_str = rust_str_to_c_str(staged_path.to_str().unwrap());
-            let sealed_path_c_str = rust_str_to_c_str(sealed_path.to_str().unwrap());
+            let replica_path_c_str = rust_str_to_c_str(sealed_path.to_str().unwrap());
             let unseal_path_c_str = rust_str_to_c_str(unseal_path.to_str().unwrap());
 
             let resp_b1 = seal_pre_commit_phase1(
                 registered_proof_seal,
                 cache_dir_path_c_str,
                 staged_path_c_str,
-                sealed_path_c_str,
+                replica_path_c_str,
                 sector_id,
                 &prover_id,
                 &ticket,
@@ -1310,7 +1319,7 @@ pub mod tests {
                 (*resp_b1).seal_pre_commit_phase1_output_ptr,
                 (*resp_b1).seal_pre_commit_phase1_output_len,
                 cache_dir_path_c_str,
-                sealed_path_c_str,
+                replica_path_c_str,
             );
 
             if (*resp_b2).status_code != FCPResponseStatus::FCPNoError {
@@ -1332,6 +1341,7 @@ pub mod tests {
                 &(*resp_b2).comm_r,
                 &(*resp_b2).comm_d,
                 cache_dir_path_c_str,
+                replica_path_c_str,
                 sector_id,
                 &prover_id,
                 &ticket,
@@ -1379,7 +1389,7 @@ pub mod tests {
             let resp_e = unseal(
                 registered_proof_seal,
                 cache_dir_path_c_str,
-                sealed_path_c_str,
+                replica_path_c_str,
                 unseal_path_c_str,
                 sector_id,
                 &prover_id,
@@ -1393,7 +1403,7 @@ pub mod tests {
             }
 
             // ensure unsealed bytes match what we had in our piece
-            let mut buf_b = Vec::with_capacity(1016);
+            let mut buf_b = Vec::with_capacity(2032);
             let mut f = std::fs::File::open(unseal_path)?;
             let _ = f.read_to_end(&mut buf_b)?;
 
@@ -1422,7 +1432,7 @@ pub mod tests {
                 registered_proof: registered_proof_post,
                 cache_dir_path: cache_dir_path_c_str,
                 comm_r: (*resp_b2).comm_r,
-                replica_path: sealed_path_c_str,
+                replica_path: replica_path_c_str,
                 sector_id,
             }];
 
@@ -1476,8 +1486,8 @@ pub mod tests {
                 challenge_count,
                 public_replicas.as_ptr(),
                 public_replicas.len(),
-                (*resp_h).flattened_proofs_ptr,
-                (*resp_h).flattened_proofs_len,
+                (*resp_h).proofs_ptr,
+                (*resp_h).proofs_len,
                 (*resp_f).candidates_ptr,
                 (*resp_f).candidates_len,
                 &prover_id,
@@ -1508,7 +1518,7 @@ pub mod tests {
 
             c_str_to_rust_str(cache_dir_path_c_str);
             c_str_to_rust_str(staged_path_c_str);
-            c_str_to_rust_str(sealed_path_c_str);
+            c_str_to_rust_str(replica_path_c_str);
             c_str_to_rust_str(unseal_path_c_str);
         }
 
