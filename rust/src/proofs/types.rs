@@ -133,6 +133,14 @@ pub struct FFIPoStProof {
     pub proof_ptr: *const u8,
 }
 
+impl Drop for FFIPoStProof {
+    fn drop(&mut self) {
+        let _ = unsafe {
+            Vec::from_raw_parts(self.proof_ptr as *mut u8, self.proof_len, self.proof_len)
+        };
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct PoStProof {
     pub registered_proof: RegisteredPoStProof,
