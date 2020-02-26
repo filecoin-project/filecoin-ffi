@@ -156,8 +156,11 @@ func VerifyPoSt(info abi.PoStVerifyInfo) (bool, error) {
 	randomnessCBytes := C.CBytes(from32ByteArray(to32ByteArray(info.Randomness)))
 	defer C.free(randomnessCBytes)
 
-	proofsPtr, proofsSize, err := cPoStProofs(info.Proofs)
-	defer C.free(unsafe.Pointer(proofsPtr))
+	proofsPtr, proofsSize, cleanup, err := cPoStProofs(info.Proofs)
+	if err != nil {
+		return false, errors.Wrap(err, "failed to convert to array of C.FFIPoStProof for FFI")
+	}
+	defer cleanup()
 
 	winnersPtr, winnersSize := cCandidates(info.Candidates)
 	defer C.free(unsafe.Pointer(winnersPtr))
@@ -987,19 +990,31 @@ func cPrivateReplicaInfos(src []PrivateSectorInfo) (*C.FFIPrivateReplicaInfo, C.
 	return (*C.FFIPrivateReplicaInfo)(cPrivateReplicas), srcCSizeT, nil
 }
 
-func cPoStProofs(src []abi.PoStProof) (*C.FFIPoStProof, C.size_t, error) {
+func cPoStProofs(src []abi.PoStProof) (*C.FFIPoStProof, C.size_t, func(), error) {
 	srcCSizeT := C.size_t(len(src))
 
 	cPoStProofs := C.malloc(srcCSizeT * C.sizeof_FFIPoStProof)
+
+	var ptrs []unsafe.Pointer
+
+	cleanup := func() {
+		C.free(cPoStProofs)
+
+		for idx := range ptrs {
+			C.free(ptrs[idx])
+		}
+	}
 
 	pp := (*[1 << 30]C.FFIPoStProof)(cPoStProofs)
 	for i, v := range src {
 		proofType, err := cRegisteredPoStProof(v.RegisteredProof)
 		if err != nil {
-			return (*C.FFIPoStProof)(unsafe.Pointer(nil)), 0, errors.Wrap(err, "failed to create PoSt proof type")
+			cleanup()
+			return (*C.FFIPoStProof)(unsafe.Pointer(nil)), 0, func() {}, errors.Wrap(err, "failed to create PoSt proof type")
 		}
 
 		proofBytes := C.CBytes(v.ProofBytes)
+		ptrs = append(ptrs, unsafe.Pointer(proofBytes))
 
 		pp[i] = C.FFIPoStProof{
 			proof_ptr:        (*C.uint8_t)(proofBytes),
@@ -1008,7 +1023,7 @@ func cPoStProofs(src []abi.PoStProof) (*C.FFIPoStProof, C.size_t, error) {
 		}
 	}
 
-	return (*C.FFIPoStProof)(cPoStProofs), srcCSizeT, nil
+	return (*C.FFIPoStProof)(cPoStProofs), srcCSizeT, cleanup, nil
 }
 
 func goBytes(src *C.uint8_t, size C.size_t) []byte {
