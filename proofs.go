@@ -852,6 +852,23 @@ func GetPoStVersion(
 	return C.GoString(resPtr.string_val), nil
 }
 
+// ClearCache
+func ClearCache(
+	cacheDirPath string,
+) error {
+	cCacheDirPath := C.CString(cacheDirPath)
+	defer C.free(unsafe.Pointer(cCacheDirPath))
+
+	resPtr := C.clear_cache(cCacheDirPath)
+	defer C.destroy_clear_cache_response(resPtr)
+
+	if resPtr.status_code != 0 {
+		return errors.New(C.GoString(resPtr.error_msg))
+	}
+
+	return nil
+}
+
 func cPublicReplicaInfos(src []publicSectorInfo) (*C.FFIPublicReplicaInfo, C.size_t, error) {
 	srcCSizeT := C.size_t(len(src))
 
@@ -1103,3 +1120,4 @@ func toProverID(minerID abi.ActorID) ([32]byte, error) {
 
 	return proverID, nil
 }
+

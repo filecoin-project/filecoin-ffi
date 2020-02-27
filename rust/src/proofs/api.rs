@@ -645,6 +645,31 @@ pub unsafe extern "C" fn generate_data_commitment(
     })
 }
 
+#[no_mangle]
+pub unsafe extern "C" fn clear_cache(
+    cache_dir_path: *const libc::c_char,
+) -> *mut ClearCacheResponse {
+    catch_panic_response(|| {
+        init_log();
+
+        let result = filecoin_proofs_api::seal::clear_cache(&c_str_to_pbuf(cache_dir_path));
+
+        let mut response = ClearCacheResponse::default();
+
+        match result {
+            Ok(_) => {
+                response.status_code = FCPResponseStatus::FCPNoError;
+            }
+            Err(err) => {
+                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+            }
+        };
+
+        raw_ptr(response)
+    })
+}
+
 /// TODO: document
 ///
 #[no_mangle]
@@ -1036,6 +1061,11 @@ pub unsafe extern "C" fn destroy_generate_post_response(ptr: *mut GeneratePoStRe
 pub unsafe extern "C" fn destroy_generate_candidates_response(
     ptr: *mut GenerateCandidatesResponse,
 ) {
+    let _ = Box::from_raw(ptr);
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn destroy_clear_cache_response(ptr: *mut ClearCacheResponse) {
     let _ = Box::from_raw(ptr);
 }
 
