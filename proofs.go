@@ -1120,4 +1120,3 @@ func toProverID(minerID abi.ActorID) ([32]byte, error) {
 
 	return proverID, nil
 }
-
