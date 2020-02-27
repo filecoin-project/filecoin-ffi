@@ -51,11 +51,11 @@ pub unsafe extern "C" fn write_with_alignment(
             n,
             &piece_sizes,
         ) {
-            Ok((aligned_bytes_written, comm_p)) => {
-                response.comm_p = comm_p;
-                response.left_alignment_unpadded = (aligned_bytes_written - n).into();
+            Ok((info, written)) => {
+                response.comm_p = info.commitment;
+                response.left_alignment_unpadded = (written - n).into();
                 response.status_code = FCPResponseStatus::FCPNoError;
-                response.total_write_unpadded = aligned_bytes_written.into();
+                response.total_write_unpadded = written.into();
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
@@ -92,10 +92,10 @@ pub unsafe extern "C" fn write_without_alignment(
             FileDescriptorRef::new(dst_fd),
             UnpaddedBytesAmount(src_size),
         ) {
-            Ok((total_bytes_written, comm_p)) => {
-                response.comm_p = comm_p;
+            Ok((info, written)) => {
+                response.comm_p = info.commitment;
                 response.status_code = FCPResponseStatus::FCPNoError;
-                response.total_write_unpadded = total_bytes_written.into();
+                response.total_write_unpadded = written.into();
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
