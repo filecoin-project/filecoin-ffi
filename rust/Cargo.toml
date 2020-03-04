@@ -13,20 +13,20 @@ publish = false
 crate-type = ["rlib", "staticlib"]
 
 [dependencies]
-bls-signatures = { git = "https://github.com/filecoin-project/bls-signatures.git", branch = "master" }
+bls-signatures = "0.5.0"
 byteorder = "1.2"
 drop_struct_macro_derive = "0.4.0"
 fff = "0.2"
 ffi-toolkit = "0.4.0"
 libc = "0.2.58"
 log = "0.4.7"
-paired = "0.17.0"
+paired = "0.18.0"
 fil_logger = "0.1.0"
 rand = "0.7"
 rand_chacha = "0.2.1"
 rayon = "1.2.1"
 anyhow = "1.0.23"
-bellperson = { version = "0.6.0", features = ["gpu"] }
+bellperson = { version = "0.6.2", features = ["gpu"] }
 serde_json = "1.0.46"
 
 [dependencies.filecoin-proofs-api]
@@ -38,3 +38,4 @@ cbindgen = "= 0.10.0"
 
 [dev-dependencies]
 tempfile = "3.0.8"
+

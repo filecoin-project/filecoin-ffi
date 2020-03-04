@@ -550,3 +550,21 @@ impl Default for StringResponse {
 }
 
 code_and_message_impl!(StringResponse);
+
+#[repr(C)]
+#[derive(DropStructMacro)]
+pub struct ClearCacheResponse {
+    pub error_msg: *const libc::c_char,
+    pub status_code: FCPResponseStatus,
+}
+
+impl Default for ClearCacheResponse {
+    fn default() -> ClearCacheResponse {
+        ClearCacheResponse {
+            error_msg: ptr::null(),
+            status_code: FCPResponseStatus::FCPNoError,
+        }
+    }
+}
+
+code_and_message_impl!(ClearCacheResponse);

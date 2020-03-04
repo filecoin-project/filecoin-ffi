@@ -323,9 +323,8 @@ mod tests {
             let private_key = (*private_key_generate_with_seed(seed.as_ptr() as _)).private_key;
             assert_eq!(
                 [
-                    0x05, 0x39, 0x32, 0xee, 0xae, 0x65, 0x01, 0x03, 0x9a, 0x3a, 0x62, 0x3a, 0x44,
-                    0x83, 0xc4, 0x48, 0x2c, 0x92, 0x71, 0xd5, 0x6a, 0x3d, 0xbc, 0x34, 0x27, 0xa6,
-                    0x42, 0x74, 0x30, 0x18, 0xc1, 0x59,
+                    54, 153, 119, 37, 67, 183, 254, 119, 191, 48, 187, 173, 95, 59, 171, 247, 14,
+                    9, 161, 223, 156, 205, 36, 41, 155, 195, 244, 5, 199, 26, 221, 1
                 ],
                 private_key
             );

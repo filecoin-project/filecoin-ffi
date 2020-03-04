@@ -51,11 +51,11 @@ pub unsafe extern "C" fn write_with_alignment(
             n,
             &piece_sizes,
         ) {
-            Ok((aligned_bytes_written, comm_p)) => {
-                response.comm_p = comm_p;
-                response.left_alignment_unpadded = (aligned_bytes_written - n).into();
+            Ok((info, written)) => {
+                response.comm_p = info.commitment;
+                response.left_alignment_unpadded = (written - n).into();
                 response.status_code = FCPResponseStatus::FCPNoError;
-                response.total_write_unpadded = aligned_bytes_written.into();
+                response.total_write_unpadded = written.into();
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
@@ -92,10 +92,10 @@ pub unsafe extern "C" fn write_without_alignment(
             FileDescriptorRef::new(dst_fd),
             UnpaddedBytesAmount(src_size),
         ) {
-            Ok((total_bytes_written, comm_p)) => {
-                response.comm_p = comm_p;
+            Ok((info, written)) => {
+                response.comm_p = info.commitment;
                 response.status_code = FCPResponseStatus::FCPNoError;
-                response.total_write_unpadded = total_bytes_written.into();
+                response.total_write_unpadded = written.into();
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
@@ -645,6 +645,31 @@ pub unsafe extern "C" fn generate_data_commitment(
     })
 }
 
+#[no_mangle]
+pub unsafe extern "C" fn clear_cache(
+    cache_dir_path: *const libc::c_char,
+) -> *mut ClearCacheResponse {
+    catch_panic_response(|| {
+        init_log();
+
+        let result = filecoin_proofs_api::seal::clear_cache(&c_str_to_pbuf(cache_dir_path));
+
+        let mut response = ClearCacheResponse::default();
+
+        match result {
+            Ok(_) => {
+                response.status_code = FCPResponseStatus::FCPNoError;
+            }
+            Err(err) => {
+                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+            }
+        };
+
+        raw_ptr(response)
+    })
+}
+
 /// TODO: document
 ///
 #[no_mangle]
@@ -1036,6 +1061,11 @@ pub unsafe extern "C" fn destroy_generate_post_response(ptr: *mut GeneratePoStRe
 pub unsafe extern "C" fn destroy_generate_candidates_response(
     ptr: *mut GenerateCandidatesResponse,
 ) {
+    let _ = Box::from_raw(ptr);
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn destroy_clear_cache_response(ptr: *mut ClearCacheResponse) {
     let _ = Box::from_raw(ptr);
 }
 
