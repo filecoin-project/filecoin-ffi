@@ -104,7 +104,7 @@ func VerifySeal(info abi.SealVerifyInfo) (bool, error) {
 	commRCBytes := C.CBytes(from32ByteArray(to32ByteArray(commR)))
 	defer C.free(commRCBytes)
 
-	proofCBytes := C.CBytes(info.OnChain.Proof)
+	proofCBytes := C.CBytes(info.OnChain.Proof[:])
 	defer C.free(proofCBytes)
 
 	proverIDCBytes := C.CBytes(proverID[:])
