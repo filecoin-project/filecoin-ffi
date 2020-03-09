@@ -15,16 +15,32 @@ use rand_chacha::ChaChaRng;
 use rayon::prelude::*;
 
 use crate::bls::types;
+use crate::proofs::types::fil_32ByteArray;
 
 pub const SIGNATURE_BYTES: usize = 96;
 pub const PRIVATE_KEY_BYTES: usize = 32;
 pub const PUBLIC_KEY_BYTES: usize = 48;
 pub const DIGEST_BYTES: usize = 96;
 
-pub type BLSSignature = [u8; SIGNATURE_BYTES];
-pub type BLSPrivateKey = [u8; PRIVATE_KEY_BYTES];
-pub type BLSPublicKey = [u8; PUBLIC_KEY_BYTES];
-pub type BLSDigest = [u8; DIGEST_BYTES];
+#[repr(C)]
+pub struct fil_BLSSignature {
+    pub inner: [u8; SIGNATURE_BYTES],
+}
+
+#[repr(C)]
+pub struct fil_BLSPrivateKey {
+    pub inner: [u8; PRIVATE_KEY_BYTES],
+}
+
+#[repr(C)]
+pub struct fil_BLSPublicKey {
+    pub inner: [u8; PUBLIC_KEY_BYTES],
+}
+
+#[repr(C)]
+pub struct fil_BLSDigest {
+    pub inner: [u8; DIGEST_BYTES],
+}
 
 /// Unwraps or returns the passed in value.
 macro_rules! try_ffi {
@@ -43,10 +59,10 @@ macro_rules! try_ffi {
 /// * `message_ptr` - pointer to a message byte array
 /// * `message_len` - length of the byte array
 #[no_mangle]
-pub unsafe extern "C" fn hash(
+pub unsafe extern "C" fn fil_hash(
     message_ptr: *const u8,
     message_len: libc::size_t,
-) -> *mut types::HashResponse {
+) -> *mut types::fil_HashResponse {
     // prep request
     let message = from_raw_parts(message_ptr, message_len);
 
@@ -57,7 +73,9 @@ pub unsafe extern "C" fn hash(
     let mut raw_digest: [u8; DIGEST_BYTES] = [0; DIGEST_BYTES];
     raw_digest.copy_from_slice(digest.into_affine().into_compressed().as_ref());
 
-    let response = types::HashResponse { digest: raw_digest };
+    let response = types::fil_HashResponse {
+        digest: fil_BLSDigest { inner: raw_digest },
+    };
 
     Box::into_raw(Box::new(response))
 }
@@ -71,10 +89,10 @@ pub unsafe extern "C" fn hash(
 ///
 /// Returns `NULL` on error. Result must be freed using `destroy_aggregate_response`.
 #[no_mangle]
-pub unsafe extern "C" fn aggregate(
+pub unsafe extern "C" fn fil_aggregate(
     flattened_signatures_ptr: *const u8,
     flattened_signatures_len: libc::size_t,
-) -> *mut types::AggregateResponse {
+) -> *mut types::fil_AggregateResponse {
     // prep request
     let signatures = try_ffi!(
         from_raw_parts(flattened_signatures_ptr, flattened_signatures_len)
@@ -89,8 +107,10 @@ pub unsafe extern "C" fn aggregate(
         .write_bytes(&mut raw_signature.as_mut())
         .expect("preallocated");
 
-    let response = types::AggregateResponse {
-        signature: raw_signature,
+    let response = types::fil_AggregateResponse {
+        signature: fil_BLSSignature {
+            inner: raw_signature,
+        },
     };
 
     Box::into_raw(Box::new(response))
@@ -105,7 +125,7 @@ pub unsafe extern "C" fn aggregate(
 /// * `flattened_digests_len`     - length of the byte array (multiple of DIGEST_BYTES)
 /// * `flattened_public_keys_ptr` - pointer to a byte array containing public keys
 #[no_mangle]
-pub unsafe extern "C" fn verify(
+pub unsafe extern "C" fn fil_verify(
     signature_ptr: *const u8,
     flattened_digests_ptr: *const u8,
     flattened_digests_len: libc::size_t,
@@ -158,14 +178,16 @@ pub unsafe extern "C" fn verify(
 
 /// Generate a new private key
 #[no_mangle]
-pub unsafe extern "C" fn private_key_generate() -> *mut types::PrivateKeyGenerateResponse {
+pub unsafe extern "C" fn fil_private_key_generate() -> *mut types::fil_PrivateKeyGenerateResponse {
     let mut raw_private_key: [u8; PRIVATE_KEY_BYTES] = [0; PRIVATE_KEY_BYTES];
     PrivateKey::generate(&mut OsRng)
         .write_bytes(&mut raw_private_key.as_mut())
         .expect("preallocated");
 
-    let response = types::PrivateKeyGenerateResponse {
-        private_key: raw_private_key,
+    let response = types::fil_PrivateKeyGenerateResponse {
+        private_key: fil_BLSPrivateKey {
+            inner: raw_private_key,
+        },
     };
 
     Box::into_raw(Box::new(response))
@@ -177,26 +199,24 @@ pub unsafe extern "C" fn private_key_generate() -> *mut types::PrivateKeyGenerat
 ///
 /// # Arguments
 ///
-/// * `raw_seed_ptr` - pointer to a seed byte array with 32 bytes
+/// * `raw_seed` - a seed byte array with 32 bytes
 ///
 /// Returns `NULL` when passed a NULL pointer.
 #[no_mangle]
-pub unsafe extern "C" fn private_key_generate_with_seed(
-    raw_seed_ptr: *const [u8; 32],
-) -> *mut types::PrivateKeyGenerateResponse {
-    if raw_seed_ptr.is_null() {
-        return std::ptr::null_mut();
-    }
-
-    let rng = &mut ChaChaRng::from_seed(*raw_seed_ptr);
+pub unsafe extern "C" fn fil_private_key_generate_with_seed(
+    raw_seed: fil_32ByteArray,
+) -> *mut types::fil_PrivateKeyGenerateResponse {
+    let rng = &mut ChaChaRng::from_seed(raw_seed.inner);
 
     let mut raw_private_key: [u8; PRIVATE_KEY_BYTES] = [0; PRIVATE_KEY_BYTES];
     PrivateKey::generate(rng)
         .write_bytes(&mut raw_private_key.as_mut())
         .expect("preallocated");
 
-    let response = types::PrivateKeyGenerateResponse {
-        private_key: raw_private_key,
+    let response = types::fil_PrivateKeyGenerateResponse {
+        private_key: fil_BLSPrivateKey {
+            inner: raw_private_key,
+        },
     };
 
     Box::into_raw(Box::new(response))
@@ -212,11 +232,11 @@ pub unsafe extern "C" fn private_key_generate_with_seed(
 ///
 /// Returns `NULL` when passed invalid arguments.
 #[no_mangle]
-pub unsafe extern "C" fn private_key_sign(
+pub unsafe extern "C" fn fil_private_key_sign(
     raw_private_key_ptr: *const u8,
     message_ptr: *const u8,
     message_len: libc::size_t,
-) -> *mut types::PrivateKeySignResponse {
+) -> *mut types::fil_PrivateKeySignResponse {
     // prep request
     let private_key_slice = from_raw_parts(raw_private_key_ptr, PRIVATE_KEY_BYTES);
     let private_key = try_ffi!(
@@ -230,8 +250,10 @@ pub unsafe extern "C" fn private_key_sign(
         .write_bytes(&mut raw_signature.as_mut())
         .expect("preallocated");
 
-    let response = types::PrivateKeySignResponse {
-        signature: raw_signature,
+    let response = types::fil_PrivateKeySignResponse {
+        signature: fil_BLSSignature {
+            inner: raw_signature,
+        },
     };
 
     Box::into_raw(Box::new(response))
@@ -245,9 +267,9 @@ pub unsafe extern "C" fn private_key_sign(
 ///
 /// Returns `NULL` when passed invalid arguments.
 #[no_mangle]
-pub unsafe extern "C" fn private_key_public_key(
+pub unsafe extern "C" fn fil_private_key_public_key(
     raw_private_key_ptr: *const u8,
-) -> *mut types::PrivateKeyPublicKeyResponse {
+) -> *mut types::fil_PrivateKeyPublicKeyResponse {
     let private_key_slice = from_raw_parts(raw_private_key_ptr, PRIVATE_KEY_BYTES);
     let private_key = try_ffi!(
         PrivateKey::from_bytes(private_key_slice),
@@ -260,8 +282,10 @@ pub unsafe extern "C" fn private_key_public_key(
         .write_bytes(&mut raw_public_key.as_mut())
         .expect("preallocated");
 
-    let response = types::PrivateKeyPublicKeyResponse {
-        public_key: raw_public_key,
+    let response = types::fil_PrivateKeyPublicKeyResponse {
+        public_key: fil_BLSPublicKey {
+            inner: raw_public_key,
+        },
     };
 
     Box::into_raw(Box::new(response))
@@ -274,13 +298,16 @@ mod tests {
     #[test]
     fn key_verification() {
         unsafe {
-            let private_key = (*private_key_generate()).private_key;
-            let public_key = (*private_key_public_key(&private_key[0])).public_key;
+            let private_key = (*fil_private_key_generate()).private_key.inner;
+            let public_key = (*fil_private_key_public_key(&private_key[0]))
+                .public_key
+                .inner;
             let message = "hello world".as_bytes();
-            let digest = (*hash(&message[0], message.len())).digest;
-            let signature =
-                (*private_key_sign(&private_key[0], &message[0], message.len())).signature;
-            let verified = verify(
+            let digest = (*fil_hash(&message[0], message.len())).digest.inner;
+            let signature = (*fil_private_key_sign(&private_key[0], &message[0], message.len()))
+                .signature
+                .inner;
+            let verified = fil_verify(
                 &signature[0],
                 &digest[0],
                 digest.len(),
@@ -291,8 +318,10 @@ mod tests {
             assert_eq!(1, verified);
 
             let different_message = "bye world".as_bytes();
-            let different_digest = (*hash(&different_message[0], different_message.len())).digest;
-            let not_verified = verify(
+            let different_digest = (*fil_hash(&different_message[0], different_message.len()))
+                .digest
+                .inner;
+            let not_verified = fil_verify(
                 &signature[0],
                 &different_digest[0],
                 different_digest.len(),
@@ -304,7 +333,7 @@ mod tests {
 
             // garbage verification
             let different_digest = vec![0, 1, 2, 3, 4];
-            let not_verified = verify(
+            let not_verified = fil_verify(
                 &signature[0],
                 &different_digest[0],
                 different_digest.len(),
@@ -319,8 +348,10 @@ mod tests {
     #[test]
     fn private_key_with_seed() {
         unsafe {
-            let seed = [5u8; 32];
-            let private_key = (*private_key_generate_with_seed(seed.as_ptr() as _)).private_key;
+            let seed = fil_32ByteArray { inner: [5u8; 32] };
+            let private_key = (*fil_private_key_generate_with_seed(seed))
+                .private_key
+                .inner;
             assert_eq!(
                 [
                     54, 153, 119, 37, 67, 183, 254, 119, 191, 48, 187, 173, 95, 59, 171, 247, 14,

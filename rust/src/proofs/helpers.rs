@@ -11,20 +11,20 @@ use std::path::PathBuf;
 use std::slice::from_raw_parts;
 
 use super::types::{
-    FFICandidate, FFIPrivateReplicaInfo, FFIPublicReplicaInfo, FFIRegisteredPoStProof,
+    fil_Candidate, fil_PrivateReplicaInfo, fil_PublicReplicaInfo, fil_RegisteredPoStProof,
 };
-use crate::proofs::types::{FFIPoStProof, PoStProof};
+use crate::proofs::types::{fil_PoStProof, PoStProof};
 
 #[derive(Debug, Clone)]
 struct PublicReplicaInfoTmp {
-    pub registered_proof: FFIRegisteredPoStProof,
+    pub registered_proof: fil_RegisteredPoStProof,
     pub comm_r: [u8; 32],
     pub sector_id: u64,
 }
 
 #[allow(clippy::type_complexity)]
 pub unsafe fn to_public_replica_info_map(
-    replicas_ptr: *const FFIPublicReplicaInfo,
+    replicas_ptr: *const fil_PublicReplicaInfo,
     replicas_len: libc::size_t,
 ) -> Result<BTreeMap<SectorId, PublicReplicaInfo>> {
     use rayon::prelude::*;
@@ -70,7 +70,7 @@ pub fn bls_12_fr_into_bytes(fr: Fr) -> [u8; 32] {
 
 #[derive(Debug, Clone)]
 struct PrivateReplicaInfoTmp {
-    pub registered_proof: FFIRegisteredPoStProof,
+    pub registered_proof: fil_RegisteredPoStProof,
     pub cache_dir_path: std::path::PathBuf,
     pub comm_r: [u8; 32],
     pub replica_path: std::path::PathBuf,
@@ -78,7 +78,7 @@ struct PrivateReplicaInfoTmp {
 }
 
 pub unsafe fn to_private_replica_info_map(
-    replicas_ptr: *const FFIPrivateReplicaInfo,
+    replicas_ptr: *const fil_PrivateReplicaInfo,
     replicas_len: libc::size_t,
 ) -> Result<BTreeMap<SectorId, PrivateReplicaInfo>> {
     use rayon::prelude::*;
@@ -128,7 +128,7 @@ pub unsafe fn to_private_replica_info_map(
 }
 
 pub unsafe fn c_to_rust_candidates(
-    winners_ptr: *const FFICandidate,
+    winners_ptr: *const fil_Candidate,
     winners_len: libc::size_t,
 ) -> Result<Vec<Candidate>> {
     ensure!(!winners_ptr.is_null(), "winners_ptr must not be null");
@@ -141,7 +141,7 @@ pub unsafe fn c_to_rust_candidates(
 }
 
 pub unsafe fn c_to_rust_post_proofs(
-    post_proofs_ptr: *const FFIPoStProof,
+    post_proofs_ptr: *const fil_PoStProof,
     post_proofs_len: libc::size_t,
 ) -> Result<Vec<PoStProof>> {
     ensure!(

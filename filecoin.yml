@@ -1,0 +1,38 @@
+---
+GENERATOR:
+  PackageName: generated
+  PackageDescription:
+  PackageLicense:
+  Options:
+    SafeStrings: true
+  Includes:
+    - ../filecoin.h
+  FlagGroups:
+    - {name: LDFLAGS, flags: ["-L${SRCDIR}/.. -lfilecoin"]}
+    - {name: pkg-config, flags: ["${SRCDIR}/../filecoin.pc"]}
+
+PARSER:
+  Defines:
+    __has_include_next(x): 1
+  IncludePaths:
+    - /usr/include
+  SourcesPaths:
+    - ./filecoin.h
+
+TRANSLATOR:
+  ConstRules:
+    defines: expand
+    enum: cgo
+  PtrTips:
+    function:
+      - {target: "^fil_destroy", tips: [ref]}
+  Rules:
+    global:
+      - {action: accept, from: "^fil"}
+      - {action: accept, from: "^FCPResponseStatus"}
+      - {transform: export}
+    private:
+      - {transform: unexport}
+    post-global:
+      - {transform: export}
+      - {load: snakecase}

@@ -54,6 +54,7 @@ jobs:
       - checkout
       - build_project
       - build_and_compile_tests
+      - ensure_generated_cgo_up_to_date
   publish_linux_staticlib:
     docker:
       - image: filecoin/rust:latest
@@ -185,9 +186,16 @@ commands:
           name: Ensure paramcache is installed to project root
           command: |
             test -f ./paramcache \
-              || (rustup run --install nightly cargo install filecoin-proofs --force --git=https://github.com/filecoin-project/rust-fil-proofs.git --branch=master --bin=paramcache --root=./ \
+              || (rustup run --install nightly cargo install filecoin-proofs --force --git=https://github.com/filecoin-project/rust-fil-proofs.git --branch=release/last-v23-commit --bin=paramcache --root=./ \
                 && mv ./bin/paramcache ./paramcache)
           no_output_timeout: 60m
+  ensure_generated_cgo_up_to_date:
+    steps:
+      - run:
+          name: Generate CGO bindings and compare with what's tracked by Git
+          command: |
+            go run github.com/xlab/c-for-go --ccincl --ccdefs --nostamp filecoin.yml
+            git diff --exit-code ./generated/
   build_and_run_tests:
     steps:
       - run:
