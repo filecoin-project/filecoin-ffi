@@ -2,8 +2,7 @@ use anyhow::Result;
 use ffi_toolkit::{c_str_to_pbuf, c_str_to_rust_str};
 use filecoin_proofs_api::fr32::fr_into_bytes;
 use filecoin_proofs_api::{
-    Candidate, PrivateReplicaInfo, PublicReplicaInfo, RegisteredPoStProof, RegisteredSealProof,
-    SectorId,
+    Candidate, PrivateReplicaInfo, PublicReplicaInfo, RegisteredPoStProof, SectorId,
 };
 use libc;
 use paired::bls12_381::{Bls12, Fr};
@@ -13,7 +12,6 @@ use std::slice::from_raw_parts;
 
 use super::types::{
     FFICandidate, FFIPrivateReplicaInfo, FFIPublicReplicaInfo, FFIRegisteredPoStProof,
-    FFIRegisteredSealProof,
 };
 use crate::proofs::types::{FFIPoStProof, PoStProof};
 
@@ -60,45 +58,6 @@ pub unsafe fn to_public_replica_info_map(
         .collect();
 
     Ok(map)
-}
-
-/// Copy the provided dynamic array's bytes into a vector and return the vector.
-pub unsafe fn try_into_porep_proof_bytes(
-    registered_proof: FFIRegisteredSealProof,
-    proof_ptr: *const u8,
-    proof_len: libc::size_t,
-) -> Result<Vec<u8>> {
-    into_proof_vecs(
-        RegisteredSealProof::from(registered_proof).single_partition_proof_len(),
-        proof_ptr,
-        proof_len,
-    )?
-    .first()
-    .map(Vec::clone)
-    .ok_or_else(|| format_err!("no proofs in chunked vec"))
-}
-
-unsafe fn into_proof_vecs(
-    proof_chunk: usize,
-    flattened_proofs_ptr: *const u8,
-    flattened_proofs_len: libc::size_t,
-) -> Result<Vec<Vec<u8>>> {
-    ensure!(
-        !flattened_proofs_ptr.is_null(),
-        "flattened_proofs_ptr must not be a null pointer"
-    );
-    ensure!(proof_chunk > 0, "Invalid proof chunk of 0 passed");
-
-    let res = from_raw_parts(flattened_proofs_ptr, flattened_proofs_len)
-        .iter()
-        .step_by(proof_chunk)
-        .fold(Default::default(), |mut acc: Vec<Vec<u8>>, item| {
-            let sliced = from_raw_parts(item, proof_chunk);
-            acc.push(sliced.to_vec());
-            acc
-        });
-
-    Ok(res)
 }
 
 pub fn bls_12_fr_into_bytes(fr: Fr) -> [u8; 32] {

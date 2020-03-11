@@ -441,21 +441,19 @@ pub unsafe extern "C" fn verify_seal(
 
         info!("verify_seal: start");
 
-        let porep_bytes =
-            super::helpers::try_into_porep_proof_bytes(registered_proof, proof_ptr, proof_len);
+        let mut proof_bytes: Vec<u8> = vec![0; proof_len];
+        proof_bytes.clone_from_slice(from_raw_parts(proof_ptr, proof_len));
 
-        let result = porep_bytes.and_then(|bs| {
-            filecoin_proofs_api::seal::verify_seal(
-                registered_proof.into(),
-                *comm_r,
-                *comm_d,
-                *prover_id,
-                SectorId::from(sector_id),
-                *ticket,
-                *seed,
-                &bs,
-            )
-        });
+        let result = filecoin_proofs_api::seal::verify_seal(
+            registered_proof.into(),
+            *comm_r,
+            *comm_d,
+            *prover_id,
+            SectorId::from(sector_id),
+            *ticket,
+            *seed,
+            &proof_bytes,
+        );
 
         let mut response = VerifySealResponse::default();
 
