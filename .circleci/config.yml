@@ -147,6 +147,7 @@ workflows:
             branches:
               only:
                 - master
+                - laser/tmp/verbose-post-verify
           requires:
             - cargo_fetch
       - build_darwin_cgo_bindings
