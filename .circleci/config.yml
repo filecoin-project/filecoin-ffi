@@ -9,14 +9,21 @@ jobs:
     steps:
       - configure_environment_variables
       - run:
+          name: Update package manager
+          command: sudo apt-get update
+      - run:
           name: Install Rust toolchain
           command: |
-            (sudo apt-get update && sudo apt-get install -y ocl-icd-opencl-dev clang libssl-dev && which cargo && which rustc) || (curl https://sh.rustup.rs -sSf | sh -s -- -y)
+            (sudo apt-get install -y ocl-icd-opencl-dev clang libssl-dev && which cargo && which rustc) || (curl https://sh.rustup.rs -sSf | sh -s -- -y)
             rustc --version
+      - run:
+          name: Install Valgrind
+          command: |
+            sudo apt-get install -y valgrind
+            valgrind --version
       - run:
           name: Install jq
           command: |
-            sudo apt-get update
             sudo apt-get install -y jq
             jq --version
       - checkout
@@ -25,6 +32,9 @@ jobs:
       - obtain_filecoin_parameters
       - save_parameter_cache
       - build_and_run_tests
+      - run:
+          name: Run leak detector
+          command: make cgo-leakdetect
   build_darwin_cgo_bindings:
     macos:
       xcode: "10.0.0"
