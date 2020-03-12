@@ -35,6 +35,7 @@ jobs:
       - run:
           name: Run leak detector
           command: make cgo-leakdetect
+          no_output_timeout: 1h
   build_darwin_cgo_bindings:
     macos:
       xcode: "10.0.0"
