@@ -3,6 +3,8 @@
 package ffi
 
 import (
+	"encoding/json"
+	"fmt"
 	"os"
 	"runtime"
 	"unsafe"
@@ -140,6 +142,8 @@ func VerifySeal(info abi.SealVerifyInfo) (bool, error) {
 // VerifyPoSt returns true if the PoSt-generation operation from which its
 // inputs were derived was valid, and false if not.
 func VerifyPoSt(info abi.PoStVerifyInfo) (bool, error) {
+	jvi, _ := json.MarshalIndent(info, "", "  ")
+	fmt.Println(jvi)
 	psis := make([]publicSectorInfo, len(info.EligibleSectors))
 	for idx := range psis {
 		psis[idx] = publicSectorInfo{
@@ -788,7 +792,44 @@ func GeneratePoSt(
 		return nil, errors.New(C.GoString(resPtr.error_msg))
 	}
 
-	return goPoStProofs(resPtr.proofs_ptr, resPtr.proofs_len)
+	proofs, err := goPoStProofs(resPtr.proofs_ptr, resPtr.proofs_len)
+
+	sectorInfos := make([]abi.SectorInfo, len(privateSectorInfo.Values()))
+	for i, info := range privateSectorInfo.Values() {
+		proofType, err := info.PoStProofType.RegisteredPoStProof()
+		if err != nil {
+			panic(err)
+		}
+		sectorInfos[i] = abi.SectorInfo{
+			RegisteredProof: proofType,
+			SectorNumber:    info.SectorNumber,
+			SealedCID:       info.SealedCID,
+		}
+	}
+
+	info := abi.PoStVerifyInfo{
+		Randomness:      randomness,
+		Candidates:      winners,
+		Proofs:          proofs,
+		EligibleSectors: sectorInfos,
+		Prover:          minerID,
+		ChallengeCount:  ElectionPostChallengeCount(uint64(len(sectorInfos)), 0),
+	}
+	ok, err := VerifyPoSt(info)
+	j, _ := json.MarshalIndent(info, "", " ")
+	if !ok {
+		panic(fmt.Sprintf("proofs we just created failed to verify: %s", j))
+	}
+
+	return proofs, err
+}
+
+func ElectionPostChallengeCount(sectors uint64, faults uint64) uint64 {
+	if sectors-faults == 0 {
+		return 0
+	}
+	// ceil(sectors / SectorChallengeRatioDiv)
+	return (sectors-faults-1)/25 + 1
 }
 
 // GetGPUDevices produces a slice of strings, each representing the name of a
