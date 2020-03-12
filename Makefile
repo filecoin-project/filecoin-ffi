@@ -7,7 +7,6 @@ $(DEPS):
 	./install-filecoin
 
 clean:
-	rm ./generated/*.{go,h,c}
 	rm -rf $(DEPS)
 .PHONY: clean
 
