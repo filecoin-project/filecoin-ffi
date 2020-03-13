@@ -2,6 +2,10 @@ version: 2.1
 
 jobs:
   build_and_test_linux_cgo_bindings:
+    parameters:
+      run_leak_detector:
+        type: boolean
+        default: false
     docker:
       - image: circleci/golang:1.13
     working_directory: ~/go/src/github.com/filecoin-project/filecoin-ffi
@@ -9,14 +13,21 @@ jobs:
     steps:
       - configure_environment_variables
       - run:
+          name: Update package manager
+          command: sudo apt-get update
+      - run:
           name: Install Rust toolchain
           command: |
-            (sudo apt-get update && sudo apt-get install -y ocl-icd-opencl-dev clang libssl-dev && which cargo && which rustc) || (curl https://sh.rustup.rs -sSf | sh -s -- -y)
+            (sudo apt-get install -y ocl-icd-opencl-dev clang libssl-dev && which cargo && which rustc) || (curl https://sh.rustup.rs -sSf | sh -s -- -y)
             rustc --version
+      - run:
+          name: Install Valgrind
+          command: |
+            sudo apt-get install -y valgrind
+            valgrind --version
       - run:
           name: Install jq
           command: |
-            sudo apt-get update
             sudo apt-get install -y jq
             jq --version
       - checkout
@@ -24,7 +35,8 @@ jobs:
       - restore_parameter_cache
       - obtain_filecoin_parameters
       - save_parameter_cache
-      - build_and_run_tests
+      - run_tests:
+          run_leak_detector: << parameters.run_leak_detector >>
   build_darwin_cgo_bindings:
     macos:
       xcode: "10.0.0"
@@ -54,6 +66,7 @@ jobs:
       - checkout
       - build_project
       - build_and_compile_tests
+      - ensure_generated_cgo_up_to_date
   publish_linux_staticlib:
     docker:
       - image: filecoin/rust:latest
@@ -138,10 +151,22 @@ jobs:
 
 workflows:
   version: 2
+  nightly_leak_detection:
+    triggers:
+      - schedule:
+          cron: "0 1 * * *"
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - build_and_test_linux_cgo_bindings:
+          run_leak_detector: true
   test_all:
     jobs:
       - cargo_fetch
-      - build_and_test_linux_cgo_bindings
+      - build_and_test_linux_cgo_bindings:
+          run_leak_detector: false
       - publish_linux_staticlib:
           filters:
             branches:
@@ -185,11 +210,29 @@ commands:
           name: Ensure paramcache is installed to project root
           command: |
             test -f ./paramcache \
-              || (rustup run --install nightly cargo install filecoin-proofs --force --git=https://github.com/filecoin-project/rust-fil-proofs.git --branch=master --bin=paramcache --root=./ \
+              || (rustup run --install nightly cargo install filecoin-proofs --force --git=https://github.com/filecoin-project/rust-fil-proofs.git --branch=release/last-v23-commit --bin=paramcache --root=./ \
                 && mv ./bin/paramcache ./paramcache)
           no_output_timeout: 60m
-  build_and_run_tests:
+  ensure_generated_cgo_up_to_date:
     steps:
+      - run:
+          name: Generate CGO bindings and compare with what's tracked by Git
+          command: |
+            go run github.com/xlab/c-for-go --ccincl --ccdefs --nostamp filecoin.yml
+            git diff --exit-code ./generated/
+  run_tests:
+    parameters:
+      run_leak_detector:
+        type: boolean
+        default: false
+    steps:
+      - when:
+          condition: <<parameters.run_leak_detector>>
+          steps:
+            - run:
+                name: Run leak detector
+                command: make cgo-leakdetect
+                no_output_timeout: 60m
       - run:
           name: Test project
           command: RUST_LOG=info go test -p 1 -timeout 60m

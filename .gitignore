@@ -1,8 +1,9 @@
-**/target
 **/*.rs.bk
-*.pc
 **/include
-*.h
-*.a
-.install-filecoin
 **/paramcache
+**/target
+.install-filecoin
+filecoin.h
+filecoin.pc
+*.a
+simulator

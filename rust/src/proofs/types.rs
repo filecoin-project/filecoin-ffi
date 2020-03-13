@@ -12,6 +12,12 @@ use filecoin_proofs_api::{
 };
 use std::slice::from_raw_parts;
 
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct fil_32ByteArray {
+    pub inner: [u8; 32],
+}
+
 /// FileDescriptorRef does not drop its file descriptor when it is dropped. Its
 /// owner must manage the lifecycle of the file descriptor.
 pub struct FileDescriptorRef(std::mem::ManuallyDrop<std::fs::File>);
@@ -48,76 +54,76 @@ impl std::io::Seek for FileDescriptorRef {
 
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
-pub enum FFIRegisteredSealProof {
+pub enum fil_RegisteredSealProof {
     StackedDrg2KiBV1,
     StackedDrg8MiBV1,
     StackedDrg512MiBV1,
     StackedDrg32GiBV1,
 }
 
-impl From<RegisteredSealProof> for FFIRegisteredSealProof {
+impl From<RegisteredSealProof> for fil_RegisteredSealProof {
     fn from(other: RegisteredSealProof) -> Self {
         match other {
-            RegisteredSealProof::StackedDrg2KiBV1 => FFIRegisteredSealProof::StackedDrg2KiBV1,
-            RegisteredSealProof::StackedDrg8MiBV1 => FFIRegisteredSealProof::StackedDrg8MiBV1,
-            RegisteredSealProof::StackedDrg512MiBV1 => FFIRegisteredSealProof::StackedDrg512MiBV1,
-            RegisteredSealProof::StackedDrg32GiBV1 => FFIRegisteredSealProof::StackedDrg32GiBV1,
+            RegisteredSealProof::StackedDrg2KiBV1 => fil_RegisteredSealProof::StackedDrg2KiBV1,
+            RegisteredSealProof::StackedDrg8MiBV1 => fil_RegisteredSealProof::StackedDrg8MiBV1,
+            RegisteredSealProof::StackedDrg512MiBV1 => fil_RegisteredSealProof::StackedDrg512MiBV1,
+            RegisteredSealProof::StackedDrg32GiBV1 => fil_RegisteredSealProof::StackedDrg32GiBV1,
         }
     }
 }
 
-impl From<FFIRegisteredSealProof> for RegisteredSealProof {
-    fn from(other: FFIRegisteredSealProof) -> Self {
+impl From<fil_RegisteredSealProof> for RegisteredSealProof {
+    fn from(other: fil_RegisteredSealProof) -> Self {
         match other {
-            FFIRegisteredSealProof::StackedDrg2KiBV1 => RegisteredSealProof::StackedDrg2KiBV1,
-            FFIRegisteredSealProof::StackedDrg8MiBV1 => RegisteredSealProof::StackedDrg8MiBV1,
-            FFIRegisteredSealProof::StackedDrg512MiBV1 => RegisteredSealProof::StackedDrg512MiBV1,
-            FFIRegisteredSealProof::StackedDrg32GiBV1 => RegisteredSealProof::StackedDrg32GiBV1,
+            fil_RegisteredSealProof::StackedDrg2KiBV1 => RegisteredSealProof::StackedDrg2KiBV1,
+            fil_RegisteredSealProof::StackedDrg8MiBV1 => RegisteredSealProof::StackedDrg8MiBV1,
+            fil_RegisteredSealProof::StackedDrg512MiBV1 => RegisteredSealProof::StackedDrg512MiBV1,
+            fil_RegisteredSealProof::StackedDrg32GiBV1 => RegisteredSealProof::StackedDrg32GiBV1,
         }
     }
 }
 
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
-pub enum FFIRegisteredPoStProof {
+pub enum fil_RegisteredPoStProof {
     StackedDrg2KiBV1,
     StackedDrg8MiBV1,
     StackedDrg512MiBV1,
     StackedDrg32GiBV1,
 }
 
-impl From<RegisteredPoStProof> for FFIRegisteredPoStProof {
+impl From<RegisteredPoStProof> for fil_RegisteredPoStProof {
     fn from(other: RegisteredPoStProof) -> Self {
         match other {
-            RegisteredPoStProof::StackedDrg2KiBV1 => FFIRegisteredPoStProof::StackedDrg2KiBV1,
-            RegisteredPoStProof::StackedDrg8MiBV1 => FFIRegisteredPoStProof::StackedDrg8MiBV1,
-            RegisteredPoStProof::StackedDrg512MiBV1 => FFIRegisteredPoStProof::StackedDrg512MiBV1,
-            RegisteredPoStProof::StackedDrg32GiBV1 => FFIRegisteredPoStProof::StackedDrg32GiBV1,
+            RegisteredPoStProof::StackedDrg2KiBV1 => fil_RegisteredPoStProof::StackedDrg2KiBV1,
+            RegisteredPoStProof::StackedDrg8MiBV1 => fil_RegisteredPoStProof::StackedDrg8MiBV1,
+            RegisteredPoStProof::StackedDrg512MiBV1 => fil_RegisteredPoStProof::StackedDrg512MiBV1,
+            RegisteredPoStProof::StackedDrg32GiBV1 => fil_RegisteredPoStProof::StackedDrg32GiBV1,
         }
     }
 }
 
-impl From<FFIRegisteredPoStProof> for RegisteredPoStProof {
-    fn from(other: FFIRegisteredPoStProof) -> Self {
+impl From<fil_RegisteredPoStProof> for RegisteredPoStProof {
+    fn from(other: fil_RegisteredPoStProof) -> Self {
         match other {
-            FFIRegisteredPoStProof::StackedDrg2KiBV1 => RegisteredPoStProof::StackedDrg2KiBV1,
-            FFIRegisteredPoStProof::StackedDrg8MiBV1 => RegisteredPoStProof::StackedDrg8MiBV1,
-            FFIRegisteredPoStProof::StackedDrg512MiBV1 => RegisteredPoStProof::StackedDrg512MiBV1,
-            FFIRegisteredPoStProof::StackedDrg32GiBV1 => RegisteredPoStProof::StackedDrg32GiBV1,
+            fil_RegisteredPoStProof::StackedDrg2KiBV1 => RegisteredPoStProof::StackedDrg2KiBV1,
+            fil_RegisteredPoStProof::StackedDrg8MiBV1 => RegisteredPoStProof::StackedDrg8MiBV1,
+            fil_RegisteredPoStProof::StackedDrg512MiBV1 => RegisteredPoStProof::StackedDrg512MiBV1,
+            fil_RegisteredPoStProof::StackedDrg32GiBV1 => RegisteredPoStProof::StackedDrg32GiBV1,
         }
     }
 }
 
 #[repr(C)]
 #[derive(Clone)]
-pub struct FFIPublicPieceInfo {
+pub struct fil_PublicPieceInfo {
     pub num_bytes: u64,
     pub comm_p: [u8; 32],
 }
 
-impl From<FFIPublicPieceInfo> for PieceInfo {
-    fn from(x: FFIPublicPieceInfo) -> Self {
-        let FFIPublicPieceInfo { num_bytes, comm_p } = x;
+impl From<fil_PublicPieceInfo> for PieceInfo {
+    fn from(x: fil_PublicPieceInfo) -> Self {
+        let fil_PublicPieceInfo { num_bytes, comm_p } = x;
         PieceInfo {
             commitment: comm_p,
             size: UnpaddedBytesAmount(num_bytes),
@@ -127,13 +133,13 @@ impl From<FFIPublicPieceInfo> for PieceInfo {
 
 #[repr(C)]
 #[derive(Clone)]
-pub struct FFIPoStProof {
-    pub registered_proof: FFIRegisteredPoStProof,
+pub struct fil_PoStProof {
+    pub registered_proof: fil_RegisteredPoStProof,
     pub proof_len: libc::size_t,
     pub proof_ptr: *const u8,
 }
 
-impl Drop for FFIPoStProof {
+impl Drop for fil_PoStProof {
     fn drop(&mut self) {
         let _ = unsafe {
             Vec::from_raw_parts(self.proof_ptr as *mut u8, self.proof_len, self.proof_len)
@@ -147,8 +153,8 @@ pub struct PoStProof {
     pub proof: Vec<u8>,
 }
 
-impl From<FFIPoStProof> for PoStProof {
-    fn from(other: FFIPoStProof) -> Self {
+impl From<fil_PoStProof> for PoStProof {
+    fn from(other: fil_PoStProof) -> Self {
         let proof = unsafe {
             from_raw_parts(other.proof_ptr, other.proof_len)
                 .iter()
@@ -165,16 +171,16 @@ impl From<FFIPoStProof> for PoStProof {
 
 #[repr(C)]
 #[derive(Clone)]
-pub struct FFICandidate {
+pub struct fil_Candidate {
     pub sector_id: u64,
     pub partial_ticket: [u8; 32],
     pub ticket: [u8; 32],
     pub sector_challenge_index: u64,
 }
 
-impl FFICandidate {
+impl fil_Candidate {
     pub fn try_into_candidate(self) -> Result<Candidate> {
-        let FFICandidate {
+        let fil_Candidate {
             sector_id,
             partial_ticket,
             ticket,
@@ -193,8 +199,8 @@ impl FFICandidate {
 
 #[repr(C)]
 #[derive(Clone)]
-pub struct FFIPrivateReplicaInfo {
-    pub registered_proof: FFIRegisteredPoStProof,
+pub struct fil_PrivateReplicaInfo {
+    pub registered_proof: fil_RegisteredPoStProof,
     pub cache_dir_path: *const libc::c_char,
     pub comm_r: [u8; 32],
     pub replica_path: *const libc::c_char,
@@ -203,24 +209,24 @@ pub struct FFIPrivateReplicaInfo {
 
 #[repr(C)]
 #[derive(Clone)]
-pub struct FFIPublicReplicaInfo {
-    pub registered_proof: FFIRegisteredPoStProof,
+pub struct fil_PublicReplicaInfo {
+    pub registered_proof: fil_RegisteredPoStProof,
     pub comm_r: [u8; 32],
     pub sector_id: u64,
 }
 
 #[repr(C)]
 #[derive(DropStructMacro)]
-pub struct GenerateCandidatesResponse {
+pub struct fil_GenerateCandidatesResponse {
     pub error_msg: *const libc::c_char,
     pub status_code: FCPResponseStatus,
-    pub candidates_ptr: *const FFICandidate,
+    pub candidates_ptr: *const fil_Candidate,
     pub candidates_len: libc::size_t,
 }
 
-impl Default for GenerateCandidatesResponse {
-    fn default() -> GenerateCandidatesResponse {
-        GenerateCandidatesResponse {
+impl Default for fil_GenerateCandidatesResponse {
+    fn default() -> fil_GenerateCandidatesResponse {
+        fil_GenerateCandidatesResponse {
             candidates_len: 0,
             candidates_ptr: ptr::null(),
             error_msg: ptr::null(),
@@ -229,20 +235,20 @@ impl Default for GenerateCandidatesResponse {
     }
 }
 
-code_and_message_impl!(GenerateCandidatesResponse);
+code_and_message_impl!(fil_GenerateCandidatesResponse);
 
 #[repr(C)]
 #[derive(DropStructMacro)]
-pub struct GeneratePoStResponse {
+pub struct fil_GeneratePoStResponse {
     pub error_msg: *const libc::c_char,
     pub proofs_len: libc::size_t,
-    pub proofs_ptr: *const FFIPoStProof,
+    pub proofs_ptr: *const fil_PoStProof,
     pub status_code: FCPResponseStatus,
 }
 
-impl Default for GeneratePoStResponse {
-    fn default() -> GeneratePoStResponse {
-        GeneratePoStResponse {
+impl Default for fil_GeneratePoStResponse {
+    fn default() -> fil_GeneratePoStResponse {
+        fil_GeneratePoStResponse {
             error_msg: ptr::null(),
             proofs_len: 0,
             proofs_ptr: ptr::null(),
@@ -251,11 +257,11 @@ impl Default for GeneratePoStResponse {
     }
 }
 
-code_and_message_impl!(GeneratePoStResponse);
+code_and_message_impl!(fil_GeneratePoStResponse);
 
 #[repr(C)]
 #[derive(DropStructMacro)]
-pub struct WriteWithAlignmentResponse {
+pub struct fil_WriteWithAlignmentResponse {
     pub comm_p: [u8; 32],
     pub error_msg: *const libc::c_char,
     pub left_alignment_unpadded: u64,
@@ -263,9 +269,9 @@ pub struct WriteWithAlignmentResponse {
     pub total_write_unpadded: u64,
 }
 
-impl Default for WriteWithAlignmentResponse {
-    fn default() -> WriteWithAlignmentResponse {
-        WriteWithAlignmentResponse {
+impl Default for fil_WriteWithAlignmentResponse {
+    fn default() -> fil_WriteWithAlignmentResponse {
+        fil_WriteWithAlignmentResponse {
             comm_p: Default::default(),
             status_code: FCPResponseStatus::FCPNoError,
             error_msg: ptr::null(),
@@ -275,20 +281,20 @@ impl Default for WriteWithAlignmentResponse {
     }
 }
 
-code_and_message_impl!(WriteWithAlignmentResponse);
+code_and_message_impl!(fil_WriteWithAlignmentResponse);
 
 #[repr(C)]
 #[derive(DropStructMacro)]
-pub struct WriteWithoutAlignmentResponse {
+pub struct fil_WriteWithoutAlignmentResponse {
     pub comm_p: [u8; 32],
     pub error_msg: *const libc::c_char,
     pub status_code: FCPResponseStatus,
     pub total_write_unpadded: u64,
 }
 
-impl Default for WriteWithoutAlignmentResponse {
-    fn default() -> WriteWithoutAlignmentResponse {
-        WriteWithoutAlignmentResponse {
+impl Default for fil_WriteWithoutAlignmentResponse {
+    fn default() -> fil_WriteWithoutAlignmentResponse {
+        fil_WriteWithoutAlignmentResponse {
             comm_p: Default::default(),
             status_code: FCPResponseStatus::FCPNoError,
             error_msg: ptr::null(),
@@ -297,20 +303,20 @@ impl Default for WriteWithoutAlignmentResponse {
     }
 }
 
-code_and_message_impl!(WriteWithoutAlignmentResponse);
+code_and_message_impl!(fil_WriteWithoutAlignmentResponse);
 
 #[repr(C)]
 #[derive(DropStructMacro)]
-pub struct SealPreCommitPhase1Response {
+pub struct fil_SealPreCommitPhase1Response {
     pub error_msg: *const libc::c_char,
     pub status_code: FCPResponseStatus,
     pub seal_pre_commit_phase1_output_ptr: *const u8,
     pub seal_pre_commit_phase1_output_len: libc::size_t,
 }
 
-impl Default for SealPreCommitPhase1Response {
-    fn default() -> SealPreCommitPhase1Response {
-        SealPreCommitPhase1Response {
+impl Default for fil_SealPreCommitPhase1Response {
+    fn default() -> fil_SealPreCommitPhase1Response {
+        fil_SealPreCommitPhase1Response {
             error_msg: ptr::null(),
             status_code: FCPResponseStatus::FCPNoError,
             seal_pre_commit_phase1_output_ptr: ptr::null(),
@@ -319,44 +325,44 @@ impl Default for SealPreCommitPhase1Response {
     }
 }
 
-code_and_message_impl!(SealPreCommitPhase1Response);
+code_and_message_impl!(fil_SealPreCommitPhase1Response);
 
 #[repr(C)]
 #[derive(DropStructMacro)]
-pub struct SealPreCommitPhase2Response {
+pub struct fil_SealPreCommitPhase2Response {
     pub error_msg: *const libc::c_char,
     pub status_code: FCPResponseStatus,
-    pub registered_proof: FFIRegisteredSealProof,
+    pub registered_proof: fil_RegisteredSealProof,
     pub comm_d: [u8; 32],
     pub comm_r: [u8; 32],
 }
 
-impl Default for SealPreCommitPhase2Response {
-    fn default() -> SealPreCommitPhase2Response {
-        SealPreCommitPhase2Response {
+impl Default for fil_SealPreCommitPhase2Response {
+    fn default() -> fil_SealPreCommitPhase2Response {
+        fil_SealPreCommitPhase2Response {
             error_msg: ptr::null(),
             status_code: FCPResponseStatus::FCPNoError,
-            registered_proof: FFIRegisteredSealProof::StackedDrg2KiBV1,
+            registered_proof: fil_RegisteredSealProof::StackedDrg2KiBV1,
             comm_d: Default::default(),
             comm_r: Default::default(),
         }
     }
 }
 
-code_and_message_impl!(SealPreCommitPhase2Response);
+code_and_message_impl!(fil_SealPreCommitPhase2Response);
 
 #[repr(C)]
 #[derive(DropStructMacro)]
-pub struct SealCommitPhase1Response {
+pub struct fil_SealCommitPhase1Response {
     pub status_code: FCPResponseStatus,
     pub error_msg: *const libc::c_char,
     pub seal_commit_phase1_output_ptr: *const u8,
     pub seal_commit_phase1_output_len: libc::size_t,
 }
 
-impl Default for SealCommitPhase1Response {
-    fn default() -> SealCommitPhase1Response {
-        SealCommitPhase1Response {
+impl Default for fil_SealCommitPhase1Response {
+    fn default() -> fil_SealCommitPhase1Response {
+        fil_SealCommitPhase1Response {
             status_code: FCPResponseStatus::FCPNoError,
             error_msg: ptr::null(),
             seal_commit_phase1_output_ptr: ptr::null(),
@@ -365,20 +371,20 @@ impl Default for SealCommitPhase1Response {
     }
 }
 
-code_and_message_impl!(SealCommitPhase1Response);
+code_and_message_impl!(fil_SealCommitPhase1Response);
 
 #[repr(C)]
 #[derive(DropStructMacro)]
-pub struct SealCommitPhase2Response {
+pub struct fil_SealCommitPhase2Response {
     pub status_code: FCPResponseStatus,
     pub error_msg: *const libc::c_char,
     pub proof_ptr: *const u8,
     pub proof_len: libc::size_t,
 }
 
-impl Default for SealCommitPhase2Response {
-    fn default() -> SealCommitPhase2Response {
-        SealCommitPhase2Response {
+impl Default for fil_SealCommitPhase2Response {
+    fn default() -> fil_SealCommitPhase2Response {
+        fil_SealCommitPhase2Response {
             status_code: FCPResponseStatus::FCPNoError,
             error_msg: ptr::null(),
             proof_ptr: ptr::null(),
@@ -387,55 +393,55 @@ impl Default for SealCommitPhase2Response {
     }
 }
 
-code_and_message_impl!(SealCommitPhase2Response);
+code_and_message_impl!(fil_SealCommitPhase2Response);
 
 #[repr(C)]
 #[derive(DropStructMacro)]
-pub struct UnsealResponse {
+pub struct fil_UnsealResponse {
     pub status_code: FCPResponseStatus,
     pub error_msg: *const libc::c_char,
 }
 
-impl Default for UnsealResponse {
-    fn default() -> UnsealResponse {
-        UnsealResponse {
+impl Default for fil_UnsealResponse {
+    fn default() -> fil_UnsealResponse {
+        fil_UnsealResponse {
             status_code: FCPResponseStatus::FCPNoError,
             error_msg: ptr::null(),
         }
     }
 }
 
-code_and_message_impl!(UnsealResponse);
+code_and_message_impl!(fil_UnsealResponse);
 
 #[repr(C)]
 #[derive(DropStructMacro)]
-pub struct UnsealRangeResponse {
+pub struct fil_UnsealRangeResponse {
     pub status_code: FCPResponseStatus,
     pub error_msg: *const libc::c_char,
 }
 
-impl Default for UnsealRangeResponse {
-    fn default() -> UnsealRangeResponse {
-        UnsealRangeResponse {
+impl Default for fil_UnsealRangeResponse {
+    fn default() -> fil_UnsealRangeResponse {
+        fil_UnsealRangeResponse {
             status_code: FCPResponseStatus::FCPNoError,
             error_msg: ptr::null(),
         }
     }
 }
 
-code_and_message_impl!(UnsealRangeResponse);
+code_and_message_impl!(fil_UnsealRangeResponse);
 
 #[repr(C)]
 #[derive(DropStructMacro)]
-pub struct VerifySealResponse {
+pub struct fil_VerifySealResponse {
     pub status_code: FCPResponseStatus,
     pub error_msg: *const libc::c_char,
     pub is_valid: bool,
 }
 
-impl Default for VerifySealResponse {
-    fn default() -> VerifySealResponse {
-        VerifySealResponse {
+impl Default for fil_VerifySealResponse {
+    fn default() -> fil_VerifySealResponse {
+        fil_VerifySealResponse {
             status_code: FCPResponseStatus::FCPNoError,
             error_msg: ptr::null(),
             is_valid: false,
@@ -443,19 +449,19 @@ impl Default for VerifySealResponse {
     }
 }
 
-code_and_message_impl!(VerifySealResponse);
+code_and_message_impl!(fil_VerifySealResponse);
 
 #[repr(C)]
 #[derive(DropStructMacro)]
-pub struct VerifyPoStResponse {
+pub struct fil_VerifyPoStResponse {
     pub status_code: FCPResponseStatus,
     pub error_msg: *const libc::c_char,
     pub is_valid: bool,
 }
 
-impl Default for VerifyPoStResponse {
-    fn default() -> VerifyPoStResponse {
-        VerifyPoStResponse {
+impl Default for fil_VerifyPoStResponse {
+    fn default() -> fil_VerifyPoStResponse {
+        fil_VerifyPoStResponse {
             status_code: FCPResponseStatus::FCPNoError,
             error_msg: ptr::null(),
             is_valid: false,
@@ -463,19 +469,19 @@ impl Default for VerifyPoStResponse {
     }
 }
 
-code_and_message_impl!(VerifyPoStResponse);
+code_and_message_impl!(fil_VerifyPoStResponse);
 
 #[repr(C)]
 #[derive(DropStructMacro)]
-pub struct FinalizeTicketResponse {
+pub struct fil_FinalizeTicketResponse {
     pub status_code: FCPResponseStatus,
     pub error_msg: *const libc::c_char,
     pub ticket: [u8; 32],
 }
 
-impl Default for FinalizeTicketResponse {
+impl Default for fil_FinalizeTicketResponse {
     fn default() -> Self {
-        FinalizeTicketResponse {
+        fil_FinalizeTicketResponse {
             status_code: FCPResponseStatus::FCPNoError,
             error_msg: ptr::null(),
             ticket: [0u8; 32],
@@ -483,11 +489,11 @@ impl Default for FinalizeTicketResponse {
     }
 }
 
-code_and_message_impl!(FinalizeTicketResponse);
+code_and_message_impl!(fil_FinalizeTicketResponse);
 
 #[repr(C)]
 #[derive(DropStructMacro)]
-pub struct GeneratePieceCommitmentResponse {
+pub struct fil_GeneratePieceCommitmentResponse {
     pub status_code: FCPResponseStatus,
     pub error_msg: *const libc::c_char,
     pub comm_p: [u8; 32],
@@ -496,9 +502,9 @@ pub struct GeneratePieceCommitmentResponse {
     pub num_bytes_aligned: u64,
 }
 
-impl Default for GeneratePieceCommitmentResponse {
-    fn default() -> GeneratePieceCommitmentResponse {
-        GeneratePieceCommitmentResponse {
+impl Default for fil_GeneratePieceCommitmentResponse {
+    fn default() -> fil_GeneratePieceCommitmentResponse {
+        fil_GeneratePieceCommitmentResponse {
             status_code: FCPResponseStatus::FCPNoError,
             comm_p: Default::default(),
             error_msg: ptr::null(),
@@ -507,19 +513,19 @@ impl Default for GeneratePieceCommitmentResponse {
     }
 }
 
-code_and_message_impl!(GeneratePieceCommitmentResponse);
+code_and_message_impl!(fil_GeneratePieceCommitmentResponse);
 
 #[repr(C)]
 #[derive(DropStructMacro)]
-pub struct GenerateDataCommitmentResponse {
+pub struct fil_GenerateDataCommitmentResponse {
     pub status_code: FCPResponseStatus,
     pub error_msg: *const libc::c_char,
     pub comm_d: [u8; 32],
 }
 
-impl Default for GenerateDataCommitmentResponse {
-    fn default() -> GenerateDataCommitmentResponse {
-        GenerateDataCommitmentResponse {
+impl Default for fil_GenerateDataCommitmentResponse {
+    fn default() -> fil_GenerateDataCommitmentResponse {
+        fil_GenerateDataCommitmentResponse {
             status_code: FCPResponseStatus::FCPNoError,
             comm_d: Default::default(),
             error_msg: ptr::null(),
@@ -527,21 +533,21 @@ impl Default for GenerateDataCommitmentResponse {
     }
 }
 
-code_and_message_impl!(GenerateDataCommitmentResponse);
+code_and_message_impl!(fil_GenerateDataCommitmentResponse);
 
 ///
 
 #[repr(C)]
 #[derive(DropStructMacro)]
-pub struct StringResponse {
+pub struct fil_StringResponse {
     pub status_code: FCPResponseStatus,
     pub error_msg: *const libc::c_char,
     pub string_val: *const libc::c_char,
 }
 
-impl Default for StringResponse {
-    fn default() -> StringResponse {
-        StringResponse {
+impl Default for fil_StringResponse {
+    fn default() -> fil_StringResponse {
+        fil_StringResponse {
             status_code: FCPResponseStatus::FCPNoError,
             error_msg: ptr::null(),
             string_val: ptr::null(),
@@ -549,22 +555,22 @@ impl Default for StringResponse {
     }
 }
 
-code_and_message_impl!(StringResponse);
+code_and_message_impl!(fil_StringResponse);
 
 #[repr(C)]
 #[derive(DropStructMacro)]
-pub struct ClearCacheResponse {
+pub struct fil_ClearCacheResponse {
     pub error_msg: *const libc::c_char,
     pub status_code: FCPResponseStatus,
 }
 
-impl Default for ClearCacheResponse {
-    fn default() -> ClearCacheResponse {
-        ClearCacheResponse {
+impl Default for fil_ClearCacheResponse {
+    fn default() -> fil_ClearCacheResponse {
+        fil_ClearCacheResponse {
             error_msg: ptr::null(),
             status_code: FCPResponseStatus::FCPNoError,
         }
     }
 }
 
-code_and_message_impl!(ClearCacheResponse);
+code_and_message_impl!(fil_ClearCacheResponse);

@@ -6,14 +6,14 @@ use ffi_toolkit::{code_and_message_impl, free_c_str, CodeAndMessage, FCPResponse
 
 #[repr(C)]
 #[derive(DropStructMacro)]
-pub struct GpuDeviceResponse {
+pub struct fil_GpuDeviceResponse {
     pub status_code: FCPResponseStatus,
     pub error_msg: *const libc::c_char,
     pub devices_len: libc::size_t,
     pub devices_ptr: *const *const libc::c_char,
 }
 
-impl Default for GpuDeviceResponse {
+impl Default for fil_GpuDeviceResponse {
     fn default() -> Self {
         Self {
             error_msg: ptr::null(),
@@ -24,9 +24,9 @@ impl Default for GpuDeviceResponse {
     }
 }
 
-code_and_message_impl!(GpuDeviceResponse);
+code_and_message_impl!(fil_GpuDeviceResponse);
 
 #[no_mangle]
-pub unsafe extern "C" fn destroy_gpu_device_response(ptr: *mut GpuDeviceResponse) {
+pub unsafe extern "C" fn fil_destroy_gpu_device_response(ptr: *mut fil_GpuDeviceResponse) {
     let _ = Box::from_raw(ptr);
 }

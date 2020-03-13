@@ -21,6 +21,13 @@ To opt out of downloading precompiled assets, set `FFI_BUILD_FROM_SOURCE=1`:
 FFI_BUILD_FROM_SOURCE=1 make clean all
 ```
 
+## Updating CGO Bindings
+
+The CGO bindings are generated using [c-for-go](https://github.com/xlab/c-for-go)
+and committed to Git. To generate bindings yourself, install the c-for-go
+binary, ensure that it's on your path, and then run `make cgo-gen`. CI builds
+will fail if generated CGO diverges from what's checked into Git.
+
 ## License
 
 MIT or Apache 2.0

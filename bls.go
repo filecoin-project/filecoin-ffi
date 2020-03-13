@@ -3,7 +3,7 @@
 package ffi
 
 import (
-	"unsafe"
+	"github.com/filecoin-project/filecoin-ffi/generated"
 )
 
 // #cgo LDFLAGS: ${SRCDIR}/libfilecoin.a
@@ -13,22 +13,15 @@ import "C"
 
 // Hash computes the digest of a message
 func Hash(message Message) Digest {
-	// prep request
-	cMessage := C.CBytes(message)
-	defer C.free(cMessage)
-	cMessagePtr := (*C.uchar)(cMessage)
-	cMessageLen := C.size_t(len(message))
+	resp := generated.FilHash(string(message), uint(len(message)))
+	resp.Deref()
+	resp.Digest.Deref()
 
-	// call method
-	resPtr := (*C.HashResponse)(unsafe.Pointer(C.hash(cMessagePtr, cMessageLen)))
-	defer C.destroy_hash_response(resPtr)
+	defer generated.FilDestroyHashResponse(resp)
 
-	// prep response
-	var digest Digest
-	digestSlice := C.GoBytes(unsafe.Pointer(&resPtr.digest), DigestBytes) // nolint: staticcheck
-	copy(digest[:], digestSlice)
-
-	return digest
+	var out Digest
+	copy(out[:], resp.Digest.Inner[:])
+	return out
 }
 
 // Verify verifies that a signature is the aggregated signature of digests - pubkeys
@@ -44,25 +37,9 @@ func Verify(signature *Signature, digests []Digest, publicKeys []PublicKey) bool
 		copy(flattenedPublicKeys[(PublicKeyBytes*idx):(PublicKeyBytes*(1+idx))], publicKey[:])
 	}
 
-	// prep request
-	cSignature := C.CBytes(signature[:])
-	defer C.free(cSignature)
-	cSignaturePtr := (*C.uchar)(cSignature)
+	isValid := generated.FilVerify(string(signature[:]), string(flattenedDigests), uint(len(flattenedDigests)), string(flattenedPublicKeys), uint(len(flattenedPublicKeys)))
 
-	cFlattenedDigests := C.CBytes(flattenedDigests)
-	defer C.free(cFlattenedDigests)
-	cFlattenedDigestsPtr := (*C.uint8_t)(cFlattenedDigests)
-	cFlattenedDigestsLen := C.size_t(len(flattenedDigests))
-
-	cFlattenedPublicKeys := C.CBytes(flattenedPublicKeys)
-	defer C.free(cFlattenedPublicKeys)
-	cFlattenedPublicKeysPtr := (*C.uint8_t)(cFlattenedPublicKeys)
-	cFlattenedPublicKeysLen := C.size_t(len(flattenedPublicKeys))
-
-	// call method
-	res := (C.int)(C.verify(cSignaturePtr, cFlattenedDigestsPtr, cFlattenedDigestsLen, cFlattenedPublicKeysPtr, cFlattenedPublicKeysLen))
-
-	return res > 0
+	return isValid > 0
 }
 
 // Aggregate aggregates signatures together into a new signature
@@ -73,83 +50,51 @@ func Aggregate(signatures []Signature) *Signature {
 		copy(flattenedSignatures[(SignatureBytes*idx):(SignatureBytes*(1+idx))], sig[:])
 	}
 
-	// prep request
-	cFlattenedSignatures := C.CBytes(flattenedSignatures)
-	defer C.free(cFlattenedSignatures)
-	cFlattenedSignaturesPtr := (*C.uint8_t)(cFlattenedSignatures)
-	cFlattenedSignaturesLen := C.size_t(len(flattenedSignatures))
+	resp := generated.FilAggregate(string(flattenedSignatures), uint(len(flattenedSignatures)))
+	defer generated.FilDestroyAggregateResponse(resp)
 
-	// call method
-	resPtr := (*C.AggregateResponse)(unsafe.Pointer(C.aggregate(cFlattenedSignaturesPtr, cFlattenedSignaturesLen)))
-	if resPtr == nil {
-		return nil
-	}
-	defer C.destroy_aggregate_response(resPtr)
+	resp.Deref()
+	resp.Signature.Deref()
 
-	// prep response
-	var signature Signature
-	signatureSlice := C.GoBytes(unsafe.Pointer(&resPtr.signature), SignatureBytes) // nolint: staticcheck
-	copy(signature[:], signatureSlice)
-
-	return &signature
+	var out Signature
+	copy(out[:], resp.Signature.Inner[:])
+	return &out
 }
 
 // PrivateKeyGenerate generates a private key
 func PrivateKeyGenerate() PrivateKey {
-	// call method
-	resPtr := (*C.PrivateKeyGenerateResponse)(unsafe.Pointer(C.private_key_generate()))
-	defer C.destroy_private_key_generate_response(resPtr)
+	resp := generated.FilPrivateKeyGenerate()
+	resp.Deref()
+	resp.PrivateKey.Deref()
+	defer generated.FilDestroyPrivateKeyGenerateResponse(resp)
 
-	// prep response
-	var privateKey PrivateKey
-	privateKeySlice := C.GoBytes(unsafe.Pointer(&resPtr.private_key), PrivateKeyBytes) // nolint: staticcheck
-	copy(privateKey[:], privateKeySlice)
-
-	return privateKey
+	var out PrivateKey
+	copy(out[:], resp.PrivateKey.Inner[:])
+	return out
 }
 
 // PrivateKeySign signs a message
 func PrivateKeySign(privateKey PrivateKey, message Message) *Signature {
-	// prep request
-	cPrivateKey := C.CBytes(privateKey[:])
-	defer C.free(cPrivateKey)
-	cPrivateKeyPtr := (*C.uchar)(cPrivateKey)
+	resp := generated.FilPrivateKeySign(string(privateKey[:]), string(message), uint(len(message)))
+	resp.Deref()
+	resp.Signature.Deref()
 
-	cMessage := C.CBytes(message)
-	defer C.free(cMessage)
-	cMessagePtr := (*C.uchar)(cMessage)
-	cMessageLen := C.size_t(len(message))
+	defer generated.FilDestroyPrivateKeySignResponse(resp)
 
-	// call method
-	resPtr := (*C.PrivateKeySignResponse)(unsafe.Pointer(C.private_key_sign(cPrivateKeyPtr, cMessagePtr, cMessageLen)))
-	if resPtr == nil {
-		return nil
-	}
-	defer C.destroy_private_key_sign_response(resPtr)
-
-	// prep response
 	var signature Signature
-	signatureSlice := C.GoBytes(unsafe.Pointer(&resPtr.signature), SignatureBytes) // nolint: staticcheck
-	copy(signature[:], signatureSlice)
-
+	copy(signature[:], resp.Signature.Inner[:])
 	return &signature
 }
 
 // PrivateKeyPublicKey gets the public key for a private key
 func PrivateKeyPublicKey(privateKey PrivateKey) PublicKey {
-	// prep request
-	cPrivateKey := C.CBytes(privateKey[:])
-	defer C.free(cPrivateKey)
-	cPrivateKeyPtr := (*C.uchar)(cPrivateKey)
+	resp := generated.FilPrivateKeyPublicKey(string(privateKey[:]))
+	resp.Deref()
+	resp.PublicKey.Deref()
 
-	// call method
-	resPtr := (*C.PrivateKeyPublicKeyResponse)(unsafe.Pointer(C.private_key_public_key(cPrivateKeyPtr))) // nolint: staticcheck
-	defer C.destroy_private_key_public_key_response(resPtr)
+	defer generated.FilDestroyPrivateKeyPublicKeyResponse(resp)
 
-	// prep response
 	var publicKey PublicKey
-	publicKeySlice := C.GoBytes(unsafe.Pointer(&resPtr.public_key), PublicKeyBytes) // nolint: staticcheck
-	copy(publicKey[:], publicKeySlice)
-
+	copy(publicKey[:], resp.PublicKey.Inner[:])
 	return publicKey
 }
