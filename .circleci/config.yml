@@ -210,7 +210,7 @@ commands:
           name: Ensure paramcache is installed to project root
           command: |
             test -f ./paramcache \
-              || (rustup run --install nightly cargo install filecoin-proofs --force --git=https://github.com/filecoin-project/rust-fil-proofs.git --branch=release/last-v23-commit --bin=paramcache --root=./ \
+              || (rustup run --install nightly cargo install filecoin-proofs --force --git=https://github.com/filecoin-project/rust-fil-proofs.git --branch=release/first-v24-commit --bin=paramcache --root=./ \
                 && mv ./bin/paramcache ./paramcache)
           no_output_timeout: 60m
   ensure_generated_cgo_up_to_date:
@@ -246,10 +246,10 @@ commands:
     steps:
       - restore_cache:
           keys:
-            - v23a-proof-params-{{ arch }}
+            - v24a-proof-params-{{ arch }}
   save_parameter_cache:
     steps:
       - save_cache:
-          key: v23a-proof-params-{{ arch }}
+          key: v24a-proof-params-{{ arch }}
           paths:
             - "~/filecoin-proof-parameters/"
