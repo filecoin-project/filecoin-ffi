@@ -32,6 +32,7 @@ jobs:
             jq --version
       - checkout
       - build_project
+      - ensure_paramcache_available
       - restore_parameter_cache
       - obtain_filecoin_parameters
       - save_parameter_cache
@@ -65,7 +66,7 @@ jobs:
             jq --version
       - checkout
       - build_project
-      - build_and_compile_tests
+      - compile_tests
       - ensure_generated_cgo_up_to_date
   publish_linux_staticlib:
     docker:
@@ -206,11 +207,13 @@ commands:
       - run:
           name: Build project without CGO
           command: env CGO_ENABLED=0 go build .
+  ensure_paramcache_available:
+    steps:
       - run:
           name: Ensure paramcache is installed to project root
           command: |
             test -f ./paramcache \
-              || (rustup run --install nightly cargo install filecoin-proofs --force --git=https://github.com/filecoin-project/rust-fil-proofs.git --branch=release/last-v23-commit --bin=paramcache --root=./ \
+              || (rustup run --install nightly cargo install filecoin-proofs --force --git=https://github.com/filecoin-project/rust-fil-proofs.git --branch=release/first-v24-commit --bin=paramcache --root=./ \
                 && mv ./bin/paramcache ./paramcache)
           no_output_timeout: 60m
   ensure_generated_cgo_up_to_date:
@@ -237,7 +240,7 @@ commands:
           name: Test project
           command: RUST_LOG=info go test -p 1 -timeout 60m
           no_output_timeout: 60m
-  build_and_compile_tests:
+  compile_tests:
     steps:
       - run:
           name: Build project and tests, but don't actually run the tests (used to verify that build/link works with Darwin)
@@ -246,10 +249,10 @@ commands:
     steps:
       - restore_cache:
           keys:
-            - v23a-proof-params-{{ arch }}
+            - v24a-proof-params-{{ arch }}
   save_parameter_cache:
     steps:
       - save_cache:
-          key: v23a-proof-params-{{ arch }}
+          key: v24a-proof-params-{{ arch }}
           paths:
             - "~/filecoin-proof-parameters/"
