@@ -39,3 +39,6 @@ cbindgen = "= 0.10.0"
 [dev-dependencies]
 tempfile = "3.0.8"
 
+[profile.release]
+debug = false
+lto = true
