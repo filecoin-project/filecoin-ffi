@@ -22,7 +22,7 @@ trap '{ rm -f $build_output_tmp; }' EXIT
 
 # build with RUSTFLAGS configured to output linker flags for native libs
 #
-RUSTFLAGS='--print native-static-libs -C target-feature=+adx,+sha,+sse,+sse2,+avx2,+avx,+sse4.2,+sse4.1' \
+RUSTFLAGS='--print native-static-libs -C target-feature=+sha' \
     cargo +$2 build \
     --release ${@:3} 2>&1 | tee ${build_output_tmp}
 
