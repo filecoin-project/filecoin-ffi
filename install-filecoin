@@ -18,7 +18,7 @@ download_release_tarball() {
     __release_tag="${__release_sha1:0:16}"
     __release_tag_url="https://api.github.com/repos/filecoin-project/${__repo_name}/releases/tags/${__release_tag}"
 
-    echo "acquiring release @ ${__release_tag}"
+    (>&2 echo "acquiring release @ ${__release_tag}")
 
     __release_response=$(curl \
         --retry 3 \
@@ -58,7 +58,7 @@ build_from_source() {
     __repo_sha1=$(git rev-parse HEAD)
     __repo_sha1_truncated="${__repo_sha1:0:16}"
 
-    echo "building from source @ ${__repo_sha1_truncated}"
+    (>&2 echo "building from source @ ${__repo_sha1_truncated}")
 
     if ! [ -x "$(command -v cargo)" ]; then
         (>&2 echo 'Error: cargo is not installed.')
