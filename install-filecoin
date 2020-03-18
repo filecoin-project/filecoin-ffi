@@ -2,6 +2,8 @@
 
 set -Exeo pipefail
 
+req_cpu_features_optimized=(adx sha sse sse2 avx2 avx sse4.2 sse4.1)
+
 download_release_tarball() {
     __resultvar=$1
     __rust_sources_path=$2
@@ -70,8 +72,13 @@ build_from_source() {
 
     cargo --version
 
+    target_feature=""
+    for x in ${req_cpu_features_optimized[@]}; do
+        target_feature="+${x},${target_feature}"
+    done
+
     if [ "${__release_type}" = "optimized" ]; then
-        RUSTFLAGS="-C target-feature=+adx,+sha,+sse,+sse2,+avx2,+avx,+sse4.2,+sse4.1" ./scripts/build-release.sh $__library_name $(cat rust-toolchain)
+        RUSTFLAGS="-C target-feature=${target_feature}" ./scripts/build-release.sh $__library_name $(cat rust-toolchain)
     else
         ./scripts/build-release.sh $__library_name $(cat rust-toolchain)
     fi
@@ -79,11 +86,48 @@ build_from_source() {
     popd
 }
 
+get_release_type() {
+    searched="cat /proc/cpuinfo | grep flags"
+    features=""
+
+    # determine where to look for CPU features
+    #
+    if [[ ! -f "/proc/cpuinfo" ]]; then
+        (>&2 echo "No /proc/cpuinfo file; falling back to Darwin feature detection")
+        searched="sysctl -a | grep machdep.cpu | tr '[:upper:]' '[:lower:]' | grep features"
+        features=$(eval "$searched")
+    else
+        features=$(cat /proc/cpuinfo | grep flags)
+    fi
+
+    # check for the presence of each required CPU feature
+    #
+    optimized=true
+    for x in ${req_cpu_features_optimized[@]}; do
+        if [ "$optimized" = true ]; then
+            if ! [ -z "${features##*$x*}" ]; then
+                (>&2 echo "Your CPU does not support the '${x}' feature (searched '${searched}')")
+                optimized=false
+            fi
+        fi
+    done
+
+    # if we couldn't figure out where to look for features, use standard
+    #
+    if [ "$optimized" == true ] && ! [ -z "$features" ]; then
+        (>&2 echo "Configuring 'optimized' build")
+        echo "optimized"
+    else
+        (>&2 echo "Configuring 'standard' build")
+        echo "standard"
+    fi
+}
+
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
 rust_sources_dir="rust"
 
-if [ "${FFI_BUILD_FROM_SOURCE}" != "1" ] && download_release_tarball tarball_path "${rust_sources_dir}" "filecoin-ffi" "standard"; then
+if [ "${FFI_BUILD_FROM_SOURCE}" != "1" ] && download_release_tarball tarball_path "${rust_sources_dir}" "filecoin-ffi" $(get_release_type); then
     tmp_dir=$(mktemp -d)
     tar -C "$tmp_dir" -xzf "$tarball_path"
 
@@ -95,7 +139,7 @@ if [ "${FFI_BUILD_FROM_SOURCE}" != "1" ] && download_release_tarball tarball_pat
 else
     (>&2 echo "building libfilecoin from local sources (dir = ${rust_sources_dir})")
 
-    build_from_source "filecoin" "${rust_sources_dir}" "standard"
+    build_from_source "filecoin" "${rust_sources_dir}" $(get_release_type)
 
     mkdir -p include
     mkdir -p lib/pkgconfig
