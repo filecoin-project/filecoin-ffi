@@ -109,7 +109,8 @@ get_release_type() {
     optimized=true
     for x in ${req_cpu_features_optimized[@]}; do
         if [ "$optimized" = true ]; then
-            if ! [ -z "${features##*$x*}" ]; then
+            y=${x/\./_}
+            if ! [ -z "${features##*$y*}" ]; then
                 (>&2 echo "Your CPU does not support the '${x}' feature (searched '${searched}')")
                 optimized=false
             fi
