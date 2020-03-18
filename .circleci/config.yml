@@ -135,8 +135,8 @@ jobs:
             - cargo-v0-{{ checksum "rust/rust-toolchain" }}-{{ checksum "rust/Cargo.toml" }}-{{ checksum "rust/Cargo.lock" }}-{{ arch }}
       - run: cd rust && rustup install $(cat rust-toolchain)
       - run: cd rust && rustup default $(cat rust-toolchain)
-      - run: cd rust && rustup component add rustfmt-preview
-      - run: cd rust && rustup component add clippy-preview
+      - run: cd rust && rustup component add rustfmt
+      - run: cd rust && rustup component add clippy
       - run: cd rust && cargo fetch
       - run: cd rust && rustc +stable --version
       - run: cd rust && rustc +$(cat rust-toolchain) --version
@@ -149,6 +149,35 @@ jobs:
           paths:
             - /root/.cargo
             - /root/.rustup
+  rustfmt:
+    docker:
+      - image: filecoin/rust:latest
+    working_directory: /mnt/crate
+    resource_class: 2xlarge
+    steps:
+      - configure_environment_variables
+      - checkout
+      - restore_cache:
+          keys:
+            - cargo-v0-{{ checksum "rust/rust-toolchain" }}-{{ checksum "rust/Cargo.toml" }}-{{ checksum "rust/Cargo.lock" }}-{{ arch }}
+      - run:
+          name: Run cargo fmt
+          command: cd rust && cargo fmt --all -- --check
+
+  clippy:
+    docker:
+      - image: filecoin/rust:latest
+    working_directory: /mnt/crate
+    resource_class: 2xlarge
+    steps:
+      - configure_environment_variables
+      - checkout
+      - restore_cache:
+          keys:
+            - cargo-v0-{{ checksum "rust/rust-toolchain" }}-{{ checksum "rust/Cargo.toml" }}-{{ checksum "rust/Cargo.lock" }}-{{ arch }}
+      - run:
+          name: Run cargo clippy
+          command: cd rust && cargo +$(cat rust-toolchain) clippy --all-targets --all-features -- -D warnings
 
 workflows:
   version: 2
@@ -166,6 +195,12 @@ workflows:
   test_all:
     jobs:
       - cargo_fetch
+      - rustfmt:
+          requires:
+            - cargo_fetch
+      - clippy:
+          requires:
+            - cargo_fetch
       - build_and_test_linux_cgo_bindings:
           run_leak_detector: false
       - publish_linux_staticlib:
