@@ -4,7 +4,8 @@ download_release_tarball() {
     __resultvar=$1
     __rust_sources_path=$2
     __repo_name=$3
-    __release_name="${__repo_name}-$(uname)"
+    __release_type=$4
+    __release_name="${__repo_name}-$(uname)-${__release_type}"
     __release_sha1=$(git rev-parse HEAD)
     __release_tag="${__release_sha1:0:16}"
     __release_tag_url="https://api.github.com/repos/filecoin-project/${__repo_name}/releases/tags/${__release_tag}"
@@ -45,6 +46,7 @@ download_release_tarball() {
 build_from_source() {
     __library_name=$1
     __rust_sources_path=$2
+    __release_type=$3
     __repo_sha1=$(git rev-parse HEAD)
     __repo_sha1_truncated="${__repo_sha1:0:16}"
 
@@ -66,10 +68,10 @@ build_from_source() {
 
     cargo --version
 
-    if [[ -f "./scripts/build-release.sh" ]]; then
-        ./scripts/build-release.sh $__library_name $(cat rust-toolchain)
+    if [ $__release_type = "optimized" ]; then
+        RUSTFLAGS="-C target-feature=+adx,+sha,+sse,+sse2,+avx2,+avx,+sse4.2,+sse4.1" ./scripts/build-release.sh $__library_name $(cat rust-toolchain)
     else
-        cargo build --release --all
+        ./scripts/build-release.sh $__library_name $(cat rust-toolchain)
     fi
 
     popd
