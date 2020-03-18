@@ -153,10 +153,7 @@ pub unsafe fn c_to_rust_post_proofs(
         .iter()
         .map(|fpp| PoStProof {
             registered_proof: RegisteredPoStProof::StackedDrg2KiBV1,
-            proof: from_raw_parts(fpp.proof_ptr, fpp.proof_len)
-                .iter()
-                .cloned()
-                .collect(),
+            proof: from_raw_parts(fpp.proof_ptr, fpp.proof_len).to_vec(),
         })
         .collect();
 

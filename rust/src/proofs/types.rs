@@ -155,12 +155,7 @@ pub struct PoStProof {
 
 impl From<fil_PoStProof> for PoStProof {
     fn from(other: fil_PoStProof) -> Self {
-        let proof = unsafe {
-            from_raw_parts(other.proof_ptr, other.proof_len)
-                .iter()
-                .cloned()
-                .collect()
-        };
+        let proof = unsafe { from_raw_parts(other.proof_ptr, other.proof_len).to_vec() };
 
         PoStProof {
             registered_proof: other.registered_proof.into(),

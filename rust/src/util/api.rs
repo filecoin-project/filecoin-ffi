@@ -46,7 +46,7 @@ mod tests {
             );
 
             let devices: Vec<String> = strings
-                .into_iter()
+                .iter_mut()
                 .map(|s| {
                     std::ffi::CStr::from_ptr(*s)
                         .to_str()
