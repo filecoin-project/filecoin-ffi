@@ -1,8 +1,20 @@
+use std::sync::Once;
+
 use bellperson::GPU_NVIDIA_DEVICES;
 use ffi_toolkit::{catch_panic_response, raw_ptr};
 
 use super::types::fil_GpuDeviceResponse;
 use std::ffi::CString;
+
+/// Protects the init off the logger.
+static LOG_INIT: Once = Once::new();
+
+/// Ensures the logger is initialized.
+pub fn init_log() {
+    LOG_INIT.call_once(|| {
+        fil_logger::init();
+    });
+}
 
 /// Returns an array of strings containing the device names that can be used.
 #[no_mangle]

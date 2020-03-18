@@ -1,6 +1,5 @@
 use std::mem;
 use std::slice::from_raw_parts;
-use std::sync::Once;
 
 use ffi_toolkit::{
     c_str_to_pbuf, catch_panic_response, raw_ptr, rust_str_to_c_str, FCPResponseStatus,
@@ -14,6 +13,7 @@ use libc;
 use super::helpers::{bls_12_fr_into_bytes, c_to_rust_candidates, to_private_replica_info_map};
 use super::types::*;
 use crate::proofs::helpers::c_to_rust_post_proofs;
+use crate::util::api::init_log;
 use filecoin_proofs_api::seal::SealPreCommitPhase2Output;
 use std::path::PathBuf;
 
@@ -1079,16 +1079,6 @@ pub unsafe extern "C" fn fil_destroy_generate_candidates_response(
 #[no_mangle]
 pub unsafe extern "C" fn fil_destroy_clear_cache_response(ptr: *mut fil_ClearCacheResponse) {
     let _ = Box::from_raw(ptr);
-}
-
-/// Protects the init off the logger.
-static LOG_INIT: Once = Once::new();
-
-/// Ensures the logger is initialized.
-fn init_log() {
-    LOG_INIT.call_once(|| {
-        fil_logger::init();
-    });
 }
 
 #[cfg(test)]
