@@ -9,6 +9,10 @@ download_release_tarball() {
     __rust_sources_path=$2
     __repo_name=$3
     __release_type=$4
+
+    # TODO: This function shouldn't make assumptions about how these releases'
+    # names are constructed. Marginally less-bad would be to require that this
+    # function's caller provide the release name.
     __release_name="${__repo_name}-$(uname)-${__release_type}"
     __release_sha1=$(git rev-parse HEAD)
     __release_tag="${__release_sha1:0:16}"
