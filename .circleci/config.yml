@@ -181,17 +181,17 @@ jobs:
 
 workflows:
   version: 2
-  nightly_leak_detection:
-    triggers:
-      - schedule:
-          cron: "0 1 * * *"
-          filters:
-            branches:
-              only:
-                - master
-    jobs:
-      - build_and_test_linux_cgo_bindings:
-          run_leak_detector: true
+  #nightly_leak_detection:
+  #  triggers:
+  #    - schedule:
+  #        cron: "0 1 * * *"
+  #        filters:
+  #          branches:
+  #            only:
+  #              - master
+  #  jobs:
+  #    - build_and_test_linux_cgo_bindings:
+  #        run_leak_detector: true
   test_all:
     jobs:
       - cargo_fetch
