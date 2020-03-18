@@ -1429,6 +1429,92 @@ func (x *FilHashResponse) Deref() {
 	x.Digest = *NewFilBLSDigestRef(unsafe.Pointer(&x.refc52a22ef.digest))
 }
 
+// allocFilInitLogFdResponseMemory allocates memory for type C.fil_InitLogFdResponse in C.
+// The caller is responsible for freeing the this memory via C.free.
+func allocFilInitLogFdResponseMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilInitLogFdResponseValue))
+	if err != nil {
+		panic("memory alloc error: " + err.Error())
+	}
+	return mem
+}
+
+const sizeOfFilInitLogFdResponseValue = unsafe.Sizeof([1]C.fil_InitLogFdResponse{})
+
+// Ref returns the underlying reference to C object or nil if struct is nil.
+func (x *FilInitLogFdResponse) Ref() *C.fil_InitLogFdResponse {
+	if x == nil {
+		return nil
+	}
+	return x.ref3c1a0a08
+}
+
+// Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
+// Does nothing if struct is nil or has no allocation map.
+func (x *FilInitLogFdResponse) Free() {
+	if x != nil && x.allocs3c1a0a08 != nil {
+		x.allocs3c1a0a08.(*cgoAllocMap).Free()
+		x.ref3c1a0a08 = nil
+	}
+}
+
+// NewFilInitLogFdResponseRef creates a new wrapper struct with underlying reference set to the original C object.
+// Returns nil if the provided pointer to C object is nil too.
+func NewFilInitLogFdResponseRef(ref unsafe.Pointer) *FilInitLogFdResponse {
+	if ref == nil {
+		return nil
+	}
+	obj := new(FilInitLogFdResponse)
+	obj.ref3c1a0a08 = (*C.fil_InitLogFdResponse)(unsafe.Pointer(ref))
+	return obj
+}
+
+// PassRef returns the underlying C object, otherwise it will allocate one and set its values
+// from this wrapping struct, counting allocations into an allocation map.
+func (x *FilInitLogFdResponse) PassRef() (*C.fil_InitLogFdResponse, *cgoAllocMap) {
+	if x == nil {
+		return nil, nil
+	} else if x.ref3c1a0a08 != nil {
+		return x.ref3c1a0a08, nil
+	}
+	mem3c1a0a08 := allocFilInitLogFdResponseMemory(1)
+	ref3c1a0a08 := (*C.fil_InitLogFdResponse)(mem3c1a0a08)
+	allocs3c1a0a08 := new(cgoAllocMap)
+	allocs3c1a0a08.Add(mem3c1a0a08)
+
+	var cstatus_code_allocs *cgoAllocMap
+	ref3c1a0a08.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	allocs3c1a0a08.Borrow(cstatus_code_allocs)
+
+	var cerror_msg_allocs *cgoAllocMap
+	ref3c1a0a08.error_msg, cerror_msg_allocs = unpackPCharString(x.ErrorMsg)
+	allocs3c1a0a08.Borrow(cerror_msg_allocs)
+
+	x.ref3c1a0a08 = ref3c1a0a08
+	x.allocs3c1a0a08 = allocs3c1a0a08
+	return ref3c1a0a08, allocs3c1a0a08
+
+}
+
+// PassValue does the same as PassRef except that it will try to dereference the returned pointer.
+func (x FilInitLogFdResponse) PassValue() (C.fil_InitLogFdResponse, *cgoAllocMap) {
+	if x.ref3c1a0a08 != nil {
+		return *x.ref3c1a0a08, nil
+	}
+	ref, allocs := x.PassRef()
+	return *ref, allocs
+}
+
+// Deref uses the underlying reference to C object and fills the wrapping struct with values.
+// Do not forget to call this method whether you get a struct for C object and want to read its values.
+func (x *FilInitLogFdResponse) Deref() {
+	if x.ref3c1a0a08 == nil {
+		return
+	}
+	x.StatusCode = (FCPResponseStatus)(x.ref3c1a0a08.status_code)
+	x.ErrorMsg = packPCharString(x.ref3c1a0a08.error_msg)
+}
+
 // allocFilBLSPrivateKeyMemory allocates memory for type C.fil_BLSPrivateKey in C.
 // The caller is responsible for freeing the this memory via C.free.
 func allocFilBLSPrivateKeyMemory(n int) unsafe.Pointer {

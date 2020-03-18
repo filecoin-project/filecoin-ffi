@@ -125,42 +125,50 @@ type FilHashResponse struct {
 	allocsc52a22ef interface{}
 }
 
-// FilBLSPrivateKey as declared in filecoin-ffi/filecoin.h:133
+// FilInitLogFdResponse as declared in filecoin-ffi/filecoin.h:134
+type FilInitLogFdResponse struct {
+	StatusCode     FCPResponseStatus
+	ErrorMsg       string
+	ref3c1a0a08    *C.fil_InitLogFdResponse
+	allocs3c1a0a08 interface{}
+}
+
+// FilBLSPrivateKey as declared in filecoin-ffi/filecoin.h:138
 type FilBLSPrivateKey struct {
 	Inner          [32]byte
 	ref2f77fe3a    *C.fil_BLSPrivateKey
 	allocs2f77fe3a interface{}
 }
 
-// FilPrivateKeyGenerateResponse as declared in filecoin-ffi/filecoin.h:140
+// FilPrivateKeyGenerateResponse as declared in filecoin-ffi/filecoin.h:145
 type FilPrivateKeyGenerateResponse struct {
 	PrivateKey    FilBLSPrivateKey
 	ref2dba09f    *C.fil_PrivateKeyGenerateResponse
 	allocs2dba09f interface{}
 }
 
-// FilBLSPublicKey as declared in filecoin-ffi/filecoin.h:144
+// FilBLSPublicKey as declared in filecoin-ffi/filecoin.h:149
 type FilBLSPublicKey struct {
 	Inner          [48]byte
 	ref6d0cab13    *C.fil_BLSPublicKey
 	allocs6d0cab13 interface{}
 }
 
-// FilPrivateKeyPublicKeyResponse as declared in filecoin-ffi/filecoin.h:151
+// FilPrivateKeyPublicKeyResponse as declared in filecoin-ffi/filecoin.h:156
 type FilPrivateKeyPublicKeyResponse struct {
 	PublicKey      FilBLSPublicKey
 	refee14e59d    *C.fil_PrivateKeyPublicKeyResponse
 	allocsee14e59d interface{}
 }
 
-// FilPrivateKeySignResponse as declared in filecoin-ffi/filecoin.h:158
+// FilPrivateKeySignResponse as declared in filecoin-ffi/filecoin.h:163
 type FilPrivateKeySignResponse struct {
 	Signature      FilBLSSignature
 	refcdf97b28    *C.fil_PrivateKeySignResponse
 	allocscdf97b28 interface{}
 }
 
-// FilSealCommitPhase1Response as declared in filecoin-ffi/filecoin.h:165
+// FilSealCommitPhase1Response as declared in filecoin-ffi/filecoin.h:170
 type FilSealCommitPhase1Response struct {
 	StatusCode                FCPResponseStatus
 	ErrorMsg                  string
@@ -170,7 +178,7 @@ type FilSealCommitPhase1Response struct {
 	allocs61ed8561            interface{}
 }
 
-// FilSealCommitPhase2Response as declared in filecoin-ffi/filecoin.h:172
+// FilSealCommitPhase2Response as declared in filecoin-ffi/filecoin.h:177
 type FilSealCommitPhase2Response struct {
 	StatusCode     FCPResponseStatus
 	ErrorMsg       string
@@ -180,7 +188,7 @@ type FilSealCommitPhase2Response struct {
 	allocs5860b9a4 interface{}
 }
 
-// FilSealPreCommitPhase1Response as declared in filecoin-ffi/filecoin.h:179
+// FilSealPreCommitPhase1Response as declared in filecoin-ffi/filecoin.h:184
 type FilSealPreCommitPhase1Response struct {
 	ErrorMsg                     string
 	StatusCode                   FCPResponseStatus
@@ -190,7 +198,7 @@ type FilSealPreCommitPhase1Response struct {
 	allocs132bbfd8               interface{}
 }
 
-// FilSealPreCommitPhase2Response as declared in filecoin-ffi/filecoin.h:187
+// FilSealPreCommitPhase2Response as declared in filecoin-ffi/filecoin.h:192
 type FilSealPreCommitPhase2Response struct {
 	ErrorMsg        string
 	StatusCode      FCPResponseStatus
@@ -201,7 +209,7 @@ type FilSealPreCommitPhase2Response struct {
 	allocs2aa6831d  interface{}
 }
 
-// FilStringResponse as declared in filecoin-ffi/filecoin.h:196
+// FilStringResponse as declared in filecoin-ffi/filecoin.h:201
 type FilStringResponse struct {
 	StatusCode     FCPResponseStatus
 	ErrorMsg       string
@@ -210,7 +218,7 @@ type FilStringResponse struct {
 	allocs4f413043 interface{}
 }
 
-// FilUnsealRangeResponse as declared in filecoin-ffi/filecoin.h:201
+// FilUnsealRangeResponse as declared in filecoin-ffi/filecoin.h:206
 type FilUnsealRangeResponse struct {
 	StatusCode     FCPResponseStatus
 	ErrorMsg       string
@@ -218,7 +226,7 @@ type FilUnsealRangeResponse struct {
 	allocs61e219c9 interface{}
 }
 
-// FilUnsealResponse as declared in filecoin-ffi/filecoin.h:206
+// FilUnsealResponse as declared in filecoin-ffi/filecoin.h:211
 type FilUnsealResponse struct {
 	StatusCode     FCPResponseStatus
 	ErrorMsg       string
@@ -226,7 +234,7 @@ type FilUnsealResponse struct {
 	allocsdb3aa0f1 interface{}
 }
 
-// FilVerifyPoStResponse as declared in filecoin-ffi/filecoin.h:212
+// FilVerifyPoStResponse as declared in filecoin-ffi/filecoin.h:217
 type FilVerifyPoStResponse struct {
 	StatusCode     FCPResponseStatus
 	ErrorMsg       string
@@ -235,7 +243,7 @@ type FilVerifyPoStResponse struct {
 	allocs3a164861 interface{}
 }
 
-// FilVerifySealResponse as declared in filecoin-ffi/filecoin.h:218
+// FilVerifySealResponse as declared in filecoin-ffi/filecoin.h:223
 type FilVerifySealResponse struct {
 	StatusCode     FCPResponseStatus
 	ErrorMsg       string
@@ -244,7 +252,7 @@ type FilVerifySealResponse struct {
 	allocsd4397079 interface{}
 }
 
-// FilWriteWithAlignmentResponse as declared in filecoin-ffi/filecoin.h:226
+// FilWriteWithAlignmentResponse as declared in filecoin-ffi/filecoin.h:231
 type FilWriteWithAlignmentResponse struct {
 	CommP                 [32]byte
 	ErrorMsg              string
@@ -255,7 +263,7 @@ type FilWriteWithAlignmentResponse struct {
 	allocsa330e79         interface{}
 }
 
-// FilWriteWithoutAlignmentResponse as declared in filecoin-ffi/filecoin.h:233
+// FilWriteWithoutAlignmentResponse as declared in filecoin-ffi/filecoin.h:238
 type FilWriteWithoutAlignmentResponse struct {
 	CommP              [32]byte
 	ErrorMsg           string
@@ -265,14 +273,14 @@ type FilWriteWithoutAlignmentResponse struct {
 	allocsc8e1ed8      interface{}
 }
 
-// Fil32ByteArray as declared in filecoin-ffi/filecoin.h:237
+// Fil32ByteArray as declared in filecoin-ffi/filecoin.h:242
 type Fil32ByteArray struct {
 	Inner          [32]byte
 	ref373ec61a    *C.fil_32ByteArray
 	allocs373ec61a interface{}
 }
 
-// FilPrivateReplicaInfo as declared in filecoin-ffi/filecoin.h:245
+// FilPrivateReplicaInfo as declared in filecoin-ffi/filecoin.h:250
 type FilPrivateReplicaInfo struct {
 	RegisteredProof FilRegisteredPoStProof
 	CacheDirPath    string
@@ -283,7 +291,7 @@ type FilPrivateReplicaInfo struct {
 	allocs81a31e9b  interface{}
 }
 
-// FilPublicPieceInfo as declared in filecoin-ffi/filecoin.h:250
+// FilPublicPieceInfo as declared in filecoin-ffi/filecoin.h:255
 type FilPublicPieceInfo struct {
 	NumBytes       uint64
 	CommP          [32]byte
@@ -291,7 +299,7 @@ type FilPublicPieceInfo struct {
 	allocsd00025ac interface{}
 }
 
-// FilPublicReplicaInfo as declared in filecoin-ffi/filecoin.h:256
+// FilPublicReplicaInfo as declared in filecoin-ffi/filecoin.h:261
 type FilPublicReplicaInfo struct {
 	RegisteredProof FilRegisteredPoStProof
 	CommR           [32]byte
