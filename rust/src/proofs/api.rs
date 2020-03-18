@@ -1114,12 +1114,12 @@ pub mod tests {
         // first temp file occupies 4 nodes in a merkle tree built over the
         // destination (after preprocessing)
         let mut src_file_a = tempfile::tempfile()?;
-        let _ = src_file_a.write_all(&buf[0..127])?;
+        src_file_a.write_all(&buf[0..127])?;
         src_file_a.seek(SeekFrom::Start(0))?;
 
         // second occupies 16 nodes
         let mut src_file_b = tempfile::tempfile()?;
-        let _ = src_file_b.write_all(&buf[0..508])?;
+        src_file_b.write_all(&buf[0..508])?;
         src_file_b.seek(SeekFrom::Start(0))?;
 
         // create a temp file to be used as the byte destination
@@ -1243,9 +1243,9 @@ pub mod tests {
                 );
 
                 let x = CString::from_raw((*r).string_val as *mut libc::c_char);
-                let y = x.into_string().unwrap_or(String::from(""));
+                let y = x.into_string().unwrap_or_else(|_| String::from(""));
 
-                assert!(y.len() > 0);
+                assert!(!y.is_empty());
 
                 fil_destroy_string_response(r);
             }
@@ -1277,11 +1277,11 @@ pub mod tests {
         let buf_a: Vec<u8> = (0..2032).map(|_| rng.gen()).collect();
 
         let mut piece_file_a = tempfile::tempfile()?;
-        let _ = piece_file_a.write_all(&buf_a[0..127])?;
+        piece_file_a.write_all(&buf_a[0..127])?;
         piece_file_a.seek(SeekFrom::Start(0))?;
 
         let mut piece_file_b = tempfile::tempfile()?;
-        let _ = piece_file_b.write_all(&buf_a[0..1016])?;
+        piece_file_b.write_all(&buf_a[0..1016])?;
         piece_file_b.seek(SeekFrom::Start(0))?;
 
         // create the staged sector (the byte destination)
@@ -1357,7 +1357,7 @@ pub mod tests {
                 staged_path_c_str,
                 replica_path_c_str,
                 sector_id,
-                prover_id.clone(),
+                prover_id,
                 ticket,
                 pieces.as_ptr(),
                 pieces.len(),
@@ -1505,7 +1505,7 @@ pub mod tests {
             // exercise the ticket-finalizing code path (but don't do anything
             // with the results
             let result = c_to_rust_candidates((*resp_f).candidates_ptr, (*resp_f).candidates_len)?;
-            if result.len() < 1 {
+            if result.is_empty() {
                 panic!("generate_candidates produced no results");
             }
 

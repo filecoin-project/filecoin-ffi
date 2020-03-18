@@ -302,7 +302,7 @@ mod tests {
             let public_key = (*fil_private_key_public_key(&private_key[0]))
                 .public_key
                 .inner;
-            let message = "hello world".as_bytes();
+            let message = b"hello world";
             let digest = (*fil_hash(&message[0], message.len())).digest.inner;
             let signature = (*fil_private_key_sign(&private_key[0], &message[0], message.len()))
                 .signature
@@ -317,7 +317,7 @@ mod tests {
 
             assert_eq!(1, verified);
 
-            let different_message = "bye world".as_bytes();
+            let different_message = b"bye world";
             let different_digest = (*fil_hash(&different_message[0], different_message.len()))
                 .digest
                 .inner;
