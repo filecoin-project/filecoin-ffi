@@ -1,9 +1,11 @@
+use std::fs::File;
+use std::os::unix::io::FromRawFd;
 use std::sync::Once;
 
 use bellperson::GPU_NVIDIA_DEVICES;
 use ffi_toolkit::{catch_panic_response, raw_ptr};
 
-use super::types::fil_GpuDeviceResponse;
+use super::types::{fil_GpuDeviceResponse, fil_InitLogFdResponse};
 use std::ffi::CString;
 
 /// Protects the init off the logger.
@@ -13,6 +15,12 @@ static LOG_INIT: Once = Once::new();
 pub fn init_log() {
     LOG_INIT.call_once(|| {
         fil_logger::init();
+    });
+}
+/// Initialize the logger with a file to log into
+pub fn init_log_with_file(file: File) {
+    LOG_INIT.call_once(|| {
+        fil_logger::init_with_file(file);
     });
 }
 
@@ -42,10 +50,34 @@ pub unsafe extern "C" fn fil_get_gpu_devices() -> *mut fil_GpuDeviceResponse {
     })
 }
 
+/// Initializes the logger with a file descriptor where logs will be logged into.
+///
+/// This is usually a pipe that was opened on the receiving side of the logs. The logger is
+/// initialized on the invocation, subsequent calls won't have any effect.
+///
+/// This function must be called right at the start, before any other call. Else the logger will
+/// be initializes implicitely and log to stderr.
+#[no_mangle]
+#[cfg(not(target_os = "windows"))]
+pub unsafe extern "C" fn fil_init_log_fd(log_fd: libc::c_int) -> *mut fil_InitLogFdResponse {
+    catch_panic_response(|| {
+        let file = File::from_raw_fd(log_fd);
+        init_log_with_file(file);
+        let response = fil_InitLogFdResponse::default();
+        raw_ptr(response)
+    })
+}
+
 #[cfg(test)]
 mod tests {
-    use crate::util::api::fil_get_gpu_devices;
-    use crate::util::types::fil_destroy_gpu_device_response;
+    use std::env;
+    use std::fs::File;
+    use std::io::{BufRead, BufReader, Write};
+    use std::os::unix::io::FromRawFd;
+
+    use crate::util::api::{fil_get_gpu_devices, fil_init_log_fd};
+    use crate::util::types::{fil_destroy_gpu_device_response, fil_destroy_init_log_fd_response};
+    use log::info;
 
     #[test]
     fn test_get_gpu_devices() {
@@ -69,6 +101,38 @@ mod tests {
 
             assert_eq!(devices.len(), (*resp).devices_len);
             fil_destroy_gpu_device_response(resp);
+        }
+    }
+
+    #[test]
+    #[cfg(not(target_os = "windows"))]
+    fn test_init_log_fd() {
+        let mut fds: [libc::c_int; 2] = [0; 2];
+        let res = unsafe { libc::pipe2(fds.as_mut_ptr(), libc::O_CLOEXEC) };
+        if res != 0 {
+            panic!("Cannot create pipe");
+        }
+        let [read_fd, write_fd] = fds;
+
+        unsafe {
+            let mut reader = BufReader::new(File::from_raw_fd(read_fd));
+            let mut writer = File::from_raw_fd(write_fd);
+
+            // Without setting this env variable there won't be any log output
+            env::set_var("RUST_LOG", "debug");
+
+            let resp = fil_init_log_fd(write_fd);
+            fil_destroy_init_log_fd_response(resp);
+
+            info!("a log message");
+
+            // Write a newline so that things don't block even if the logging doesn't work
+            writer.write_all(b"\n").unwrap();
+
+            let mut log_message = String::new();
+            reader.read_line(&mut log_message).unwrap();
+
+            assert!(log_message.ends_with("a log message\n"));
         }
     }
 }
