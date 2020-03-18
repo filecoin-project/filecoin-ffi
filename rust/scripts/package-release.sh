@@ -3,25 +3,27 @@
 set -x
 
 if [ -z "$1" ]; then
-  TAR_FILE=`mktemp`.tar.gz
+  TARBALL_OUTPUT_PATH=`mktemp`.tar.gz
 else
-  TAR_FILE=$1
+  TARBALL_OUTPUT_PATH=$1
 fi
 
-TAR_PATH=`mktemp -d`
+echo "preparing release file"
 
-mkdir -p $TAR_PATH
+TMP_DIR=`mktemp -d`
 
-find -L . -type f -name filecoin.h -exec cp -- "{}" $TAR_PATH/ \;
-find -L . -type f -name libfilecoin.a -exec cp -- "{}" $TAR_PATH/ \;
-find -L . -type f -name filecoin.pc -exec cp -- "{}" $TAR_PATH/ \;
+mkdir -p $TMP_DIR
 
-pushd $TAR_PATH
+find -L . -type f -name filecoin.h -exec cp -- "{}" $TMP_DIR/ \;
+find -L . -type f -name libfilecoin.a -exec cp -- "{}" $TMP_DIR/ \;
+find -L . -type f -name filecoin.pc -exec cp -- "{}" $TMP_DIR/ \;
 
-tar -czf $TAR_FILE ./*
+pushd $TMP_DIR
+
+tar -czf $TARBALL_OUTPUT_PATH ./*
+
+echo "release file created: $TARBALL_OUTPUT_PATH"
 
 popd
 
-rm -rf $TAR_PATH
-
-echo $TAR_FILE
+rm -rf $TMP_DIR

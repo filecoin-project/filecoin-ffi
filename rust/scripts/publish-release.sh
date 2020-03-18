@@ -2,8 +2,20 @@
 
 set -Exeuo pipefail
 
-RELEASE_NAME="$CIRCLE_PROJECT_REPONAME-`uname`"
-RELEASE_FILE="/tmp/$RELEASE_NAME.tar.gz"
+if [[ -z "$1" ]]
+then
+    (>&2 echo 'Error: script requires a release name, e.g. "filecoin-ffi-Darwin-standard" or "filecoin-ffi-Linux-optimized"')
+    exit 1
+fi
+
+if [[ -z "$2" ]]
+then
+    (>&2 echo 'Error: script requires a release (gzipped) tarball path, e.g. "/tmp/filecoin-ffi-Darwin-standard.tar.tz"')
+    exit 1
+fi
+
+RELEASE_NAME=$1
+RELEASE_FILE=$2
 RELEASE_TAG="${CIRCLE_SHA1:0:16}"
 
 # make sure we have a token set, api requests won't work otherwise
@@ -11,12 +23,6 @@ if [ -z $GITHUB_TOKEN ]; then
   echo "\$GITHUB_TOKEN not set, publish failed"
   exit 1
 fi
-
-echo "preparing release file"
-
-`dirname $0`/package-release.sh $RELEASE_FILE
-
-echo "release file created: $RELEASE_FILE"
 
 # see if the release already exists by tag
 RELEASE_RESPONSE=`

@@ -85,11 +85,14 @@ jobs:
           name: Install jq
           command: apt-get install jq -yqq
       - run:
-          name: Build the Rust release
+          name: Build the standard release
           command: cd rust && ./scripts/build-release.sh filecoin $(cat ./rust-toolchain) --verbose --frozen --all
       - run:
-          name: Publish release to GitHub
-          command: cd rust && bash ./scripts/publish-release.sh
+          name: Package the standard release
+          command: cd rust && ./scripts/package-release.sh "/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-standard.tar.gz"
+      - run:
+          name: Publish the standard release
+          command: cd rust && bash ./scripts/publish-release.sh "${CIRCLE_PROJECT_REPONAME}-$(uname)-standard" "/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-standard.tar.gz"
   publish_darwin_staticlib:
     macos:
       xcode: "10.0.0"
