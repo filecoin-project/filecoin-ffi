@@ -217,14 +217,14 @@ commands:
             cd rust
             ./scripts/build-release.sh filecoin $(cat ./rust-toolchain) --verbose --frozen --all
             ./scripts/package-release.sh "/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-standard.tar.gz"
-            ./scripts/publish-release.sh "${CIRCLE_PROJECT_REPONAME}-$(uname)-standard" "/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-standard.tar.gz"
+            ./scripts/publish-release.sh "/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-standard.tar.gz" "${CIRCLE_PROJECT_REPONAME}-$(uname)-standard"
       - run:
           name: Build and publish the optimized release
           command: |
             cd rust
             RUSTFLAGS="-C target-feature=+adx,+sha,+sse,+sse2,+avx2,+avx,+sse4.2,+sse4.1" ./scripts/build-release.sh filecoin $(cat ./rust-toolchain) --verbose --frozen --all
             ./scripts/package-release.sh "/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-optimized.tar.gz"
-            ./scripts/publish-release.sh "${CIRCLE_PROJECT_REPONAME}-$(uname)-optimized" "/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-optimized.tar.gz"
+            ./scripts/publish-release.sh "/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-optimized.tar.gz" "${CIRCLE_PROJECT_REPONAME}-$(uname)-optimized"
   configure_environment_variables:
     steps:
       - run:
