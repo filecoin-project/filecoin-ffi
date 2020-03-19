@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -Exeo pipefail
+set -Eeo pipefail
 
 # set CWD to the root of filecoin-ffi
 #
@@ -24,7 +24,7 @@ cpu_features_required_for_optimized_release=($(cat "${rust_sources_dir}/rustc-ta
 
 main() {
     if [ "${FFI_BUILD_FROM_SOURCE}" != "1" ] && download_release_tarball __tarball_path "${rust_sources_dir}" "filecoin-ffi" $(get_release_type); then
-        __tmp_dir=$(mktemp -d)
+        local __tmp_dir=$(mktemp -d)
 
         # extract downloaded tarball to temporary directory
         #
@@ -36,9 +36,9 @@ main() {
         find -L "${__tmp_dir}" -type f -name libfilecoin.a -exec cp -- "{}" . \;
         find -L "${__tmp_dir}" -type f -name filecoin.pc -exec cp -- "{}" . \;
 
-        (>&2 echo "successfully installed prebuilt libfilecoin")
+        (>&2 echo "[install-filecoin/main] successfully installed prebuilt libfilecoin")
     else
-        (>&2 echo "building libfilecoin from local sources (dir = ${rust_sources_dir})")
+        (>&2 echo "[install-filecoin/main] building libfilecoin from local sources (dir = ${rust_sources_dir})")
 
         # build libfilecoin (and corresponding header and pkg-config)
         #
@@ -51,55 +51,55 @@ main() {
         find -L "${rust_sources_dir}" -type f -name filecoin.pc -exec cp -- "{}" . \;
 
         if [[ ! -f "./filecoin.h" ]]; then
-            (>&2 echo "failed to install filecoin.h")
+            (>&2 echo "[install-filecoin/main] failed to install filecoin.h")
             exit 1
         fi
 
         if [[ ! -f "./libfilecoin.a" ]]; then
-            (>&2 echo "failed to install libfilecoin.a")
+            (>&2 echo "[install-filecoin/main] failed to install libfilecoin.a")
             exit 1
         fi
 
         if [[ ! -f "./filecoin.pc" ]]; then
-            (>&2 echo "failed to install filecoin.pc")
+            (>&2 echo "[main] failed to install filecoin.pc")
             exit 1
         fi
 
-        (>&2 echo "successfully built and installed libfilecoin from source")
+        (>&2 echo "[install-filecoin/main] successfully built and installed libfilecoin from source")
     fi
 }
 
 download_release_tarball() {
-    __resultvar=$1
-    __rust_sources_path=$2
-    __repo_name=$3
-    __release_type=$4
+    local __resultvar=$1
+    local __rust_sources_path=$2
+    local __repo_name=$3
+    local __release_type=$4
+    local __release_sha1=$(git rev-parse HEAD)
+    local __release_tag="${__release_sha1:0:16}"
+    local __release_tag_url="https://api.github.com/repos/filecoin-project/${__repo_name}/releases/tags/${__release_tag}"
 
     # TODO: This function shouldn't make assumptions about how these releases'
     # names are constructed. Marginally less-bad would be to require that this
     # function's caller provide the release name.
     #
-    __release_name="${__repo_name}-$(uname)-${__release_type}"
-    __release_sha1=$(git rev-parse HEAD)
-    __release_tag="${__release_sha1:0:16}"
-    __release_tag_url="https://api.github.com/repos/filecoin-project/${__repo_name}/releases/tags/${__release_tag}"
+    local __release_name="${__repo_name}-$(uname)-${__release_type}"
 
-    (>&2 echo "acquiring release @ ${__release_tag}")
+    (>&2 echo "[download_release_tarball] acquiring release @ ${__release_tag}")
 
-    __release_response=$(curl \
+    local __release_response=$(curl \
         --retry 3 \
         --location $__release_tag_url)
 
-    __release_url=$(echo $__release_response | jq -r ".assets[] | select(.name | contains(\"${__release_name}\")) | .url")
+    local __release_url=$(echo $__release_response | jq -r ".assets[] | select(.name | contains(\"${__release_name}\")) | .url")
+
+    local __tar_path="/tmp/${__release_name}_$(basename ${__release_url}).tar.gz"
 
     if [[ -z "$__release_url" ]]; then
-        (>&2 echo "failed to download release (tag URL: ${__release_tag_url}, response: ${__release_response})")
+        (>&2 echo "[download_release_tarball] failed to download release (tag URL: ${__release_tag_url}, response: ${__release_response})")
         return 1
     fi
 
-    __tar_path="/tmp/${__release_name}_$(basename ${__release_url}).tar.gz"
-
-    __asset_url=$(curl \
+    local __asset_url=$(curl \
         --head \
         --retry 3 \
         --header "Accept:application/octet-stream" \
@@ -110,31 +110,35 @@ download_release_tarball() {
 
     curl --retry 3 --output "${__tar_path}" "$__asset_url"
     if [[ $? -ne "0" ]]; then
-        (>&2 echo "failed to download release asset (tag URL: ${__release_tag_url}, asset URL: ${__asset_url})")
+        (>&2 echo "[download_release_tarball] failed to download release asset (tag URL: ${__release_tag_url}, asset URL: ${__asset_url})")
         return 1
     fi
 
+    # set $__resultvar (which the caller provided as $1), which is the poor
+    # man's way of returning a value from a function in Bash
+    #
     eval $__resultvar="'$__tar_path'"
 }
 
 build_from_source() {
-    __library_name=$1
-    __rust_sources_path=$2
-    __release_type=$3
-    __repo_sha1=$(git rev-parse HEAD)
-    __repo_sha1_truncated="${__repo_sha1:0:16}"
+    local __library_name=$1
+    local __rust_sources_path=$2
+    local __release_type=$3
+    local __repo_sha1=$(git rev-parse HEAD)
+    local __repo_sha1_truncated="${__repo_sha1:0:16}"
+    local __target_feature=""
 
     (>&2 echo "building from source @ ${__repo_sha1_truncated}")
 
     if ! [ -x "$(command -v cargo)" ]; then
-        (>&2 echo 'Error: cargo is not installed.')
-        (>&2 echo 'Install Rust toolchain to resolve this problem.')
+        (>&2 echo '[build_from_source] Error: cargo is not installed.')
+        (>&2 echo '[build_from_source] install Rust toolchain to resolve this problem.')
         exit 1
     fi
 
     if ! [ -x "$(command -v rustup)" ]; then
-        (>&2 echo 'Error: rustup is not installed.')
-        (>&2 echo 'Install Rust toolchain installer to resolve this problem.')
+        (>&2 echo '[build_from_source] Error: rustup is not installed.')
+        (>&2 echo '[build_from_source] install Rust toolchain installer to resolve this problem.')
         exit 1
     fi
 
@@ -143,7 +147,6 @@ build_from_source() {
     cargo --version
 
     # reduce array of features into the rustc-specific 'target-feature' flag
-    __target_feature=""
     for x in ${optimized_release_rustc_target_features[@]}; do
         __target_feature="${x},${__target_feature}"
     done
@@ -158,26 +161,26 @@ build_from_source() {
 }
 
 get_release_type() {
-    __searched="cat /proc/cpuinfo | grep flags"
-    __features=""
+    local __searched=""
+    local __features=""
+    local __optimized=true
 
     # determine where to look for CPU features
     #
     if [[ ! -f "/proc/cpuinfo" ]]; then
-        (>&2 echo "No /proc/cpuinfo file; falling back to Darwin feature detection")
+        (>&2 echo "[get_release_type] no /proc/cpuinfo file; falling back to Darwin feature detection")
         __searched="sysctl -a | grep machdep.cpu | tr '[:upper:]' '[:lower:]' | grep features"
-        __features=$(eval "$__searched")
     else
-        __features=$(cat /proc/cpuinfo | grep flags)
+        __searched="cat /proc/cpuinfo | grep flags"
     fi
+    __features=$(eval "$__searched")
 
     # check for the presence of each required CPU feature
     #
-    __optimized=true
     for x in ${cpu_features_required_for_optimized_release[@]}; do
         if [ "$__optimized" = true ]; then
             if ! [ -z "${__features##*$x*}" ]; then
-                (>&2 echo "Your CPU does not support the '${x}' feature (searched '${__searched}')")
+                (>&2 echo "[get_release_type] your CPU does not support the '${x}' feature (searched '${__searched}')")
                 __optimized=false
             fi
         fi
@@ -186,10 +189,10 @@ get_release_type() {
     # if we couldn't figure out where to look for features, use standard
     #
     if [ "$__optimized" == true ] && ! [ -z "$__features" ]; then
-        (>&2 echo "Configuring 'optimized' build")
+        (>&2 echo "[get_release_type] configuring 'optimized' build")
         echo "optimized"
     else
-        (>&2 echo "Configuring 'standard' build")
+        (>&2 echo "[get_release_type] configuring 'standard' build")
         echo "standard"
     fi
 }
