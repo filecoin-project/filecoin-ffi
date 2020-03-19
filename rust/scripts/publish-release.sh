@@ -2,61 +2,72 @@
 
 set -Exeuo pipefail
 
-RELEASE_NAME="$CIRCLE_PROJECT_REPONAME-`uname`"
-RELEASE_FILE="/tmp/$RELEASE_NAME.tar.gz"
-RELEASE_TAG="${CIRCLE_SHA1:0:16}"
+main() {
+    if [[ -z "$1" ]]
+    then
+        (>&2 echo '[publish-release/main] Error: script requires a release (gzipped) tarball path, e.g. "/tmp/filecoin-ffi-Darwin-standard.tar.tz"')
+        exit 1
+    fi
 
-# make sure we have a token set, api requests won't work otherwise
-if [ -z $GITHUB_TOKEN ]; then
-  echo "\$GITHUB_TOKEN not set, publish failed"
-  exit 1
-fi
+    if [[ -z "$2" ]]
+    then
+        (>&2 echo '[publish-release/main] Error: script requires a release name, e.g. "filecoin-ffi-Darwin-standard" or "filecoin-ffi-Linux-optimized"')
+        exit 1
+    fi
 
-echo "preparing release file"
+    local __release_file=$1
+    local __release_name=$2
+    local __release_tag="${CIRCLE_SHA1:0:16}"
 
-`dirname $0`/package-release.sh $RELEASE_FILE
+    # make sure we have a token set, api requests won't work otherwise
+    if [ -z $GITHUB_TOKEN ]; then
+        (>&2 echo "[publish-release/main] \$GITHUB_TOKEN not set, publish failed")
+        exit 1
+    fi
 
-echo "release file created: $RELEASE_FILE"
+    # see if the release already exists by tag
+    local __release_response=`
+        curl \
+            --header "Authorization: token $GITHUB_TOKEN" \
+            "https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/releases/tags/$__release_tag"
+    `
 
-# see if the release already exists by tag
-RELEASE_RESPONSE=`
-  curl \
-    --header "Authorization: token $GITHUB_TOKEN" \
-    "https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/releases/tags/$RELEASE_TAG"
-`
+    local __release_id=`echo $__release_response | jq '.id'`
 
-RELEASE_ID=`echo $RELEASE_RESPONSE | jq '.id'`
+    if [ "$__release_id" = "null" ]; then
+        (>&2 echo '[publish-release/main] creating release')
 
-if [ "$RELEASE_ID" = "null" ]; then
-  echo "creating release"
+        RELEASE_DATA="{
+            \"tag_name\": \"$__release_tag\",
+            \"target_commitish\": \"$CIRCLE_SHA1\",
+            \"name\": \"$__release_tag\",
+            \"body\": \"\"
+        }"
 
-  RELEASE_DATA="{
-    \"tag_name\": \"$RELEASE_TAG\",
-    \"target_commitish\": \"$CIRCLE_SHA1\",
-    \"name\": \"$RELEASE_TAG\",
-    \"body\": \"\"
-  }"
+        # create it if it doesn't exist yet
+        #
+        __release_response=`
+            curl \
+                --request POST \
+                --header "Authorization: token $GITHUB_TOKEN" \
+                --header "Content-Type: application/json" \
+                --data "$RELEASE_DATA" \
+                "https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/releases"
+        `
+    else
+        (>&2 echo '[publish-release/main] release already exists')
+    fi
 
-  # create it if it doesn't exist yet
-  RELEASE_RESPONSE=`
+    __release_upload_url=`echo $__release_response | jq -r '.upload_url' | cut -d'{' -f1`
+
     curl \
-      --request POST \
-      --header "Authorization: token $GITHUB_TOKEN" \
-      --header "Content-Type: application/json" \
-      --data "$RELEASE_DATA" \
-      "https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/releases"
-  `
-else
-  echo "release already exists"
-fi
+        --request POST \
+        --header "Authorization: token $GITHUB_TOKEN" \
+        --header "Content-Type: application/octet-stream" \
+        --data-binary "@$__release_file" \
+        "$__release_upload_url?name=$(basename $__release_file)"
 
-RELEASE_UPLOAD_URL=`echo $RELEASE_RESPONSE | jq -r '.upload_url' | cut -d'{' -f1`
+    (>&2 echo '[publish-release/main] release file uploaded')
+}
 
-curl \
-  --request POST \
-  --header "Authorization: token $GITHUB_TOKEN" \
-  --header "Content-Type: application/octet-stream" \
-  --data-binary "@$RELEASE_FILE" \
-  "$RELEASE_UPLOAD_URL?name=$(basename $RELEASE_FILE)"
-
-echo "release file uploaded"
+main "$@"; exit

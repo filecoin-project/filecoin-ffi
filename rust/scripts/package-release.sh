@@ -1,27 +1,38 @@
 #!/usr/bin/env bash
 
-set -x
+set -Exeuo pipefail
 
-if [ -z "$1" ]; then
-  TAR_FILE=`mktemp`.tar.gz
-else
-  TAR_FILE=$1
-fi
+main() {
+    if [[ -z "$1" ]]
+    then
+        (>&2 echo '[package-release/main] Error: script requires path to which it will write release (gzipped) tarball, e.g. "/tmp/filecoin-ffi-Darwin-standard.tar.tz"')
+        exit 1
+    fi
 
-TAR_PATH=`mktemp -d`
+    local __tarball_output_path=$1
 
-mkdir -p $TAR_PATH
+    # create temporary directory to hold build artifacts (must not be declared
+    # with 'local' because we will use 'trap' to clean it up)
+    #
+    __tmp_dir=$(mktemp -d)
 
-find -L . -type f -name filecoin.h -exec cp -- "{}" $TAR_PATH/ \;
-find -L . -type f -name libfilecoin.a -exec cp -- "{}" $TAR_PATH/ \;
-find -L . -type f -name filecoin.pc -exec cp -- "{}" $TAR_PATH/ \;
+    (>&2 echo "[package-release/main] preparing release files")
 
-pushd $TAR_PATH
+    # clean up temp directory on exit
+    #
+    trap '{ rm -rf $__tmp_dir; }' EXIT
 
-tar -czf $TAR_FILE ./*
+    # copy assets into temporary directory
+    #
+    find -L . -type f -name filecoin.h -exec cp -- "{}" $__tmp_dir/ \;
+    find -L . -type f -name libfilecoin.a -exec cp -- "{}" $__tmp_dir/ \;
+    find -L . -type f -name filecoin.pc -exec cp -- "{}" $__tmp_dir/ \;
 
-popd
+    # create gzipped tarball from contents of temporary directory
+    #
+    tar -czf $__tarball_output_path $__tmp_dir/*
 
-rm -rf $TAR_PATH
+    (>&2 echo "[package-release/main] release file created: $__tarball_output_path")
+}
 
-echo $TAR_FILE
+main "$@"; exit

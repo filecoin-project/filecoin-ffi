@@ -84,12 +84,7 @@ jobs:
       - run:
           name: Install jq
           command: apt-get install jq -yqq
-      - run:
-          name: Build the Rust release
-          command: cd rust && ./scripts/build-release.sh filecoin $(cat ./rust-toolchain) --verbose --frozen --all
-      - run:
-          name: Publish release to GitHub
-          command: cd rust && bash ./scripts/publish-release.sh
+      - publish_release
   publish_darwin_staticlib:
     macos:
       xcode: "10.0.0"
@@ -116,12 +111,7 @@ jobs:
             mkdir $HOME/.bin
             curl --location https://github.com/stedolan/jq/releases/download/jq-1.6/jq-osx-amd64 --output $HOME/.bin/jq
             chmod +x $HOME/.bin/jq
-      - run:
-          name: Build the release
-          command: cd rust && ./scripts/build-release.sh filecoin $(cat ./rust-toolchain) --verbose --frozen --all
-      - run:
-          name: Publish to GitHub
-          command: cd rust && bash ./scripts/publish-release.sh
+      - publish_release
   cargo_fetch:
     docker:
       - image: filecoin/rust:latest
@@ -218,6 +208,31 @@ workflows:
                 - master
 
 commands:
+  publish_release:
+    steps:
+      - run:
+          name: Build and publish the standard release
+          command: |
+            cd rust
+
+            TARBALL_PATH="/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-standard.tar.gz"
+            RELEASE_NAME="${CIRCLE_PROJECT_REPONAME}-$(uname)-standard"
+
+            ./scripts/build-release.sh filecoin $(cat ./rust-toolchain) --verbose --frozen --all
+            ./scripts/package-release.sh $TARBALL_PATH
+            ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
+      - run:
+          name: Build and publish the optimized release
+          command: |
+            cd rust
+
+            TARBALL_PATH="/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-optimized.tar.gz"
+            RELEASE_NAME="${CIRCLE_PROJECT_REPONAME}-$(uname)-optimized"
+            RUSTFLAGS="-C target-feature=$(cat rustc-target-features-optimized.json | jq -r '.[].rustc_target_feature' | tr '\n' ',')"
+
+            ./scripts/build-release.sh filecoin $(cat ./rust-toolchain) --verbose --frozen --all
+            ./scripts/package-release.sh $TARBALL_PATH
+            ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
   configure_environment_variables:
     steps:
       - run:
