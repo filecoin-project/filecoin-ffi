@@ -145,7 +145,7 @@ build_from_source() {
     # reduce array of features into the rustc-specific 'target-feature' flag
     __target_feature=""
     for x in ${optimized_release_rustc_target_features[@]}; do
-        __target_feature="+${x},${__target_feature}"
+        __target_feature="${x},${__target_feature}"
     done
 
     if [ "${__release_type}" = "optimized" ]; then
