@@ -61,7 +61,7 @@ main() {
         fi
 
         if [[ ! -f "./filecoin.pc" ]]; then
-            (>&2 echo "[main] failed to install filecoin.pc")
+            (>&2 echo "[install-filecoin/main] failed to install filecoin.pc")
             exit 1
         fi
 
