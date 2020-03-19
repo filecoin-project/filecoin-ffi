@@ -198,7 +198,6 @@ workflows:
             branches:
               only:
                 - master
-                - feat/multiple-released-binaries
           requires:
             - cargo_fetch
       - build_darwin_cgo_bindings
@@ -207,7 +206,6 @@ workflows:
             branches:
               only:
                 - master
-                - feat/multiple-released-binaries
 
 commands:
   publish_release:
