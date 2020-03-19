@@ -11,9 +11,10 @@ main() {
 
     local __tarball_output_path=$1
 
-    # create temporary directory to hold build artifacts
+    # create temporary directory to hold build artifacts (must not be declared
+    # with 'local' because we will use 'trap' to clean it up)
     #
-    local __tmp_dir=$(mktemp -d)
+    __tmp_dir=$(mktemp -d)
 
     (>&2 echo "[package-release/main] preparing release files")
 

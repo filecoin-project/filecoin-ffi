@@ -15,7 +15,10 @@ main() {
         exit 1
     fi
 
-    local __build_output_log_tmp=$(mktemp)
+    # temporary place for storing build output (cannot use 'local', because
+    # 'trap' is not going to have access to variables scoped to this function)
+    #
+    __build_output_log_tmp=$(mktemp)
 
     # clean up temp file on exit
     #
