@@ -207,6 +207,7 @@ workflows:
             branches:
               only:
                 - master
+                - feat/multiple-released-binaries
 
 commands:
   publish_release:
