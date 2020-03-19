@@ -26,8 +26,7 @@ main() {
 
     # build with RUSTFLAGS configured to output linker flags for native libs
     #
-    local __rust_flags="${RUSTFLAGS}"
-    __rust_flags="--print native-static-libs ${__rust_flags}"
+    local __rust_flags="--print native-static-libs ${RUSTFLAGS}"
 
     RUSTFLAGS="${__rust_flags}" \
         cargo +$2 build \
