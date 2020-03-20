@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2155 enable=require-variable-braces
 
 set -Exeo pipefail
 
@@ -15,20 +16,23 @@ rust_sources_dir="rust"
 # building an optimized libfilecoin (which takes advantage of some perf-boosting
 # instruction sets)
 #
-optimized_release_rustc_target_features=($(cat "${rust_sources_dir}/rustc-target-features-optimized.json" | jq -r '.[].rustc_target_feature'))
+optimized_release_rustc_target_features=$(jq -r '.[].rustc_target_feature' < "${rust_sources_dir}/rustc-target-features-optimized.json")
 
 # each value in this area is checked against the "features" of the hosts CPU
 # in order to determine if the host is suitable for an optimized release
 #
-cpu_features_required_for_optimized_release=($(cat "${rust_sources_dir}/rustc-target-features-optimized.json" | jq -r '.[].check_cpu_for_feature | select(. != null)'))
+cpu_features_required_for_optimized_release=$(jq -r '.[].check_cpu_for_feature | select(. != null)' < "${rust_sources_dir}/rustc-target-features-optimized.json")
 
 main() {
-    if [ "${FFI_BUILD_FROM_SOURCE}" != "1" ] && download_release_tarball __tarball_path "${rust_sources_dir}" "filecoin-ffi" $(get_release_type); then
+    if [ "${FFI_BUILD_FROM_SOURCE}" != "1" ] && download_release_tarball __tarball_path "${rust_sources_dir}" "filecoin-ffi" "$(get_release_type)"; then
         local __tmp_dir=$(mktemp -d)
 
+        # silence shellcheck warning as the assignment happened in
+        # `download_release_tarball()`
+        # shellcheck disable=SC2154
         # extract downloaded tarball to temporary directory
         #
-        tar -C "$__tmp_dir" -xzf "$__tarball_path"
+        tar -C "${__tmp_dir}" -xzf "${__tarball_path}"
 
         # copy build assets into root of filecoin-ffi
         #
@@ -36,13 +40,15 @@ main() {
         find -L "${__tmp_dir}" -type f -name libfilecoin.a -exec cp -- "{}" . \;
         find -L "${__tmp_dir}" -type f -name filecoin.pc -exec cp -- "{}" . \;
 
+        check_installed_files
+
         (>&2 echo "[install-filecoin/main] successfully installed prebuilt libfilecoin")
     else
         (>&2 echo "[install-filecoin/main] building libfilecoin from local sources (dir = ${rust_sources_dir})")
 
         # build libfilecoin (and corresponding header and pkg-config)
         #
-        build_from_source "filecoin" "${rust_sources_dir}" $(get_release_type)
+        build_from_source "filecoin" "${rust_sources_dir}" "$(get_release_type)"
 
         # copy from Rust's build directory (target) to root of filecoin-ffi
         #
@@ -50,20 +56,7 @@ main() {
         find -L "${rust_sources_dir}/target/release" -type f -name libfilecoin.a -exec cp -- "{}" . \;
         find -L "${rust_sources_dir}" -type f -name filecoin.pc -exec cp -- "{}" . \;
 
-        if [[ ! -f "./filecoin.h" ]]; then
-            (>&2 echo "[install-filecoin/main] failed to install filecoin.h")
-            exit 1
-        fi
-
-        if [[ ! -f "./libfilecoin.a" ]]; then
-            (>&2 echo "[install-filecoin/main] failed to install libfilecoin.a")
-            exit 1
-        fi
-
-        if [[ ! -f "./filecoin.pc" ]]; then
-            (>&2 echo "[install-filecoin/main] failed to install filecoin.pc")
-            exit 1
-        fi
+        check_installed_files
 
         (>&2 echo "[install-filecoin/main] successfully built and installed libfilecoin from source")
     fi
@@ -88,13 +81,13 @@ download_release_tarball() {
 
     local __release_response=$(curl \
         --retry 3 \
-        --location $__release_tag_url)
+        --location "${__release_tag_url}")
 
-    local __release_url=$(echo $__release_response | jq -r ".assets[] | select(.name | contains(\"${__release_name}\")) | .url")
+    local __release_url=$(echo "${__release_response}" | jq -r ".assets[] | select(.name | contains(\"${__release_name}\")) | .url")
 
-    local __tar_path="/tmp/${__release_name}_$(basename ${__release_url}).tar.gz"
+    local __tar_path="/tmp/${__release_name}_$(basename "${__release_url}").tar.gz"
 
-    if [[ -z "$__release_url" ]]; then
+    if [[ -z "${__release_url}" ]]; then
         (>&2 echo "[download_release_tarball] failed to download release (tag URL: ${__release_tag_url}, response: ${__release_response})")
         return 1
     fi
@@ -105,11 +98,10 @@ download_release_tarball() {
         --header "Accept:application/octet-stream" \
         --location \
         --output /dev/null \
-        -w %{url_effective} \
-        "$__release_url")
+        -w "%{url_effective}" \
+        "${__release_url}")
 
-    curl --retry 3 --output "${__tar_path}" "$__asset_url"
-    if [[ $? -ne "0" ]]; then
+    if ! curl --retry 3 --output "${__tar_path}" "${__asset_url}"; then
         (>&2 echo "[download_release_tarball] failed to download release asset (tag URL: ${__release_tag_url}, asset URL: ${__asset_url})")
         return 1
     fi
@@ -117,7 +109,7 @@ download_release_tarball() {
     # set $__resultvar (which the caller provided as $1), which is the poor
     # man's way of returning a value from a function in Bash
     #
-    eval $__resultvar="'$__tar_path'"
+    eval "${__resultvar}='${__tar_path}'"
 }
 
 build_from_source() {
@@ -142,19 +134,19 @@ build_from_source() {
         exit 1
     fi
 
-    pushd $__rust_sources_path
+    pushd "${__rust_sources_path}"
 
     cargo --version
 
     # reduce array of features into the rustc-specific 'target-feature' flag
-    for x in ${optimized_release_rustc_target_features[@]}; do
+    for x in "${optimized_release_rustc_target_features[@]}"; do
         __target_feature="${x},${__target_feature}"
     done
 
     if [ "${__release_type}" = "optimized" ]; then
-        RUSTFLAGS="-C target-feature=${__target_feature}" ./scripts/build-release.sh $__library_name $(cat rust-toolchain)
+        RUSTFLAGS="-C target-feature=${__target_feature}" ./scripts/build-release.sh "${__library_name}" "$(cat rust-toolchain)"
     else
-        ./scripts/build-release.sh $__library_name $(cat rust-toolchain)
+        ./scripts/build-release.sh "${__library_name}" "$(cat rust-toolchain)"
     fi
 
     popd
@@ -173,13 +165,13 @@ get_release_type() {
     else
         __searched="cat /proc/cpuinfo | grep flags"
     fi
-    __features=$(eval "$__searched")
+    __features=$(eval "${__searched}")
 
     # check for the presence of each required CPU feature
     #
-    for x in ${cpu_features_required_for_optimized_release[@]}; do
-        if [ "$__optimized" = true ]; then
-            if ! [ -z "${__features##*$x*}" ]; then
+    for x in "${cpu_features_required_for_optimized_release[@]}"; do
+        if [ "${__optimized}" = true ]; then
+            if [ -n "${__features##*${x}*}" ]; then
                 (>&2 echo "[get_release_type] your CPU does not support the '${x}' feature (searched '${__searched}')")
                 __optimized=false
             fi
@@ -188,12 +180,29 @@ get_release_type() {
 
     # if we couldn't figure out where to look for features, use standard
     #
-    if [ "$__optimized" == true ] && ! [ -z "$__features" ]; then
+    if [ "${__optimized}" == true ] && [ -n "${__features}" ]; then
         (>&2 echo "[get_release_type] configuring 'optimized' build")
         echo "optimized"
     else
         (>&2 echo "[get_release_type] configuring 'standard' build")
         echo "standard"
+    fi
+}
+
+check_installed_files() {
+    if [[ ! -f "./filecoin.h" ]]; then
+        (>&2 echo "[check_installed_files] failed to install filecoin.h")
+        exit 1
+    fi
+
+    if [[ ! -f "./libfilecoin.a" ]]; then
+        (>&2 echo "[check_installed_files] failed to install libfilecoin.a")
+        exit 1
+    fi
+
+    if [[ ! -f "./filecoin.pc" ]]; then
+        (>&2 echo "[check_installed_files] failed to install filecoin.pc")
+        exit 1
     fi
 }
 

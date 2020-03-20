@@ -16,9 +16,14 @@ clean:
 	rm -f ./runner
 .PHONY: clean
 
-lint: $(DEPS)
+go-lint: $(DEPS)
 	golangci-lint run -v --concurrency 2 --new-from-rev origin/master
-.PHONY: lint
+.PHONY: go-lint
+
+shellcheck:
+	shellcheck install-filecoin
+
+lint: shellcheck go-lint
 
 cgo-leakdetect: runner
 	valgrind --leak-check=full --show-leak-kinds=definite ./runner

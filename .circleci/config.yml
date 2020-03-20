@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
   go: gotest/tools@0.0.9
+  shellcheck: circleci/shellcheck@1.3.15
 
 executors:
   golang:
@@ -22,7 +23,7 @@ jobs:
       - go/mod-download
       - run:
           command: "! go fmt ./... 2>&1 | read"
-  lint:
+  go_lint:
     description: Run various linters
     executor: golang
     steps:
@@ -33,7 +34,7 @@ jobs:
           gobin: $HOME/.local/bin
           version: 1.23.8
       - run:
-          command: make lint
+          command: make go-lint
   build_and_test_linux_cgo_bindings:
     parameters:
       run_leak_detector:
@@ -152,6 +153,9 @@ workflows:
           run_leak_detector: true
   test_all:
     jobs:
+      # Lint the install Bash script
+      - shellcheck/check:
+          pattern: 'install-filecoin'
       - cargo_fetch
       - rustfmt:
           requires:
@@ -160,7 +164,7 @@ workflows:
           requires:
             - cargo_fetch
       - gofmt
-      - lint
+      - go_lint
       - build_and_test_linux_cgo_bindings:
           run_leak_detector: false
       - publish_linux_staticlib:
