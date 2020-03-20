@@ -215,6 +215,10 @@ commands:
                 command: |
                   curl https://sh.rustup.rs -sSf | sh -s -- -y
                   rustc --version
+      - run:
+          name: Ensure appropriate toolchain is installed
+          command: |
+            rustup install $(cat ./rust/rust-toolchain)
       - run: git submodule sync
       - run: git submodule update --init
 
