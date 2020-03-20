@@ -128,7 +128,7 @@ jobs:
             - cargo-v0-{{ checksum "rust/rust-toolchain" }}-{{ checksum "rust/Cargo.toml" }}-{{ checksum "rust/Cargo.lock" }}-{{ arch }}
       - run:
           name: Run cargo fmt
-          command: cd rust && cargo fmt --all -- --check
+          command: cargo fmt --manifest-path ./rust/Cargo.toml --all -- --check
   clippy:
     executor: rust
     working_directory: /mnt/crate
