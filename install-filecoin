@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2155
+# shellcheck disable=SC2155 enable=require-variable-braces
 
 set -Exeo pipefail
 
@@ -32,7 +32,7 @@ main() {
         # shellcheck disable=SC2154
         # extract downloaded tarball to temporary directory
         #
-        tar -C "$__tmp_dir" -xzf "$__tarball_path"
+        tar -C "${__tmp_dir}" -xzf "${__tarball_path}"
 
         # copy build assets into root of filecoin-ffi
         #
@@ -87,7 +87,7 @@ download_release_tarball() {
 
     local __tar_path="/tmp/${__release_name}_$(basename "${__release_url}").tar.gz"
 
-    if [[ -z "$__release_url" ]]; then
+    if [[ -z "${__release_url}" ]]; then
         (>&2 echo "[download_release_tarball] failed to download release (tag URL: ${__release_tag_url}, response: ${__release_response})")
         return 1
     fi
@@ -99,9 +99,9 @@ download_release_tarball() {
         --location \
         --output /dev/null \
         -w "%{url_effective}" \
-        "$__release_url")
+        "${__release_url}")
 
-    if ! curl --retry 3 --output "${__tar_path}" "$__asset_url"; then
+    if ! curl --retry 3 --output "${__tar_path}" "${__asset_url}"; then
         (>&2 echo "[download_release_tarball] failed to download release asset (tag URL: ${__release_tag_url}, asset URL: ${__asset_url})")
         return 1
     fi
@@ -165,13 +165,13 @@ get_release_type() {
     else
         __searched="cat /proc/cpuinfo | grep flags"
     fi
-    __features=$(eval "$__searched")
+    __features=$(eval "${__searched}")
 
     # check for the presence of each required CPU feature
     #
     for x in "${cpu_features_required_for_optimized_release[@]}"; do
-        if [ "$__optimized" = true ]; then
-            if [ -n "${__features##*$x*}" ]; then
+        if [ "${__optimized}" = true ]; then
+            if [ -n "${__features##*${x}*}" ]; then
                 (>&2 echo "[get_release_type] your CPU does not support the '${x}' feature (searched '${__searched}')")
                 __optimized=false
             fi
@@ -180,7 +180,7 @@ get_release_type() {
 
     # if we couldn't figure out where to look for features, use standard
     #
-    if [ "$__optimized" == true ] && [ -n "$__features" ]; then
+    if [ "${__optimized}" == true ] && [ -n "${__features}" ]; then
         (>&2 echo "[get_release_type] configuring 'optimized' build")
         echo "optimized"
     else
