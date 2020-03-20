@@ -2,7 +2,7 @@
 
 package ffi
 
-// #cgo LDFLAGS: ${SRCDIR}/libfilecoin.a
+// #cgo LDFLAGS: ${SRCDIR}/libfilproofs.a
 // #cgo pkg-config: ${SRCDIR}/filecoin.pc
 // #include "./filecoin.h"
 import "C"

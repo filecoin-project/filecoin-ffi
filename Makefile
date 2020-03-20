@@ -1,4 +1,4 @@
-DEPS:=filecoin.h filecoin.pc libfilecoin.a
+DEPS:=filecoin.h filecoin.pc libfilproofs.a
 
 all: $(DEPS)
 .PHONY: all

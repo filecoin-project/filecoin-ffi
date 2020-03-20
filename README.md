@@ -4,7 +4,7 @@
 
 ## Building
 
-To build and install libfilecoin, its header file and pkg-config manifest, run:
+To build and install libfilproofs, its header file and pkg-config manifest, run:
 
 ```shell
 make
