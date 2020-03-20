@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  go: gotest/tools@0.0.9
+
 executors:
   golang:
     docker:
