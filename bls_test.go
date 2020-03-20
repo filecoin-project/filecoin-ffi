@@ -2,11 +2,29 @@ package ffi
 
 import (
 	"fmt"
+	"math/rand"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
+
+func TestDeterministicPrivateKeyGeneration(t *testing.T) {
+	rand.Seed(time.Now().UnixNano())
+
+	for i := 0; i < 10000; i++ {
+		var xs [32]byte
+		n, err := rand.Read(xs[:])
+		require.NoError(t, err)
+		require.Equal(t, len(xs), n)
+
+		first := PrivateKeyGenerateWithSeed(xs)
+		secnd := PrivateKeyGenerateWithSeed(xs)
+
+		assert.Equal(t, first, secnd)
+	}
+}
 
 func TestBLSSigningAndVerification(t *testing.T) {
 	// generate private keys
