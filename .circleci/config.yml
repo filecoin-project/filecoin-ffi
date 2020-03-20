@@ -1,36 +1,49 @@
 version: 2.1
 
+orbs:
+  go: gotest/tools@0.0.9
+
+executors:
+  golang:
+    docker:
+      - image: circleci/golang:1.13
+    resource_class: 2xlarge
+  rust:
+    docker:
+      - image: filecoin/rust:latest
+    resource_class: 2xlarge
+
 jobs:
+  gofmt:
+    executor: golang
+    steps:
+      - configure_environment_variables
+      - prepare
+      - go/mod-download
+      - run:
+          command: "! go fmt ./... 2>&1 | read"
+  lint:
+    description: Run various linters
+    executor: golang
+    steps:
+      - configure_environment_variables
+      - prepare
+      - go/mod-download
+      - go/install-golangci-lint:
+          gobin: $HOME/.local/bin
+          version: 1.23.8
+      - run:
+          command: make lint
   build_and_test_linux_cgo_bindings:
     parameters:
       run_leak_detector:
         type: boolean
         default: false
-    docker:
-      - image: circleci/golang:1.13
+    executor: golang
     working_directory: ~/go/src/github.com/filecoin-project/filecoin-ffi
-    resource_class: 2xlarge
     steps:
       - configure_environment_variables
-      - run:
-          name: Update package manager
-          command: sudo apt-get update
-      - run:
-          name: Install Rust toolchain
-          command: |
-            (sudo apt-get install -y ocl-icd-opencl-dev clang libssl-dev && which cargo && which rustc) || (curl https://sh.rustup.rs -sSf | sh -s -- -y)
-            rustc --version
-      - run:
-          name: Install Valgrind
-          command: |
-            sudo apt-get install -y valgrind
-            valgrind --version
-      - run:
-          name: Install jq
-          command: |
-            sudo apt-get install -y jq
-            jq --version
-      - checkout
+      - prepare
       - build_project
       - ensure_paramcache_available
       - restore_parameter_cache
@@ -44,79 +57,39 @@ jobs:
     working_directory: ~/go/src/github.com/filecoin-project/filecoin-ffi
     resource_class: large
     steps:
-      - configure_environment_variables
-      - run:
-          name: Install go
-          command: |
-            curl https://dl.google.com/go/go1.13.7.darwin-amd64.pkg -o /tmp/go.pkg && \
-            sudo installer -pkg /tmp/go.pkg -target /
-            go version
-      - run:
-          name: Install pkg-config and md5sum
-          command: HOMEBREW_NO_AUTO_UPDATE=1 brew install pkg-config md5sha1sum
-      - run:
-          name: Install Rust toolchain
-          command: |
-            curl https://sh.rustup.rs -sSf | sh -s -- -y
-            rustc --version
-      - run:
-          name: Install jq
-          command: |
-            HOMEBREW_NO_AUTO_UPDATE=1 brew install jq
-            jq --version
-      - checkout
+      - configure_environment_variables:
+          linux: false
+          darwin: true
+      - prepare:
+          linux: false
+          darwin: true
       - build_project
       - compile_tests
       - ensure_generated_cgo_up_to_date
   publish_linux_staticlib:
-    docker:
-      - image: filecoin/rust:latest
-    working_directory: /mnt/crate
-    resource_class: 2xlarge
+    executor: golang
     steps:
       - configure_environment_variables
-      - checkout
-      - attach_workspace:
-          at: "."
-      - restore_cache:
-          keys:
-            - cargo-v0-{{ checksum "rust/rust-toolchain" }}-{{ checksum "rust/Cargo.toml" }}-{{ checksum "rust/Cargo.lock" }}-{{ arch }}
-      - run:
-          name: Install jq
-          command: apt-get install jq -yqq
+      - prepare
       - publish_release
   publish_darwin_staticlib:
     macos:
       xcode: "10.0.0"
     working_directory: ~/crate
-    resource_class: large
     steps:
-      - configure_environment_variables
-      - run:
-          name: Configure environment variables
-          command: |
-            echo 'export PATH="${HOME}/.cargo/bin:${HOME}/.bin:${PATH}"' >> $BASH_ENV
-            echo 'export CIRCLE_ARTIFACTS="/tmp"' >> $BASH_ENV
-      - checkout
-      - run:
-          name: Install Rust
-          command: |
-            curl https://sh.rustup.rs -sSf | sh -s -- -y
+      - configure_environment_variables:
+          linux: false
+          darwin: true
+      - prepare:
+          linux: false
+          darwin: true
       - run: cd rust && rustup install $(cat rust-toolchain)
       - run: cd rust && rustup default $(cat rust-toolchain)
       - run: cd rust && cargo fetch
-      - run:
-          name: Install jq
-          command: |
-            mkdir $HOME/.bin
-            curl --location https://github.com/stedolan/jq/releases/download/jq-1.6/jq-osx-amd64 --output $HOME/.bin/jq
-            chmod +x $HOME/.bin/jq
       - publish_release
   cargo_fetch:
-    docker:
-      - image: filecoin/rust:latest
+    executor: rust
     working_directory: /mnt/crate
-    resource_class: 2xlarge
     steps:
       - configure_environment_variables
       - checkout
@@ -140,10 +113,8 @@ jobs:
             - /root/.cargo
             - /root/.rustup
   rustfmt:
-    docker:
-      - image: filecoin/rust:latest
+    executor: rust
     working_directory: /mnt/crate
-    resource_class: 2xlarge
     steps:
       - configure_environment_variables
       - checkout
@@ -152,13 +123,10 @@ jobs:
             - cargo-v0-{{ checksum "rust/rust-toolchain" }}-{{ checksum "rust/Cargo.toml" }}-{{ checksum "rust/Cargo.lock" }}-{{ arch }}
       - run:
           name: Run cargo fmt
-          command: cd rust && cargo fmt --all -- --check
-
+          command: cargo fmt --manifest-path ./rust/Cargo.toml --all -- --check
   clippy:
-    docker:
-      - image: filecoin/rust:latest
+    executor: rust
     working_directory: /mnt/crate
-    resource_class: 2xlarge
     steps:
       - configure_environment_variables
       - checkout
@@ -191,6 +159,8 @@ workflows:
       - clippy:
           requires:
             - cargo_fetch
+      - gofmt
+      - lint
       - build_and_test_linux_cgo_bindings:
           run_leak_detector: false
       - publish_linux_staticlib:
@@ -198,16 +168,60 @@ workflows:
             branches:
               only:
                 - master
-          requires:
-            - cargo_fetch
+                - feat/lint-during-build
       - build_darwin_cgo_bindings
       - publish_darwin_staticlib:
           filters:
             branches:
               only:
                 - master
+                - feat/lint-during-build
 
 commands:
+  prepare:
+    parameters:
+      linux:
+        default: true
+        description: is a linux build environment?
+        type: boolean
+      darwin:
+        default: false
+        description: is a darwin build environment?
+        type: boolean
+    steps:
+      - checkout
+      - when:
+          condition: << parameters.linux >>
+          steps:
+            - go/install-ssh
+            - go/install: {package: git}
+            - run: sudo apt-get update
+            - run: sudo apt-get install -y jq valgrind ocl-icd-opencl-dev clang libssl-dev
+            - run: curl https://sh.rustup.rs -sSf | sh -s -- -y
+      - when:
+          condition: << parameters.darwin >>
+          steps:
+            - run:
+                name: Install Go
+                command: |
+                  curl https://dl.google.com/go/go1.13.7.darwin-amd64.pkg -o /tmp/go.pkg && \
+                  sudo installer -pkg /tmp/go.pkg -target /
+                  go version
+            - run:
+                name: Install other dependencies with Homebrew
+                command: HOMEBREW_NO_AUTO_UPDATE=1 brew install pkg-config md5sha1sum jq
+            - run:
+                name: Install Rust toolchain
+                command: |
+                  curl https://sh.rustup.rs -sSf | sh -s -- -y
+                  rustc --version
+      - run:
+          name: Ensure appropriate toolchain is installed
+          command: |
+            rustup install $(cat ./rust/rust-toolchain)
+      - run: git submodule sync
+      - run: git submodule update --init
+
   publish_release:
     steps:
       - run:
@@ -218,7 +232,7 @@ commands:
             TARBALL_PATH="/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-standard.tar.gz"
             RELEASE_NAME="${CIRCLE_PROJECT_REPONAME}-$(uname)-standard"
 
-            ./scripts/build-release.sh filecoin $(cat ./rust-toolchain) --verbose --frozen --all
+            ./scripts/build-release.sh filecoin $(cat ./rust-toolchain) --verbose --locked --all
             ./scripts/package-release.sh $TARBALL_PATH
             ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
       - run:
@@ -230,10 +244,19 @@ commands:
             RELEASE_NAME="${CIRCLE_PROJECT_REPONAME}-$(uname)-optimized"
             RUSTFLAGS="-C target-feature=$(cat rustc-target-features-optimized.json | jq -r '.[].rustc_target_feature' | tr '\n' ',')"
 
-            ./scripts/build-release.sh filecoin $(cat ./rust-toolchain) --verbose --frozen --all
+            ./scripts/build-release.sh filecoin $(cat ./rust-toolchain) --verbose --locked --all
             ./scripts/package-release.sh $TARBALL_PATH
             ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
   configure_environment_variables:
+    parameters:
+      linux:
+        default: true
+        description: is a Linux build environment?
+        type: boolean
+      darwin:
+        default: false
+        description: is a Darwin build environment?
+        type: boolean
     steps:
       - run:
           name: Configure environment variables
@@ -243,6 +266,14 @@ commands:
             echo 'export GOPATH="${HOME}/go"' >> $BASH_ENV
             echo 'export PATH="/usr/local/go/bin:${HOME}/.cargo/bin:${PATH}:${HOME}/go/bin:${HOME}/.bin"' >> $BASH_ENV
             echo 'export RUST_LOG=info' >> $BASH_ENV
+            echo 'export CIRCLE_ARTIFACTS="/tmp"' >> $BASH_ENV
+      - when:
+          condition: << parameters.darwin >>
+          steps:
+            - run:
+                name: Add a few more environment variables
+                command: |
+                  echo 'export PATH="${HOME}/.cargo/bin:${HOME}/.bin:${PATH}"' >> $BASH_ENV
   obtain_filecoin_parameters:
     steps:
       - run:
