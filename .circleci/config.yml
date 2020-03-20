@@ -71,11 +71,6 @@ jobs:
     steps:
       - configure_environment_variables
       - prepare
-      - attach_workspace:
-          at: "."
-      - restore_cache:
-          keys:
-            - cargo-v0-{{ checksum "rust/rust-toolchain" }}-{{ checksum "rust/Cargo.toml" }}-{{ checksum "rust/Cargo.lock" }}-{{ arch }}
       - publish_release
   publish_darwin_staticlib:
     macos:
