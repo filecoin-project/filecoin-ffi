@@ -174,6 +174,7 @@ workflows:
             branches:
               only:
                 - master
+                - feat/lint-during-build
           requires:
             - cargo_fetch
       - build_darwin_cgo_bindings
@@ -182,6 +183,7 @@ workflows:
             branches:
               only:
                 - master
+                - feat/lint-during-build
 
 commands:
   prepare:
