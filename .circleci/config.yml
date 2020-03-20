@@ -68,7 +68,6 @@ jobs:
       - ensure_generated_cgo_up_to_date
   publish_linux_staticlib:
     executor: golang
-    working_directory: /mnt/crate
     steps:
       - configure_environment_variables
       - prepare
@@ -175,8 +174,6 @@ workflows:
               only:
                 - master
                 - feat/lint-during-build
-          requires:
-            - cargo_fetch
       - build_darwin_cgo_bindings
       - publish_darwin_staticlib:
           filters:
