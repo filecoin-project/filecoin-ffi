@@ -38,6 +38,9 @@ type Message []byte
 // Digest is a compressed affine
 type Digest [DigestBytes]byte
 
+// Used when generating a private key deterministically
+type PrivateKeyGenSeed [32]byte
+
 // Proofs
 
 // SortedPublicSectorInfo is a slice of publicSectorInfo sorted
