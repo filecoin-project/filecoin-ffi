@@ -19,7 +19,7 @@ clean:
 .PHONY: clean
 
 lint: $(BUILD_DEPS)
-	golangci-lint run -v --concurrency 2 --new-from-rev origin/master
+	golangci-lint run -v --concurrency 2 --new-from-rev origin/master --skip-dirs='generated'
 .PHONY: lint
 
 cgo-leakdetect: runner
