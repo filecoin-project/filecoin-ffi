@@ -6,10 +6,10 @@ GENERATOR:
   Options:
     SafeStrings: true
   Includes:
-    - ../filecoin.h
+    - ../filcrypto.h
   FlagGroups:
-    - {name: LDFLAGS, flags: ["-L${SRCDIR}/.. -lfilecoin"]}
-    - {name: pkg-config, flags: ["${SRCDIR}/../filecoin.pc"]}
+    - {name: LDFLAGS, flags: ["-L${SRCDIR}/.. -lfilcrypto"]}
+    - {name: pkg-config, flags: ["${SRCDIR}/../filcrypto.pc"]}
 
 PARSER:
   Defines:
@@ -17,7 +17,7 @@ PARSER:
   IncludePaths:
     - /usr/include
   SourcesPaths:
-    - ./filecoin.h
+    - ./filcrypto.h
 
 TRANSLATOR:
   ConstRules:

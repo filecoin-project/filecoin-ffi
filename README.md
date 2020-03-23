@@ -4,7 +4,7 @@
 
 ## Building
 
-To build and install libfilecoin, its header file and pkg-config manifest, run:
+To build and install libfilcrypto, its header file and pkg-config manifest, run:
 
 ```shell
 make
@@ -18,7 +18,7 @@ build tooling will attempt to compile a static library from local Rust sources.
 To opt out of downloading precompiled assets, set `FFI_BUILD_FROM_SOURCE=1`:
 
 ```shell
-rm .install-filecoin \
+rm .install-filcrypto \
     ; make clean \
     ; FFI_BUILD_FROM_SOURCE=1 make
 ```

@@ -2,8 +2,8 @@
 **/include
 **/paramcache
 **/target
-.install-filecoin
-filecoin.h
-filecoin.pc
+.install-filcrypto
+filcrypto.h
+filcrypto.pc
 *.a
 simulator

@@ -24,9 +24,9 @@ main() {
 
     # copy assets into temporary directory
     #
-    find -L . -type f -name filecoin.h -exec cp -- "{}" $__tmp_dir/ \;
-    find -L . -type f -name libfilecoin.a -exec cp -- "{}" $__tmp_dir/ \;
-    find -L . -type f -name filecoin.pc -exec cp -- "{}" $__tmp_dir/ \;
+    find -L . -type f -name filcrypto.h -exec cp -- "{}" $__tmp_dir/ \;
+    find -L . -type f -name libfilcrypto.a -exec cp -- "{}" $__tmp_dir/ \;
+    find -L . -type f -name filcrypto.pc -exec cp -- "{}" $__tmp_dir/ \;
 
     # create gzipped tarball from contents of temporary directory
     #

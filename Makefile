@@ -1,18 +1,18 @@
-DEPS:=filecoin.h filecoin.pc libfilecoin.a
+DEPS:=filcrypto.h filcrypto.pc libfilcrypto.a
 
 all: $(DEPS)
 .PHONY: all
 
-# Create a file so that parallel make doesn't call `./install-filecoin` for
+# Create a file so that parallel make doesn't call `./install-filcrypto` for
 # each of the deps
-$(DEPS): .install-filecoin  ;
+$(DEPS): .install-filcrypto  ;
 
-.install-filecoin: rust
-	./install-filecoin
+.install-filcrypto: rust
+	./install-filcrypto
 	@touch $@
 
 clean:
-	rm -rf $(DEPS) .install-filecoin
+	rm -rf $(DEPS) .install-filcrypto
 	rm -f ./runner
 .PHONY: clean
 
@@ -21,7 +21,7 @@ go-lint: $(DEPS)
 .PHONY: go-lint
 
 shellcheck:
-	shellcheck install-filecoin
+	shellcheck install-filcrypto
 
 lint: shellcheck go-lint
 
@@ -30,7 +30,7 @@ cgo-leakdetect: runner
 .PHONY: cgo-leakdetect
 
 cgo-gen: $(DEPS)
-	c-for-go --ccincl --ccdefs --nostamp filecoin.yml
+	c-for-go --ccincl --ccdefs --nostamp filcrypto.yml
 .PHONY: cgo-gen
 
 runner: $(DEPS)
