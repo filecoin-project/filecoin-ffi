@@ -24,7 +24,8 @@ optimized_release_rustc_target_features=$(jq -r '.[].rustc_target_feature' < "${
 cpu_features_required_for_optimized_release=$(jq -r '.[].check_cpu_for_feature | select(. != null)' < "${rust_sources_dir}/rustc-target-features-optimized.json")
 
 main() {
-    if [ "${FFI_BUILD_FROM_SOURCE}" != "1" ] && download_release_tarball __tarball_path "${rust_sources_dir}" "filecoin-ffi" "$(get_release_type)"; then
+    local __release_type=$(get_release_type)
+    if [ "${FFI_BUILD_FROM_SOURCE}" != "1" ] && download_release_tarball __tarball_path "${rust_sources_dir}" "filecoin-ffi" "${__release_type}"; then
         local __tmp_dir=$(mktemp -d)
 
         # silence shellcheck warning as the assignment happened in
@@ -48,7 +49,7 @@ main() {
 
         # build libfilcrypto (and corresponding header and pkg-config)
         #
-        build_from_source "filcrypto" "${rust_sources_dir}" "$(get_release_type)"
+        build_from_source "filcrypto" "${rust_sources_dir}" "${__release_type}"
 
         # copy from Rust's build directory (target) to root of filecoin-ffi
         #
