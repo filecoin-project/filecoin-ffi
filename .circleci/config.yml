@@ -155,7 +155,7 @@ workflows:
     jobs:
       # Lint the install Bash script
       - shellcheck/check:
-          pattern: 'install-filecoin'
+          pattern: 'install-filcrypto'
       - cargo_fetch
       - rustfmt:
           requires:
@@ -236,7 +236,7 @@ commands:
             TARBALL_PATH="/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-standard.tar.gz"
             RELEASE_NAME="${CIRCLE_PROJECT_REPONAME}-$(uname)-standard"
 
-            ./scripts/build-release.sh filecoin $(cat ./rust-toolchain) --verbose --locked --all
+            ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) --verbose --locked --all
             ./scripts/package-release.sh $TARBALL_PATH
             ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
       - run:
@@ -248,7 +248,7 @@ commands:
             RELEASE_NAME="${CIRCLE_PROJECT_REPONAME}-$(uname)-optimized"
             RUSTFLAGS="-C target-feature=$(cat rustc-target-features-optimized.json | jq -r '.[].rustc_target_feature' | tr '\n' ',')"
 
-            ./scripts/build-release.sh filecoin $(cat ./rust-toolchain) --verbose --locked --all
+            ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) --verbose --locked --all
             ./scripts/package-release.sh $TARBALL_PATH
             ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
   configure_environment_variables:
@@ -298,7 +298,7 @@ commands:
           name: Ensure paramcache is installed to project root
           command: |
             test -f ./paramcache \
-              || (rustup run --install nightly cargo install filecoin-proofs --force --git=https://github.com/filecoin-project/rust-fil-proofs.git --branch=release/first-v24-commit --bin=paramcache --root=./ \
+              || (rustup run --install nightly cargo install filecoin-proofs --force --git=https://github.com/filecoin-project/rust-fil-proofs.git --rev=a99d60bc6b18416d85df21f5cb9340d1c8b4490e --bin=paramcache --root=./ \
                 && mv ./bin/paramcache ./paramcache)
           no_output_timeout: 60m
   ensure_generated_cgo_up_to_date:
@@ -306,7 +306,7 @@ commands:
       - run:
           name: Generate CGO bindings and compare with what's tracked by Git
           command: |
-            go run github.com/xlab/c-for-go --ccincl --ccdefs --nostamp filecoin.yml
+            go run github.com/xlab/c-for-go --ccincl --ccdefs --nostamp filcrypto.yml
             git diff --exit-code ./generated/
   run_tests:
     parameters:

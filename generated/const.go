@@ -4,18 +4,18 @@
 package generated
 
 /*
-#cgo LDFLAGS: -L${SRCDIR}/.. -lfilecoin
-#cgo pkg-config: ${SRCDIR}/../filecoin.pc
-#include "../filecoin.h"
+#cgo LDFLAGS: -L${SRCDIR}/.. -lfilcrypto
+#cgo pkg-config: ${SRCDIR}/../filcrypto.pc
+#include "../filcrypto.h"
 #include <stdlib.h>
 #include "cgo_helpers.h"
 */
 import "C"
 
-// FCPResponseStatus as declared in filecoin-ffi/filecoin.h:31
+// FCPResponseStatus as declared in filecoin-ffi/filcrypto.h:31
 type FCPResponseStatus int32
 
-// FCPResponseStatus enumeration from filecoin-ffi/filecoin.h:31
+// FCPResponseStatus enumeration from filecoin-ffi/filcrypto.h:31
 const (
 	FCPResponseStatusFCPNoError           FCPResponseStatus = C.FCPResponseStatus_FCPNoError
 	FCPResponseStatusFCPUnclassifiedError FCPResponseStatus = C.FCPResponseStatus_FCPUnclassifiedError
@@ -23,10 +23,10 @@ const (
 	FCPResponseStatusFCPReceiverError     FCPResponseStatus = C.FCPResponseStatus_FCPReceiverError
 )
 
-// FilRegisteredPoStProof as declared in filecoin-ffi/filecoin.h:38
+// FilRegisteredPoStProof as declared in filecoin-ffi/filcrypto.h:38
 type FilRegisteredPoStProof int32
 
-// FilRegisteredPoStProof enumeration from filecoin-ffi/filecoin.h:38
+// FilRegisteredPoStProof enumeration from filecoin-ffi/filcrypto.h:38
 const (
 	FilRegisteredPoStProofStackedDrg2KiBV1   FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrg2KiBV1
 	FilRegisteredPoStProofStackedDrg8MiBV1   FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrg8MiBV1
@@ -34,10 +34,10 @@ const (
 	FilRegisteredPoStProofStackedDrg32GiBV1  FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrg32GiBV1
 )
 
-// FilRegisteredSealProof as declared in filecoin-ffi/filecoin.h:45
+// FilRegisteredSealProof as declared in filecoin-ffi/filcrypto.h:45
 type FilRegisteredSealProof int32
 
-// FilRegisteredSealProof enumeration from filecoin-ffi/filecoin.h:45
+// FilRegisteredSealProof enumeration from filecoin-ffi/filcrypto.h:45
 const (
 	FilRegisteredSealProofStackedDrg2KiBV1   FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg2KiBV1
 	FilRegisteredSealProofStackedDrg8MiBV1   FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg8MiBV1

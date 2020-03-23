@@ -1,6 +1,6 @@
 [package]
-name = "filecoin"
-description = "FFI Interface to Filecoin"
+name = "filcrypto"
+description = "FFI Interface to Filecoin Proofs"
 version = "0.7.3"
 authors = ["laser <l@s3r.com>"]
 license = "MIT OR Apache-2.0"
