@@ -140,7 +140,8 @@ build_from_source() {
     cargo --version
 
     # reduce array of features into the rustc-specific 'target-feature' flag
-    for x in "${optimized_release_rustc_target_features[@]}"; do
+    # shellcheck disable=SC2068 # the splitting is intentional
+    for x in ${optimized_release_rustc_target_features[@]}; do
         __target_feature="${x},${__target_feature}"
     done
 
@@ -170,7 +171,8 @@ get_release_type() {
 
     # check for the presence of each required CPU feature
     #
-    for x in "${cpu_features_required_for_optimized_release[@]}"; do
+    # shellcheck disable=SC2068 # the splitting is intentional
+    for x in ${cpu_features_required_for_optimized_release[@]}; do
         if [ "${__optimized}" = true ]; then
             if [ -n "${__features##*${x}*}" ]; then
                 (>&2 echo "[get_release_type] your CPU does not support the '${x}' feature (searched '${__searched}')")
