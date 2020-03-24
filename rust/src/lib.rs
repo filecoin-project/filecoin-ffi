@@ -1,4 +1,4 @@
-#![deny(clippy::all, clippy::perf, clippy::correctness)]
+#![deny(clippy::all)]
 #![allow(clippy::missing_safety_doc)]
 
 #[macro_use]
