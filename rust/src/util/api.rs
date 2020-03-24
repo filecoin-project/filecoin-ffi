@@ -1,3 +1,4 @@
+use std::ffi::CString;
 use std::fs::File;
 use std::os::unix::io::FromRawFd;
 use std::sync::Once;
@@ -6,7 +7,6 @@ use bellperson::GPU_NVIDIA_DEVICES;
 use ffi_toolkit::{catch_panic_response, raw_ptr};
 
 use super::types::{fil_GpuDeviceResponse, fil_InitLogFdResponse};
-use std::ffi::CString;
 
 /// Protects the init off the logger.
 static LOG_INIT: Once = Once::new();

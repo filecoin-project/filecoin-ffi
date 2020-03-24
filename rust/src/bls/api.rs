@@ -11,7 +11,6 @@ use libc;
 use rand::rngs::OsRng;
 use rand::SeedableRng;
 use rand_chacha::ChaChaRng;
-
 use rayon::prelude::*;
 
 use crate::bls::types;
