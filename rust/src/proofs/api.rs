@@ -1,9 +1,11 @@
 use std::mem;
+use std::path::PathBuf;
 use std::slice::from_raw_parts;
 
 use ffi_toolkit::{
     c_str_to_pbuf, catch_panic_response, raw_ptr, rust_str_to_c_str, FCPResponseStatus,
 };
+use filecoin_proofs_api::seal::SealPreCommitPhase2Output;
 use filecoin_proofs_api::{
     PaddedBytesAmount, PieceInfo, RegisteredPoStProof, RegisteredSealProof, SectorId,
     UnpaddedByteIndex, UnpaddedBytesAmount,
@@ -15,8 +17,6 @@ use super::helpers::{bls_12_fr_into_bytes, c_to_rust_candidates, to_private_repl
 use super::types::*;
 use crate::proofs::helpers::c_to_rust_post_proofs;
 use crate::util::api::init_log;
-use filecoin_proofs_api::seal::SealPreCommitPhase2Output;
-use std::path::PathBuf;
 
 /// TODO: document
 ///

@@ -1,3 +1,7 @@
+use std::collections::btree_map::BTreeMap;
+use std::path::PathBuf;
+use std::slice::from_raw_parts;
+
 use anyhow::{ensure, Result};
 use ffi_toolkit::{c_str_to_pbuf, c_str_to_rust_str};
 use filecoin_proofs_api::fr32::fr_into_bytes;
@@ -6,9 +10,6 @@ use filecoin_proofs_api::{
 };
 use libc;
 use paired::bls12_381::{Bls12, Fr};
-use std::collections::btree_map::BTreeMap;
-use std::path::PathBuf;
-use std::slice::from_raw_parts;
 
 use super::types::{
     fil_Candidate, fil_PrivateReplicaInfo, fil_PublicReplicaInfo, fil_RegisteredPoStProof,

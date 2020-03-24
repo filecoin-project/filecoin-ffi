@@ -1,16 +1,15 @@
 use std::io::{Error, SeekFrom};
 use std::ptr;
+use std::slice::from_raw_parts;
 
-use drop_struct_macro_derive::DropStructMacro;
-use paired::bls12_381::Bls12;
-// `CodeAndMessage` is the trait implemented by `code_and_message_impl`
 use anyhow::Result;
+use drop_struct_macro_derive::DropStructMacro;
 use ffi_toolkit::{code_and_message_impl, free_c_str, CodeAndMessage, FCPResponseStatus};
 use filecoin_proofs_api::{
     fr32::bytes_into_fr, Candidate, PieceInfo, RegisteredPoStProof, RegisteredSealProof,
     UnpaddedBytesAmount,
 };
-use std::slice::from_raw_parts;
+use paired::bls12_381::Bls12;
 
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
