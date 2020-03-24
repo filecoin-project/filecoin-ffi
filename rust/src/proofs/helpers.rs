@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{ensure, Result};
 use ffi_toolkit::{c_str_to_pbuf, c_str_to_rust_str};
 use filecoin_proofs_api::fr32::fr_into_bytes;
 use filecoin_proofs_api::{

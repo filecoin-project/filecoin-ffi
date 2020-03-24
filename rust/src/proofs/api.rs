@@ -9,6 +9,7 @@ use filecoin_proofs_api::{
     UnpaddedByteIndex, UnpaddedBytesAmount,
 };
 use libc;
+use log::info;
 
 use super::helpers::{bls_12_fr_into_bytes, c_to_rust_candidates, to_private_replica_info_map};
 use super::types::*;
