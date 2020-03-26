@@ -2,6 +2,10 @@
 # shellcheck disable=SC2155 enable=require-variable-braces
 
 set -Exeo pipefail
+auth_header=()
+if [ -n "${GITHUB_TOKEN}" ]; then
+	auth_header=("-H" "Authorization: token ${GITHUB_TOKEN}")
+fi
 
 # set CWD to the root of filecoin-ffi
 #
@@ -80,7 +84,7 @@ download_release_tarball() {
 
     (>&2 echo "[download_release_tarball] acquiring release @ ${__release_tag}")
 
-    local __release_response=$(curl \
+    local __release_response=$(curl "${auth_header[@]}" \
         --retry 3 \
         --location "${__release_tag_url}")
 
@@ -93,7 +97,7 @@ download_release_tarball() {
         return 1
     fi
 
-    local __asset_url=$(curl \
+    local __asset_url=$(curl "${auth_header[@]}" \
         --head \
         --retry 3 \
         --header "Accept:application/octet-stream" \
@@ -102,7 +106,7 @@ download_release_tarball() {
         -w "%{url_effective}" \
         "${__release_url}")
 
-    if ! curl --retry 3 --output "${__tar_path}" "${__asset_url}"; then
+    if ! curl "${auth_header[@]}" --retry 3 --output "${__tar_path}" "${__asset_url}"; then
         (>&2 echo "[download_release_tarball] failed to download release asset (tag URL: ${__release_tag_url}, asset URL: ${__asset_url})")
         return 1
     fi

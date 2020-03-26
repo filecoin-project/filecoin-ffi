@@ -10,6 +10,9 @@ To build and install libfilcrypto, its header file and pkg-config manifest, run:
 make
 ```
 
+To optionally authenticate with GitHub for assets download (to increase API limits)
+set `GITHUB_TOKEN` to personal access token.
+
 If no precompiled static library is available for your operating system, the
 build tooling will attempt to compile a static library from local Rust sources.
 
