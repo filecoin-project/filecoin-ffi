@@ -25,6 +25,18 @@ rm .install-filcrypto \
     ; make clean \
     ; FFI_BUILD_FROM_SOURCE=1 make
 ```
+## go get
+
+`go get` needs some additional steps in order to work as expected.
+
+Get the source, add this repo as a submodule to your repo, build it and point to it:
+
+```shell
+$ go get github.com/filecoin-project/filecoin-ffi
+$ git submodule add https://github.com/filecoin-project/filecoin-ffi.git extern/filecoin-ffi
+$ make -C extern/filecoin-ffi
+$ go mod edit -replace=github.com/filecoin-project/filecoin-ffi=./extern/filecoin-ffi
+```
 
 ## Updating CGO Bindings
 
