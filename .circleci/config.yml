@@ -140,17 +140,6 @@ jobs:
 
 workflows:
   version: 2
-  nightly_leak_detection:
-    triggers:
-      - schedule:
-          cron: "0 1 * * *"
-          filters:
-            branches:
-              only:
-                - master
-    jobs:
-      - build_and_test_linux_cgo_bindings:
-          run_leak_detector: true
   test_all:
     jobs:
       # Lint the install Bash script
@@ -166,6 +155,16 @@ workflows:
       - gofmt
       - go_lint
       - build_and_test_linux_cgo_bindings:
+          filters:
+            branches:
+              only:
+                - master
+          run_leak_detector: true
+      - build_and_test_linux_cgo_bindings:
+          filters:
+            branches:
+              ignore:
+                - master
           run_leak_detector: false
       - publish_linux_staticlib:
           filters:
@@ -179,7 +178,6 @@ workflows:
             branches:
               only:
                 - master
-                - feat/lint-during-build
 
 commands:
   prepare:
@@ -298,7 +296,7 @@ commands:
           name: Ensure paramcache is installed to project root
           command: |
             test -f ./paramcache \
-              || (rustup run --install nightly cargo install filecoin-proofs --force --git=https://github.com/filecoin-project/rust-fil-proofs.git --rev=a99d60bc6b18416d85df21f5cb9340d1c8b4490e --bin=paramcache --root=./ \
+              || (rustup run --install nightly cargo install filecoin-proofs --force --git=https://github.com/filecoin-project/rust-fil-proofs.git --rev=4e1ef67224eb29dc8a19a4bc31ff7b0d4c7b717f --bin=paramcache --root=./ \
                 && mv ./bin/paramcache ./paramcache)
           no_output_timeout: 60m
   ensure_generated_cgo_up_to_date:
