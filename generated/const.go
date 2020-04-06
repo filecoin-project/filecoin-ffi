@@ -23,21 +23,25 @@ const (
 	FCPResponseStatusFCPReceiverError     FCPResponseStatus = C.FCPResponseStatus_FCPReceiverError
 )
 
-// FilRegisteredPoStProof as declared in filecoin-ffi/filcrypto.h:38
+// FilRegisteredPoStProof as declared in filecoin-ffi/filcrypto.h:42
 type FilRegisteredPoStProof int32
 
-// FilRegisteredPoStProof enumeration from filecoin-ffi/filcrypto.h:38
+// FilRegisteredPoStProof enumeration from filecoin-ffi/filcrypto.h:42
 const (
-	FilRegisteredPoStProofStackedDrg2KiBV1   FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrg2KiBV1
-	FilRegisteredPoStProofStackedDrg8MiBV1   FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrg8MiBV1
-	FilRegisteredPoStProofStackedDrg512MiBV1 FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrg512MiBV1
-	FilRegisteredPoStProofStackedDrg32GiBV1  FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrg32GiBV1
+	FilRegisteredPoStProofStackedDrgWinning2KiBV1   FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrgWinning2KiBV1
+	FilRegisteredPoStProofStackedDrgWinning8MiBV1   FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrgWinning8MiBV1
+	FilRegisteredPoStProofStackedDrgWinning512MiBV1 FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrgWinning512MiBV1
+	FilRegisteredPoStProofStackedDrgWinning32GiBV1  FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrgWinning32GiBV1
+	FilRegisteredPoStProofStackedDrgWindow2KiBV1    FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrgWindow2KiBV1
+	FilRegisteredPoStProofStackedDrgWindow8MiBV1    FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrgWindow8MiBV1
+	FilRegisteredPoStProofStackedDrgWindow512MiBV1  FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrgWindow512MiBV1
+	FilRegisteredPoStProofStackedDrgWindow32GiBV1   FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrgWindow32GiBV1
 )
 
-// FilRegisteredSealProof as declared in filecoin-ffi/filcrypto.h:45
+// FilRegisteredSealProof as declared in filecoin-ffi/filcrypto.h:49
 type FilRegisteredSealProof int32
 
-// FilRegisteredSealProof enumeration from filecoin-ffi/filcrypto.h:45
+// FilRegisteredSealProof enumeration from filecoin-ffi/filcrypto.h:49
 const (
 	FilRegisteredSealProofStackedDrg2KiBV1   FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg2KiBV1
 	FilRegisteredSealProofStackedDrg8MiBV1   FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg8MiBV1
