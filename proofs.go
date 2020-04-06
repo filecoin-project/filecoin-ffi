@@ -80,7 +80,7 @@ func VerifyWinningPoSt(info abi.WinningPoStVerifyInfo) (bool, error) {
 	}
 
 	sectors := toSectors(info.EligibleSectors)
-	
+
 	resp := generated.FilVerifyWinningPost(
 		to32ByteArray(info.Randomness),
 		filPublicReplicaInfos, filPublicReplicaInfosLen,
@@ -568,7 +568,6 @@ func GenerateWinningPoSt(
 	return proofs, nil
 }
 
-
 // GenerateWindowPoSt
 func GenerateWindowPoSt(
 	minerID abi.ActorID,
@@ -799,7 +798,6 @@ func toSectors(src []abi.SectorNumber) []uint64 {
 	return sectors
 }
 
-
 func to32ByteArray(in []byte) generated.Fil32ByteArray {
 	var out generated.Fil32ByteArray
 	copy(out.Inner[:], in)
@@ -864,7 +862,7 @@ func toFilRegisteredPoStProof(p abi.RegisteredProof) (generated.FilRegisteredPoS
 		return generated.FilRegisteredPoStProofStackedDrgWinning8MiBV1, nil
 	case abi.RegisteredProof_StackedDRG2KiBWinningPoSt:
 		return generated.FilRegisteredPoStProofStackedDrgWinning2KiBV1, nil
-		
+
 	default:
 		return 0, errors.Errorf("no mapping to C.FFIRegisteredPoStProof value available for: %v", p)
 	}
