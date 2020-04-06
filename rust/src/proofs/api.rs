@@ -496,7 +496,7 @@ pub unsafe extern "C" fn fil_verify_winning_post(
     catch_panic_response(|| {
         init_log();
 
-        info!("verify_post: start");
+        info!("verify_winning_post: start");
 
         let mut response = fil_VerifyWinningPoStResponse::default();
 
@@ -528,7 +528,109 @@ pub unsafe extern "C" fn fil_verify_winning_post(
             }
         };
 
-        info!("verify_post: {}", "finish");
+        info!("verify_winning_post: {}", "finish");
+        raw_ptr(response)
+    })
+}
+
+/// TODO: document
+///
+#[no_mangle]
+pub unsafe extern "C" fn fil_generate_window_post(
+    randomness: fil_32ByteArray,
+    replicas_ptr: *const fil_PrivateReplicaInfo,
+    replicas_len: libc::size_t,
+    prover_id: fil_32ByteArray,
+) -> *mut fil_GenerateWindowPoStResponse {
+    catch_panic_response(|| {
+        init_log();
+
+        info!("generate_window_post: start");
+
+        let mut response = fil_GenerateWindowPoStResponse::default();
+
+        let result = to_private_replica_info_map(replicas_ptr, replicas_len).and_then(|rs| {
+            filecoin_proofs_api::post::generate_window_post(&randomness.inner, &rs, prover_id.inner)
+        });
+
+        match result {
+            Ok(output) => {
+                let mapped: Vec<fil_PoStProof> = output
+                    .iter()
+                    .cloned()
+                    .map(|(t, proof)| {
+                        let out = fil_PoStProof {
+                            registered_proof: (t).into(),
+                            proof_len: proof.len(),
+                            proof_ptr: proof.as_ptr(),
+                        };
+
+                        mem::forget(proof);
+
+                        out
+                    })
+                    .collect();
+
+                response.status_code = FCPResponseStatus::FCPNoError;
+                response.proofs_ptr = mapped.as_ptr();
+                response.proofs_len = mapped.len();
+                mem::forget(mapped);
+            }
+            Err(err) => {
+                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+            }
+        }
+
+        info!("generate_window_post: finish");
+
+        raw_ptr(response)
+    })
+}
+
+/// Verifies that a proof-of-spacetime is valid.
+#[no_mangle]
+pub unsafe extern "C" fn fil_verify_window_post(
+    randomness: fil_32ByteArray,
+    replicas_ptr: *const fil_PublicReplicaInfo,
+    replicas_len: libc::size_t,
+    proofs_ptr: *const fil_PoStProof,
+    proofs_len: libc::size_t,
+    prover_id: fil_32ByteArray,
+) -> *mut fil_VerifyWindowPoStResponse {
+    catch_panic_response(|| {
+        init_log();
+
+        info!("verify_window_post: start");
+
+        let mut response = fil_VerifyWindowPoStResponse::default();
+
+        let convert = super::helpers::to_public_replica_info_map(replicas_ptr, replicas_len);
+
+        let result = convert.and_then(|replicas| {
+            let post_proofs = c_to_rust_post_proofs(proofs_ptr, proofs_len)?;
+            let proofs: Vec<u8> = post_proofs.iter().flat_map(|pp| pp.clone().proof).collect();
+
+            filecoin_proofs_api::post::verify_window_post(
+                &randomness.inner,
+                &proofs,
+                &replicas,
+                prover_id.inner,
+            )
+        });
+
+        match result {
+            Ok(is_valid) => {
+                response.status_code = FCPResponseStatus::FCPNoError;
+                response.is_valid = is_valid;
+            }
+            Err(err) => {
+                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+            }
+        };
+
+        info!("verify_window_post: {}", "finish");
         raw_ptr(response)
     })
 }
@@ -657,7 +759,7 @@ pub unsafe extern "C" fn fil_generate_winning_post_sector_challenge(
     catch_panic_response(|| {
         init_log();
 
-        info!("generate_candidates: start");
+        info!("generate_winning_post_sector_challenge: start");
 
         let mut response = fil_GenerateWinningPoStSectorChallenge::default();
 
@@ -685,7 +787,7 @@ pub unsafe extern "C" fn fil_generate_winning_post_sector_challenge(
             }
         }
 
-        info!("generate_candidates: finish");
+        info!("generate_winning_post_sector_challenge: finish");
 
         raw_ptr(response)
     })
@@ -703,7 +805,7 @@ pub unsafe extern "C" fn fil_generate_winning_post(
     catch_panic_response(|| {
         init_log();
 
-        info!("generate_post: start");
+        info!("generate_winning_post: start");
 
         let mut response = fil_GenerateWinningPoStResponse::default();
 
@@ -744,7 +846,7 @@ pub unsafe extern "C" fn fil_generate_winning_post(
             }
         }
 
-        info!("generate_post: finish");
+        info!("generate_winning_post: finish");
 
         raw_ptr(response)
     })
@@ -1024,8 +1126,22 @@ pub unsafe extern "C" fn fil_destroy_verify_winning_post_response(
 }
 
 #[no_mangle]
+pub unsafe extern "C" fn fil_destroy_verify_windwow_post_response(
+    ptr: *mut fil_VerifyWindowPoStResponse,
+) {
+    let _ = Box::from_raw(ptr);
+}
+
+#[no_mangle]
 pub unsafe extern "C" fn fil_destroy_generate_winning_post_response(
     ptr: *mut fil_GenerateWinningPoStResponse,
+) {
+    let _ = Box::from_raw(ptr);
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn fil_destroy_generate_window_post_response(
+    ptr: *mut fil_GenerateWindowPoStResponse,
 ) {
     let _ = Box::from_raw(ptr);
 }

@@ -241,6 +241,28 @@ code_and_message_impl!(fil_GenerateWinningPoStResponse);
 
 #[repr(C)]
 #[derive(DropStructMacro)]
+pub struct fil_GenerateWindowPoStResponse {
+    pub error_msg: *const libc::c_char,
+    pub proofs_len: libc::size_t,
+    pub proofs_ptr: *const fil_PoStProof,
+    pub status_code: FCPResponseStatus,
+}
+
+impl Default for fil_GenerateWindowPoStResponse {
+    fn default() -> fil_GenerateWindowPoStResponse {
+        fil_GenerateWindowPoStResponse {
+            error_msg: ptr::null(),
+            proofs_len: 0,
+            proofs_ptr: ptr::null(),
+            status_code: FCPResponseStatus::FCPNoError,
+        }
+    }
+}
+
+code_and_message_impl!(fil_GenerateWindowPoStResponse);
+
+#[repr(C)]
+#[derive(DropStructMacro)]
 pub struct fil_WriteWithAlignmentResponse {
     pub comm_p: [u8; 32],
     pub error_msg: *const libc::c_char,
@@ -450,6 +472,26 @@ impl Default for fil_VerifyWinningPoStResponse {
 }
 
 code_and_message_impl!(fil_VerifyWinningPoStResponse);
+
+#[repr(C)]
+#[derive(DropStructMacro)]
+pub struct fil_VerifyWindowPoStResponse {
+    pub status_code: FCPResponseStatus,
+    pub error_msg: *const libc::c_char,
+    pub is_valid: bool,
+}
+
+impl Default for fil_VerifyWindowPoStResponse {
+    fn default() -> fil_VerifyWindowPoStResponse {
+        fil_VerifyWindowPoStResponse {
+            status_code: FCPResponseStatus::FCPNoError,
+            error_msg: ptr::null(),
+            is_valid: false,
+        }
+    }
+}
+
+code_and_message_impl!(fil_VerifyWindowPoStResponse);
 
 #[repr(C)]
 #[derive(DropStructMacro)]
