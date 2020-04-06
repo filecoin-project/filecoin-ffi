@@ -170,10 +170,10 @@ func FilDestroyVerifySealResponse(ptr *FilVerifySealResponse) {
 	C.fil_destroy_verify_seal_response(cptr)
 }
 
-// FilDestroyVerifyWindwowPostResponse function as declared in filecoin-ffi/filcrypto.h:336
-func FilDestroyVerifyWindwowPostResponse(ptr *FilVerifyWindowPoStResponse) {
+// FilDestroyVerifyWindowPostResponse function as declared in filecoin-ffi/filcrypto.h:336
+func FilDestroyVerifyWindowPostResponse(ptr *FilVerifyWindowPoStResponse) {
 	cptr, _ := ptr.PassRef()
-	C.fil_destroy_verify_windwow_post_response(cptr)
+	C.fil_destroy_verify_window_post_response(cptr)
 }
 
 // FilDestroyVerifyWinningPostResponse function as declared in filecoin-ffi/filcrypto.h:342
