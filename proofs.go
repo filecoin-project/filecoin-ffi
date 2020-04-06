@@ -64,12 +64,12 @@ func VerifyPoSt(info abi.PoStVerifyInfo) (bool, error) {
 // VerifyWinningPoSt returns true if the Winning PoSt-generation operation from which its
 // inputs were derived was valid, and false if not.
 func VerifyWinningPoSt(info abi.WinningPoStVerifyInfo) (bool, error) {
-	filPublicReplicaInfos, filPublicReplicaInfosLen, err := toFilPublicReplicaInfos(info.ChallengedSectors)
+	filPublicReplicaInfos, filPublicReplicaInfosLen, err := toFilPublicReplicaInfos(info.ChallengedSectors, "winning")
 	if err != nil {
 		return false, errors.Wrap(err, "failed to create public replica info array for FFI")
 	}
 
-	filPoStProofs, filPoStProofsLen, err := toFilPoStProofs(info.Proofs)
+	filPoStProofs, filPoStProofsLen, err := toFilPoStProofs(info.Proofs, "winning")
 	if err != nil {
 		return false, errors.Wrap(err, "failed to create PoSt proofs array for FFI")
 	}
@@ -102,12 +102,12 @@ func VerifyWinningPoSt(info abi.WinningPoStVerifyInfo) (bool, error) {
 // VerifyWindowPoSt returns true if the Winning PoSt-generation operation from which its
 // inputs were derived was valid, and false if not.
 func VerifyWindowPoSt(info abi.WindowPoStVerifyInfo) (bool, error) {
-	filPublicReplicaInfos, filPublicReplicaInfosLen, err := toFilPublicReplicaInfos(info.ChallengedSectors)
+	filPublicReplicaInfos, filPublicReplicaInfosLen, err := toFilPublicReplicaInfos(info.ChallengedSectors, "window")
 	if err != nil {
 		return false, errors.Wrap(err, "failed to create public replica info array for FFI")
 	}
 
-	filPoStProofs, filPoStProofsLen, err := toFilPoStProofs(info.Proofs)
+	filPoStProofs, filPoStProofsLen, err := toFilPoStProofs(info.Proofs, "window")
 	if err != nil {
 		return false, errors.Wrap(err, "failed to create PoSt proofs array for FFI")
 	}
@@ -485,7 +485,7 @@ func GenerateWinningPoStSectorChallenge(
 	randomness abi.PoStRandomness,
 	eligibleSectors []abi.SectorNumber,
 ) ([]abi.SectorNumber, error) {
-	pp, err := toFilRegisteredPoStProof(proofType)
+	pp, err := toFilRegisteredPoStProof(proofType, "winning")
 	if err != nil {
 		return nil, err
 	}
@@ -535,7 +535,7 @@ func GenerateWinningPoSt(
 	privateSectorInfo SortedPrivateSectorInfo,
 	randomness abi.PoStRandomness,
 ) ([]abi.PoStProof, error) {
-	filReplicas, filReplicasLen, err := toFilPrivateReplicaInfos(privateSectorInfo.Values())
+	filReplicas, filReplicasLen, err := toFilPrivateReplicaInfos(privateSectorInfo.Values(), "winning")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create private replica info array for FFI")
 	}
@@ -574,7 +574,7 @@ func GenerateWindowPoSt(
 	privateSectorInfo SortedPrivateSectorInfo,
 	randomness abi.PoStRandomness,
 ) ([]abi.PoStProof, error) {
-	filReplicas, filReplicasLen, err := toFilPrivateReplicaInfos(privateSectorInfo.Values())
+	filReplicas, filReplicasLen, err := toFilPrivateReplicaInfos(privateSectorInfo.Values(), "window")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create private replica info array for FFI")
 	}
@@ -642,7 +642,7 @@ func GetSealVersion(proofType abi.RegisteredProof) (string, error) {
 
 // GetPoStVersion
 func GetPoStVersion(proofType abi.RegisteredProof) (string, error) {
-	pp, err := toFilRegisteredPoStProof(proofType)
+	pp, err := toFilRegisteredPoStProof(proofType, "either")
 	if err != nil {
 		return "", err
 	}
@@ -701,7 +701,7 @@ func toFilPublicPieceInfos(src []abi.PieceInfo) ([]generated.FilPublicPieceInfo,
 	return out, uint(len(out)), nil
 }
 
-func toFilPublicReplicaInfos(src []abi.SectorInfo) ([]generated.FilPublicReplicaInfo, uint, error) {
+func toFilPublicReplicaInfos(src []abi.SectorInfo, typ string) ([]generated.FilPublicReplicaInfo, uint, error) {
 	out := make([]generated.FilPublicReplicaInfo, len(src))
 
 	for idx := range out {
@@ -710,7 +710,7 @@ func toFilPublicReplicaInfos(src []abi.SectorInfo) ([]generated.FilPublicReplica
 			return nil, 0, err
 		}
 
-		pp, err := toFilRegisteredPoStProof(src[idx].RegisteredProof)
+		pp, err := toFilRegisteredPoStProof(src[idx].RegisteredProof, typ)
 		if err != nil {
 			return nil, 0, err
 		}
@@ -725,7 +725,7 @@ func toFilPublicReplicaInfos(src []abi.SectorInfo) ([]generated.FilPublicReplica
 	return out, uint(len(out)), nil
 }
 
-func toFilPrivateReplicaInfos(src []PrivateSectorInfo) ([]generated.FilPrivateReplicaInfo, uint, error) {
+func toFilPrivateReplicaInfos(src []PrivateSectorInfo, typ string) ([]generated.FilPrivateReplicaInfo, uint, error) {
 	out := make([]generated.FilPrivateReplicaInfo, len(src))
 
 	for idx := range out {
@@ -734,7 +734,7 @@ func toFilPrivateReplicaInfos(src []PrivateSectorInfo) ([]generated.FilPrivateRe
 			return nil, 0, err
 		}
 
-		pp, err := toFilRegisteredPoStProof(src[idx].PoStProofType)
+		pp, err := toFilRegisteredPoStProof(src[idx].PoStProofType, typ)
 		if err != nil {
 			return nil, 0, err
 		}
@@ -771,10 +771,10 @@ func fromFilPoStProofs(src []generated.FilPoStProof) ([]abi.PoStProof, error) {
 	return out, nil
 }
 
-func toFilPoStProofs(src []abi.PoStProof) ([]generated.FilPoStProof, uint, error) {
+func toFilPoStProofs(src []abi.PoStProof, typ string) ([]generated.FilPoStProof, uint, error) {
 	out := make([]generated.FilPoStProof, len(src))
 	for idx := range out {
-		pp, err := toFilRegisteredPoStProof(src[idx].RegisteredProof)
+		pp, err := toFilRegisteredPoStProof(src[idx].RegisteredProof, typ)
 		if err != nil {
 			return nil, 0, err
 		}
@@ -832,11 +832,41 @@ func fromFilRegisteredPoStProof(p generated.FilRegisteredPoStProof) (abi.Registe
 	case generated.FilRegisteredPoStProofStackedDrgWindow32GiBV1:
 		return abi.RegisteredProof_StackedDRG32GiBWindowPoSt, nil
 	default:
-		return 0, errors.Errorf("no mapping to C.FFIRegisteredPoStProof value available for: %v", p)
+		return 0, errors.Errorf("no mapping to abi.RegisteredPoStProof value available for: %v", p)
 	}
 }
 
-func toFilRegisteredPoStProof(p abi.RegisteredProof) (generated.FilRegisteredPoStProof, error) {
+func toFilRegisteredPoStProof(pp abi.RegisteredProof, typ string) (generated.FilRegisteredPoStProof, error) {
+	var p abi.RegisteredProof
+	switch typ {
+	case "window":
+		pp, err := pp.RegisteredWindowPoStProof()
+		if err != nil {
+			return 0, err
+		}
+		p = pp
+	case "winning":
+		pp, err := pp.RegisteredWinningPoStProof()
+		if err != nil {
+			return 0, err
+		}
+		p = pp
+	case "either":
+		v, err := pp.RegisteredWinningPoStProof()
+		if err == nil {
+			p = v
+		} else {
+			v, err := pp.RegisteredWindowPoStProof()
+			if err == nil {
+				p = v
+			} else {
+				return 0, errors.Errorf("no mapping to generated.RegisteredPoStProof value available for: %v", pp)
+			}
+		}
+	default:
+		return 0, errors.Errorf("no mapping to generated.RegisteredPoStProof value available for: %v", pp)
+	}
+
 	switch p {
 	case abi.RegisteredProof_StackedDRG2KiBPoSt, abi.RegisteredProof_StackedDRG8MiBPoSt, abi.RegisteredProof_StackedDRG512MiBPoSt, abi.RegisteredProof_StackedDRG32GiBPoSt:
 		panic("unsupported version of election post")
@@ -859,7 +889,7 @@ func toFilRegisteredPoStProof(p abi.RegisteredProof) (generated.FilRegisteredPoS
 		return generated.FilRegisteredPoStProofStackedDrgWinning2KiBV1, nil
 
 	default:
-		return 0, errors.Errorf("no mapping to C.FFIRegisteredPoStProof value available for: %v", p)
+		return 0, errors.Errorf("no mapping to generated.RegisteredPoStProof value available for: %v", p)
 	}
 }
 
