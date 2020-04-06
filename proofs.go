@@ -58,7 +58,13 @@ func VerifySeal(info abi.SealVerifyInfo) (bool, error) {
 // VerifyPoSt returns true if the PoSt-generation operation from which its
 // inputs were derived was valid, and false if not.
 func VerifyPoSt(info abi.PoStVerifyInfo) (bool, error) {
-	filPublicReplicaInfos, filPublicReplicaInfosLen, err := toFilPublicReplicaInfos(info.EligibleSectors)
+	panic("unsupported")
+}
+
+// VerifyWinningPoSt returns true if the Winning PoSt-generation operation from which its
+// inputs were derived was valid, and false if not.
+func VerifyWinningPoSt(info abi.WinningPoStVerifyInfo) (bool, error) {
+	filPublicReplicaInfos, filPublicReplicaInfosLen, err := toFilPublicReplicaInfos(info.ChallengedSectors)
 	if err != nil {
 		return false, errors.Wrap(err, "failed to create public replica info array for FFI")
 	}
@@ -73,12 +79,53 @@ func VerifyPoSt(info abi.PoStVerifyInfo) (bool, error) {
 		return false, err
 	}
 
-	filPoStCandidates, filPoStCandidatesLen := toFilPoStCandidates(info.Candidates)
-
-	resp := generated.FilVerifyPost(to32ByteArray(info.Randomness), info.ChallengeCount, filPublicReplicaInfos, filPublicReplicaInfosLen, filPoStProofs, filPoStProofsLen, filPoStCandidates, filPoStCandidatesLen, proverID)
+	sectors := toSectors(info.EligibleSectors)
+	
+	resp := generated.FilVerifyWinningPost(
+		to32ByteArray(info.Randomness),
+		filPublicReplicaInfos, filPublicReplicaInfosLen,
+		filPoStProofs, filPoStProofsLen,
+		sectors, uint(len(sectors)),
+		proverID,
+	)
 	resp.Deref()
 
-	defer generated.FilDestroyVerifyPostResponse(resp)
+	defer generated.FilDestroyVerifyWinningPostResponse(resp)
+
+	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
+		return false, errors.New(generated.RawString(resp.ErrorMsg).Copy())
+	}
+
+	return resp.IsValid, nil
+}
+
+// VerifyWindowPoSt returns true if the Winning PoSt-generation operation from which its
+// inputs were derived was valid, and false if not.
+func VerifyWindowPoSt(info abi.WindowPoStVerifyInfo) (bool, error) {
+	filPublicReplicaInfos, filPublicReplicaInfosLen, err := toFilPublicReplicaInfos(info.ChallengedSectors)
+	if err != nil {
+		return false, errors.Wrap(err, "failed to create public replica info array for FFI")
+	}
+
+	filPoStProofs, filPoStProofsLen, err := toFilPoStProofs(info.Proofs)
+	if err != nil {
+		return false, errors.Wrap(err, "failed to create PoSt proofs array for FFI")
+	}
+
+	proverID, err := toProverID(info.Prover)
+	if err != nil {
+		return false, err
+	}
+
+	resp := generated.FilVerifyWindowPost(
+		to32ByteArray(info.Randomness),
+		filPublicReplicaInfos, filPublicReplicaInfosLen,
+		filPoStProofs, filPoStProofsLen,
+		proverID,
+	)
+	resp.Deref()
+
+	defer generated.FilDestroyVerifyWindowPostResponse(resp)
 
 	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
 		return false, errors.New(generated.RawString(resp.ErrorMsg).Copy())
@@ -418,18 +465,7 @@ func UnsealRange(
 
 // FinalizeTicket creates an actual ticket from a partial ticket.
 func FinalizeTicket(partialTicket abi.PartialTicket) ([32]byte, error) {
-	resp := generated.FilFinalizeTicket(to32ByteArray(partialTicket))
-	resp.Deref()
-
-	defer generated.FilDestroyFinalizeTicketResponse(resp)
-
-	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-		return [32]byte{}, errors.New(generated.RawString(resp.ErrorMsg).Copy())
-	}
-
-	var out [32]byte
-	copy(out[:], resp.Ticket[:])
-	return out, nil
+	panic("unsupported")
 }
 
 // GenerateCandidates
@@ -439,9 +475,19 @@ func GenerateCandidates(
 	challengeCount uint64,
 	privateSectorInfo SortedPrivateSectorInfo,
 ) ([]PoStCandidateWithTicket, error) {
-	filReplicas, filReplicasLen, err := toFilPrivateReplicaInfos(privateSectorInfo.Values())
+	panic("unsupported")
+}
+
+// GenerateWinningPoStSectorChallenge
+func GenerateWinningPoStSectorChallenge(
+	proofType abi.RegisteredProof,
+	minerID abi.ActorID,
+	randomness abi.PoStRandomness,
+	eligibleSectors []abi.SectorNumber,
+) ([]abi.SectorNumber, error) {
+	pp, err := toFilRegisteredPoStProof(proofType)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to create private replica info array for FFI")
+		return nil, err
 	}
 
 	proverID, err := toProverID(minerID)
@@ -449,18 +495,28 @@ func GenerateCandidates(
 		return nil, err
 	}
 
-	resp := generated.FilGenerateCandidates(to32ByteArray(randomness), challengeCount, filReplicas, filReplicasLen, proverID)
+	sectors := toSectors(eligibleSectors)
+
+	resp := generated.FilGenerateWinningPostSectorChallenge(
+		pp, to32ByteArray(randomness),
+		sectors, uint(len(sectors)), proverID,
+	)
 	resp.Deref()
-	resp.CandidatesPtr = make([]generated.FilCandidate, resp.CandidatesLen)
+	resp.IdsPtr = make([]uint64, resp.IdsLen)
 	resp.Deref()
 
-	defer generated.FilDestroyGenerateCandidatesResponse(resp)
+	defer generated.FilDestroyGenerateWinningPostSectorChallenge(resp)
 
 	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
 		return nil, errors.New(generated.RawString(resp.ErrorMsg).Copy())
 	}
 
-	return fromFilCandidates(minerID, resp.CandidatesPtr), nil
+	res := make([]abi.SectorNumber, len(resp.IdsPtr))
+	for idx := range resp.IdsPtr {
+		res[idx] = abi.SectorNumber(resp.IdsPtr[idx])
+	}
+
+	return res, nil
 }
 
 // GeneratePoSt
@@ -469,6 +525,15 @@ func GeneratePoSt(
 	privateSectorInfo SortedPrivateSectorInfo,
 	randomness abi.PoStRandomness,
 	winners []abi.PoStCandidate,
+) ([]abi.PoStProof, error) {
+	panic("unsupported")
+}
+
+// GenerateWinningPoSt
+func GenerateWinningPoSt(
+	minerID abi.ActorID,
+	privateSectorInfo SortedPrivateSectorInfo,
+	randomness abi.PoStRandomness,
 ) ([]abi.PoStProof, error) {
 	filReplicas, filReplicasLen, err := toFilPrivateReplicaInfos(privateSectorInfo.Values())
 	if err != nil {
@@ -480,14 +545,52 @@ func GeneratePoSt(
 		return nil, err
 	}
 
-	filPoStCandidates, filPoStCandidatesLen := toFilPoStCandidates(winners)
-
-	resp := generated.FilGeneratePost(to32ByteArray(randomness), filReplicas, filReplicasLen, filPoStCandidates, filPoStCandidatesLen, proverID)
+	resp := generated.FilGenerateWinningPost(
+		to32ByteArray(randomness),
+		filReplicas, filReplicasLen,
+		proverID,
+	)
 	resp.Deref()
 	resp.ProofsPtr = make([]generated.FilPoStProof, resp.ProofsLen)
 	resp.Deref()
 
-	defer generated.FilDestroyGeneratePostResponse(resp)
+	defer generated.FilDestroyGenerateWinningPostResponse(resp)
+
+	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
+		return nil, errors.New(generated.RawString(resp.ErrorMsg).Copy())
+	}
+
+	proofs, err := fromFilPoStProofs(resp.ProofsPtr)
+	if err != nil {
+		return nil, err
+	}
+
+	return proofs, nil
+}
+
+
+// GenerateWindowPoSt
+func GenerateWindowPoSt(
+	minerID abi.ActorID,
+	privateSectorInfo SortedPrivateSectorInfo,
+	randomness abi.PoStRandomness,
+) ([]abi.PoStProof, error) {
+	filReplicas, filReplicasLen, err := toFilPrivateReplicaInfos(privateSectorInfo.Values())
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create private replica info array for FFI")
+	}
+
+	proverID, err := toProverID(minerID)
+	if err != nil {
+		return nil, err
+	}
+
+	resp := generated.FilGenerateWindowPost(to32ByteArray(randomness), filReplicas, filReplicasLen, proverID)
+	resp.Deref()
+	resp.ProofsPtr = make([]generated.FilPoStProof, resp.ProofsLen)
+	resp.Deref()
+
+	defer generated.FilDestroyGenerateWindowPostResponse(resp)
 
 	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
 		return nil, errors.New(generated.RawString(resp.ErrorMsg).Copy())
@@ -558,8 +661,8 @@ func GetPoStVersion(proofType abi.RegisteredProof) (string, error) {
 }
 
 // ClearCache
-func ClearCache(cacheDirPath string) error {
-	resp := generated.FilClearCache(cacheDirPath)
+func ClearCache(sectorSize uint64, cacheDirPath string) error {
+	resp := generated.FilClearCache(sectorSize, cacheDirPath)
 	resp.Deref()
 
 	defer generated.FilDestroyClearCacheResponse(resp)
@@ -649,27 +752,6 @@ func toFilPrivateReplicaInfos(src []PrivateSectorInfo) ([]generated.FilPrivateRe
 	return out, uint(len(out)), nil
 }
 
-func fromFilCandidates(minerID abi.ActorID, src []generated.FilCandidate) []PoStCandidateWithTicket {
-	out := make([]PoStCandidateWithTicket, len(src))
-	for idx := range out {
-		src[idx].Deref()
-
-		out[idx] = PoStCandidateWithTicket{
-			Candidate: abi.PoStCandidate{
-				PartialTicket: src[idx].PartialTicket[:],
-				SectorID: abi.SectorID{
-					Miner:  minerID,
-					Number: abi.SectorNumber(src[idx].SectorId),
-				},
-				ChallengeIndex: int64(src[idx].SectorChallengeIndex),
-			},
-			Ticket: src[idx].Ticket,
-		}
-	}
-
-	return out
-}
-
 func fromFilPoStProofs(src []generated.FilPoStProof) ([]abi.PoStProof, error) {
 	out := make([]abi.PoStProof, len(src))
 
@@ -708,19 +790,15 @@ func toFilPoStProofs(src []abi.PoStProof) ([]generated.FilPoStProof, uint, error
 	return out, uint(len(out)), nil
 }
 
-func toFilPoStCandidates(src []abi.PoStCandidate) ([]generated.FilCandidate, uint) {
-	out := make([]generated.FilCandidate, len(src))
-	for idx := range out {
-		out[idx] = generated.FilCandidate{
-			SectorId:             uint64(src[idx].SectorID.Number),
-			PartialTicket:        to32ByteArray(src[idx].PartialTicket).Inner,
-			Ticket:               [32]byte{}, // this field is ignored by verify_post and generate_post
-			SectorChallengeIndex: uint64(src[idx].ChallengeIndex),
-		}
+func toSectors(src []abi.SectorNumber) []uint64 {
+	sectors := make([]uint64, len(src))
+	for idx := range src {
+		sectors[idx] = uint64(src[idx])
 	}
 
-	return out, uint(len(out))
+	return sectors
 }
+
 
 func to32ByteArray(in []byte) generated.Fil32ByteArray {
 	var out generated.Fil32ByteArray
@@ -739,14 +817,22 @@ func toProverID(minerID abi.ActorID) (generated.Fil32ByteArray, error) {
 
 func fromFilRegisteredPoStProof(p generated.FilRegisteredPoStProof) (abi.RegisteredProof, error) {
 	switch p {
-	case generated.FilRegisteredPoStProofStackedDrg2KiBV1:
-		return abi.RegisteredProof_StackedDRG2KiBPoSt, nil
-	case generated.FilRegisteredPoStProofStackedDrg8MiBV1:
-		return abi.RegisteredProof_StackedDRG8MiBPoSt, nil
-	case generated.FilRegisteredPoStProofStackedDrg512MiBV1:
-		return abi.RegisteredProof_StackedDRG512MiBPoSt, nil
-	case generated.FilRegisteredPoStProofStackedDrg32GiBV1:
-		return abi.RegisteredProof_StackedDRG32GiBPoSt, nil
+	case generated.FilRegisteredPoStProofStackedDrgWinning2KiBV1:
+		return abi.RegisteredProof_StackedDRG2KiBWinningPoSt, nil
+	case generated.FilRegisteredPoStProofStackedDrgWinning8MiBV1:
+		return abi.RegisteredProof_StackedDRG8MiBWinningPoSt, nil
+	case generated.FilRegisteredPoStProofStackedDrgWinning512MiBV1:
+		return abi.RegisteredProof_StackedDRG512MiBWinningPoSt, nil
+	case generated.FilRegisteredPoStProofStackedDrgWinning32GiBV1:
+		return abi.RegisteredProof_StackedDRG32GiBWinningPoSt, nil
+	case generated.FilRegisteredPoStProofStackedDrgWindow2KiBV1:
+		return abi.RegisteredProof_StackedDRG2KiBWindowPoSt, nil
+	case generated.FilRegisteredPoStProofStackedDrgWindow8MiBV1:
+		return abi.RegisteredProof_StackedDRG8MiBWindowPoSt, nil
+	case generated.FilRegisteredPoStProofStackedDrgWindow512MiBV1:
+		return abi.RegisteredProof_StackedDRG512MiBWindowPoSt, nil
+	case generated.FilRegisteredPoStProofStackedDrgWindow32GiBV1:
+		return abi.RegisteredProof_StackedDRG32GiBWindowPoSt, nil
 	default:
 		return 0, errors.Errorf("no mapping to C.FFIRegisteredPoStProof value available for: %v", p)
 	}
@@ -759,14 +845,26 @@ func toFilRegisteredPoStProof(p abi.RegisteredProof) (generated.FilRegisteredPoS
 	}
 
 	switch pp {
-	case abi.RegisteredProof_StackedDRG2KiBPoSt:
-		return generated.FilRegisteredPoStProofStackedDrg2KiBV1, nil
-	case abi.RegisteredProof_StackedDRG8MiBPoSt:
-		return generated.FilRegisteredPoStProofStackedDrg8MiBV1, nil
-	case abi.RegisteredProof_StackedDRG512MiBPoSt:
-		return generated.FilRegisteredPoStProofStackedDrg512MiBV1, nil
-	case abi.RegisteredProof_StackedDRG32GiBPoSt:
-		return generated.FilRegisteredPoStProofStackedDrg32GiBV1, nil
+	case abi.RegisteredProof_StackedDRG2KiBPoSt, abi.RegisteredProof_StackedDRG8MiBPoSt, abi.RegisteredProof_StackedDRG512MiBPoSt, abi.RegisteredProof_StackedDRG32GiBPoSt:
+		panic("unsupported version of election post")
+	case abi.RegisteredProof_StackedDRG32GiBWindowPoSt:
+		return generated.FilRegisteredPoStProofStackedDrgWindow32GiBV1, nil
+	case abi.RegisteredProof_StackedDRG512MiBWindowPoSt:
+		return generated.FilRegisteredPoStProofStackedDrgWindow512MiBV1, nil
+	case abi.RegisteredProof_StackedDRG8MiBWindowPoSt:
+		return generated.FilRegisteredPoStProofStackedDrgWindow8MiBV1, nil
+	case abi.RegisteredProof_StackedDRG2KiBWindowPoSt:
+		return generated.FilRegisteredPoStProofStackedDrgWindow2KiBV1, nil
+
+	case abi.RegisteredProof_StackedDRG32GiBWinningPoSt:
+		return generated.FilRegisteredPoStProofStackedDrgWinning32GiBV1, nil
+	case abi.RegisteredProof_StackedDRG512MiBWinningPoSt:
+		return generated.FilRegisteredPoStProofStackedDrgWinning512MiBV1, nil
+	case abi.RegisteredProof_StackedDRG8MiBWinningPoSt:
+		return generated.FilRegisteredPoStProofStackedDrgWinning8MiBV1, nil
+	case abi.RegisteredProof_StackedDRG2KiBWinningPoSt:
+		return generated.FilRegisteredPoStProofStackedDrgWinning2KiBV1, nil
+		
 	default:
 		return 0, errors.Errorf("no mapping to C.FFIRegisteredPoStProof value available for: %v", p)
 	}
