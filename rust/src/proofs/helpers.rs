@@ -5,7 +5,6 @@ use std::slice::from_raw_parts;
 use anyhow::{ensure, Result};
 use ffi_toolkit::{c_str_to_pbuf, c_str_to_rust_str};
 use filecoin_proofs_api::{OrderedSectorSet, PrivateReplicaInfo, PublicReplicaInfo, SectorId};
-use libc;
 
 use super::types::{fil_PrivateReplicaInfo, fil_PublicReplicaInfo, fil_RegisteredPoStProof};
 use crate::proofs::types::{fil_PoStProof, PoStProof};
