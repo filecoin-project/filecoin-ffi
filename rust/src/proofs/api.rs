@@ -6,7 +6,6 @@ use filecoin_proofs_api::{
     PaddedBytesAmount, PieceInfo, RegisteredPoStProof, RegisteredSealProof, SectorId,
     UnpaddedByteIndex, UnpaddedBytesAmount,
 };
-use libc;
 use log::info;
 use std::mem;
 use std::path::PathBuf;
@@ -1126,7 +1125,7 @@ pub unsafe extern "C" fn fil_destroy_verify_winning_post_response(
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn fil_destroy_verify_windwow_post_response(
+pub unsafe extern "C" fn fil_destroy_verify_window_post_response(
     ptr: *mut fil_VerifyWindowPoStResponse,
 ) {
     let _ = Box::from_raw(ptr);
@@ -1331,12 +1330,12 @@ pub mod tests {
 
         // miscellaneous setup and shared values
         let registered_proof_seal = fil_RegisteredSealProof::StackedDrg2KiBV1;
-        let registered_proof_post = fil_RegisteredPoStProof::StackedDrgWinning2KiBV1;
+        let registered_proof_winning_post = fil_RegisteredPoStProof::StackedDrgWinning2KiBV1;
+        let registered_proof_window_post = fil_RegisteredPoStProof::StackedDrgWindow2KiBV1;
 
         let cache_dir = tempfile::tempdir()?;
         let cache_dir_path = cache_dir.into_path();
 
-        let challenge_count = 2;
         let prover_id = fil_32ByteArray { inner: [1u8; 32] };
         let randomness = fil_32ByteArray { inner: [7u8; 32] };
         let sector_id = 42;
@@ -1554,7 +1553,7 @@ pub mod tests {
 
             let sectors = vec![u64::from(sector_id)];
             let resp_f = fil_generate_winning_post_sector_challenge(
-                registered_proof_post,
+                registered_proof_winning_post,
                 randomness,
                 sectors.as_ptr(),
                 sectors.len(),
@@ -1575,12 +1574,14 @@ pub mod tests {
             }
 
             let private_replicas = vec![fil_PrivateReplicaInfo {
-                registered_proof: registered_proof_post,
+                registered_proof: registered_proof_winning_post,
                 cache_dir_path: cache_dir_path_c_str,
                 comm_r: (*resp_b2).comm_r,
                 replica_path: replica_path_c_str,
                 sector_id,
             }];
+
+            // winning post
 
             let resp_h = fil_generate_winning_post(
                 randomness,
@@ -1591,10 +1592,10 @@ pub mod tests {
 
             if (*resp_h).status_code != FCPResponseStatus::FCPNoError {
                 let msg = c_str_to_rust_str((*resp_h).error_msg);
-                panic!("generate_post failed: {:?}", msg);
+                panic!("generate_winning_post failed: {:?}", msg);
             }
             let public_replicas = vec![fil_PublicReplicaInfo {
-                registered_proof: registered_proof_post,
+                registered_proof: registered_proof_winning_post,
                 sector_id,
                 comm_r: (*resp_b2).comm_r,
             }];
@@ -1612,25 +1613,77 @@ pub mod tests {
 
             if (*resp_i).status_code != FCPResponseStatus::FCPNoError {
                 let msg = c_str_to_rust_str((*resp_i).error_msg);
-                panic!("verify_post failed: {:?}", msg);
+                panic!("verify_winning_post failed: {:?}", msg);
             }
 
             if !(*resp_i).is_valid {
-                panic!("verify_post rejected the provided proof as invalid");
+                panic!("verify_winning_post rejected the provided proof as invalid");
+            }
+
+            // window post
+
+            let private_replicas = vec![fil_PrivateReplicaInfo {
+                registered_proof: registered_proof_window_post,
+                cache_dir_path: cache_dir_path_c_str,
+                comm_r: (*resp_b2).comm_r,
+                replica_path: replica_path_c_str,
+                sector_id,
+            }];
+
+            let resp_j = fil_generate_window_post(
+                randomness,
+                private_replicas.as_ptr(),
+                private_replicas.len(),
+                prover_id,
+            );
+
+            if (*resp_j).status_code != FCPResponseStatus::FCPNoError {
+                let msg = c_str_to_rust_str((*resp_j).error_msg);
+                panic!("generate_window_post failed: {:?}", msg);
+            }
+
+            let public_replicas = vec![fil_PublicReplicaInfo {
+                registered_proof: registered_proof_window_post,
+                sector_id,
+                comm_r: (*resp_b2).comm_r,
+            }];
+
+            let resp_k = fil_verify_window_post(
+                randomness,
+                public_replicas.as_ptr(),
+                public_replicas.len(),
+                (*resp_j).proofs_ptr,
+                (*resp_j).proofs_len,
+                prover_id,
+            );
+
+            if (*resp_k).status_code != FCPResponseStatus::FCPNoError {
+                let msg = c_str_to_rust_str((*resp_k).error_msg);
+                panic!("verify_window_post failed: {:?}", msg);
+            }
+
+            if !(*resp_k).is_valid {
+                panic!("verify_window_post rejected the provided proof as invalid");
             }
 
             fil_destroy_write_without_alignment_response(resp_a1);
             fil_destroy_write_with_alignment_response(resp_a2);
             fil_destroy_generate_data_commitment_response(resp_x);
+
             fil_destroy_seal_pre_commit_phase1_response(resp_b1);
             fil_destroy_seal_pre_commit_phase2_response(resp_b2);
             fil_destroy_seal_commit_phase1_response(resp_c1);
             fil_destroy_seal_commit_phase2_response(resp_c2);
+
             fil_destroy_verify_seal_response(resp_d);
             fil_destroy_unseal_response(resp_e);
+
             fil_destroy_generate_winning_post_sector_challenge(resp_f);
             fil_destroy_generate_winning_post_response(resp_h);
             fil_destroy_verify_winning_post_response(resp_i);
+
+            fil_destroy_generate_window_post_response(resp_j);
+            fil_destroy_verify_window_post_response(resp_k);
 
             c_str_to_rust_str(cache_dir_path_c_str);
             c_str_to_rust_str(staged_path_c_str);
