@@ -105,7 +105,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(not(target_os = "windows"))]
+    #[cfg(target_os = "linux")]
     fn test_init_log_fd() {
         let mut fds: [libc::c_int; 2] = [0; 2];
         let res = unsafe { libc::pipe2(fds.as_mut_ptr(), libc::O_CLOEXEC) };
