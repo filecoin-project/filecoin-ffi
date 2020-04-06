@@ -837,12 +837,7 @@ func fromFilRegisteredPoStProof(p generated.FilRegisteredPoStProof) (abi.Registe
 }
 
 func toFilRegisteredPoStProof(p abi.RegisteredProof) (generated.FilRegisteredPoStProof, error) {
-	pp, err := p.RegisteredPoStProof()
-	if err != nil {
-		return 0, err
-	}
-
-	switch pp {
+	switch p {
 	case abi.RegisteredProof_StackedDRG2KiBPoSt, abi.RegisteredProof_StackedDRG8MiBPoSt, abi.RegisteredProof_StackedDRG512MiBPoSt, abi.RegisteredProof_StackedDRG32GiBPoSt:
 		panic("unsupported version of election post")
 	case abi.RegisteredProof_StackedDRG32GiBWindowPoSt:
