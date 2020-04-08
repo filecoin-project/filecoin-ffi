@@ -4,7 +4,7 @@ use std::slice::from_raw_parts;
 
 use anyhow::{ensure, Result};
 use ffi_toolkit::{c_str_to_pbuf, c_str_to_rust_str};
-use filecoin_proofs_api::{OrderedSectorSet, PrivateReplicaInfo, PublicReplicaInfo, SectorId};
+use filecoin_proofs_api::{PrivateReplicaInfo, PublicReplicaInfo, SectorId};
 
 use super::types::{fil_PrivateReplicaInfo, fil_PublicReplicaInfo, fil_RegisteredPoStProof};
 use crate::proofs::types::{fil_PoStProof, PoStProof};
@@ -61,19 +61,6 @@ struct PrivateReplicaInfoTmp {
     pub comm_r: [u8; 32],
     pub replica_path: std::path::PathBuf,
     pub sector_id: u64,
-}
-
-pub unsafe fn to_sector_set(
-    sectors_ptr: *const u64,
-    sectors_len: libc::size_t,
-) -> Result<OrderedSectorSet> {
-    ensure!(!sectors_ptr.is_null(), "replicas_ptr must not be null");
-
-    let res = from_raw_parts(sectors_ptr, sectors_len)
-        .iter()
-        .map(|id| (*id).into())
-        .collect();
-    Ok(res)
 }
 
 pub unsafe fn to_private_replica_info_map(

@@ -55,12 +55,6 @@ func VerifySeal(info abi.SealVerifyInfo) (bool, error) {
 	return resp.IsValid, nil
 }
 
-// VerifyPoSt returns true if the PoSt-generation operation from which its
-// inputs were derived was valid, and false if not.
-func VerifyPoSt(info abi.PoStVerifyInfo) (bool, error) {
-	panic("unsupported")
-}
-
 // VerifyWinningPoSt returns true if the Winning PoSt-generation operation from which its
 // inputs were derived was valid, and false if not.
 func VerifyWinningPoSt(info abi.WinningPoStVerifyInfo) (bool, error) {
@@ -463,28 +457,13 @@ func UnsealRange(
 	return nil
 }
 
-// FinalizeTicket creates an actual ticket from a partial ticket.
-func FinalizeTicket(partialTicket abi.PartialTicket) ([32]byte, error) {
-	panic("unsupported")
-}
-
-// GenerateCandidates
-func GenerateCandidates(
-	minerID abi.ActorID,
-	randomness abi.PoStRandomness,
-	challengeCount uint64,
-	privateSectorInfo SortedPrivateSectorInfo,
-) ([]PoStCandidateWithTicket, error) {
-	panic("unsupported")
-}
-
 // GenerateWinningPoStSectorChallenge
 func GenerateWinningPoStSectorChallenge(
 	proofType abi.RegisteredProof,
 	minerID abi.ActorID,
 	randomness abi.PoStRandomness,
-	eligibleSectors []abi.SectorNumber,
-) ([]abi.SectorNumber, error) {
+	eligibleSectorsLen uin64,
+) ([]uin64, error) {
 	pp, err := toFilRegisteredPoStProof(proofType, "winning")
 	if err != nil {
 		return nil, err
@@ -495,11 +474,9 @@ func GenerateWinningPoStSectorChallenge(
 		return nil, err
 	}
 
-	sectors := toSectors(eligibleSectors)
-
 	resp := generated.FilGenerateWinningPostSectorChallenge(
 		pp, to32ByteArray(randomness),
-		sectors, uint(len(sectors)), proverID,
+                eligibleSectorsLen, proverID,
 	)
 	resp.Deref()
 	resp.IdsPtr = make([]uint64, resp.IdsLen)
@@ -511,22 +488,7 @@ func GenerateWinningPoStSectorChallenge(
 		return nil, errors.New(generated.RawString(resp.ErrorMsg).Copy())
 	}
 
-	res := make([]abi.SectorNumber, len(resp.IdsPtr))
-	for idx := range resp.IdsPtr {
-		res[idx] = abi.SectorNumber(resp.IdsPtr[idx])
-	}
-
-	return res, nil
-}
-
-// GeneratePoSt
-func GeneratePoSt(
-	minerID abi.ActorID,
-	privateSectorInfo SortedPrivateSectorInfo,
-	randomness abi.PoStRandomness,
-	winners []abi.PoStCandidate,
-) ([]abi.PoStProof, error) {
-	panic("unsupported")
+	return resp.IdsPtr, nil
 }
 
 // GenerateWinningPoSt
@@ -869,7 +831,7 @@ func toFilRegisteredPoStProof(pp abi.RegisteredProof, typ string) (generated.Fil
 
 	switch p {
 	case abi.RegisteredProof_StackedDRG2KiBPoSt, abi.RegisteredProof_StackedDRG8MiBPoSt, abi.RegisteredProof_StackedDRG512MiBPoSt, abi.RegisteredProof_StackedDRG32GiBPoSt:
-		panic("unsupported version of election post")
+		return 0, errors.Errorf("unsupported version of election post: %v", p)
 	case abi.RegisteredProof_StackedDRG32GiBWindowPoSt:
 		return generated.FilRegisteredPoStProofStackedDrgWindow32GiBV1, nil
 	case abi.RegisteredProof_StackedDRG512MiBWindowPoSt:

@@ -11,7 +11,7 @@ use std::mem;
 use std::path::PathBuf;
 use std::slice::from_raw_parts;
 
-use super::helpers::{c_to_rust_post_proofs, to_private_replica_info_map, to_sector_set};
+use super::helpers::{c_to_rust_post_proofs, to_private_replica_info_map};
 use super::types::*;
 use crate::util::api::init_log;
 
@@ -488,8 +488,6 @@ pub unsafe extern "C" fn fil_verify_winning_post(
     replicas_len: libc::size_t,
     proofs_ptr: *const fil_PoStProof,
     proofs_len: libc::size_t,
-    sectors_ptr: *const u64,
-    sectors_len: libc::size_t,
     prover_id: fil_32ByteArray,
 ) -> *mut fil_VerifyWinningPoStResponse {
     catch_panic_response(|| {
@@ -499,11 +497,9 @@ pub unsafe extern "C" fn fil_verify_winning_post(
 
         let mut response = fil_VerifyWinningPoStResponse::default();
 
-        let convert = to_sector_set(sectors_ptr, sectors_len);
+        let convert = super::helpers::to_public_replica_info_map(replicas_ptr, replicas_len);
 
-        let result = convert.and_then(|sector_set| {
-            let replicas = super::helpers::to_public_replica_info_map(replicas_ptr, replicas_len)?;
-
+        let result = convert.and_then(|replicas| {
             let post_proofs = c_to_rust_post_proofs(proofs_ptr, proofs_len)?;
             let proofs: Vec<u8> = post_proofs.iter().flat_map(|pp| pp.clone().proof).collect();
 
@@ -511,7 +507,6 @@ pub unsafe extern "C" fn fil_verify_winning_post(
                 &randomness.inner,
                 &proofs,
                 &replicas,
-                &sector_set,
                 prover_id.inner,
             )
         });
@@ -751,8 +746,7 @@ pub unsafe extern "C" fn fil_clear_cache(
 pub unsafe extern "C" fn fil_generate_winning_post_sector_challenge(
     registered_proof: fil_RegisteredPoStProof,
     randomness: fil_32ByteArray,
-    sector_set_ptr: *const u64,
-    sector_set_len: libc::size_t,
+    sector_set_len: u64,
     prover_id: fil_32ByteArray,
 ) -> *mut fil_GenerateWinningPoStSectorChallenge {
     catch_panic_response(|| {
@@ -762,14 +756,12 @@ pub unsafe extern "C" fn fil_generate_winning_post_sector_challenge(
 
         let mut response = fil_GenerateWinningPoStSectorChallenge::default();
 
-        let result = to_sector_set(sector_set_ptr, sector_set_len).and_then(|sector_set| {
-            filecoin_proofs_api::post::generate_winning_post_sector_challenge(
-                registered_proof.into(),
-                &randomness.inner,
-                &sector_set,
-                prover_id.inner,
-            )
-        });
+        let result = filecoin_proofs_api::post::generate_winning_post_sector_challenge(
+            registered_proof.into(),
+            &randomness.inner,
+            sector_set_len,
+            prover_id.inner,
+        );
 
         match result {
             Ok(output) => {
@@ -1067,6 +1059,7 @@ unsafe fn registered_seal_proof_accessor(
 
     match op(rsp) {
         Ok(s) => {
+            dbg!(&s);
             response.status_code = FCPResponseStatus::FCPNoError;
             response.string_val = rust_str_to_c_str(s);
         }
@@ -1555,8 +1548,7 @@ pub mod tests {
             let resp_f = fil_generate_winning_post_sector_challenge(
                 registered_proof_winning_post,
                 randomness,
-                sectors.as_ptr(),
-                sectors.len(),
+                sectors.len() as u64,
                 prover_id,
             );
 
@@ -1606,8 +1598,6 @@ pub mod tests {
                 public_replicas.len(),
                 (*resp_h).proofs_ptr,
                 (*resp_h).proofs_len,
-                (*resp_f).ids_ptr,
-                (*resp_f).ids_len,
                 prover_id,
             );
 

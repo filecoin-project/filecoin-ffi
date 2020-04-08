@@ -437,15 +437,6 @@ version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
-name = "cpu-time"
-version = "1.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-dependencies = [
- "libc 0.2.68 (registry+https://github.com/rust-lang/crates.io-index)",
- "winapi 0.3.8 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
 name = "crc32fast"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -506,15 +497,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "cfg-if 0.1.10 (registry+https://github.com/rust-lang/crates.io-index)",
  "crossbeam-utils 0.7.2 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
-name = "crossbeam-utils"
-version = "0.6.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-dependencies = [
- "cfg-if 0.1.10 (registry+https://github.com/rust-lang/crates.io-index)",
- "lazy_static 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -787,7 +769,7 @@ dependencies = [
 [[package]]
 name = "filecoin-proofs"
 version = "1.0.0-alpha.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?rev=a74e46c5d509c93629884d774068c334bec1a1df#a74e46c5d509c93629884d774068c334bec1a1df"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?rev=d7896c29ef3c0cc8c04f9fab7ef434e6691ed480#d7896c29ef3c0cc8c04f9fab7ef434e6691ed480"
 dependencies = [
  "anyhow 1.0.28 (registry+https://github.com/rust-lang/crates.io-index)",
  "bellperson 0.6.4 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -828,7 +810,7 @@ dependencies = [
  "serde_cbor 0.10.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_json 1.0.51 (registry+https://github.com/rust-lang/crates.io-index)",
  "simplelog 0.7.5 (registry+https://github.com/rust-lang/crates.io-index)",
- "storage-proofs 1.0.0-alpha.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=a74e46c5d509c93629884d774068c334bec1a1df)",
+ "storage-proofs 1.0.0-alpha.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=d7896c29ef3c0cc8c04f9fab7ef434e6691ed480)",
  "structopt 0.3.12 (registry+https://github.com/rust-lang/crates.io-index)",
  "tar 0.4.26 (registry+https://github.com/rust-lang/crates.io-index)",
  "tee 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -838,10 +820,10 @@ dependencies = [
 [[package]]
 name = "filecoin-proofs-api"
 version = "0.1.0"
-source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api.git#f1085f7bd0badffe047405b11c90d0df91d686ed"
+source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api.git#b00d2e26c68e49b81e434739336383304b293395"
 dependencies = [
  "anyhow 1.0.28 (registry+https://github.com/rust-lang/crates.io-index)",
- "filecoin-proofs 1.0.0-alpha.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=a74e46c5d509c93629884d774068c334bec1a1df)",
+ "filecoin-proofs 1.0.0-alpha.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=d7896c29ef3c0cc8c04f9fab7ef434e6691ed480)",
  "paired 0.18.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.106 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -1325,9 +1307,9 @@ dependencies = [
  "lazy_static 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.2.68 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
- "openssl 0.10.28 (registry+https://github.com/rust-lang/crates.io-index)",
+ "openssl 0.10.29 (registry+https://github.com/rust-lang/crates.io-index)",
  "openssl-probe 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "openssl-sys 0.9.54 (registry+https://github.com/rust-lang/crates.io-index)",
+ "openssl-sys 0.9.55 (registry+https://github.com/rust-lang/crates.io-index)",
  "schannel 0.1.18 (registry+https://github.com/rust-lang/crates.io-index)",
  "security-framework 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "security-framework-sys 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1496,7 +1478,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "openssl"
-version = "0.10.28"
+version = "0.10.29"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "bitflags 1.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1504,7 +1486,7 @@ dependencies = [
  "foreign-types 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.2.68 (registry+https://github.com/rust-lang/crates.io-index)",
- "openssl-sys 0.9.54 (registry+https://github.com/rust-lang/crates.io-index)",
+ "openssl-sys 0.9.55 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -1522,7 +1504,7 @@ dependencies = [
 
 [[package]]
 name = "openssl-sys"
-version = "0.9.54"
+version = "0.9.55"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "autocfg 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2226,7 +2208,7 @@ dependencies = [
 [[package]]
 name = "sha2raw"
 version = "0.1.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?rev=a74e46c5d509c93629884d774068c334bec1a1df#a74e46c5d509c93629884d774068c334bec1a1df"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?rev=d7896c29ef3c0cc8c04f9fab7ef434e6691ed480#d7896c29ef3c0cc8c04f9fab7ef434e6691ed480"
 dependencies = [
  "block-buffer 0.7.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "digest 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2272,22 +2254,26 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [[package]]
 name = "storage-proofs"
 version = "1.0.0-alpha.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?rev=a74e46c5d509c93629884d774068c334bec1a1df#a74e46c5d509c93629884d774068c334bec1a1df"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?rev=d7896c29ef3c0cc8c04f9fab7ef434e6691ed480#d7896c29ef3c0cc8c04f9fab7ef434e6691ed480"
+dependencies = [
+ "storage-proofs-core 1.0.0-alpha.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=d7896c29ef3c0cc8c04f9fab7ef434e6691ed480)",
+ "storage-proofs-porep 1.0.0-alpha.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=d7896c29ef3c0cc8c04f9fab7ef434e6691ed480)",
+ "storage-proofs-post 1.0.0-alpha.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=d7896c29ef3c0cc8c04f9fab7ef434e6691ed480)",
+]
+
+[[package]]
+name = "storage-proofs-core"
+version = "1.0.0-alpha.0"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?rev=d7896c29ef3c0cc8c04f9fab7ef434e6691ed480#d7896c29ef3c0cc8c04f9fab7ef434e6691ed480"
 dependencies = [
  "aes 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "anyhow 1.0.28 (registry+https://github.com/rust-lang/crates.io-index)",
- "base64 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "bellperson 0.6.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "blake2b_simd 0.5.10 (registry+https://github.com/rust-lang/crates.io-index)",
  "blake2s_simd 0.5.10 (registry+https://github.com/rust-lang/crates.io-index)",
  "block-modes 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "byteorder 1.3.4 (registry+https://github.com/rust-lang/crates.io-index)",
- "clap 2.33.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "colored 1.9.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "config 0.9.3 (registry+https://github.com/rust-lang/crates.io-index)",
- "cpu-time 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "crossbeam 0.7.3 (registry+https://github.com/rust-lang/crates.io-index)",
- "crossbeam-utils 0.6.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "fff 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "fil-sapling-crypto 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "fs2 0.4.3 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2295,7 +2281,32 @@ dependencies = [
  "hex 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "itertools 0.8.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "libc 0.2.68 (registry+https://github.com/rust-lang/crates.io-index)",
+ "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
+ "memmap 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "merkletree 0.17.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "neptune 0.5.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "paired 0.18.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rand 0.7.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rand_chacha 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rayon 1.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde 1.0.106 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde_json 1.0.51 (registry+https://github.com/rust-lang/crates.io-index)",
+ "sha2ni 0.8.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "tempfile 3.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "thiserror 1.0.14 (registry+https://github.com/rust-lang/crates.io-index)",
+ "toml 0.5.6 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "storage-proofs-porep"
+version = "1.0.0-alpha.0"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?rev=d7896c29ef3c0cc8c04f9fab7ef434e6691ed480#d7896c29ef3c0cc8c04f9fab7ef434e6691ed480"
+dependencies = [
+ "anyhow 1.0.28 (registry+https://github.com/rust-lang/crates.io-index)",
+ "bellperson 0.6.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "fff 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "fil-sapling-crypto 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "generic-array 0.13.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "memmap 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "merkletree 0.17.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2305,21 +2316,38 @@ dependencies = [
  "num_cpus 1.12.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "once_cell 1.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "paired 0.18.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "pbr 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "pretty_assertions 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand 0.7.3 (registry+https://github.com/rust-lang/crates.io-index)",
- "rand_chacha 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "rand_xorshift 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "rayon 1.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.106 (registry+https://github.com/rust-lang/crates.io-index)",
- "serde_json 1.0.51 (registry+https://github.com/rust-lang/crates.io-index)",
  "sha2ni 0.8.3 (registry+https://github.com/rust-lang/crates.io-index)",
- "sha2raw 0.1.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=a74e46c5d509c93629884d774068c334bec1a1df)",
- "tempdir 0.3.7 (registry+https://github.com/rust-lang/crates.io-index)",
- "tempfile 3.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "thiserror 1.0.14 (registry+https://github.com/rust-lang/crates.io-index)",
- "toml 0.5.6 (registry+https://github.com/rust-lang/crates.io-index)",
- "typenum 1.11.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "sha2raw 0.1.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=d7896c29ef3c0cc8c04f9fab7ef434e6691ed480)",
+ "storage-proofs-core 1.0.0-alpha.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=d7896c29ef3c0cc8c04f9fab7ef434e6691ed480)",
+]
+
+[[package]]
+name = "storage-proofs-post"
+version = "1.0.0-alpha.0"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?rev=d7896c29ef3c0cc8c04f9fab7ef434e6691ed480#d7896c29ef3c0cc8c04f9fab7ef434e6691ed480"
+dependencies = [
+ "anyhow 1.0.28 (registry+https://github.com/rust-lang/crates.io-index)",
+ "bellperson 0.6.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "blake2b_simd 0.5.10 (registry+https://github.com/rust-lang/crates.io-index)",
+ "blake2s_simd 0.5.10 (registry+https://github.com/rust-lang/crates.io-index)",
+ "byteorder 1.3.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "fff 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "fil-sapling-crypto 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "generic-array 0.13.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "hex 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
+ "merkletree 0.17.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "neptune 0.5.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "paired 0.18.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rand 0.7.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rayon 1.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde 1.0.106 (registry+https://github.com/rust-lang/crates.io-index)",
+ "sha2ni 0.8.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "storage-proofs-core 1.0.0-alpha.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=d7896c29ef3c0cc8c04f9fab7ef434e6691ed480)",
 ]
 
 [[package]]
@@ -2894,14 +2922,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum cookie_store 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)" = "46750b3f362965f197996c4448e4a0935e791bf7d6631bfce9ee0af3d24c919c"
 "checksum core-foundation 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)" = "57d24c7a13c43e870e37c1556b74555437870a04514f7685f5b354e090567171"
 "checksum core-foundation-sys 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)" = "b3a71ab494c0b5b860bdc8407ae08978052417070c2ced38573a9157ad75b8ac"
-"checksum cpu-time 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "e9e393a7668fe1fad3075085b86c781883000b4ede868f43627b34a87c8b7ded"
 "checksum crc32fast 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "ba125de2af0df55319f41944744ad91c71113bf74a4646efff39afe1f6842db1"
 "checksum crossbeam 0.7.3 (registry+https://github.com/rust-lang/crates.io-index)" = "69323bff1fb41c635347b8ead484a5ca6c3f11914d784170b158d8449ab07f8e"
 "checksum crossbeam-channel 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)" = "cced8691919c02aac3cb0a1bc2e9b73d89e832bf9a06fc579d4e71b68a2da061"
 "checksum crossbeam-deque 0.7.3 (registry+https://github.com/rust-lang/crates.io-index)" = "9f02af974daeee82218205558e51ec8768b48cf524bd01d550abe5573a608285"
 "checksum crossbeam-epoch 0.8.2 (registry+https://github.com/rust-lang/crates.io-index)" = "058ed274caafc1f60c4997b5fc07bf7dc7cca454af7c6e81edffe5f33f70dace"
 "checksum crossbeam-queue 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)" = "c695eeca1e7173472a32221542ae469b3e9aac3a4fc81f7696bcad82029493db"
-"checksum crossbeam-utils 0.6.6 (registry+https://github.com/rust-lang/crates.io-index)" = "04973fa96e96579258a5091af6003abde64af786b860f18622b82e026cca60e6"
 "checksum crossbeam-utils 0.7.2 (registry+https://github.com/rust-lang/crates.io-index)" = "c3c7c73a2d1e9fc0886a08b93e98eb643461230d5f1925e4036204d5f2e261a8"
 "checksum crypto-mac 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)" = "4434400df11d95d556bac068ddfedd482915eb18fe8bea89bc80b6e4b1c179e5"
 "checksum ctor 0.1.13 (registry+https://github.com/rust-lang/crates.io-index)" = "47c5e5ac752e18207b12e16b10631ae5f7f68f8805f335f9b817ead83d9ffce1"
@@ -2928,7 +2954,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum fil-ocl-core 0.11.3 (registry+https://github.com/rust-lang/crates.io-index)" = "ecd0aa5895d05824d7eaa38b999c91e9071acb74b304488220e8f8bb555d1ad1"
 "checksum fil-sapling-crypto 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)" = "66bff0408599e38b76d779c3bdbbb997ad655acf77a7e5e6d2b902346a616548"
 "checksum fil_logger 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "a4017ffdf45e6702db1d826eada1dc1df0b7f9eda427de3000959216b93cd676"
-"checksum filecoin-proofs 1.0.0-alpha.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=a74e46c5d509c93629884d774068c334bec1a1df)" = "<none>"
+"checksum filecoin-proofs 1.0.0-alpha.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=d7896c29ef3c0cc8c04f9fab7ef434e6691ed480)" = "<none>"
 "checksum filecoin-proofs-api 0.1.0 (git+https://github.com/filecoin-project/rust-filecoin-proofs-api.git)" = "<none>"
 "checksum filetime 0.2.9 (registry+https://github.com/rust-lang/crates.io-index)" = "f59efc38004c988e4201d11d263b8171f49a2e7ec0bdbb71773433f271504a5e"
 "checksum flate2 1.0.14 (registry+https://github.com/rust-lang/crates.io-index)" = "2cfff41391129e0a856d6d822600b8d71179d46879e310417eb9c762eb178b42"
@@ -3003,10 +3029,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum ocl-core-vector 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "b4072920739958adeec5abedec51af70febc58f7fff0601aaa0827c1f3c8fefd"
 "checksum once_cell 1.3.1 (registry+https://github.com/rust-lang/crates.io-index)" = "b1c601810575c99596d4afc46f78a678c80105117c379eb3650cf99b8a21ce5b"
 "checksum opaque-debug 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)" = "2839e79665f131bdb5782e51f2c6c9599c133c6098982a54c794358bf432529c"
-"checksum openssl 0.10.28 (registry+https://github.com/rust-lang/crates.io-index)" = "973293749822d7dd6370d6da1e523b0d1db19f06c459134c658b2a4261378b52"
+"checksum openssl 0.10.29 (registry+https://github.com/rust-lang/crates.io-index)" = "cee6d85f4cb4c4f59a6a85d5b68a233d280c82e29e822913b9c8b129fbf20bdd"
 "checksum openssl-probe 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)" = "77af24da69f9d9341038eba93a073b1fdaaa1b788221b00a69bce9e762cb32de"
 "checksum openssl-src 111.8.1+1.1.1f (registry+https://github.com/rust-lang/crates.io-index)" = "f04f0299a91de598dde58d2e99101895498dcf3d58896a3297798f28b27c8b72"
-"checksum openssl-sys 0.9.54 (registry+https://github.com/rust-lang/crates.io-index)" = "1024c0a59774200a555087a6da3f253a9095a5f344e353b212ac4c8b8e450986"
+"checksum openssl-sys 0.9.55 (registry+https://github.com/rust-lang/crates.io-index)" = "7717097d810a0f2e2323f9e5d11e71608355e24828410b55b9d4f18aa5f9a5d8"
 "checksum os_pipe 0.9.1 (registry+https://github.com/rust-lang/crates.io-index)" = "db4d06355a7090ce852965b2d08e11426c315438462638c6d721448d0b47aa22"
 "checksum os_type 2.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "7edc011af0ae98b7f88cf7e4a83b70a54a75d2b8cb013d6efd02e5956207e9eb"
 "checksum output_vt100 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)" = "53cdc5b785b7a58c5aad8216b3dfa114df64b0b06ae6e1501cef91df2fbdf8f9"
@@ -3081,13 +3107,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum serde_test 0.8.23 (registry+https://github.com/rust-lang/crates.io-index)" = "110b3dbdf8607ec493c22d5d947753282f3bae73c0f56d322af1e8c78e4c23d5"
 "checksum serde_urlencoded 0.5.5 (registry+https://github.com/rust-lang/crates.io-index)" = "642dd69105886af2efd227f75a520ec9b44a820d65bc133a9131f7d229fd165a"
 "checksum sha2ni 0.8.3 (registry+https://github.com/rust-lang/crates.io-index)" = "229896851bde067cb56bfb6cd669d9904c3441245bc32172f33d9a895ddef27d"
-"checksum sha2raw 0.1.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=a74e46c5d509c93629884d774068c334bec1a1df)" = "<none>"
+"checksum sha2raw 0.1.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=d7896c29ef3c0cc8c04f9fab7ef434e6691ed480)" = "<none>"
 "checksum simplelog 0.7.5 (registry+https://github.com/rust-lang/crates.io-index)" = "bcacac97349a890d437921dfb23cbec52ab5b4752551cb637df2721371acd467"
 "checksum slab 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)" = "c111b5bd5695e56cffe5129854aa230b39c93a305372fdbb2668ca2394eea9f8"
 "checksum smallvec 0.6.13 (registry+https://github.com/rust-lang/crates.io-index)" = "f7b0758c52e15a8b5e3691eae6cc559f08eee9406e548a4477ba4e67770a82b6"
 "checksum smallvec 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "5c2fb2ec9bcd216a5b0d0ccf31ab17b5ed1d627960edff65bbe95d3ce221cefc"
 "checksum spin 0.5.2 (registry+https://github.com/rust-lang/crates.io-index)" = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
-"checksum storage-proofs 1.0.0-alpha.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=a74e46c5d509c93629884d774068c334bec1a1df)" = "<none>"
+"checksum storage-proofs 1.0.0-alpha.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=d7896c29ef3c0cc8c04f9fab7ef434e6691ed480)" = "<none>"
+"checksum storage-proofs-core 1.0.0-alpha.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=d7896c29ef3c0cc8c04f9fab7ef434e6691ed480)" = "<none>"
+"checksum storage-proofs-porep 1.0.0-alpha.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=d7896c29ef3c0cc8c04f9fab7ef434e6691ed480)" = "<none>"
+"checksum storage-proofs-post 1.0.0-alpha.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=d7896c29ef3c0cc8c04f9fab7ef434e6691ed480)" = "<none>"
 "checksum string 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)" = "d24114bfcceb867ca7f71a0d3fe45d45619ec47a6fbfa98cb14e14250bfa5d6d"
 "checksum strsim 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)" = "8ea5119cdb4c55b55d432abb513a0429384878c15dde60cc77b1c99de1a95a6a"
 "checksum structopt 0.3.12 (registry+https://github.com/rust-lang/crates.io-index)" = "c8faa2719539bbe9d77869bfb15d4ee769f99525e707931452c97b693b3f159d"
