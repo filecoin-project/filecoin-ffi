@@ -1521,6 +1521,8 @@ pub mod tests {
             // ensure unsealed bytes match what we had in our piece
             let mut buf_b = Vec::with_capacity(2032);
             let mut f = std::fs::File::open(unseal_path)?;
+
+            #[allow(clippy::verbose_file_reads)]
             let _ = f.read_to_end(&mut buf_b)?;
 
             let piece_a_len = (*resp_a1).total_write_unpadded as usize;
