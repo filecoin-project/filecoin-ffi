@@ -30,7 +30,7 @@ func (p panicOnFailureTestHelper) AssertEqual(expected, actual interface{}, msgA
 
 func (p panicOnFailureTestHelper) AssertNoError(err error, msgAndArgs ...interface{}) bool {
 	if err != nil {
-		panic(fmt.Sprintf("there was an error: %+v, %+v, %+v", err, msgAndArgs))
+		panic(fmt.Sprintf("there was an error: %+v, %+v", err, msgAndArgs))
 	}
 
 	return true
@@ -38,7 +38,7 @@ func (p panicOnFailureTestHelper) AssertNoError(err error, msgAndArgs ...interfa
 
 func (p panicOnFailureTestHelper) AssertTrue(value bool, msgAndArgs ...interface{}) bool {
 	if !value {
-		panic(fmt.Sprintf("not true: %+v, %+v, %+v", value, msgAndArgs))
+		panic(fmt.Sprintf("not true: %+v, %+v", value, msgAndArgs))
 	}
 
 	return true
@@ -52,12 +52,12 @@ func (p panicOnFailureTestHelper) RequireEqual(expected interface{}, actual inte
 
 func (p panicOnFailureTestHelper) RequireNoError(err error, msgAndArgs ...interface{}) {
 	if err != nil {
-		panic(fmt.Sprintf("there was an error: %+v, %+v, %+v", err, msgAndArgs))
+		panic(fmt.Sprintf("there was an error: %+v, %+v", err, msgAndArgs))
 	}
 }
 
 func (p panicOnFailureTestHelper) RequireTrue(value bool, msgAndArgs ...interface{}) {
 	if !value {
-		panic(fmt.Sprintf("not true: %+v, %+v, %+v", value, msgAndArgs))
+		panic(fmt.Sprintf("not true: %+v, %+v", value, msgAndArgs))
 	}
 }
