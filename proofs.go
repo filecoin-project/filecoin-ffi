@@ -750,15 +750,6 @@ func toFilPoStProofs(src []abi.PoStProof, typ string) ([]generated.FilPoStProof,
 	return out, uint(len(out)), nil
 }
 
-func toSectors(src []abi.SectorNumber) []uint64 {
-	sectors := make([]uint64, len(src))
-	for idx := range src {
-		sectors[idx] = uint64(src[idx])
-	}
-
-	return sectors
-}
-
 func to32ByteArray(in []byte) generated.Fil32ByteArray {
 	var out generated.Fil32ByteArray
 	copy(out.Inner[:], in)
