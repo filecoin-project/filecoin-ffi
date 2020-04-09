@@ -125,11 +125,3 @@ type PrivateSectorInfo struct {
 	PoStProofType    abi.RegisteredProof
 	SealedSectorPath string
 }
-
-// CommitmentBytesLen is the number of bytes in a CommR, CommD, CommP, and CommRStar.
-const CommitmentBytesLen = 32
-
-type PoStCandidateWithTicket struct {
-	Candidate abi.PoStCandidate
-	Ticket    [32]byte
-}
