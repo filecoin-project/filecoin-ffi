@@ -280,8 +280,8 @@ commands:
       - run: |
           DIR=$(pwd)
           cd $(mktemp -d)
-          GO111MODULE=off go get github.com/filecoin-project/go-paramfetch/paramfetch
-          go build -o go-paramfetch github.com/filecoin-project/go-paramfetch/paramfetch
+          GOPATH=/tmp GO111MODULE=off go get github.com/filecoin-project/go-paramfetch/paramfetch
+          GOPATH=/tmp GO111MODULE=off go build -o go-paramfetch github.com/filecoin-project/go-paramfetch/paramfetch
           ./go-paramfetch 2048 "${DIR}/parameters.json"
   build_project:
     steps:
