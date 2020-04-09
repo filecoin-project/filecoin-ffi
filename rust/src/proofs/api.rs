@@ -1544,7 +1544,7 @@ pub mod tests {
 
             // generate a PoSt
 
-            let sectors = vec![u64::from(sector_id)];
+            let sectors = vec![sector_id];
             let resp_f = fil_generate_winning_post_sector_challenge(
                 registered_proof_winning_post,
                 randomness,
