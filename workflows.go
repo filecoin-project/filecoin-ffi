@@ -204,8 +204,6 @@ func WorkflowProofsLifecycle(t TestHelper) {
 		SealedCID:       sealedCID,
 	}}
 
-	eligibleSectors := []abi.SectorNumber{sectorNum}
-
 	proofs, err := GenerateWinningPoSt(minerID, privateInfo, randomness[:])
 	t.RequireNoError(err)
 
@@ -213,7 +211,6 @@ func WorkflowProofsLifecycle(t TestHelper) {
 		Randomness:        randomness[:],
 		Proofs:            proofs,
 		ChallengedSectors: challengedSectors,
-		EligibleSectors:   eligibleSectors,
 		Prover:            minerID,
 	})
 	t.RequireNoError(err)
