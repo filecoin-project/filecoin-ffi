@@ -487,7 +487,13 @@ func GenerateWinningPoStSectorChallenge(
 		return nil, errors.New(generated.RawString(resp.ErrorMsg).Copy())
 	}
 
-	return resp.IdsPtr, nil
+	// copy from C memory space to Go
+	out := make([]uint64, resp.IdsLen)
+	for idx := range out {
+		out[idx] = resp.IdsPtr[idx]
+	}
+
+	return out, nil
 }
 
 // GenerateWinningPoSt
