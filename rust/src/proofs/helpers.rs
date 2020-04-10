@@ -4,16 +4,9 @@ use std::slice::from_raw_parts;
 
 use anyhow::{ensure, Result};
 use ffi_toolkit::{c_str_to_pbuf, c_str_to_rust_str};
-use filecoin_proofs_api::fr32::fr_into_bytes;
-use filecoin_proofs_api::{
-    Candidate, PrivateReplicaInfo, PublicReplicaInfo, RegisteredPoStProof, SectorId,
-};
-use libc;
-use paired::bls12_381::{Bls12, Fr};
+use filecoin_proofs_api::{PrivateReplicaInfo, PublicReplicaInfo, SectorId};
 
-use super::types::{
-    fil_Candidate, fil_PrivateReplicaInfo, fil_PublicReplicaInfo, fil_RegisteredPoStProof,
-};
+use super::types::{fil_PrivateReplicaInfo, fil_PublicReplicaInfo, fil_RegisteredPoStProof};
 use crate::proofs::types::{fil_PoStProof, PoStProof};
 
 #[derive(Debug, Clone)]
@@ -59,14 +52,6 @@ pub unsafe fn to_public_replica_info_map(
         .collect();
 
     Ok(map)
-}
-
-pub fn bls_12_fr_into_bytes(fr: Fr) -> [u8; 32] {
-    let mut commitment = [0; 32];
-    for (i, b) in fr_into_bytes::<Bls12>(&fr).iter().enumerate() {
-        commitment[i] = *b;
-    }
-    commitment
 }
 
 #[derive(Debug, Clone)]
@@ -128,19 +113,6 @@ pub unsafe fn to_private_replica_info_map(
     Ok(map)
 }
 
-pub unsafe fn c_to_rust_candidates(
-    winners_ptr: *const fil_Candidate,
-    winners_len: libc::size_t,
-) -> Result<Vec<Candidate>> {
-    ensure!(!winners_ptr.is_null(), "winners_ptr must not be null");
-
-    from_raw_parts(winners_ptr, winners_len)
-        .iter()
-        .cloned()
-        .map(|c| c.try_into_candidate().map_err(Into::into))
-        .collect()
-}
-
 pub unsafe fn c_to_rust_post_proofs(
     post_proofs_ptr: *const fil_PoStProof,
     post_proofs_len: libc::size_t,
@@ -153,7 +125,7 @@ pub unsafe fn c_to_rust_post_proofs(
     let out = from_raw_parts(post_proofs_ptr, post_proofs_len)
         .iter()
         .map(|fpp| PoStProof {
-            registered_proof: RegisteredPoStProof::StackedDrg2KiBV1,
+            registered_proof: fpp.registered_proof.into(),
             proof: from_raw_parts(fpp.proof_ptr, fpp.proof_len).to_vec(),
         })
         .collect();

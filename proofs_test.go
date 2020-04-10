@@ -31,6 +31,14 @@ func TestGetGPUDevicesDoesNotProduceAnError(t *testing.T) {
 	WorkflowGetGPUDevicesDoesNotProduceAnError(newTestingTeeHelper(t))
 }
 
+func TestGenerateWinningPoStSectorChallenge(t *testing.T) {
+	WorkflowGenerateWinningPoStSectorChallenge(newTestingTeeHelper(t))
+}
+
+func TestGenerateWinningPoStSectorChallengeEdgeCase(t *testing.T) {
+	WorkflowGenerateWinningPoStSectorChallengeEdgeCase(newTestingTeeHelper(t))
+}
+
 func TestJsonMarshalSymmetry(t *testing.T) {
 	for i := 0; i < 100; i++ {
 		xs := make([]publicSectorInfo, 10)

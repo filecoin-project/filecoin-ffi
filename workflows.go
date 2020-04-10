@@ -5,6 +5,7 @@ package ffi
 import (
 	"bytes"
 	"crypto/rand"
+	"encoding/binary"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -15,11 +16,10 @@ import (
 )
 
 func WorkflowProofsLifecycle(t TestHelper) {
-	challengeCount := uint64(2)
 	minerID := abi.ActorID(42)
 	randomness := [32]byte{9, 9, 9}
 	sealProofType := abi.RegisteredProof_StackedDRG2KiBSeal
-	postProofType := abi.RegisteredProof_StackedDRG2KiBPoSt
+	winningPostProofType := abi.RegisteredProof_StackedDRG2KiBWinningPoSt
 	sectorNum := abi.SectorNumber(42)
 
 	ticket := abi.SealRandomness{5, 4, 2}
@@ -195,42 +195,36 @@ func WorkflowProofsLifecycle(t TestHelper) {
 			SealedCID:    sealedCID,
 		},
 		CacheDirPath:     sectorCacheDirPath,
-		PoStProofType:    postProofType,
+		PoStProofType:    winningPostProofType,
 		SealedSectorPath: sealedSectorFile.Name(),
 	})
 
-	eligibleSectors := []abi.SectorInfo{{
+	provingSet := []abi.SectorInfo{{
 		RegisteredProof: sealProofType,
 		SectorNumber:    sectorNum,
 		SealedCID:       sealedCID,
 	}}
 
-	candidatesWithTicketsA, err := GenerateCandidates(minerID, randomness[:], challengeCount, privateInfo)
+	// figure out which sectors have been challenged
+	indicesInProvingSet, err := GenerateWinningPoStSectorChallenge(winningPostProofType, minerID, randomness[:], uint64(len(provingSet)))
 	t.RequireNoError(err)
 
-	candidatesA := make([]abi.PoStCandidate, len(candidatesWithTicketsA))
-	for idx := range candidatesWithTicketsA {
-		candidatesA[idx] = candidatesWithTicketsA[idx].Candidate
+	var challengedSectors []abi.SectorInfo
+	for idx := range indicesInProvingSet {
+		challengedSectors = append(challengedSectors, provingSet[indicesInProvingSet[idx]])
 	}
 
-	// finalize the ticket, but don't do anything with the results (simply
-	// exercise the API)
-	_, err = FinalizeTicket(candidatesA[0].PartialTicket)
+	proofs, err := GenerateWinningPoSt(minerID, privateInfo, randomness[:])
 	t.RequireNoError(err)
 
-	proofs, err := GeneratePoSt(minerID, privateInfo, randomness[:], candidatesA)
-	t.RequireNoError(err)
-
-	isValid, err = VerifyPoSt(abi.PoStVerifyInfo{
-		Randomness:      randomness[:],
-		Candidates:      candidatesA,
-		Proofs:          proofs,
-		EligibleSectors: eligibleSectors,
-		Prover:          minerID,
-		ChallengeCount:  challengeCount,
+	isValid, err = VerifyWinningPoSt(abi.WinningPoStVerifyInfo{
+		Randomness:        randomness[:],
+		Proofs:            proofs,
+		ChallengedSectors: challengedSectors,
+		Prover:            minerID,
 	})
 	t.RequireNoError(err)
-	t.AssertTrue(isValid, "VerifyPoSt rejected the (standalone) proof as invalid")
+	t.AssertTrue(isValid, "VerifyWinningPoSt rejected the (standalone) proof as invalid")
 }
 
 func WorkflowGetGPUDevicesDoesNotProduceAnError(t TestHelper) {
@@ -256,10 +250,14 @@ func WorkflowRegisteredSealProofFunctions(t TestHelper) {
 
 func WorkflowRegisteredPoStProofFunctions(t TestHelper) {
 	postTypes := []abi.RegisteredProof{
-		abi.RegisteredProof_StackedDRG8MiBPoSt,
-		abi.RegisteredProof_StackedDRG2KiBPoSt,
-		abi.RegisteredProof_StackedDRG512MiBPoSt,
-		abi.RegisteredProof_StackedDRG32GiBPoSt,
+		abi.RegisteredProof_StackedDRG8MiBWindowPoSt,
+		abi.RegisteredProof_StackedDRG2KiBWindowPoSt,
+		abi.RegisteredProof_StackedDRG512MiBWindowPoSt,
+		abi.RegisteredProof_StackedDRG32GiBWindowPoSt,
+		abi.RegisteredProof_StackedDRG8MiBWinningPoSt,
+		abi.RegisteredProof_StackedDRG2KiBWinningPoSt,
+		abi.RegisteredProof_StackedDRG512MiBWinningPoSt,
+		abi.RegisteredProof_StackedDRG32GiBWinningPoSt,
 	}
 
 	for _, pt := range postTypes {
@@ -267,6 +265,60 @@ func WorkflowRegisteredPoStProofFunctions(t TestHelper) {
 		t.AssertNoError(err)
 		t.AssertTrue(len(v) > 0)
 	}
+}
+
+func WorkflowGenerateWinningPoStSectorChallengeEdgeCase(t TestHelper) {
+	for i := 0; i < 10000; i++ {
+		var randomnessFr32 [32]byte
+		_, err := io.ReadFull(rand.Reader, randomnessFr32[0:31]) // last byte of the 32 is always NUL
+		t.RequireNoError(err)
+
+		minerID := abi.ActorID(randUInt64())
+		eligibleSectorsLen := uint64(1)
+
+		indices2, err := GenerateWinningPoStSectorChallenge(abi.RegisteredProof_StackedDRG2KiBWinningPoSt, minerID, randomnessFr32[:], eligibleSectorsLen)
+		t.RequireNoError(err)
+		t.AssertEqual(1, len(indices2))
+		t.AssertEqual(0, int(indices2[0]))
+	}
+}
+
+func WorkflowGenerateWinningPoStSectorChallenge(t TestHelper) {
+	for i := 0; i < 10000; i++ {
+		var randomnessFr32 [32]byte
+		_, err := io.ReadFull(rand.Reader, randomnessFr32[0:31]) // last byte of the 32 is always NUL
+		t.RequireNoError(err)
+
+		minerID := abi.ActorID(randUInt64())
+		eligibleSectorsLen := randUInt64()
+
+		if eligibleSectorsLen == 0 {
+			continue // no fun
+		}
+
+		indices, err := GenerateWinningPoStSectorChallenge(abi.RegisteredProof_StackedDRG2KiBWinningPoSt, minerID, randomnessFr32[:], eligibleSectorsLen)
+		t.AssertNoError(err)
+
+		max := uint64(0)
+		for idx := range indices {
+			if indices[idx] > max {
+				max = indices[idx]
+			}
+		}
+
+		t.AssertTrue(max < eligibleSectorsLen, "out of range value - max: ", max, "eligibleSectorsLen: ", eligibleSectorsLen)
+		t.AssertTrue(uint64(len(indices)) <= eligibleSectorsLen, "should never generate more indices than number of eligible sectors")
+	}
+}
+
+func randUInt64() uint64 {
+	buf := make([]byte, 8)
+	_, err := rand.Read(buf)
+	if err != nil {
+		panic(err)
+	}
+
+	return binary.LittleEndian.Uint64(buf)
 }
 
 func requireTempFile(t TestHelper, fileContentsReader io.Reader, size uint64) *os.File {

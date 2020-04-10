@@ -7,7 +7,6 @@ use bls_signatures::{
     paired::bls12_381::{G2Affine, G2Compressed},
     verify as verify_sig, PrivateKey, PublicKey, Serialize, Signature,
 };
-use libc;
 use rand::rngs::OsRng;
 use rand::SeedableRng;
 use rand_chacha::ChaChaRng;

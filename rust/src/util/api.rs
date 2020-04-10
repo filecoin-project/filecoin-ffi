@@ -70,14 +70,9 @@ pub unsafe extern "C" fn fil_init_log_fd(log_fd: libc::c_int) -> *mut fil_InitLo
 
 #[cfg(test)]
 mod tests {
-    use std::env;
-    use std::fs::File;
-    use std::io::{BufRead, BufReader, Write};
-    use std::os::unix::io::FromRawFd;
 
-    use crate::util::api::{fil_get_gpu_devices, fil_init_log_fd};
-    use crate::util::types::{fil_destroy_gpu_device_response, fil_destroy_init_log_fd_response};
-    use log::info;
+    use crate::util::api::fil_get_gpu_devices;
+    use crate::util::types::fil_destroy_gpu_device_response;
 
     #[test]
     fn test_get_gpu_devices() {
@@ -107,6 +102,14 @@ mod tests {
     #[test]
     #[cfg(target_os = "linux")]
     fn test_init_log_fd() {
+        use std::env;
+        use std::fs::File;
+        use std::io::{BufRead, BufReader, Write};
+        use std::os::unix::io::FromRawFd;
+
+        use crate::util::api::fil_init_log_fd;
+        use crate::util::types::fil_destroy_init_log_fd_response;
+
         let mut fds: [libc::c_int; 2] = [0; 2];
         let res = unsafe { libc::pipe2(fds.as_mut_ptr(), libc::O_CLOEXEC) };
         if res != 0 {
@@ -124,7 +127,7 @@ mod tests {
             let resp = fil_init_log_fd(write_fd);
             fil_destroy_init_log_fd_response(resp);
 
-            info!("a log message");
+            log::info!("a log message");
 
             // Write a newline so that things don't block even if the logging doesn't work
             writer.write_all(b"\n").unwrap();

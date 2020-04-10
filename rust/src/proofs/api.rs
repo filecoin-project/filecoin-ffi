@@ -1,7 +1,3 @@
-use std::mem;
-use std::path::PathBuf;
-use std::slice::from_raw_parts;
-
 use ffi_toolkit::{
     c_str_to_pbuf, catch_panic_response, raw_ptr, rust_str_to_c_str, FCPResponseStatus,
 };
@@ -10,12 +6,13 @@ use filecoin_proofs_api::{
     PaddedBytesAmount, PieceInfo, RegisteredPoStProof, RegisteredSealProof, SectorId,
     UnpaddedByteIndex, UnpaddedBytesAmount,
 };
-use libc;
 use log::info;
+use std::mem;
+use std::path::PathBuf;
+use std::slice::from_raw_parts;
 
-use super::helpers::{bls_12_fr_into_bytes, c_to_rust_candidates, to_private_replica_info_map};
+use super::helpers::{c_to_rust_post_proofs, to_private_replica_info_map};
 use super::types::*;
-use crate::proofs::helpers::c_to_rust_post_proofs;
 use crate::util::api::init_log;
 
 /// TODO: document
@@ -483,71 +480,33 @@ pub unsafe extern "C" fn fil_verify_seal(
     })
 }
 
-/// Finalize a partial_ticket.
-#[no_mangle]
-pub unsafe extern "C" fn fil_finalize_ticket(
-    partial_ticket: fil_32ByteArray,
-) -> *mut fil_FinalizeTicketResponse {
-    catch_panic_response(|| {
-        init_log();
-
-        let partial_ticket = partial_ticket.inner;
-
-        info!("finalize_ticket: start");
-
-        let mut response = fil_FinalizeTicketResponse::default();
-
-        match filecoin_proofs_api::post::finalize_ticket(&partial_ticket) {
-            Ok(ticket) => {
-                response.status_code = FCPResponseStatus::FCPNoError;
-                response.ticket = ticket;
-            }
-            Err(err) => {
-                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
-            }
-        };
-
-        info!("finalize_ticket: finish");
-
-        raw_ptr(response)
-    })
-}
-
 /// Verifies that a proof-of-spacetime is valid.
 #[no_mangle]
-pub unsafe extern "C" fn fil_verify_post(
+pub unsafe extern "C" fn fil_verify_winning_post(
     randomness: fil_32ByteArray,
-    challenge_count: u64,
     replicas_ptr: *const fil_PublicReplicaInfo,
     replicas_len: libc::size_t,
     proofs_ptr: *const fil_PoStProof,
     proofs_len: libc::size_t,
-    winners_ptr: *const fil_Candidate,
-    winners_len: libc::size_t,
     prover_id: fil_32ByteArray,
-) -> *mut fil_VerifyPoStResponse {
+) -> *mut fil_VerifyWinningPoStResponse {
     catch_panic_response(|| {
         init_log();
 
-        info!("verify_post: start");
+        info!("verify_winning_post: start");
 
-        let mut response = fil_VerifyPoStResponse::default();
+        let mut response = fil_VerifyWinningPoStResponse::default();
 
         let convert = super::helpers::to_public_replica_info_map(replicas_ptr, replicas_len);
 
-        let result = convert.and_then(|map| {
-            let winners = c_to_rust_candidates(winners_ptr, winners_len)?;
+        let result = convert.and_then(|replicas| {
             let post_proofs = c_to_rust_post_proofs(proofs_ptr, proofs_len)?;
+            let proofs: Vec<u8> = post_proofs.iter().flat_map(|pp| pp.clone().proof).collect();
 
-            let proofs: Vec<Vec<u8>> = post_proofs.iter().map(|pp| pp.clone().proof).collect();
-
-            filecoin_proofs_api::post::verify_post(
+            filecoin_proofs_api::post::verify_winning_post(
                 &randomness.inner,
-                challenge_count,
                 &proofs,
-                &map,
-                &winners,
+                &replicas,
                 prover_id.inner,
             )
         });
@@ -563,7 +522,109 @@ pub unsafe extern "C" fn fil_verify_post(
             }
         };
 
-        info!("verify_post: {}", "finish");
+        info!("verify_winning_post: {}", "finish");
+        raw_ptr(response)
+    })
+}
+
+/// TODO: document
+///
+#[no_mangle]
+pub unsafe extern "C" fn fil_generate_window_post(
+    randomness: fil_32ByteArray,
+    replicas_ptr: *const fil_PrivateReplicaInfo,
+    replicas_len: libc::size_t,
+    prover_id: fil_32ByteArray,
+) -> *mut fil_GenerateWindowPoStResponse {
+    catch_panic_response(|| {
+        init_log();
+
+        info!("generate_window_post: start");
+
+        let mut response = fil_GenerateWindowPoStResponse::default();
+
+        let result = to_private_replica_info_map(replicas_ptr, replicas_len).and_then(|rs| {
+            filecoin_proofs_api::post::generate_window_post(&randomness.inner, &rs, prover_id.inner)
+        });
+
+        match result {
+            Ok(output) => {
+                let mapped: Vec<fil_PoStProof> = output
+                    .iter()
+                    .cloned()
+                    .map(|(t, proof)| {
+                        let out = fil_PoStProof {
+                            registered_proof: (t).into(),
+                            proof_len: proof.len(),
+                            proof_ptr: proof.as_ptr(),
+                        };
+
+                        mem::forget(proof);
+
+                        out
+                    })
+                    .collect();
+
+                response.status_code = FCPResponseStatus::FCPNoError;
+                response.proofs_ptr = mapped.as_ptr();
+                response.proofs_len = mapped.len();
+                mem::forget(mapped);
+            }
+            Err(err) => {
+                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+            }
+        }
+
+        info!("generate_window_post: finish");
+
+        raw_ptr(response)
+    })
+}
+
+/// Verifies that a proof-of-spacetime is valid.
+#[no_mangle]
+pub unsafe extern "C" fn fil_verify_window_post(
+    randomness: fil_32ByteArray,
+    replicas_ptr: *const fil_PublicReplicaInfo,
+    replicas_len: libc::size_t,
+    proofs_ptr: *const fil_PoStProof,
+    proofs_len: libc::size_t,
+    prover_id: fil_32ByteArray,
+) -> *mut fil_VerifyWindowPoStResponse {
+    catch_panic_response(|| {
+        init_log();
+
+        info!("verify_window_post: start");
+
+        let mut response = fil_VerifyWindowPoStResponse::default();
+
+        let convert = super::helpers::to_public_replica_info_map(replicas_ptr, replicas_len);
+
+        let result = convert.and_then(|replicas| {
+            let post_proofs = c_to_rust_post_proofs(proofs_ptr, proofs_len)?;
+            let proofs: Vec<u8> = post_proofs.iter().flat_map(|pp| pp.clone().proof).collect();
+
+            filecoin_proofs_api::post::verify_window_post(
+                &randomness.inner,
+                &proofs,
+                &replicas,
+                prover_id.inner,
+            )
+        });
+
+        match result {
+            Ok(is_valid) => {
+                response.status_code = FCPResponseStatus::FCPNoError;
+                response.is_valid = is_valid;
+            }
+            Err(err) => {
+                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+            }
+        };
+
+        info!("verify_window_post: {}", "finish");
         raw_ptr(response)
     })
 }
@@ -654,12 +715,14 @@ pub unsafe extern "C" fn fil_generate_data_commitment(
 
 #[no_mangle]
 pub unsafe extern "C" fn fil_clear_cache(
+    sector_size: u64,
     cache_dir_path: *const libc::c_char,
 ) -> *mut fil_ClearCacheResponse {
     catch_panic_response(|| {
         init_log();
 
-        let result = filecoin_proofs_api::seal::clear_cache(&c_str_to_pbuf(cache_dir_path));
+        let result =
+            filecoin_proofs_api::seal::clear_cache(sector_size, &c_str_to_pbuf(cache_dir_path));
 
         let mut response = fil_ClearCacheResponse::default();
 
@@ -680,44 +743,33 @@ pub unsafe extern "C" fn fil_clear_cache(
 /// TODO: document
 ///
 #[no_mangle]
-pub unsafe extern "C" fn fil_generate_candidates(
+pub unsafe extern "C" fn fil_generate_winning_post_sector_challenge(
+    registered_proof: fil_RegisteredPoStProof,
     randomness: fil_32ByteArray,
-    challenge_count: u64,
-    replicas_ptr: *const fil_PrivateReplicaInfo,
-    replicas_len: libc::size_t,
+    sector_set_len: u64,
     prover_id: fil_32ByteArray,
-) -> *mut fil_GenerateCandidatesResponse {
+) -> *mut fil_GenerateWinningPoStSectorChallenge {
     catch_panic_response(|| {
         init_log();
 
-        info!("generate_candidates: start");
+        info!("generate_winning_post_sector_challenge: start");
 
-        let mut response = fil_GenerateCandidatesResponse::default();
+        let mut response = fil_GenerateWinningPoStSectorChallenge::default();
 
-        let result = to_private_replica_info_map(replicas_ptr, replicas_len).and_then(|rs| {
-            filecoin_proofs_api::post::generate_candidates(
-                &randomness.inner,
-                challenge_count,
-                &rs,
-                prover_id.inner,
-            )
-        });
+        let result = filecoin_proofs_api::post::generate_winning_post_sector_challenge(
+            registered_proof.into(),
+            &randomness.inner,
+            sector_set_len,
+            prover_id.inner,
+        );
 
         match result {
             Ok(output) => {
-                let mapped: Vec<fil_Candidate> = output
-                    .iter()
-                    .map(|x| fil_Candidate {
-                        sector_id: x.sector_id.into(),
-                        partial_ticket: bls_12_fr_into_bytes(x.partial_ticket),
-                        ticket: x.ticket,
-                        sector_challenge_index: x.sector_challenge_index,
-                    })
-                    .collect();
+                let mapped: Vec<u64> = output.into_iter().map(u64::from).collect();
 
                 response.status_code = FCPResponseStatus::FCPNoError;
-                response.candidates_ptr = mapped.as_ptr();
-                response.candidates_len = mapped.len();
+                response.ids_ptr = mapped.as_ptr();
+                response.ids_len = mapped.len();
                 mem::forget(mapped);
             }
             Err(err) => {
@@ -726,7 +778,7 @@ pub unsafe extern "C" fn fil_generate_candidates(
             }
         }
 
-        info!("generate_candidates: finish");
+        info!("generate_winning_post_sector_challenge: finish");
 
         raw_ptr(response)
     })
@@ -735,26 +787,23 @@ pub unsafe extern "C" fn fil_generate_candidates(
 /// TODO: document
 ///
 #[no_mangle]
-pub unsafe extern "C" fn fil_generate_post(
+pub unsafe extern "C" fn fil_generate_winning_post(
     randomness: fil_32ByteArray,
     replicas_ptr: *const fil_PrivateReplicaInfo,
     replicas_len: libc::size_t,
-    winners_ptr: *const fil_Candidate,
-    winners_len: libc::size_t,
     prover_id: fil_32ByteArray,
-) -> *mut fil_GeneratePoStResponse {
+) -> *mut fil_GenerateWinningPoStResponse {
     catch_panic_response(|| {
         init_log();
 
-        info!("generate_post: start");
+        info!("generate_winning_post: start");
 
-        let mut response = fil_GeneratePoStResponse::default();
+        let mut response = fil_GenerateWinningPoStResponse::default();
 
         let result = to_private_replica_info_map(replicas_ptr, replicas_len).and_then(|rs| {
-            filecoin_proofs_api::post::generate_post(
+            filecoin_proofs_api::post::generate_winning_post(
                 &randomness.inner,
                 &rs,
-                c_to_rust_candidates(winners_ptr, winners_len)?,
                 prover_id.inner,
             )
         });
@@ -788,7 +837,7 @@ pub unsafe extern "C" fn fil_generate_post(
             }
         }
 
-        info!("generate_post: finish");
+        info!("generate_winning_post: finish");
 
         raw_ptr(response)
     })
@@ -1010,6 +1059,7 @@ unsafe fn registered_seal_proof_accessor(
 
     match op(rsp) {
         Ok(s) => {
+            dbg!(&s);
             response.status_code = FCPResponseStatus::FCPNoError;
             response.string_val = rust_str_to_c_str(s);
         }
@@ -1061,18 +1111,36 @@ pub unsafe extern "C" fn fil_destroy_finalize_ticket_response(
 /// Deallocates a VerifyPoStResponse.
 ///
 #[no_mangle]
-pub unsafe extern "C" fn fil_destroy_verify_post_response(ptr: *mut fil_VerifyPoStResponse) {
+pub unsafe extern "C" fn fil_destroy_verify_winning_post_response(
+    ptr: *mut fil_VerifyWinningPoStResponse,
+) {
     let _ = Box::from_raw(ptr);
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn fil_destroy_generate_post_response(ptr: *mut fil_GeneratePoStResponse) {
+pub unsafe extern "C" fn fil_destroy_verify_window_post_response(
+    ptr: *mut fil_VerifyWindowPoStResponse,
+) {
     let _ = Box::from_raw(ptr);
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn fil_destroy_generate_candidates_response(
-    ptr: *mut fil_GenerateCandidatesResponse,
+pub unsafe extern "C" fn fil_destroy_generate_winning_post_response(
+    ptr: *mut fil_GenerateWinningPoStResponse,
+) {
+    let _ = Box::from_raw(ptr);
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn fil_destroy_generate_window_post_response(
+    ptr: *mut fil_GenerateWindowPoStResponse,
+) {
+    let _ = Box::from_raw(ptr);
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn fil_destroy_generate_winning_post_sector_challenge(
+    ptr: *mut fil_GenerateWinningPoStSectorChallenge,
 ) {
     let _ = Box::from_raw(ptr);
 }
@@ -1175,10 +1243,14 @@ pub mod tests {
         ];
 
         let post_types = vec![
-            fil_RegisteredPoStProof::StackedDrg2KiBV1,
-            fil_RegisteredPoStProof::StackedDrg8MiBV1,
-            fil_RegisteredPoStProof::StackedDrg512MiBV1,
-            fil_RegisteredPoStProof::StackedDrg32GiBV1,
+            fil_RegisteredPoStProof::StackedDrgWinning2KiBV1,
+            fil_RegisteredPoStProof::StackedDrgWinning8MiBV1,
+            fil_RegisteredPoStProof::StackedDrgWinning512MiBV1,
+            fil_RegisteredPoStProof::StackedDrgWinning32GiBV1,
+            fil_RegisteredPoStProof::StackedDrgWindow2KiBV1,
+            fil_RegisteredPoStProof::StackedDrgWindow8MiBV1,
+            fil_RegisteredPoStProof::StackedDrgWindow512MiBV1,
+            fil_RegisteredPoStProof::StackedDrgWindow32GiBV1,
         ];
 
         let num_ops = (seal_types.len() + post_types.len()) * 6;
@@ -1251,12 +1323,12 @@ pub mod tests {
 
         // miscellaneous setup and shared values
         let registered_proof_seal = fil_RegisteredSealProof::StackedDrg2KiBV1;
-        let registered_proof_post = fil_RegisteredPoStProof::StackedDrg2KiBV1;
+        let registered_proof_winning_post = fil_RegisteredPoStProof::StackedDrgWinning2KiBV1;
+        let registered_proof_window_post = fil_RegisteredPoStProof::StackedDrgWindow2KiBV1;
 
         let cache_dir = tempfile::tempdir()?;
         let cache_dir_path = cache_dir.into_path();
 
-        let challenge_count = 2;
         let prover_id = fil_32ByteArray { inner: [1u8; 32] };
         let randomness = fil_32ByteArray { inner: [7u8; 32] };
         let sector_id = 42;
@@ -1449,6 +1521,8 @@ pub mod tests {
             // ensure unsealed bytes match what we had in our piece
             let mut buf_b = Vec::with_capacity(2032);
             let mut f = std::fs::File::open(unseal_path)?;
+
+            #[allow(clippy::verbose_file_reads)]
             let _ = f.read_to_end(&mut buf_b)?;
 
             let piece_a_len = (*resp_a1).total_write_unpadded as usize;
@@ -1472,19 +1546,11 @@ pub mod tests {
 
             // generate a PoSt
 
-            let private_replicas = vec![fil_PrivateReplicaInfo {
-                registered_proof: registered_proof_post,
-                cache_dir_path: cache_dir_path_c_str,
-                comm_r: (*resp_b2).comm_r,
-                replica_path: replica_path_c_str,
-                sector_id,
-            }];
-
-            let resp_f = fil_generate_candidates(
+            let sectors = vec![sector_id];
+            let resp_f = fil_generate_winning_post_sector_challenge(
+                registered_proof_winning_post,
                 randomness,
-                challenge_count,
-                private_replicas.as_ptr(),
-                private_replicas.len(),
+                sectors.len() as u64,
                 prover_id,
             );
 
@@ -1495,72 +1561,121 @@ pub mod tests {
 
             // exercise the ticket-finalizing code path (but don't do anything
             // with the results
-            let result = c_to_rust_candidates((*resp_f).candidates_ptr, (*resp_f).candidates_len)?;
+            let result: &[u64] = from_raw_parts((*resp_f).ids_ptr, (*resp_f).ids_len);
+
             if result.is_empty() {
                 panic!("generate_candidates produced no results");
             }
 
-            let resp_g = fil_finalize_ticket(fil_32ByteArray {
-                inner: bls_12_fr_into_bytes(result[0].partial_ticket),
-            });
-            if (*resp_g).status_code != FCPResponseStatus::FCPNoError {
-                let msg = c_str_to_rust_str((*resp_g).error_msg);
-                panic!("finalize_ticket failed: {:?}", msg);
-            }
+            let private_replicas = vec![fil_PrivateReplicaInfo {
+                registered_proof: registered_proof_winning_post,
+                cache_dir_path: cache_dir_path_c_str,
+                comm_r: (*resp_b2).comm_r,
+                replica_path: replica_path_c_str,
+                sector_id,
+            }];
 
-            let resp_h = fil_generate_post(
+            // winning post
+
+            let resp_h = fil_generate_winning_post(
                 randomness,
                 private_replicas.as_ptr(),
                 private_replicas.len(),
-                (*resp_f).candidates_ptr,
-                (*resp_f).candidates_len,
                 prover_id,
             );
 
             if (*resp_h).status_code != FCPResponseStatus::FCPNoError {
                 let msg = c_str_to_rust_str((*resp_h).error_msg);
-                panic!("generate_post failed: {:?}", msg);
+                panic!("generate_winning_post failed: {:?}", msg);
             }
             let public_replicas = vec![fil_PublicReplicaInfo {
-                registered_proof: registered_proof_post,
+                registered_proof: registered_proof_winning_post,
                 sector_id,
                 comm_r: (*resp_b2).comm_r,
             }];
 
-            let resp_i = fil_verify_post(
+            let resp_i = fil_verify_winning_post(
                 randomness,
-                challenge_count,
                 public_replicas.as_ptr(),
                 public_replicas.len(),
                 (*resp_h).proofs_ptr,
                 (*resp_h).proofs_len,
-                (*resp_f).candidates_ptr,
-                (*resp_f).candidates_len,
                 prover_id,
             );
 
             if (*resp_i).status_code != FCPResponseStatus::FCPNoError {
                 let msg = c_str_to_rust_str((*resp_i).error_msg);
-                panic!("verify_post failed: {:?}", msg);
+                panic!("verify_winning_post failed: {:?}", msg);
             }
 
             if !(*resp_i).is_valid {
-                panic!("verify_post rejected the provided proof as invalid");
+                panic!("verify_winning_post rejected the provided proof as invalid");
+            }
+
+            // window post
+
+            let private_replicas = vec![fil_PrivateReplicaInfo {
+                registered_proof: registered_proof_window_post,
+                cache_dir_path: cache_dir_path_c_str,
+                comm_r: (*resp_b2).comm_r,
+                replica_path: replica_path_c_str,
+                sector_id,
+            }];
+
+            let resp_j = fil_generate_window_post(
+                randomness,
+                private_replicas.as_ptr(),
+                private_replicas.len(),
+                prover_id,
+            );
+
+            if (*resp_j).status_code != FCPResponseStatus::FCPNoError {
+                let msg = c_str_to_rust_str((*resp_j).error_msg);
+                panic!("generate_window_post failed: {:?}", msg);
+            }
+
+            let public_replicas = vec![fil_PublicReplicaInfo {
+                registered_proof: registered_proof_window_post,
+                sector_id,
+                comm_r: (*resp_b2).comm_r,
+            }];
+
+            let resp_k = fil_verify_window_post(
+                randomness,
+                public_replicas.as_ptr(),
+                public_replicas.len(),
+                (*resp_j).proofs_ptr,
+                (*resp_j).proofs_len,
+                prover_id,
+            );
+
+            if (*resp_k).status_code != FCPResponseStatus::FCPNoError {
+                let msg = c_str_to_rust_str((*resp_k).error_msg);
+                panic!("verify_window_post failed: {:?}", msg);
+            }
+
+            if !(*resp_k).is_valid {
+                panic!("verify_window_post rejected the provided proof as invalid");
             }
 
             fil_destroy_write_without_alignment_response(resp_a1);
             fil_destroy_write_with_alignment_response(resp_a2);
             fil_destroy_generate_data_commitment_response(resp_x);
+
             fil_destroy_seal_pre_commit_phase1_response(resp_b1);
             fil_destroy_seal_pre_commit_phase2_response(resp_b2);
             fil_destroy_seal_commit_phase1_response(resp_c1);
             fil_destroy_seal_commit_phase2_response(resp_c2);
+
             fil_destroy_verify_seal_response(resp_d);
             fil_destroy_unseal_response(resp_e);
-            fil_destroy_generate_candidates_response(resp_f);
-            fil_destroy_finalize_ticket_response(resp_g);
-            fil_destroy_generate_post_response(resp_h);
-            fil_destroy_verify_post_response(resp_i);
+
+            fil_destroy_generate_winning_post_sector_challenge(resp_f);
+            fil_destroy_generate_winning_post_response(resp_h);
+            fil_destroy_verify_winning_post_response(resp_i);
+
+            fil_destroy_generate_window_post_response(resp_j);
+            fil_destroy_verify_window_post_response(resp_k);
 
             c_str_to_rust_str(cache_dir_path_c_str);
             c_str_to_rust_str(staged_path_c_str);

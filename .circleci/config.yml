@@ -46,7 +46,6 @@ jobs:
       - configure_environment_variables
       - prepare
       - build_project
-      - ensure_paramcache_available
       - restore_parameter_cache
       - obtain_filecoin_parameters
       - save_parameter_cache
@@ -278,10 +277,12 @@ commands:
                   echo 'export PATH="${HOME}/.cargo/bin:${HOME}/.bin:${PATH}"' >> $BASH_ENV
   obtain_filecoin_parameters:
     steps:
-      - run:
-          name: Obtain filecoin groth parameters
-          command: ./paramcache --params-for-sector-sizes='2048'
-          no_output_timeout: 60m
+      - run: |
+          DIR=$(pwd)
+          cd $(mktemp -d)
+          GOPATH=/tmp GO111MODULE=off go get github.com/filecoin-project/go-paramfetch/paramfetch
+          GOPATH=/tmp GO111MODULE=off go build -o go-paramfetch github.com/filecoin-project/go-paramfetch/paramfetch
+          ./go-paramfetch 2048 "${DIR}/parameters.json"
   build_project:
     steps:
       - run:
@@ -290,15 +291,6 @@ commands:
       - run:
           name: Build project without CGO
           command: env CGO_ENABLED=0 go build .
-  ensure_paramcache_available:
-    steps:
-      - run:
-          name: Ensure paramcache is installed to project root
-          command: |
-            test -f ./paramcache \
-              || (rustup run --install nightly cargo install filecoin-proofs --force --git=https://github.com/filecoin-project/rust-fil-proofs.git --rev=4e1ef67224eb29dc8a19a4bc31ff7b0d4c7b717f --bin=paramcache --root=./ \
-                && mv ./bin/paramcache ./paramcache)
-          no_output_timeout: 60m
   ensure_generated_cgo_up_to_date:
     steps:
       - run:
@@ -332,10 +324,10 @@ commands:
     steps:
       - restore_cache:
           keys:
-            - v24a-proof-params-{{ arch }}
+            - v25a-proof-params-{{ arch }}
   save_parameter_cache:
     steps:
       - save_cache:
-          key: v24a-proof-params-{{ arch }}
+          key: v25a-proof-params-{{ arch }}
           paths:
             - "~/filecoin-proof-parameters/"

@@ -6,10 +6,8 @@ use anyhow::Result;
 use drop_struct_macro_derive::DropStructMacro;
 use ffi_toolkit::{code_and_message_impl, free_c_str, CodeAndMessage, FCPResponseStatus};
 use filecoin_proofs_api::{
-    fr32::bytes_into_fr, Candidate, PieceInfo, RegisteredPoStProof, RegisteredSealProof,
-    UnpaddedBytesAmount,
+    PieceInfo, RegisteredPoStProof, RegisteredSealProof, UnpaddedBytesAmount,
 };
-use paired::bls12_381::Bls12;
 
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
@@ -85,30 +83,46 @@ impl From<fil_RegisteredSealProof> for RegisteredSealProof {
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub enum fil_RegisteredPoStProof {
-    StackedDrg2KiBV1,
-    StackedDrg8MiBV1,
-    StackedDrg512MiBV1,
-    StackedDrg32GiBV1,
+    StackedDrgWinning2KiBV1,
+    StackedDrgWinning8MiBV1,
+    StackedDrgWinning512MiBV1,
+    StackedDrgWinning32GiBV1,
+    StackedDrgWindow2KiBV1,
+    StackedDrgWindow8MiBV1,
+    StackedDrgWindow512MiBV1,
+    StackedDrgWindow32GiBV1,
 }
 
 impl From<RegisteredPoStProof> for fil_RegisteredPoStProof {
     fn from(other: RegisteredPoStProof) -> Self {
+        use RegisteredPoStProof::*;
+
         match other {
-            RegisteredPoStProof::StackedDrg2KiBV1 => fil_RegisteredPoStProof::StackedDrg2KiBV1,
-            RegisteredPoStProof::StackedDrg8MiBV1 => fil_RegisteredPoStProof::StackedDrg8MiBV1,
-            RegisteredPoStProof::StackedDrg512MiBV1 => fil_RegisteredPoStProof::StackedDrg512MiBV1,
-            RegisteredPoStProof::StackedDrg32GiBV1 => fil_RegisteredPoStProof::StackedDrg32GiBV1,
+            StackedDrgWinning2KiBV1 => fil_RegisteredPoStProof::StackedDrgWinning2KiBV1,
+            StackedDrgWinning8MiBV1 => fil_RegisteredPoStProof::StackedDrgWinning8MiBV1,
+            StackedDrgWinning512MiBV1 => fil_RegisteredPoStProof::StackedDrgWinning512MiBV1,
+            StackedDrgWinning32GiBV1 => fil_RegisteredPoStProof::StackedDrgWinning32GiBV1,
+            StackedDrgWindow2KiBV1 => fil_RegisteredPoStProof::StackedDrgWindow2KiBV1,
+            StackedDrgWindow8MiBV1 => fil_RegisteredPoStProof::StackedDrgWindow8MiBV1,
+            StackedDrgWindow512MiBV1 => fil_RegisteredPoStProof::StackedDrgWindow512MiBV1,
+            StackedDrgWindow32GiBV1 => fil_RegisteredPoStProof::StackedDrgWindow32GiBV1,
         }
     }
 }
 
 impl From<fil_RegisteredPoStProof> for RegisteredPoStProof {
     fn from(other: fil_RegisteredPoStProof) -> Self {
+        use RegisteredPoStProof::*;
+
         match other {
-            fil_RegisteredPoStProof::StackedDrg2KiBV1 => RegisteredPoStProof::StackedDrg2KiBV1,
-            fil_RegisteredPoStProof::StackedDrg8MiBV1 => RegisteredPoStProof::StackedDrg8MiBV1,
-            fil_RegisteredPoStProof::StackedDrg512MiBV1 => RegisteredPoStProof::StackedDrg512MiBV1,
-            fil_RegisteredPoStProof::StackedDrg32GiBV1 => RegisteredPoStProof::StackedDrg32GiBV1,
+            fil_RegisteredPoStProof::StackedDrgWinning2KiBV1 => StackedDrgWinning2KiBV1,
+            fil_RegisteredPoStProof::StackedDrgWinning8MiBV1 => StackedDrgWinning8MiBV1,
+            fil_RegisteredPoStProof::StackedDrgWinning512MiBV1 => StackedDrgWinning512MiBV1,
+            fil_RegisteredPoStProof::StackedDrgWinning32GiBV1 => StackedDrgWinning32GiBV1,
+            fil_RegisteredPoStProof::StackedDrgWindow2KiBV1 => StackedDrgWindow2KiBV1,
+            fil_RegisteredPoStProof::StackedDrgWindow8MiBV1 => StackedDrgWindow8MiBV1,
+            fil_RegisteredPoStProof::StackedDrgWindow512MiBV1 => StackedDrgWindow512MiBV1,
+            fil_RegisteredPoStProof::StackedDrgWindow32GiBV1 => StackedDrgWindow32GiBV1,
         }
     }
 }
@@ -165,34 +179,6 @@ impl From<fil_PoStProof> for PoStProof {
 
 #[repr(C)]
 #[derive(Clone)]
-pub struct fil_Candidate {
-    pub sector_id: u64,
-    pub partial_ticket: [u8; 32],
-    pub ticket: [u8; 32],
-    pub sector_challenge_index: u64,
-}
-
-impl fil_Candidate {
-    pub fn try_into_candidate(self) -> Result<Candidate> {
-        let fil_Candidate {
-            sector_id,
-            partial_ticket,
-            ticket,
-            sector_challenge_index,
-        } = self;
-
-        let partial_ticket_fr = bytes_into_fr::<Bls12>(&partial_ticket)?;
-        Ok(Candidate {
-            sector_id: sector_id.into(),
-            partial_ticket: partial_ticket_fr,
-            ticket,
-            sector_challenge_index,
-        })
-    }
-}
-
-#[repr(C)]
-#[derive(Clone)]
 pub struct fil_PrivateReplicaInfo {
     pub registered_proof: fil_RegisteredPoStProof,
     pub cache_dir_path: *const libc::c_char,
@@ -211,38 +197,38 @@ pub struct fil_PublicReplicaInfo {
 
 #[repr(C)]
 #[derive(DropStructMacro)]
-pub struct fil_GenerateCandidatesResponse {
+pub struct fil_GenerateWinningPoStSectorChallenge {
     pub error_msg: *const libc::c_char,
     pub status_code: FCPResponseStatus,
-    pub candidates_ptr: *const fil_Candidate,
-    pub candidates_len: libc::size_t,
+    pub ids_ptr: *const u64,
+    pub ids_len: libc::size_t,
 }
 
-impl Default for fil_GenerateCandidatesResponse {
-    fn default() -> fil_GenerateCandidatesResponse {
-        fil_GenerateCandidatesResponse {
-            candidates_len: 0,
-            candidates_ptr: ptr::null(),
+impl Default for fil_GenerateWinningPoStSectorChallenge {
+    fn default() -> fil_GenerateWinningPoStSectorChallenge {
+        fil_GenerateWinningPoStSectorChallenge {
+            ids_len: 0,
+            ids_ptr: ptr::null(),
             error_msg: ptr::null(),
             status_code: FCPResponseStatus::FCPNoError,
         }
     }
 }
 
-code_and_message_impl!(fil_GenerateCandidatesResponse);
+code_and_message_impl!(fil_GenerateWinningPoStSectorChallenge);
 
 #[repr(C)]
 #[derive(DropStructMacro)]
-pub struct fil_GeneratePoStResponse {
+pub struct fil_GenerateWinningPoStResponse {
     pub error_msg: *const libc::c_char,
     pub proofs_len: libc::size_t,
     pub proofs_ptr: *const fil_PoStProof,
     pub status_code: FCPResponseStatus,
 }
 
-impl Default for fil_GeneratePoStResponse {
-    fn default() -> fil_GeneratePoStResponse {
-        fil_GeneratePoStResponse {
+impl Default for fil_GenerateWinningPoStResponse {
+    fn default() -> fil_GenerateWinningPoStResponse {
+        fil_GenerateWinningPoStResponse {
             error_msg: ptr::null(),
             proofs_len: 0,
             proofs_ptr: ptr::null(),
@@ -251,7 +237,29 @@ impl Default for fil_GeneratePoStResponse {
     }
 }
 
-code_and_message_impl!(fil_GeneratePoStResponse);
+code_and_message_impl!(fil_GenerateWinningPoStResponse);
+
+#[repr(C)]
+#[derive(DropStructMacro)]
+pub struct fil_GenerateWindowPoStResponse {
+    pub error_msg: *const libc::c_char,
+    pub proofs_len: libc::size_t,
+    pub proofs_ptr: *const fil_PoStProof,
+    pub status_code: FCPResponseStatus,
+}
+
+impl Default for fil_GenerateWindowPoStResponse {
+    fn default() -> fil_GenerateWindowPoStResponse {
+        fil_GenerateWindowPoStResponse {
+            error_msg: ptr::null(),
+            proofs_len: 0,
+            proofs_ptr: ptr::null(),
+            status_code: FCPResponseStatus::FCPNoError,
+        }
+    }
+}
+
+code_and_message_impl!(fil_GenerateWindowPoStResponse);
 
 #[repr(C)]
 #[derive(DropStructMacro)]
@@ -447,15 +455,15 @@ code_and_message_impl!(fil_VerifySealResponse);
 
 #[repr(C)]
 #[derive(DropStructMacro)]
-pub struct fil_VerifyPoStResponse {
+pub struct fil_VerifyWinningPoStResponse {
     pub status_code: FCPResponseStatus,
     pub error_msg: *const libc::c_char,
     pub is_valid: bool,
 }
 
-impl Default for fil_VerifyPoStResponse {
-    fn default() -> fil_VerifyPoStResponse {
-        fil_VerifyPoStResponse {
+impl Default for fil_VerifyWinningPoStResponse {
+    fn default() -> fil_VerifyWinningPoStResponse {
+        fil_VerifyWinningPoStResponse {
             status_code: FCPResponseStatus::FCPNoError,
             error_msg: ptr::null(),
             is_valid: false,
@@ -463,7 +471,27 @@ impl Default for fil_VerifyPoStResponse {
     }
 }
 
-code_and_message_impl!(fil_VerifyPoStResponse);
+code_and_message_impl!(fil_VerifyWinningPoStResponse);
+
+#[repr(C)]
+#[derive(DropStructMacro)]
+pub struct fil_VerifyWindowPoStResponse {
+    pub status_code: FCPResponseStatus,
+    pub error_msg: *const libc::c_char,
+    pub is_valid: bool,
+}
+
+impl Default for fil_VerifyWindowPoStResponse {
+    fn default() -> fil_VerifyWindowPoStResponse {
+        fil_VerifyWindowPoStResponse {
+            status_code: FCPResponseStatus::FCPNoError,
+            error_msg: ptr::null(),
+            is_valid: false,
+        }
+    }
+}
+
+code_and_message_impl!(fil_VerifyWindowPoStResponse);
 
 #[repr(C)]
 #[derive(DropStructMacro)]
