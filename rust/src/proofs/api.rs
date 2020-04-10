@@ -1521,6 +1521,8 @@ pub mod tests {
             // ensure unsealed bytes match what we had in our piece
             let mut buf_b = Vec::with_capacity(2032);
             let mut f = std::fs::File::open(unseal_path)?;
+
+            #[allow(clippy::verbose_file_reads)]
             let _ = f.read_to_end(&mut buf_b)?;
 
             let piece_a_len = (*resp_a1).total_write_unpadded as usize;
@@ -1544,7 +1546,7 @@ pub mod tests {
 
             // generate a PoSt
 
-            let sectors = vec![u64::from(sector_id)];
+            let sectors = vec![sector_id];
             let resp_f = fil_generate_winning_post_sector_challenge(
                 registered_proof_winning_post,
                 randomness,

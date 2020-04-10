@@ -73,13 +73,12 @@ func VerifyWinningPoSt(info abi.WinningPoStVerifyInfo) (bool, error) {
 		return false, err
 	}
 
-	sectors := toSectors(info.EligibleSectors)
-
 	resp := generated.FilVerifyWinningPost(
 		to32ByteArray(info.Randomness),
-		filPublicReplicaInfos, filPublicReplicaInfosLen,
-		filPoStProofs, filPoStProofsLen,
-		sectors, uint(len(sectors)),
+		filPublicReplicaInfos,
+		filPublicReplicaInfosLen,
+		filPoStProofs,
+		filPoStProofsLen,
 		proverID,
 	)
 	resp.Deref()
@@ -462,8 +461,8 @@ func GenerateWinningPoStSectorChallenge(
 	proofType abi.RegisteredProof,
 	minerID abi.ActorID,
 	randomness abi.PoStRandomness,
-	eligibleSectorsLen uin64,
-) ([]uin64, error) {
+	eligibleSectorsLen uint64,
+) ([]uint64, error) {
 	pp, err := toFilRegisteredPoStProof(proofType, "winning")
 	if err != nil {
 		return nil, err
@@ -476,7 +475,7 @@ func GenerateWinningPoStSectorChallenge(
 
 	resp := generated.FilGenerateWinningPostSectorChallenge(
 		pp, to32ByteArray(randomness),
-                eligibleSectorsLen, proverID,
+		eligibleSectorsLen, proverID,
 	)
 	resp.Deref()
 	resp.IdsPtr = make([]uint64, resp.IdsLen)
@@ -749,15 +748,6 @@ func toFilPoStProofs(src []abi.PoStProof, typ string) ([]generated.FilPoStProof,
 	}
 
 	return out, uint(len(out)), nil
-}
-
-func toSectors(src []abi.SectorNumber) []uint64 {
-	sectors := make([]uint64, len(src))
-	for idx := range src {
-		sectors[idx] = uint64(src[idx])
-	}
-
-	return sectors
 }
 
 func to32ByteArray(in []byte) generated.Fil32ByteArray {
