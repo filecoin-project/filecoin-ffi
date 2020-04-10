@@ -268,17 +268,19 @@ func WorkflowRegisteredPoStProofFunctions(t TestHelper) {
 }
 
 func WorkflowGenerateWinningPoStSectorChallengeEdgeCase(t TestHelper) {
-	var randomnessFr32 [32]byte
-	_, err := io.ReadFull(rand.Reader, randomnessFr32[0:31]) // last byte of the 32 is always NUL
-	t.RequireNoError(err)
+	for i := 0; i < 10000; i++ {
+		var randomnessFr32 [32]byte
+		_, err := io.ReadFull(rand.Reader, randomnessFr32[0:31]) // last byte of the 32 is always NUL
+		t.RequireNoError(err)
 
-	minerID := abi.ActorID(randUInt64())
-	eligibleSectorsLen := uint64(1)
+		minerID := abi.ActorID(randUInt64())
+		eligibleSectorsLen := uint64(1)
 
-	indices2, err := GenerateWinningPoStSectorChallenge(abi.RegisteredProof_StackedDRG2KiBWinningPoSt, minerID, randomnessFr32[:], eligibleSectorsLen)
-	t.RequireNoError(err)
-	t.AssertEqual(1, len(indices2))
-	t.AssertEqual(0, int(indices2[0]))
+		indices2, err := GenerateWinningPoStSectorChallenge(abi.RegisteredProof_StackedDRG2KiBWinningPoSt, minerID, randomnessFr32[:], eligibleSectorsLen)
+		t.RequireNoError(err)
+		t.AssertEqual(1, len(indices2))
+		t.AssertEqual(0, int(indices2[0]))
+	}
 }
 
 func WorkflowGenerateWinningPoStSectorChallenge(t TestHelper) {
