@@ -53,6 +53,12 @@ func TestBLSSigningAndVerification(t *testing.T) {
 	// assert the bar message was signed with the bar key
 	assert.True(t, Verify(barSignature, []Digest{barDigest}, []PublicKey{barPublicKey}))
 
+	// assert the foo message was signed with the foo key
+	assert.True(t, HashVerify(fooSignature, []Message{fooMessage}, []PublicKey{fooPublicKey}))
+
+	// assert the bar message was signed with the bar key
+	assert.True(t, HashVerify(barSignature, []Message{barMessage}, []PublicKey{barPublicKey}))
+
 	// assert the foo message was not signed by the bar key
 	assert.False(t, Verify(fooSignature, []Digest{fooDigest}, []PublicKey{barPublicKey}))
 
@@ -116,6 +122,43 @@ func benchmarkBLSVerifyBatchSize(size int) func(b *testing.B) {
 			if !Verify(agsig, digests, pubks) {
 				b.Fatal("failed to verify")
 			}
+		}
+	}
+}
+
+func BenchmarkBLSHashAndVerify(b *testing.B) {
+	priv := PrivateKeyGenerate()
+
+	msg := Message("this is a message that i will be signing")
+	sig := PrivateKeySign(priv, msg)
+
+	// fmt.Println("SIG SIZE: ", len(sig))
+	// fmt.Println("SIG: ", sig)
+	pubk := PrivateKeyPublicKey(priv)
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		digest := Hash(msg)
+		if !Verify(sig, []Digest{digest}, []PublicKey{pubk}) {
+			b.Fatal("failed to verify")
+		}
+	}
+}
+
+func BenchmarkBLSHashVerify(b *testing.B) {
+	priv := PrivateKeyGenerate()
+
+	msg := Message("this is a message that i will be signing")
+	sig := PrivateKeySign(priv, msg)
+
+	// fmt.Println("SIG SIZE: ", len(sig))
+	// fmt.Println("SIG: ", sig)
+	pubk := PrivateKeyPublicKey(priv)
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		if !HashVerify(sig, []Message{msg}, []PublicKey{pubk}) {
+			b.Fatal("failed to verify")
 		}
 	}
 }

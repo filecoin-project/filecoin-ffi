@@ -3443,6 +3443,54 @@ func packSFilPrivateReplicaInfo(v []FilPrivateReplicaInfo, ptr0 *C.fil_PrivateRe
 	}
 }
 
+// allocPUint8TMemory allocates memory for type *C.uint8_t in C.
+// The caller is responsible for freeing the this memory via C.free.
+func allocPUint8TMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfPUint8TValue))
+	if err != nil {
+		panic("memory alloc error: " + err.Error())
+	}
+	return mem
+}
+
+const sizeOfPUint8TValue = unsafe.Sizeof([1]*C.uint8_t{})
+
+// unpackArgSUString transforms a sliced Go data structure into plain C format.
+func unpackArgSUString(x []string) (unpacked **C.uint8_t, allocs *cgoAllocMap) {
+	if x == nil {
+		return nil, nil
+	}
+	allocs = new(cgoAllocMap)
+	defer runtime.SetFinalizer(&unpacked, func(***C.uint8_t) {
+		go allocs.Free()
+	})
+
+	len0 := len(x)
+	mem0 := allocPUint8TMemory(len0)
+	allocs.Add(mem0)
+	h0 := &sliceHeader{
+		Data: mem0,
+		Cap:  len0,
+		Len:  len0,
+	}
+	v0 := *(*[]*C.uint8_t)(unsafe.Pointer(h0))
+	for i0 := range x {
+		v0[i0], _ = unpackPUint8TString(x[i0])
+	}
+	h := (*sliceHeader)(unsafe.Pointer(&v0))
+	unpacked = (**C.uint8_t)(h.Data)
+	return
+}
+
+// packSUString reads sliced Go data structure out from plain C format.
+func packSUString(v []string, ptr0 **C.uint8_t) {
+	const m = 0x7fffffff
+	for i0 := range v {
+		ptr1 := (*(*[m / sizeOfPtr]*C.uint8_t)(unsafe.Pointer(ptr0)))[i0]
+		v[i0] = packPUint8TString(ptr1)
+	}
+}
+
 // unpackArgSFilPublicReplicaInfo transforms a sliced Go data structure into plain C format.
 func unpackArgSFilPublicReplicaInfo(x []FilPublicReplicaInfo) (unpacked *C.fil_PublicReplicaInfo, allocs *cgoAllocMap) {
 	if x == nil {

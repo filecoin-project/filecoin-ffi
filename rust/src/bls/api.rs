@@ -122,6 +122,7 @@ pub unsafe extern "C" fn fil_aggregate(
 /// * `flattened_digests_ptr`     - pointer to a byte array containing digests
 /// * `flattened_digests_len`     - length of the byte array (multiple of DIGEST_BYTES)
 /// * `flattened_public_keys_ptr` - pointer to a byte array containing public keys
+/// * `flattened_public_keys_len` - length of the array
 #[no_mangle]
 pub unsafe extern "C" fn fil_verify(
     signature_ptr: *const u8,
@@ -172,6 +173,59 @@ pub unsafe extern "C" fn fil_verify(
     );
 
     verify_sig(&signature, digests.as_slice(), public_keys.as_slice()) as libc::c_int
+}
+
+/// Verify that a signature is the aggregated signature of the hhashed messages
+///
+/// # Arguments
+///
+/// * `signature_ptr`             - pointer to a signature byte array (SIGNATURE_BYTES long)
+/// * `messages_ptr`              - pointer to an array containing the pointers to the messages
+/// * `messages_sizes_ptr`        - pointer to an array containing the lengths of the messages
+/// * `messages_len`              - length of the two messages arrays
+/// * `flattened_public_keys_ptr` - pointer to a byte array containing public keys
+/// * `flattened_public_keys_len` - length of the array
+#[no_mangle]
+pub unsafe extern "C" fn fil_hash_verify(
+    signature_ptr: *const u8,
+    messages_ptr: *const *const u8,
+    messages_sizes_ptr: *const libc::size_t,
+    messages_len: libc::size_t,
+    flattened_public_keys_ptr: *const u8,
+    flattened_public_keys_len: libc::size_t,
+) -> libc::c_int {
+    // prep request
+    let raw_signature = from_raw_parts(signature_ptr, SIGNATURE_BYTES);
+    let signature = try_ffi!(Signature::from_bytes(raw_signature), 0);
+
+    let raw_messages_sizes: &[usize] = from_raw_parts(messages_sizes_ptr, messages_len);
+    let raw_messages: &[*const u8] = from_raw_parts(messages_ptr, messages_len);
+    let messages: Vec<&[u8]> = raw_messages
+        .iter()
+        .zip(raw_messages_sizes.iter())
+        .map(|(ptr, size)| from_raw_parts(*ptr, *size))
+        .collect();
+
+    let raw_public_keys = from_raw_parts(flattened_public_keys_ptr, flattened_public_keys_len);
+
+    if raw_public_keys.len() % PUBLIC_KEY_BYTES != 0 {
+        return 0;
+    }
+
+    let digests: Vec<_> = messages
+        .into_par_iter()
+        .map(|message: &[u8]| hash_sig(message))
+        .collect::<Vec<_>>();
+
+    let public_keys: Vec<_> = try_ffi!(
+        raw_public_keys
+            .par_chunks(PUBLIC_KEY_BYTES)
+            .map(|item| { PublicKey::from_bytes(item) })
+            .collect::<Result<_, _>>(),
+        0
+    );
+
+    verify_sig(&signature, &digests, &public_keys) as libc::c_int
 }
 
 /// Generate a new private key
@@ -310,6 +364,19 @@ mod tests {
                 &digest[0],
                 digest.len(),
                 &public_key[0],
+                public_key.len(),
+            );
+
+            assert_eq!(1, verified);
+
+            let messages = [message.as_ptr()];
+            let messages_sizes = [message.len()];
+            let verified = fil_hash_verify(
+                signature.as_ptr(),
+                messages.as_ptr(),
+                messages_sizes.as_ptr(),
+                1,
+                public_key.as_ptr(),
                 public_key.len(),
             );
 
