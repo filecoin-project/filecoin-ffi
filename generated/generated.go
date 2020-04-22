@@ -195,12 +195,11 @@ func FilDestroyWriteWithoutAlignmentResponse(ptr *FilWriteWithoutAlignmentRespon
 }
 
 // FilGenerateDataCommitment function as declared in filecoin-ffi/filcrypto.h:351
-func FilGenerateDataCommitment(registeredProof FilRegisteredSealProof, piecesPtr []FilPublicPieceInfo, piecesLen uint) *FilGenerateDataCommitmentResponse {
+func FilGenerateDataCommitment(registeredProof FilRegisteredSealProof, piecesPtr *FilPublicPieceInfo, piecesLen uint) *FilGenerateDataCommitmentResponse {
 	cregisteredProof, _ := (C.fil_RegisteredSealProof)(registeredProof), cgoAllocsUnknown
-	cpiecesPtr, _ := unpackArgSFilPublicPieceInfo(piecesPtr)
+	cpiecesPtr, _ := piecesPtr.PassRef()
 	cpiecesLen, _ := (C.size_t)(piecesLen), cgoAllocsUnknown
 	__ret := C.fil_generate_data_commitment(cregisteredProof, cpiecesPtr, cpiecesLen)
-	packSFilPublicPieceInfo(piecesPtr, cpiecesPtr)
 	__v := NewFilGenerateDataCommitmentResponseRef(unsafe.Pointer(__ret))
 	return __v
 }
@@ -216,25 +215,23 @@ func FilGeneratePieceCommitment(registeredProof FilRegisteredSealProof, pieceFdR
 }
 
 // FilGenerateWindowPost function as declared in filecoin-ffi/filcrypto.h:367
-func FilGenerateWindowPost(randomness Fil32ByteArray, replicasPtr []FilPrivateReplicaInfo, replicasLen uint, proverId Fil32ByteArray) *FilGenerateWindowPoStResponse {
+func FilGenerateWindowPost(randomness Fil32ByteArray, replicasPtr *FilPrivateReplicaInfo, replicasLen uint, proverId Fil32ByteArray) *FilGenerateWindowPoStResponse {
 	crandomness, _ := randomness.PassValue()
-	creplicasPtr, _ := unpackArgSFilPrivateReplicaInfo(replicasPtr)
+	creplicasPtr, _ := replicasPtr.PassRef()
 	creplicasLen, _ := (C.size_t)(replicasLen), cgoAllocsUnknown
 	cproverId, _ := proverId.PassValue()
 	__ret := C.fil_generate_window_post(crandomness, creplicasPtr, creplicasLen, cproverId)
-	packSFilPrivateReplicaInfo(replicasPtr, creplicasPtr)
 	__v := NewFilGenerateWindowPoStResponseRef(unsafe.Pointer(__ret))
 	return __v
 }
 
 // FilGenerateWinningPost function as declared in filecoin-ffi/filcrypto.h:376
-func FilGenerateWinningPost(randomness Fil32ByteArray, replicasPtr []FilPrivateReplicaInfo, replicasLen uint, proverId Fil32ByteArray) *FilGenerateWinningPoStResponse {
+func FilGenerateWinningPost(randomness Fil32ByteArray, replicasPtr *FilPrivateReplicaInfo, replicasLen uint, proverId Fil32ByteArray) *FilGenerateWinningPoStResponse {
 	crandomness, _ := randomness.PassValue()
-	creplicasPtr, _ := unpackArgSFilPrivateReplicaInfo(replicasPtr)
+	creplicasPtr, _ := replicasPtr.PassRef()
 	creplicasLen, _ := (C.size_t)(replicasLen), cgoAllocsUnknown
 	cproverId, _ := proverId.PassValue()
 	__ret := C.fil_generate_winning_post(crandomness, creplicasPtr, creplicasLen, cproverId)
-	packSFilPrivateReplicaInfo(replicasPtr, creplicasPtr)
 	__v := NewFilGenerateWinningPoStResponseRef(unsafe.Pointer(__ret))
 	return __v
 }
@@ -438,7 +435,7 @@ func FilPrivateKeySign(rawPrivateKeyPtr string, messagePtr string, messageLen ui
 }
 
 // FilSealCommitPhase1 function as declared in filecoin-ffi/filcrypto.h:565
-func FilSealCommitPhase1(registeredProof FilRegisteredSealProof, commR Fil32ByteArray, commD Fil32ByteArray, cacheDirPath string, replicaPath string, sectorId uint64, proverId Fil32ByteArray, ticket Fil32ByteArray, seed Fil32ByteArray, piecesPtr []FilPublicPieceInfo, piecesLen uint) *FilSealCommitPhase1Response {
+func FilSealCommitPhase1(registeredProof FilRegisteredSealProof, commR Fil32ByteArray, commD Fil32ByteArray, cacheDirPath string, replicaPath string, sectorId uint64, proverId Fil32ByteArray, ticket Fil32ByteArray, seed Fil32ByteArray, piecesPtr *FilPublicPieceInfo, piecesLen uint) *FilSealCommitPhase1Response {
 	cregisteredProof, _ := (C.fil_RegisteredSealProof)(registeredProof), cgoAllocsUnknown
 	ccommR, _ := commR.PassValue()
 	ccommD, _ := commD.PassValue()
@@ -450,10 +447,9 @@ func FilSealCommitPhase1(registeredProof FilRegisteredSealProof, commR Fil32Byte
 	cproverId, _ := proverId.PassValue()
 	cticket, _ := ticket.PassValue()
 	cseed, _ := seed.PassValue()
-	cpiecesPtr, _ := unpackArgSFilPublicPieceInfo(piecesPtr)
+	cpiecesPtr, _ := piecesPtr.PassRef()
 	cpiecesLen, _ := (C.size_t)(piecesLen), cgoAllocsUnknown
 	__ret := C.fil_seal_commit_phase1(cregisteredProof, ccommR, ccommD, ccacheDirPath, creplicaPath, csectorId, cproverId, cticket, cseed, cpiecesPtr, cpiecesLen)
-	packSFilPublicPieceInfo(piecesPtr, cpiecesPtr)
 	runtime.KeepAlive(replicaPath)
 	runtime.KeepAlive(cacheDirPath)
 	__v := NewFilSealCommitPhase1ResponseRef(unsafe.Pointer(__ret))
@@ -474,7 +470,7 @@ func FilSealCommitPhase2(sealCommitPhase1OutputPtr string, sealCommitPhase1Outpu
 }
 
 // FilSealPreCommitPhase1 function as declared in filecoin-ffi/filcrypto.h:586
-func FilSealPreCommitPhase1(registeredProof FilRegisteredSealProof, cacheDirPath string, stagedSectorPath string, sealedSectorPath string, sectorId uint64, proverId Fil32ByteArray, ticket Fil32ByteArray, piecesPtr []FilPublicPieceInfo, piecesLen uint) *FilSealPreCommitPhase1Response {
+func FilSealPreCommitPhase1(registeredProof FilRegisteredSealProof, cacheDirPath string, stagedSectorPath string, sealedSectorPath string, sectorId uint64, proverId Fil32ByteArray, ticket Fil32ByteArray, piecesPtr *FilPublicPieceInfo, piecesLen uint) *FilSealPreCommitPhase1Response {
 	cregisteredProof, _ := (C.fil_RegisteredSealProof)(registeredProof), cgoAllocsUnknown
 	cacheDirPath = safeString(cacheDirPath)
 	ccacheDirPath, _ := unpackPCharString(cacheDirPath)
@@ -485,10 +481,9 @@ func FilSealPreCommitPhase1(registeredProof FilRegisteredSealProof, cacheDirPath
 	csectorId, _ := (C.uint64_t)(sectorId), cgoAllocsUnknown
 	cproverId, _ := proverId.PassValue()
 	cticket, _ := ticket.PassValue()
-	cpiecesPtr, _ := unpackArgSFilPublicPieceInfo(piecesPtr)
+	cpiecesPtr, _ := piecesPtr.PassRef()
 	cpiecesLen, _ := (C.size_t)(piecesLen), cgoAllocsUnknown
 	__ret := C.fil_seal_pre_commit_phase1(cregisteredProof, ccacheDirPath, cstagedSectorPath, csealedSectorPath, csectorId, cproverId, cticket, cpiecesPtr, cpiecesLen)
-	packSFilPublicPieceInfo(piecesPtr, cpiecesPtr)
 	runtime.KeepAlive(sealedSectorPath)
 	runtime.KeepAlive(stagedSectorPath)
 	runtime.KeepAlive(cacheDirPath)

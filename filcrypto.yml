@@ -26,6 +26,11 @@ TRANSLATOR:
   PtrTips:
     function:
       - {target: "^fil_destroy", tips: [ref]}
+      - {target: "^fil_generate_winning_post", tips: [0, ref, 0, 0]}
+      - {target: "^fil_generate_window_post", tips: [0, ref, 0, 0]}
+      - {target: "^fil_generate_data_commitment", tips: [0, ref, 0]}
+      - {target: "^fil_seal_pre_commit_phase1", tips: [0, 0, 0, 0, 0, 0, 0, ref, 0]}
+      - {target: "^fil_seal_commit_phase1", tips: [0, 0, 0, 0, 0, 0, 0, 0, 0, ref, 0]}
   Rules:
     global:
       - {action: accept, from: "^fil"}

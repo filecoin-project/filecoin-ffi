@@ -8,6 +8,7 @@ package ffi
 import "C"
 import (
 	"os"
+	"reflect"
 	"runtime"
 	"unsafe"
 
@@ -146,12 +147,13 @@ func GenerateUnsealedCID(proofType abi.RegisteredProof, pieces []abi.PieceInfo) 
 		return cid.Undef, err
 	}
 
-	filPublicPieceInfos, filPublicPieceInfosLen, err := toFilPublicPieceInfos(pieces)
+	proxy, len, cleanup, err := toFilPublicPieceInfos(pieces)
 	if err != nil {
 		return cid.Undef, err
 	}
+	defer cleanup()
 
-	resp := generated.FilGenerateDataCommitment(sp, filPublicPieceInfos, filPublicPieceInfosLen)
+	resp := generated.FilGenerateDataCommitment(sp, proxy, len)
 	resp.Deref()
 
 	defer generated.FilDestroyGenerateDataCommitmentResponse(resp)
@@ -270,12 +272,13 @@ func SealPreCommitPhase1(
 		return nil, err
 	}
 
-	filPublicPieceInfos, filPublicPieceInfosLen, err := toFilPublicPieceInfos(pieces)
+	proxy, len, cleanup, err := toFilPublicPieceInfos(pieces)
 	if err != nil {
 		return nil, err
 	}
+	defer cleanup()
 
-	resp := generated.FilSealPreCommitPhase1(sp, cacheDirPath, stagedSectorPath, sealedSectorPath, uint64(sectorNum), proverID, to32ByteArray(ticket), filPublicPieceInfos, filPublicPieceInfosLen)
+	resp := generated.FilSealPreCommitPhase1(sp, cacheDirPath, stagedSectorPath, sealedSectorPath, uint64(sectorNum), proverID, to32ByteArray(ticket), proxy, len)
 	resp.Deref()
 
 	defer generated.FilDestroySealPreCommitPhase1Response(resp)
@@ -338,12 +341,13 @@ func SealCommitPhase1(
 		return nil, err
 	}
 
-	filPublicPieceInfos, filPublicPieceInfosLen, err := toFilPublicPieceInfos(pieces)
+	proxy, len, cleanup, err := toFilPublicPieceInfos(pieces)
 	if err != nil {
 		return nil, err
 	}
+	defer cleanup()
 
-	resp := generated.FilSealCommitPhase1(sp, commR, commD, cacheDirPath, sealedSectorPath, uint64(sectorNum), proverID, to32ByteArray(ticket), to32ByteArray(seed), filPublicPieceInfos, filPublicPieceInfosLen)
+	resp := generated.FilSealCommitPhase1(sp, commR, commD, cacheDirPath, sealedSectorPath, uint64(sectorNum), proverID, to32ByteArray(ticket), to32ByteArray(seed), proxy, len)
 	resp.Deref()
 
 	defer generated.FilDestroySealCommitPhase1Response(resp)
@@ -502,21 +506,19 @@ func GenerateWinningPoSt(
 	privateSectorInfo SortedPrivateSectorInfo,
 	randomness abi.PoStRandomness,
 ) ([]abi.PoStProof, error) {
-	filReplicas, filReplicasLen, err := toFilPrivateReplicaInfos(privateSectorInfo.Values(), "winning")
+	proxy, len, cleanup, err := toFilPrivateReplicaInfos(privateSectorInfo.Values(), "winning")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create private replica info array for FFI")
 	}
+	defer cleanup()
 
 	proverID, err := toProverID(minerID)
 	if err != nil {
 		return nil, err
 	}
 
-	resp := generated.FilGenerateWinningPost(
-		to32ByteArray(randomness),
-		filReplicas, filReplicasLen,
-		proverID,
-	)
+	resp := generated.FilGenerateWinningPost(to32ByteArray(randomness), proxy, len, proverID)
+
 	resp.Deref()
 	resp.ProofsPtr = make([]generated.FilPoStProof, resp.ProofsLen)
 	resp.Deref()
@@ -541,17 +543,19 @@ func GenerateWindowPoSt(
 	privateSectorInfo SortedPrivateSectorInfo,
 	randomness abi.PoStRandomness,
 ) ([]abi.PoStProof, error) {
-	filReplicas, filReplicasLen, err := toFilPrivateReplicaInfos(privateSectorInfo.Values(), "window")
+	proxy, len, cleanup, err := toFilPrivateReplicaInfos(privateSectorInfo.Values(), "window")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create private replica info array for FFI")
 	}
+	defer cleanup()
 
 	proverID, err := toProverID(minerID)
 	if err != nil {
 		return nil, err
 	}
 
-	resp := generated.FilGenerateWindowPost(to32ByteArray(randomness), filReplicas, filReplicasLen, proverID)
+	resp := generated.FilGenerateWindowPost(to32ByteArray(randomness), proxy, len, proverID)
+
 	resp.Deref()
 	resp.ProofsPtr = make([]generated.FilPoStProof, resp.ProofsLen)
 	resp.Deref()
@@ -650,22 +654,35 @@ func toFilExistingPieceSizes(src []abi.UnpaddedPieceSize) ([]uint64, uint) {
 	return out, uint(len(out))
 }
 
-func toFilPublicPieceInfos(src []abi.PieceInfo) ([]generated.FilPublicPieceInfo, uint, error) {
-	out := make([]generated.FilPublicPieceInfo, len(src))
+func toFilPublicPieceInfos(src []abi.PieceInfo) (*generated.FilPublicPieceInfo, uint, func(), error) {
+	out := &generated.FilPublicPieceInfo{}
 
-	for idx := range out {
+	tmp := make([]C.fil_PublicPieceInfo, len(src))
+	for idx := range tmp {
 		commP, err := to32ByteCommP(src[idx].PieceCID)
 		if err != nil {
-			return nil, 0, err
+			return nil, 0, nil, err
 		}
 
-		out[idx] = generated.FilPublicPieceInfo{
-			NumBytes: uint64(src[idx].Size.Unpadded()),
-			CommP:    commP.Inner,
+		tmp[idx] = C.fil_PublicPieceInfo{
+			comm_p:    *(*[32]C.uint8_t)(unsafe.Pointer(&commP.Inner)),
+			num_bytes: (C.uint64_t)(uint64(src[idx].Size.Unpadded())),
 		}
 	}
 
-	return out, uint(len(out)), nil
+	if len(tmp) > 0 {
+		accessFieldMutable(out, "refd00025ac", func(ptr unsafe.Pointer) {
+			*(**C.fil_PublicPieceInfo)(ptr) = &tmp[0]
+		})
+	}
+
+	cleanup := func() {
+		for idx := range tmp {
+			runtime.KeepAlive(&tmp[idx])
+		}
+	}
+
+	return out, uint(len(tmp)), cleanup, nil
 }
 
 func toFilPublicReplicaInfos(src []abi.SectorInfo, typ string) ([]generated.FilPublicReplicaInfo, uint, error) {
@@ -692,30 +709,57 @@ func toFilPublicReplicaInfos(src []abi.SectorInfo, typ string) ([]generated.FilP
 	return out, uint(len(out)), nil
 }
 
-func toFilPrivateReplicaInfos(src []PrivateSectorInfo, typ string) ([]generated.FilPrivateReplicaInfo, uint, error) {
-	out := make([]generated.FilPrivateReplicaInfo, len(src))
+func toFilPrivateReplicaInfos(src []PrivateSectorInfo, typ string) (*generated.FilPrivateReplicaInfo, uint, func(), error) {
+	var deallocs []func()
 
-	for idx := range out {
+	out := &generated.FilPrivateReplicaInfo{}
+
+	tmp := make([]C.fil_PrivateReplicaInfo, len(src))
+	for idx := range tmp {
 		commR, err := to32ByteCommR(src[idx].SealedCID)
 		if err != nil {
-			return nil, 0, err
+			return nil, 0, nil, err
 		}
 
 		pp, err := toFilRegisteredPoStProof(src[idx].PoStProofType, typ)
 		if err != nil {
-			return nil, 0, err
+			return nil, 0, nil, err
 		}
 
-		out[idx] = generated.FilPrivateReplicaInfo{
-			RegisteredProof: pp,
-			CacheDirPath:    src[idx].CacheDirPath,
-			CommR:           commR.Inner,
-			ReplicaPath:     src[idx].SealedSectorPath,
-			SectorId:        uint64(src[idx].SectorNumber),
+		replicaPath := C.CString(src[idx].SealedSectorPath)
+		cacheDirPath := C.CString(src[idx].CacheDirPath)
+
+		deallocs = append(deallocs, func() {
+			C.free(unsafe.Pointer(replicaPath))
+			C.free(unsafe.Pointer(cacheDirPath))
+		})
+
+		tmp[idx] = C.fil_PrivateReplicaInfo{
+			comm_r:           *(*[32]C.uint8_t)(unsafe.Pointer(&commR.Inner)),
+			sector_id:        (C.uint64_t)(uint64(src[idx].SectorNumber)),
+			replica_path:     replicaPath,
+			cache_dir_path:   cacheDirPath,
+			registered_proof: (C.fil_RegisteredPoStProof)(pp),
 		}
 	}
 
-	return out, uint(len(out)), nil
+	if len(tmp) > 0 {
+		accessFieldMutable(out, "ref81a31e9b", func(ptr unsafe.Pointer) {
+			*(**C.fil_PrivateReplicaInfo)(ptr) = &tmp[0]
+		})
+	}
+
+	cleanup := func() {
+		for idx := range deallocs {
+			deallocs[idx]()
+		}
+
+		for idx := range tmp {
+			runtime.KeepAlive(&tmp[idx])
+		}
+	}
+
+	return out, uint(len(tmp)), cleanup, nil
 }
 
 func fromFilPoStProofs(src []generated.FilPoStProof) ([]abi.PoStProof, error) {
@@ -906,4 +950,11 @@ func toGoStringCopy(raw string, rawLen uint) string {
 type stringHeader struct {
 	Data unsafe.Pointer
 	Len  int
+}
+
+func accessFieldMutable(target interface{}, field string, f func(ptr unsafe.Pointer)) {
+	pointerVal := reflect.ValueOf(target)
+	val := reflect.Indirect(pointerVal)
+	member := val.FieldByName(field)
+	f(unsafe.Pointer(member.UnsafeAddr()))
 }
