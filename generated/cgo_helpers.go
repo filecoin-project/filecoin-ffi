@@ -12,6 +12,7 @@ package generated
 */
 import "C"
 import (
+	"fmt"
 	"runtime"
 	"sync"
 	"unsafe"
@@ -71,8 +72,8 @@ func (a *cgoAllocMap) Free() {
 // The caller is responsible for freeing the this memory via C.free.
 func allocFilBLSSignatureMemory(n int) unsafe.Pointer {
 	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilBLSSignatureValue))
-	if err != nil {
-		panic("memory alloc error: " + err.Error())
+	if mem == nil {
+		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
@@ -152,8 +153,8 @@ func (x *FilBLSSignature) Deref() {
 // The caller is responsible for freeing the this memory via C.free.
 func allocFilAggregateResponseMemory(n int) unsafe.Pointer {
 	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilAggregateResponseValue))
-	if err != nil {
-		panic("memory alloc error: " + err.Error())
+	if mem == nil {
+		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
@@ -233,8 +234,8 @@ func (x *FilAggregateResponse) Deref() {
 // The caller is responsible for freeing the this memory via C.free.
 func allocFilClearCacheResponseMemory(n int) unsafe.Pointer {
 	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilClearCacheResponseValue))
-	if err != nil {
-		panic("memory alloc error: " + err.Error())
+	if mem == nil {
+		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
@@ -366,8 +367,8 @@ func (x *FilClearCacheResponse) Deref() {
 // The caller is responsible for freeing the this memory via C.free.
 func allocFilFinalizeTicketResponseMemory(n int) unsafe.Pointer {
 	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilFinalizeTicketResponseValue))
-	if err != nil {
-		panic("memory alloc error: " + err.Error())
+	if mem == nil {
+		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
@@ -457,8 +458,8 @@ func (x *FilFinalizeTicketResponse) Deref() {
 // The caller is responsible for freeing the this memory via C.free.
 func allocFilGenerateDataCommitmentResponseMemory(n int) unsafe.Pointer {
 	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilGenerateDataCommitmentResponseValue))
-	if err != nil {
-		panic("memory alloc error: " + err.Error())
+	if mem == nil {
+		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
@@ -548,8 +549,8 @@ func (x *FilGenerateDataCommitmentResponse) Deref() {
 // The caller is responsible for freeing the this memory via C.free.
 func allocFilGeneratePieceCommitmentResponseMemory(n int) unsafe.Pointer {
 	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilGeneratePieceCommitmentResponseValue))
-	if err != nil {
-		panic("memory alloc error: " + err.Error())
+	if mem == nil {
+		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
@@ -644,8 +645,8 @@ func (x *FilGeneratePieceCommitmentResponse) Deref() {
 // The caller is responsible for freeing the this memory via C.free.
 func allocFilPoStProofMemory(n int) unsafe.Pointer {
 	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilPoStProofValue))
-	if err != nil {
-		panic("memory alloc error: " + err.Error())
+	if mem == nil {
+		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
@@ -755,8 +756,8 @@ func (x *FilPoStProof) Deref() {
 // The caller is responsible for freeing the this memory via C.free.
 func allocFilGenerateWindowPoStResponseMemory(n int) unsafe.Pointer {
 	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilGenerateWindowPoStResponseValue))
-	if err != nil {
-		panic("memory alloc error: " + err.Error())
+	if mem == nil {
+		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
@@ -777,8 +778,8 @@ func unpackSFilPoStProof(x []FilPoStProof) (unpacked *C.fil_PoStProof, allocs *c
 		return nil, nil
 	}
 	allocs = new(cgoAllocMap)
-	defer runtime.SetFinalizer(&unpacked, func(**C.fil_PoStProof) {
-		go allocs.Free()
+	defer runtime.SetFinalizer(allocs, func(a *cgoAllocMap) {
+		go a.Free()
 	})
 
 	len0 := len(x)
@@ -897,8 +898,8 @@ func (x *FilGenerateWindowPoStResponse) Deref() {
 // The caller is responsible for freeing the this memory via C.free.
 func allocFilGenerateWinningPoStResponseMemory(n int) unsafe.Pointer {
 	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilGenerateWinningPoStResponseValue))
-	if err != nil {
-		panic("memory alloc error: " + err.Error())
+	if mem == nil {
+		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
@@ -993,8 +994,8 @@ func (x *FilGenerateWinningPoStResponse) Deref() {
 // The caller is responsible for freeing the this memory via C.free.
 func allocFilGenerateWinningPoStSectorChallengeMemory(n int) unsafe.Pointer {
 	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilGenerateWinningPoStSectorChallengeValue))
-	if err != nil {
-		panic("memory alloc error: " + err.Error())
+	if mem == nil {
+		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
@@ -1093,8 +1094,8 @@ func (x *FilGenerateWinningPoStSectorChallenge) Deref() {
 // The caller is responsible for freeing the this memory via C.free.
 func allocFilGpuDeviceResponseMemory(n int) unsafe.Pointer {
 	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilGpuDeviceResponseValue))
-	if err != nil {
-		panic("memory alloc error: " + err.Error())
+	if mem == nil {
+		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
@@ -1105,8 +1106,8 @@ const sizeOfFilGpuDeviceResponseValue = unsafe.Sizeof([1]C.fil_GpuDeviceResponse
 // The caller is responsible for freeing the this memory via C.free.
 func allocPCharMemory(n int) unsafe.Pointer {
 	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfPCharValue))
-	if err != nil {
-		panic("memory alloc error: " + err.Error())
+	if mem == nil {
+		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
@@ -1119,8 +1120,8 @@ func unpackSString(x []string) (unpacked **C.char, allocs *cgoAllocMap) {
 		return nil, nil
 	}
 	allocs = new(cgoAllocMap)
-	defer runtime.SetFinalizer(&unpacked, func(***C.char) {
-		go allocs.Free()
+	defer runtime.SetFinalizer(allocs, func(a *cgoAllocMap) {
+		go a.Free()
 	})
 
 	len0 := len(x)
@@ -1237,8 +1238,8 @@ func (x *FilGpuDeviceResponse) Deref() {
 // The caller is responsible for freeing the this memory via C.free.
 func allocFilBLSDigestMemory(n int) unsafe.Pointer {
 	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilBLSDigestValue))
-	if err != nil {
-		panic("memory alloc error: " + err.Error())
+	if mem == nil {
+		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
@@ -1318,8 +1319,8 @@ func (x *FilBLSDigest) Deref() {
 // The caller is responsible for freeing the this memory via C.free.
 func allocFilHashResponseMemory(n int) unsafe.Pointer {
 	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilHashResponseValue))
-	if err != nil {
-		panic("memory alloc error: " + err.Error())
+	if mem == nil {
+		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
@@ -1399,8 +1400,8 @@ func (x *FilHashResponse) Deref() {
 // The caller is responsible for freeing the this memory via C.free.
 func allocFilInitLogFdResponseMemory(n int) unsafe.Pointer {
 	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilInitLogFdResponseValue))
-	if err != nil {
-		panic("memory alloc error: " + err.Error())
+	if mem == nil {
+		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
@@ -1485,8 +1486,8 @@ func (x *FilInitLogFdResponse) Deref() {
 // The caller is responsible for freeing the this memory via C.free.
 func allocFilBLSPrivateKeyMemory(n int) unsafe.Pointer {
 	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilBLSPrivateKeyValue))
-	if err != nil {
-		panic("memory alloc error: " + err.Error())
+	if mem == nil {
+		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
@@ -1566,8 +1567,8 @@ func (x *FilBLSPrivateKey) Deref() {
 // The caller is responsible for freeing the this memory via C.free.
 func allocFilPrivateKeyGenerateResponseMemory(n int) unsafe.Pointer {
 	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilPrivateKeyGenerateResponseValue))
-	if err != nil {
-		panic("memory alloc error: " + err.Error())
+	if mem == nil {
+		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
@@ -1647,8 +1648,8 @@ func (x *FilPrivateKeyGenerateResponse) Deref() {
 // The caller is responsible for freeing the this memory via C.free.
 func allocFilBLSPublicKeyMemory(n int) unsafe.Pointer {
 	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilBLSPublicKeyValue))
-	if err != nil {
-		panic("memory alloc error: " + err.Error())
+	if mem == nil {
+		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
@@ -1728,8 +1729,8 @@ func (x *FilBLSPublicKey) Deref() {
 // The caller is responsible for freeing the this memory via C.free.
 func allocFilPrivateKeyPublicKeyResponseMemory(n int) unsafe.Pointer {
 	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilPrivateKeyPublicKeyResponseValue))
-	if err != nil {
-		panic("memory alloc error: " + err.Error())
+	if mem == nil {
+		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
@@ -1809,8 +1810,8 @@ func (x *FilPrivateKeyPublicKeyResponse) Deref() {
 // The caller is responsible for freeing the this memory via C.free.
 func allocFilPrivateKeySignResponseMemory(n int) unsafe.Pointer {
 	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilPrivateKeySignResponseValue))
-	if err != nil {
-		panic("memory alloc error: " + err.Error())
+	if mem == nil {
+		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
@@ -1890,8 +1891,8 @@ func (x *FilPrivateKeySignResponse) Deref() {
 // The caller is responsible for freeing the this memory via C.free.
 func allocFilSealCommitPhase1ResponseMemory(n int) unsafe.Pointer {
 	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilSealCommitPhase1ResponseValue))
-	if err != nil {
-		panic("memory alloc error: " + err.Error())
+	if mem == nil {
+		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
@@ -1986,8 +1987,8 @@ func (x *FilSealCommitPhase1Response) Deref() {
 // The caller is responsible for freeing the this memory via C.free.
 func allocFilSealCommitPhase2ResponseMemory(n int) unsafe.Pointer {
 	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilSealCommitPhase2ResponseValue))
-	if err != nil {
-		panic("memory alloc error: " + err.Error())
+	if mem == nil {
+		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
@@ -2082,8 +2083,8 @@ func (x *FilSealCommitPhase2Response) Deref() {
 // The caller is responsible for freeing the this memory via C.free.
 func allocFilSealPreCommitPhase1ResponseMemory(n int) unsafe.Pointer {
 	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilSealPreCommitPhase1ResponseValue))
-	if err != nil {
-		panic("memory alloc error: " + err.Error())
+	if mem == nil {
+		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
@@ -2178,8 +2179,8 @@ func (x *FilSealPreCommitPhase1Response) Deref() {
 // The caller is responsible for freeing the this memory via C.free.
 func allocFilSealPreCommitPhase2ResponseMemory(n int) unsafe.Pointer {
 	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilSealPreCommitPhase2ResponseValue))
-	if err != nil {
-		panic("memory alloc error: " + err.Error())
+	if mem == nil {
+		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
@@ -2279,8 +2280,8 @@ func (x *FilSealPreCommitPhase2Response) Deref() {
 // The caller is responsible for freeing the this memory via C.free.
 func allocFilStringResponseMemory(n int) unsafe.Pointer {
 	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilStringResponseValue))
-	if err != nil {
-		panic("memory alloc error: " + err.Error())
+	if mem == nil {
+		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
@@ -2370,8 +2371,8 @@ func (x *FilStringResponse) Deref() {
 // The caller is responsible for freeing the this memory via C.free.
 func allocFilUnsealRangeResponseMemory(n int) unsafe.Pointer {
 	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilUnsealRangeResponseValue))
-	if err != nil {
-		panic("memory alloc error: " + err.Error())
+	if mem == nil {
+		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
@@ -2456,8 +2457,8 @@ func (x *FilUnsealRangeResponse) Deref() {
 // The caller is responsible for freeing the this memory via C.free.
 func allocFilUnsealResponseMemory(n int) unsafe.Pointer {
 	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilUnsealResponseValue))
-	if err != nil {
-		panic("memory alloc error: " + err.Error())
+	if mem == nil {
+		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
@@ -2542,8 +2543,8 @@ func (x *FilUnsealResponse) Deref() {
 // The caller is responsible for freeing the this memory via C.free.
 func allocFilVerifySealResponseMemory(n int) unsafe.Pointer {
 	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilVerifySealResponseValue))
-	if err != nil {
-		panic("memory alloc error: " + err.Error())
+	if mem == nil {
+		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
@@ -2633,8 +2634,8 @@ func (x *FilVerifySealResponse) Deref() {
 // The caller is responsible for freeing the this memory via C.free.
 func allocFilVerifyWindowPoStResponseMemory(n int) unsafe.Pointer {
 	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilVerifyWindowPoStResponseValue))
-	if err != nil {
-		panic("memory alloc error: " + err.Error())
+	if mem == nil {
+		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
@@ -2724,8 +2725,8 @@ func (x *FilVerifyWindowPoStResponse) Deref() {
 // The caller is responsible for freeing the this memory via C.free.
 func allocFilVerifyWinningPoStResponseMemory(n int) unsafe.Pointer {
 	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilVerifyWinningPoStResponseValue))
-	if err != nil {
-		panic("memory alloc error: " + err.Error())
+	if mem == nil {
+		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
@@ -2815,8 +2816,8 @@ func (x *FilVerifyWinningPoStResponse) Deref() {
 // The caller is responsible for freeing the this memory via C.free.
 func allocFilWriteWithAlignmentResponseMemory(n int) unsafe.Pointer {
 	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilWriteWithAlignmentResponseValue))
-	if err != nil {
-		panic("memory alloc error: " + err.Error())
+	if mem == nil {
+		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
@@ -2916,8 +2917,8 @@ func (x *FilWriteWithAlignmentResponse) Deref() {
 // The caller is responsible for freeing the this memory via C.free.
 func allocFilWriteWithoutAlignmentResponseMemory(n int) unsafe.Pointer {
 	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilWriteWithoutAlignmentResponseValue))
-	if err != nil {
-		panic("memory alloc error: " + err.Error())
+	if mem == nil {
+		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
@@ -3012,8 +3013,8 @@ func (x *FilWriteWithoutAlignmentResponse) Deref() {
 // The caller is responsible for freeing the this memory via C.free.
 func allocFilPublicPieceInfoMemory(n int) unsafe.Pointer {
 	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilPublicPieceInfoValue))
-	if err != nil {
-		panic("memory alloc error: " + err.Error())
+	if mem == nil {
+		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
@@ -3098,8 +3099,8 @@ func (x *FilPublicPieceInfo) Deref() {
 // The caller is responsible for freeing the this memory via C.free.
 func allocFil32ByteArrayMemory(n int) unsafe.Pointer {
 	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFil32ByteArrayValue))
-	if err != nil {
-		panic("memory alloc error: " + err.Error())
+	if mem == nil {
+		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
@@ -3179,8 +3180,8 @@ func (x *Fil32ByteArray) Deref() {
 // The caller is responsible for freeing the this memory via C.free.
 func allocFilPrivateReplicaInfoMemory(n int) unsafe.Pointer {
 	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilPrivateReplicaInfoValue))
-	if err != nil {
-		panic("memory alloc error: " + err.Error())
+	if mem == nil {
+		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
@@ -3280,8 +3281,8 @@ func (x *FilPrivateReplicaInfo) Deref() {
 // The caller is responsible for freeing the this memory via C.free.
 func allocFilPublicReplicaInfoMemory(n int) unsafe.Pointer {
 	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilPublicReplicaInfoValue))
-	if err != nil {
-		panic("memory alloc error: " + err.Error())
+	if mem == nil {
+		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
@@ -3373,8 +3374,8 @@ func unpackArgSFilPublicPieceInfo(x []FilPublicPieceInfo) (unpacked *C.fil_Publi
 		return nil, nil
 	}
 	allocs = new(cgoAllocMap)
-	defer runtime.SetFinalizer(&unpacked, func(**C.fil_PublicPieceInfo) {
-		go allocs.Free()
+	defer runtime.SetFinalizer(allocs, func(a *cgoAllocMap) {
+		go a.Free()
 	})
 
 	len0 := len(x)
@@ -3411,8 +3412,8 @@ func unpackArgSFilPrivateReplicaInfo(x []FilPrivateReplicaInfo) (unpacked *C.fil
 		return nil, nil
 	}
 	allocs = new(cgoAllocMap)
-	defer runtime.SetFinalizer(&unpacked, func(**C.fil_PrivateReplicaInfo) {
-		go allocs.Free()
+	defer runtime.SetFinalizer(allocs, func(a *cgoAllocMap) {
+		go a.Free()
 	})
 
 	len0 := len(x)
@@ -3447,8 +3448,8 @@ func packSFilPrivateReplicaInfo(v []FilPrivateReplicaInfo, ptr0 *C.fil_PrivateRe
 // The caller is responsible for freeing the this memory via C.free.
 func allocPUint8TMemory(n int) unsafe.Pointer {
 	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfPUint8TValue))
-	if err != nil {
-		panic("memory alloc error: " + err.Error())
+	if mem == nil {
+		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
@@ -3461,8 +3462,8 @@ func unpackArgSUString(x []string) (unpacked **C.uint8_t, allocs *cgoAllocMap) {
 		return nil, nil
 	}
 	allocs = new(cgoAllocMap)
-	defer runtime.SetFinalizer(&unpacked, func(***C.uint8_t) {
-		go allocs.Free()
+	defer runtime.SetFinalizer(allocs, func(a *cgoAllocMap) {
+		go a.Free()
 	})
 
 	len0 := len(x)
@@ -3497,8 +3498,8 @@ func unpackArgSFilPublicReplicaInfo(x []FilPublicReplicaInfo) (unpacked *C.fil_P
 		return nil, nil
 	}
 	allocs = new(cgoAllocMap)
-	defer runtime.SetFinalizer(&unpacked, func(**C.fil_PublicReplicaInfo) {
-		go allocs.Free()
+	defer runtime.SetFinalizer(allocs, func(a *cgoAllocMap) {
+		go a.Free()
 	})
 
 	len0 := len(x)
@@ -3535,8 +3536,8 @@ func unpackArgSFilPoStProof(x []FilPoStProof) (unpacked *C.fil_PoStProof, allocs
 		return nil, nil
 	}
 	allocs = new(cgoAllocMap)
-	defer runtime.SetFinalizer(&unpacked, func(**C.fil_PoStProof) {
-		go allocs.Free()
+	defer runtime.SetFinalizer(allocs, func(a *cgoAllocMap) {
+		go a.Free()
 	})
 
 	len0 := len(x)

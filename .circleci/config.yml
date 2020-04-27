@@ -294,9 +294,16 @@ commands:
   ensure_generated_cgo_up_to_date:
     steps:
       - run:
-          name: Generate CGO bindings and compare with what's tracked by Git
+          name: Generate CGO bindings (using forked c-for-go) and compare with what's tracked by Git
           command: |
-            go run github.com/xlab/c-for-go --ccincl --ccdefs --nostamp filcrypto.yml
+            DIR=$(pwd)
+            git clone git@github.com:dtynn/c-for-go.git $GOPATH/src/github.com/xlab/c-for-go
+            cd $GOPATH/src/github.com/xlab/c-for-go
+            git checkout fix/2-mem-issues
+            GO111MODULE=off go get
+            GO111MODULE=off go build -o /tmp/c-for-go-forked main.go process.go
+            cd $DIR
+            /tmp/c-for-go-forked --ccincl --ccdefs --nostamp filcrypto.yml
             git diff --exit-code ./generated/
   run_tests:
     parameters:
