@@ -4,7 +4,7 @@ use std::os::unix::io::FromRawFd;
 use std::sync::Once;
 
 use bellperson::GPU_NVIDIA_DEVICES;
-use ffi_toolkit::{catch_panic_response, raw_ptr};
+use ffi_toolkit::{catch_panic_response, raw_ptr, rust_str_to_c_str, FCPResponseStatus};
 
 use super::types::{fil_GpuDeviceResponse, fil_InitLogFdResponse};
 
@@ -18,10 +18,17 @@ pub fn init_log() {
     });
 }
 /// Initialize the logger with a file to log into
-pub fn init_log_with_file(file: File) {
-    LOG_INIT.call_once(|| {
-        fil_logger::init_with_file(file);
-    });
+///
+/// Returns `None` if there is already an active logger
+pub fn init_log_with_file(file: File) -> Option<()> {
+    if LOG_INIT.is_completed() {
+        None
+    } else {
+        LOG_INIT.call_once(|| {
+            fil_logger::init_with_file(file);
+        });
+        Some(())
+    }
 }
 
 /// Returns an array of strings containing the device names that can be used.
@@ -62,8 +69,11 @@ pub unsafe extern "C" fn fil_get_gpu_devices() -> *mut fil_GpuDeviceResponse {
 pub unsafe extern "C" fn fil_init_log_fd(log_fd: libc::c_int) -> *mut fil_InitLogFdResponse {
     catch_panic_response(|| {
         let file = File::from_raw_fd(log_fd);
-        init_log_with_file(file);
-        let response = fil_InitLogFdResponse::default();
+        let mut response = fil_InitLogFdResponse::default();
+        if init_log_with_file(file).is_none() {
+            response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+            response.error_msg = rust_str_to_c_str("There is already an active logger. `fil_init_log_fd()` needs to be called before any other FFI function is called.");
+        }
         raw_ptr(response)
     })
 }
@@ -107,6 +117,8 @@ mod tests {
         use std::io::{BufRead, BufReader, Write};
         use std::os::unix::io::FromRawFd;
 
+        use ffi_toolkit::FCPResponseStatus;
+
         use crate::util::api::fil_init_log_fd;
         use crate::util::types::fil_destroy_init_log_fd_response;
 
@@ -136,6 +148,11 @@ mod tests {
             reader.read_line(&mut log_message).unwrap();
 
             assert!(log_message.ends_with("a log message\n"));
+
+            // Now test that there is an error when we try to init it again
+            let resp_error = fil_init_log_fd(write_fd);
+            assert_ne!((*resp_error).status_code, FCPResponseStatus::FCPNoError);
+            fil_destroy_init_log_fd_response(resp_error);
         }
     }
 }
