@@ -132,3 +132,48 @@ pub unsafe fn c_to_rust_post_proofs(
 
     Ok(out)
 }
+
+pub unsafe fn c_to_rust_post_proofs_meow(
+    proof_types_ptr: *const fil_RegisteredPoStProof,
+    proof_types_len: libc::size_t,
+    proof_chunk_sizes_ptr: *const u16,
+    proof_chunk_sizes_len: libc::size_t,
+    flattened_proofs_ptr: *const u8,
+    flattened_proofs_len: libc::size_t,
+) -> Result<Vec<PoStProof>> {
+    ensure!(
+        !flattened_proofs_ptr.is_null(),
+        "flattened_proofs_ptr must not be null"
+    );
+
+    ensure!(
+        !proof_chunk_sizes_ptr.is_null(),
+        "proof_chunk_sizes_ptr must not be null"
+    );
+
+    ensure!(
+        !proof_types_ptr.is_null(),
+        "proof_types_ptr must not be null"
+    );
+
+    let flattened_proofs = from_raw_parts(flattened_proofs_ptr, flattened_proofs_len);
+    let chunk_sizes = from_raw_parts(proof_chunk_sizes_ptr, proof_chunk_sizes_len);
+    let proof_types = from_raw_parts(proof_types_ptr, proof_types_len);
+
+    let mut out: Vec<PoStProof> = Vec::with_capacity(chunk_sizes.len());
+
+    let mut offset: usize = 0;
+    for (idx, chunk_size) in chunk_sizes.iter().enumerate() {
+        let mut proof: Vec<u8> = Default::default();
+        proof.extend_from_slice(&flattened_proofs[offset..offset + *chunk_size as usize]);
+
+        out.push(PoStProof {
+            registered_proof: proof_types[idx].into(),
+            proof,
+        });
+
+        offset += *chunk_size as usize
+    }
+
+    Ok(out)
+}

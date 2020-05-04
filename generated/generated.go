@@ -750,27 +750,36 @@ func FilVerifyWindowPost(randomness Fil32ByteArray, replicasPtr []FilPublicRepli
 }
 
 // FilVerifyWinningPost function as declared in filecoin-ffi/filcrypto.h:675
-func FilVerifyWinningPost(randomness Fil32ByteArray, replicasPtr []FilPublicReplicaInfo, replicasLen uint, proofsPtr []FilPoStProof, proofsLen uint, proverId Fil32ByteArray) *FilVerifyWinningPoStResponse {
+func FilVerifyWinningPost(randomness Fil32ByteArray, proverId Fil32ByteArray, replicasPtr []FilPublicReplicaInfo, replicasLen uint, proofTypesPtr []FilRegisteredPoStProof, proofTypesLen uint, proofChunkSizesPtr []uint16, proofChunkSizesLen uint, flattenedProofsPtr string, flattenedProofsLen uint) *FilVerifyWinningPoStResponse {
 	crandomness, crandomnessAllocMap := randomness.PassValue()
+	cproverId, cproverIdAllocMap := proverId.PassValue()
 	creplicasPtr, creplicasPtrAllocMap := unpackArgSFilPublicReplicaInfo(replicasPtr)
 	creplicasLen, creplicasLenAllocMap := (C.size_t)(replicasLen), cgoAllocsUnknown
-	cproofsPtr, cproofsPtrAllocMap := unpackArgSFilPoStProof(proofsPtr)
-	cproofsLen, cproofsLenAllocMap := (C.size_t)(proofsLen), cgoAllocsUnknown
-	cproverId, cproverIdAllocMap := proverId.PassValue()
-	__ret := C.fil_verify_winning_post(crandomness, creplicasPtr, creplicasLen, cproofsPtr, cproofsLen, cproverId)
-	runtime.KeepAlive(cproverIdAllocMap)
-	runtime.KeepAlive(cproofsLenAllocMap)
-	packSFilPoStProof(proofsPtr, cproofsPtr)
-	runtime.KeepAlive(cproofsPtrAllocMap)
+	cproofTypesPtr, cproofTypesPtrAllocMap := (*C.fil_RegisteredPoStProof)(unsafe.Pointer((*sliceHeader)(unsafe.Pointer(&proofTypesPtr)).Data)), cgoAllocsUnknown
+	cproofTypesLen, cproofTypesLenAllocMap := (C.size_t)(proofTypesLen), cgoAllocsUnknown
+	cproofChunkSizesPtr, cproofChunkSizesPtrAllocMap := (*C.uint16_t)(unsafe.Pointer((*sliceHeader)(unsafe.Pointer(&proofChunkSizesPtr)).Data)), cgoAllocsUnknown
+	cproofChunkSizesLen, cproofChunkSizesLenAllocMap := (C.size_t)(proofChunkSizesLen), cgoAllocsUnknown
+	flattenedProofsPtr = safeString(flattenedProofsPtr)
+	cflattenedProofsPtr, cflattenedProofsPtrAllocMap := unpackPUint8TString(flattenedProofsPtr)
+	cflattenedProofsLen, cflattenedProofsLenAllocMap := (C.size_t)(flattenedProofsLen), cgoAllocsUnknown
+	__ret := C.fil_verify_winning_post(crandomness, cproverId, creplicasPtr, creplicasLen, cproofTypesPtr, cproofTypesLen, cproofChunkSizesPtr, cproofChunkSizesLen, cflattenedProofsPtr, cflattenedProofsLen)
+	runtime.KeepAlive(cflattenedProofsLenAllocMap)
+	runtime.KeepAlive(flattenedProofsPtr)
+	runtime.KeepAlive(cflattenedProofsPtrAllocMap)
+	runtime.KeepAlive(cproofChunkSizesLenAllocMap)
+	runtime.KeepAlive(cproofChunkSizesPtrAllocMap)
+	runtime.KeepAlive(cproofTypesLenAllocMap)
+	runtime.KeepAlive(cproofTypesPtrAllocMap)
 	runtime.KeepAlive(creplicasLenAllocMap)
 	packSFilPublicReplicaInfo(replicasPtr, creplicasPtr)
 	runtime.KeepAlive(creplicasPtrAllocMap)
+	runtime.KeepAlive(cproverIdAllocMap)
 	runtime.KeepAlive(crandomnessAllocMap)
 	__v := NewFilVerifyWinningPoStResponseRef(unsafe.Pointer(__ret))
 	return __v
 }
 
-// FilWriteWithAlignment function as declared in filecoin-ffi/filcrypto.h:686
+// FilWriteWithAlignment function as declared in filecoin-ffi/filcrypto.h:690
 func FilWriteWithAlignment(registeredProof FilRegisteredSealProof, srcFd int32, srcSize uint64, dstFd int32, existingPieceSizesPtr []uint64, existingPieceSizesLen uint) *FilWriteWithAlignmentResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProof)(registeredProof), cgoAllocsUnknown
 	csrcFd, csrcFdAllocMap := (C.int)(srcFd), cgoAllocsUnknown
@@ -789,7 +798,7 @@ func FilWriteWithAlignment(registeredProof FilRegisteredSealProof, srcFd int32, 
 	return __v
 }
 
-// FilWriteWithoutAlignment function as declared in filecoin-ffi/filcrypto.h:697
+// FilWriteWithoutAlignment function as declared in filecoin-ffi/filcrypto.h:701
 func FilWriteWithoutAlignment(registeredProof FilRegisteredSealProof, srcFd int32, srcSize uint64, dstFd int32) *FilWriteWithoutAlignmentResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProof)(registeredProof), cgoAllocsUnknown
 	csrcFd, csrcFdAllocMap := (C.int)(srcFd), cgoAllocsUnknown
