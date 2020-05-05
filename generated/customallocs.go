@@ -29,3 +29,19 @@ func (x *FilPrivateReplicaInfo) AllocateProxy() func() {
 		C.free(unsafe.Pointer(ref81a31e9b))
 	}
 }
+
+func (x *FilPoStProof) AllocateProxy() func() {
+	mem3451bfa := allocFilPoStProofMemory(1)
+	ref3451bfa := (*C.fil_PoStProof)(mem3451bfa)
+
+	ref3451bfa.registered_proof = (C.fil_RegisteredPoStProof)(x.RegisteredProof)
+	ref3451bfa.proof_len = (C.size_t)(x.ProofLen)
+	ref3451bfa.proof_ptr = (*C.uchar)(unsafe.Pointer(C.CString(x.ProofPtr)))
+
+	x.ref3451bfa = ref3451bfa
+
+	return func() {
+		C.free(unsafe.Pointer(ref3451bfa.proof_ptr))
+		C.free(unsafe.Pointer(ref3451bfa))
+	}
+}
