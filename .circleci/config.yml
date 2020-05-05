@@ -158,7 +158,6 @@ workflows:
             branches:
               only:
                 - master
-                - feat/cgocheck-2-panic
           run_leak_detector: true
       - build_and_test_linux_cgo_bindings:
           filters:
@@ -171,7 +170,6 @@ workflows:
             branches:
               only:
                 - master
-                - feat/lint-during-build
       - build_darwin_cgo_bindings
       - publish_darwin_staticlib:
           filters:
