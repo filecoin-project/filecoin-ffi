@@ -13,7 +13,6 @@ use std::slice::from_raw_parts;
 
 use super::helpers::{c_to_rust_post_proofs, to_private_replica_info_map};
 use super::types::*;
-use crate::proofs::helpers::c_to_rust_post_proofs_meow;
 use crate::util::api::init_log;
 
 /// TODO: document
@@ -485,15 +484,11 @@ pub unsafe extern "C" fn fil_verify_seal(
 #[no_mangle]
 pub unsafe extern "C" fn fil_verify_winning_post(
     randomness: fil_32ByteArray,
-    prover_id: fil_32ByteArray,
     replicas_ptr: *const fil_PublicReplicaInfo,
     replicas_len: libc::size_t,
-    proof_types_ptr: *const fil_RegisteredPoStProof,
-    proof_types_len: libc::size_t,
-    proof_chunk_sizes_ptr: *const u16,
-    proof_chunk_sizes_len: libc::size_t,
-    flattened_proofs_ptr: *const u8,
-    flattened_proofs_len: libc::size_t,
+    proofs_ptr: *const fil_PoStProof,
+    proofs_len: libc::size_t,
+    prover_id: fil_32ByteArray,
 ) -> *mut fil_VerifyWinningPoStResponse {
     catch_panic_response(|| {
         init_log();
@@ -505,15 +500,7 @@ pub unsafe extern "C" fn fil_verify_winning_post(
         let convert = super::helpers::to_public_replica_info_map(replicas_ptr, replicas_len);
 
         let result = convert.and_then(|replicas| {
-            let post_proofs = c_to_rust_post_proofs_meow(
-                proof_types_ptr,
-                proof_types_len,
-                proof_chunk_sizes_ptr,
-                proof_chunk_sizes_len,
-                flattened_proofs_ptr,
-                flattened_proofs_len,
-            )?;
-
+            let post_proofs = c_to_rust_post_proofs(proofs_ptr, proofs_len)?;
             let proofs: Vec<u8> = post_proofs.iter().flat_map(|pp| pp.clone().proof).collect();
 
             filecoin_proofs_api::post::verify_winning_post(
@@ -1607,33 +1594,13 @@ pub mod tests {
                 comm_r: (*resp_b2).comm_r,
             }];
 
-            let mut ptypes: Vec<fil_RegisteredPoStProof> = Default::default();
-            let mut pchunks: Vec<u16> = Default::default();
-            let mut flattened: Vec<u8> = Default::default();
-
-            for pp in std::slice::from_raw_parts((*resp_h).proofs_ptr, (*resp_h).proofs_len).iter()
-            {
-                ptypes.push(pp.registered_proof.clone());
-
-                let mut proof: Vec<u8> = Default::default();
-                proof.extend_from_slice(std::slice::from_raw_parts(pp.proof_ptr, pp.proof_len));
-
-                flattened.append(&mut proof);
-
-                pchunks.push(pp.proof_len as u16);
-            }
-
             let resp_i = fil_verify_winning_post(
                 randomness,
-                prover_id,
                 public_replicas.as_ptr(),
                 public_replicas.len(),
-                ptypes.as_ptr(),
-                ptypes.len(),
-                pchunks.as_ptr(),
-                pchunks.len(),
-                flattened.as_ptr(),
-                flattened.len(),
+                (*resp_h).proofs_ptr,
+                (*resp_h).proofs_len,
+                prover_id,
             );
 
             if (*resp_i).status_code != FCPResponseStatus::FCPNoError {

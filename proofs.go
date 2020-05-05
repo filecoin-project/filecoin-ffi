@@ -73,27 +73,13 @@ func VerifyWinningPoSt(info abi.WinningPoStVerifyInfo) (bool, error) {
 		return false, err
 	}
 
-	var flattenedProofs string
-	proofTypes := make([]generated.FilRegisteredPoStProof, filPoStProofsLen)
-	proofChunkSizes := make([]uint16, filPoStProofsLen)
-
-	for idx := range filPoStProofs {
-		flattenedProofs = flattenedProofs + filPoStProofs[idx].ProofPtr
-		proofTypes[idx] = filPoStProofs[idx].RegisteredProof
-		proofChunkSizes[idx] = uint16(filPoStProofs[idx].ProofLen)
-	}
-
 	resp := generated.FilVerifyWinningPost(
 		to32ByteArray(info.Randomness),
-		proverID,
 		filPublicReplicaInfos,
 		filPublicReplicaInfosLen,
-		proofTypes,
-		uint(len(proofTypes)),
-		proofChunkSizes,
-		uint(len(proofChunkSizes)),
-		flattenedProofs,
-		uint(len(flattenedProofs)),
+		filPoStProofs,
+		filPoStProofsLen,
+		proverID,
 	)
 	resp.Deref()
 
