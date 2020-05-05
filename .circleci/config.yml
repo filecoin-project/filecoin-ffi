@@ -170,7 +170,6 @@ workflows:
             branches:
               only:
                 - master
-                - feat/lint-during-build
       - build_darwin_cgo_bindings
       - publish_darwin_staticlib:
           filters:
@@ -320,13 +319,13 @@ commands:
                 no_output_timeout: 60m
       - run:
           name: Test project
-          command: RUST_LOG=info go test -p 1 -timeout 60m
+          command: GODEBUG=cgocheck=2 RUST_LOG=info go test -p 1 -timeout 60m
           no_output_timeout: 60m
   compile_tests:
     steps:
       - run:
           name: Build project and tests, but don't actually run the tests (used to verify that build/link works with Darwin)
-          command: RUST_LOG=info go test -run=^$
+          command: GODEBUG=cgocheck=2 RUST_LOG=info go test -run=^$
   restore_parameter_cache:
     steps:
       - restore_cache:

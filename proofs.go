@@ -63,10 +63,11 @@ func VerifyWinningPoSt(info abi.WinningPoStVerifyInfo) (bool, error) {
 		return false, errors.Wrap(err, "failed to create public replica info array for FFI")
 	}
 
-	filPoStProofs, filPoStProofsLen, err := toFilPoStProofs(info.Proofs, "winning")
+	filPoStProofs, filPoStProofsLen, free, err := toFilPoStProofs(info.Proofs, "winning")
 	if err != nil {
 		return false, errors.Wrap(err, "failed to create PoSt proofs array for FFI")
 	}
+	defer free()
 
 	proverID, err := toProverID(info.Prover)
 	if err != nil {
@@ -100,10 +101,11 @@ func VerifyWindowPoSt(info abi.WindowPoStVerifyInfo) (bool, error) {
 		return false, errors.Wrap(err, "failed to create public replica info array for FFI")
 	}
 
-	filPoStProofs, filPoStProofsLen, err := toFilPoStProofs(info.Proofs, "window")
+	filPoStProofs, filPoStProofsLen, free, err := toFilPoStProofs(info.Proofs, "window")
 	if err != nil {
 		return false, errors.Wrap(err, "failed to create PoSt proofs array for FFI")
 	}
+	defer free()
 
 	proverID, err := toProverID(info.Prover)
 	if err != nil {
@@ -502,10 +504,11 @@ func GenerateWinningPoSt(
 	privateSectorInfo SortedPrivateSectorInfo,
 	randomness abi.PoStRandomness,
 ) ([]abi.PoStProof, error) {
-	filReplicas, filReplicasLen, err := toFilPrivateReplicaInfos(privateSectorInfo.Values(), "winning")
+	filReplicas, filReplicasLen, free, err := toFilPrivateReplicaInfos(privateSectorInfo.Values(), "winning")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create private replica info array for FFI")
 	}
+	defer free()
 
 	proverID, err := toProverID(minerID)
 	if err != nil {
@@ -541,10 +544,11 @@ func GenerateWindowPoSt(
 	privateSectorInfo SortedPrivateSectorInfo,
 	randomness abi.PoStRandomness,
 ) ([]abi.PoStProof, error) {
-	filReplicas, filReplicasLen, err := toFilPrivateReplicaInfos(privateSectorInfo.Values(), "window")
+	filReplicas, filReplicasLen, free, err := toFilPrivateReplicaInfos(privateSectorInfo.Values(), "window")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create private replica info array for FFI")
 	}
+	defer free()
 
 	proverID, err := toProverID(minerID)
 	if err != nil {
@@ -692,18 +696,20 @@ func toFilPublicReplicaInfos(src []abi.SectorInfo, typ string) ([]generated.FilP
 	return out, uint(len(out)), nil
 }
 
-func toFilPrivateReplicaInfos(src []PrivateSectorInfo, typ string) ([]generated.FilPrivateReplicaInfo, uint, error) {
+func toFilPrivateReplicaInfos(src []PrivateSectorInfo, typ string) ([]generated.FilPrivateReplicaInfo, uint, func(), error) {
+	frees := make([]func(), len(src))
+
 	out := make([]generated.FilPrivateReplicaInfo, len(src))
 
 	for idx := range out {
 		commR, err := to32ByteCommR(src[idx].SealedCID)
 		if err != nil {
-			return nil, 0, err
+			return nil, 0, func() {}, err
 		}
 
 		pp, err := toFilRegisteredPoStProof(src[idx].PoStProofType, typ)
 		if err != nil {
-			return nil, 0, err
+			return nil, 0, func() {}, err
 		}
 
 		out[idx] = generated.FilPrivateReplicaInfo{
@@ -713,9 +719,15 @@ func toFilPrivateReplicaInfos(src []PrivateSectorInfo, typ string) ([]generated.
 			ReplicaPath:     src[idx].SealedSectorPath,
 			SectorId:        uint64(src[idx].SectorNumber),
 		}
+
+		frees[idx] = out[idx].AllocateProxy()
 	}
 
-	return out, uint(len(out)), nil
+	return out, uint(len(out)), func() {
+		for idx := range frees {
+			frees[idx]()
+		}
+	}, nil
 }
 
 func fromFilPoStProofs(src []generated.FilPoStProof) ([]abi.PoStProof, error) {
@@ -738,12 +750,14 @@ func fromFilPoStProofs(src []generated.FilPoStProof) ([]abi.PoStProof, error) {
 	return out, nil
 }
 
-func toFilPoStProofs(src []abi.PoStProof, typ string) ([]generated.FilPoStProof, uint, error) {
+func toFilPoStProofs(src []abi.PoStProof, typ string) ([]generated.FilPoStProof, uint, func(), error) {
+	frees := make([]func(), len(src))
+
 	out := make([]generated.FilPoStProof, len(src))
 	for idx := range out {
 		pp, err := toFilRegisteredPoStProof(src[idx].RegisteredProof, typ)
 		if err != nil {
-			return nil, 0, err
+			return nil, 0, func() {}, err
 		}
 
 		out[idx] = generated.FilPoStProof{
@@ -751,9 +765,15 @@ func toFilPoStProofs(src []abi.PoStProof, typ string) ([]generated.FilPoStProof,
 			ProofLen:        uint(len(src[idx].ProofBytes)),
 			ProofPtr:        string(src[idx].ProofBytes),
 		}
+
+		frees[idx] = out[idx].AllocateProxy()
 	}
 
-	return out, uint(len(out)), nil
+	return out, uint(len(out)), func() {
+		for idx := range frees {
+			frees[idx]()
+		}
+	}, nil
 }
 
 func to32ByteArray(in []byte) generated.Fil32ByteArray {
