@@ -44,11 +44,11 @@ func Verify(signature *Signature, digests []Digest, publicKeys []PublicKey) bool
 
 // HashVerify verifies that a signature is the aggregated signature of hashed messages.
 func HashVerify(signature *Signature, messages []Message, publicKeys []PublicKey) bool {
-	messagesPtrs := make([]string, len(messages))
+	var flattenedMessages string
 	messagesSizes := make([]uint, len(messages))
-	for idx, msg := range messages {
-		messagesPtrs[idx] = string(msg)
-		messagesSizes[idx] = uint(len(msg))
+	for idx := range messages {
+		flattenedMessages = flattenedMessages + string(messages[idx])
+		messagesSizes[idx] = uint(len(messages[idx]))
 	}
 
 	flattenedPublicKeys := make([]byte, PublicKeyBytes*len(publicKeys))
@@ -56,7 +56,7 @@ func HashVerify(signature *Signature, messages []Message, publicKeys []PublicKey
 		copy(flattenedPublicKeys[(PublicKeyBytes*idx):(PublicKeyBytes*(1+idx))], publicKey[:])
 	}
 
-	isValid := generated.FilHashVerify(string(signature[:]), messagesPtrs, messagesSizes, uint(len(messages)), string(flattenedPublicKeys), uint(len(flattenedPublicKeys)))
+	isValid := generated.FilHashVerify(string(signature[:]), flattenedMessages, uint(len(flattenedMessages)), messagesSizes, uint(len(messagesSizes)), string(flattenedPublicKeys), uint(len(flattenedPublicKeys)))
 
 	return isValid > 0
 }

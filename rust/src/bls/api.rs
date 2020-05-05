@@ -188,9 +188,10 @@ pub unsafe extern "C" fn fil_verify(
 #[no_mangle]
 pub unsafe extern "C" fn fil_hash_verify(
     signature_ptr: *const u8,
-    messages_ptr: *const *const u8,
-    messages_sizes_ptr: *const libc::size_t,
-    messages_len: libc::size_t,
+    flattened_messages_ptr: *const u8,
+    flattened_messages_len: libc::size_t,
+    message_sizes_ptr: *const libc::size_t,
+    message_sizes_len: libc::size_t,
     flattened_public_keys_ptr: *const u8,
     flattened_public_keys_len: libc::size_t,
 ) -> libc::c_int {
@@ -198,13 +199,17 @@ pub unsafe extern "C" fn fil_hash_verify(
     let raw_signature = from_raw_parts(signature_ptr, SIGNATURE_BYTES);
     let signature = try_ffi!(Signature::from_bytes(raw_signature), 0);
 
-    let raw_messages_sizes: &[usize] = from_raw_parts(messages_sizes_ptr, messages_len);
-    let raw_messages: &[*const u8] = from_raw_parts(messages_ptr, messages_len);
-    let messages: Vec<&[u8]> = raw_messages
-        .iter()
-        .zip(raw_messages_sizes.iter())
-        .map(|(ptr, size)| from_raw_parts(*ptr, *size))
-        .collect();
+    let flattened = from_raw_parts(flattened_messages_ptr, flattened_messages_len);
+    let chunk_sizes = from_raw_parts(message_sizes_ptr, message_sizes_len);
+
+    // split the flattened message array into slices of individual messages to
+    // be hashed
+    let mut messages: Vec<&[u8]> = Vec::with_capacity(message_sizes_len);
+    let mut offset = 0;
+    for chunk_size in chunk_sizes.iter() {
+        messages.push(&flattened[offset..offset + *chunk_size]);
+        offset += *chunk_size
+    }
 
     let raw_public_keys = from_raw_parts(flattened_public_keys_ptr, flattened_public_keys_len);
 
@@ -369,13 +374,14 @@ mod tests {
 
             assert_eq!(1, verified);
 
-            let messages = [message.as_ptr()];
-            let messages_sizes = [message.len()];
+            let flattened_messages = message;
+            let message_sizes = [message.len()];
             let verified = fil_hash_verify(
                 signature.as_ptr(),
-                messages.as_ptr(),
-                messages_sizes.as_ptr(),
-                1,
+                flattened_messages.as_ptr(),
+                flattened_messages.len(),
+                message_sizes.as_ptr(),
+                message_sizes.len(),
                 public_key.as_ptr(),
                 public_key.len(),
             );
