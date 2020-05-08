@@ -56,6 +56,7 @@ pub enum fil_RegisteredSealProof {
     StackedDrg8MiBV1,
     StackedDrg512MiBV1,
     StackedDrg32GiBV1,
+    StackedDrg64GiBV1,
 }
 
 impl From<RegisteredSealProof> for fil_RegisteredSealProof {
@@ -65,6 +66,7 @@ impl From<RegisteredSealProof> for fil_RegisteredSealProof {
             RegisteredSealProof::StackedDrg8MiBV1 => fil_RegisteredSealProof::StackedDrg8MiBV1,
             RegisteredSealProof::StackedDrg512MiBV1 => fil_RegisteredSealProof::StackedDrg512MiBV1,
             RegisteredSealProof::StackedDrg32GiBV1 => fil_RegisteredSealProof::StackedDrg32GiBV1,
+            RegisteredSealProof::StackedDrg64GiBV1 => fil_RegisteredSealProof::StackedDrg64GiBV1,
         }
     }
 }
@@ -76,6 +78,7 @@ impl From<fil_RegisteredSealProof> for RegisteredSealProof {
             fil_RegisteredSealProof::StackedDrg8MiBV1 => RegisteredSealProof::StackedDrg8MiBV1,
             fil_RegisteredSealProof::StackedDrg512MiBV1 => RegisteredSealProof::StackedDrg512MiBV1,
             fil_RegisteredSealProof::StackedDrg32GiBV1 => RegisteredSealProof::StackedDrg32GiBV1,
+            fil_RegisteredSealProof::StackedDrg64GiBV1 => RegisteredSealProof::StackedDrg64GiBV1,
         }
     }
 }
@@ -87,10 +90,12 @@ pub enum fil_RegisteredPoStProof {
     StackedDrgWinning8MiBV1,
     StackedDrgWinning512MiBV1,
     StackedDrgWinning32GiBV1,
+    StackedDrgWinning64GiBV1,
     StackedDrgWindow2KiBV1,
     StackedDrgWindow8MiBV1,
     StackedDrgWindow512MiBV1,
     StackedDrgWindow32GiBV1,
+    StackedDrgWindow64GiBV1,
 }
 
 impl From<RegisteredPoStProof> for fil_RegisteredPoStProof {
@@ -102,10 +107,12 @@ impl From<RegisteredPoStProof> for fil_RegisteredPoStProof {
             StackedDrgWinning8MiBV1 => fil_RegisteredPoStProof::StackedDrgWinning8MiBV1,
             StackedDrgWinning512MiBV1 => fil_RegisteredPoStProof::StackedDrgWinning512MiBV1,
             StackedDrgWinning32GiBV1 => fil_RegisteredPoStProof::StackedDrgWinning32GiBV1,
+            StackedDrgWinning64GiBV1 => fil_RegisteredPoStProof::StackedDrgWinning64GiBV1,
             StackedDrgWindow2KiBV1 => fil_RegisteredPoStProof::StackedDrgWindow2KiBV1,
             StackedDrgWindow8MiBV1 => fil_RegisteredPoStProof::StackedDrgWindow8MiBV1,
             StackedDrgWindow512MiBV1 => fil_RegisteredPoStProof::StackedDrgWindow512MiBV1,
             StackedDrgWindow32GiBV1 => fil_RegisteredPoStProof::StackedDrgWindow32GiBV1,
+            StackedDrgWindow64GiBV1 => fil_RegisteredPoStProof::StackedDrgWindow64GiBV1,
         }
     }
 }
@@ -119,10 +126,12 @@ impl From<fil_RegisteredPoStProof> for RegisteredPoStProof {
             fil_RegisteredPoStProof::StackedDrgWinning8MiBV1 => StackedDrgWinning8MiBV1,
             fil_RegisteredPoStProof::StackedDrgWinning512MiBV1 => StackedDrgWinning512MiBV1,
             fil_RegisteredPoStProof::StackedDrgWinning32GiBV1 => StackedDrgWinning32GiBV1,
+            fil_RegisteredPoStProof::StackedDrgWinning64GiBV1 => StackedDrgWinning64GiBV1,
             fil_RegisteredPoStProof::StackedDrgWindow2KiBV1 => StackedDrgWindow2KiBV1,
             fil_RegisteredPoStProof::StackedDrgWindow8MiBV1 => StackedDrgWindow8MiBV1,
             fil_RegisteredPoStProof::StackedDrgWindow512MiBV1 => StackedDrgWindow512MiBV1,
             fil_RegisteredPoStProof::StackedDrgWindow32GiBV1 => StackedDrgWindow32GiBV1,
+            fil_RegisteredPoStProof::StackedDrgWindow64GiBV1 => StackedDrgWindow64GiBV1,
         }
     }
 }
