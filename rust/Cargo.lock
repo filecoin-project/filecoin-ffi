@@ -772,7 +772,7 @@ dependencies = [
  "fff 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "ffi-toolkit 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "fil_logger 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "filecoin-proofs-api 0.1.0 (git+https://github.com/filecoin-project/rust-filecoin-proofs-api.git?branch=feat/v26-groth-parameters)",
+ "filecoin-proofs-api 0.1.0 (git+https://github.com/filecoin-project/rust-filecoin-proofs-api.git)",
  "libc 0.2.68 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "paired 0.18.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -786,7 +786,7 @@ dependencies = [
 [[package]]
 name = "filecoin-proofs"
 version = "1.0.0-alpha.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?rev=3b49b1661e010169803ad5474b5ddb05d9bf37e7#3b49b1661e010169803ad5474b5ddb05d9bf37e7"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?rev=138b4f9698f57526a7838fc6508122923116ea3d#138b4f9698f57526a7838fc6508122923116ea3d"
 dependencies = [
  "anyhow 1.0.28 (registry+https://github.com/rust-lang/crates.io-index)",
  "bellperson 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -828,7 +828,7 @@ dependencies = [
  "serde_cbor 0.10.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_json 1.0.51 (registry+https://github.com/rust-lang/crates.io-index)",
  "simplelog 0.7.5 (registry+https://github.com/rust-lang/crates.io-index)",
- "storage-proofs 1.0.0-alpha.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=3b49b1661e010169803ad5474b5ddb05d9bf37e7)",
+ "storage-proofs 1.0.0-alpha.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=138b4f9698f57526a7838fc6508122923116ea3d)",
  "structopt 0.3.12 (registry+https://github.com/rust-lang/crates.io-index)",
  "tar 0.4.26 (registry+https://github.com/rust-lang/crates.io-index)",
  "tee 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -838,10 +838,10 @@ dependencies = [
 [[package]]
 name = "filecoin-proofs-api"
 version = "0.1.0"
-source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api.git?branch=feat/v26-groth-parameters#b169fb259458e95c35279c8f19a932fb3430eb10"
+source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api.git#0e1c7cb464707c7a7ad82b0f8303f000f6f3fc8a"
 dependencies = [
  "anyhow 1.0.28 (registry+https://github.com/rust-lang/crates.io-index)",
- "filecoin-proofs 1.0.0-alpha.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=3b49b1661e010169803ad5474b5ddb05d9bf37e7)",
+ "filecoin-proofs 1.0.0-alpha.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=138b4f9698f57526a7838fc6508122923116ea3d)",
  "paired 0.19.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.106 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -2249,7 +2249,7 @@ dependencies = [
 [[package]]
 name = "sha2raw"
 version = "0.1.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?rev=3b49b1661e010169803ad5474b5ddb05d9bf37e7#3b49b1661e010169803ad5474b5ddb05d9bf37e7"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?rev=138b4f9698f57526a7838fc6508122923116ea3d#138b4f9698f57526a7838fc6508122923116ea3d"
 dependencies = [
  "block-buffer 0.7.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "digest 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2295,17 +2295,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [[package]]
 name = "storage-proofs"
 version = "1.0.0-alpha.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?rev=3b49b1661e010169803ad5474b5ddb05d9bf37e7#3b49b1661e010169803ad5474b5ddb05d9bf37e7"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?rev=138b4f9698f57526a7838fc6508122923116ea3d#138b4f9698f57526a7838fc6508122923116ea3d"
 dependencies = [
- "storage-proofs-core 1.0.0-alpha.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=3b49b1661e010169803ad5474b5ddb05d9bf37e7)",
- "storage-proofs-porep 1.0.0-alpha.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=3b49b1661e010169803ad5474b5ddb05d9bf37e7)",
- "storage-proofs-post 1.0.0-alpha.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=3b49b1661e010169803ad5474b5ddb05d9bf37e7)",
+ "storage-proofs-core 1.0.0-alpha.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=138b4f9698f57526a7838fc6508122923116ea3d)",
+ "storage-proofs-porep 1.0.0-alpha.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=138b4f9698f57526a7838fc6508122923116ea3d)",
+ "storage-proofs-post 1.0.0-alpha.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=138b4f9698f57526a7838fc6508122923116ea3d)",
 ]
 
 [[package]]
 name = "storage-proofs-core"
 version = "1.0.0-alpha.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?rev=3b49b1661e010169803ad5474b5ddb05d9bf37e7#3b49b1661e010169803ad5474b5ddb05d9bf37e7"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?rev=138b4f9698f57526a7838fc6508122923116ea3d#138b4f9698f57526a7838fc6508122923116ea3d"
 dependencies = [
  "aes 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "anyhow 1.0.28 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2341,7 +2341,7 @@ dependencies = [
 [[package]]
 name = "storage-proofs-porep"
 version = "1.0.0-alpha.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?rev=3b49b1661e010169803ad5474b5ddb05d9bf37e7#3b49b1661e010169803ad5474b5ddb05d9bf37e7"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?rev=138b4f9698f57526a7838fc6508122923116ea3d#138b4f9698f57526a7838fc6508122923116ea3d"
 dependencies = [
  "anyhow 1.0.28 (registry+https://github.com/rust-lang/crates.io-index)",
  "bellperson 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2362,14 +2362,14 @@ dependencies = [
  "rayon 1.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.106 (registry+https://github.com/rust-lang/crates.io-index)",
  "sha2ni 0.8.3 (registry+https://github.com/rust-lang/crates.io-index)",
- "sha2raw 0.1.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=3b49b1661e010169803ad5474b5ddb05d9bf37e7)",
- "storage-proofs-core 1.0.0-alpha.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=3b49b1661e010169803ad5474b5ddb05d9bf37e7)",
+ "sha2raw 0.1.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=138b4f9698f57526a7838fc6508122923116ea3d)",
+ "storage-proofs-core 1.0.0-alpha.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=138b4f9698f57526a7838fc6508122923116ea3d)",
 ]
 
 [[package]]
 name = "storage-proofs-post"
 version = "1.0.0-alpha.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?rev=3b49b1661e010169803ad5474b5ddb05d9bf37e7#3b49b1661e010169803ad5474b5ddb05d9bf37e7"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?rev=138b4f9698f57526a7838fc6508122923116ea3d#138b4f9698f57526a7838fc6508122923116ea3d"
 dependencies = [
  "anyhow 1.0.28 (registry+https://github.com/rust-lang/crates.io-index)",
  "bellperson 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2388,7 +2388,7 @@ dependencies = [
  "rayon 1.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.106 (registry+https://github.com/rust-lang/crates.io-index)",
  "sha2ni 0.8.3 (registry+https://github.com/rust-lang/crates.io-index)",
- "storage-proofs-core 1.0.0-alpha.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=3b49b1661e010169803ad5474b5ddb05d9bf37e7)",
+ "storage-proofs-core 1.0.0-alpha.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=138b4f9698f57526a7838fc6508122923116ea3d)",
 ]
 
 [[package]]
@@ -3012,8 +3012,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum fil-ocl-core 0.11.3 (registry+https://github.com/rust-lang/crates.io-index)" = "ecd0aa5895d05824d7eaa38b999c91e9071acb74b304488220e8f8bb555d1ad1"
 "checksum fil-sapling-crypto 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)" = "3fb1ee58ef3ba4dd8e70858f28dfc25a426e01c9b3b74570ff6b235ab1b5eed3"
 "checksum fil_logger 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "a4017ffdf45e6702db1d826eada1dc1df0b7f9eda427de3000959216b93cd676"
-"checksum filecoin-proofs 1.0.0-alpha.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=3b49b1661e010169803ad5474b5ddb05d9bf37e7)" = "<none>"
-"checksum filecoin-proofs-api 0.1.0 (git+https://github.com/filecoin-project/rust-filecoin-proofs-api.git?branch=feat/v26-groth-parameters)" = "<none>"
+"checksum filecoin-proofs 1.0.0-alpha.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=138b4f9698f57526a7838fc6508122923116ea3d)" = "<none>"
+"checksum filecoin-proofs-api 0.1.0 (git+https://github.com/filecoin-project/rust-filecoin-proofs-api.git)" = "<none>"
 "checksum filetime 0.2.9 (registry+https://github.com/rust-lang/crates.io-index)" = "f59efc38004c988e4201d11d263b8171f49a2e7ec0bdbb71773433f271504a5e"
 "checksum flate2 1.0.14 (registry+https://github.com/rust-lang/crates.io-index)" = "2cfff41391129e0a856d6d822600b8d71179d46879e310417eb9c762eb178b42"
 "checksum flexi_logger 0.14.8 (registry+https://github.com/rust-lang/crates.io-index)" = "515fb7f6541dafe542c87c12a7ab6a52190cccb6c348b5951ef62d9978189ae8"
@@ -3168,16 +3168,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum serde_test 0.8.23 (registry+https://github.com/rust-lang/crates.io-index)" = "110b3dbdf8607ec493c22d5d947753282f3bae73c0f56d322af1e8c78e4c23d5"
 "checksum serde_urlencoded 0.5.5 (registry+https://github.com/rust-lang/crates.io-index)" = "642dd69105886af2efd227f75a520ec9b44a820d65bc133a9131f7d229fd165a"
 "checksum sha2ni 0.8.3 (registry+https://github.com/rust-lang/crates.io-index)" = "229896851bde067cb56bfb6cd669d9904c3441245bc32172f33d9a895ddef27d"
-"checksum sha2raw 0.1.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=3b49b1661e010169803ad5474b5ddb05d9bf37e7)" = "<none>"
+"checksum sha2raw 0.1.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=138b4f9698f57526a7838fc6508122923116ea3d)" = "<none>"
 "checksum simplelog 0.7.5 (registry+https://github.com/rust-lang/crates.io-index)" = "bcacac97349a890d437921dfb23cbec52ab5b4752551cb637df2721371acd467"
 "checksum slab 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)" = "c111b5bd5695e56cffe5129854aa230b39c93a305372fdbb2668ca2394eea9f8"
 "checksum smallvec 0.6.13 (registry+https://github.com/rust-lang/crates.io-index)" = "f7b0758c52e15a8b5e3691eae6cc559f08eee9406e548a4477ba4e67770a82b6"
 "checksum smallvec 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "5c2fb2ec9bcd216a5b0d0ccf31ab17b5ed1d627960edff65bbe95d3ce221cefc"
 "checksum spin 0.5.2 (registry+https://github.com/rust-lang/crates.io-index)" = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
-"checksum storage-proofs 1.0.0-alpha.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=3b49b1661e010169803ad5474b5ddb05d9bf37e7)" = "<none>"
-"checksum storage-proofs-core 1.0.0-alpha.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=3b49b1661e010169803ad5474b5ddb05d9bf37e7)" = "<none>"
-"checksum storage-proofs-porep 1.0.0-alpha.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=3b49b1661e010169803ad5474b5ddb05d9bf37e7)" = "<none>"
-"checksum storage-proofs-post 1.0.0-alpha.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=3b49b1661e010169803ad5474b5ddb05d9bf37e7)" = "<none>"
+"checksum storage-proofs 1.0.0-alpha.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=138b4f9698f57526a7838fc6508122923116ea3d)" = "<none>"
+"checksum storage-proofs-core 1.0.0-alpha.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=138b4f9698f57526a7838fc6508122923116ea3d)" = "<none>"
+"checksum storage-proofs-porep 1.0.0-alpha.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=138b4f9698f57526a7838fc6508122923116ea3d)" = "<none>"
+"checksum storage-proofs-post 1.0.0-alpha.0 (git+https://github.com/filecoin-project/rust-fil-proofs?rev=138b4f9698f57526a7838fc6508122923116ea3d)" = "<none>"
 "checksum string 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)" = "d24114bfcceb867ca7f71a0d3fe45d45619ec47a6fbfa98cb14e14250bfa5d6d"
 "checksum strsim 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)" = "8ea5119cdb4c55b55d432abb513a0429384878c15dde60cc77b1c99de1a95a6a"
 "checksum structopt 0.3.12 (registry+https://github.com/rust-lang/crates.io-index)" = "c8faa2719539bbe9d77869bfb15d4ee769f99525e707931452c97b693b3f159d"
