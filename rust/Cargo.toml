@@ -13,7 +13,7 @@ publish = false
 crate-type = ["rlib", "staticlib"]
 
 [dependencies]
-bls-signatures = "0.5.0"
+bls-signatures = "0.6.0"
 byteorder = "1.2"
 drop_struct_macro_derive = "0.4.0"
 fff = "0.2"
