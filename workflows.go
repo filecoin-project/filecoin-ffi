@@ -239,6 +239,7 @@ func WorkflowRegisteredSealProofFunctions(t TestHelper) {
 		abi.RegisteredProof_StackedDRG2KiBSeal,
 		abi.RegisteredProof_StackedDRG512MiBSeal,
 		abi.RegisteredProof_StackedDRG32GiBSeal,
+		abi.RegisteredProof_StackedDRG64GiBSeal,
 	}
 
 	for _, st := range sealTypes {
@@ -254,10 +255,12 @@ func WorkflowRegisteredPoStProofFunctions(t TestHelper) {
 		abi.RegisteredProof_StackedDRG2KiBWindowPoSt,
 		abi.RegisteredProof_StackedDRG512MiBWindowPoSt,
 		abi.RegisteredProof_StackedDRG32GiBWindowPoSt,
+		abi.RegisteredProof_StackedDRG64GiBWindowPoSt,
 		abi.RegisteredProof_StackedDRG8MiBWinningPoSt,
 		abi.RegisteredProof_StackedDRG2KiBWinningPoSt,
 		abi.RegisteredProof_StackedDRG512MiBWinningPoSt,
 		abi.RegisteredProof_StackedDRG32GiBWinningPoSt,
+		abi.RegisteredProof_StackedDRG64GiBWinningPoSt,
 	}
 
 	for _, pt := range postTypes {
