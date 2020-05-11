@@ -603,7 +603,11 @@ pub unsafe extern "C" fn fil_verify_window_post(
 
         let result = convert.and_then(|replicas| {
             let post_proofs = c_to_rust_post_proofs(proofs_ptr, proofs_len)?;
-            let proofs: Vec<u8> = post_proofs.iter().flat_map(|pp| pp.clone().proof).collect();
+
+            let proofs: Vec<(RegisteredPoStProof, &[u8])> = post_proofs
+                .iter()
+                .map(|x| (x.registered_proof, x.proof.as_ref()))
+                .collect();
 
             filecoin_proofs_api::post::verify_window_post(
                 &randomness.inner,
