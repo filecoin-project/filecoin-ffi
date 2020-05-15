@@ -25,6 +25,16 @@ rm .install-filcrypto \
     ; make clean \
     ; FFI_BUILD_FROM_SOURCE=1 make
 ```
+
+## Updating rust-fil-proofs (via rust-filecoin-proofs-api)
+
+If rust-fil-proofs has changed from commit X to Y and you wish to get Y into
+the filecoin-ffi project, you need to do a few things:
+
+1. Update the rust-filecoin-proofs-api [Cargo.toml][1] file to point to Y
+2. Run `cd rust && cargo update -p "filecoin-proofs-api"` from the root of the filecoin-ffi project
+3. After the previous step alters your Cargo.lock file, commit and push
+
 ## go get
 
 `go get` needs some additional steps in order to work as expected.
@@ -48,3 +58,5 @@ will fail if generated CGO diverges from what's checked into Git.
 ## License
 
 MIT or Apache 2.0
+
+[1]: https://github.com/filecoin-project/rust-filecoin-proofs-api/commit/61fde0e581cc38abc4e13dbe96145c9ad2f1f0f5
