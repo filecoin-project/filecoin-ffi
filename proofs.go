@@ -801,6 +801,8 @@ func fromFilRegisteredPoStProof(p generated.FilRegisteredPoStProof) (abi.Registe
 		return abi.RegisteredProof_StackedDRG512MiBWinningPoSt, nil
 	case generated.FilRegisteredPoStProofStackedDrgWinning32GiBV1:
 		return abi.RegisteredProof_StackedDRG32GiBWinningPoSt, nil
+	case generated.FilRegisteredPoStProofStackedDrgWinning64GiBV1:
+		return abi.RegisteredProof_StackedDRG64GiBWinningPoSt, nil
 	case generated.FilRegisteredPoStProofStackedDrgWindow2KiBV1:
 		return abi.RegisteredProof_StackedDRG2KiBWindowPoSt, nil
 	case generated.FilRegisteredPoStProofStackedDrgWindow8MiBV1:
