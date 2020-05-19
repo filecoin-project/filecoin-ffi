@@ -174,7 +174,7 @@ func GeneratePieceCIDFromFile(proofType abi.RegisteredProof, pieceFile *os.File,
 	}
 
 	pieceFd := pieceFile.Fd()
-	defer runtime.KeepAlive(pieceFile)
+	runtime.KeepAlive(pieceFile)
 
 	resp := generated.FilGeneratePieceCommitment(sp, int32(pieceFd), uint64(pieceSize))
 	resp.Deref()
@@ -202,10 +202,10 @@ func WriteWithAlignment(
 	}
 
 	pieceFd := pieceFile.Fd()
-	defer runtime.KeepAlive(pieceFile)
+	runtime.KeepAlive(pieceFile)
 
 	stagedSectorFd := stagedSectorFile.Fd()
-	defer runtime.KeepAlive(stagedSectorFile)
+	runtime.KeepAlive(stagedSectorFile)
 
 	filExistingPieceSizes, filExistingPieceSizesLen := toFilExistingPieceSizes(existingPieceSizes)
 
@@ -234,10 +234,10 @@ func WriteWithoutAlignment(
 	}
 
 	pieceFd := pieceFile.Fd()
-	defer runtime.KeepAlive(pieceFile)
+	runtime.KeepAlive(pieceFile)
 
 	stagedSectorFd := stagedSectorFile.Fd()
-	defer runtime.KeepAlive(stagedSectorFile)
+	runtime.KeepAlive(stagedSectorFile)
 
 	resp := generated.FilWriteWithoutAlignment(sp, int32(pieceFd), uint64(pieceBytes), int32(stagedSectorFd))
 	resp.Deref()
