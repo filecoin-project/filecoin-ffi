@@ -55,6 +55,18 @@ and committed to Git. To generate bindings yourself, install the c-for-go
 binary, ensure that it's on your path, and then run `make cgo-gen`. CI builds
 will fail if generated CGO diverges from what's checked into Git.
 
+## Updating the Changelog
+
+The `mkreleaselog` script (in the project root) can be used to generate a good
+portion of the filecoin-ffi changelog. For historical reasons, the script must
+be run from the root of a filecoin-ffi checkout which is in your `$GOPATH`.
+
+Run it like so:
+
+```shell
+./mkreleaselog v0.25.0 v0.26.0 > /tmp/v0.26.0.notes.txt
+```
+
 ## License
 
 MIT or Apache 2.0
