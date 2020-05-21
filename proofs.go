@@ -23,12 +23,12 @@ import (
 // VerifySeal returns true if the sealing operation from which its inputs were
 // derived was valid, and false if not.
 func VerifySeal(info abi.SealVerifyInfo) (bool, error) {
-	sp, err := toFilRegisteredSealProof(info.OnChain.RegisteredProof)
+	sp, err := toFilRegisteredSealProof(info.RegisteredProof)
 	if err != nil {
 		return false, err
 	}
 
-	commR, err := to32ByteCommR(info.OnChain.SealedCID)
+	commR, err := to32ByteCommR(info.SealedCID)
 	if err != nil {
 		return false, err
 	}
@@ -43,7 +43,7 @@ func VerifySeal(info abi.SealVerifyInfo) (bool, error) {
 		return false, err
 	}
 
-	resp := generated.FilVerifySeal(sp, commR, commD, proverID, to32ByteArray(info.Randomness), to32ByteArray(info.InteractiveRandomness), uint64(info.SectorID.Number), string(info.OnChain.Proof), uint(len(info.OnChain.Proof)))
+	resp := generated.FilVerifySeal(sp, commR, commD, proverID, to32ByteArray(info.Randomness), to32ByteArray(info.InteractiveRandomness), uint64(info.SectorID.Number), string(info.Proof), uint(len(info.Proof)))
 	resp.Deref()
 
 	defer generated.FilDestroyVerifySealResponse(resp)
