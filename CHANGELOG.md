@@ -1,5 +1,53 @@
 # filecoin-ffi changelog
 
+## 0.27.0
+
+This release migrates from specs-actors 0.4.1 to 0.5.4.
+
+### Breaking Changes
+
+- The `VerifySeal` function has been modified to accept the revamped `abi.SealVerifyInfo` type.
+
+### Changelog
+
+- github.com/filecoin-project/filecoin-ffi:
+  - consume new abi.SealVerifyInfo structure (#89) ([filecoin-project/filecoin-ffi#89](https://github.com/filecoin-project/filecoin-ffi/pull/89))
+  - add changelog and changelog generator (#95) ([filecoin-project/filecoin-ffi#95](https://github.com/filecoin-project/filecoin-ffi/pull/95))
+- github.com/filecoin-project/go-bitfield (v0.0.0-20200416002808-b3ee67ec9060 -> v0.0.1):
+  - zero out bitfields during subtraction when they end up empty ([filecoin-project/go-bitfield#4](https://github.com/filecoin-project/go-bitfield/pull/4))
+  - Create go.yml
+- github.com/filecoin-project/specs-actors (v0.4.1-0.20200509020627-3c96f54f3d7d -> v0.5.4-0.20200521014528-0df536f7e461):
+  - decouple SealVerifyInfo from OnChainSealVerifyInfo (and rename to SealVerifyParams) (#378) ([filecoin-project/specs-actors#378](https://github.com/filecoin-project/specs-actors/pull/378))
+  - add Unencodable Return method to puppet actor (#384) ([filecoin-project/specs-actors#384](https://github.com/filecoin-project/specs-actors/pull/384))
+  - call validate caller (#379) ([filecoin-project/specs-actors#379](https://github.com/filecoin-project/specs-actors/pull/379))
+  - handle last cron tick in market actor properly (#376) ([filecoin-project/specs-actors#376](https://github.com/filecoin-project/specs-actors/pull/376))
+  - stop puppet actor panic when sendreturn is nil (#375) ([filecoin-project/specs-actors#375](https://github.com/filecoin-project/specs-actors/pull/375))
+  - Change window post deadline duration to 1hr. (#373) ([filecoin-project/specs-actors#373](https://github.com/filecoin-project/specs-actors/pull/373))
+  - cbor-gen for reward actor state (#372) ([filecoin-project/specs-actors#372](https://github.com/filecoin-project/specs-actors/pull/372))
+  - Fractional network time (#367) ([filecoin-project/specs-actors#367](https://github.com/filecoin-project/specs-actors/pull/367))
+  - deps: go-bitfield v0.0.1 (#369) ([filecoin-project/specs-actors#369](https://github.com/filecoin-project/specs-actors/pull/369))
+  - update block reward target from KPI event, use that value to pay block rewards (#366) ([filecoin-project/specs-actors#366](https://github.com/filecoin-project/specs-actors/pull/366))
+  - Helpers and mocks for miner window post unit tests. (#354) ([filecoin-project/specs-actors#354](https://github.com/filecoin-project/specs-actors/pull/354))
+  - Change min miner power from 10TiB to 1TiB for testnet-2 (#368) ([filecoin-project/specs-actors#368](https://github.com/filecoin-project/specs-actors/pull/368))
+  - Remove incorrect assumption about window post proof slice (#361) ([filecoin-project/specs-actors#361](https://github.com/filecoin-project/specs-actors/pull/361))
+  - miner: Restrict supported proof types in miner ctor (#363) ([filecoin-project/specs-actors#363](https://github.com/filecoin-project/specs-actors/pull/363))
+  - dont include value in the error message for set errors (#365) ([filecoin-project/specs-actors#365](https://github.com/filecoin-project/specs-actors/pull/365))
+  - Fix nil verified deal weight (#360) ([filecoin-project/specs-actors#360](https://github.com/filecoin-project/specs-actors/pull/360))
+
+### Contributors
+
+| Contributor | Commits | Lines ± | Files Changed |
+|-------------|---------|---------|---------------|
+| Erin Swenson-Healey | 3 | +501/-293 | 12 |
+| Łukasz Magiera | 4 | +388/-181 | 21 |
+| Alex North | 5 | +346/-71 | 9 |
+| Jakub Sztandera | 3 | +94/-9 | 5 |
+| Whyrusleeping | 4 | +66/-36 | 9 |
+| ZX | 1 | +21/-42 | 3 |
+| Jeromy | 1 | +62/-0 | 2 |
+| Frrist | 2 | +27/-8 | 2 |
+| cerasusland | 1 | +2/-5 | 1 |
+
 ## 0.26.2
 
 This release contains a fix for a bug which prevented unmodified miners from
