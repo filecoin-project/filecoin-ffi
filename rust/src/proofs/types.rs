@@ -408,24 +408,6 @@ code_and_message_impl!(fil_SealCommitPhase2Response);
 
 #[repr(C)]
 #[derive(DropStructMacro)]
-pub struct fil_UnsealResponse {
-    pub status_code: FCPResponseStatus,
-    pub error_msg: *const libc::c_char,
-}
-
-impl Default for fil_UnsealResponse {
-    fn default() -> fil_UnsealResponse {
-        fil_UnsealResponse {
-            status_code: FCPResponseStatus::FCPNoError,
-            error_msg: ptr::null(),
-        }
-    }
-}
-
-code_and_message_impl!(fil_UnsealResponse);
-
-#[repr(C)]
-#[derive(DropStructMacro)]
 pub struct fil_UnsealRangeResponse {
     pub status_code: FCPResponseStatus,
     pub error_msg: *const libc::c_char,

@@ -144,7 +144,11 @@ func WorkflowProofsLifecycle(t TestHelper) {
 	t.RequireTrue(isValid, "proof wasn't valid")
 
 	// unseal the entire sector and verify that things went as we planned
-	t.RequireNoError(Unseal(sealProofType, sectorCacheDirPath, sealedSectorFile.Name(), unsealOutputFileA.Name(), sectorNum, minerID, ticket, unsealedCID))
+	_, err = sealedSectorFile.Seek(0, 0)
+	t.RequireNoError(err)
+	t.RequireNoError(Unseal(sealProofType, sectorCacheDirPath, sealedSectorFile, unsealOutputFileA, sectorNum, minerID, ticket, unsealedCID))
+	_, err = unsealOutputFileA.Seek(0, 0)
+	t.RequireNoError(err)
 	contents, err := ioutil.ReadFile(unsealOutputFileA.Name())
 	t.RequireNoError(err)
 
@@ -157,7 +161,11 @@ func WorkflowProofsLifecycle(t TestHelper) {
 	t.AssertTrue(bytes.Equal(someBytes[0:1016], contents[1016:2032]), "bytes aren't equal")
 
 	// unseal just the first piece
-	err = UnsealRange(sealProofType, sectorCacheDirPath, sealedSectorFile.Name(), unsealOutputFileB.Name(), sectorNum, minerID, ticket, unsealedCID, 0, 127)
+	_, err = sealedSectorFile.Seek(0, 0)
+	t.RequireNoError(err)
+	err = UnsealRange(sealProofType, sectorCacheDirPath, sealedSectorFile, unsealOutputFileB, sectorNum, minerID, ticket, unsealedCID, 0, 127)
+	t.RequireNoError(err)
+	_, err = unsealOutputFileB.Seek(0, 0)
 	t.RequireNoError(err)
 	contentsB, err := ioutil.ReadFile(unsealOutputFileB.Name())
 	t.RequireNoError(err)
@@ -165,7 +173,11 @@ func WorkflowProofsLifecycle(t TestHelper) {
 	t.AssertTrue(bytes.Equal(someBytes[0:127], contentsB[0:127]), "bytes aren't equal")
 
 	// unseal just the second piece
-	err = UnsealRange(sealProofType, sectorCacheDirPath, sealedSectorFile.Name(), unsealOutputFileC.Name(), sectorNum, minerID, ticket, unsealedCID, 1016, 1016)
+	_, err = sealedSectorFile.Seek(0, 0)
+	t.RequireNoError(err)
+	err = UnsealRange(sealProofType, sectorCacheDirPath, sealedSectorFile, unsealOutputFileC, sectorNum, minerID, ticket, unsealedCID, 1016, 1016)
+	t.RequireNoError(err)
+	_, err = unsealOutputFileC.Seek(0, 0)
 	t.RequireNoError(err)
 	contentsC, err := ioutil.ReadFile(unsealOutputFileC.Name())
 	t.RequireNoError(err)
