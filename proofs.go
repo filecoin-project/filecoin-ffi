@@ -384,52 +384,35 @@ func SealCommitPhase2(
 func Unseal(
 	proofType abi.RegisteredProof,
 	cacheDirPath string,
-	sealedSectorPath string,
-	unsealOutputPath string,
+	sealedSector *os.File,
+	unsealOutput *os.File,
 	sectorNum abi.SectorNumber,
 	minerID abi.ActorID,
 	ticket abi.SealRandomness,
 	unsealedCID cid.Cid,
 ) error {
-	sp, err := toFilRegisteredSealProof(proofType)
+	sectorSize, err := proofType.SectorSize()
 	if err != nil {
 		return err
 	}
 
-	proverID, err := toProverID(minerID)
-	if err != nil {
-		return err
-	}
+	unpaddedBytesAmount := abi.PaddedPieceSize(sectorSize).Unpadded()
 
-	commD, err := to32ByteCommD(unsealedCID)
-	if err != nil {
-		return err
-	}
-
-	resp := generated.FilUnseal(sp, cacheDirPath, sealedSectorPath, unsealOutputPath, uint64(sectorNum), proverID, to32ByteArray(ticket), commD)
-	resp.Deref()
-
-	defer generated.FilDestroyUnsealResponse(resp)
-
-	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-		return errors.New(generated.RawString(resp.ErrorMsg).Copy())
-	}
-
-	return nil
+	return UnsealRange(proofType, cacheDirPath, sealedSector, unsealOutput, sectorNum, minerID, ticket, unsealedCID, 0, uint64(unpaddedBytesAmount))
 }
 
 // UnsealRange
 func UnsealRange(
 	proofType abi.RegisteredProof,
 	cacheDirPath string,
-	sealedSectorPath string,
-	unsealOutputPath string,
+	sealedSector *os.File,
+	unsealOutput *os.File,
 	sectorNum abi.SectorNumber,
 	minerID abi.ActorID,
 	ticket abi.SealRandomness,
 	unsealedCID cid.Cid,
-	offset uint64,
-	len uint64,
+	unpaddedByteIndex uint64,
+	unpaddedBytesAmount uint64,
 ) error {
 	sp, err := toFilRegisteredSealProof(proofType)
 	if err != nil {
@@ -446,7 +429,13 @@ func UnsealRange(
 		return err
 	}
 
-	resp := generated.FilUnsealRange(sp, cacheDirPath, sealedSectorPath, unsealOutputPath, uint64(sectorNum), proverID, to32ByteArray(ticket), commD, offset, len)
+	sealedSectorFd := sealedSector.Fd()
+	defer runtime.KeepAlive(sealedSector)
+
+	unsealOutputFd := unsealOutput.Fd()
+	defer runtime.KeepAlive(unsealOutput)
+
+	resp := generated.FilUnsealRange(sp, cacheDirPath, int32(sealedSectorFd), int32(unsealOutputFd), uint64(sectorNum), proverID, to32ByteArray(ticket), commD, unpaddedByteIndex, unpaddedBytesAmount)
 	resp.Deref()
 
 	defer generated.FilDestroyUnsealRangeResponse(resp)
