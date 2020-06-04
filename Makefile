@@ -14,6 +14,7 @@ $(DEPS): .install-filcrypto  ;
 clean:
 	rm -rf $(DEPS) .install-filcrypto
 	rm -f ./runner
+	cd rust && cargo clean && cd ..
 .PHONY: clean
 
 go-lint: $(DEPS)
