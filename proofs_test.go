@@ -1,8 +1,10 @@
 package ffi
 
 import (
+	"bytes"
 	"crypto/rand"
 	"io"
+	"io/ioutil"
 	"math/big"
 	"testing"
 
@@ -65,6 +67,45 @@ func TestJsonMarshalSymmetry(t *testing.T) {
 		require.NoError(t, err)
 
 		require.Equal(t, toSerialize, fromSerialized)
+	}
+}
+
+func TestDoesNotExhaustFileDescriptors(t *testing.T) {
+	m := 500         // loops
+	n := uint64(508) // quantity of piece bytes
+
+	for i := 0; i < m; i++ {
+		// create a temporary file over which we'll compute CommP
+		file, err := ioutil.TempFile("", "")
+		if err != nil {
+			panic(err)
+		}
+
+		// create a slice of random bytes (represents our piece)
+		b := make([]byte, n)
+
+		// load up our byte slice with random bytes
+		if _, err = rand.Read(b); err != nil {
+			panic(err)
+		}
+
+		// write buffer to temp file
+		if _, err := bytes.NewBuffer(b).WriteTo(file); err != nil {
+			panic(err)
+		}
+
+		// seek to beginning of file
+		if _, err := file.Seek(0, 0); err != nil {
+			panic(err)
+		}
+
+		if _, err = GeneratePieceCID(abi.RegisteredProof_StackedDRG2KiBSeal, file.Name(), abi.UnpaddedPieceSize(n)); err != nil {
+			panic(err)
+		}
+
+		if err = file.Close(); err != nil {
+			panic(err)
+		}
 	}
 }
 

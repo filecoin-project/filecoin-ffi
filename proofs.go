@@ -137,7 +137,12 @@ func GeneratePieceCID(proofType abi.RegisteredProof, piecePath string, pieceSize
 		return cid.Undef, err
 	}
 
-	return GeneratePieceCIDFromFile(proofType, pieceFile, pieceSize)
+	pcd, err := GeneratePieceCIDFromFile(proofType, pieceFile, pieceSize)
+	if err != nil {
+		return cid.Undef, pieceFile.Close()
+	}
+
+	return pcd, pieceFile.Close()
 }
 
 // GenerateDataCommitment produces a commitment for the sector containing the
