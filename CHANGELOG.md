@@ -1,5 +1,61 @@
 # filecoin-ffi changelog
 
+## 0.29.0
+
+Big changes here! We moved off of the nightly Rust channel, fixed a nasty file
+descriptor-leak, and (most importantly) updated to [v27 parameters and keys](https://github.com/filecoin-project/rust-fil-proofs/blob/master/CHANGELOG.md#300---2020-06-08).
+
+### Changelog
+
+- github.com/filecoin-project/filecoin-ffi:
+  - fix: update to filecoin-proofs-api v3.0.0 ([filecoin-project/filecoin-ffi#105](https://github.com/filecoin-project/filecoin-ffi/pull/105))
+  - explicitly close os.File to force release of file descriptor (#97) ([filecoin-project/filecoin-ffi#97](https://github.com/filecoin-project/filecoin-ffi/pull/97))
+  - fix: use stable 1.43.1 release ([filecoin-project/filecoin-ffi#102](https://github.com/filecoin-project/filecoin-ffi/pull/102))
+
+### Contributors
+
+| Contributor | Commits | Lines ± | Files Changed |
+|-------------|---------|---------|---------------|
+| nemo | 2 | +133/-132 | 4 |
+| Erin Swenson-Healey | 1 | +47/-1 | 2 |
+| Volker Mische | 1 | +1/-3 | 3 |
+
+
+## 0.28.1
+
+This release modifies the rust-filecoin-proofs-api dependency, downloading it
+from crates.io instead of GitHub. No behavior changes.
+
+### Changelog
+
+- github.com/filecoin-project/filecoin-ffi:
+  - fix: point to published filecoin-proofs-api crate ([filecoin-project/filecoin-ffi#104](https://github.com/filecoin-project/filecoin-ffi/pull/104))
+
+### Contributors
+
+| Contributor | Commits | Lines ± | Files Changed |
+|-------------|---------|---------|---------------|
+| nemo | 1 | +6/-5 | 3 |
+
+
+## 0.28.0
+
+This release adds unseal-to-a-file-descriptor functionality to the API, improves
+merkle tree cache usage, [and more](https://github.com/filecoin-project/rust-fil-proofs/blob/master/CHANGELOG.md#200---2020-05-27).
+
+### Changelog
+
+- github.com/filecoin-project/filecoin-ffi:
+  - integrate rust-fil-proofs 2.0.0 release (#98) ([filecoin-project/filecoin-ffi#98](https://github.com/filecoin-project/filecoin-ffi/pull/98))
+  - release notes for 0.27.0 (#96) ([filecoin-project/filecoin-ffi#96](https://github.com/filecoin-project/filecoin-ffi/pull/96))
+
+### Contributors
+
+| Contributor | Commits | Lines ± | Files Changed |
+|-------------|---------|---------|---------------|
+| Erin Swenson-Healey | 2 | +245/-371 | 9 |
+
+
 ## 0.27.0
 
 This release migrates from specs-actors 0.4.1 to 0.5.4.
