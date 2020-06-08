@@ -329,10 +329,10 @@ commands:
     steps:
       - restore_cache:
           keys:
-            - v26d-proof-params-{{ arch }}
+            - v27-proof-params-{{ arch }}
   save_parameter_cache:
     steps:
       - save_cache:
-          key: v26d-proof-params-{{ arch }}
+          key: v27-proof-params-{{ arch }}
           paths:
             - "~/filecoin-proof-parameters/"
