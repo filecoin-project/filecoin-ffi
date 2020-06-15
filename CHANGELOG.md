@@ -1,5 +1,36 @@
 # filecoin-ffi changelog
 
+## 0.30.0
+
+This release includes an update specs-actors (splits abi.RegisteredProof into
+two new types - one for seal and one for PoSt) and an update to rust-fil-proofs
+4.0.0, which you can read about [here](https://github.com/filecoin-project/rust-fil-proofs/blob/master/CHANGELOG.md#400---2020-06-15).
+
+### Changelog
+
+- github.com/filecoin-project/filecoin-ffi:
+  - update to rust-fil-proofs 4.0.0 (#108) ([filecoin-project/filecoin-ffi#108](https://github.com/filecoin-project/filecoin-ffi/pull/108))
+  - specs-actors v0.6 ([filecoin-project/filecoin-ffi#107](https://github.com/filecoin-project/filecoin-ffi/pull/107))
+  - changelog for 0.28.0, 0.28.1, and 0.29.0 (#106) ([filecoin-project/filecoin-ffi#106](https://github.com/filecoin-project/filecoin-ffi/pull/106))
+- github.com/filecoin-project/specs-actors (v0.5.4-0.20200521014528-0df536f7e461 -> v0.6.0)
+
+### Contributors
+
+| Contributor | Commits | Lines ± | Files Changed |
+|-------------|---------|---------|---------------|
+| Frrist | 3 | +454/-239 | 22 |
+| Whyrusleeping | 2 | +485/-119 | 19 |
+| Alex North | 7 | +424/-151 | 15 |
+| Łukasz Magiera | 4 | +227/-154 | 13 |
+| Alex Cruikshank | 4 | +262/-85 | 10 |
+| porcuquine | 1 | +172/-171 | 15 |
+| Erin Swenson-Healey | 3 | +153/-30 | 5 |
+| ZenGround0 | 3 | +42/-17 | 16 |
+| ZX | 2 | +16/-19 | 4 |
+| WEI YANG | 1 | +6/-2 | 1 |
+| Henri | 1 | +2/-2 | 1 |
+
+
 ## 0.29.0
 
 Big changes here! We moved off of the nightly Rust channel, fixed a nasty file
