@@ -114,7 +114,7 @@ func (s *SortedPrivateSectorInfo) UnmarshalJSON(b []byte) error {
 }
 
 type publicSectorInfo struct {
-	PoStProofType abi.RegisteredProof
+	PoStProofType abi.RegisteredPoStProof
 	SealedCID     cid.Cid
 	SectorNum     abi.SectorNumber
 }
@@ -122,6 +122,6 @@ type publicSectorInfo struct {
 type PrivateSectorInfo struct {
 	abi.SectorInfo
 	CacheDirPath     string
-	PoStProofType    abi.RegisteredProof
+	PoStProofType    abi.RegisteredPoStProof
 	SealedSectorPath string
 }

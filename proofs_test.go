@@ -3,6 +3,7 @@ package ffi
 import (
 	"bytes"
 	"crypto/rand"
+	"github.com/filecoin-project/filecoin-ffi/generated"
 	"io"
 	"io/ioutil"
 	"math/big"
@@ -99,7 +100,7 @@ func TestDoesNotExhaustFileDescriptors(t *testing.T) {
 			panic(err)
 		}
 
-		if _, err = GeneratePieceCID(abi.RegisteredProof_StackedDRG2KiBSeal, file.Name(), abi.UnpaddedPieceSize(n)); err != nil {
+		if _, err = GeneratePieceCID(abi.RegisteredSealProof_StackedDrg2KiBV1, file.Name(), abi.UnpaddedPieceSize(n)); err != nil {
 			panic(err)
 		}
 
@@ -139,4 +140,23 @@ func (tth *testingTeeHelper) AssertEqual(expected, actual interface{}, msgAndArg
 
 func (tth *testingTeeHelper) AssertTrue(value bool, msgAndArgs ...interface{}) bool {
 	return assert.True(tth.t, value, msgAndArgs)
+}
+
+func TestProofTypes(t *testing.T) {
+	assert.EqualValues(t, generated.FilRegisteredPoStProofStackedDrgWinning2KiBV1, abi.RegisteredPoStProof_StackedDrgWinning2KiBV1)
+	assert.EqualValues(t, generated.FilRegisteredPoStProofStackedDrgWinning8MiBV1, abi.RegisteredPoStProof_StackedDrgWinning8MiBV1)
+	assert.EqualValues(t, generated.FilRegisteredPoStProofStackedDrgWinning512MiBV1, abi.RegisteredPoStProof_StackedDrgWinning512MiBV1)
+	assert.EqualValues(t, generated.FilRegisteredPoStProofStackedDrgWinning32GiBV1, abi.RegisteredPoStProof_StackedDrgWinning32GiBV1)
+	assert.EqualValues(t, generated.FilRegisteredPoStProofStackedDrgWinning64GiBV1, abi.RegisteredPoStProof_StackedDrgWinning64GiBV1)
+	assert.EqualValues(t, generated.FilRegisteredPoStProofStackedDrgWindow2KiBV1, abi.RegisteredPoStProof_StackedDrgWindow2KiBV1)
+	assert.EqualValues(t, generated.FilRegisteredPoStProofStackedDrgWindow8MiBV1, abi.RegisteredPoStProof_StackedDrgWindow8MiBV1)
+	assert.EqualValues(t, generated.FilRegisteredPoStProofStackedDrgWindow512MiBV1, abi.RegisteredPoStProof_StackedDrgWindow512MiBV1)
+	assert.EqualValues(t, generated.FilRegisteredPoStProofStackedDrgWindow32GiBV1, abi.RegisteredPoStProof_StackedDrgWindow32GiBV1)
+	assert.EqualValues(t, generated.FilRegisteredPoStProofStackedDrgWindow64GiBV1, abi.RegisteredPoStProof_StackedDrgWindow64GiBV1)
+
+	assert.EqualValues(t, generated.FilRegisteredSealProofStackedDrg2KiBV1, abi.RegisteredSealProof_StackedDrg2KiBV1)
+	assert.EqualValues(t, generated.FilRegisteredSealProofStackedDrg8MiBV1, abi.RegisteredSealProof_StackedDrg8MiBV1)
+	assert.EqualValues(t, generated.FilRegisteredSealProofStackedDrg512MiBV1, abi.RegisteredSealProof_StackedDrg512MiBV1)
+	assert.EqualValues(t, generated.FilRegisteredSealProofStackedDrg32GiBV1, abi.RegisteredSealProof_StackedDrg32GiBV1)
+	assert.EqualValues(t, generated.FilRegisteredSealProofStackedDrg64GiBV1, abi.RegisteredSealProof_StackedDrg64GiBV1)
 }
