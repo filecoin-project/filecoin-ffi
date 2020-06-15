@@ -18,8 +18,8 @@ import (
 func WorkflowProofsLifecycle(t TestHelper) {
 	minerID := abi.ActorID(42)
 	randomness := [32]byte{9, 9, 9}
-	sealProofType := abi.RegisteredProof_StackedDRG2KiBSeal
-	winningPostProofType := abi.RegisteredProof_StackedDRG2KiBWinningPoSt
+	sealProofType := abi.RegisteredSealProof_StackedDrg2KiBV1
+	winningPostProofType := abi.RegisteredPoStProof_StackedDrgWinning2KiBV1
 	sectorNum := abi.SectorNumber(42)
 
 	ticket := abi.SealRandomness{5, 4, 2}
@@ -133,7 +133,7 @@ func WorkflowProofsLifecycle(t TestHelper) {
 			Number: sectorNum,
 		},
 		SealedCID:             sealedCID,
-		RegisteredProof:       sealProofType,
+		SealProof:       sealProofType,
 		Proof:                 proof,
 		DealIDs:               []abi.DealID{},
 		Randomness:            ticket,
@@ -207,7 +207,7 @@ func WorkflowProofsLifecycle(t TestHelper) {
 	})
 
 	provingSet := []abi.SectorInfo{{
-		RegisteredProof: sealProofType,
+		SealProof: sealProofType,
 		SectorNumber:    sectorNum,
 		SealedCID:       sealedCID,
 	}}
@@ -241,12 +241,12 @@ func WorkflowGetGPUDevicesDoesNotProduceAnError(t TestHelper) {
 }
 
 func WorkflowRegisteredSealProofFunctions(t TestHelper) {
-	sealTypes := []abi.RegisteredProof{
-		abi.RegisteredProof_StackedDRG8MiBSeal,
-		abi.RegisteredProof_StackedDRG2KiBSeal,
-		abi.RegisteredProof_StackedDRG512MiBSeal,
-		abi.RegisteredProof_StackedDRG32GiBSeal,
-		abi.RegisteredProof_StackedDRG64GiBSeal,
+	sealTypes := []abi.RegisteredSealProof{
+		abi.RegisteredSealProof_StackedDrg2KiBV1,
+		abi.RegisteredSealProof_StackedDrg8MiBV1,
+		abi.RegisteredSealProof_StackedDrg512MiBV1,
+		abi.RegisteredSealProof_StackedDrg32GiBV1,
+		abi.RegisteredSealProof_StackedDrg64GiBV1,
 	}
 
 	for _, st := range sealTypes {
@@ -257,17 +257,17 @@ func WorkflowRegisteredSealProofFunctions(t TestHelper) {
 }
 
 func WorkflowRegisteredPoStProofFunctions(t TestHelper) {
-	postTypes := []abi.RegisteredProof{
-		abi.RegisteredProof_StackedDRG8MiBWindowPoSt,
-		abi.RegisteredProof_StackedDRG2KiBWindowPoSt,
-		abi.RegisteredProof_StackedDRG512MiBWindowPoSt,
-		abi.RegisteredProof_StackedDRG32GiBWindowPoSt,
-		abi.RegisteredProof_StackedDRG64GiBWindowPoSt,
-		abi.RegisteredProof_StackedDRG8MiBWinningPoSt,
-		abi.RegisteredProof_StackedDRG2KiBWinningPoSt,
-		abi.RegisteredProof_StackedDRG512MiBWinningPoSt,
-		abi.RegisteredProof_StackedDRG32GiBWinningPoSt,
-		abi.RegisteredProof_StackedDRG64GiBWinningPoSt,
+	postTypes := []abi.RegisteredPoStProof{
+		abi.RegisteredPoStProof_StackedDrgWinning2KiBV1,
+		abi.RegisteredPoStProof_StackedDrgWinning8MiBV1,
+		abi.RegisteredPoStProof_StackedDrgWinning512MiBV1,
+		abi.RegisteredPoStProof_StackedDrgWinning32GiBV1,
+		abi.RegisteredPoStProof_StackedDrgWinning64GiBV1,
+		abi.RegisteredPoStProof_StackedDrgWindow2KiBV1,
+		abi.RegisteredPoStProof_StackedDrgWindow8MiBV1,
+		abi.RegisteredPoStProof_StackedDrgWindow512MiBV1,
+		abi.RegisteredPoStProof_StackedDrgWindow32GiBV1,
+		abi.RegisteredPoStProof_StackedDrgWindow64GiBV1,
 	}
 
 	for _, pt := range postTypes {
@@ -286,7 +286,7 @@ func WorkflowGenerateWinningPoStSectorChallengeEdgeCase(t TestHelper) {
 		minerID := abi.ActorID(randUInt64())
 		eligibleSectorsLen := uint64(1)
 
-		indices2, err := GenerateWinningPoStSectorChallenge(abi.RegisteredProof_StackedDRG2KiBWinningPoSt, minerID, randomnessFr32[:], eligibleSectorsLen)
+		indices2, err := GenerateWinningPoStSectorChallenge(abi.RegisteredPoStProof_StackedDrgWinning2KiBV1, minerID, randomnessFr32[:], eligibleSectorsLen)
 		t.RequireNoError(err)
 		t.AssertEqual(1, len(indices2))
 		t.AssertEqual(0, int(indices2[0]))
@@ -306,7 +306,7 @@ func WorkflowGenerateWinningPoStSectorChallenge(t TestHelper) {
 			continue // no fun
 		}
 
-		indices, err := GenerateWinningPoStSectorChallenge(abi.RegisteredProof_StackedDRG2KiBWinningPoSt, minerID, randomnessFr32[:], eligibleSectorsLen)
+		indices, err := GenerateWinningPoStSectorChallenge(abi.RegisteredPoStProof_StackedDrgWinning2KiBV1, minerID, randomnessFr32[:], eligibleSectorsLen)
 		t.AssertNoError(err)
 
 		max := uint64(0)

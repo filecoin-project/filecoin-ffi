@@ -23,7 +23,7 @@ import (
 // VerifySeal returns true if the sealing operation from which its inputs were
 // derived was valid, and false if not.
 func VerifySeal(info abi.SealVerifyInfo) (bool, error) {
-	sp, err := toFilRegisteredSealProof(info.RegisteredProof)
+	sp, err := toFilRegisteredSealProof(info.SealProof)
 	if err != nil {
 		return false, err
 	}
@@ -63,7 +63,7 @@ func VerifyWinningPoSt(info abi.WinningPoStVerifyInfo) (bool, error) {
 		return false, errors.Wrap(err, "failed to create public replica info array for FFI")
 	}
 
-	filPoStProofs, filPoStProofsLen, free, err := toFilPoStProofs(info.Proofs, "winning")
+	filPoStProofs, filPoStProofsLen, free, err := toFilPoStProofs(info.Proofs)
 	if err != nil {
 		return false, errors.Wrap(err, "failed to create PoSt proofs array for FFI")
 	}
@@ -101,7 +101,7 @@ func VerifyWindowPoSt(info abi.WindowPoStVerifyInfo) (bool, error) {
 		return false, errors.Wrap(err, "failed to create public replica info array for FFI")
 	}
 
-	filPoStProofs, filPoStProofsLen, free, err := toFilPoStProofs(info.Proofs, "window")
+	filPoStProofs, filPoStProofsLen, free, err := toFilPoStProofs(info.Proofs)
 	if err != nil {
 		return false, errors.Wrap(err, "failed to create PoSt proofs array for FFI")
 	}
@@ -131,7 +131,7 @@ func VerifyWindowPoSt(info abi.WindowPoStVerifyInfo) (bool, error) {
 
 // GeneratePieceCommitment produces a piece commitment for the provided data
 // stored at a given path.
-func GeneratePieceCID(proofType abi.RegisteredProof, piecePath string, pieceSize abi.UnpaddedPieceSize) (cid.Cid, error) {
+func GeneratePieceCID(proofType abi.RegisteredSealProof, piecePath string, pieceSize abi.UnpaddedPieceSize) (cid.Cid, error) {
 	pieceFile, err := os.Open(piecePath)
 	if err != nil {
 		return cid.Undef, err
@@ -147,7 +147,7 @@ func GeneratePieceCID(proofType abi.RegisteredProof, piecePath string, pieceSize
 
 // GenerateDataCommitment produces a commitment for the sector containing the
 // provided pieces.
-func GenerateUnsealedCID(proofType abi.RegisteredProof, pieces []abi.PieceInfo) (cid.Cid, error) {
+func GenerateUnsealedCID(proofType abi.RegisteredSealProof, pieces []abi.PieceInfo) (cid.Cid, error) {
 	sp, err := toFilRegisteredSealProof(proofType)
 	if err != nil {
 		return cid.Undef, err
@@ -172,7 +172,7 @@ func GenerateUnsealedCID(proofType abi.RegisteredProof, pieces []abi.PieceInfo) 
 
 // GeneratePieceCIDFromFile produces a piece CID for the provided data stored in
 //a given file.
-func GeneratePieceCIDFromFile(proofType abi.RegisteredProof, pieceFile *os.File, pieceSize abi.UnpaddedPieceSize) (cid.Cid, error) {
+func GeneratePieceCIDFromFile(proofType abi.RegisteredSealProof, pieceFile *os.File, pieceSize abi.UnpaddedPieceSize) (cid.Cid, error) {
 	sp, err := toFilRegisteredSealProof(proofType)
 	if err != nil {
 		return cid.Undef, err
@@ -195,7 +195,7 @@ func GeneratePieceCIDFromFile(proofType abi.RegisteredProof, pieceFile *os.File,
 
 // WriteWithAlignment
 func WriteWithAlignment(
-	proofType abi.RegisteredProof,
+	proofType abi.RegisteredSealProof,
 	pieceFile *os.File,
 	pieceBytes abi.UnpaddedPieceSize,
 	stagedSectorFile *os.File,
@@ -228,7 +228,7 @@ func WriteWithAlignment(
 
 // WriteWithoutAlignment
 func WriteWithoutAlignment(
-	proofType abi.RegisteredProof,
+	proofType abi.RegisteredSealProof,
 	pieceFile *os.File,
 	pieceBytes abi.UnpaddedPieceSize,
 	stagedSectorFile *os.File,
@@ -258,7 +258,7 @@ func WriteWithoutAlignment(
 
 // SealPreCommitPhase1
 func SealPreCommitPhase1(
-	proofType abi.RegisteredProof,
+	proofType abi.RegisteredSealProof,
 	cacheDirPath string,
 	stagedSectorPath string,
 	sealedSectorPath string,
@@ -314,7 +314,7 @@ func SealPreCommitPhase2(
 
 // SealCommitPhase1
 func SealCommitPhase1(
-	proofType abi.RegisteredProof,
+	proofType abi.RegisteredSealProof,
 	sealedCID cid.Cid,
 	unsealedCID cid.Cid,
 	cacheDirPath string,
@@ -387,7 +387,7 @@ func SealCommitPhase2(
 
 // Unseal
 func Unseal(
-	proofType abi.RegisteredProof,
+	proofType abi.RegisteredSealProof,
 	cacheDirPath string,
 	sealedSector *os.File,
 	unsealOutput *os.File,
@@ -408,7 +408,7 @@ func Unseal(
 
 // UnsealRange
 func UnsealRange(
-	proofType abi.RegisteredProof,
+	proofType abi.RegisteredSealProof,
 	cacheDirPath string,
 	sealedSector *os.File,
 	unsealOutput *os.File,
@@ -454,17 +454,17 @@ func UnsealRange(
 
 // GenerateWinningPoStSectorChallenge
 func GenerateWinningPoStSectorChallenge(
-	proofType abi.RegisteredProof,
+	proofType abi.RegisteredPoStProof,
 	minerID abi.ActorID,
 	randomness abi.PoStRandomness,
 	eligibleSectorsLen uint64,
 ) ([]uint64, error) {
-	pp, err := toFilRegisteredPoStProof(proofType, "winning")
+	proverID, err := toProverID(minerID)
 	if err != nil {
 		return nil, err
 	}
 
-	proverID, err := toProverID(minerID)
+	pp, err := toFilRegisteredPoStProof(proofType)
 	if err != nil {
 		return nil, err
 	}
@@ -587,7 +587,7 @@ func GetGPUDevices() ([]string, error) {
 }
 
 // GetSealVersion
-func GetSealVersion(proofType abi.RegisteredProof) (string, error) {
+func GetSealVersion(proofType abi.RegisteredSealProof) (string, error) {
 	sp, err := toFilRegisteredSealProof(proofType)
 	if err != nil {
 		return "", err
@@ -606,8 +606,8 @@ func GetSealVersion(proofType abi.RegisteredProof) (string, error) {
 }
 
 // GetPoStVersion
-func GetPoStVersion(proofType abi.RegisteredProof) (string, error) {
-	pp, err := toFilRegisteredPoStProof(proofType, "either")
+func GetPoStVersion(proofType abi.RegisteredPoStProof) (string, error) {
+	pp, err := toFilRegisteredPoStProof(proofType)
 	if err != nil {
 		return "", err
 	}
@@ -675,15 +675,32 @@ func toFilPublicReplicaInfos(src []abi.SectorInfo, typ string) ([]generated.FilP
 			return nil, 0, err
 		}
 
-		pp, err := toFilRegisteredPoStProof(src[idx].RegisteredProof, typ)
-		if err != nil {
-			return nil, 0, err
-		}
-
 		out[idx] = generated.FilPublicReplicaInfo{
-			RegisteredProof: pp,
 			CommR:           commR.Inner,
 			SectorId:        uint64(src[idx].SectorNumber),
+		}
+
+		switch typ {
+		case "window":
+			p, err := src[idx].SealProof.RegisteredWindowPoStProof()
+			if err != nil {
+				return nil, 0, err
+			}
+
+			out[idx].RegisteredProof, err = toFilRegisteredPoStProof(p)
+			if err != nil {
+				return nil, 0, err
+			}
+		case "winning":
+			p, err := src[idx].SealProof.RegisteredWinningPoStProof()
+			if err != nil {
+				return nil, 0, err
+			}
+
+			out[idx].RegisteredProof, err = toFilRegisteredPoStProof(p)
+			if err != nil {
+				return nil, 0, err
+			}
 		}
 	}
 
@@ -701,7 +718,7 @@ func toFilPrivateReplicaInfos(src []PrivateSectorInfo, typ string) ([]generated.
 			return nil, 0, func() {}, err
 		}
 
-		pp, err := toFilRegisteredPoStProof(src[idx].PoStProofType, typ)
+		pp, err := toFilRegisteredPoStProof(src[idx].PoStProofType)
 		if err != nil {
 			return nil, 0, func() {}, err
 		}
@@ -736,7 +753,7 @@ func fromFilPoStProofs(src []generated.FilPoStProof) ([]abi.PoStProof, error) {
 		}
 
 		out[idx] = abi.PoStProof{
-			RegisteredProof: pp,
+			PoStProof: pp,
 			ProofBytes:      []byte(toGoStringCopy(src[idx].ProofPtr, src[idx].ProofLen)),
 		}
 	}
@@ -744,12 +761,12 @@ func fromFilPoStProofs(src []generated.FilPoStProof) ([]abi.PoStProof, error) {
 	return out, nil
 }
 
-func toFilPoStProofs(src []abi.PoStProof, typ string) ([]generated.FilPoStProof, uint, func(), error) {
+func toFilPoStProofs(src []abi.PoStProof) ([]generated.FilPoStProof, uint, func(), error) {
 	frees := make([]func(), len(src))
 
 	out := make([]generated.FilPoStProof, len(src))
 	for idx := range out {
-		pp, err := toFilRegisteredPoStProof(src[idx].RegisteredProof, typ)
+		pp, err := toFilRegisteredPoStProof(src[idx].PoStProof)
 		if err != nil {
 			return nil, 0, func() {}, err
 		}
@@ -785,110 +802,71 @@ func toProverID(minerID abi.ActorID) (generated.Fil32ByteArray, error) {
 	return to32ByteArray(maddr.Payload()), nil
 }
 
-func fromFilRegisteredPoStProof(p generated.FilRegisteredPoStProof) (abi.RegisteredProof, error) {
+func fromFilRegisteredPoStProof(p generated.FilRegisteredPoStProof) (abi.RegisteredPoStProof, error) {
 	switch p {
 	case generated.FilRegisteredPoStProofStackedDrgWinning2KiBV1:
-		return abi.RegisteredProof_StackedDRG2KiBWinningPoSt, nil
+		return abi.RegisteredPoStProof_StackedDrgWinning2KiBV1, nil
 	case generated.FilRegisteredPoStProofStackedDrgWinning8MiBV1:
-		return abi.RegisteredProof_StackedDRG8MiBWinningPoSt, nil
+		return abi.RegisteredPoStProof_StackedDrgWinning8MiBV1, nil
 	case generated.FilRegisteredPoStProofStackedDrgWinning512MiBV1:
-		return abi.RegisteredProof_StackedDRG512MiBWinningPoSt, nil
+		return abi.RegisteredPoStProof_StackedDrgWinning512MiBV1, nil
 	case generated.FilRegisteredPoStProofStackedDrgWinning32GiBV1:
-		return abi.RegisteredProof_StackedDRG32GiBWinningPoSt, nil
+		return abi.RegisteredPoStProof_StackedDrgWinning32GiBV1, nil
 	case generated.FilRegisteredPoStProofStackedDrgWinning64GiBV1:
-		return abi.RegisteredProof_StackedDRG64GiBWinningPoSt, nil
+		return abi.RegisteredPoStProof_StackedDrgWinning64GiBV1, nil
 	case generated.FilRegisteredPoStProofStackedDrgWindow2KiBV1:
-		return abi.RegisteredProof_StackedDRG2KiBWindowPoSt, nil
+		return abi.RegisteredPoStProof_StackedDrgWindow2KiBV1, nil
 	case generated.FilRegisteredPoStProofStackedDrgWindow8MiBV1:
-		return abi.RegisteredProof_StackedDRG8MiBWindowPoSt, nil
+		return abi.RegisteredPoStProof_StackedDrgWindow8MiBV1, nil
 	case generated.FilRegisteredPoStProofStackedDrgWindow512MiBV1:
-		return abi.RegisteredProof_StackedDRG512MiBWindowPoSt, nil
+		return abi.RegisteredPoStProof_StackedDrgWindow512MiBV1, nil
 	case generated.FilRegisteredPoStProofStackedDrgWindow32GiBV1:
-		return abi.RegisteredProof_StackedDRG32GiBWindowPoSt, nil
+		return abi.RegisteredPoStProof_StackedDrgWindow32GiBV1, nil
 	case generated.FilRegisteredPoStProofStackedDrgWindow64GiBV1:
-		return abi.RegisteredProof_StackedDRG64GiBWindowPoSt, nil
+		return abi.RegisteredPoStProof_StackedDrgWindow64GiBV1, nil
 	default:
 		return 0, errors.Errorf("no mapping to abi.RegisteredPoStProof value available for: %v", p)
 	}
 }
 
-func toFilRegisteredPoStProof(pp abi.RegisteredProof, typ string) (generated.FilRegisteredPoStProof, error) {
-	var p abi.RegisteredProof
-	switch typ {
-	case "window":
-		pp, err := pp.RegisteredWindowPoStProof()
-		if err != nil {
-			return 0, err
-		}
-		p = pp
-	case "winning":
-		pp, err := pp.RegisteredWinningPoStProof()
-		if err != nil {
-			return 0, err
-		}
-		p = pp
-	case "either":
-		v, err := pp.RegisteredWinningPoStProof()
-		if err == nil {
-			p = v
-		} else {
-			v, err := pp.RegisteredWindowPoStProof()
-			if err == nil {
-				p = v
-			} else {
-				return 0, errors.Errorf("no mapping to generated.RegisteredPoStProof value available for: %v", pp)
-			}
-		}
-	default:
-		return 0, errors.Errorf("no mapping to generated.RegisteredPoStProof value available for: %v", pp)
-	}
-
+func toFilRegisteredPoStProof(p abi.RegisteredPoStProof) (generated.FilRegisteredPoStProof, error) {
 	switch p {
-	case abi.RegisteredProof_StackedDRG2KiBPoSt, abi.RegisteredProof_StackedDRG8MiBPoSt, abi.RegisteredProof_StackedDRG512MiBPoSt, abi.RegisteredProof_StackedDRG32GiBPoSt:
-		return 0, errors.Errorf("unsupported version of election post: %v", p)
-	case abi.RegisteredProof_StackedDRG64GiBWindowPoSt:
-		return generated.FilRegisteredPoStProofStackedDrgWindow64GiBV1, nil
-	case abi.RegisteredProof_StackedDRG32GiBWindowPoSt:
-		return generated.FilRegisteredPoStProofStackedDrgWindow32GiBV1, nil
-	case abi.RegisteredProof_StackedDRG512MiBWindowPoSt:
-		return generated.FilRegisteredPoStProofStackedDrgWindow512MiBV1, nil
-	case abi.RegisteredProof_StackedDRG8MiBWindowPoSt:
-		return generated.FilRegisteredPoStProofStackedDrgWindow8MiBV1, nil
-	case abi.RegisteredProof_StackedDRG2KiBWindowPoSt:
-		return generated.FilRegisteredPoStProofStackedDrgWindow2KiBV1, nil
-
-	case abi.RegisteredProof_StackedDRG64GiBWinningPoSt:
-		return generated.FilRegisteredPoStProofStackedDrgWinning64GiBV1, nil
-	case abi.RegisteredProof_StackedDRG32GiBWinningPoSt:
-		return generated.FilRegisteredPoStProofStackedDrgWinning32GiBV1, nil
-	case abi.RegisteredProof_StackedDRG512MiBWinningPoSt:
-		return generated.FilRegisteredPoStProofStackedDrgWinning512MiBV1, nil
-	case abi.RegisteredProof_StackedDRG8MiBWinningPoSt:
-		return generated.FilRegisteredPoStProofStackedDrgWinning8MiBV1, nil
-	case abi.RegisteredProof_StackedDRG2KiBWinningPoSt:
+	case abi.RegisteredPoStProof_StackedDrgWinning2KiBV1:
 		return generated.FilRegisteredPoStProofStackedDrgWinning2KiBV1, nil
-
+	case abi.RegisteredPoStProof_StackedDrgWinning8MiBV1:
+		return generated.FilRegisteredPoStProofStackedDrgWinning8MiBV1, nil
+	case abi.RegisteredPoStProof_StackedDrgWinning512MiBV1:
+		return generated.FilRegisteredPoStProofStackedDrgWinning512MiBV1, nil
+	case abi.RegisteredPoStProof_StackedDrgWinning32GiBV1:
+		return generated.FilRegisteredPoStProofStackedDrgWinning32GiBV1, nil
+	case abi.RegisteredPoStProof_StackedDrgWinning64GiBV1:
+		return generated.FilRegisteredPoStProofStackedDrgWinning64GiBV1, nil
+	case abi.RegisteredPoStProof_StackedDrgWindow2KiBV1:
+		return generated.FilRegisteredPoStProofStackedDrgWindow2KiBV1, nil
+	case abi.RegisteredPoStProof_StackedDrgWindow8MiBV1:
+		return generated.FilRegisteredPoStProofStackedDrgWindow8MiBV1, nil
+	case abi.RegisteredPoStProof_StackedDrgWindow512MiBV1:
+		return generated.FilRegisteredPoStProofStackedDrgWindow512MiBV1, nil
+	case abi.RegisteredPoStProof_StackedDrgWindow32GiBV1:
+		return generated.FilRegisteredPoStProofStackedDrgWindow32GiBV1, nil
+	case abi.RegisteredPoStProof_StackedDrgWindow64GiBV1:
+		return generated.FilRegisteredPoStProofStackedDrgWindow64GiBV1, nil
 	default:
-		return 0, errors.Errorf("no mapping to generated.RegisteredPoStProof value available for: %v", p)
+		return 0, errors.Errorf("no mapping to abi.RegisteredPoStProof value available for: %v", p)
 	}
 }
 
-func toFilRegisteredSealProof(p abi.RegisteredProof) (generated.FilRegisteredSealProof, error) {
-	pp, err := p.RegisteredSealProof()
-	if err != nil {
-		return 0, err
-	}
-
-	switch pp {
-	case abi.RegisteredProof_StackedDRG2KiBSeal:
+func toFilRegisteredSealProof(p abi.RegisteredSealProof) (generated.FilRegisteredSealProof, error) {
+	switch p {
+	case abi.RegisteredSealProof_StackedDrg2KiBV1:
 		return generated.FilRegisteredSealProofStackedDrg2KiBV1, nil
-	case abi.RegisteredProof_StackedDRG8MiBSeal:
+	case abi.RegisteredSealProof_StackedDrg8MiBV1:
 		return generated.FilRegisteredSealProofStackedDrg8MiBV1, nil
-	case abi.RegisteredProof_StackedDRG512MiBSeal:
+	case abi.RegisteredSealProof_StackedDrg512MiBV1:
 		return generated.FilRegisteredSealProofStackedDrg512MiBV1, nil
-	case abi.RegisteredProof_StackedDRG32GiBSeal:
+	case abi.RegisteredSealProof_StackedDrg32GiBV1:
 		return generated.FilRegisteredSealProofStackedDrg32GiBV1, nil
-	case abi.RegisteredProof_StackedDRG64GiBSeal:
+	case abi.RegisteredSealProof_StackedDrg64GiBV1:
 		return generated.FilRegisteredSealProofStackedDrg64GiBV1, nil
 	default:
 		return 0, errors.Errorf("no mapping to C.FFIRegisteredSealProof value available for: %v", p)
