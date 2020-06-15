@@ -772,7 +772,7 @@ dependencies = [
  "fff 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "ffi-toolkit 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "fil_logger 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "filecoin-proofs-api 3.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "filecoin-proofs-api 4.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.2.68 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "paired 0.19.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -785,7 +785,7 @@ dependencies = [
 
 [[package]]
 name = "filecoin-proofs"
-version = "3.0.0"
+version = "4.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "anyhow 1.0.28 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -830,7 +830,7 @@ dependencies = [
  "serde_json 1.0.51 (registry+https://github.com/rust-lang/crates.io-index)",
  "sha2ni 0.8.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "simplelog 0.7.5 (registry+https://github.com/rust-lang/crates.io-index)",
- "storage-proofs 3.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "storage-proofs 4.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "structopt 0.3.12 (registry+https://github.com/rust-lang/crates.io-index)",
  "tar 0.4.26 (registry+https://github.com/rust-lang/crates.io-index)",
  "tee 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -839,11 +839,11 @@ dependencies = [
 
 [[package]]
 name = "filecoin-proofs-api"
-version = "3.0.0"
+version = "4.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "anyhow 1.0.28 (registry+https://github.com/rust-lang/crates.io-index)",
- "filecoin-proofs 3.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "filecoin-proofs 4.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "paired 0.19.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.106 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -2295,17 +2295,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "storage-proofs"
-version = "3.0.0"
+version = "4.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "storage-proofs-core 3.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "storage-proofs-porep 3.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "storage-proofs-post 3.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "storage-proofs-core 4.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "storage-proofs-porep 4.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "storage-proofs-post 4.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "storage-proofs-core"
-version = "3.0.0"
+version = "4.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "aes 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2341,7 +2341,7 @@ dependencies = [
 
 [[package]]
 name = "storage-proofs-porep"
-version = "3.0.0"
+version = "4.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "anyhow 1.0.28 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2364,12 +2364,12 @@ dependencies = [
  "serde 1.0.106 (registry+https://github.com/rust-lang/crates.io-index)",
  "sha2ni 0.8.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "sha2raw 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "storage-proofs-core 3.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "storage-proofs-core 4.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "storage-proofs-post"
-version = "3.0.0"
+version = "4.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "anyhow 1.0.28 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2389,7 +2389,7 @@ dependencies = [
  "rayon 1.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.106 (registry+https://github.com/rust-lang/crates.io-index)",
  "sha2ni 0.8.3 (registry+https://github.com/rust-lang/crates.io-index)",
- "storage-proofs-core 3.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "storage-proofs-core 4.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -3015,8 +3015,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum fil-ocl-core 0.11.3 (registry+https://github.com/rust-lang/crates.io-index)" = "ecd0aa5895d05824d7eaa38b999c91e9071acb74b304488220e8f8bb555d1ad1"
 "checksum fil-sapling-crypto 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)" = "9d87c795e358b21d9f7c6162f2bca19d4521cb3e35f3b9a44b870e8ac5a66e60"
 "checksum fil_logger 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "a4017ffdf45e6702db1d826eada1dc1df0b7f9eda427de3000959216b93cd676"
-"checksum filecoin-proofs 3.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "fcccea53bcf4887b83baec25b3e5f81502fb5736dedddae52a0a56230cad9828"
-"checksum filecoin-proofs-api 3.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "a47cf66ed8ee65320768c161de1796b5fb69291fe5b4381a1687b6e6c55260f7"
+"checksum filecoin-proofs 4.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "d960d45833bd54bc1013e701e67f62e86a96fff71a4643337f1b17a4f3dbd061"
+"checksum filecoin-proofs-api 4.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "6c7d03fc8bbd59ed59ff7331f30c92e358740889a60fc119d93b35ca395daca0"
 "checksum filetime 0.2.9 (registry+https://github.com/rust-lang/crates.io-index)" = "f59efc38004c988e4201d11d263b8171f49a2e7ec0bdbb71773433f271504a5e"
 "checksum flate2 1.0.14 (registry+https://github.com/rust-lang/crates.io-index)" = "2cfff41391129e0a856d6d822600b8d71179d46879e310417eb9c762eb178b42"
 "checksum flexi_logger 0.14.8 (registry+https://github.com/rust-lang/crates.io-index)" = "515fb7f6541dafe542c87c12a7ab6a52190cccb6c348b5951ef62d9978189ae8"
@@ -3178,10 +3178,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum smallvec 0.6.13 (registry+https://github.com/rust-lang/crates.io-index)" = "f7b0758c52e15a8b5e3691eae6cc559f08eee9406e548a4477ba4e67770a82b6"
 "checksum smallvec 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "5c2fb2ec9bcd216a5b0d0ccf31ab17b5ed1d627960edff65bbe95d3ce221cefc"
 "checksum spin 0.5.2 (registry+https://github.com/rust-lang/crates.io-index)" = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
-"checksum storage-proofs 3.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "a1081ea71065043fc5a1a0033ae20f1fd2b60fe7044798920701c1812e3b7da6"
-"checksum storage-proofs-core 3.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "9ffb74f9e2851a8a202376b4a30d9fc61e272654a2207575665915302d829f05"
-"checksum storage-proofs-porep 3.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "c43c2328fe8a9375852c715d2830c9002db46bda3e3d9f24e3b956fba804134d"
-"checksum storage-proofs-post 3.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "e836c6d9f23627b6ce0ff4d02374d57d2ff9e39bda2b18207c88f7348c798181"
+"checksum storage-proofs 4.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "a2bd0da56af738519393e114786e009ccf9f68be87c021072c0e0164fa3e6605"
+"checksum storage-proofs-core 4.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "b9994b7c11cf24aeaca5cd010ac267f6dc00964d3297fb630ed4c62af38b6ea6"
+"checksum storage-proofs-porep 4.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "a07f001188d4c6e12276dbef657c99b539b73eeb4feeb27d844ea9e186b8fb12"
+"checksum storage-proofs-post 4.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "4a21b1d6bf6b662903b630b6ee14706c29e6c4f02843a6bc29362bc3a3b3aa2d"
 "checksum string 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)" = "d24114bfcceb867ca7f71a0d3fe45d45619ec47a6fbfa98cb14e14250bfa5d6d"
 "checksum strsim 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)" = "8ea5119cdb4c55b55d432abb513a0429384878c15dde60cc77b1c99de1a95a6a"
 "checksum structopt 0.3.12 (registry+https://github.com/rust-lang/crates.io-index)" = "c8faa2719539bbe9d77869bfb15d4ee769f99525e707931452c97b693b3f159d"

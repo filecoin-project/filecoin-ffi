@@ -31,7 +31,7 @@ serde_json = "1.0.46"
 
 [dependencies.filecoin-proofs-api]
 package = "filecoin-proofs-api"
-version = "3.0.0"
+version = "4.0.0"
 
 [build-dependencies]
 cbindgen = "= 0.10.0"
