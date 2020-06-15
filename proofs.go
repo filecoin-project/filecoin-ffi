@@ -676,8 +676,8 @@ func toFilPublicReplicaInfos(src []abi.SectorInfo, typ string) ([]generated.FilP
 		}
 
 		out[idx] = generated.FilPublicReplicaInfo{
-			CommR:           commR.Inner,
-			SectorId:        uint64(src[idx].SectorNumber),
+			CommR:    commR.Inner,
+			SectorId: uint64(src[idx].SectorNumber),
 		}
 
 		switch typ {
@@ -753,8 +753,8 @@ func fromFilPoStProofs(src []generated.FilPoStProof) ([]abi.PoStProof, error) {
 		}
 
 		out[idx] = abi.PoStProof{
-			PoStProof: pp,
-			ProofBytes:      []byte(toGoStringCopy(src[idx].ProofPtr, src[idx].ProofLen)),
+			PoStProof:  pp,
+			ProofBytes: []byte(toGoStringCopy(src[idx].ProofPtr, src[idx].ProofLen)),
 		}
 	}
 

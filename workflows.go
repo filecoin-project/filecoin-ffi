@@ -133,7 +133,7 @@ func WorkflowProofsLifecycle(t TestHelper) {
 			Number: sectorNum,
 		},
 		SealedCID:             sealedCID,
-		SealProof:       sealProofType,
+		SealProof:             sealProofType,
 		Proof:                 proof,
 		DealIDs:               []abi.DealID{},
 		Randomness:            ticket,
@@ -207,9 +207,9 @@ func WorkflowProofsLifecycle(t TestHelper) {
 	})
 
 	provingSet := []abi.SectorInfo{{
-		SealProof: sealProofType,
-		SectorNumber:    sectorNum,
-		SealedCID:       sealedCID,
+		SealProof:    sealProofType,
+		SectorNumber: sectorNum,
+		SealedCID:    sealedCID,
 	}}
 
 	// figure out which sectors have been challenged
