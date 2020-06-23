@@ -1,0 +1,3 @@
+#!/bin/bash
+
+RUST_LOG=info go test -count=1 ./...

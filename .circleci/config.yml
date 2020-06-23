@@ -132,6 +132,11 @@ jobs:
       - restore_cache:
           keys:
             - cargo-v0-{{ checksum "rust/rust-toolchain" }}-{{ checksum "rust/Cargo.toml" }}-{{ checksum "rust/Cargo.lock" }}-{{ arch }}
+      - run: cd rust && rustup install $(cat rust-toolchain)
+      - run: cd rust && rustup default $(cat rust-toolchain)
+      - run: cd rust && rustup component add rustfmt
+      - run: cd rust && rustup component add clippy
+      - run: cd rust && cargo fetch
       - run:
           name: Run cargo clippy
           command: cd rust && cargo +$(cat rust-toolchain) clippy --all-targets --all-features -- -D warnings

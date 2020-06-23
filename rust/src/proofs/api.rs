@@ -1009,7 +1009,7 @@ pub unsafe extern "C" fn fil_get_post_version(
     registered_post_proof_accessor(registered_proof, |p| Ok(format!("{:?}", p)))
 }
 
-unsafe fn registered_seal_proof_accessor(
+pub unsafe fn registered_seal_proof_accessor(
     registered_proof: fil_RegisteredSealProof,
     op: fn(RegisteredSealProof) -> anyhow::Result<String>,
 ) -> *mut fil_StringResponse {
@@ -1032,7 +1032,7 @@ unsafe fn registered_seal_proof_accessor(
     raw_ptr(response)
 }
 
-unsafe fn registered_post_proof_accessor(
+pub unsafe fn registered_post_proof_accessor(
     registered_proof: fil_RegisteredPoStProof,
     op: fn(RegisteredPoStProof) -> anyhow::Result<String>,
 ) -> *mut fil_StringResponse {
