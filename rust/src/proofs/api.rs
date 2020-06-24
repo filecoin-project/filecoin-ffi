@@ -1120,7 +1120,7 @@ pub mod tests {
     use rand::{thread_rng, Rng};
 
     use super::*;
-    use std::ffi::CString;
+    use std::ffi::CStr;
 
     #[test]
     fn test_write_with_and_without_alignment() -> Result<()> {
@@ -1265,8 +1265,8 @@ pub mod tests {
                     c_str_to_rust_str((*r).error_msg)
                 );
 
-                let x = CString::from_raw((*r).string_val as *mut libc::c_char);
-                let y = x.into_string().unwrap_or_else(|_| String::from(""));
+                let x = CStr::from_ptr((*r).string_val);
+                let y = x.to_str().unwrap();
 
                 assert!(!y.is_empty());
 
