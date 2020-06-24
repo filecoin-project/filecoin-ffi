@@ -885,24 +885,6 @@ pub unsafe extern "C" fn fil_get_max_user_bytes_per_staged_sector(
     ))
 }
 
-/// Returns the CID of the Groth parameter file for sealing.
-///
-#[no_mangle]
-pub unsafe extern "C" fn fil_get_seal_params_cid(
-    registered_proof: fil_RegisteredSealProof,
-) -> *mut fil_StringResponse {
-    registered_seal_proof_accessor(registered_proof, RegisteredSealProof::params_cid)
-}
-
-/// Returns the CID of the verifying key-file for verifying a seal proof.
-///
-#[no_mangle]
-pub unsafe extern "C" fn fil_get_seal_verifying_key_cid(
-    registered_proof: fil_RegisteredSealProof,
-) -> *mut fil_StringResponse {
-    registered_seal_proof_accessor(registered_proof, RegisteredSealProof::verifying_key_cid)
-}
-
 /// Returns the path from which the proofs library expects to find the Groth
 /// parameter file used when sealing.
 ///
@@ -945,24 +927,6 @@ pub unsafe extern "C" fn fil_get_seal_version(
     registered_proof: fil_RegisteredSealProof,
 ) -> *mut fil_StringResponse {
     registered_seal_proof_accessor(registered_proof, |p| Ok(format!("{:?}", p)))
-}
-
-/// Returns the CID of the Groth parameter file for generating a PoSt.
-///
-#[no_mangle]
-pub unsafe extern "C" fn fil_get_post_params_cid(
-    registered_proof: fil_RegisteredPoStProof,
-) -> *mut fil_StringResponse {
-    registered_post_proof_accessor(registered_proof, RegisteredPoStProof::params_cid)
-}
-
-/// Returns the CID of the verifying key-file for verifying a PoSt proof.
-///
-#[no_mangle]
-pub unsafe extern "C" fn fil_get_post_verifying_key_cid(
-    registered_proof: fil_RegisteredPoStProof,
-) -> *mut fil_StringResponse {
-    registered_post_proof_accessor(registered_proof, RegisteredPoStProof::verifying_key_cid)
 }
 
 /// Returns the path from which the proofs library expects to find the Groth
@@ -1219,16 +1183,6 @@ pub mod tests {
 
         unsafe {
             for st in seal_types {
-                pairs.push(("get_seal_params_cid", fil_get_seal_params_cid(st)));
-                pairs.push((
-                    "get_seal_verify_key_cid",
-                    fil_get_seal_verifying_key_cid(st),
-                ));
-                pairs.push(("get_seal_verify_key_cid", fil_get_seal_params_path(st)));
-                pairs.push((
-                    "get_seal_verify_key_cid",
-                    fil_get_seal_verifying_key_path(st),
-                ));
                 pairs.push((
                     "get_seal_circuit_identifier",
                     fil_get_seal_circuit_identifier(st),
@@ -1237,11 +1191,6 @@ pub mod tests {
             }
 
             for pt in post_types {
-                pairs.push(("get_post_params_cid", fil_get_post_params_cid(pt)));
-                pairs.push((
-                    "get_post_verify_key_cid",
-                    fil_get_post_verifying_key_cid(pt),
-                ));
                 pairs.push(("get_post_params_path", fil_get_post_params_path(pt)));
                 pairs.push((
                     "get_post_verifying_key_path",
