@@ -160,9 +160,9 @@ dependencies = [
 
 [[package]]
 name = "bincode"
-version = "1.3.0"
+version = "1.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1596f02a1f089e295623489ec1f9bb3c1e4795b3b9a0d97931c340a517634381"
+checksum = "f30d3a39baa26f9651f17b375061f3233dde33424a8b72b0dbe93a68a0bc896d"
 dependencies = [
  "byteorder 1.3.4",
  "serde",
@@ -799,7 +799,7 @@ dependencies = [
 [[package]]
 name = "filecoin-proofs"
 version = "4.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs#d2122179303defc1788a525869e9f30978120a60"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs#7b656ce270d795cbe7705d70f1fa3bead41a577c"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -853,7 +853,6 @@ dependencies = [
 [[package]]
 name = "filecoin-proofs-api"
 version = "4.0.1-alpha.0"
-source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api#9518c1e2a2dda90c8d89106b666c4b5661352e86"
 dependencies = [
  "anyhow",
  "filecoin-proofs",
@@ -1919,7 +1918,7 @@ version = "1.0.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "beae6331a816b1f65d04c45b078fd8e6c93e8071771f41b8163255bbd8d7c8fa"
 dependencies = [
- "unicode-xid 0.2.0",
+ "unicode-xid 0.2.1",
 ]
 
 [[package]]
@@ -2318,7 +2317,7 @@ dependencies = [
 [[package]]
 name = "sha2raw"
 version = "1.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs#d2122179303defc1788a525869e9f30978120a60"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs#7b656ce270d795cbe7705d70f1fa3bead41a577c"
 dependencies = [
  "block-buffer",
  "digest",
@@ -2372,7 +2371,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 [[package]]
 name = "storage-proofs"
 version = "4.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs#d2122179303defc1788a525869e9f30978120a60"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs#7b656ce270d795cbe7705d70f1fa3bead41a577c"
 dependencies = [
  "storage-proofs-core",
  "storage-proofs-porep",
@@ -2382,7 +2381,7 @@ dependencies = [
 [[package]]
 name = "storage-proofs-core"
 version = "4.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs#d2122179303defc1788a525869e9f30978120a60"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs#7b656ce270d795cbe7705d70f1fa3bead41a577c"
 dependencies = [
  "aes",
  "anyhow",
@@ -2419,7 +2418,7 @@ dependencies = [
 [[package]]
 name = "storage-proofs-porep"
 version = "4.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs#d2122179303defc1788a525869e9f30978120a60"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs#7b656ce270d795cbe7705d70f1fa3bead41a577c"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -2449,7 +2448,7 @@ dependencies = [
 [[package]]
 name = "storage-proofs-post"
 version = "4.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs#d2122179303defc1788a525869e9f30978120a60"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs#7b656ce270d795cbe7705d70f1fa3bead41a577c"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -2528,7 +2527,7 @@ checksum = "e8d5d96e8cbb005d6959f119f773bfaebb5684296108fb32600c00cde305b2cd"
 dependencies = [
  "proc-macro2 1.0.18",
  "quote 1.0.7",
- "unicode-xid 0.2.0",
+ "unicode-xid 0.2.1",
 ]
 
 [[package]]
@@ -2551,7 +2550,7 @@ dependencies = [
  "proc-macro2 1.0.18",
  "quote 1.0.7",
  "syn 1.0.33",
- "unicode-xid 0.2.0",
+ "unicode-xid 0.2.1",
 ]
 
 [[package]]
@@ -2794,9 +2793,9 @@ checksum = "fc72304796d0818e357ead4e000d19c9c174ab23dc11093ac919054d20a6a7fc"
 
 [[package]]
 name = "unicode-xid"
-version = "0.2.0"
+version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "826e7639553986605ec5979c7dd957c7895e93eabed50ab2ffa7f6128a75097c"
+checksum = "f7fe0bb3479651439c9112f72b6c505038574c9fbb575ed1bf3b797fa39dd564"
 
 [[package]]
 name = "url"
