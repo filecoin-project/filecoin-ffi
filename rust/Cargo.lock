@@ -853,6 +853,7 @@ dependencies = [
 [[package]]
 name = "filecoin-proofs-api"
 version = "4.0.1-alpha.0"
+source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api#6f8477ab46bed868c8fc4bd31158adcfba71daf5"
 dependencies = [
  "anyhow",
  "filecoin-proofs",
