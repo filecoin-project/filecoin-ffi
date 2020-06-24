@@ -110,7 +110,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     #[cfg(target_os = "linux")]
     fn test_init_log_fd() {
         use std::env;
