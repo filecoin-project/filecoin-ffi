@@ -321,8 +321,13 @@ commands:
                 name: Run leak detector
                 command: make cgo-leakdetect
                 no_output_timeout: 60m
+
       - run:
-          name: Test project
+          name: Run the Rust tests
+          command: cd rust && FIL_PROOFS_PARAMETER_CACHE="${HOME}/filecoin-proof-parameters/" RUST_LOG=info cargo test --all --release && cd ..
+          no_output_timeout: 60m
+      - run:
+          name: Run the Go tests
           command: GODEBUG=cgocheck=2 RUST_LOG=info go test -p 1 -timeout 60m
           no_output_timeout: 60m
   compile_tests:
@@ -334,10 +339,10 @@ commands:
     steps:
       - restore_cache:
           keys:
-            - v27-proof-params-{{ arch }}
+            - v27b-proof-params-{{ arch }}
   save_parameter_cache:
     steps:
       - save_cache:
-          key: v27-proof-params-{{ arch }}
+          key: v27b-proof-params-{{ arch }}
           paths:
             - "~/filecoin-proof-parameters/"

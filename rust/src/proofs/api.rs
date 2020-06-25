@@ -1019,7 +1019,6 @@ unsafe fn registered_seal_proof_accessor(
 
     match op(rsp) {
         Ok(s) => {
-            dbg!(&s);
             response.status_code = FCPResponseStatus::FCPNoError;
             response.string_val = rust_str_to_c_str(s);
         }
