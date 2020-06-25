@@ -151,7 +151,7 @@ dependencies = [
  "log",
  "memmap",
  "num_cpus",
- "paired",
+ "paired 0.19.1",
  "rand 0.7.3",
  "rand_core 0.5.1",
  "rayon",
@@ -267,7 +267,7 @@ dependencies = [
  "fff",
  "groupy",
  "hkdf",
- "paired",
+ "paired 0.19.1",
  "rand_core 0.5.1",
  "rayon",
  "sha2ni",
@@ -756,7 +756,7 @@ dependencies = [
  "cc",
  "fff",
  "lazy_static",
- "paired",
+ "paired 0.19.1",
  "rand 0.7.3",
  "rand_core 0.5.1",
 ]
@@ -788,7 +788,7 @@ dependencies = [
  "filecoin-proofs-api",
  "libc",
  "log",
- "paired",
+ "paired 0.19.1",
  "rand 0.7.3",
  "rand_chacha",
  "rayon",
@@ -798,8 +798,9 @@ dependencies = [
 
 [[package]]
 name = "filecoin-proofs"
-version = "4.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs#7b656ce270d795cbe7705d70f1fa3bead41a577c"
+version = "4.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3d06a1a7a99edec5a55ce9172cd7790c1bc53ed6e467fa1d78600bf1015ec53f"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -829,7 +830,7 @@ dependencies = [
  "merkletree",
  "os_pipe",
  "os_type",
- "paired",
+ "paired 0.20.0",
  "pbr",
  "phase21",
  "rand 0.7.3",
@@ -852,12 +853,12 @@ dependencies = [
 
 [[package]]
 name = "filecoin-proofs-api"
-version = "4.0.1-alpha.0"
-source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api#6f8477ab46bed868c8fc4bd31158adcfba71daf5"
+version = "4.0.2-alpha.0"
+source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api#35a0dbb4b701bc56b9e493c455c92a24651429ff"
 dependencies = [
  "anyhow",
  "filecoin-proofs",
- "paired",
+ "paired 0.20.0",
  "serde",
 ]
 
@@ -1498,7 +1499,7 @@ dependencies = [
  "generic-array 0.13.2",
  "lazy_static",
  "neptune-triton",
- "paired",
+ "paired 0.19.1",
 ]
 
 [[package]]
@@ -1763,6 +1764,21 @@ dependencies = [
  "groupy",
  "hkdf",
  "rand_core 0.5.1",
+]
+
+[[package]]
+name = "paired"
+version = "0.20.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "23c8f4c6b51eff5119eb113cd47d53acb2e37de65c43c2bed59957ed2a4379ff"
+dependencies = [
+ "blake2b_simd",
+ "byteorder 1.3.4",
+ "digest",
+ "fff",
+ "groupy",
+ "hkdf",
+ "rand_core 0.5.1",
  "serde",
 ]
 
@@ -1798,7 +1814,7 @@ dependencies = [
  "groupy",
  "log",
  "num_cpus",
- "paired",
+ "paired 0.19.1",
  "rand 0.7.3",
  "rand_chacha",
  "rayon",
@@ -2318,7 +2334,8 @@ dependencies = [
 [[package]]
 name = "sha2raw"
 version = "1.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs#7b656ce270d795cbe7705d70f1fa3bead41a577c"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b6067924a813cc16b4df9df5fde0d94bdcf441e49f0b0de52f4d0a89b6988893"
 dependencies = [
  "block-buffer",
  "digest",
@@ -2371,8 +2388,9 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
 name = "storage-proofs"
-version = "4.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs#7b656ce270d795cbe7705d70f1fa3bead41a577c"
+version = "4.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ae7c2c18acb0b337067032ebdca579fb17d9e147fa4a2b7935ad959a41910178"
 dependencies = [
  "storage-proofs-core",
  "storage-proofs-porep",
@@ -2381,8 +2399,9 @@ dependencies = [
 
 [[package]]
 name = "storage-proofs-core"
-version = "4.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs#7b656ce270d795cbe7705d70f1fa3bead41a577c"
+version = "4.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1eb5504e445f17a81063da85615f70903897ebca990158ba3f7eca864ff70c00"
 dependencies = [
  "aes",
  "anyhow",
@@ -2404,7 +2423,7 @@ dependencies = [
  "merkletree",
  "neptune",
  "num_cpus",
- "paired",
+ "paired 0.20.0",
  "rand 0.7.3",
  "rand_chacha",
  "rayon",
@@ -2418,8 +2437,9 @@ dependencies = [
 
 [[package]]
 name = "storage-proofs-porep"
-version = "4.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs#7b656ce270d795cbe7705d70f1fa3bead41a577c"
+version = "4.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7bfc988686742ffa756361615e31d2afe7d7ccb10317905a8c088da2eb78977d"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -2436,7 +2456,7 @@ dependencies = [
  "num-traits 0.2.12",
  "num_cpus",
  "once_cell",
- "paired",
+ "paired 0.20.0",
  "pretty_assertions",
  "rand 0.7.3",
  "rayon",
@@ -2448,8 +2468,9 @@ dependencies = [
 
 [[package]]
 name = "storage-proofs-post"
-version = "4.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs#7b656ce270d795cbe7705d70f1fa3bead41a577c"
+version = "4.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a184e79588cac26236f071e697e4ecbe93a0e32c675aeb4e1e06c325daf4ef91"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -2465,7 +2486,7 @@ dependencies = [
  "merkletree",
  "neptune",
  "num_cpus",
- "paired",
+ "paired 0.20.0",
  "rand 0.7.3",
  "rayon",
  "serde",
