@@ -110,8 +110,18 @@ mod tests {
     }
 
     #[test]
+    #[ignore]
     #[cfg(target_os = "linux")]
     fn test_init_log_fd() {
+        /*
+
+        Warning: This test is leaky. When run alongside other (Rust) tests in
+        this project, `[flexi_logger] writing log line failed` lines will be
+        observed in stderr, and various unrelated tests will fail.
+
+        - @laser 20200725
+
+         */
         use std::env;
         use std::fs::File;
         use std::io::{BufRead, BufReader, Write};
