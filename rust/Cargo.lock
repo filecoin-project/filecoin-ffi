@@ -260,14 +260,14 @@ dependencies = [
 
 [[package]]
 name = "bls-signatures"
-version = "0.6.0"
+version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e31c26c4f3d0de9a7bcec4949e9f6dc16ab1262ded21e530ac4501e03926eff5"
+checksum = "863020d4fead1c6090d754cf542cd723c124859543f595c65e8c6f11377a4223"
 dependencies = [
  "fff",
  "groupy",
  "hkdf",
- "paired 0.19.1",
+ "paired 0.20.0",
  "rand_core 0.5.1",
  "rayon",
  "sha2ni",
@@ -788,7 +788,7 @@ dependencies = [
  "filecoin-proofs-api",
  "libc",
  "log",
- "paired 0.19.1",
+ "paired 0.20.0",
  "rand 0.7.3",
  "rand_chacha",
  "rayon",
