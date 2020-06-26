@@ -1,5 +1,30 @@
 # filecoin-ffi changelog
 
+## 0.30.1
+
+This release wil include Window PoSt speedups (2x measured for 32GiB sectors),
+RAM reduction of 56GiB for 32GiB sectors (mmap'd parent cache with windows for
+access, rather than all in RAM at once), and some phase2/trusted setup related
+updates (for the trusted setup participants).
+
+### Changelog
+
+- github.com/filecoin-project/filecoin-ffi:
+  - update to rust-fil-proofs 4.0.2 (#113) ([filecoin-project/filecoin-ffi#113](https://github.com/filecoin-project/filecoin-ffi/pull/113))
+  - run the Rust tests before running the Go tests (#112) ([filecoin-project/filecoin-ffi#112](https://github.com/filecoin-project/filecoin-ffi/pull/112))
+  - Update master dependencies ([filecoin-project/filecoin-ffi#111](https://github.com/filecoin-project/filecoin-ffi/pull/111))
+  - update changelog for 0.30.0 release ([filecoin-project/filecoin-ffi#109](https://github.com/filecoin-project/filecoin-ffi/pull/109))
+- github.com/filecoin-project/specs-actors (v0.6.0 -> v0.6.1)
+
+### Contributors
+
+| Contributor | Commits | Lines ± | Files Changed |
+|-------------|---------|---------|---------------|
+| nemo | 3 | +1463/-1782 | 17 |
+| Alex North | 2 | +139/-116 | 3 |
+| Erin Swenson-Healey | 2 | +90/-68 | 7 |
+| laser | 1 | +31/-0 | 1 |
+
 ## 0.30.0
 
 This release includes an update specs-actors (splits abi.RegisteredProof into
