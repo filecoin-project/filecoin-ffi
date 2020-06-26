@@ -101,7 +101,9 @@ pub unsafe extern "C" fn fil_aggregate(
     );
 
     let mut raw_signature: [u8; SIGNATURE_BYTES] = [0; SIGNATURE_BYTES];
-    aggregate_sig(&signatures)
+
+    let aggregated = try_ffi!(aggregate_sig(&signatures), std::ptr::null_mut());
+    aggregated
         .write_bytes(&mut raw_signature.as_mut())
         .expect("preallocated");
 
@@ -425,10 +427,10 @@ mod tests {
                 .inner;
             assert_eq!(
                 [
-                    54, 153, 119, 37, 67, 183, 254, 119, 191, 48, 187, 173, 95, 59, 171, 247, 14,
-                    9, 161, 223, 156, 205, 36, 41, 155, 195, 244, 5, 199, 26, 221, 1
+                    115, 245, 77, 209, 4, 57, 40, 107, 10, 153, 141, 16, 153, 172, 85, 197, 125,
+                    163, 35, 217, 108, 241, 64, 235, 231, 220, 131, 1, 77, 253, 176, 19
                 ],
-                private_key
+                private_key,
             );
         }
     }
