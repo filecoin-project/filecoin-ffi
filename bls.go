@@ -61,7 +61,9 @@ func HashVerify(signature *Signature, messages []Message, publicKeys []PublicKey
 	return isValid > 0
 }
 
-// Aggregate aggregates signatures together into a new signature
+// Aggregate aggregates signatures together into a new signature. If the
+// provided signatures cannot be aggregated (due to invalid input or an
+// an operational error), Aggregate will return nil.
 func Aggregate(signatures []Signature) *Signature {
 	// prep data
 	flattenedSignatures := make([]byte, SignatureBytes*len(signatures))
@@ -70,6 +72,10 @@ func Aggregate(signatures []Signature) *Signature {
 	}
 
 	resp := generated.FilAggregate(string(flattenedSignatures), uint(len(flattenedSignatures)))
+	if resp == nil {
+		return nil
+	}
+
 	defer generated.FilDestroyAggregateResponse(resp)
 
 	resp.Deref()
