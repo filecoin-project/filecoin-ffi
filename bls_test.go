@@ -87,6 +87,19 @@ func BenchmarkBLSVerify(b *testing.B) {
 	}
 }
 
+func TestBlsAggregateErrors(t *testing.T) {
+	t.Run("no signatures", func(t *testing.T) {
+		var empty []Signature
+		out := Aggregate(empty)
+		require.Nil(t, out)
+	})
+
+	t.Run("nil signatures", func(t *testing.T) {
+		out := Aggregate(nil)
+		require.Nil(t, out)
+	})
+}
+
 func BenchmarkBLSVerifyBatch(b *testing.B) {
 	b.Run("10", benchmarkBLSVerifyBatchSize(10))
 	b.Run("50", benchmarkBLSVerifyBatchSize(50))
