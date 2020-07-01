@@ -340,6 +340,26 @@ code_and_message_impl!(fil_SealPreCommitPhase1Response);
 
 #[repr(C)]
 #[derive(DropStructMacro)]
+pub struct fil_FauxRepResponse {
+    pub error_msg: *const libc::c_char,
+    pub status_code: FCPResponseStatus,
+    pub commitment: [u8; 32],
+}
+
+impl Default for fil_FauxRepResponse {
+    fn default() -> fil_FauxRepResponse {
+        fil_FauxRepResponse {
+            error_msg: ptr::null(),
+            status_code: FCPResponseStatus::FCPNoError,
+            commitment: Default::default(),
+        }
+    }
+}
+
+code_and_message_impl!(fil_FauxRepResponse);
+
+#[repr(C)]
+#[derive(DropStructMacro)]
 pub struct fil_SealPreCommitPhase2Response {
     pub error_msg: *const libc::c_char,
     pub status_code: FCPResponseStatus,
