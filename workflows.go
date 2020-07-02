@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 
 	"github.com/filecoin-project/specs-actors/actors/abi"
+	"github.com/ipfs/go-cid"
 )
 
 func WorkflowProofsLifecycle(t TestHelper) {
@@ -42,11 +43,17 @@ func WorkflowProofsLifecycle(t TestHelper) {
 	sectorCacheDirPath := requireTempDirPath(t, "sector-cache-dir")
 	defer os.RemoveAll(sectorCacheDirPath)
 
+	fauxSectorCacheDirPath := requireTempDirPath(t, "faux-sector-cache-dir")
+	defer os.RemoveAll(fauxSectorCacheDirPath)
+
 	stagedSectorFile := requireTempFile(t, bytes.NewReader([]byte{}), 0)
 	defer stagedSectorFile.Close()
 
 	sealedSectorFile := requireTempFile(t, bytes.NewReader([]byte{}), 0)
 	defer sealedSectorFile.Close()
+
+	fauxSealedSectorFile := requireTempFile(t, bytes.NewReader([]byte{}), 0)
+	defer fauxSealedSectorFile.Close()
 
 	unsealOutputFileA := requireTempFile(t, bytes.NewReader([]byte{}), 0)
 	defer unsealOutputFileA.Close()
@@ -193,6 +200,11 @@ func WorkflowProofsLifecycle(t TestHelper) {
 	var sectorCacheDirPaths []string
 	t.RequireNoError(filepath.Walk(sectorCacheRootDir, visit(&sectorCacheDirPaths)))
 	t.AssertEqual(1, len(sectorCacheDirPaths), sectorCacheDirPaths)
+
+	// run the FauxRep routine, for good measure
+	fauxSectorCID, err := FauxRep(sealProofType, fauxSectorCacheDirPath, fauxSealedSectorFile.Name())
+	t.RequireNoError(err, "FauxRep produced an error")
+	t.RequireTrue(!cid.Undef.Equals(fauxSectorCID), "faux sector CID shouldn't be undefined")
 
 	// generate a PoSt over the proving set before importing, just to exercise
 	// the new API
