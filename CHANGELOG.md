@@ -1,5 +1,39 @@
 # filecoin-ffi changelog
 
+## 0.30.3
+
+This release adds `FauxRep` to the `ffi` package, and a few other
+rust-fil-proofs improvements, which you can read about [here](https://github.com/filecoin-project/rust-fil-proofs/blob/master/CHANGELOG.md#403---2020-07-01).
+
+### Changelog
+
+- github.com/filecoin-project/filecoin-ffi:
+  - add FauxRep to ffi package (#118) ([filecoin-project/filecoin-ffi#118](https://github.com/filecoin-project/filecoin-ffi/pull/118))
+
+### Contributors
+
+| Contributor | Commits | Lines ± | Files Changed |
+|-------------|---------|---------|---------------|
+| Erin Swenson-Healey | 1 | +370/-143 | 9 |
+
+## 0.30.2
+
+This release fixed a bug in the `ffi.Aggregate` function, which did not properly
+handle a NUL byte (representing an error) returned from the `fil_aggregate` Rust
+function.
+
+### Changelog
+
+- github.com/filecoin-project/filecoin-ffi:
+  - handle null pointer returned from fil_aggregate (#116) ([filecoin-project/filecoin-ffi#116](https://github.com/filecoin-project/filecoin-ffi/pull/116))
+  - 0.30.1 changelog (#114) ([filecoin-project/filecoin-ffi#114](https://github.com/filecoin-project/filecoin-ffi/pull/114))
+
+### Contributors
+
+| Contributor | Commits | Lines ± | Files Changed |
+|-------------|---------|---------|---------------|
+| Erin Swenson-Healey | 2 | +45/-1 | 3 |
+
 ## 0.30.1
 
 This release wil include Window PoSt speedups (2x measured for 32GiB sectors),
