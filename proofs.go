@@ -167,7 +167,7 @@ func GenerateUnsealedCID(proofType abi.RegisteredSealProof, pieces []abi.PieceIn
 		return cid.Undef, errors.New(generated.RawString(resp.ErrorMsg).Copy())
 	}
 
-	return commcid.DataCommitmentV1ToCID(resp.CommD[:]), nil
+	return commcid.DataCommitmentV1ToCID(resp.CommD[:])
 }
 
 // GeneratePieceCIDFromFile produces a piece CID for the provided data stored in
@@ -190,7 +190,7 @@ func GeneratePieceCIDFromFile(proofType abi.RegisteredSealProof, pieceFile *os.F
 		return cid.Undef, errors.New(generated.RawString(resp.ErrorMsg).Copy())
 	}
 
-	return commcid.PieceCommitmentV1ToCID(resp.CommP[:]), nil
+	return commcid.PieceCommitmentV1ToCID(resp.CommP[:])
 }
 
 // WriteWithAlignment
@@ -223,7 +223,12 @@ func WriteWithAlignment(
 		return 0, 0, cid.Undef, errors.New(generated.RawString(resp.ErrorMsg).Copy())
 	}
 
-	return abi.UnpaddedPieceSize(resp.LeftAlignmentUnpadded), abi.UnpaddedPieceSize(resp.TotalWriteUnpadded), commcid.PieceCommitmentV1ToCID(resp.CommP[:]), nil
+	commP, errCommpSize := commcid.PieceCommitmentV1ToCID(resp.CommP[:])
+	if errCommpSize != nil {
+		return 0, 0, cid.Undef, errCommpSize
+	}
+
+	return abi.UnpaddedPieceSize(resp.LeftAlignmentUnpadded), abi.UnpaddedPieceSize(resp.TotalWriteUnpadded), commP, nil
 }
 
 // WriteWithoutAlignment
@@ -253,7 +258,12 @@ func WriteWithoutAlignment(
 		return 0, cid.Undef, errors.New(generated.RawString(resp.ErrorMsg).Copy())
 	}
 
-	return abi.UnpaddedPieceSize(resp.TotalWriteUnpadded), commcid.PieceCommitmentV1ToCID(resp.CommP[:]), nil
+	commP, errCommpSize := commcid.PieceCommitmentV1ToCID(resp.CommP[:])
+	if errCommpSize != nil {
+		return 0, cid.Undef, errCommpSize
+	}
+
+	return abi.UnpaddedPieceSize(resp.TotalWriteUnpadded), commP, nil
 }
 
 // SealPreCommitPhase1
@@ -309,7 +319,16 @@ func SealPreCommitPhase2(
 		return cid.Undef, cid.Undef, errors.New(generated.RawString(resp.ErrorMsg).Copy())
 	}
 
-	return commcid.ReplicaCommitmentV1ToCID(resp.CommR[:]), commcid.DataCommitmentV1ToCID(resp.CommD[:]), nil
+	commR, errCommrSize := commcid.ReplicaCommitmentV1ToCID(resp.CommR[:])
+	if errCommrSize != nil {
+		return cid.Undef, cid.Undef, errCommrSize
+	}
+	commD, errCommdSize := commcid.DataCommitmentV1ToCID(resp.CommD[:])
+	if errCommdSize != nil {
+		return cid.Undef, cid.Undef, errCommdSize
+	}
+
+	return commR, commD, nil
 }
 
 // SealCommitPhase1
@@ -653,7 +672,7 @@ func FauxRep(proofType abi.RegisteredSealProof, cacheDirPath string, sealedSecto
 		return cid.Undef, errors.New(generated.RawString(resp.ErrorMsg).Copy())
 	}
 
-	return commcid.ReplicaCommitmentV1ToCID(resp.Commitment[:]), nil
+	return commcid.ReplicaCommitmentV1ToCID(resp.Commitment[:])
 }
 
 func toFilExistingPieceSizes(src []abi.UnpaddedPieceSize) ([]uint64, uint) {
