@@ -3,11 +3,12 @@ package ffi
 import (
 	"bytes"
 	"crypto/rand"
-	"github.com/filecoin-project/filecoin-ffi/generated"
 	"io"
 	"io/ioutil"
 	"math/big"
 	"testing"
+
+	"github.com/filecoin-project/filecoin-ffi/generated"
 
 	"github.com/stretchr/testify/assert"
 
@@ -51,7 +52,8 @@ func TestJsonMarshalSymmetry(t *testing.T) {
 			_, err := io.ReadFull(rand.Reader, commR[:])
 			require.NoError(t, err)
 
-			x.SealedCID = commcid.ReplicaCommitmentV1ToCID(commR[:])
+			// commR is defined as 32 long above, error can be safely ignored
+			x.SealedCID, _ = commcid.ReplicaCommitmentV1ToCID(commR[:])
 
 			n, err := rand.Int(rand.Reader, big.NewInt(500))
 			require.NoError(t, err)
