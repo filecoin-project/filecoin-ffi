@@ -47,6 +47,9 @@ func TestBLSSigningAndVerification(t *testing.T) {
 	fooSignature := PrivateKeySign(fooPrivateKey, fooMessage)
 	barSignature := PrivateKeySign(barPrivateKey, barMessage)
 
+	// get the aggregateSign
+	aggregateSign := Aggregate([]Signature{*fooSignature, *barSignature})
+
 	// assert the foo message was signed with the foo key
 	assert.True(t, Verify(fooSignature, []Digest{fooDigest}, []PublicKey{fooPublicKey}))
 
@@ -66,6 +69,12 @@ func TestBLSSigningAndVerification(t *testing.T) {
 	assert.False(t, Verify(barSignature, []Digest{barDigest}, []PublicKey{fooPublicKey}))
 	assert.False(t, Verify(barSignature, []Digest{fooDigest}, []PublicKey{barPublicKey}))
 	assert.False(t, Verify(fooSignature, []Digest{barDigest}, []PublicKey{fooPublicKey}))
+
+	//assert the foo and bar message was signed with the foo and bar key
+	assert.True(t, HashVerify(aggregateSign, []Message{fooMessage, barMessage}, []PublicKey{fooPublicKey, barPublicKey}))
+
+	//assert the bar and foo message was not signed by the foo and bar key
+	assert.False(t, HashVerify(aggregateSign, []Message{fooMessage, barMessage}, []PublicKey{fooPublicKey}))
 }
 
 func BenchmarkBLSVerify(b *testing.B) {
