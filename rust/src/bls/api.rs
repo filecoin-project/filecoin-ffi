@@ -197,6 +197,14 @@ pub unsafe extern "C" fn fil_hash_verify(
     flattened_public_keys_ptr: *const u8,
     flattened_public_keys_len: libc::size_t,
 ) -> libc::c_int {
+    if signature_ptr == std::ptr::null()
+        || flattened_messages_ptr == std::ptr::null()
+        || message_sizes_ptr == std::ptr::null()
+        || message_sizes_len == 0
+    {
+        return 0;
+    }
+
     // prep request
     let raw_signature = from_raw_parts(signature_ptr, SIGNATURE_BYTES);
     let signature = try_ffi!(Signature::from_bytes(raw_signature), 0);
@@ -353,6 +361,23 @@ pub unsafe extern "C" fn fil_private_key_public_key(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn empty_verification() {
+        let verified = unsafe {
+            fil_hash_verify(
+                std::ptr::null(),
+                std::ptr::null(),
+                0,
+                std::ptr::null(),
+                0,
+                std::ptr::null(),
+                0,
+            )
+        };
+
+        assert_eq!(0, verified);
+    }
 
     #[test]
     fn key_verification() {
