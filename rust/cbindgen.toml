@@ -11,7 +11,7 @@ trailer = """
 #endif
 """
 
-include_guard = "filcrypto_H"
+include_guard = "__FILCRYPTO_H"
 include_version = true
 language = "C"
 

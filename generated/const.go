@@ -12,10 +12,10 @@ package generated
 */
 import "C"
 
-// FCPResponseStatus as declared in filecoin-ffi/filcrypto.h:31
+// FCPResponseStatus as declared in filecoin-ffi/filcrypto.h:30
 type FCPResponseStatus int32
 
-// FCPResponseStatus enumeration from filecoin-ffi/filcrypto.h:31
+// FCPResponseStatus enumeration from filecoin-ffi/filcrypto.h:30
 const (
 	FCPResponseStatusFCPNoError           FCPResponseStatus = C.FCPResponseStatus_FCPNoError
 	FCPResponseStatusFCPUnclassifiedError FCPResponseStatus = C.FCPResponseStatus_FCPUnclassifiedError
@@ -23,10 +23,10 @@ const (
 	FCPResponseStatusFCPReceiverError     FCPResponseStatus = C.FCPResponseStatus_FCPReceiverError
 )
 
-// FilRegisteredPoStProof as declared in filecoin-ffi/filcrypto.h:44
+// FilRegisteredPoStProof as declared in filecoin-ffi/filcrypto.h:43
 type FilRegisteredPoStProof int32
 
-// FilRegisteredPoStProof enumeration from filecoin-ffi/filcrypto.h:44
+// FilRegisteredPoStProof enumeration from filecoin-ffi/filcrypto.h:43
 const (
 	FilRegisteredPoStProofStackedDrgWinning2KiBV1   FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrgWinning2KiBV1
 	FilRegisteredPoStProofStackedDrgWinning8MiBV1   FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrgWinning8MiBV1
@@ -40,10 +40,10 @@ const (
 	FilRegisteredPoStProofStackedDrgWindow64GiBV1   FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrgWindow64GiBV1
 )
 
-// FilRegisteredSealProof as declared in filecoin-ffi/filcrypto.h:52
+// FilRegisteredSealProof as declared in filecoin-ffi/filcrypto.h:51
 type FilRegisteredSealProof int32
 
-// FilRegisteredSealProof enumeration from filecoin-ffi/filcrypto.h:52
+// FilRegisteredSealProof enumeration from filecoin-ffi/filcrypto.h:51
 const (
 	FilRegisteredSealProofStackedDrg2KiBV1   FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg2KiBV1
 	FilRegisteredSealProofStackedDrg8MiBV1   FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg8MiBV1

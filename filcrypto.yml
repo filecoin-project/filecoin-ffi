@@ -12,9 +12,8 @@ GENERATOR:
     - {name: pkg-config, flags: ["${SRCDIR}/../filcrypto.pc"]}
 
 PARSER:
-  Defines:
-    __has_include_next(x): 1
   IncludePaths:
+    - ./
     - /usr/include
   SourcesPaths:
     - ./filcrypto.h
