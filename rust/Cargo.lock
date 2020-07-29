@@ -809,8 +809,7 @@ dependencies = [
  "filecoin-proofs-api",
  "libc",
  "log",
- "neptune",
- "neptune-triton",
+ "neptune 1.2.0 (git+https://github.com/filecoin-project/neptune?branch=fix-darwin)",
  "paired",
  "rand 0.7.3",
  "rand_chacha",
@@ -1514,9 +1513,8 @@ dependencies = [
 
 [[package]]
 name = "neptune"
-version = "1.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "88af5d7e571d2d7b52f124da382c7d38bbecb83d89dc167418ef8b38b9054b2b"
+version = "1.2.0"
+source = "git+https://github.com/filecoin-project/neptune?branch=fix-darwin#ecb2c7dcc90084a1d2c7158f99a2a8100bf107b9"
 dependencies = [
  "bellperson",
  "blake2s_simd",
@@ -1524,15 +1522,32 @@ dependencies = [
  "fff",
  "generic-array 0.13.2",
  "lazy_static",
+ "log",
+ "paired",
+]
+
+[[package]]
+name = "neptune"
+version = "1.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c34470665d9fec1660e24ab0890a52a7ddf3c7e27a7cf0cf558799f0be7e18d5"
+dependencies = [
+ "bellperson",
+ "blake2s_simd",
+ "byteorder 1.3.4",
+ "fff",
+ "generic-array 0.13.2",
+ "lazy_static",
+ "log",
  "neptune-triton",
  "paired",
 ]
 
 [[package]]
 name = "neptune-triton"
-version = "1.0.0"
+version = "1.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "65a7c64e4f357950956ab023473aa103f9d8a3f5d87853cc94c45c836f53530b"
+checksum = "9c06d221737d1bc51247c5e82865a908fa4e821347933fa34de1a5adee6511ab"
 dependencies = [
  "cc",
 ]
@@ -2446,7 +2461,7 @@ dependencies = [
  "log",
  "memmap",
  "merkletree",
- "neptune",
+ "neptune 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "num_cpus",
  "paired",
  "rand 0.7.3",
@@ -2477,7 +2492,7 @@ dependencies = [
  "log",
  "memmap",
  "merkletree",
- "neptune",
+ "neptune 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "num-bigint 0.2.6",
  "num-traits 0.2.12",
  "num_cpus",
@@ -2510,7 +2525,7 @@ dependencies = [
  "hex",
  "log",
  "merkletree",
- "neptune",
+ "neptune 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "num_cpus",
  "paired",
  "rand 0.7.3",
