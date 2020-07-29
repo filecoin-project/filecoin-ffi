@@ -9,7 +9,7 @@ require (
 	github.com/ipfs/go-cid v0.0.6
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.4.0
-	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9 // indirect
-	golang.org/x/sys v0.0.0-20200323222414-85ca7c5b95cd // indirect
-	gopkg.in/yaml.v2 v2.3.0 // indirect
+	github.com/xlab/c-for-go v0.0.0-20200718154222-87b0065af829
 )
+
+replace github.com/xlab/c-for-go => github.com/Kubuxu/c-for-go v0.0.0-20200729154323-9d77fa534f6d
