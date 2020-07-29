@@ -206,6 +206,11 @@ func WorkflowProofsLifecycle(t TestHelper) {
 	t.RequireNoError(err, "FauxRep produced an error")
 	t.RequireTrue(!cid.Undef.Equals(fauxSectorCID), "faux sector CID shouldn't be undefined")
 
+	// run the FauxRep2 routine, for good measure
+	fauxSectorCID2, err := FauxRep2(sealProofType, fauxSectorCacheDirPath, fauxSealedSectorFile.Name())
+	t.RequireNoError(err, "FauxRep2 produced an error")
+	t.RequireTrue(!cid.Undef.Equals(fauxSectorCID2), "faux sector CID 2 shouldn't be undefined")
+
 	// generate a PoSt over the proving set before importing, just to exercise
 	// the new API
 	privateInfo := NewSortedPrivateSectorInfo(PrivateSectorInfo{

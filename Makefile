@@ -31,7 +31,7 @@ cgo-leakdetect: runner
 .PHONY: cgo-leakdetect
 
 cgo-gen: $(DEPS)
-	c-for-go --ccincl --ccdefs --nostamp filcrypto.yml
+	go run github.com/xlab/c-for-go --nostamp filcrypto.yml
 .PHONY: cgo-gen
 
 runner: $(DEPS)

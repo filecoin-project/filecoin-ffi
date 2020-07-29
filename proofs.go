@@ -675,6 +675,24 @@ func FauxRep(proofType abi.RegisteredSealProof, cacheDirPath string, sealedSecto
 	return commcid.ReplicaCommitmentV1ToCID(resp.Commitment[:])
 }
 
+func FauxRep2(proofType abi.RegisteredSealProof, cacheDirPath string, existingPAuxPath string) (cid.Cid, error) {
+	sp, err := toFilRegisteredSealProof(proofType)
+	if err != nil {
+		return cid.Undef, err
+	}
+
+	resp := generated.FilFauxrep2(sp, cacheDirPath, existingPAuxPath)
+	resp.Deref()
+
+	defer generated.FilDestroyFauxrepResponse(resp)
+
+	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
+		return cid.Undef, errors.New(generated.RawString(resp.ErrorMsg).Copy())
+	}
+
+	return commcid.ReplicaCommitmentV1ToCID(resp.Commitment[:])
+}
+
 func toFilExistingPieceSizes(src []abi.UnpaddedPieceSize) ([]uint64, uint) {
 	out := make([]uint64, len(src))
 
