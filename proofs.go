@@ -690,7 +690,7 @@ func FauxRep2(proofType abi.RegisteredSealProof, cacheDirPath string, existingPA
 		return cid.Undef, errors.New(generated.RawString(resp.ErrorMsg).Copy())
 	}
 
-	return commcid.ReplicaCommitmentV1ToCID(resp.Commitment[:]), nil
+	return commcid.ReplicaCommitmentV1ToCID(resp.Commitment[:])
 }
 
 func toFilExistingPieceSizes(src []abi.UnpaddedPieceSize) ([]uint64, uint) {
