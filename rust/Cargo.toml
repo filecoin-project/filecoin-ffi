@@ -33,6 +33,12 @@ serde_json = "1.0.46"
 #package = "filecoin-proofs-api"
 #version = "4.0.4"
 
+storage-proofs = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "disable-default-sha-asm" }
+storage-proofs-core = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "disable-default-sha-asm" }
+storage-proofs-porep = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "disable-default-sha-asm" }
+storage-proofs-post = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "disable-default-sha-asm" }
+filecoin-proofs = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "disable-default-sha-asm" }
+
 filecoin-proofs-api = { git = "https://github.com/filecoin-project/rust-filecoin-proofs-api", branch = "disable-default-sha-asm" }
 
 [build-dependencies]

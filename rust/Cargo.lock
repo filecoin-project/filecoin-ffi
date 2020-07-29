@@ -806,6 +806,7 @@ dependencies = [
  "fff",
  "ffi-toolkit",
  "fil_logger",
+ "filecoin-proofs 4.0.5 (git+https://github.com/filecoin-project/rust-fil-proofs?branch=disable-default-sha-asm)",
  "filecoin-proofs-api",
  "libc",
  "log",
@@ -814,7 +815,65 @@ dependencies = [
  "rand_chacha",
  "rayon",
  "serde_json",
+ "storage-proofs 4.0.5 (git+https://github.com/filecoin-project/rust-fil-proofs?branch=disable-default-sha-asm)",
+ "storage-proofs-core 4.0.5 (git+https://github.com/filecoin-project/rust-fil-proofs?branch=disable-default-sha-asm)",
+ "storage-proofs-porep 4.0.5 (git+https://github.com/filecoin-project/rust-fil-proofs?branch=disable-default-sha-asm)",
+ "storage-proofs-post 4.0.5 (git+https://github.com/filecoin-project/rust-fil-proofs?branch=disable-default-sha-asm)",
  "tempfile",
+]
+
+[[package]]
+name = "filecoin-proofs"
+version = "4.0.5"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=disable-default-sha-asm#deacc7d106ec8b9b79097523c12a0e9757ec9512"
+dependencies = [
+ "anyhow",
+ "bellperson",
+ "bincode",
+ "bitintr",
+ "bitvec",
+ "blake2b_simd",
+ "blake2s_simd",
+ "byteorder 1.3.4",
+ "chrono",
+ "clap",
+ "colored",
+ "dialoguer",
+ "env_proxy",
+ "fff",
+ "fil-sapling-crypto",
+ "fil_logger",
+ "flate2",
+ "generic-array 0.13.2",
+ "hex",
+ "humansize",
+ "indicatif",
+ "itertools 0.9.0",
+ "lazy_static",
+ "log",
+ "memmap",
+ "merkletree",
+ "os_pipe",
+ "os_type",
+ "paired",
+ "pbr",
+ "phase21",
+ "rand 0.7.3",
+ "rand_chacha",
+ "rand_xorshift",
+ "rayon",
+ "regex",
+ "reqwest",
+ "serde",
+ "serde_cbor",
+ "serde_json",
+ "sha2",
+ "simplelog",
+ "storage-proofs 4.0.5 (git+https://github.com/filecoin-project/rust-fil-proofs?branch=disable-default-sha-asm)",
+ "structopt",
+ "tar",
+ "tee",
+ "typenum",
 ]
 
 [[package]]
@@ -865,7 +924,7 @@ dependencies = [
  "serde_json",
  "sha2",
  "simplelog",
- "storage-proofs",
+ "storage-proofs 4.0.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "structopt",
  "tar",
  "tee",
@@ -878,7 +937,7 @@ version = "4.0.4"
 source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=disable-default-sha-asm#84228f866b4677710fc399f8eebf85737026a5cc"
 dependencies = [
  "anyhow",
- "filecoin-proofs",
+ "filecoin-proofs 4.0.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "paired",
  "serde",
 ]
@@ -2357,6 +2416,19 @@ dependencies = [
 [[package]]
 name = "sha2raw"
 version = "1.0.0"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=disable-default-sha-asm#deacc7d106ec8b9b79097523c12a0e9757ec9512"
+dependencies = [
+ "block-buffer 0.7.3",
+ "cpuid-bool",
+ "digest 0.9.0",
+ "fake-simd",
+ "lazy_static",
+ "opaque-debug 0.2.3",
+]
+
+[[package]]
+name = "sha2raw"
+version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b6067924a813cc16b4df9df5fde0d94bdcf441e49f0b0de52f4d0a89b6988893"
 dependencies = [
@@ -2412,12 +2484,59 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 [[package]]
 name = "storage-proofs"
 version = "4.0.5"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=disable-default-sha-asm#deacc7d106ec8b9b79097523c12a0e9757ec9512"
+dependencies = [
+ "storage-proofs-core 4.0.5 (git+https://github.com/filecoin-project/rust-fil-proofs?branch=disable-default-sha-asm)",
+ "storage-proofs-porep 4.0.5 (git+https://github.com/filecoin-project/rust-fil-proofs?branch=disable-default-sha-asm)",
+ "storage-proofs-post 4.0.5 (git+https://github.com/filecoin-project/rust-fil-proofs?branch=disable-default-sha-asm)",
+]
+
+[[package]]
+name = "storage-proofs"
+version = "4.0.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cbf038a792b70a30ad57fa9031f831e155bc73ee0de739f547db746089ddc2a3"
 dependencies = [
- "storage-proofs-core",
- "storage-proofs-porep",
- "storage-proofs-post",
+ "storage-proofs-core 4.0.5 (registry+https://github.com/rust-lang/crates.io-index)",
+ "storage-proofs-porep 4.0.5 (registry+https://github.com/rust-lang/crates.io-index)",
+ "storage-proofs-post 4.0.5 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "storage-proofs-core"
+version = "4.0.5"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=disable-default-sha-asm#deacc7d106ec8b9b79097523c12a0e9757ec9512"
+dependencies = [
+ "aes",
+ "anyhow",
+ "bellperson",
+ "blake2b_simd",
+ "blake2s_simd",
+ "block-modes",
+ "byteorder 1.3.4",
+ "config",
+ "fff",
+ "fil-sapling-crypto",
+ "fs2",
+ "generic-array 0.13.2",
+ "hex",
+ "itertools 0.9.0",
+ "lazy_static",
+ "log",
+ "memmap",
+ "merkletree",
+ "neptune",
+ "num_cpus",
+ "paired",
+ "rand 0.7.3",
+ "rand_chacha",
+ "rayon",
+ "serde",
+ "serde_json",
+ "sha2",
+ "tempfile",
+ "thiserror",
+ "toml",
 ]
 
 [[package]]
@@ -2461,6 +2580,37 @@ dependencies = [
 [[package]]
 name = "storage-proofs-porep"
 version = "4.0.5"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=disable-default-sha-asm#deacc7d106ec8b9b79097523c12a0e9757ec9512"
+dependencies = [
+ "anyhow",
+ "bellperson",
+ "bincode",
+ "byteorder 1.3.4",
+ "fff",
+ "fil-sapling-crypto",
+ "generic-array 0.13.2",
+ "hex",
+ "log",
+ "memmap",
+ "merkletree",
+ "neptune",
+ "num-bigint 0.2.6",
+ "num-traits 0.2.12",
+ "num_cpus",
+ "once_cell",
+ "paired",
+ "pretty_assertions",
+ "rand 0.7.3",
+ "rayon",
+ "serde",
+ "sha2",
+ "sha2raw 1.0.0 (git+https://github.com/filecoin-project/rust-fil-proofs?branch=disable-default-sha-asm)",
+ "storage-proofs-core 4.0.5 (git+https://github.com/filecoin-project/rust-fil-proofs?branch=disable-default-sha-asm)",
+]
+
+[[package]]
+name = "storage-proofs-porep"
+version = "4.0.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "12ed8b64151c1bf2a7f2351f2f1f4d8ff308fa81cb798637554282517c7a00de"
 dependencies = [
@@ -2486,8 +2636,35 @@ dependencies = [
  "rayon",
  "serde",
  "sha2",
- "sha2raw",
- "storage-proofs-core",
+ "sha2raw 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "storage-proofs-core 4.0.5 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "storage-proofs-post"
+version = "4.0.5"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=disable-default-sha-asm#deacc7d106ec8b9b79097523c12a0e9757ec9512"
+dependencies = [
+ "anyhow",
+ "bellperson",
+ "blake2b_simd",
+ "blake2s_simd",
+ "byteorder 1.3.4",
+ "crossbeam",
+ "fff",
+ "fil-sapling-crypto",
+ "generic-array 0.13.2",
+ "hex",
+ "log",
+ "merkletree",
+ "neptune",
+ "num_cpus",
+ "paired",
+ "rand 0.7.3",
+ "rayon",
+ "serde",
+ "sha2",
+ "storage-proofs-core 4.0.5 (git+https://github.com/filecoin-project/rust-fil-proofs?branch=disable-default-sha-asm)",
 ]
 
 [[package]]
@@ -2515,7 +2692,7 @@ dependencies = [
  "rayon",
  "serde",
  "sha2",
- "storage-proofs-core",
+ "storage-proofs-core 4.0.5 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
