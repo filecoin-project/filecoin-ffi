@@ -207,7 +207,7 @@ func WorkflowProofsLifecycle(t TestHelper) {
 	t.RequireTrue(!cid.Undef.Equals(fauxSectorCID), "faux sector CID shouldn't be undefined")
 
 	// run the FauxRep2 routine, for good measure
-	fauxSectorCID2, err := FauxRep2(sealProofType, fauxSectorCacheDirPath, sealedSectorsDir)
+	fauxSectorCID2, err := FauxRep2(sealProofType, fauxSectorCacheDirPath, fauxSealedSectorFile.Name())
 	t.RequireNoError(err, "FauxRep2 produced an error")
 	t.RequireTrue(!cid.Undef.Equals(fauxSectorCID2), "faux sector CID 2 shouldn't be undefined")
 
