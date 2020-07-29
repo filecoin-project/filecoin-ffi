@@ -5,7 +5,7 @@
   },
   {
     "rustc_target_feature": "+sha",
-    "check_cpu_for_feature": null
+    "check_cpu_for_feature": "sha"
   },
   {
     "rustc_target_feature": "+sse2",
