@@ -809,7 +809,6 @@ dependencies = [
  "filecoin-proofs-api",
  "libc",
  "log",
- "neptune 1.2.0 (git+https://github.com/filecoin-project/neptune?branch=fix-darwin)",
  "paired",
  "rand 0.7.3",
  "rand_chacha",
@@ -1515,22 +1514,6 @@ dependencies = [
 name = "neptune"
 version = "1.2.0"
 source = "git+https://github.com/filecoin-project/neptune?branch=fix-darwin#d3fd557d636247c95c857d9ece189b32dbb53996"
-dependencies = [
- "bellperson",
- "blake2s_simd",
- "byteorder 1.3.4",
- "fff",
- "generic-array 0.13.2",
- "lazy_static",
- "log",
- "paired",
-]
-
-[[package]]
-name = "neptune"
-version = "1.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c34470665d9fec1660e24ab0890a52a7ddf3c7e27a7cf0cf558799f0be7e18d5"
 dependencies = [
  "bellperson",
  "blake2s_simd",
@@ -2461,7 +2444,7 @@ dependencies = [
  "log",
  "memmap",
  "merkletree",
- "neptune 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "neptune",
  "num_cpus",
  "paired",
  "rand 0.7.3",
@@ -2492,7 +2475,7 @@ dependencies = [
  "log",
  "memmap",
  "merkletree",
- "neptune 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "neptune",
  "num-bigint 0.2.6",
  "num-traits 0.2.12",
  "num_cpus",
@@ -2525,7 +2508,7 @@ dependencies = [
  "hex",
  "log",
  "merkletree",
- "neptune 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "neptune",
  "num_cpus",
  "paired",
  "rand 0.7.3",
