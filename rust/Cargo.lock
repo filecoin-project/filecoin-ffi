@@ -1514,7 +1514,7 @@ dependencies = [
 [[package]]
 name = "neptune"
 version = "1.2.0"
-source = "git+https://github.com/filecoin-project/neptune?branch=fix-darwin#826c1f36677d7b4ca9e3c376cd20bcfef09bc636"
+source = "git+https://github.com/filecoin-project/neptune?branch=fix-darwin#52f227c2ca447948c44f2473a0e430a37629b640"
 dependencies = [
  "bellperson",
  "blake2s_simd",
