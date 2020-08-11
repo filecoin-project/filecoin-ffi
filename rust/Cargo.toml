@@ -1,7 +1,7 @@
 [package]
 name = "filcrypto"
 description = "FFI Interface to Filecoin Proofs"
-version = "0.7.4"
+version = "0.7.5"
 authors = ["laser <l@s3r.com>"]
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/filecoin-project/filecoin-ffi"
@@ -34,7 +34,7 @@ neptune-triton = "=1.0.0"
 
 [dependencies.filecoin-proofs-api]
 package = "filecoin-proofs-api"
-version = "4.0.4"
+version = "5.0.0"
 
 [build-dependencies]
 cbindgen = "= 0.14.0"
