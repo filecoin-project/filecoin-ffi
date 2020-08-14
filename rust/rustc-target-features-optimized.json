@@ -8,7 +8,7 @@
     "check_cpu_for_feature": "sha_ni"
   },
   {
-    "rustc_target_feature": "+sha",
+    "rustc_target_feature": "+sha2",
     "check_cpu_for_feature": "sha2"
   },
   {
