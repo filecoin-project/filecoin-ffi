@@ -20,7 +20,7 @@ rust_sources_dir="rust"
 # building an optimized libfilcrypto (which takes advantage of some perf-boosting
 # instruction sets)
 #
-optimized_release_rustc_target_features=$(jq -r '.[].rustc_target_feature' < "${rust_sources_dir}/rustc-target-features-optimized.json")
+#optimized_release_rustc_target_features=$(jq -r '.[].rustc_target_feature' < "${rust_sources_dir}/rustc-target-features-optimized.json")
 
 # each value in this area is checked against the "features" of the hosts CPU
 # in order to determine if the host is suitable for an optimized release
@@ -130,7 +130,6 @@ build_from_source() {
     local __release_flags=$3
     local __repo_sha1=$(git rev-parse HEAD)
     local __repo_sha1_truncated="${__repo_sha1:0:16}"
-    local __target_feature=""
 
     (>&2 echo "building from source @ ${__repo_sha1_truncated}")
 
@@ -150,7 +149,7 @@ build_from_source() {
 
     cargo --version
 
-    if [ ! -z "${__release_flags}" ]; then
+    if [ -n "${__release_flags}" ]; then
         RUSTFLAGS="-C target-feature=${__release_flags}" ./scripts/build-release.sh "${__library_name}" "$(cat rust-toolchain)"
     else
         ./scripts/build-release.sh "${__library_name}" "$(cat rust-toolchain)"
@@ -160,7 +159,6 @@ build_from_source() {
 }
 
 get_release_flags() {
-    local __searched=""
     local __features=""
 
     # determine where to look for CPU features
@@ -169,11 +167,13 @@ get_release_flags() {
         (>&2 echo "[get_release_flags] no /proc/cpuinfo file; falling back to Darwin feature detection")
         __features=$(sysctl -a | grep machdep.cpu | tr '[:upper:]' '[:lower:]' | grep features)
     else
-        aarch64_uname=$(uname -a | grep aarch64)
+        #aarch64_uname=$(uname -a | grep aarch64)
         x86_64_uname=$(uname -a | grep x86_64)
-        if [ ! -z "$x86_64_uname" ]; then
+        # shellcheck disable=SC2002
+        if [ -n "${x86_64_uname}" ]; then
             __features=$(cat /proc/cpuinfo | grep flags | head -n 1)
         else
+            # For now we assume aarch64.  If another supported platform is added, explicitly check for it
             __features=$(cat /proc/cpuinfo | grep Features | head -n 1)
         fi
     fi
@@ -186,7 +186,7 @@ get_release_flags() {
     #
     # shellcheck disable=SC2068 # the splitting is intentional
     for x in ${cpu_features_required_for_optimized_release[@]}; do
-        current_feature=$(echo "$__features" | grep -c "$x")
+        current_feature=$(echo "${__features}" | grep -c "${x}")
         if [ "1" = "${current_feature}" ]; then
             for feature in "${feature_map[@]}"; do
                 key=${feature%%:*}
