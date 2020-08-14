@@ -179,7 +179,7 @@ get_release_flags() {
     fi
 
     # Maps cpu flag to rust flags (related to entries in rust/rustc-target-features-optimized.json)
-    feature_map=("adx:+adx", "sha_ni:+sha", "sha2:+sha", "sse2:+sse2", "avx2:+avx2", "avx:+avx", "sse4_2:+sse4.2", "sse4_1:+sse4.1")
+    feature_map=("adx:+adx" "sha_ni:+sha" "sha2:+sha2" "sse2:+sse2" "avx2:+avx2" "avx:+avx" "sse4_2:+sse4.2" "sse4_1:+sse4.1")
 
     target_features=""
     # check for the presence of each required CPU feature
@@ -187,22 +187,22 @@ get_release_flags() {
     # shellcheck disable=SC2068 # the splitting is intentional
     for x in ${cpu_features_required_for_optimized_release[@]}; do
         current_feature=$(echo "$__features" | grep -c "$x")
-        if [ "1" = "$current_feature" ]; then
+        if [ "1" = "${current_feature}" ]; then
             for feature in "${feature_map[@]}"; do
                 key=${feature%%:*}
-                if [ $key == $x ]; then
+                if [ "${key}" == "${x}" ]; then
                     val=${feature#*:}
-                    if [ -z $target_features ]; then
-                        target_features="$val"
+                    if [ -z "${target_features}" ]; then
+                        target_features="${val}"
                     else
-                        target_features="${target_features}${val}"
+                        target_features="${target_features},${val}"
                     fi
                 fi
             done
         fi
     done
 
-    echo "$target_features"
+    echo "${target_features}"
 }
 
 check_installed_files() {
