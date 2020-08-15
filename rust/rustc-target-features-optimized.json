@@ -5,7 +5,11 @@
   },
   {
     "rustc_target_feature": "+sha",
-    "check_cpu_for_feature": "sha"
+    "check_cpu_for_feature": "sha_ni"
+  },
+  {
+    "rustc_target_feature": "+sha2",
+    "check_cpu_for_feature": "sha2"
   },
   {
     "rustc_target_feature": "+sse2",

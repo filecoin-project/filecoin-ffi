@@ -20,7 +20,7 @@ rust_sources_dir="rust"
 # building an optimized libfilcrypto (which takes advantage of some perf-boosting
 # instruction sets)
 #
-optimized_release_rustc_target_features=$(jq -r '.[].rustc_target_feature' < "${rust_sources_dir}/rustc-target-features-optimized.json")
+#optimized_release_rustc_target_features=$(jq -r '.[].rustc_target_feature' < "${rust_sources_dir}/rustc-target-features-optimized.json")
 
 # each value in this area is checked against the "features" of the hosts CPU
 # in order to determine if the host is suitable for an optimized release
@@ -28,8 +28,8 @@ optimized_release_rustc_target_features=$(jq -r '.[].rustc_target_feature' < "${
 cpu_features_required_for_optimized_release=$(jq -r '.[].check_cpu_for_feature | select(. != null)' < "${rust_sources_dir}/rustc-target-features-optimized.json")
 
 main() {
-    local __release_type=$(get_release_type)
-    if [ "${FFI_BUILD_FROM_SOURCE}" != "1" ] && download_release_tarball __tarball_path "${rust_sources_dir}" "filecoin-ffi" "${__release_type}"; then
+    local __release_flags=$(get_release_flags)
+    if [ "${FFI_BUILD_FROM_SOURCE}" != "1" ] && download_release_tarball __tarball_path "${rust_sources_dir}" "filecoin-ffi" "${__release_flags}"; then
         local __tmp_dir=$(mktemp -d)
 
         # silence shellcheck warning as the assignment happened in
@@ -53,7 +53,7 @@ main() {
 
         # build libfilcrypto (and corresponding header and pkg-config)
         #
-        build_from_source "filcrypto" "${rust_sources_dir}" "${__release_type}"
+        build_from_source "filcrypto" "${rust_sources_dir}" "${__release_flags}"
 
         # copy from Rust's build directory (target) to root of filecoin-ffi
         #
@@ -71,16 +71,23 @@ download_release_tarball() {
     local __resultvar=$1
     local __rust_sources_path=$2
     local __repo_name=$3
-    local __release_type=$4
+    local __release_flags=$4
     local __release_sha1=$(git rev-parse HEAD)
     local __release_tag="${__release_sha1:0:16}"
     local __release_tag_url="https://api.github.com/repos/filecoin-project/${__repo_name}/releases/tags/${__release_tag}"
+
+    # FIXME: Disable optimized release download, as it can't support properly support all native cpu flag detections
+    #if [ -z $release_flags ]; then
+        release_flag_name="standard"
+    #else
+    #    release_flag_name="optimized"
+    #fi
 
     # TODO: This function shouldn't make assumptions about how these releases'
     # names are constructed. Marginally less-bad would be to require that this
     # function's caller provide the release name.
     #
-    local __release_name="${__repo_name}-$(uname)-${__release_type}"
+    local __release_name="${__repo_name}-$(uname)-${release_flag_name}"
 
     (>&2 echo "[download_release_tarball] acquiring release @ ${__release_tag}")
 
@@ -120,10 +127,9 @@ download_release_tarball() {
 build_from_source() {
     local __library_name=$1
     local __rust_sources_path=$2
-    local __release_type=$3
+    local __release_flags=$3
     local __repo_sha1=$(git rev-parse HEAD)
     local __repo_sha1_truncated="${__repo_sha1:0:16}"
-    local __target_feature=""
 
     (>&2 echo "building from source @ ${__repo_sha1_truncated}")
 
@@ -143,14 +149,8 @@ build_from_source() {
 
     cargo --version
 
-    # reduce array of features into the rustc-specific 'target-feature' flag
-    # shellcheck disable=SC2068 # the splitting is intentional
-    for x in ${optimized_release_rustc_target_features[@]}; do
-        __target_feature="${x},${__target_feature}"
-    done
-
-    if [ "${__release_type}" = "optimized" ]; then
-        RUSTFLAGS="-C target-feature=${__target_feature}" ./scripts/build-release.sh "${__library_name}" "$(cat rust-toolchain)"
+    if [ -n "${__release_flags}" ]; then
+        RUSTFLAGS="-C target-feature=${__release_flags}" ./scripts/build-release.sh "${__library_name}" "$(cat rust-toolchain)"
     else
         ./scripts/build-release.sh "${__library_name}" "$(cat rust-toolchain)"
     fi
@@ -158,42 +158,51 @@ build_from_source() {
     popd
 }
 
-get_release_type() {
-    local __searched=""
+get_release_flags() {
     local __features=""
-    local __optimized=true
 
     # determine where to look for CPU features
     #
     if [[ ! -f "/proc/cpuinfo" ]]; then
-        (>&2 echo "[get_release_type] no /proc/cpuinfo file; falling back to Darwin feature detection")
-        __searched="sysctl -a | grep machdep.cpu | tr '[:upper:]' '[:lower:]' | grep features"
+        (>&2 echo "[get_release_flags] no /proc/cpuinfo file; falling back to Darwin feature detection")
+        __features=$(sysctl -a | grep machdep.cpu | tr '[:upper:]' '[:lower:]' | grep features)
     else
-        __searched="cat /proc/cpuinfo | grep flags"
+        #aarch64_uname=$(uname -a | grep aarch64)
+        x86_64_uname=$(uname -a | grep x86_64)
+        # shellcheck disable=SC2002
+        if [ -n "${x86_64_uname}" ]; then
+            __features=$(cat /proc/cpuinfo | grep flags | head -n 1)
+        else
+            # For now we assume aarch64.  If another supported platform is added, explicitly check for it
+            __features=$(cat /proc/cpuinfo | grep Features | head -n 1)
+        fi
     fi
-    __features=$(eval "${__searched}")
 
+    # Maps cpu flag to rust flags (related to entries in rust/rustc-target-features-optimized.json)
+    feature_map=("adx:+adx" "sha_ni:+sha" "sha2:+sha2" "sse2:+sse2" "avx2:+avx2" "avx:+avx" "sse4_2:+sse4.2" "sse4_1:+sse4.1")
+
+    target_features=""
     # check for the presence of each required CPU feature
     #
     # shellcheck disable=SC2068 # the splitting is intentional
     for x in ${cpu_features_required_for_optimized_release[@]}; do
-        if [ "${__optimized}" = true ]; then
-            if [ -n "${__features##*${x}*}" ]; then
-                (>&2 echo "[get_release_type] your CPU does not support the '${x}' feature (searched '${__searched}')")
-                __optimized=false
-            fi
+        current_feature=$(echo "${__features}" | grep -c "${x}")
+        if [ "1" = "${current_feature}" ]; then
+            for feature in "${feature_map[@]}"; do
+                key=${feature%%:*}
+                if [ "${key}" == "${x}" ]; then
+                    val=${feature#*:}
+                    if [ -z "${target_features}" ]; then
+                        target_features="${val}"
+                    else
+                        target_features="${target_features},${val}"
+                    fi
+                fi
+            done
         fi
     done
 
-    # if we couldn't figure out where to look for features, use standard
-    #
-    if [ "${__optimized}" == true ] && [ -n "${__features}" ]; then
-        (>&2 echo "[get_release_type] configuring 'optimized' build")
-        echo "optimized"
-    else
-        (>&2 echo "[get_release_type] configuring 'standard' build")
-        echo "standard"
-    fi
+    echo "${target_features}"
 }
 
 check_installed_files() {
