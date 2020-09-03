@@ -132,7 +132,7 @@ func VerifyWindowPoSt(info aabi.WindowPoStVerifyInfo) (bool, error) {
 
 // GeneratePieceCommitment produces a piece commitment for the provided data
 // stored at a given path.
-func GeneratePieceCID(proofType aabi.RegisteredSealProof, piecePath string, pieceSize abi.UnpaddedPieceSize) (cid.Cid, error) {
+func GeneratePieceCID(proofType abi.RegisteredSealProof, piecePath string, pieceSize abi.UnpaddedPieceSize) (cid.Cid, error) {
 	pieceFile, err := os.Open(piecePath)
 	if err != nil {
 		return cid.Undef, err
