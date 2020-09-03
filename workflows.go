@@ -12,7 +12,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/filecoin-project/specs-actors/actors/abi"
+	"github.com/filecoin-project/go-state-types/abi"
+	aabi "github.com/filecoin-project/specs-actors/actors/abi"
 	"github.com/ipfs/go-cid"
 )
 
@@ -134,7 +135,7 @@ func WorkflowProofsLifecycle(t TestHelper) {
 	t.RequireNoError(err)
 
 	// verify the 'ole proofy
-	isValid, err := VerifySeal(abi.SealVerifyInfo{
+	isValid, err := VerifySeal(aabi.SealVerifyInfo{
 		SectorID: abi.SectorID{
 			Miner:  minerID,
 			Number: sectorNum,
@@ -214,7 +215,7 @@ func WorkflowProofsLifecycle(t TestHelper) {
 	// generate a PoSt over the proving set before importing, just to exercise
 	// the new API
 	privateInfo := NewSortedPrivateSectorInfo(PrivateSectorInfo{
-		SectorInfo: abi.SectorInfo{
+		SectorInfo: aabi.SectorInfo{
 			SectorNumber: sectorNum,
 			SealedCID:    sealedCID,
 		},
@@ -223,7 +224,7 @@ func WorkflowProofsLifecycle(t TestHelper) {
 		SealedSectorPath: sealedSectorFile.Name(),
 	})
 
-	provingSet := []abi.SectorInfo{{
+	provingSet := []aabi.SectorInfo{{
 		SealProof:    sealProofType,
 		SectorNumber: sectorNum,
 		SealedCID:    sealedCID,
@@ -233,7 +234,7 @@ func WorkflowProofsLifecycle(t TestHelper) {
 	indicesInProvingSet, err := GenerateWinningPoStSectorChallenge(winningPostProofType, minerID, randomness[:], uint64(len(provingSet)))
 	t.RequireNoError(err)
 
-	var challengedSectors []abi.SectorInfo
+	var challengedSectors []aabi.SectorInfo
 	for idx := range indicesInProvingSet {
 		challengedSectors = append(challengedSectors, provingSet[indicesInProvingSet[idx]])
 	}
@@ -241,7 +242,7 @@ func WorkflowProofsLifecycle(t TestHelper) {
 	proofs, err := GenerateWinningPoSt(minerID, privateInfo, randomness[:])
 	t.RequireNoError(err)
 
-	isValid, err = VerifyWinningPoSt(abi.WinningPoStVerifyInfo{
+	isValid, err = VerifyWinningPoSt(aabi.WinningPoStVerifyInfo{
 		Randomness:        randomness[:],
 		Proofs:            proofs,
 		ChallengedSectors: challengedSectors,
