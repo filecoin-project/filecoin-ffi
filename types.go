@@ -5,7 +5,8 @@ import (
 	"encoding/json"
 	"sort"
 
-	"github.com/filecoin-project/specs-actors/actors/abi"
+	"github.com/filecoin-project/go-state-types/abi"
+	"github.com/filecoin-project/specs-actors/actors/runtime/proof"
 	"github.com/ipfs/go-cid"
 )
 
@@ -120,7 +121,7 @@ type publicSectorInfo struct {
 }
 
 type PrivateSectorInfo struct {
-	abi.SectorInfo
+	proof.SectorInfo
 	CacheDirPath     string
 	PoStProofType    abi.RegisteredPoStProof
 	SealedSectorPath string
