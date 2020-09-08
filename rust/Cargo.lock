@@ -898,8 +898,9 @@ dependencies = [
 
 [[package]]
 name = "filecoin-proofs"
-version = "5.1.3"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat/faulty-sectors-error#a81b2d2df11956310d059b78740aa682d0e17c06"
+version = "5.1.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3a32a159814f0769d35db7576818951d6333fbad695da532a4e8d8f501fd66b8"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -948,8 +949,9 @@ dependencies = [
 
 [[package]]
 name = "filecoin-proofs-api"
-version = "5.1.0"
-source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api#ce7c98ae895231f369cea509a16bf3703d73c572"
+version = "5.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "95c116f6172647436fee7a36a84f93cc1214533127003d1e51270462eac58362"
 dependencies = [
  "anyhow",
  "filecoin-proofs",
@@ -2442,7 +2444,8 @@ dependencies = [
 [[package]]
 name = "sha2raw"
 version = "2.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat/faulty-sectors-error#a81b2d2df11956310d059b78740aa682d0e17c06"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "57da614e847c49a01979ffa0d9a030d983c4bb6e78a13ff20203a0169deeff42"
 dependencies = [
  "block-buffer 0.7.3",
  "cpuid-bool",
@@ -2502,8 +2505,9 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
 name = "storage-proofs"
-version = "5.1.3"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat/faulty-sectors-error#a81b2d2df11956310d059b78740aa682d0e17c06"
+version = "5.1.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1e05973f9daf17b7e54a48299b5a8448f0431f3acd5dc87908975661c497dad7"
 dependencies = [
  "storage-proofs-core",
  "storage-proofs-porep",
@@ -2512,8 +2516,9 @@ dependencies = [
 
 [[package]]
 name = "storage-proofs-core"
-version = "5.1.3"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat/faulty-sectors-error#a81b2d2df11956310d059b78740aa682d0e17c06"
+version = "5.1.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f607e5b14686c9fd6a3c82d6e5cd0e93106f6d46fcde9241743a7deeec7c621d"
 dependencies = [
  "aes",
  "anyhow",
@@ -2550,8 +2555,9 @@ dependencies = [
 
 [[package]]
 name = "storage-proofs-porep"
-version = "5.1.3"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat/faulty-sectors-error#a81b2d2df11956310d059b78740aa682d0e17c06"
+version = "5.1.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "78134973351bcb82ead18d9c24eb6f2a041358a2cfcbbffff4766a24f512dbdc"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -2580,8 +2586,9 @@ dependencies = [
 
 [[package]]
 name = "storage-proofs-post"
-version = "5.1.3"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat/faulty-sectors-error#a81b2d2df11956310d059b78740aa682d0e17c06"
+version = "5.1.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b5c085d6b3fb678808cfcfd554ddd03c8174d3f89e58fa99c95610bd6b2854b0"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -2864,9 +2871,9 @@ dependencies = [
 
 [[package]]
 name = "tracing-core"
-version = "0.1.15"
+version = "0.1.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4f0e00789804e99b20f12bc7003ca416309d28a6f495d6af58d1e2c2842461b5"
+checksum = "5bcf46c1f1f06aeea2d6b81f3c863d0930a596c86ad1920d4e5bad6dd1d7119a"
 dependencies = [
  "lazy_static",
 ]
