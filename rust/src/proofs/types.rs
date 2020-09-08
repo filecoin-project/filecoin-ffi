@@ -254,6 +254,8 @@ pub struct fil_GenerateWindowPoStResponse {
     pub error_msg: *const libc::c_char,
     pub proofs_len: libc::size_t,
     pub proofs_ptr: *const fil_PoStProof,
+    pub faulty_sectors_len: libc::size_t,
+    pub faulty_sectors_ptr: *const u64,
     pub status_code: FCPResponseStatus,
 }
 
@@ -263,6 +265,8 @@ impl Default for fil_GenerateWindowPoStResponse {
             error_msg: ptr::null(),
             proofs_len: 0,
             proofs_ptr: ptr::null(),
+            faulty_sectors_len: 0,
+            faulty_sectors_ptr: ptr::null(),
             status_code: FCPResponseStatus::FCPNoError,
         }
     }

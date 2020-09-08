@@ -604,6 +604,19 @@ pub unsafe extern "C" fn fil_generate_window_post(
                 mem::forget(mapped);
             }
             Err(err) => {
+                // If there were faulty sectors, add them to the response
+                if let Some(filecoin_proofs_api::StorageProofsError::FaultySectors(sectors)) =
+                    err.downcast_ref::<filecoin_proofs_api::StorageProofsError>()
+                {
+                    let sectors_u64 = sectors
+                        .iter()
+                        .map(|sector| u64::from(*sector))
+                        .collect::<Vec<u64>>();
+                    response.faulty_sectors_len = sectors_u64.len();
+                    response.faulty_sectors_ptr = sectors_u64.as_ptr();
+                    mem::forget(sectors_u64)
+                }
+
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
                 response.error_msg = rust_str_to_c_str(format!("{:?}", err));
             }
@@ -1718,6 +1731,171 @@ pub mod tests {
             c_str_to_rust_str(staged_path_c_str);
             c_str_to_rust_str(replica_path_c_str);
             c_str_to_rust_str(unseal_path_c_str);
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_faulty_sectors() -> Result<()> {
+        // miscellaneous setup and shared values
+        let registered_proof_seal = fil_RegisteredSealProof::StackedDrg2KiBV1;
+        let registered_proof_window_post = fil_RegisteredPoStProof::StackedDrgWindow2KiBV1;
+
+        let cache_dir = tempfile::tempdir()?;
+        let cache_dir_path = cache_dir.into_path();
+
+        let prover_id = fil_32ByteArray { inner: [1u8; 32] };
+        let randomness = fil_32ByteArray { inner: [7u8; 32] };
+        let sector_id = 42;
+        let ticket = fil_32ByteArray { inner: [6u8; 32] };
+
+        // create a byte source (a user's piece)
+        let mut rng = thread_rng();
+        let buf_a: Vec<u8> = (0..2032).map(|_| rng.gen()).collect();
+
+        let mut piece_file_a = tempfile::tempfile()?;
+        piece_file_a.write_all(&buf_a[0..127])?;
+        piece_file_a.seek(SeekFrom::Start(0))?;
+
+        let mut piece_file_b = tempfile::tempfile()?;
+        piece_file_b.write_all(&buf_a[0..1016])?;
+        piece_file_b.seek(SeekFrom::Start(0))?;
+
+        // create the staged sector (the byte destination)
+        let (staged_file, staged_path) = tempfile::NamedTempFile::new()?.keep()?;
+
+        // create a temp file to be used as the byte destination
+        let (_sealed_file, sealed_path) = tempfile::NamedTempFile::new()?.keep()?;
+
+        // transmute temp files to file descriptors
+        let piece_file_a_fd = piece_file_a.into_raw_fd();
+        let piece_file_b_fd = piece_file_b.into_raw_fd();
+        let staged_sector_fd = staged_file.into_raw_fd();
+
+        unsafe {
+            let resp_a1 = fil_write_without_alignment(
+                registered_proof_seal,
+                piece_file_a_fd,
+                127,
+                staged_sector_fd,
+            );
+
+            if (*resp_a1).status_code != FCPResponseStatus::FCPNoError {
+                let msg = c_str_to_rust_str((*resp_a1).error_msg);
+                panic!("write_without_alignment failed: {:?}", msg);
+            }
+
+            let existing_piece_sizes = vec![127];
+
+            let resp_a2 = fil_write_with_alignment(
+                registered_proof_seal,
+                piece_file_b_fd,
+                1016,
+                staged_sector_fd,
+                existing_piece_sizes.as_ptr(),
+                existing_piece_sizes.len(),
+            );
+
+            if (*resp_a2).status_code != FCPResponseStatus::FCPNoError {
+                let msg = c_str_to_rust_str((*resp_a2).error_msg);
+                panic!("write_with_alignment failed: {:?}", msg);
+            }
+
+            let pieces = vec![
+                fil_PublicPieceInfo {
+                    num_bytes: 127,
+                    comm_p: (*resp_a1).comm_p,
+                },
+                fil_PublicPieceInfo {
+                    num_bytes: 1016,
+                    comm_p: (*resp_a2).comm_p,
+                },
+            ];
+
+            let resp_x =
+                fil_generate_data_commitment(registered_proof_seal, pieces.as_ptr(), pieces.len());
+
+            if (*resp_x).status_code != FCPResponseStatus::FCPNoError {
+                let msg = c_str_to_rust_str((*resp_x).error_msg);
+                panic!("generate_data_commitment failed: {:?}", msg);
+            }
+
+            let cache_dir_path_c_str = rust_str_to_c_str(cache_dir_path.to_str().unwrap());
+            let staged_path_c_str = rust_str_to_c_str(staged_path.to_str().unwrap());
+            let replica_path_c_str = rust_str_to_c_str(sealed_path.to_str().unwrap());
+
+            let resp_b1 = fil_seal_pre_commit_phase1(
+                registered_proof_seal,
+                cache_dir_path_c_str,
+                staged_path_c_str,
+                replica_path_c_str,
+                sector_id,
+                prover_id,
+                ticket,
+                pieces.as_ptr(),
+                pieces.len(),
+            );
+
+            if (*resp_b1).status_code != FCPResponseStatus::FCPNoError {
+                let msg = c_str_to_rust_str((*resp_b1).error_msg);
+                panic!("seal_pre_commit_phase1 failed: {:?}", msg);
+            }
+
+            let resp_b2 = fil_seal_pre_commit_phase2(
+                (*resp_b1).seal_pre_commit_phase1_output_ptr,
+                (*resp_b1).seal_pre_commit_phase1_output_len,
+                cache_dir_path_c_str,
+                replica_path_c_str,
+            );
+
+            if (*resp_b2).status_code != FCPResponseStatus::FCPNoError {
+                let msg = c_str_to_rust_str((*resp_b2).error_msg);
+                panic!("seal_pre_commit_phase2 failed: {:?}", msg);
+            }
+
+            // window post
+
+            let faulty_sealed_file = tempfile::NamedTempFile::new()?;
+            let faulty_replica_path_c_str =
+                rust_str_to_c_str(faulty_sealed_file.path().to_str().unwrap());
+
+            let private_replicas = vec![fil_PrivateReplicaInfo {
+                registered_proof: registered_proof_window_post,
+                cache_dir_path: cache_dir_path_c_str,
+                comm_r: (*resp_b2).comm_r,
+                replica_path: faulty_replica_path_c_str,
+                sector_id,
+            }];
+
+            let resp_j = fil_generate_window_post(
+                randomness,
+                private_replicas.as_ptr(),
+                private_replicas.len(),
+                prover_id,
+            );
+
+            assert_eq!(
+                (*resp_j).status_code,
+                FCPResponseStatus::FCPUnclassifiedError,
+                "generate_window_post should have failed"
+            );
+
+            let faulty_sectors: &[u64] =
+                from_raw_parts((*resp_j).faulty_sectors_ptr, (*resp_j).faulty_sectors_len);
+            assert_eq!(faulty_sectors, &[42], "sector 42 should be faulty");
+
+            fil_destroy_write_without_alignment_response(resp_a1);
+            fil_destroy_write_with_alignment_response(resp_a2);
+
+            fil_destroy_seal_pre_commit_phase1_response(resp_b1);
+            fil_destroy_seal_pre_commit_phase2_response(resp_b2);
+
+            fil_destroy_generate_window_post_response(resp_j);
+
+            c_str_to_rust_str(cache_dir_path_c_str);
+            c_str_to_rust_str(staged_path_c_str);
+            c_str_to_rust_str(replica_path_c_str);
         }
 
         Ok(())

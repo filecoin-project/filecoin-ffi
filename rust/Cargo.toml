@@ -34,7 +34,7 @@ neptune-triton = "=1.0.0"
 
 [dependencies.filecoin-proofs-api]
 package = "filecoin-proofs-api"
-version = "5.0.0"
+version = "5.1.0"
 
 [build-dependencies]
 cbindgen = "= 0.14.0"
@@ -42,3 +42,6 @@ cbindgen = "= 0.14.0"
 [dev-dependencies]
 tempfile = "3.0.8"
 
+[patch.crates-io]
+filecoin-proofs = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "feat/faulty-sectors-error" }
+filecoin-proofs-api = { git = "https://github.com/filecoin-project/rust-filecoin-proofs-api" }
