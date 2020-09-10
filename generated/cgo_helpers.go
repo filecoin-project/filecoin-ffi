@@ -954,6 +954,14 @@ func (x *FilGenerateWindowPoStResponse) PassRef() (*C.fil_GenerateWindowPoStResp
 	ref2a5f3ba8.proofs_ptr, cproofs_ptr_allocs = unpackSFilPoStProof(x.ProofsPtr)
 	allocs2a5f3ba8.Borrow(cproofs_ptr_allocs)
 
+	var cfaulty_sectors_len_allocs *cgoAllocMap
+	ref2a5f3ba8.faulty_sectors_len, cfaulty_sectors_len_allocs = (C.size_t)(x.FaultySectorsLen), cgoAllocsUnknown
+	allocs2a5f3ba8.Borrow(cfaulty_sectors_len_allocs)
+
+	var cfaulty_sectors_ptr_allocs *cgoAllocMap
+	ref2a5f3ba8.faulty_sectors_ptr, cfaulty_sectors_ptr_allocs = (*C.uint64_t)(unsafe.Pointer((*sliceHeader)(unsafe.Pointer(&x.FaultySectorsPtr)).Data)), cgoAllocsUnknown
+	allocs2a5f3ba8.Borrow(cfaulty_sectors_ptr_allocs)
+
 	var cstatus_code_allocs *cgoAllocMap
 	ref2a5f3ba8.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
 	allocs2a5f3ba8.Borrow(cstatus_code_allocs)
@@ -982,6 +990,12 @@ func (x *FilGenerateWindowPoStResponse) Deref() {
 	x.ErrorMsg = packPCharString(x.ref2a5f3ba8.error_msg)
 	x.ProofsLen = (uint)(x.ref2a5f3ba8.proofs_len)
 	packSFilPoStProof(x.ProofsPtr, x.ref2a5f3ba8.proofs_ptr)
+	x.FaultySectorsLen = (uint)(x.ref2a5f3ba8.faulty_sectors_len)
+	hxfc4425b := (*sliceHeader)(unsafe.Pointer(&x.FaultySectorsPtr))
+	hxfc4425b.Data = unsafe.Pointer(x.ref2a5f3ba8.faulty_sectors_ptr)
+	hxfc4425b.Cap = 0x7fffffff
+	// hxfc4425b.Len = ?
+
 	x.StatusCode = (FCPResponseStatus)(x.ref2a5f3ba8.status_code)
 }
 
@@ -1173,10 +1187,10 @@ func (x *FilGenerateWinningPoStSectorChallenge) Deref() {
 	}
 	x.ErrorMsg = packPCharString(x.ref69d2a405.error_msg)
 	x.StatusCode = (FCPResponseStatus)(x.ref69d2a405.status_code)
-	hxfc4425b := (*sliceHeader)(unsafe.Pointer(&x.IdsPtr))
-	hxfc4425b.Data = unsafe.Pointer(x.ref69d2a405.ids_ptr)
-	hxfc4425b.Cap = 0x7fffffff
-	// hxfc4425b.Len = ?
+	hxf95e7c8 := (*sliceHeader)(unsafe.Pointer(&x.IdsPtr))
+	hxf95e7c8.Data = unsafe.Pointer(x.ref69d2a405.ids_ptr)
+	hxf95e7c8.Cap = 0x7fffffff
+	// hxf95e7c8.Len = ?
 
 	x.IdsLen = (uint)(x.ref69d2a405.ids_len)
 }
