@@ -577,18 +577,18 @@ func GenerateWindowPoSt(
 
 	defer generated.FilDestroyGenerateWindowPostResponse(resp)
 
+	faultySectors, err := fromFilPoStFaultySectors(resp.FaultySectorsPtr, resp.FaultySectorsLen)
+	if err != nil {
+		return nil, nil, xerrors.Errorf("failed to parse faulty sectors list: %w", err)
+	}
+
 	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-		return nil, nil, errors.New(generated.RawString(resp.ErrorMsg).Copy())
+		return nil, faultySectors, errors.New(generated.RawString(resp.ErrorMsg).Copy())
 	}
 
 	proofs, err := fromFilPoStProofs(resp.ProofsPtr)
 	if err != nil {
 		return nil, nil, err
-	}
-
-	faultySectors, err := fromFilPoStFaultySectors(resp.FaultySectorsPtr, resp.FaultySectorsLen)
-	if err != nil {
-		return nil, nil, xerrors.Errorf("failed to parse faulty sectors list: %w", err)
 	}
 
 	return proofs, faultySectors, nil
@@ -807,6 +807,14 @@ func fromFilPoStFaultySectors(ptr []uint64, l uint) ([]abi.SectorNumber, error) 
 	if l == 0 {
 		return nil, nil
 	}
+
+	type sliceHeader struct {
+		Data unsafe.Pointer
+		Len  int
+		Cap  int
+	}
+
+	(*sliceHeader)(unsafe.Pointer(&ptr)).Len = int(l) // don't worry about it
 
 	snums := make([]abi.SectorNumber, 0, l)
 	for i := uint(0); i < l; i++ {
