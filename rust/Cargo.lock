@@ -964,6 +964,7 @@ dependencies = [
  "filecoin-proofs",
  "paired",
  "serde",
+ "storage-proofs",
 ]
 
 [[package]]
@@ -2458,8 +2459,7 @@ dependencies = [
 [[package]]
 name = "sha2raw"
 version = "2.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "57da614e847c49a01979ffa0d9a030d983c4bb6e78a13ff20203a0169deeff42"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs#451397902ef6b669098dee85dbe866b42490cb91"
 dependencies = [
  "block-buffer 0.7.3",
  "cpuid-bool",

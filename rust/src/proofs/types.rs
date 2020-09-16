@@ -169,6 +169,36 @@ impl Drop for fil_PoStProof {
     }
 }
 
+#[repr(C)]
+#[derive(Clone)]
+pub struct fil_VanillaProof {
+    pub proof_len: libc::size_t,
+    pub proof_ptr: *const u8,
+}
+
+impl Drop for fil_VanillaProof {
+    fn drop(&mut self) {
+        let _ = unsafe {
+            Vec::from_raw_parts(self.proof_ptr as *mut u8, self.proof_len, self.proof_len)
+        };
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct VanillaProof {
+    pub proof: Vec<u8>,
+}
+
+impl From<fil_VanillaProof> for VanillaProof {
+    fn from(other: fil_VanillaProof) -> Self {
+        let proof = unsafe { from_raw_parts(other.proof_ptr, other.proof_len).to_vec() };
+
+        VanillaProof {
+            proof,
+        }
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct PoStProof {
     pub registered_proof: RegisteredPoStProof,
@@ -225,6 +255,55 @@ impl Default for fil_GenerateWinningPoStSectorChallenge {
 }
 
 code_and_message_impl!(fil_GenerateWinningPoStSectorChallenge);
+
+#[repr(C)]
+#[derive(DropStructMacro)]
+pub struct fil_GenerateFallbackSectorChallenges {
+    pub error_msg: *const libc::c_char,
+    pub status_code: FCPResponseStatus,
+    pub ids_ptr: *const u64,
+    pub ids_len: libc::size_t,
+    pub challenges_ptr: *const std::vec::Vec<u64>,
+    pub challenges_len: libc::size_t,
+}
+
+impl Default for fil_GenerateFallbackSectorChallenges {
+    fn default() -> fil_GenerateFallbackSectorChallenges {
+        fil_GenerateFallbackSectorChallenges {
+            challenges_len: 0,
+            challenges_ptr: ptr::null(),
+            ids_len: 0,
+            ids_ptr: ptr::null(),
+            error_msg: ptr::null(),
+            status_code: FCPResponseStatus::FCPNoError,
+        }
+    }
+}
+
+code_and_message_impl!(fil_GenerateFallbackSectorChallenges);
+
+#[repr(C)]
+#[derive(DropStructMacro)]
+pub struct fil_GenerateSingleVanillaProof {
+    pub error_msg: *const libc::c_char,
+    pub vanilla_proof: fil_VanillaProof,
+    pub status_code: FCPResponseStatus,
+}
+
+impl Default for fil_GenerateSingleVanillaProof {
+    fn default() -> fil_GenerateSingleVanillaProof {
+        fil_GenerateSingleVanillaProof {
+            error_msg: ptr::null(),
+            vanilla_proof: fil_VanillaProof {
+                proof_len: 0,
+                proof_ptr: ptr::null(),
+            },
+            status_code: FCPResponseStatus::FCPNoError,
+        }
+    }
+}
+
+code_and_message_impl!(fil_GenerateSingleVanillaProof);
 
 #[repr(C)]
 #[derive(DropStructMacro)]
