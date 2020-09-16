@@ -34,7 +34,8 @@ neptune-triton = "=1.0.0"
 
 [dependencies.filecoin-proofs-api]
 package = "filecoin-proofs-api"
-version = "5.1.1"
+path = "/home/nemo/pl/rust-filecoin-proofs-api"
+#version = "5.1.1"
 
 [build-dependencies]
 cbindgen = "= 0.14.0"
