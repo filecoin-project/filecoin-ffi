@@ -949,6 +949,7 @@ dependencies = [
 [[package]]
 name = "filecoin-proofs-api"
 version = "5.1.1"
+source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=expose-dpost#dfae0a674e50b7e4699468a6c628e7894ef548b2"
 dependencies = [
  "anyhow",
  "bincode",
