@@ -170,32 +170,40 @@ impl Drop for fil_PoStProof {
 }
 
 #[repr(C)]
-#[derive(Clone)]
+//#[derive(Clone)]
 pub struct fil_VanillaProof {
     pub proof_len: libc::size_t,
     pub proof_ptr: *const u8,
 }
 
-impl Drop for fil_VanillaProof {
-    fn drop(&mut self) {
-        let _ = unsafe {
-            Vec::from_raw_parts(self.proof_ptr as *mut u8, self.proof_len, self.proof_len)
+impl Clone for fil_VanillaProof {
+    fn clone(&self) -> Self {
+        let mut clone = fil_VanillaProof {
+            proof_len: 0,
+            proof_ptr: ptr::null(),
         };
+
+        unsafe {
+            clone.proof_len = self.proof_len;
+            clone.proof_ptr = libc::malloc(self.proof_len) as *const u8;
+
+            libc::memcpy(
+                clone.proof_ptr as *mut core::ffi::c_void,
+                self.proof_ptr as *const core::ffi::c_void,
+                self.proof_len);
+        }
+
+        clone
     }
 }
 
-#[derive(Clone, Debug)]
-pub struct VanillaProof {
-    pub proof: Vec<u8>,
-}
-
-impl From<fil_VanillaProof> for VanillaProof {
-    fn from(other: fil_VanillaProof) -> Self {
-        let proof = unsafe { from_raw_parts(other.proof_ptr, other.proof_len).to_vec() };
-
-        VanillaProof {
-            proof,
-        }
+impl Drop for fil_VanillaProof {
+    fn drop(&mut self) {
+        // Note that this operation also does the equivalent of
+        // libc::free(self.proof_ptr as *mut libc::c_void);
+        let _ = unsafe {
+            Vec::from_raw_parts(self.proof_ptr as *mut u8, self.proof_len, self.proof_len)
+        };
     }
 }
 
