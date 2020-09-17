@@ -3,8 +3,8 @@ use ffi_toolkit::{
 };
 use filecoin_proofs_api::seal::SealPreCommitPhase2Output;
 use filecoin_proofs_api::{
-    PieceInfo, RegisteredPoStProof, RegisteredSealProof, SectorId, UnpaddedByteIndex,
-    UnpaddedBytesAmount, PrivateReplicaInfo,
+    PieceInfo, PrivateReplicaInfo, RegisteredPoStProof, RegisteredSealProof, SectorId,
+    UnpaddedByteIndex, UnpaddedBytesAmount,
 };
 
 use log::info;
@@ -582,13 +582,13 @@ pub unsafe extern "C" fn fil_generate_fallback_sector_challenges(
             .cloned()
             .map(Into::into)
             .collect();
-        
-        let result =
-            filecoin_proofs_api::post::generate_fallback_sector_challenges(
-                registered_proof.into(),
-                &randomness.inner,
-                &pub_sectors,
-                prover_id.inner);
+
+        let result = filecoin_proofs_api::post::generate_fallback_sector_challenges(
+            registered_proof.into(),
+            &randomness.inner,
+            &pub_sectors,
+            prover_id.inner,
+        );
 
         let mut response = fil_GenerateFallbackSectorChallenges::default();
 
@@ -596,8 +596,15 @@ pub unsafe extern "C" fn fil_generate_fallback_sector_challenges(
             Ok(output) => {
                 response.status_code = FCPResponseStatus::FCPNoError;
 
-                let sector_ids: Vec<u64> = output.clone().into_iter().map(|(id, _challenges)| u64::from(id)).collect();
-                let challenges: Vec<Vec<u64>> = output.into_iter().map(|(_id, challenges)| challenges).collect();
+                let sector_ids: Vec<u64> = output
+                    .clone()
+                    .into_iter()
+                    .map(|(id, _challenges)| u64::from(id))
+                    .collect();
+                let challenges: Vec<Vec<u64>> = output
+                    .into_iter()
+                    .map(|(_id, challenges)| challenges)
+                    .collect();
 
                 response.status_code = FCPResponseStatus::FCPNoError;
                 response.ids_ptr = sector_ids.as_ptr();
@@ -636,7 +643,7 @@ pub unsafe extern "C" fn fil_generate_single_vanilla_proof(
 
         let challenges: Vec<u64> = from_raw_parts(challenges_ptr, challenges_len)
             .iter()
-            .map(|n| *n)
+            .copied()
             .collect();
 
         let sector_id = SectorId::from(sector_id);
@@ -650,12 +657,12 @@ pub unsafe extern "C" fn fil_generate_single_vanilla_proof(
             replica_path,
         );
 
-        let result =
-            filecoin_proofs_api::post::generate_single_vanilla_proof(
-                replica.registered_proof.into(),
-                sector_id,
-                &replica_v1,
-                &challenges);
+        let result = filecoin_proofs_api::post::generate_single_vanilla_proof(
+            replica.registered_proof.into(),
+            sector_id,
+            &replica_v1,
+            &challenges,
+        );
 
         let mut response = fil_GenerateSingleVanillaProof::default();
 
@@ -696,11 +703,14 @@ pub unsafe extern "C" fn fil_generate_winning_post_with_vanilla(
 
         info!("generate_winning_post_with_vanilla: start");
 
-        let vanilla_proofs: Vec<VanillaProof> = from_raw_parts(vanilla_proofs_ptr, vanilla_proofs_len)
-            .iter()
-            .cloned()
-            .map(|vanilla_proof| from_raw_parts(vanilla_proof.proof_ptr, vanilla_proof.proof_len).to_vec())
-            .collect();
+        let vanilla_proofs: Vec<VanillaProof> =
+            from_raw_parts(vanilla_proofs_ptr, vanilla_proofs_len)
+                .iter()
+                .cloned()
+                .map(|vanilla_proof| {
+                    from_raw_parts(vanilla_proof.proof_ptr, vanilla_proof.proof_len).to_vec()
+                })
+                .collect();
 
         let result = filecoin_proofs_api::post::generate_winning_post_with_vanilla(
             registered_proof.into(),
@@ -868,11 +878,14 @@ pub unsafe extern "C" fn fil_generate_window_post_with_vanilla(
 
         info!("generate_window_post_with_vanilla: start");
 
-        let vanilla_proofs: Vec<VanillaProof> = from_raw_parts(vanilla_proofs_ptr, vanilla_proofs_len)
-            .iter()
-            .cloned()
-            .map(|vanilla_proof| from_raw_parts(vanilla_proof.proof_ptr, vanilla_proof.proof_len).to_vec())
-            .collect();
+        let vanilla_proofs: Vec<VanillaProof> =
+            from_raw_parts(vanilla_proofs_ptr, vanilla_proofs_len)
+                .iter()
+                .cloned()
+                .map(|vanilla_proof| {
+                    from_raw_parts(vanilla_proof.proof_ptr, vanilla_proof.proof_len).to_vec()
+                })
+                .collect();
 
         let result = filecoin_proofs_api::post::generate_window_post_with_vanilla(
             registered_proof.into(),
@@ -1960,7 +1973,7 @@ pub mod tests {
                 randomness,
                 sectors.as_ptr(),
                 sectors.len(),
-                prover_id
+                prover_id,
             );
 
             if (*resp_sc).status_code != FCPResponseStatus::FCPNoError {
@@ -1968,15 +1981,20 @@ pub mod tests {
                 panic!("fallback_sector_challenges failed: {:?}", msg);
             }
 
-            let sector_ids: Vec<u64> = from_raw_parts((*resp_sc).ids_ptr, (*resp_sc).ids_len).to_vec();
-            let sector_challenges: Vec<Vec<u64>> = from_raw_parts((*resp_sc).challenges_ptr, (*resp_sc).challenges_len).to_vec();
+            let sector_ids: Vec<u64> =
+                from_raw_parts((*resp_sc).ids_ptr, (*resp_sc).ids_len).to_vec();
+            let sector_challenges: Vec<Vec<u64>> =
+                from_raw_parts((*resp_sc).challenges_ptr, (*resp_sc).challenges_len).to_vec();
 
             let mut vanilla_proofs: Vec<fil_VanillaProof> = Vec::with_capacity(sector_ids.len());
 
             // Gather up all vanilla proofs.
             for (sector_id, challenges) in sector_ids.iter().zip(sector_challenges.iter()) {
-
-                let private_replica = private_replicas.iter().find(|&replica| replica.sector_id == *sector_id).expect("failed to find private replica info").clone();
+                let private_replica = private_replicas
+                    .iter()
+                    .find(|&replica| replica.sector_id == *sector_id)
+                    .expect("failed to find private replica info")
+                    .clone();
 
                 let resp_vp = fil_generate_single_vanilla_proof(
                     private_replica,
@@ -1999,7 +2017,7 @@ pub mod tests {
                 randomness,
                 prover_id,
                 vanilla_proofs.as_ptr(),
-                vanilla_proofs.len()
+                vanilla_proofs.len(),
             );
 
             if (*resp_wpwv).status_code != FCPResponseStatus::FCPNoError {
@@ -2083,28 +2101,34 @@ pub mod tests {
             //////////////////////////////////////////////
 
             let sectors = vec![sector_id, sector_id2];
-            let private_replicas = vec![fil_PrivateReplicaInfo {
-                registered_proof: registered_proof_window_post,
-                cache_dir_path: cache_dir_path_c_str,
-                comm_r: (*resp_b2).comm_r,
-                replica_path: replica_path_c_str,
-                sector_id,
-            }, fil_PrivateReplicaInfo {
-                registered_proof: registered_proof_window_post,
-                cache_dir_path: cache_dir_path_c_str,
-                comm_r: (*resp_b2).comm_r,
-                replica_path: replica_path_c_str,
-                sector_id: sector_id2,
-            }];
-            let public_replicas = vec![fil_PublicReplicaInfo {
-                registered_proof: registered_proof_window_post,
-                sector_id,
-                comm_r: (*resp_b2).comm_r,
-            },fil_PublicReplicaInfo {
-                registered_proof: registered_proof_window_post,
-                sector_id: sector_id2,
-                comm_r: (*resp_b2).comm_r,
-            }];
+            let private_replicas = vec![
+                fil_PrivateReplicaInfo {
+                    registered_proof: registered_proof_window_post,
+                    cache_dir_path: cache_dir_path_c_str,
+                    comm_r: (*resp_b2).comm_r,
+                    replica_path: replica_path_c_str,
+                    sector_id,
+                },
+                fil_PrivateReplicaInfo {
+                    registered_proof: registered_proof_window_post,
+                    cache_dir_path: cache_dir_path_c_str,
+                    comm_r: (*resp_b2).comm_r,
+                    replica_path: replica_path_c_str,
+                    sector_id: sector_id2,
+                },
+            ];
+            let public_replicas = vec![
+                fil_PublicReplicaInfo {
+                    registered_proof: registered_proof_window_post,
+                    sector_id,
+                    comm_r: (*resp_b2).comm_r,
+                },
+                fil_PublicReplicaInfo {
+                    registered_proof: registered_proof_window_post,
+                    sector_id: sector_id2,
+                    comm_r: (*resp_b2).comm_r,
+                },
+            ];
 
             // Generate sector challenges.
             let resp_sc2 = fil_generate_fallback_sector_challenges(
@@ -2112,7 +2136,7 @@ pub mod tests {
                 randomness,
                 sectors.as_ptr(),
                 sectors.len(),
-                prover_id
+                prover_id,
             );
 
             if (*resp_sc2).status_code != FCPResponseStatus::FCPNoError {
@@ -2120,15 +2144,20 @@ pub mod tests {
                 panic!("fallback_sector_challenges failed: {:?}", msg);
             }
 
-            let sector_ids: Vec<u64> = from_raw_parts((*resp_sc2).ids_ptr, (*resp_sc2).ids_len).to_vec();
-            let sector_challenges: Vec<Vec<u64>> = from_raw_parts((*resp_sc2).challenges_ptr, (*resp_sc2).challenges_len).to_vec();
+            let sector_ids: Vec<u64> =
+                from_raw_parts((*resp_sc2).ids_ptr, (*resp_sc2).ids_len).to_vec();
+            let sector_challenges: Vec<Vec<u64>> =
+                from_raw_parts((*resp_sc2).challenges_ptr, (*resp_sc2).challenges_len).to_vec();
 
             let mut vanilla_proofs: Vec<fil_VanillaProof> = Vec::with_capacity(sector_ids.len());
 
             // Gather up all vanilla proofs.
             for (sector_id, challenges) in sector_ids.iter().zip(sector_challenges.iter()) {
-
-                let private_replica = private_replicas.iter().find(|&replica| replica.sector_id == *sector_id).expect("failed to find private replica info").clone();
+                let private_replica = private_replicas
+                    .iter()
+                    .find(|&replica| replica.sector_id == *sector_id)
+                    .expect("failed to find private replica info")
+                    .clone();
 
                 let resp_vp = fil_generate_single_vanilla_proof(
                     private_replica,
@@ -2151,7 +2180,7 @@ pub mod tests {
                 randomness,
                 prover_id,
                 vanilla_proofs.as_ptr(),
-                vanilla_proofs.len()
+                vanilla_proofs.len(),
             );
 
             if (*resp_wpwv2).status_code != FCPResponseStatus::FCPNoError {

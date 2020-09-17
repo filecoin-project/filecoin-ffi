@@ -190,7 +190,8 @@ impl Clone for fil_VanillaProof {
             libc::memcpy(
                 clone.proof_ptr as *mut core::ffi::c_void,
                 self.proof_ptr as *const core::ffi::c_void,
-                self.proof_len);
+                self.proof_len,
+            );
         }
 
         clone
