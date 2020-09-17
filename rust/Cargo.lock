@@ -2459,7 +2459,7 @@ dependencies = [
 [[package]]
 name = "sha2raw"
 version = "2.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs#451397902ef6b669098dee85dbe866b42490cb91"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=single-vanilla-fix#69a83aa4bf5321fc1b8e293bc7ccf2b30e51c021"
 dependencies = [
  "block-buffer 0.7.3",
  "cpuid-bool",
