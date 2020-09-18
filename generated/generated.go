@@ -77,10 +77,10 @@ func FilDestroyGenerateDataCommitmentResponse(ptr *FilGenerateDataCommitmentResp
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-// FilDestroyGenerateFallbackSectorChallenges function as declared in filecoin-ffi/filcrypto.h:326
-func FilDestroyGenerateFallbackSectorChallenges(ptr *FilGenerateFallbackSectorChallenges) {
+// FilDestroyGenerateFallbackSectorChallengesResponse function as declared in filecoin-ffi/filcrypto.h:326
+func FilDestroyGenerateFallbackSectorChallengesResponse(ptr *FilGenerateFallbackSectorChallengesResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
-	C.fil_destroy_generate_fallback_sector_challenges(cptr)
+	C.fil_destroy_generate_fallback_sector_challenges_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
@@ -91,10 +91,10 @@ func FilDestroyGeneratePieceCommitmentResponse(ptr *FilGeneratePieceCommitmentRe
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-// FilDestroyGenerateSingleVanillaProof function as declared in filecoin-ffi/filcrypto.h:330
-func FilDestroyGenerateSingleVanillaProof(ptr *FilGenerateSingleVanillaProof) {
+// FilDestroyGenerateSingleVanillaProofResponse function as declared in filecoin-ffi/filcrypto.h:330
+func FilDestroyGenerateSingleVanillaProofResponse(ptr *FilGenerateSingleVanillaProofResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
-	C.fil_destroy_generate_single_vanilla_proof(cptr)
+	C.fil_destroy_generate_single_vanilla_proof_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
@@ -287,7 +287,7 @@ func FilGenerateDataCommitment(registeredProof FilRegisteredSealProof, piecesPtr
 }
 
 // FilGenerateFallbackSectorChallenges function as declared in filecoin-ffi/filcrypto.h:399
-func FilGenerateFallbackSectorChallenges(registeredProof FilRegisteredPoStProof, randomness Fil32ByteArray, sectorIdsPtr []uint64, sectorIdsLen uint, proverId Fil32ByteArray) *FilGenerateFallbackSectorChallenges {
+func FilGenerateFallbackSectorChallenges(registeredProof FilRegisteredPoStProof, randomness Fil32ByteArray, sectorIdsPtr []uint64, sectorIdsLen uint, proverId Fil32ByteArray) *FilGenerateFallbackSectorChallengesResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredPoStProof)(registeredProof), cgoAllocsUnknown
 	crandomness, crandomnessAllocMap := randomness.PassValue()
 	csectorIdsPtr, csectorIdsPtrAllocMap := (*C.uint64_t)(unsafe.Pointer((*sliceHeader)(unsafe.Pointer(&sectorIdsPtr)).Data)), cgoAllocsUnknown
@@ -299,7 +299,7 @@ func FilGenerateFallbackSectorChallenges(registeredProof FilRegisteredPoStProof,
 	runtime.KeepAlive(csectorIdsPtrAllocMap)
 	runtime.KeepAlive(crandomnessAllocMap)
 	runtime.KeepAlive(cregisteredProofAllocMap)
-	__v := NewFilGenerateFallbackSectorChallengesRef(unsafe.Pointer(__ret))
+	__v := NewFilGenerateFallbackSectorChallengesResponseRef(unsafe.Pointer(__ret))
 	return __v
 }
 
@@ -317,7 +317,7 @@ func FilGeneratePieceCommitment(registeredProof FilRegisteredSealProof, pieceFdR
 }
 
 // FilGenerateSingleVanillaProof function as declared in filecoin-ffi/filcrypto.h:417
-func FilGenerateSingleVanillaProof(replica FilPrivateReplicaInfo, sectorId uint64, challengesPtr []uint64, challengesLen uint) *FilGenerateSingleVanillaProof {
+func FilGenerateSingleVanillaProof(replica FilPrivateReplicaInfo, sectorId uint64, challengesPtr []uint64, challengesLen uint) *FilGenerateSingleVanillaProofResponse {
 	creplica, creplicaAllocMap := replica.PassValue()
 	csectorId, csectorIdAllocMap := (C.uint64_t)(sectorId), cgoAllocsUnknown
 	cchallengesPtr, cchallengesPtrAllocMap := (*C.uint64_t)(unsafe.Pointer((*sliceHeader)(unsafe.Pointer(&challengesPtr)).Data)), cgoAllocsUnknown
@@ -327,7 +327,7 @@ func FilGenerateSingleVanillaProof(replica FilPrivateReplicaInfo, sectorId uint6
 	runtime.KeepAlive(cchallengesPtrAllocMap)
 	runtime.KeepAlive(csectorIdAllocMap)
 	runtime.KeepAlive(creplicaAllocMap)
-	__v := NewFilGenerateSingleVanillaProofRef(unsafe.Pointer(__ret))
+	__v := NewFilGenerateSingleVanillaProofResponseRef(unsafe.Pointer(__ret))
 	return __v
 }
 

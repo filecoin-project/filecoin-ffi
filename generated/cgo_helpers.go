@@ -636,17 +636,17 @@ func (x *FilGenerateDataCommitmentResponse) Deref() {
 	x.CommD = *(*[32]byte)(unsafe.Pointer(&x.ref87da7dd9.comm_d))
 }
 
-// allocFilGenerateFallbackSectorChallengesMemory allocates memory for type C.fil_GenerateFallbackSectorChallenges in C.
+// allocFilGenerateFallbackSectorChallengesResponseMemory allocates memory for type C.fil_GenerateFallbackSectorChallengesResponse in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocFilGenerateFallbackSectorChallengesMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilGenerateFallbackSectorChallengesValue))
+func allocFilGenerateFallbackSectorChallengesResponseMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilGenerateFallbackSectorChallengesResponseValue))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfFilGenerateFallbackSectorChallengesValue = unsafe.Sizeof([1]C.fil_GenerateFallbackSectorChallenges{})
+const sizeOfFilGenerateFallbackSectorChallengesResponseValue = unsafe.Sizeof([1]C.fil_GenerateFallbackSectorChallengesResponse{})
 
 type sliceHeader struct {
 	Data unsafe.Pointer
@@ -655,76 +655,76 @@ type sliceHeader struct {
 }
 
 // Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *FilGenerateFallbackSectorChallenges) Ref() *C.fil_GenerateFallbackSectorChallenges {
+func (x *FilGenerateFallbackSectorChallengesResponse) Ref() *C.fil_GenerateFallbackSectorChallengesResponse {
 	if x == nil {
 		return nil
 	}
-	return x.ref4e86db4
+	return x.ref7047a3fa
 }
 
 // Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
 // Does nothing if struct is nil or has no allocation map.
-func (x *FilGenerateFallbackSectorChallenges) Free() {
-	if x != nil && x.allocs4e86db4 != nil {
-		x.allocs4e86db4.(*cgoAllocMap).Free()
-		x.ref4e86db4 = nil
+func (x *FilGenerateFallbackSectorChallengesResponse) Free() {
+	if x != nil && x.allocs7047a3fa != nil {
+		x.allocs7047a3fa.(*cgoAllocMap).Free()
+		x.ref7047a3fa = nil
 	}
 }
 
-// NewFilGenerateFallbackSectorChallengesRef creates a new wrapper struct with underlying reference set to the original C object.
+// NewFilGenerateFallbackSectorChallengesResponseRef creates a new wrapper struct with underlying reference set to the original C object.
 // Returns nil if the provided pointer to C object is nil too.
-func NewFilGenerateFallbackSectorChallengesRef(ref unsafe.Pointer) *FilGenerateFallbackSectorChallenges {
+func NewFilGenerateFallbackSectorChallengesResponseRef(ref unsafe.Pointer) *FilGenerateFallbackSectorChallengesResponse {
 	if ref == nil {
 		return nil
 	}
-	obj := new(FilGenerateFallbackSectorChallenges)
-	obj.ref4e86db4 = (*C.fil_GenerateFallbackSectorChallenges)(unsafe.Pointer(ref))
+	obj := new(FilGenerateFallbackSectorChallengesResponse)
+	obj.ref7047a3fa = (*C.fil_GenerateFallbackSectorChallengesResponse)(unsafe.Pointer(ref))
 	return obj
 }
 
 // PassRef returns the underlying C object, otherwise it will allocate one and set its values
 // from this wrapping struct, counting allocations into an allocation map.
-func (x *FilGenerateFallbackSectorChallenges) PassRef() (*C.fil_GenerateFallbackSectorChallenges, *cgoAllocMap) {
+func (x *FilGenerateFallbackSectorChallengesResponse) PassRef() (*C.fil_GenerateFallbackSectorChallengesResponse, *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
-	} else if x.ref4e86db4 != nil {
-		return x.ref4e86db4, nil
+	} else if x.ref7047a3fa != nil {
+		return x.ref7047a3fa, nil
 	}
-	mem4e86db4 := allocFilGenerateFallbackSectorChallengesMemory(1)
-	ref4e86db4 := (*C.fil_GenerateFallbackSectorChallenges)(mem4e86db4)
-	allocs4e86db4 := new(cgoAllocMap)
-	allocs4e86db4.Add(mem4e86db4)
+	mem7047a3fa := allocFilGenerateFallbackSectorChallengesResponseMemory(1)
+	ref7047a3fa := (*C.fil_GenerateFallbackSectorChallengesResponse)(mem7047a3fa)
+	allocs7047a3fa := new(cgoAllocMap)
+	allocs7047a3fa.Add(mem7047a3fa)
 
 	var cerror_msg_allocs *cgoAllocMap
-	ref4e86db4.error_msg, cerror_msg_allocs = unpackPCharString(x.ErrorMsg)
-	allocs4e86db4.Borrow(cerror_msg_allocs)
+	ref7047a3fa.error_msg, cerror_msg_allocs = unpackPCharString(x.ErrorMsg)
+	allocs7047a3fa.Borrow(cerror_msg_allocs)
 
 	var cstatus_code_allocs *cgoAllocMap
-	ref4e86db4.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
-	allocs4e86db4.Borrow(cstatus_code_allocs)
+	ref7047a3fa.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	allocs7047a3fa.Borrow(cstatus_code_allocs)
 
 	var cids_ptr_allocs *cgoAllocMap
-	ref4e86db4.ids_ptr, cids_ptr_allocs = (*C.uint64_t)(unsafe.Pointer((*sliceHeader)(unsafe.Pointer(&x.IdsPtr)).Data)), cgoAllocsUnknown
-	allocs4e86db4.Borrow(cids_ptr_allocs)
+	ref7047a3fa.ids_ptr, cids_ptr_allocs = (*C.uint64_t)(unsafe.Pointer((*sliceHeader)(unsafe.Pointer(&x.IdsPtr)).Data)), cgoAllocsUnknown
+	allocs7047a3fa.Borrow(cids_ptr_allocs)
 
 	var cids_len_allocs *cgoAllocMap
-	ref4e86db4.ids_len, cids_len_allocs = (C.size_t)(x.IdsLen), cgoAllocsUnknown
-	allocs4e86db4.Borrow(cids_len_allocs)
+	ref7047a3fa.ids_len, cids_len_allocs = (C.size_t)(x.IdsLen), cgoAllocsUnknown
+	allocs7047a3fa.Borrow(cids_len_allocs)
 
 	var cchallenges_len_allocs *cgoAllocMap
-	ref4e86db4.challenges_len, cchallenges_len_allocs = (C.size_t)(x.ChallengesLen), cgoAllocsUnknown
-	allocs4e86db4.Borrow(cchallenges_len_allocs)
+	ref7047a3fa.challenges_len, cchallenges_len_allocs = (C.size_t)(x.ChallengesLen), cgoAllocsUnknown
+	allocs7047a3fa.Borrow(cchallenges_len_allocs)
 
-	x.ref4e86db4 = ref4e86db4
-	x.allocs4e86db4 = allocs4e86db4
-	return ref4e86db4, allocs4e86db4
+	x.ref7047a3fa = ref7047a3fa
+	x.allocs7047a3fa = allocs7047a3fa
+	return ref7047a3fa, allocs7047a3fa
 
 }
 
 // PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x FilGenerateFallbackSectorChallenges) PassValue() (C.fil_GenerateFallbackSectorChallenges, *cgoAllocMap) {
-	if x.ref4e86db4 != nil {
-		return *x.ref4e86db4, nil
+func (x FilGenerateFallbackSectorChallengesResponse) PassValue() (C.fil_GenerateFallbackSectorChallengesResponse, *cgoAllocMap) {
+	if x.ref7047a3fa != nil {
+		return *x.ref7047a3fa, nil
 	}
 	ref, allocs := x.PassRef()
 	return *ref, allocs
@@ -732,19 +732,19 @@ func (x FilGenerateFallbackSectorChallenges) PassValue() (C.fil_GenerateFallback
 
 // Deref uses the underlying reference to C object and fills the wrapping struct with values.
 // Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *FilGenerateFallbackSectorChallenges) Deref() {
-	if x.ref4e86db4 == nil {
+func (x *FilGenerateFallbackSectorChallengesResponse) Deref() {
+	if x.ref7047a3fa == nil {
 		return
 	}
-	x.ErrorMsg = packPCharString(x.ref4e86db4.error_msg)
-	x.StatusCode = (FCPResponseStatus)(x.ref4e86db4.status_code)
+	x.ErrorMsg = packPCharString(x.ref7047a3fa.error_msg)
+	x.StatusCode = (FCPResponseStatus)(x.ref7047a3fa.status_code)
 	hxfc4425b := (*sliceHeader)(unsafe.Pointer(&x.IdsPtr))
-	hxfc4425b.Data = unsafe.Pointer(x.ref4e86db4.ids_ptr)
+	hxfc4425b.Data = unsafe.Pointer(x.ref7047a3fa.ids_ptr)
 	hxfc4425b.Cap = 0x7fffffff
 	// hxfc4425b.Len = ?
 
-	x.IdsLen = (uint)(x.ref4e86db4.ids_len)
-	x.ChallengesLen = (uint)(x.ref4e86db4.challenges_len)
+	x.IdsLen = (uint)(x.ref7047a3fa.ids_len)
+	x.ChallengesLen = (uint)(x.ref7047a3fa.challenges_len)
 }
 
 // allocFilGeneratePieceCommitmentResponseMemory allocates memory for type C.fil_GeneratePieceCommitmentResponse in C.
@@ -949,81 +949,81 @@ func (x *FilVanillaProof) Deref() {
 	x.ProofPtr = packPUint8TString(x.refb3e7638c.proof_ptr)
 }
 
-// allocFilGenerateSingleVanillaProofMemory allocates memory for type C.fil_GenerateSingleVanillaProof in C.
+// allocFilGenerateSingleVanillaProofResponseMemory allocates memory for type C.fil_GenerateSingleVanillaProofResponse in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocFilGenerateSingleVanillaProofMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilGenerateSingleVanillaProofValue))
+func allocFilGenerateSingleVanillaProofResponseMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilGenerateSingleVanillaProofResponseValue))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfFilGenerateSingleVanillaProofValue = unsafe.Sizeof([1]C.fil_GenerateSingleVanillaProof{})
+const sizeOfFilGenerateSingleVanillaProofResponseValue = unsafe.Sizeof([1]C.fil_GenerateSingleVanillaProofResponse{})
 
 // Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *FilGenerateSingleVanillaProof) Ref() *C.fil_GenerateSingleVanillaProof {
+func (x *FilGenerateSingleVanillaProofResponse) Ref() *C.fil_GenerateSingleVanillaProofResponse {
 	if x == nil {
 		return nil
 	}
-	return x.refb3b6f34f
+	return x.reff9d21b04
 }
 
 // Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
 // Does nothing if struct is nil or has no allocation map.
-func (x *FilGenerateSingleVanillaProof) Free() {
-	if x != nil && x.allocsb3b6f34f != nil {
-		x.allocsb3b6f34f.(*cgoAllocMap).Free()
-		x.refb3b6f34f = nil
+func (x *FilGenerateSingleVanillaProofResponse) Free() {
+	if x != nil && x.allocsf9d21b04 != nil {
+		x.allocsf9d21b04.(*cgoAllocMap).Free()
+		x.reff9d21b04 = nil
 	}
 }
 
-// NewFilGenerateSingleVanillaProofRef creates a new wrapper struct with underlying reference set to the original C object.
+// NewFilGenerateSingleVanillaProofResponseRef creates a new wrapper struct with underlying reference set to the original C object.
 // Returns nil if the provided pointer to C object is nil too.
-func NewFilGenerateSingleVanillaProofRef(ref unsafe.Pointer) *FilGenerateSingleVanillaProof {
+func NewFilGenerateSingleVanillaProofResponseRef(ref unsafe.Pointer) *FilGenerateSingleVanillaProofResponse {
 	if ref == nil {
 		return nil
 	}
-	obj := new(FilGenerateSingleVanillaProof)
-	obj.refb3b6f34f = (*C.fil_GenerateSingleVanillaProof)(unsafe.Pointer(ref))
+	obj := new(FilGenerateSingleVanillaProofResponse)
+	obj.reff9d21b04 = (*C.fil_GenerateSingleVanillaProofResponse)(unsafe.Pointer(ref))
 	return obj
 }
 
 // PassRef returns the underlying C object, otherwise it will allocate one and set its values
 // from this wrapping struct, counting allocations into an allocation map.
-func (x *FilGenerateSingleVanillaProof) PassRef() (*C.fil_GenerateSingleVanillaProof, *cgoAllocMap) {
+func (x *FilGenerateSingleVanillaProofResponse) PassRef() (*C.fil_GenerateSingleVanillaProofResponse, *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
-	} else if x.refb3b6f34f != nil {
-		return x.refb3b6f34f, nil
+	} else if x.reff9d21b04 != nil {
+		return x.reff9d21b04, nil
 	}
-	memb3b6f34f := allocFilGenerateSingleVanillaProofMemory(1)
-	refb3b6f34f := (*C.fil_GenerateSingleVanillaProof)(memb3b6f34f)
-	allocsb3b6f34f := new(cgoAllocMap)
-	allocsb3b6f34f.Add(memb3b6f34f)
+	memf9d21b04 := allocFilGenerateSingleVanillaProofResponseMemory(1)
+	reff9d21b04 := (*C.fil_GenerateSingleVanillaProofResponse)(memf9d21b04)
+	allocsf9d21b04 := new(cgoAllocMap)
+	allocsf9d21b04.Add(memf9d21b04)
 
 	var cerror_msg_allocs *cgoAllocMap
-	refb3b6f34f.error_msg, cerror_msg_allocs = unpackPCharString(x.ErrorMsg)
-	allocsb3b6f34f.Borrow(cerror_msg_allocs)
+	reff9d21b04.error_msg, cerror_msg_allocs = unpackPCharString(x.ErrorMsg)
+	allocsf9d21b04.Borrow(cerror_msg_allocs)
 
 	var cvanilla_proof_allocs *cgoAllocMap
-	refb3b6f34f.vanilla_proof, cvanilla_proof_allocs = x.VanillaProof.PassValue()
-	allocsb3b6f34f.Borrow(cvanilla_proof_allocs)
+	reff9d21b04.vanilla_proof, cvanilla_proof_allocs = x.VanillaProof.PassValue()
+	allocsf9d21b04.Borrow(cvanilla_proof_allocs)
 
 	var cstatus_code_allocs *cgoAllocMap
-	refb3b6f34f.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
-	allocsb3b6f34f.Borrow(cstatus_code_allocs)
+	reff9d21b04.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	allocsf9d21b04.Borrow(cstatus_code_allocs)
 
-	x.refb3b6f34f = refb3b6f34f
-	x.allocsb3b6f34f = allocsb3b6f34f
-	return refb3b6f34f, allocsb3b6f34f
+	x.reff9d21b04 = reff9d21b04
+	x.allocsf9d21b04 = allocsf9d21b04
+	return reff9d21b04, allocsf9d21b04
 
 }
 
 // PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x FilGenerateSingleVanillaProof) PassValue() (C.fil_GenerateSingleVanillaProof, *cgoAllocMap) {
-	if x.refb3b6f34f != nil {
-		return *x.refb3b6f34f, nil
+func (x FilGenerateSingleVanillaProofResponse) PassValue() (C.fil_GenerateSingleVanillaProofResponse, *cgoAllocMap) {
+	if x.reff9d21b04 != nil {
+		return *x.reff9d21b04, nil
 	}
 	ref, allocs := x.PassRef()
 	return *ref, allocs
@@ -1031,13 +1031,13 @@ func (x FilGenerateSingleVanillaProof) PassValue() (C.fil_GenerateSingleVanillaP
 
 // Deref uses the underlying reference to C object and fills the wrapping struct with values.
 // Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *FilGenerateSingleVanillaProof) Deref() {
-	if x.refb3b6f34f == nil {
+func (x *FilGenerateSingleVanillaProofResponse) Deref() {
+	if x.reff9d21b04 == nil {
 		return
 	}
-	x.ErrorMsg = packPCharString(x.refb3b6f34f.error_msg)
-	x.VanillaProof = *NewFilVanillaProofRef(unsafe.Pointer(&x.refb3b6f34f.vanilla_proof))
-	x.StatusCode = (FCPResponseStatus)(x.refb3b6f34f.status_code)
+	x.ErrorMsg = packPCharString(x.reff9d21b04.error_msg)
+	x.VanillaProof = *NewFilVanillaProofRef(unsafe.Pointer(&x.reff9d21b04.vanilla_proof))
+	x.StatusCode = (FCPResponseStatus)(x.reff9d21b04.status_code)
 }
 
 // allocFilPoStProofMemory allocates memory for type C.fil_PoStProof in C.

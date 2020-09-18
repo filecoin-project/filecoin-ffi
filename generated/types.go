@@ -61,15 +61,15 @@ type FilGenerateDataCommitmentResponse struct {
 	allocs87da7dd9 interface{}
 }
 
-// FilGenerateFallbackSectorChallenges as declared in filecoin-ffi/filcrypto.h:97
-type FilGenerateFallbackSectorChallenges struct {
-	ErrorMsg      string
-	StatusCode    FCPResponseStatus
-	IdsPtr        []uint64
-	IdsLen        uint
-	ChallengesLen uint
-	ref4e86db4    *C.fil_GenerateFallbackSectorChallenges
-	allocs4e86db4 interface{}
+// FilGenerateFallbackSectorChallengesResponse as declared in filecoin-ffi/filcrypto.h:97
+type FilGenerateFallbackSectorChallengesResponse struct {
+	ErrorMsg       string
+	StatusCode     FCPResponseStatus
+	IdsPtr         []uint64
+	IdsLen         uint
+	ChallengesLen  uint
+	ref7047a3fa    *C.fil_GenerateFallbackSectorChallengesResponse
+	allocs7047a3fa interface{}
 }
 
 // FilGeneratePieceCommitmentResponse as declared in filecoin-ffi/filcrypto.h:108
@@ -90,13 +90,13 @@ type FilVanillaProof struct {
 	allocsb3e7638c interface{}
 }
 
-// FilGenerateSingleVanillaProof as declared in filecoin-ffi/filcrypto.h:119
-type FilGenerateSingleVanillaProof struct {
+// FilGenerateSingleVanillaProofResponse as declared in filecoin-ffi/filcrypto.h:119
+type FilGenerateSingleVanillaProofResponse struct {
 	ErrorMsg       string
 	VanillaProof   FilVanillaProof
 	StatusCode     FCPResponseStatus
-	refb3b6f34f    *C.fil_GenerateSingleVanillaProof
-	allocsb3b6f34f interface{}
+	reff9d21b04    *C.fil_GenerateSingleVanillaProofResponse
+	allocsf9d21b04 interface{}
 }
 
 // FilPoStProof as declared in filecoin-ffi/filcrypto.h:125
