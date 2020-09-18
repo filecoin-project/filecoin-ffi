@@ -1662,6 +1662,7 @@ pub mod tests {
     }
 
     #[test]
+    #[allow(clippy::cognitive_complexity)]
     fn test_sealing() -> Result<()> {
         let wrap = |x| fil_32ByteArray { inner: x };
 
