@@ -571,7 +571,7 @@ pub unsafe extern "C" fn fil_generate_fallback_sector_challenges(
     sector_ids_ptr: *const u64,
     sector_ids_len: libc::size_t,
     prover_id: fil_32ByteArray,
-) -> *mut fil_GenerateFallbackSectorChallenges {
+) -> *mut fil_GenerateFallbackSectorChallengesResponse {
     catch_panic_response(|| {
         init_log();
 
@@ -590,7 +590,7 @@ pub unsafe extern "C" fn fil_generate_fallback_sector_challenges(
             prover_id.inner,
         );
 
-        let mut response = fil_GenerateFallbackSectorChallenges::default();
+        let mut response = fil_GenerateFallbackSectorChallengesResponse::default();
 
         match result {
             Ok(output) => {
@@ -635,7 +635,7 @@ pub unsafe extern "C" fn fil_generate_single_vanilla_proof(
     sector_id: u64,
     challenges_ptr: *const u64,
     challenges_len: libc::size_t,
-) -> *mut fil_GenerateSingleVanillaProof {
+) -> *mut fil_GenerateSingleVanillaProofResponse {
     catch_panic_response(|| {
         init_log();
 
@@ -664,7 +664,7 @@ pub unsafe extern "C" fn fil_generate_single_vanilla_proof(
             &challenges,
         );
 
-        let mut response = fil_GenerateSingleVanillaProof::default();
+        let mut response = fil_GenerateSingleVanillaProofResponse::default();
 
         match result {
             Ok(output) => {
@@ -1455,15 +1455,15 @@ pub unsafe extern "C" fn fil_destroy_verify_window_post_response(
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn fil_destroy_generate_fallback_sector_challenges(
-    ptr: *mut fil_GenerateFallbackSectorChallenges,
+pub unsafe extern "C" fn fil_destroy_generate_fallback_sector_challenges_response(
+    ptr: *mut fil_GenerateFallbackSectorChallengesResponse,
 ) {
     let _ = Box::from_raw(ptr);
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn fil_destroy_generate_single_vanilla_proof(
-    ptr: *mut fil_GenerateSingleVanillaProof,
+pub unsafe extern "C" fn fil_destroy_generate_single_vanilla_proof_response(
+    ptr: *mut fil_GenerateSingleVanillaProofResponse,
 ) {
     let _ = Box::from_raw(ptr);
 }
@@ -2009,7 +2009,7 @@ pub mod tests {
                 }
 
                 vanilla_proofs.push((*resp_vp).vanilla_proof.clone());
-                fil_destroy_generate_single_vanilla_proof(resp_vp);
+                fil_destroy_generate_single_vanilla_proof_response(resp_vp);
             }
 
             let resp_wpwv = fil_generate_winning_post_with_vanilla(
@@ -2172,7 +2172,7 @@ pub mod tests {
                 }
 
                 vanilla_proofs.push((*resp_vp).vanilla_proof.clone());
-                fil_destroy_generate_single_vanilla_proof(resp_vp);
+                fil_destroy_generate_single_vanilla_proof_response(resp_vp);
             }
 
             let resp_wpwv2 = fil_generate_window_post_with_vanilla(
@@ -2219,13 +2219,13 @@ pub mod tests {
             fil_destroy_unseal_range_response(resp_e);
 
             fil_destroy_generate_winning_post_sector_challenge(resp_f);
-            fil_destroy_generate_fallback_sector_challenges(resp_sc);
+            fil_destroy_generate_fallback_sector_challenges_response(resp_sc);
             fil_destroy_generate_winning_post_response(resp_h);
             fil_destroy_generate_winning_post_response(resp_wpwv);
             fil_destroy_verify_winning_post_response(resp_i);
             fil_destroy_verify_winning_post_response(resp_di);
 
-            fil_destroy_generate_fallback_sector_challenges(resp_sc2);
+            fil_destroy_generate_fallback_sector_challenges_response(resp_sc2);
             fil_destroy_generate_window_post_response(resp_j);
             fil_destroy_generate_window_post_response(resp_wpwv2);
             fil_destroy_verify_window_post_response(resp_k);

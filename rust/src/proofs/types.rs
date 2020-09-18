@@ -170,7 +170,6 @@ impl Drop for fil_PoStProof {
 }
 
 #[repr(C)]
-//#[derive(Clone)]
 pub struct fil_VanillaProof {
     pub proof_len: libc::size_t,
     pub proof_ptr: *const u8,
@@ -267,7 +266,7 @@ code_and_message_impl!(fil_GenerateWinningPoStSectorChallenge);
 
 #[repr(C)]
 #[derive(DropStructMacro)]
-pub struct fil_GenerateFallbackSectorChallenges {
+pub struct fil_GenerateFallbackSectorChallengesResponse {
     pub error_msg: *const libc::c_char,
     pub status_code: FCPResponseStatus,
     pub ids_ptr: *const u64,
@@ -276,9 +275,9 @@ pub struct fil_GenerateFallbackSectorChallenges {
     pub challenges_len: libc::size_t,
 }
 
-impl Default for fil_GenerateFallbackSectorChallenges {
-    fn default() -> fil_GenerateFallbackSectorChallenges {
-        fil_GenerateFallbackSectorChallenges {
+impl Default for fil_GenerateFallbackSectorChallengesResponse {
+    fn default() -> fil_GenerateFallbackSectorChallengesResponse {
+        fil_GenerateFallbackSectorChallengesResponse {
             challenges_len: 0,
             challenges_ptr: ptr::null(),
             ids_len: 0,
@@ -289,19 +288,19 @@ impl Default for fil_GenerateFallbackSectorChallenges {
     }
 }
 
-code_and_message_impl!(fil_GenerateFallbackSectorChallenges);
+code_and_message_impl!(fil_GenerateFallbackSectorChallengesResponse);
 
 #[repr(C)]
 #[derive(DropStructMacro)]
-pub struct fil_GenerateSingleVanillaProof {
+pub struct fil_GenerateSingleVanillaProofResponse {
     pub error_msg: *const libc::c_char,
     pub vanilla_proof: fil_VanillaProof,
     pub status_code: FCPResponseStatus,
 }
 
-impl Default for fil_GenerateSingleVanillaProof {
-    fn default() -> fil_GenerateSingleVanillaProof {
-        fil_GenerateSingleVanillaProof {
+impl Default for fil_GenerateSingleVanillaProofResponse {
+    fn default() -> fil_GenerateSingleVanillaProofResponse {
+        fil_GenerateSingleVanillaProofResponse {
             error_msg: ptr::null(),
             vanilla_proof: fil_VanillaProof {
                 proof_len: 0,
@@ -312,7 +311,7 @@ impl Default for fil_GenerateSingleVanillaProof {
     }
 }
 
-code_and_message_impl!(fil_GenerateSingleVanillaProof);
+code_and_message_impl!(fil_GenerateSingleVanillaProofResponse);
 
 #[repr(C)]
 #[derive(DropStructMacro)]
