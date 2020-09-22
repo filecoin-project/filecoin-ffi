@@ -41,3 +41,6 @@ cbindgen = "= 0.14.0"
 
 [dev-dependencies]
 tempfile = "3.0.8"
+
+[patch.crates-io]
+fil-blst = { git = "https://github.com/simonatsn/fil-blst"}
