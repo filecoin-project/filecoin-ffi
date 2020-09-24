@@ -23,10 +23,10 @@ const (
 	FCPResponseStatusFCPReceiverError     FCPResponseStatus = C.FCPResponseStatus_FCPReceiverError
 )
 
-// FilRegisteredPoStProof as declared in filecoin-ffi/filcrypto.h:44
+// FilRegisteredPoStProof as declared in filecoin-ffi/filcrypto.h:49
 type FilRegisteredPoStProof int32
 
-// FilRegisteredPoStProof enumeration from filecoin-ffi/filcrypto.h:44
+// FilRegisteredPoStProof enumeration from filecoin-ffi/filcrypto.h:49
 const (
 	FilRegisteredPoStProofStackedDrgWinning2KiBV1   FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrgWinning2KiBV1
 	FilRegisteredPoStProofStackedDrgWinning8MiBV1   FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrgWinning8MiBV1
@@ -38,16 +38,26 @@ const (
 	FilRegisteredPoStProofStackedDrgWindow512MiBV1  FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrgWindow512MiBV1
 	FilRegisteredPoStProofStackedDrgWindow32GiBV1   FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrgWindow32GiBV1
 	FilRegisteredPoStProofStackedDrgWindow64GiBV1   FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrgWindow64GiBV1
+	FilRegisteredPoStProofStackedDrgWindow2KiBV2    FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrgWindow2KiBV2
+	FilRegisteredPoStProofStackedDrgWindow8MiBV2    FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrgWindow8MiBV2
+	FilRegisteredPoStProofStackedDrgWindow512MiBV2  FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrgWindow512MiBV2
+	FilRegisteredPoStProofStackedDrgWindow32GiBV2   FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrgWindow32GiBV2
+	FilRegisteredPoStProofStackedDrgWindow64GiBV2   FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrgWindow64GiBV2
 )
 
-// FilRegisteredSealProof as declared in filecoin-ffi/filcrypto.h:52
+// FilRegisteredSealProof as declared in filecoin-ffi/filcrypto.h:62
 type FilRegisteredSealProof int32
 
-// FilRegisteredSealProof enumeration from filecoin-ffi/filcrypto.h:52
+// FilRegisteredSealProof enumeration from filecoin-ffi/filcrypto.h:62
 const (
 	FilRegisteredSealProofStackedDrg2KiBV1   FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg2KiBV1
 	FilRegisteredSealProofStackedDrg8MiBV1   FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg8MiBV1
 	FilRegisteredSealProofStackedDrg512MiBV1 FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg512MiBV1
 	FilRegisteredSealProofStackedDrg32GiBV1  FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg32GiBV1
 	FilRegisteredSealProofStackedDrg64GiBV1  FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg64GiBV1
+	FilRegisteredSealProofStackedDrg2KiBV2   FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg2KiBV2
+	FilRegisteredSealProofStackedDrg8MiBV2   FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg8MiBV2
+	FilRegisteredSealProofStackedDrg512MiBV2 FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg512MiBV2
+	FilRegisteredSealProofStackedDrg32GiBV2  FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg32GiBV2
+	FilRegisteredSealProofStackedDrg64GiBV2  FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg64GiBV2
 )
