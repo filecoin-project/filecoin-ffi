@@ -1289,6 +1289,10 @@ pub mod tests {
             fil_RegisteredSealProof::StackedDrg8MiBV1,
             fil_RegisteredSealProof::StackedDrg512MiBV1,
             fil_RegisteredSealProof::StackedDrg32GiBV1,
+            fil_RegisteredSealProof::StackedDrg2KiBV2,
+            fil_RegisteredSealProof::StackedDrg8MiBV2,
+            fil_RegisteredSealProof::StackedDrg512MiBV2,
+            fil_RegisteredSealProof::StackedDrg32GiBV2,
         ];
 
         let post_types = vec![
@@ -1300,6 +1304,10 @@ pub mod tests {
             fil_RegisteredPoStProof::StackedDrgWindow8MiBV1,
             fil_RegisteredPoStProof::StackedDrgWindow512MiBV1,
             fil_RegisteredPoStProof::StackedDrgWindow32GiBV1,
+            fil_RegisteredPoStProof::StackedDrgWindow2KiBV2,
+            fil_RegisteredPoStProof::StackedDrgWindow8MiBV2,
+            fil_RegisteredPoStProof::StackedDrgWindow512MiBV2,
+            fil_RegisteredPoStProof::StackedDrgWindow32GiBV2,
         ];
 
         let num_ops = (seal_types.len() + post_types.len()) * 6;
@@ -1373,7 +1381,8 @@ pub mod tests {
         // miscellaneous setup and shared values
         let registered_proof_seal = fil_RegisteredSealProof::StackedDrg2KiBV1;
         let registered_proof_winning_post = fil_RegisteredPoStProof::StackedDrgWinning2KiBV1;
-        let registered_proof_window_post = fil_RegisteredPoStProof::StackedDrgWindow2KiBV1;
+        // NOTE: Window PoSt has been updated to v2, with updated sector challenges.
+        let registered_proof_window_post = fil_RegisteredPoStProof::StackedDrgWindow2KiBV2;
 
         let cache_dir = tempfile::tempdir()?;
         let cache_dir_path = cache_dir.into_path();
@@ -1740,7 +1749,8 @@ pub mod tests {
     fn test_faulty_sectors() -> Result<()> {
         // miscellaneous setup and shared values
         let registered_proof_seal = fil_RegisteredSealProof::StackedDrg2KiBV1;
-        let registered_proof_window_post = fil_RegisteredPoStProof::StackedDrgWindow2KiBV1;
+        // NOTE: Window PoSt has been updated to v2, with updated sector challenges.
+        let registered_proof_window_post = fil_RegisteredPoStProof::StackedDrgWindow2KiBV2;
 
         let cache_dir = tempfile::tempdir()?;
         let cache_dir_path = cache_dir.into_path();
