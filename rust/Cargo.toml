@@ -34,9 +34,7 @@ neptune-triton = "=1.0.0"
 
 [dependencies.filecoin-proofs-api]
 package = "filecoin-proofs-api"
-git = "https://github.com/filecoin-project/rust-filecoin-proofs-api"
-branch = "expose-dpost"
-#version = "5.1.1"
+version = "5.2.0"
 
 [build-dependencies]
 cbindgen = "= 0.14.0"
