@@ -3,8 +3,9 @@
 package ffi
 
 // #cgo LDFLAGS: ${SRCDIR}/libfilcrypto.a
-// #cgo pkg-config: ${SRCDIR}/filcrypto.pc
-// #include "./filcrypto.h"
+// #cgo pkg-config: ${SRCDIR}/filcrypto-v1.pc ${SRCDIR}/filcrypto-v2.pc
+// #include "./filcrypto-v1.h"
+// #include "./filcrypto-v2.h"
 import "C"
 import (
 	"os"

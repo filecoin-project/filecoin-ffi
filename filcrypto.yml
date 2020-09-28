@@ -8,8 +8,8 @@ GENERATOR:
   Includes:
     - ../filcrypto.h
   FlagGroups:
-    - {name: LDFLAGS, flags: ["-L${SRCDIR}/.. -lfilcrypto"]}
-    - {name: pkg-config, flags: ["${SRCDIR}/../filcrypto.pc"]}
+    - {name: LDFLAGS, flags: ["-L${SRCDIR}/.. -lfilcrypto_v1 -lfilcrypto_v2"]}
+    - {name: pkg-config, flags: ["${SRCDIR}/../filcrypto-v1.pc" "${SRCDIR}/../filcrypto-v2.pc"]}
 
 PARSER:
   Defines:

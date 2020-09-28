@@ -5,11 +5,16 @@ set -Exeo pipefail
 main() {
     if [[ -z "$1" ]]
     then
+        (>&2 echo '[build-release/main] Error: script requires an api version, e.g. "v1"')
+        exit 1
+    fi
+    if [[ -z "$2" ]]
+    then
         (>&2 echo '[build-release/main] Error: script requires a library name, e.g. "filecoin" or "snark"')
         exit 1
     fi
 
-    if [[ -z "$2" ]]
+    if [[ -z "$3" ]]
     then
         (>&2 echo '[build-release/main] Error: script requires a toolchain, e.g. ./build-release.sh +nightly-2019-04-19')
         exit 1
@@ -29,8 +34,8 @@ main() {
     local __rust_flags="--print native-static-libs ${RUSTFLAGS}"
 
     RUSTFLAGS="${__rust_flags}" \
-        cargo +$2 build \
-        --release ${@:3} 2>&1 | tee ${__build_output_log_tmp}
+        cargo +$3 build \
+        --release ${@:4} 2>&1 | tee ${__build_output_log_tmp}
 
     # parse build output for linker flags
     #
@@ -42,15 +47,16 @@ main() {
     # generate pkg-config
     #
     sed -e "s;@VERSION@;$(git rev-parse HEAD);" \
-        -e "s;@PRIVATE_LIBS@;${__linker_flags};" "$1.pc.template" > "$1.pc"
+        -e "s;@PRIVATE_LIBS@;${__linker_flags};" "../$2.pc.template" > "../$2.pc"
 
     # ensure header file was built
     #
-    find -L . -type f -name "$1.h" | read
+    find -L ../../ -type f -name "$2.h" | read
 
     # ensure the archive file was built
     #
-    find -L . -type f -name "lib$1.a" | read
+    library_name="lib$(echo $2 | sed 's/-/_/g').a"
+    find -L ../../ -type f -name "${library_name}" | read
 }
 
-main "$@"; exit
+main "$@"

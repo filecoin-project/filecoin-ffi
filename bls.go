@@ -6,9 +6,10 @@ import (
 	"github.com/filecoin-project/filecoin-ffi/generated"
 )
 
-// #cgo LDFLAGS: ${SRCDIR}/libfilcrypto.a
-// #cgo pkg-config: ${SRCDIR}/filcrypto.pc
-// #include "./filcrypto.h"
+// #cgo LDFLAGS: ${SRCDIR}/libfilcrypto_v1.a ${SRCDIR}/libfilcrypto_v2.a
+// #cgo pkg-config: ${SRCDIR}/filcrypto-v1.pc ${SRCDIR}/filcrypto-v2.pc
+// #include "./filcrypto-v1.h"
+// #include "./filcrypto-v2.h"
 import "C"
 
 // Hash computes the digest of a message
