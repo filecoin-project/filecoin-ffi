@@ -877,7 +877,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "filcrypto"
+name = "filcrypto-v1"
 version = "0.7.5"
 dependencies = [
  "anyhow",
@@ -900,6 +900,82 @@ dependencies = [
  "rayon",
  "serde_json",
  "tempfile",
+]
+
+[[package]]
+name = "filcrypto-v2"
+version = "0.8.0"
+dependencies = [
+ "anyhow",
+ "bellperson",
+ "bls-signatures",
+ "byteorder 1.3.4",
+ "cbindgen",
+ "drop_struct_macro_derive",
+ "fff",
+ "ffi-toolkit",
+ "fil_logger",
+ "filecoin-proofs-api-v2",
+ "libc",
+ "log",
+ "neptune",
+ "neptune-triton",
+ "paired",
+ "rand 0.7.3",
+ "rand_chacha",
+ "rayon",
+ "serde_json",
+ "tempfile",
+]
+
+[[package]]
+name = "filecoin-proofs"
+version = "5.1.4"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=upgrade-testing#439dc8149a1cba6dba5c161f1eba13b34cefc6bd"
+dependencies = [
+ "anyhow",
+ "bellperson",
+ "bincode",
+ "bitintr",
+ "bitvec",
+ "blake2b_simd",
+ "blake2s_simd",
+ "byteorder 1.3.4",
+ "chrono",
+ "clap",
+ "dialoguer",
+ "env_proxy",
+ "fff",
+ "fil-sapling-crypto",
+ "fil_logger",
+ "flate2",
+ "generic-array 0.13.2",
+ "groupy",
+ "hex",
+ "humansize",
+ "indicatif",
+ "itertools 0.9.0",
+ "lazy_static",
+ "log",
+ "memmap",
+ "merkletree",
+ "paired",
+ "pbr",
+ "phase21",
+ "rand 0.7.3",
+ "rand_chacha",
+ "rand_xorshift",
+ "rayon",
+ "regex",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "sha2",
+ "simplelog",
+ "storage-proofs 5.1.4 (git+https://github.com/filecoin-project/rust-fil-proofs?branch=upgrade-testing)",
+ "structopt",
+ "tar",
+ "typenum",
 ]
 
 [[package]]
@@ -947,7 +1023,7 @@ dependencies = [
  "serde_json",
  "sha2",
  "simplelog",
- "storage-proofs",
+ "storage-proofs 5.1.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "structopt",
  "tar",
  "typenum",
@@ -2458,6 +2534,20 @@ dependencies = [
 [[package]]
 name = "sha2raw"
 version = "2.0.0"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=upgrade-testing#439dc8149a1cba6dba5c161f1eba13b34cefc6bd"
+dependencies = [
+ "block-buffer 0.7.3",
+ "cpuid-bool",
+ "digest 0.9.0",
+ "fake-simd",
+ "lazy_static",
+ "opaque-debug 0.2.3",
+ "sha2-asm",
+]
+
+[[package]]
+name = "sha2raw"
+version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "57da614e847c49a01979ffa0d9a030d983c4bb6e78a13ff20203a0169deeff42"
 dependencies = [
@@ -2523,9 +2613,47 @@ version = "5.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bb2827bf577e6f792ab93508d441acd22421530073e5fcf32b8372221eec1bea"
 dependencies = [
- "storage-proofs-core",
- "storage-proofs-porep",
- "storage-proofs-post",
+ "storage-proofs-core 5.1.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "storage-proofs-porep 5.1.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "storage-proofs-post 5.1.4 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "storage-proofs-core"
+version = "5.1.4"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=upgrade-testing#439dc8149a1cba6dba5c161f1eba13b34cefc6bd"
+dependencies = [
+ "aes",
+ "anyhow",
+ "bellperson",
+ "blake2b_simd",
+ "blake2s_simd",
+ "block-modes",
+ "byteorder 1.3.4",
+ "config",
+ "fff",
+ "fil-blst",
+ "fil-sapling-crypto",
+ "fs2",
+ "generic-array 0.13.2",
+ "hex",
+ "itertools 0.9.0",
+ "lazy_static",
+ "log",
+ "memmap",
+ "merkletree",
+ "neptune",
+ "num_cpus",
+ "paired",
+ "rand 0.7.3",
+ "rand_chacha",
+ "rayon",
+ "serde",
+ "serde_json",
+ "sha2",
+ "tempfile",
+ "thiserror",
+ "toml",
 ]
 
 [[package]]
@@ -2599,8 +2727,35 @@ dependencies = [
  "serde",
  "serde_json",
  "sha2",
- "sha2raw",
- "storage-proofs-core",
+ "sha2raw 2.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "storage-proofs-core 5.1.4 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "storage-proofs-post"
+version = "5.1.4"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=upgrade-testing#439dc8149a1cba6dba5c161f1eba13b34cefc6bd"
+dependencies = [
+ "anyhow",
+ "bellperson",
+ "blake2b_simd",
+ "blake2s_simd",
+ "byteorder 1.3.4",
+ "crossbeam",
+ "fff",
+ "fil-sapling-crypto",
+ "generic-array 0.13.2",
+ "hex",
+ "log",
+ "merkletree",
+ "neptune",
+ "num_cpus",
+ "paired",
+ "rand 0.7.3",
+ "rayon",
+ "serde",
+ "sha2",
+ "storage-proofs-core 5.1.4 (git+https://github.com/filecoin-project/rust-fil-proofs?branch=upgrade-testing)",
 ]
 
 [[package]]
@@ -2628,7 +2783,7 @@ dependencies = [
  "rayon",
  "serde",
  "sha2",
- "storage-proofs-core",
+ "storage-proofs-core 5.1.4 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]

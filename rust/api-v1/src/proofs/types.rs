@@ -5,7 +5,7 @@ use std::slice::from_raw_parts;
 use anyhow::Result;
 use drop_struct_macro_derive::DropStructMacro;
 use ffi_toolkit::{code_and_message_impl, free_c_str, CodeAndMessage, FCPResponseStatus};
-use filecoin_proofs_api::{
+use filecoin_proofs_api_v1::{
     PieceInfo, RegisteredPoStProof, RegisteredSealProof, UnpaddedBytesAmount,
 };
 

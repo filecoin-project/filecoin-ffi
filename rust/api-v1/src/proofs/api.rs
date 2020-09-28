@@ -1,8 +1,8 @@
 use ffi_toolkit::{
     c_str_to_pbuf, catch_panic_response, raw_ptr, rust_str_to_c_str, FCPResponseStatus,
 };
-use filecoin_proofs_api::seal::SealPreCommitPhase2Output;
-use filecoin_proofs_api::{
+use filecoin_proofs_api_v1::seal::SealPreCommitPhase2Output;
+use filecoin_proofs_api_v1::{
     PieceInfo, RegisteredPoStProof, RegisteredSealProof, SectorId, UnpaddedByteIndex,
     UnpaddedBytesAmount,
 };
@@ -42,7 +42,7 @@ pub unsafe extern "C" fn fil_write_with_alignment(
 
         let n = UnpaddedBytesAmount(src_size);
 
-        match filecoin_proofs_api::seal::add_piece(
+        match filecoin_proofs_api_v1::seal::add_piece(
             registered_proof.into(),
             FileDescriptorRef::new(src_fd),
             FileDescriptorRef::new(dst_fd),
@@ -84,7 +84,7 @@ pub unsafe extern "C" fn fil_write_without_alignment(
 
         let mut response = fil_WriteWithoutAlignmentResponse::default();
 
-        match filecoin_proofs_api::seal::write_and_preprocess(
+        match filecoin_proofs_api_v1::seal::write_and_preprocess(
             registered_proof.into(),
             FileDescriptorRef::new(src_fd),
             FileDescriptorRef::new(dst_fd),
@@ -120,7 +120,7 @@ pub unsafe extern "C" fn fil_fauxrep(
 
         let mut response: fil_FauxRepResponse = Default::default();
 
-        let result = filecoin_proofs_api::seal::fauxrep(
+        let result = filecoin_proofs_api_v1::seal::fauxrep(
             registered_proof.into(),
             c_str_to_pbuf(cache_dir_path),
             c_str_to_pbuf(sealed_sector_path),
@@ -156,7 +156,7 @@ pub unsafe extern "C" fn fil_fauxrep2(
 
         let mut response: fil_FauxRepResponse = Default::default();
 
-        let result = filecoin_proofs_api::seal::fauxrep2(
+        let result = filecoin_proofs_api_v1::seal::fauxrep2(
             registered_proof.into(),
             c_str_to_pbuf(cache_dir_path),
             c_str_to_pbuf(existing_p_aux_path),
@@ -206,7 +206,7 @@ pub unsafe extern "C" fn fil_seal_pre_commit_phase1(
 
         let mut response: fil_SealPreCommitPhase1Response = Default::default();
 
-        let result = filecoin_proofs_api::seal::seal_pre_commit_phase1(
+        let result = filecoin_proofs_api_v1::seal::seal_pre_commit_phase1(
             registered_proof.into(),
             c_str_to_pbuf(cache_dir_path),
             c_str_to_pbuf(staged_sector_path),
@@ -260,7 +260,7 @@ pub unsafe extern "C" fn fil_seal_pre_commit_phase2(
         .map_err(Into::into);
 
         let result = phase_1_output.and_then(|o| {
-            filecoin_proofs_api::seal::seal_pre_commit_phase2::<PathBuf, PathBuf>(
+            filecoin_proofs_api_v1::seal::seal_pre_commit_phase2::<PathBuf, PathBuf>(
                 o,
                 c_str_to_pbuf(cache_dir_path),
                 c_str_to_pbuf(sealed_sector_path),
@@ -321,7 +321,7 @@ pub unsafe extern "C" fn fil_seal_commit_phase1(
             .map(Into::into)
             .collect();
 
-        let result = filecoin_proofs_api::seal::seal_commit_phase1(
+        let result = filecoin_proofs_api_v1::seal::seal_commit_phase1(
             c_str_to_pbuf(cache_dir_path),
             c_str_to_pbuf(replica_path),
             prover_id.inner,
@@ -372,7 +372,7 @@ pub unsafe extern "C" fn fil_seal_commit_phase2(
         .map_err(Into::into);
 
         let result = scp1o.and_then(|o| {
-            filecoin_proofs_api::seal::seal_commit_phase2(
+            filecoin_proofs_api_v1::seal::seal_commit_phase2(
                 o,
                 prover_id.inner,
                 SectorId::from(sector_id),
@@ -422,7 +422,7 @@ pub unsafe extern "C" fn fil_unseal_range(
         let mut sealed_sector = std::fs::File::from_raw_fd(sealed_sector_fd_raw);
         let mut unseal_output = std::fs::File::from_raw_fd(unseal_output_fd_raw);
 
-        let result = filecoin_proofs_api::seal::unseal_range(
+        let result = filecoin_proofs_api_v1::seal::unseal_range(
             registered_proof.into(),
             c_str_to_pbuf(cache_dir_path),
             &mut sealed_sector,
@@ -479,7 +479,7 @@ pub unsafe extern "C" fn fil_verify_seal(
         let mut proof_bytes: Vec<u8> = vec![0; proof_len];
         proof_bytes.clone_from_slice(from_raw_parts(proof_ptr, proof_len));
 
-        let result = filecoin_proofs_api::seal::verify_seal(
+        let result = filecoin_proofs_api_v1::seal::verify_seal(
             registered_proof.into(),
             comm_r.inner,
             comm_d.inner,
@@ -536,7 +536,7 @@ pub unsafe extern "C" fn fil_verify_winning_post(
             let post_proofs = c_to_rust_post_proofs(proofs_ptr, proofs_len)?;
             let proofs: Vec<u8> = post_proofs.iter().flat_map(|pp| pp.clone().proof).collect();
 
-            filecoin_proofs_api::post::verify_winning_post(
+            filecoin_proofs_api_v1::post::verify_winning_post(
                 &randomness.inner,
                 &proofs,
                 &replicas,
@@ -577,7 +577,7 @@ pub unsafe extern "C" fn fil_generate_window_post(
         let mut response = fil_GenerateWindowPoStResponse::default();
 
         let result = to_private_replica_info_map(replicas_ptr, replicas_len).and_then(|rs| {
-            filecoin_proofs_api::post::generate_window_post(&randomness.inner, &rs, prover_id.inner)
+            filecoin_proofs_api_v1::post::generate_window_post(&randomness.inner, &rs, prover_id.inner)
         });
 
         match result {
@@ -605,8 +605,8 @@ pub unsafe extern "C" fn fil_generate_window_post(
             }
             Err(err) => {
                 // If there were faulty sectors, add them to the response
-                if let Some(filecoin_proofs_api::StorageProofsError::FaultySectors(sectors)) =
-                    err.downcast_ref::<filecoin_proofs_api::StorageProofsError>()
+                if let Some(filecoin_proofs_api_v1::StorageProofsError::FaultySectors(sectors)) =
+                    err.downcast_ref::<filecoin_proofs_api_v1::StorageProofsError>()
                 {
                     let sectors_u64 = sectors
                         .iter()
@@ -655,7 +655,7 @@ pub unsafe extern "C" fn fil_verify_window_post(
                 .map(|x| (x.registered_proof, x.proof.as_ref()))
                 .collect();
 
-            filecoin_proofs_api::post::verify_window_post(
+            filecoin_proofs_api_v1::post::verify_window_post(
                 &randomness.inner,
                 &proofs,
                 &replicas,
@@ -696,7 +696,7 @@ pub unsafe extern "C" fn fil_generate_piece_commitment(
         let mut piece_file = std::fs::File::from_raw_fd(piece_fd_raw);
 
         let unpadded_piece_size = UnpaddedBytesAmount(unpadded_piece_size);
-        let result = filecoin_proofs_api::seal::generate_piece_commitment(
+        let result = filecoin_proofs_api_v1::seal::generate_piece_commitment(
             registered_proof.into(),
             &mut piece_file,
             unpadded_piece_size,
@@ -742,7 +742,7 @@ pub unsafe extern "C" fn fil_generate_data_commitment(
             .collect();
 
         let result =
-            filecoin_proofs_api::seal::compute_comm_d(registered_proof.into(), &public_pieces);
+            filecoin_proofs_api_v1::seal::compute_comm_d(registered_proof.into(), &public_pieces);
 
         let mut response = fil_GenerateDataCommitmentResponse::default();
 
@@ -772,7 +772,7 @@ pub unsafe extern "C" fn fil_clear_cache(
         init_log();
 
         let result =
-            filecoin_proofs_api::seal::clear_cache(sector_size, &c_str_to_pbuf(cache_dir_path));
+            filecoin_proofs_api_v1::seal::clear_cache(sector_size, &c_str_to_pbuf(cache_dir_path));
 
         let mut response = fil_ClearCacheResponse::default();
 
@@ -806,7 +806,7 @@ pub unsafe extern "C" fn fil_generate_winning_post_sector_challenge(
 
         let mut response = fil_GenerateWinningPoStSectorChallenge::default();
 
-        let result = filecoin_proofs_api::post::generate_winning_post_sector_challenge(
+        let result = filecoin_proofs_api_v1::post::generate_winning_post_sector_challenge(
             registered_proof.into(),
             &randomness.inner,
             sector_set_len,
@@ -851,7 +851,7 @@ pub unsafe extern "C" fn fil_generate_winning_post(
         let mut response = fil_GenerateWinningPoStResponse::default();
 
         let result = to_private_replica_info_map(replicas_ptr, replicas_len).and_then(|rs| {
-            filecoin_proofs_api::post::generate_winning_post(
+            filecoin_proofs_api_v1::post::generate_winning_post(
                 &randomness.inner,
                 &rs,
                 prover_id.inner,
