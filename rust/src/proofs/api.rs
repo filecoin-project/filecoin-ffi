@@ -669,10 +669,8 @@ pub unsafe extern "C" fn fil_generate_single_vanilla_proof(
         match result {
             Ok(output) => {
                 response.status_code = FCPResponseStatus::FCPNoError;
-                response.vanilla_proof = fil_VanillaProof {
-                    proof_len: output.len(),
-                    proof_ptr: output.as_ptr(),
-                };
+                response.vanilla_proof.proof_len = output.len();
+                response.vanilla_proof.proof_ptr = output.as_ptr();
 
                 mem::forget(output);
             }
