@@ -625,7 +625,7 @@ pub unsafe extern "C" fn fil_generate_fallback_sector_challenges(
 
                 if challenges_stride_mismatch {
                     response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                    response.error_msg = rust_str_to_c_str(format!("Challenge stride mismatch"));
+                    response.error_msg = rust_str_to_c_str("Challenge stride mismatch".to_string());
                 } else {
                     response.status_code = FCPResponseStatus::FCPNoError;
                     response.ids_ptr = sector_ids.as_ptr();
