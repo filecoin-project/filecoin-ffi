@@ -271,14 +271,16 @@ pub struct fil_GenerateFallbackSectorChallengesResponse {
     pub status_code: FCPResponseStatus,
     pub ids_ptr: *const u64,
     pub ids_len: libc::size_t,
-    pub challenges_ptr: *const std::vec::Vec<u64>,
+    pub challenges_ptr: *const u64,
     pub challenges_len: libc::size_t,
+    pub challenges_stride: libc::size_t,
 }
 
 impl Default for fil_GenerateFallbackSectorChallengesResponse {
     fn default() -> fil_GenerateFallbackSectorChallengesResponse {
         fil_GenerateFallbackSectorChallengesResponse {
             challenges_len: 0,
+            challenges_stride: 0,
             challenges_ptr: ptr::null(),
             ids_len: 0,
             ids_ptr: ptr::null(),
