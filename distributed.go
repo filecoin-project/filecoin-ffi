@@ -15,7 +15,7 @@ type FallbackChallanges struct {
 type VanillaProof []byte
 
 // GenerateWinningPoStSectorChallenge
-func GenerateWinningPoStFallbackSectorChallenges(
+func GeneratePoStFallbackSectorChallenges(
 	proofType abi.RegisteredPoStProof,
 	minerID abi.ActorID,
 	randomness abi.PoStRandomness,
