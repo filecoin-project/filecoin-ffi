@@ -52,3 +52,20 @@ func (x *FilPoStProof) AllocateProxy() func() {
 		C.free(unsafe.Pointer(proxy))
 	}
 }
+
+// AllocateProxy allocates a FilVanillaProof proxy object in the C heap,
+// returning a function which, when called, frees the allocated memory.
+func (x *FilVanillaProof) AllocateProxy() func() {
+	mem := allocFilVanillaProofMemory(1)
+	proxy := (*C.fil_VanillaProof)(mem)
+
+	proxy.proof_len = (C.size_t)(x.ProofLen)
+	proxy.proof_ptr = (*C.uchar)(unsafe.Pointer(C.CString(x.ProofPtr)))
+
+	x.refb3e7638c = proxy
+
+	return func() {
+		C.free(unsafe.Pointer(proxy.proof_ptr))
+		C.free(unsafe.Pointer(proxy))
+	}
+}
