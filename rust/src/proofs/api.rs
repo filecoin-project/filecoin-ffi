@@ -601,9 +601,15 @@ pub unsafe extern "C" fn fil_generate_fallback_sector_challenges(
                     .into_iter()
                     .map(|(id, _challenges)| u64::from(id))
                     .collect();
-                let challenges: Vec<Vec<u64>> = output
+                let mut challenges_stride = 0;
+                let challenges: Vec<u64> = output
                     .into_iter()
-                    .map(|(_id, challenges)| challenges)
+                    .flat_map(|(_id, challenges)| {
+                        if challenges_stride == 0 {
+                            challenges_stride = challenges.len();
+                        }
+                        challenges
+                    })
                     .collect();
 
                 response.status_code = FCPResponseStatus::FCPNoError;
@@ -611,6 +617,7 @@ pub unsafe extern "C" fn fil_generate_fallback_sector_challenges(
                 response.ids_len = sector_ids.len();
                 response.challenges_ptr = challenges.as_ptr();
                 response.challenges_len = challenges.len();
+                response.challenges_stride = challenges_stride;
 
                 mem::forget(sector_ids);
                 mem::forget(challenges);
@@ -1982,22 +1989,28 @@ pub mod tests {
 
             let sector_ids: Vec<u64> =
                 from_raw_parts((*resp_sc).ids_ptr, (*resp_sc).ids_len).to_vec();
-            let sector_challenges: Vec<Vec<u64>> =
+            let sector_challenges: Vec<u64> =
                 from_raw_parts((*resp_sc).challenges_ptr, (*resp_sc).challenges_len).to_vec();
+            let challenges_stride = (*resp_sc).challenges_stride;
+            let challenge_iterations = sector_challenges.len() / challenges_stride;
 
             let mut vanilla_proofs: Vec<fil_VanillaProof> = Vec::with_capacity(sector_ids.len());
 
             // Gather up all vanilla proofs.
-            for (sector_id, challenges) in sector_ids.iter().zip(sector_challenges.iter()) {
+            for i in 0..challenge_iterations {
+                let sector_id = sector_ids[i];
+                let challenges: Vec<_> = sector_challenges
+                    [i * challenges_stride..i * challenges_stride + challenges_stride]
+                    .to_vec();
                 let private_replica = private_replicas
                     .iter()
-                    .find(|&replica| replica.sector_id == *sector_id)
+                    .find(|&replica| replica.sector_id == sector_id)
                     .expect("failed to find private replica info")
                     .clone();
 
                 let resp_vp = fil_generate_single_vanilla_proof(
                     private_replica,
-                    *sector_id,
+                    sector_id,
                     challenges.as_ptr(),
                     challenges.len(),
                 );
@@ -2145,22 +2158,29 @@ pub mod tests {
 
             let sector_ids: Vec<u64> =
                 from_raw_parts((*resp_sc2).ids_ptr, (*resp_sc2).ids_len).to_vec();
-            let sector_challenges: Vec<Vec<u64>> =
+            let sector_challenges: Vec<u64> =
                 from_raw_parts((*resp_sc2).challenges_ptr, (*resp_sc2).challenges_len).to_vec();
+            let challenges_stride = (*resp_sc2).challenges_stride;
+            let challenge_iterations = sector_challenges.len() / challenges_stride;
 
             let mut vanilla_proofs: Vec<fil_VanillaProof> = Vec::with_capacity(sector_ids.len());
 
             // Gather up all vanilla proofs.
-            for (sector_id, challenges) in sector_ids.iter().zip(sector_challenges.iter()) {
+            for i in 0..challenge_iterations {
+                let sector_id = sector_ids[i];
+                let challenges: Vec<_> = sector_challenges
+                    [i * challenges_stride..i * challenges_stride + challenges_stride]
+                    .to_vec();
+
                 let private_replica = private_replicas
                     .iter()
-                    .find(|&replica| replica.sector_id == *sector_id)
+                    .find(|&replica| replica.sector_id == sector_id)
                     .expect("failed to find private replica info")
                     .clone();
 
                 let resp_vp = fil_generate_single_vanilla_proof(
                     private_replica,
-                    *sector_id,
+                    sector_id,
                     challenges.as_ptr(),
                     challenges.len(),
                 );

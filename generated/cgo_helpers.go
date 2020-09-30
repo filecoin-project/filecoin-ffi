@@ -711,9 +711,17 @@ func (x *FilGenerateFallbackSectorChallengesResponse) PassRef() (*C.fil_Generate
 	ref7047a3fa.ids_len, cids_len_allocs = (C.size_t)(x.IdsLen), cgoAllocsUnknown
 	allocs7047a3fa.Borrow(cids_len_allocs)
 
+	var cchallenges_ptr_allocs *cgoAllocMap
+	ref7047a3fa.challenges_ptr, cchallenges_ptr_allocs = (*C.uint64_t)(unsafe.Pointer((*sliceHeader)(unsafe.Pointer(&x.ChallengesPtr)).Data)), cgoAllocsUnknown
+	allocs7047a3fa.Borrow(cchallenges_ptr_allocs)
+
 	var cchallenges_len_allocs *cgoAllocMap
 	ref7047a3fa.challenges_len, cchallenges_len_allocs = (C.size_t)(x.ChallengesLen), cgoAllocsUnknown
 	allocs7047a3fa.Borrow(cchallenges_len_allocs)
+
+	var cchallenges_stride_allocs *cgoAllocMap
+	ref7047a3fa.challenges_stride, cchallenges_stride_allocs = (C.size_t)(x.ChallengesStride), cgoAllocsUnknown
+	allocs7047a3fa.Borrow(cchallenges_stride_allocs)
 
 	x.ref7047a3fa = ref7047a3fa
 	x.allocs7047a3fa = allocs7047a3fa
@@ -744,7 +752,13 @@ func (x *FilGenerateFallbackSectorChallengesResponse) Deref() {
 	// hxfc4425b.Len = ?
 
 	x.IdsLen = (uint)(x.ref7047a3fa.ids_len)
+	hxf95e7c8 := (*sliceHeader)(unsafe.Pointer(&x.ChallengesPtr))
+	hxf95e7c8.Data = unsafe.Pointer(x.ref7047a3fa.challenges_ptr)
+	hxf95e7c8.Cap = 0x7fffffff
+	// hxf95e7c8.Len = ?
+
 	x.ChallengesLen = (uint)(x.ref7047a3fa.challenges_len)
+	x.ChallengesStride = (uint)(x.ref7047a3fa.challenges_stride)
 }
 
 // allocFilGeneratePieceCommitmentResponseMemory allocates memory for type C.fil_GeneratePieceCommitmentResponse in C.
@@ -1273,10 +1287,10 @@ func (x *FilGenerateWindowPoStResponse) Deref() {
 	x.ProofsLen = (uint)(x.ref2a5f3ba8.proofs_len)
 	packSFilPoStProof(x.ProofsPtr, x.ref2a5f3ba8.proofs_ptr)
 	x.FaultySectorsLen = (uint)(x.ref2a5f3ba8.faulty_sectors_len)
-	hxf95e7c8 := (*sliceHeader)(unsafe.Pointer(&x.FaultySectorsPtr))
-	hxf95e7c8.Data = unsafe.Pointer(x.ref2a5f3ba8.faulty_sectors_ptr)
-	hxf95e7c8.Cap = 0x7fffffff
-	// hxf95e7c8.Len = ?
+	hxff2234b := (*sliceHeader)(unsafe.Pointer(&x.FaultySectorsPtr))
+	hxff2234b.Data = unsafe.Pointer(x.ref2a5f3ba8.faulty_sectors_ptr)
+	hxff2234b.Cap = 0x7fffffff
+	// hxff2234b.Len = ?
 
 	x.StatusCode = (FCPResponseStatus)(x.ref2a5f3ba8.status_code)
 }
@@ -1469,10 +1483,10 @@ func (x *FilGenerateWinningPoStSectorChallenge) Deref() {
 	}
 	x.ErrorMsg = packPCharString(x.ref69d2a405.error_msg)
 	x.StatusCode = (FCPResponseStatus)(x.ref69d2a405.status_code)
-	hxff2234b := (*sliceHeader)(unsafe.Pointer(&x.IdsPtr))
-	hxff2234b.Data = unsafe.Pointer(x.ref69d2a405.ids_ptr)
-	hxff2234b.Cap = 0x7fffffff
-	// hxff2234b.Len = ?
+	hxff73280 := (*sliceHeader)(unsafe.Pointer(&x.IdsPtr))
+	hxff73280.Data = unsafe.Pointer(x.ref69d2a405.ids_ptr)
+	hxff73280.Cap = 0x7fffffff
+	// hxff73280.Len = ?
 
 	x.IdsLen = (uint)(x.ref69d2a405.ids_len)
 }
