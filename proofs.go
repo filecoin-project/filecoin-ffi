@@ -572,8 +572,8 @@ func GenerateWindowPoSt(
 
 	resp := generated.FilGenerateWindowPost(to32ByteArray(randomness), filReplicas, filReplicasLen, proverID)
 	resp.Deref()
-
-	resp.ProofsPtr = resp.ProofsPtr[:resp.ProofsLen]
+	resp.ProofsPtr = make([]generated.FilPoStProof, resp.ProofsLen)
+	resp.Deref()
 	resp.FaultySectorsPtr = resp.FaultySectorsPtr[:resp.FaultySectorsLen]
 
 	defer generated.FilDestroyGenerateWindowPostResponse(resp)
