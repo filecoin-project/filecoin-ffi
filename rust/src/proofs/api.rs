@@ -7,7 +7,7 @@ use filecoin_proofs_api::{
     UnpaddedByteIndex, UnpaddedBytesAmount,
 };
 
-use log::info;
+use log::{error, info};
 use std::mem;
 use std::path::PathBuf;
 use std::slice::from_raw_parts;
@@ -602,25 +602,41 @@ pub unsafe extern "C" fn fil_generate_fallback_sector_challenges(
                     .map(|(id, _challenges)| u64::from(id))
                     .collect();
                 let mut challenges_stride = 0;
+                let mut challenges_stride_mismatch = false;
                 let challenges: Vec<u64> = output
                     .into_iter()
                     .flat_map(|(_id, challenges)| {
                         if challenges_stride == 0 {
                             challenges_stride = challenges.len();
                         }
+
+                        if !challenges_stride_mismatch && challenges_stride != challenges.len() {
+                            error!(
+                                "All challenge strides must be equal: {} != {}",
+                                challenges_stride,
+                                challenges.len()
+                            );
+                            challenges_stride_mismatch = true;
+                        }
+
                         challenges
                     })
                     .collect();
 
-                response.status_code = FCPResponseStatus::FCPNoError;
-                response.ids_ptr = sector_ids.as_ptr();
-                response.ids_len = sector_ids.len();
-                response.challenges_ptr = challenges.as_ptr();
-                response.challenges_len = challenges.len();
-                response.challenges_stride = challenges_stride;
+                if challenges_stride_mismatch {
+                    response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                    response.error_msg = rust_str_to_c_str(format!("Challenge stride mismatch"));
+                } else {
+                    response.status_code = FCPResponseStatus::FCPNoError;
+                    response.ids_ptr = sector_ids.as_ptr();
+                    response.ids_len = sector_ids.len();
+                    response.challenges_ptr = challenges.as_ptr();
+                    response.challenges_len = challenges.len();
+                    response.challenges_stride = challenges_stride;
 
-                mem::forget(sector_ids);
-                mem::forget(challenges);
+                    mem::forget(sector_ids);
+                    mem::forget(challenges);
+                }
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
@@ -1993,6 +2009,11 @@ pub mod tests {
                 from_raw_parts((*resp_sc).challenges_ptr, (*resp_sc).challenges_len).to_vec();
             let challenges_stride = (*resp_sc).challenges_stride;
             let challenge_iterations = sector_challenges.len() / challenges_stride;
+            assert_eq!(
+                sector_ids.len(),
+                challenge_iterations,
+                "Challenge iterations must match the number of sector ids"
+            );
 
             let mut vanilla_proofs: Vec<fil_VanillaProof> = Vec::with_capacity(sector_ids.len());
 
@@ -2162,6 +2183,11 @@ pub mod tests {
                 from_raw_parts((*resp_sc2).challenges_ptr, (*resp_sc2).challenges_len).to_vec();
             let challenges_stride = (*resp_sc2).challenges_stride;
             let challenge_iterations = sector_challenges.len() / challenges_stride;
+            assert_eq!(
+                sector_ids.len(),
+                challenge_iterations,
+                "Challenge iterations must match the number of sector ids"
+            );
 
             let mut vanilla_proofs: Vec<fil_VanillaProof> = Vec::with_capacity(sector_ids.len());
 
