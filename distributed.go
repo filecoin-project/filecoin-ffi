@@ -7,9 +7,9 @@ import (
 	"github.com/pkg/errors"
 )
 
-type FallbackChallanges struct {
+type FallbackChallenges struct {
 	Sectors    []abi.SectorNumber
-	Challanges map[abi.SectorNumber][]uint64
+	Challenges map[abi.SectorNumber][]uint64
 }
 
 type VanillaProof []byte
@@ -20,7 +20,7 @@ func GeneratePoStFallbackSectorChallenges(
 	minerID abi.ActorID,
 	randomness abi.PoStRandomness,
 	sectorIds []abi.SectorNumber,
-) (*FallbackChallanges, error) {
+) (*FallbackChallenges, error) {
 	proverID, err := toProverID(minerID)
 	if err != nil {
 		return nil, err
@@ -31,7 +31,7 @@ func GeneratePoStFallbackSectorChallenges(
 		return nil, err
 	}
 
-	secIds := make([]uint64, 0, len(sectorIds))
+	secIds := make([]uint64, len(sectorIds))
 	for i, sid := range sectorIds {
 		secIds[i] = uint64(sid)
 	}
@@ -52,13 +52,14 @@ func GeneratePoStFallbackSectorChallenges(
 
 	// copy from C memory space to Go
 
-	var out FallbackChallanges
+	var out FallbackChallenges
 	out.Sectors = make([]abi.SectorNumber, resp.IdsLen)
+	out.Challenges = make(map[abi.SectorNumber][]uint64)
 	stride := int(resp.ChallengesStride)
 	for idx := range resp.IdsPtr {
 		secNum := abi.SectorNumber(resp.IdsPtr[idx])
 		out.Sectors[idx] = secNum
-		out.Challanges[secNum] = append([]uint64{}, resp.ChallengesPtr[idx*stride:(idx+1)*stride]...)
+		out.Challenges[secNum] = append([]uint64{}, resp.ChallengesPtr[idx*stride:(idx+1)*stride]...)
 	}
 
 	return &out, nil
@@ -85,10 +86,8 @@ func GenerateSingleVanillaProof(
 	}
 
 	resp.VanillaProof.Deref()
-	resp.VanillaProof.ProofPtr = resp.VanillaProof.ProofPtr[:resp.VanillaProof.ProofLen]
 
-	out := append([]byte{}, []byte(resp.VanillaProof.ProofPtr)...)
-	return out, nil
+	return []byte(toGoStringCopy(resp.VanillaProof.ProofPtr, resp.VanillaProof.ProofLen)), nil
 }
 
 func GenerateWinningPoStWithVanilla(
@@ -116,7 +115,8 @@ func GenerateWinningPoStWithVanilla(
 		fproofs, uint(len(proofs)),
 	)
 	resp.Deref()
-	resp.ProofsPtr = resp.ProofsPtr[:resp.ProofsLen]
+	resp.ProofsPtr = make([]generated.FilPoStProof, resp.ProofsLen)
+	resp.Deref()
 
 	defer generated.FilDestroyGenerateWinningPostResponse(resp)
 
@@ -157,7 +157,8 @@ func GenerateWindowPoStWithVanilla(
 		fproofs, uint(len(proofs)),
 	)
 	resp.Deref()
-	resp.ProofsPtr = resp.ProofsPtr[:resp.ProofsLen]
+	resp.ProofsPtr = make([]generated.FilPoStProof, resp.ProofsLen)
+	resp.Deref()
 
 	defer generated.FilDestroyGenerateWindowPostResponse(resp)
 
