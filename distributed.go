@@ -67,7 +67,6 @@ func GeneratePoStFallbackSectorChallenges(
 
 func GenerateSingleVanillaProof(
 	replica PrivateSectorInfo,
-	sector abi.SectorNumber,
 	challange []uint64,
 ) ([]byte, error) {
 
@@ -77,7 +76,7 @@ func GenerateSingleVanillaProof(
 	}
 	defer free()
 
-	resp := generated.FilGenerateSingleVanillaProof(rep, uint64(sector), challange, uint(len(challange)))
+	resp := generated.FilGenerateSingleVanillaProof(rep, challange, uint(len(challange)))
 	resp.Deref()
 	defer generated.FilDestroyGenerateSingleVanillaProofResponse(resp)
 
