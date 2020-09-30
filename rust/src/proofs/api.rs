@@ -655,7 +655,6 @@ pub unsafe extern "C" fn fil_generate_fallback_sector_challenges(
 #[no_mangle]
 pub unsafe extern "C" fn fil_generate_single_vanilla_proof(
     replica: fil_PrivateReplicaInfo,
-    sector_id: u64,
     challenges_ptr: *const u64,
     challenges_len: libc::size_t,
 ) -> *mut fil_GenerateSingleVanillaProofResponse {
@@ -669,7 +668,7 @@ pub unsafe extern "C" fn fil_generate_single_vanilla_proof(
             .copied()
             .collect();
 
-        let sector_id = SectorId::from(sector_id);
+        let sector_id = SectorId::from(replica.sector_id);
         let cache_dir_path = c_str_to_pbuf(replica.cache_dir_path);
         let replica_path = c_str_to_pbuf(replica.replica_path);
 
@@ -2031,7 +2030,6 @@ pub mod tests {
 
                 let resp_vp = fil_generate_single_vanilla_proof(
                     private_replica,
-                    sector_id,
                     challenges.as_ptr(),
                     challenges.len(),
                 );
@@ -2206,7 +2204,6 @@ pub mod tests {
 
                 let resp_vp = fil_generate_single_vanilla_proof(
                     private_replica,
-                    sector_id,
                     challenges.as_ptr(),
                     challenges.len(),
                 );
