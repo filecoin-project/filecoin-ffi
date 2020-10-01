@@ -5,11 +5,17 @@ set -Exeuo pipefail
 main() {
     if [[ -z "$1" ]]
     then
+        (>&2 echo '[package-release/main] Error: script requires an api version, e.g. "v1"')
+        exit 1
+    fi
+    if [[ -z "$2" ]]
+    then
         (>&2 echo '[package-release/main] Error: script requires path to which it will write release (gzipped) tarball, e.g. "/tmp/filecoin-ffi-Darwin-standard.tar.tz"')
         exit 1
     fi
 
-    local __tarball_output_path=$1
+    local version=$1
+    local __tarball_output_path=$2
 
     # create temporary directory to hold build artifacts (must not be declared
     # with 'local' because we will use 'trap' to clean it up)
@@ -24,9 +30,9 @@ main() {
 
     # copy assets into temporary directory
     #
-    find -L . -type f -name filcrypto.h -exec cp -- "{}" $__tmp_dir/ \;
-    find -L . -type f -name libfilcrypto.a -exec cp -- "{}" $__tmp_dir/ \;
-    find -L . -type f -name filcrypto.pc -exec cp -- "{}" $__tmp_dir/ \;
+    find -L . -type f -name filcrypto-${version}.h -exec cp -- "{}" $__tmp_dir/ \;
+    find -L . -type f -name libfilcrypto_${version}.a -exec cp -- "{}" $__tmp_dir/ \;
+    find -L . -type f -name filcrypto-${version}.pc -exec cp -- "{}" $__tmp_dir/ \;
 
     # create gzipped tarball from contents of temporary directory
     #

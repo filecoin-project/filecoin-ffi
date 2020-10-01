@@ -1,4 +1,4 @@
-DEPS:=filcrypto.h filcrypto.pc libfilcrypto.a
+DEPS:=filcrypto-v1.h filcrypto-v2.h filcrypto-v1.pc filcrypto-v2.pc libfilcrypto_v1.a libfilcrypto_v2.a
 
 all: $(DEPS)
 .PHONY: all

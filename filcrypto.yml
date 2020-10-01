@@ -6,17 +6,19 @@ GENERATOR:
   Options:
     SafeStrings: true
   Includes:
-    - ../filcrypto.h
+    - ../filcrypto-v1.h
+    - ../filcrypto-v2.h
   FlagGroups:
     - {name: LDFLAGS, flags: ["-L${SRCDIR}/.. -lfilcrypto_v1 -lfilcrypto_v2"]}
-    - {name: pkg-config, flags: ["${SRCDIR}/../filcrypto-v1.pc" "${SRCDIR}/../filcrypto-v2.pc"]}
+    - {name: pkg-config, flags: ["${SRCDIR}/../filcrypto-v1.pc", "${SRCDIR}/../filcrypto-v2.pc"]}
 
 PARSER:
   Defines:
   IncludePaths:
     - ./headerstubs/
   SourcesPaths:
-    - ./filcrypto.h
+    - ./filcrypto-v1.h
+    - ./filcrypto-v2.h
 
 TRANSLATOR:
   ConstRules:

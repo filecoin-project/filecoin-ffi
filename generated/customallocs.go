@@ -1,9 +1,10 @@
 package generated
 
 /*
-#cgo LDFLAGS: -L${SRCDIR}/.. -lfilcrypto
-#cgo pkg-config: ${SRCDIR}/../filcrypto.pc
-#include "../filcrypto.h"
+#cgo LDFLAGS: -L${SRCDIR}/.. -lfilcrypto_v1 -lfilcrypto_v2
+#cgo pkg-config: ${SRCDIR}/../filcrypto-v1.pc ${SRCDIR}/../filcrypto-v2.pc
+#include "../filcrypto-v1.h"
+#include "../filcrypto-v2.h"
 #include <stdlib.h>
 #include "cgo_helpers.h"
 */

@@ -4,18 +4,19 @@
 package generated
 
 /*
-#cgo LDFLAGS: -L${SRCDIR}/.. -lfilcrypto
-#cgo pkg-config: ${SRCDIR}/../filcrypto.pc
-#include "../filcrypto.h"
+#cgo LDFLAGS: -L${SRCDIR}/.. -lfilcrypto_v1 -lfilcrypto_v2
+#cgo pkg-config: ${SRCDIR}/../filcrypto-v1.pc ${SRCDIR}/../filcrypto-v2.pc
+#include "../filcrypto-v1.h"
+#include "../filcrypto-v2.h"
 #include <stdlib.h>
 #include "cgo_helpers.h"
 */
 import "C"
 
-// FCPResponseStatus as declared in filecoin-ffi/filcrypto.h:31
+// FCPResponseStatus as declared in filecoin-ffi/filcrypto-v1.h:31
 type FCPResponseStatus int32
 
-// FCPResponseStatus enumeration from filecoin-ffi/filcrypto.h:31
+// FCPResponseStatus enumeration from filecoin-ffi/filcrypto-v1.h:31
 const (
 	FCPResponseStatusFCPNoError           FCPResponseStatus = C.FCPResponseStatus_FCPNoError
 	FCPResponseStatusFCPUnclassifiedError FCPResponseStatus = C.FCPResponseStatus_FCPUnclassifiedError
@@ -23,10 +24,10 @@ const (
 	FCPResponseStatusFCPReceiverError     FCPResponseStatus = C.FCPResponseStatus_FCPReceiverError
 )
 
-// FilRegisteredPoStProof as declared in filecoin-ffi/filcrypto.h:44
+// FilRegisteredPoStProof as declared in filecoin-ffi/filcrypto-v1.h:44
 type FilRegisteredPoStProof int32
 
-// FilRegisteredPoStProof enumeration from filecoin-ffi/filcrypto.h:44
+// FilRegisteredPoStProof enumeration from filecoin-ffi/filcrypto-v1.h:44
 const (
 	FilRegisteredPoStProofStackedDrgWinning2KiBV1   FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrgWinning2KiBV1
 	FilRegisteredPoStProofStackedDrgWinning8MiBV1   FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrgWinning8MiBV1
@@ -40,14 +41,43 @@ const (
 	FilRegisteredPoStProofStackedDrgWindow64GiBV1   FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrgWindow64GiBV1
 )
 
-// FilRegisteredSealProof as declared in filecoin-ffi/filcrypto.h:52
+// FilRegisteredSealProof as declared in filecoin-ffi/filcrypto-v1.h:52
 type FilRegisteredSealProof int32
 
-// FilRegisteredSealProof enumeration from filecoin-ffi/filcrypto.h:52
+// FilRegisteredSealProof enumeration from filecoin-ffi/filcrypto-v1.h:52
 const (
 	FilRegisteredSealProofStackedDrg2KiBV1   FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg2KiBV1
 	FilRegisteredSealProofStackedDrg8MiBV1   FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg8MiBV1
 	FilRegisteredSealProofStackedDrg512MiBV1 FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg512MiBV1
 	FilRegisteredSealProofStackedDrg32GiBV1  FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg32GiBV1
 	FilRegisteredSealProofStackedDrg64GiBV1  FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg64GiBV1
+)
+
+// FilRegisteredPoStProofV2 as declared in filecoin-ffi/filcrypto-v2.h:44
+type FilRegisteredPoStProofV2 int32
+
+// FilRegisteredPoStProofV2 enumeration from filecoin-ffi/filcrypto-v2.h:44
+const (
+	FilRegisteredPoStProofV2StackedDrgWinning2KiBV2   FilRegisteredPoStProofV2 = C.fil_RegisteredPoStProofV2_StackedDrgWinning2KiBV2
+	FilRegisteredPoStProofV2StackedDrgWinning8MiBV2   FilRegisteredPoStProofV2 = C.fil_RegisteredPoStProofV2_StackedDrgWinning8MiBV2
+	FilRegisteredPoStProofV2StackedDrgWinning512MiBV2 FilRegisteredPoStProofV2 = C.fil_RegisteredPoStProofV2_StackedDrgWinning512MiBV2
+	FilRegisteredPoStProofV2StackedDrgWinning32GiBV2  FilRegisteredPoStProofV2 = C.fil_RegisteredPoStProofV2_StackedDrgWinning32GiBV2
+	FilRegisteredPoStProofV2StackedDrgWinning64GiBV2  FilRegisteredPoStProofV2 = C.fil_RegisteredPoStProofV2_StackedDrgWinning64GiBV2
+	FilRegisteredPoStProofV2StackedDrgWindow2KiBV2    FilRegisteredPoStProofV2 = C.fil_RegisteredPoStProofV2_StackedDrgWindow2KiBV2
+	FilRegisteredPoStProofV2StackedDrgWindow8MiBV2    FilRegisteredPoStProofV2 = C.fil_RegisteredPoStProofV2_StackedDrgWindow8MiBV2
+	FilRegisteredPoStProofV2StackedDrgWindow512MiBV2  FilRegisteredPoStProofV2 = C.fil_RegisteredPoStProofV2_StackedDrgWindow512MiBV2
+	FilRegisteredPoStProofV2StackedDrgWindow32GiBV2   FilRegisteredPoStProofV2 = C.fil_RegisteredPoStProofV2_StackedDrgWindow32GiBV2
+	FilRegisteredPoStProofV2StackedDrgWindow64GiBV2   FilRegisteredPoStProofV2 = C.fil_RegisteredPoStProofV2_StackedDrgWindow64GiBV2
+)
+
+// FilRegisteredSealProofV2 as declared in filecoin-ffi/filcrypto-v2.h:52
+type FilRegisteredSealProofV2 int32
+
+// FilRegisteredSealProofV2 enumeration from filecoin-ffi/filcrypto-v2.h:52
+const (
+	FilRegisteredSealProofV2StackedDrg2KiBV2   FilRegisteredSealProofV2 = C.fil_RegisteredSealProofV2_StackedDrg2KiBV2
+	FilRegisteredSealProofV2StackedDrg8MiBV2   FilRegisteredSealProofV2 = C.fil_RegisteredSealProofV2_StackedDrg8MiBV2
+	FilRegisteredSealProofV2StackedDrg512MiBV2 FilRegisteredSealProofV2 = C.fil_RegisteredSealProofV2_StackedDrg512MiBV2
+	FilRegisteredSealProofV2StackedDrg32GiBV2  FilRegisteredSealProofV2 = C.fil_RegisteredSealProofV2_StackedDrg32GiBV2
+	FilRegisteredSealProofV2StackedDrg64GiBV2  FilRegisteredSealProofV2 = C.fil_RegisteredSealProofV2_StackedDrg64GiBV2
 )

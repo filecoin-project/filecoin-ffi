@@ -19,5 +19,7 @@ cbindgen --clean --config cbindgen.toml --crate filcrypto-v2 --output ../../incl
 popd
 
 cd ..
+
 FFI_BUILD_FROM_SOURCE=1 make
+make cgo-gen
 go mod tidy

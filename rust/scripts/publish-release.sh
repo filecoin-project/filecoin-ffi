@@ -5,18 +5,24 @@ set -Exeuo pipefail
 main() {
     if [[ -z "$1" ]]
     then
+        (>&2 echo '[publish-release/main] Error: script requires an api version, e.g. "v1"')
+        exit 1
+    fi
+    if [[ -z "$2" ]]
+    then
         (>&2 echo '[publish-release/main] Error: script requires a release (gzipped) tarball path, e.g. "/tmp/filecoin-ffi-Darwin-standard.tar.tz"')
         exit 1
     fi
 
-    if [[ -z "$2" ]]
+    if [[ -z "$3" ]]
     then
         (>&2 echo '[publish-release/main] Error: script requires a release name, e.g. "filecoin-ffi-Darwin-standard" or "filecoin-ffi-Linux-optimized"')
         exit 1
     fi
 
-    local __release_file=$1
-    local __release_name=$2
+    local version=$1
+    local __release_file=$2
+    local __release_name=$3
     local __release_tag="${CIRCLE_SHA1:0:16}"
 
     # make sure we have a token set, api requests won't work otherwise

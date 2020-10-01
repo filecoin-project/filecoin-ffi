@@ -8,7 +8,7 @@ pub struct fil_HashResponse {
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn fil_destroy_hash_response(ptr: *mut fil_HashResponse) {
+pub unsafe extern "C" fn fil_destroy_hash_response_v2(ptr: *mut fil_HashResponse) {
     let _ = Box::from_raw(ptr);
 }
 
@@ -20,7 +20,7 @@ pub struct fil_AggregateResponse {
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn fil_destroy_aggregate_response(ptr: *mut fil_AggregateResponse) {
+pub unsafe extern "C" fn fil_destroy_aggregate_response_v2(ptr: *mut fil_AggregateResponse) {
     let _ = Box::from_raw(ptr);
 }
 
@@ -32,7 +32,7 @@ pub struct fil_PrivateKeyGenerateResponse {
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn fil_destroy_private_key_generate_response(
+pub unsafe extern "C" fn fil_destroy_private_key_generate_response_v2(
     ptr: *mut fil_PrivateKeyGenerateResponse,
 ) {
     let _ = Box::from_raw(ptr);
@@ -46,7 +46,7 @@ pub struct fil_PrivateKeySignResponse {
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn fil_destroy_private_key_sign_response(
+pub unsafe extern "C" fn fil_destroy_private_key_sign_response_v2(
     ptr: *mut fil_PrivateKeySignResponse,
 ) {
     let _ = Box::from_raw(ptr);
@@ -60,7 +60,7 @@ pub struct fil_PrivateKeyPublicKeyResponse {
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn fil_destroy_private_key_public_key_response(
+pub unsafe extern "C" fn fil_destroy_private_key_public_key_response_v2(
     ptr: *mut fil_PrivateKeyPublicKeyResponse,
 ) {
     let _ = Box::from_raw(ptr);

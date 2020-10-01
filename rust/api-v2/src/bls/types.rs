@@ -1,39 +1,39 @@
-use crate::bls::api::{fil_BLSDigest, fil_BLSPrivateKey, fil_BLSPublicKey, fil_BLSSignature};
+use crate::bls::api::{fil_BLSDigestV2, fil_BLSPrivateKeyV2, fil_BLSPublicKeyV2, fil_BLSSignatureV2};
 
 /// HashResponse
 
 #[repr(C)]
-pub struct fil_HashResponse {
-    pub digest: fil_BLSDigest,
+pub struct fil_HashResponseV2 {
+    pub digest: fil_BLSDigestV2,
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn fil_destroy_hash_response(ptr: *mut fil_HashResponse) {
+pub unsafe extern "C" fn fil_destroy_hash_response(ptr: *mut fil_HashResponseV2) {
     let _ = Box::from_raw(ptr);
 }
 
 /// AggregateResponse
 
 #[repr(C)]
-pub struct fil_AggregateResponse {
-    pub signature: fil_BLSSignature,
+pub struct fil_AggregateResponseV2 {
+    pub signature: fil_BLSSignatureV2,
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn fil_destroy_aggregate_response(ptr: *mut fil_AggregateResponse) {
+pub unsafe extern "C" fn fil_destroy_aggregate_response(ptr: *mut fil_AggregateResponseV2) {
     let _ = Box::from_raw(ptr);
 }
 
 /// PrivateKeyGenerateResponse
 
 #[repr(C)]
-pub struct fil_PrivateKeyGenerateResponse {
-    pub private_key: fil_BLSPrivateKey,
+pub struct fil_PrivateKeyGenerateResponseV2 {
+    pub private_key: fil_BLSPrivateKeyV2,
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn fil_destroy_private_key_generate_response(
-    ptr: *mut fil_PrivateKeyGenerateResponse,
+    ptr: *mut fil_PrivateKeyGenerateResponseV2,
 ) {
     let _ = Box::from_raw(ptr);
 }
@@ -41,13 +41,13 @@ pub unsafe extern "C" fn fil_destroy_private_key_generate_response(
 /// PrivateKeySignResponse
 
 #[repr(C)]
-pub struct fil_PrivateKeySignResponse {
-    pub signature: fil_BLSSignature,
+pub struct fil_PrivateKeySignResponseV2 {
+    pub signature: fil_BLSSignatureV2,
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn fil_destroy_private_key_sign_response(
-    ptr: *mut fil_PrivateKeySignResponse,
+    ptr: *mut fil_PrivateKeySignResponseV2,
 ) {
     let _ = Box::from_raw(ptr);
 }
@@ -55,13 +55,13 @@ pub unsafe extern "C" fn fil_destroy_private_key_sign_response(
 /// PrivateKeyPublicKeyResponse
 
 #[repr(C)]
-pub struct fil_PrivateKeyPublicKeyResponse {
-    pub public_key: fil_BLSPublicKey,
+pub struct fil_PrivateKeyPublicKeyResponseV2 {
+    pub public_key: fil_BLSPublicKeyV2,
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn fil_destroy_private_key_public_key_response(
-    ptr: *mut fil_PrivateKeyPublicKeyResponse,
+    ptr: *mut fil_PrivateKeyPublicKeyResponseV2,
 ) {
     let _ = Box::from_raw(ptr);
 }

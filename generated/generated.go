@@ -4,9 +4,10 @@
 package generated
 
 /*
-#cgo LDFLAGS: -L${SRCDIR}/.. -lfilcrypto
-#cgo pkg-config: ${SRCDIR}/../filcrypto.pc
-#include "../filcrypto.h"
+#cgo LDFLAGS: -L${SRCDIR}/.. -lfilcrypto_v1 -lfilcrypto_v2
+#cgo pkg-config: ${SRCDIR}/../filcrypto-v1.pc ${SRCDIR}/../filcrypto-v2.pc
+#include "../filcrypto-v1.h"
+#include "../filcrypto-v2.h"
 #include <stdlib.h>
 #include "cgo_helpers.h"
 */
@@ -16,7 +17,7 @@ import (
 	"unsafe"
 )
 
-// FilAggregate function as declared in filecoin-ffi/filcrypto.h:289
+// FilAggregate function as declared in filecoin-ffi/filcrypto-v1.h:289
 func FilAggregate(flattenedSignaturesPtr string, flattenedSignaturesLen uint) *FilAggregateResponse {
 	flattenedSignaturesPtr = safeString(flattenedSignaturesPtr)
 	cflattenedSignaturesPtr, cflattenedSignaturesPtrAllocMap := unpackPUint8TString(flattenedSignaturesPtr)
@@ -29,7 +30,7 @@ func FilAggregate(flattenedSignaturesPtr string, flattenedSignaturesLen uint) *F
 	return __v
 }
 
-// FilClearCache function as declared in filecoin-ffi/filcrypto.h:292
+// FilClearCache function as declared in filecoin-ffi/filcrypto-v1.h:292
 func FilClearCache(sectorSize uint64, cacheDirPath string) *FilClearCacheResponse {
 	csectorSize, csectorSizeAllocMap := (C.uint64_t)(sectorSize), cgoAllocsUnknown
 	cacheDirPath = safeString(cacheDirPath)
@@ -42,189 +43,189 @@ func FilClearCache(sectorSize uint64, cacheDirPath string) *FilClearCacheRespons
 	return __v
 }
 
-// FilDestroyAggregateResponse function as declared in filecoin-ffi/filcrypto.h:294
-func FilDestroyAggregateResponse(ptr *FilAggregateResponse) {
+// FilDestroyAggregateResponseV2 function as declared in filecoin-ffi/filcrypto-v1.h:294
+func FilDestroyAggregateResponseV2(ptr *FilAggregateResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
-	C.fil_destroy_aggregate_response(cptr)
+	C.fil_destroy_aggregate_response_v2(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-// FilDestroyClearCacheResponse function as declared in filecoin-ffi/filcrypto.h:296
+// FilDestroyClearCacheResponse function as declared in filecoin-ffi/filcrypto-v1.h:296
 func FilDestroyClearCacheResponse(ptr *FilClearCacheResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_clear_cache_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-// FilDestroyFauxrepResponse function as declared in filecoin-ffi/filcrypto.h:298
+// FilDestroyFauxrepResponse function as declared in filecoin-ffi/filcrypto-v1.h:298
 func FilDestroyFauxrepResponse(ptr *FilFauxRepResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_fauxrep_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-// FilDestroyFinalizeTicketResponse function as declared in filecoin-ffi/filcrypto.h:300
+// FilDestroyFinalizeTicketResponse function as declared in filecoin-ffi/filcrypto-v1.h:300
 func FilDestroyFinalizeTicketResponse(ptr *FilFinalizeTicketResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_finalize_ticket_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-// FilDestroyGenerateDataCommitmentResponse function as declared in filecoin-ffi/filcrypto.h:302
+// FilDestroyGenerateDataCommitmentResponse function as declared in filecoin-ffi/filcrypto-v1.h:302
 func FilDestroyGenerateDataCommitmentResponse(ptr *FilGenerateDataCommitmentResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_generate_data_commitment_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-// FilDestroyGeneratePieceCommitmentResponse function as declared in filecoin-ffi/filcrypto.h:304
+// FilDestroyGeneratePieceCommitmentResponse function as declared in filecoin-ffi/filcrypto-v1.h:304
 func FilDestroyGeneratePieceCommitmentResponse(ptr *FilGeneratePieceCommitmentResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_generate_piece_commitment_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-// FilDestroyGenerateWindowPostResponse function as declared in filecoin-ffi/filcrypto.h:306
+// FilDestroyGenerateWindowPostResponse function as declared in filecoin-ffi/filcrypto-v1.h:306
 func FilDestroyGenerateWindowPostResponse(ptr *FilGenerateWindowPoStResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_generate_window_post_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-// FilDestroyGenerateWinningPostResponse function as declared in filecoin-ffi/filcrypto.h:308
+// FilDestroyGenerateWinningPostResponse function as declared in filecoin-ffi/filcrypto-v1.h:308
 func FilDestroyGenerateWinningPostResponse(ptr *FilGenerateWinningPoStResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_generate_winning_post_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-// FilDestroyGenerateWinningPostSectorChallenge function as declared in filecoin-ffi/filcrypto.h:310
+// FilDestroyGenerateWinningPostSectorChallenge function as declared in filecoin-ffi/filcrypto-v1.h:310
 func FilDestroyGenerateWinningPostSectorChallenge(ptr *FilGenerateWinningPoStSectorChallenge) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_generate_winning_post_sector_challenge(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-// FilDestroyGpuDeviceResponse function as declared in filecoin-ffi/filcrypto.h:312
+// FilDestroyGpuDeviceResponse function as declared in filecoin-ffi/filcrypto-v1.h:312
 func FilDestroyGpuDeviceResponse(ptr *FilGpuDeviceResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_gpu_device_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-// FilDestroyHashResponse function as declared in filecoin-ffi/filcrypto.h:314
-func FilDestroyHashResponse(ptr *FilHashResponse) {
+// FilDestroyHashResponseV2 function as declared in filecoin-ffi/filcrypto-v1.h:314
+func FilDestroyHashResponseV2(ptr *FilHashResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
-	C.fil_destroy_hash_response(cptr)
+	C.fil_destroy_hash_response_v2(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-// FilDestroyInitLogFdResponse function as declared in filecoin-ffi/filcrypto.h:316
+// FilDestroyInitLogFdResponse function as declared in filecoin-ffi/filcrypto-v1.h:316
 func FilDestroyInitLogFdResponse(ptr *FilInitLogFdResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_init_log_fd_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-// FilDestroyPrivateKeyGenerateResponse function as declared in filecoin-ffi/filcrypto.h:318
-func FilDestroyPrivateKeyGenerateResponse(ptr *FilPrivateKeyGenerateResponse) {
+// FilDestroyPrivateKeyGenerateResponseV2 function as declared in filecoin-ffi/filcrypto-v1.h:318
+func FilDestroyPrivateKeyGenerateResponseV2(ptr *FilPrivateKeyGenerateResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
-	C.fil_destroy_private_key_generate_response(cptr)
+	C.fil_destroy_private_key_generate_response_v2(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-// FilDestroyPrivateKeyPublicKeyResponse function as declared in filecoin-ffi/filcrypto.h:320
-func FilDestroyPrivateKeyPublicKeyResponse(ptr *FilPrivateKeyPublicKeyResponse) {
+// FilDestroyPrivateKeyPublicKeyResponseV2 function as declared in filecoin-ffi/filcrypto-v1.h:320
+func FilDestroyPrivateKeyPublicKeyResponseV2(ptr *FilPrivateKeyPublicKeyResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
-	C.fil_destroy_private_key_public_key_response(cptr)
+	C.fil_destroy_private_key_public_key_response_v2(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-// FilDestroyPrivateKeySignResponse function as declared in filecoin-ffi/filcrypto.h:322
-func FilDestroyPrivateKeySignResponse(ptr *FilPrivateKeySignResponse) {
+// FilDestroyPrivateKeySignResponseV2 function as declared in filecoin-ffi/filcrypto-v1.h:322
+func FilDestroyPrivateKeySignResponseV2(ptr *FilPrivateKeySignResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
-	C.fil_destroy_private_key_sign_response(cptr)
+	C.fil_destroy_private_key_sign_response_v2(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-// FilDestroySealCommitPhase1Response function as declared in filecoin-ffi/filcrypto.h:324
+// FilDestroySealCommitPhase1Response function as declared in filecoin-ffi/filcrypto-v1.h:324
 func FilDestroySealCommitPhase1Response(ptr *FilSealCommitPhase1Response) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_seal_commit_phase1_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-// FilDestroySealCommitPhase2Response function as declared in filecoin-ffi/filcrypto.h:326
+// FilDestroySealCommitPhase2Response function as declared in filecoin-ffi/filcrypto-v1.h:326
 func FilDestroySealCommitPhase2Response(ptr *FilSealCommitPhase2Response) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_seal_commit_phase2_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-// FilDestroySealPreCommitPhase1Response function as declared in filecoin-ffi/filcrypto.h:328
+// FilDestroySealPreCommitPhase1Response function as declared in filecoin-ffi/filcrypto-v1.h:328
 func FilDestroySealPreCommitPhase1Response(ptr *FilSealPreCommitPhase1Response) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_seal_pre_commit_phase1_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-// FilDestroySealPreCommitPhase2Response function as declared in filecoin-ffi/filcrypto.h:330
+// FilDestroySealPreCommitPhase2Response function as declared in filecoin-ffi/filcrypto-v1.h:330
 func FilDestroySealPreCommitPhase2Response(ptr *FilSealPreCommitPhase2Response) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_seal_pre_commit_phase2_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-// FilDestroyStringResponse function as declared in filecoin-ffi/filcrypto.h:332
+// FilDestroyStringResponse function as declared in filecoin-ffi/filcrypto-v1.h:332
 func FilDestroyStringResponse(ptr *FilStringResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_string_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-// FilDestroyUnsealRangeResponse function as declared in filecoin-ffi/filcrypto.h:334
+// FilDestroyUnsealRangeResponse function as declared in filecoin-ffi/filcrypto-v1.h:334
 func FilDestroyUnsealRangeResponse(ptr *FilUnsealRangeResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_unseal_range_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-// FilDestroyVerifySealResponse function as declared in filecoin-ffi/filcrypto.h:340
+// FilDestroyVerifySealResponse function as declared in filecoin-ffi/filcrypto-v1.h:340
 func FilDestroyVerifySealResponse(ptr *FilVerifySealResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_verify_seal_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-// FilDestroyVerifyWindowPostResponse function as declared in filecoin-ffi/filcrypto.h:342
+// FilDestroyVerifyWindowPostResponse function as declared in filecoin-ffi/filcrypto-v1.h:342
 func FilDestroyVerifyWindowPostResponse(ptr *FilVerifyWindowPoStResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_verify_window_post_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-// FilDestroyVerifyWinningPostResponse function as declared in filecoin-ffi/filcrypto.h:348
+// FilDestroyVerifyWinningPostResponse function as declared in filecoin-ffi/filcrypto-v1.h:348
 func FilDestroyVerifyWinningPostResponse(ptr *FilVerifyWinningPoStResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_verify_winning_post_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-// FilDestroyWriteWithAlignmentResponse function as declared in filecoin-ffi/filcrypto.h:350
+// FilDestroyWriteWithAlignmentResponse function as declared in filecoin-ffi/filcrypto-v1.h:350
 func FilDestroyWriteWithAlignmentResponse(ptr *FilWriteWithAlignmentResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_write_with_alignment_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-// FilDestroyWriteWithoutAlignmentResponse function as declared in filecoin-ffi/filcrypto.h:352
+// FilDestroyWriteWithoutAlignmentResponse function as declared in filecoin-ffi/filcrypto-v1.h:352
 func FilDestroyWriteWithoutAlignmentResponse(ptr *FilWriteWithoutAlignmentResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_write_without_alignment_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-// FilFauxrep function as declared in filecoin-ffi/filcrypto.h:354
+// FilFauxrep function as declared in filecoin-ffi/filcrypto-v1.h:354
 func FilFauxrep(registeredProof FilRegisteredSealProof, cacheDirPath string, sealedSectorPath string) *FilFauxRepResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProof)(registeredProof), cgoAllocsUnknown
 	cacheDirPath = safeString(cacheDirPath)
@@ -241,7 +242,7 @@ func FilFauxrep(registeredProof FilRegisteredSealProof, cacheDirPath string, sea
 	return __v
 }
 
-// FilFauxrep2 function as declared in filecoin-ffi/filcrypto.h:358
+// FilFauxrep2 function as declared in filecoin-ffi/filcrypto-v1.h:358
 func FilFauxrep2(registeredProof FilRegisteredSealProof, cacheDirPath string, existingPAuxPath string) *FilFauxRepResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProof)(registeredProof), cgoAllocsUnknown
 	cacheDirPath = safeString(cacheDirPath)
@@ -258,7 +259,7 @@ func FilFauxrep2(registeredProof FilRegisteredSealProof, cacheDirPath string, ex
 	return __v
 }
 
-// FilGenerateDataCommitment function as declared in filecoin-ffi/filcrypto.h:365
+// FilGenerateDataCommitment function as declared in filecoin-ffi/filcrypto-v1.h:365
 func FilGenerateDataCommitment(registeredProof FilRegisteredSealProof, piecesPtr []FilPublicPieceInfo, piecesLen uint) *FilGenerateDataCommitmentResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProof)(registeredProof), cgoAllocsUnknown
 	cpiecesPtr, cpiecesPtrAllocMap := unpackArgSFilPublicPieceInfo(piecesPtr)
@@ -272,7 +273,7 @@ func FilGenerateDataCommitment(registeredProof FilRegisteredSealProof, piecesPtr
 	return __v
 }
 
-// FilGeneratePieceCommitment function as declared in filecoin-ffi/filcrypto.h:373
+// FilGeneratePieceCommitment function as declared in filecoin-ffi/filcrypto-v1.h:373
 func FilGeneratePieceCommitment(registeredProof FilRegisteredSealProof, pieceFdRaw int32, unpaddedPieceSize uint64) *FilGeneratePieceCommitmentResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProof)(registeredProof), cgoAllocsUnknown
 	cpieceFdRaw, cpieceFdRawAllocMap := (C.int)(pieceFdRaw), cgoAllocsUnknown
@@ -285,7 +286,7 @@ func FilGeneratePieceCommitment(registeredProof FilRegisteredSealProof, pieceFdR
 	return __v
 }
 
-// FilGenerateWindowPost function as declared in filecoin-ffi/filcrypto.h:381
+// FilGenerateWindowPost function as declared in filecoin-ffi/filcrypto-v1.h:381
 func FilGenerateWindowPost(randomness Fil32ByteArray, replicasPtr []FilPrivateReplicaInfo, replicasLen uint, proverId Fil32ByteArray) *FilGenerateWindowPoStResponse {
 	crandomness, crandomnessAllocMap := randomness.PassValue()
 	creplicasPtr, creplicasPtrAllocMap := unpackArgSFilPrivateReplicaInfo(replicasPtr)
@@ -301,7 +302,7 @@ func FilGenerateWindowPost(randomness Fil32ByteArray, replicasPtr []FilPrivateRe
 	return __v
 }
 
-// FilGenerateWinningPost function as declared in filecoin-ffi/filcrypto.h:390
+// FilGenerateWinningPost function as declared in filecoin-ffi/filcrypto-v1.h:390
 func FilGenerateWinningPost(randomness Fil32ByteArray, replicasPtr []FilPrivateReplicaInfo, replicasLen uint, proverId Fil32ByteArray) *FilGenerateWinningPoStResponse {
 	crandomness, crandomnessAllocMap := randomness.PassValue()
 	creplicasPtr, creplicasPtrAllocMap := unpackArgSFilPrivateReplicaInfo(replicasPtr)
@@ -317,7 +318,7 @@ func FilGenerateWinningPost(randomness Fil32ByteArray, replicasPtr []FilPrivateR
 	return __v
 }
 
-// FilGenerateWinningPostSectorChallenge function as declared in filecoin-ffi/filcrypto.h:399
+// FilGenerateWinningPostSectorChallenge function as declared in filecoin-ffi/filcrypto-v1.h:399
 func FilGenerateWinningPostSectorChallenge(registeredProof FilRegisteredPoStProof, randomness Fil32ByteArray, sectorSetLen uint64, proverId Fil32ByteArray) *FilGenerateWinningPoStSectorChallenge {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredPoStProof)(registeredProof), cgoAllocsUnknown
 	crandomness, crandomnessAllocMap := randomness.PassValue()
@@ -332,14 +333,14 @@ func FilGenerateWinningPostSectorChallenge(registeredProof FilRegisteredPoStProo
 	return __v
 }
 
-// FilGetGpuDevices function as declared in filecoin-ffi/filcrypto.h:407
+// FilGetGpuDevices function as declared in filecoin-ffi/filcrypto-v1.h:407
 func FilGetGpuDevices() *FilGpuDeviceResponse {
 	__ret := C.fil_get_gpu_devices()
 	__v := NewFilGpuDeviceResponseRef(unsafe.Pointer(__ret))
 	return __v
 }
 
-// FilGetMaxUserBytesPerStagedSector function as declared in filecoin-ffi/filcrypto.h:413
+// FilGetMaxUserBytesPerStagedSector function as declared in filecoin-ffi/filcrypto-v1.h:413
 func FilGetMaxUserBytesPerStagedSector(registeredProof FilRegisteredSealProof) uint64 {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProof)(registeredProof), cgoAllocsUnknown
 	__ret := C.fil_get_max_user_bytes_per_staged_sector(cregisteredProof)
@@ -348,7 +349,7 @@ func FilGetMaxUserBytesPerStagedSector(registeredProof FilRegisteredSealProof) u
 	return __v
 }
 
-// FilGetPostCircuitIdentifier function as declared in filecoin-ffi/filcrypto.h:419
+// FilGetPostCircuitIdentifier function as declared in filecoin-ffi/filcrypto-v1.h:419
 func FilGetPostCircuitIdentifier(registeredProof FilRegisteredPoStProof) *FilStringResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredPoStProof)(registeredProof), cgoAllocsUnknown
 	__ret := C.fil_get_post_circuit_identifier(cregisteredProof)
@@ -357,7 +358,7 @@ func FilGetPostCircuitIdentifier(registeredProof FilRegisteredPoStProof) *FilStr
 	return __v
 }
 
-// FilGetPostParamsCid function as declared in filecoin-ffi/filcrypto.h:425
+// FilGetPostParamsCid function as declared in filecoin-ffi/filcrypto-v1.h:425
 func FilGetPostParamsCid(registeredProof FilRegisteredPoStProof) *FilStringResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredPoStProof)(registeredProof), cgoAllocsUnknown
 	__ret := C.fil_get_post_params_cid(cregisteredProof)
@@ -366,7 +367,7 @@ func FilGetPostParamsCid(registeredProof FilRegisteredPoStProof) *FilStringRespo
 	return __v
 }
 
-// FilGetPostParamsPath function as declared in filecoin-ffi/filcrypto.h:432
+// FilGetPostParamsPath function as declared in filecoin-ffi/filcrypto-v1.h:432
 func FilGetPostParamsPath(registeredProof FilRegisteredPoStProof) *FilStringResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredPoStProof)(registeredProof), cgoAllocsUnknown
 	__ret := C.fil_get_post_params_path(cregisteredProof)
@@ -375,7 +376,7 @@ func FilGetPostParamsPath(registeredProof FilRegisteredPoStProof) *FilStringResp
 	return __v
 }
 
-// FilGetPostVerifyingKeyCid function as declared in filecoin-ffi/filcrypto.h:438
+// FilGetPostVerifyingKeyCid function as declared in filecoin-ffi/filcrypto-v1.h:438
 func FilGetPostVerifyingKeyCid(registeredProof FilRegisteredPoStProof) *FilStringResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredPoStProof)(registeredProof), cgoAllocsUnknown
 	__ret := C.fil_get_post_verifying_key_cid(cregisteredProof)
@@ -384,7 +385,7 @@ func FilGetPostVerifyingKeyCid(registeredProof FilRegisteredPoStProof) *FilStrin
 	return __v
 }
 
-// FilGetPostVerifyingKeyPath function as declared in filecoin-ffi/filcrypto.h:445
+// FilGetPostVerifyingKeyPath function as declared in filecoin-ffi/filcrypto-v1.h:445
 func FilGetPostVerifyingKeyPath(registeredProof FilRegisteredPoStProof) *FilStringResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredPoStProof)(registeredProof), cgoAllocsUnknown
 	__ret := C.fil_get_post_verifying_key_path(cregisteredProof)
@@ -393,7 +394,7 @@ func FilGetPostVerifyingKeyPath(registeredProof FilRegisteredPoStProof) *FilStri
 	return __v
 }
 
-// FilGetPostVersion function as declared in filecoin-ffi/filcrypto.h:451
+// FilGetPostVersion function as declared in filecoin-ffi/filcrypto-v1.h:451
 func FilGetPostVersion(registeredProof FilRegisteredPoStProof) *FilStringResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredPoStProof)(registeredProof), cgoAllocsUnknown
 	__ret := C.fil_get_post_version(cregisteredProof)
@@ -402,7 +403,7 @@ func FilGetPostVersion(registeredProof FilRegisteredPoStProof) *FilStringRespons
 	return __v
 }
 
-// FilGetSealCircuitIdentifier function as declared in filecoin-ffi/filcrypto.h:457
+// FilGetSealCircuitIdentifier function as declared in filecoin-ffi/filcrypto-v1.h:457
 func FilGetSealCircuitIdentifier(registeredProof FilRegisteredSealProof) *FilStringResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProof)(registeredProof), cgoAllocsUnknown
 	__ret := C.fil_get_seal_circuit_identifier(cregisteredProof)
@@ -411,7 +412,7 @@ func FilGetSealCircuitIdentifier(registeredProof FilRegisteredSealProof) *FilStr
 	return __v
 }
 
-// FilGetSealParamsCid function as declared in filecoin-ffi/filcrypto.h:463
+// FilGetSealParamsCid function as declared in filecoin-ffi/filcrypto-v1.h:463
 func FilGetSealParamsCid(registeredProof FilRegisteredSealProof) *FilStringResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProof)(registeredProof), cgoAllocsUnknown
 	__ret := C.fil_get_seal_params_cid(cregisteredProof)
@@ -420,7 +421,7 @@ func FilGetSealParamsCid(registeredProof FilRegisteredSealProof) *FilStringRespo
 	return __v
 }
 
-// FilGetSealParamsPath function as declared in filecoin-ffi/filcrypto.h:470
+// FilGetSealParamsPath function as declared in filecoin-ffi/filcrypto-v1.h:470
 func FilGetSealParamsPath(registeredProof FilRegisteredSealProof) *FilStringResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProof)(registeredProof), cgoAllocsUnknown
 	__ret := C.fil_get_seal_params_path(cregisteredProof)
@@ -429,7 +430,7 @@ func FilGetSealParamsPath(registeredProof FilRegisteredSealProof) *FilStringResp
 	return __v
 }
 
-// FilGetSealVerifyingKeyCid function as declared in filecoin-ffi/filcrypto.h:476
+// FilGetSealVerifyingKeyCid function as declared in filecoin-ffi/filcrypto-v1.h:476
 func FilGetSealVerifyingKeyCid(registeredProof FilRegisteredSealProof) *FilStringResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProof)(registeredProof), cgoAllocsUnknown
 	__ret := C.fil_get_seal_verifying_key_cid(cregisteredProof)
@@ -438,7 +439,7 @@ func FilGetSealVerifyingKeyCid(registeredProof FilRegisteredSealProof) *FilStrin
 	return __v
 }
 
-// FilGetSealVerifyingKeyPath function as declared in filecoin-ffi/filcrypto.h:483
+// FilGetSealVerifyingKeyPath function as declared in filecoin-ffi/filcrypto-v1.h:483
 func FilGetSealVerifyingKeyPath(registeredProof FilRegisteredSealProof) *FilStringResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProof)(registeredProof), cgoAllocsUnknown
 	__ret := C.fil_get_seal_verifying_key_path(cregisteredProof)
@@ -447,7 +448,7 @@ func FilGetSealVerifyingKeyPath(registeredProof FilRegisteredSealProof) *FilStri
 	return __v
 }
 
-// FilGetSealVersion function as declared in filecoin-ffi/filcrypto.h:489
+// FilGetSealVersion function as declared in filecoin-ffi/filcrypto-v1.h:489
 func FilGetSealVersion(registeredProof FilRegisteredSealProof) *FilStringResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProof)(registeredProof), cgoAllocsUnknown
 	__ret := C.fil_get_seal_version(cregisteredProof)
@@ -456,7 +457,7 @@ func FilGetSealVersion(registeredProof FilRegisteredSealProof) *FilStringRespons
 	return __v
 }
 
-// FilHash function as declared in filecoin-ffi/filcrypto.h:499
+// FilHash function as declared in filecoin-ffi/filcrypto-v1.h:499
 func FilHash(messagePtr string, messageLen uint) *FilHashResponse {
 	messagePtr = safeString(messagePtr)
 	cmessagePtr, cmessagePtrAllocMap := unpackPUint8TString(messagePtr)
@@ -469,7 +470,7 @@ func FilHash(messagePtr string, messageLen uint) *FilHashResponse {
 	return __v
 }
 
-// FilHashVerify function as declared in filecoin-ffi/filcrypto.h:513
+// FilHashVerify function as declared in filecoin-ffi/filcrypto-v1.h:513
 func FilHashVerify(signaturePtr string, flattenedMessagesPtr string, flattenedMessagesLen uint, messageSizesPtr []uint, messageSizesLen uint, flattenedPublicKeysPtr string, flattenedPublicKeysLen uint) int32 {
 	signaturePtr = safeString(signaturePtr)
 	csignaturePtr, csignaturePtrAllocMap := unpackPUint8TString(signaturePtr)
@@ -496,7 +497,7 @@ func FilHashVerify(signaturePtr string, flattenedMessagesPtr string, flattenedMe
 	return __v
 }
 
-// FilInitLogFd function as declared in filecoin-ffi/filcrypto.h:530
+// FilInitLogFd function as declared in filecoin-ffi/filcrypto-v1.h:530
 func FilInitLogFd(logFd int32) *FilInitLogFdResponse {
 	clogFd, clogFdAllocMap := (C.int)(logFd), cgoAllocsUnknown
 	__ret := C.fil_init_log_fd(clogFd)
@@ -505,14 +506,14 @@ func FilInitLogFd(logFd int32) *FilInitLogFdResponse {
 	return __v
 }
 
-// FilPrivateKeyGenerate function as declared in filecoin-ffi/filcrypto.h:535
+// FilPrivateKeyGenerate function as declared in filecoin-ffi/filcrypto-v1.h:535
 func FilPrivateKeyGenerate() *FilPrivateKeyGenerateResponse {
 	__ret := C.fil_private_key_generate()
 	__v := NewFilPrivateKeyGenerateResponseRef(unsafe.Pointer(__ret))
 	return __v
 }
 
-// FilPrivateKeyGenerateWithSeed function as declared in filecoin-ffi/filcrypto.h:548
+// FilPrivateKeyGenerateWithSeed function as declared in filecoin-ffi/filcrypto-v1.h:548
 func FilPrivateKeyGenerateWithSeed(rawSeed Fil32ByteArray) *FilPrivateKeyGenerateResponse {
 	crawSeed, crawSeedAllocMap := rawSeed.PassValue()
 	__ret := C.fil_private_key_generate_with_seed(crawSeed)
@@ -521,7 +522,7 @@ func FilPrivateKeyGenerateWithSeed(rawSeed Fil32ByteArray) *FilPrivateKeyGenerat
 	return __v
 }
 
-// FilPrivateKeyPublicKey function as declared in filecoin-ffi/filcrypto.h:559
+// FilPrivateKeyPublicKey function as declared in filecoin-ffi/filcrypto-v1.h:559
 func FilPrivateKeyPublicKey(rawPrivateKeyPtr string) *FilPrivateKeyPublicKeyResponse {
 	rawPrivateKeyPtr = safeString(rawPrivateKeyPtr)
 	crawPrivateKeyPtr, crawPrivateKeyPtrAllocMap := unpackPUint8TString(rawPrivateKeyPtr)
@@ -532,7 +533,7 @@ func FilPrivateKeyPublicKey(rawPrivateKeyPtr string) *FilPrivateKeyPublicKeyResp
 	return __v
 }
 
-// FilPrivateKeySign function as declared in filecoin-ffi/filcrypto.h:572
+// FilPrivateKeySign function as declared in filecoin-ffi/filcrypto-v1.h:572
 func FilPrivateKeySign(rawPrivateKeyPtr string, messagePtr string, messageLen uint) *FilPrivateKeySignResponse {
 	rawPrivateKeyPtr = safeString(rawPrivateKeyPtr)
 	crawPrivateKeyPtr, crawPrivateKeyPtrAllocMap := unpackPUint8TString(rawPrivateKeyPtr)
@@ -549,7 +550,7 @@ func FilPrivateKeySign(rawPrivateKeyPtr string, messagePtr string, messageLen ui
 	return __v
 }
 
-// FilSealCommitPhase1 function as declared in filecoin-ffi/filcrypto.h:580
+// FilSealCommitPhase1 function as declared in filecoin-ffi/filcrypto-v1.h:580
 func FilSealCommitPhase1(registeredProof FilRegisteredSealProof, commR Fil32ByteArray, commD Fil32ByteArray, cacheDirPath string, replicaPath string, sectorId uint64, proverId Fil32ByteArray, ticket Fil32ByteArray, seed Fil32ByteArray, piecesPtr []FilPublicPieceInfo, piecesLen uint) *FilSealCommitPhase1Response {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProof)(registeredProof), cgoAllocsUnknown
 	ccommR, ccommRAllocMap := commR.PassValue()
@@ -583,7 +584,7 @@ func FilSealCommitPhase1(registeredProof FilRegisteredSealProof, commR Fil32Byte
 	return __v
 }
 
-// FilSealCommitPhase2 function as declared in filecoin-ffi/filcrypto.h:592
+// FilSealCommitPhase2 function as declared in filecoin-ffi/filcrypto-v1.h:592
 func FilSealCommitPhase2(sealCommitPhase1OutputPtr string, sealCommitPhase1OutputLen uint, sectorId uint64, proverId Fil32ByteArray) *FilSealCommitPhase2Response {
 	sealCommitPhase1OutputPtr = safeString(sealCommitPhase1OutputPtr)
 	csealCommitPhase1OutputPtr, csealCommitPhase1OutputPtrAllocMap := unpackPUint8TString(sealCommitPhase1OutputPtr)
@@ -600,7 +601,7 @@ func FilSealCommitPhase2(sealCommitPhase1OutputPtr string, sealCommitPhase1Outpu
 	return __v
 }
 
-// FilSealPreCommitPhase1 function as declared in filecoin-ffi/filcrypto.h:601
+// FilSealPreCommitPhase1 function as declared in filecoin-ffi/filcrypto-v1.h:601
 func FilSealPreCommitPhase1(registeredProof FilRegisteredSealProof, cacheDirPath string, stagedSectorPath string, sealedSectorPath string, sectorId uint64, proverId Fil32ByteArray, ticket Fil32ByteArray, piecesPtr []FilPublicPieceInfo, piecesLen uint) *FilSealPreCommitPhase1Response {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProof)(registeredProof), cgoAllocsUnknown
 	cacheDirPath = safeString(cacheDirPath)
@@ -632,7 +633,7 @@ func FilSealPreCommitPhase1(registeredProof FilRegisteredSealProof, cacheDirPath
 	return __v
 }
 
-// FilSealPreCommitPhase2 function as declared in filecoin-ffi/filcrypto.h:615
+// FilSealPreCommitPhase2 function as declared in filecoin-ffi/filcrypto-v1.h:615
 func FilSealPreCommitPhase2(sealPreCommitPhase1OutputPtr string, sealPreCommitPhase1OutputLen uint, cacheDirPath string, sealedSectorPath string) *FilSealPreCommitPhase2Response {
 	sealPreCommitPhase1OutputPtr = safeString(sealPreCommitPhase1OutputPtr)
 	csealPreCommitPhase1OutputPtr, csealPreCommitPhase1OutputPtrAllocMap := unpackPUint8TString(sealPreCommitPhase1OutputPtr)
@@ -653,7 +654,7 @@ func FilSealPreCommitPhase2(sealPreCommitPhase1OutputPtr string, sealPreCommitPh
 	return __v
 }
 
-// FilUnsealRange function as declared in filecoin-ffi/filcrypto.h:623
+// FilUnsealRange function as declared in filecoin-ffi/filcrypto-v1.h:623
 func FilUnsealRange(registeredProof FilRegisteredSealProof, cacheDirPath string, sealedSectorFdRaw int32, unsealOutputFdRaw int32, sectorId uint64, proverId Fil32ByteArray, ticket Fil32ByteArray, commD Fil32ByteArray, unpaddedByteIndex uint64, unpaddedBytesAmount uint64) *FilUnsealRangeResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProof)(registeredProof), cgoAllocsUnknown
 	cacheDirPath = safeString(cacheDirPath)
@@ -682,7 +683,7 @@ func FilUnsealRange(registeredProof FilRegisteredSealProof, cacheDirPath string,
 	return __v
 }
 
-// FilVerify function as declared in filecoin-ffi/filcrypto.h:645
+// FilVerify function as declared in filecoin-ffi/filcrypto-v1.h:645
 func FilVerify(signaturePtr string, flattenedDigestsPtr string, flattenedDigestsLen uint, flattenedPublicKeysPtr string, flattenedPublicKeysLen uint) int32 {
 	signaturePtr = safeString(signaturePtr)
 	csignaturePtr, csignaturePtrAllocMap := unpackPUint8TString(signaturePtr)
@@ -705,7 +706,7 @@ func FilVerify(signaturePtr string, flattenedDigestsPtr string, flattenedDigests
 	return __v
 }
 
-// FilVerifySeal function as declared in filecoin-ffi/filcrypto.h:655
+// FilVerifySeal function as declared in filecoin-ffi/filcrypto-v1.h:655
 func FilVerifySeal(registeredProof FilRegisteredSealProof, commR Fil32ByteArray, commD Fil32ByteArray, proverId Fil32ByteArray, ticket Fil32ByteArray, seed Fil32ByteArray, sectorId uint64, proofPtr string, proofLen uint) *FilVerifySealResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProof)(registeredProof), cgoAllocsUnknown
 	ccommR, ccommRAllocMap := commR.PassValue()
@@ -732,7 +733,7 @@ func FilVerifySeal(registeredProof FilRegisteredSealProof, commR Fil32ByteArray,
 	return __v
 }
 
-// FilVerifyWindowPost function as declared in filecoin-ffi/filcrypto.h:668
+// FilVerifyWindowPost function as declared in filecoin-ffi/filcrypto-v1.h:668
 func FilVerifyWindowPost(randomness Fil32ByteArray, replicasPtr []FilPublicReplicaInfo, replicasLen uint, proofsPtr []FilPoStProof, proofsLen uint, proverId Fil32ByteArray) *FilVerifyWindowPoStResponse {
 	crandomness, crandomnessAllocMap := randomness.PassValue()
 	creplicasPtr, creplicasPtrAllocMap := unpackArgSFilPublicReplicaInfo(replicasPtr)
@@ -753,7 +754,7 @@ func FilVerifyWindowPost(randomness Fil32ByteArray, replicasPtr []FilPublicRepli
 	return __v
 }
 
-// FilVerifyWinningPost function as declared in filecoin-ffi/filcrypto.h:678
+// FilVerifyWinningPost function as declared in filecoin-ffi/filcrypto-v1.h:678
 func FilVerifyWinningPost(randomness Fil32ByteArray, replicasPtr []FilPublicReplicaInfo, replicasLen uint, proofsPtr []FilPoStProof, proofsLen uint, proverId Fil32ByteArray) *FilVerifyWinningPoStResponse {
 	crandomness, crandomnessAllocMap := randomness.PassValue()
 	creplicasPtr, creplicasPtrAllocMap := unpackArgSFilPublicReplicaInfo(replicasPtr)
@@ -774,7 +775,7 @@ func FilVerifyWinningPost(randomness Fil32ByteArray, replicasPtr []FilPublicRepl
 	return __v
 }
 
-// FilWriteWithAlignment function as declared in filecoin-ffi/filcrypto.h:689
+// FilWriteWithAlignment function as declared in filecoin-ffi/filcrypto-v1.h:689
 func FilWriteWithAlignment(registeredProof FilRegisteredSealProof, srcFd int32, srcSize uint64, dstFd int32, existingPieceSizesPtr []uint64, existingPieceSizesLen uint) *FilWriteWithAlignmentResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProof)(registeredProof), cgoAllocsUnknown
 	csrcFd, csrcFdAllocMap := (C.int)(srcFd), cgoAllocsUnknown
@@ -793,7 +794,7 @@ func FilWriteWithAlignment(registeredProof FilRegisteredSealProof, srcFd int32, 
 	return __v
 }
 
-// FilWriteWithoutAlignment function as declared in filecoin-ffi/filcrypto.h:700
+// FilWriteWithoutAlignment function as declared in filecoin-ffi/filcrypto-v1.h:700
 func FilWriteWithoutAlignment(registeredProof FilRegisteredSealProof, srcFd int32, srcSize uint64, dstFd int32) *FilWriteWithoutAlignmentResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProof)(registeredProof), cgoAllocsUnknown
 	csrcFd, csrcFdAllocMap := (C.int)(srcFd), cgoAllocsUnknown
@@ -805,5 +806,797 @@ func FilWriteWithoutAlignment(registeredProof FilRegisteredSealProof, srcFd int3
 	runtime.KeepAlive(csrcFdAllocMap)
 	runtime.KeepAlive(cregisteredProofAllocMap)
 	__v := NewFilWriteWithoutAlignmentResponseRef(unsafe.Pointer(__ret))
+	return __v
+}
+
+// FilAggregateV2 function as declared in filecoin-ffi/filcrypto-v2.h:289
+func FilAggregateV2(flattenedSignaturesPtr string, flattenedSignaturesLen uint) *FilAggregateResponseV2 {
+	flattenedSignaturesPtr = safeString(flattenedSignaturesPtr)
+	cflattenedSignaturesPtr, cflattenedSignaturesPtrAllocMap := unpackPUint8TString(flattenedSignaturesPtr)
+	cflattenedSignaturesLen, cflattenedSignaturesLenAllocMap := (C.size_t)(flattenedSignaturesLen), cgoAllocsUnknown
+	__ret := C.fil_aggregate_v2(cflattenedSignaturesPtr, cflattenedSignaturesLen)
+	runtime.KeepAlive(cflattenedSignaturesLenAllocMap)
+	runtime.KeepAlive(flattenedSignaturesPtr)
+	runtime.KeepAlive(cflattenedSignaturesPtrAllocMap)
+	__v := NewFilAggregateResponseV2Ref(unsafe.Pointer(__ret))
+	return __v
+}
+
+// FilClearCacheV2 function as declared in filecoin-ffi/filcrypto-v2.h:292
+func FilClearCacheV2(sectorSize uint64, cacheDirPath string) *FilClearCacheResponseV2 {
+	csectorSize, csectorSizeAllocMap := (C.uint64_t)(sectorSize), cgoAllocsUnknown
+	cacheDirPath = safeString(cacheDirPath)
+	ccacheDirPath, ccacheDirPathAllocMap := unpackPCharString(cacheDirPath)
+	__ret := C.fil_clear_cache_v2(csectorSize, ccacheDirPath)
+	runtime.KeepAlive(cacheDirPath)
+	runtime.KeepAlive(ccacheDirPathAllocMap)
+	runtime.KeepAlive(csectorSizeAllocMap)
+	__v := NewFilClearCacheResponseV2Ref(unsafe.Pointer(__ret))
+	return __v
+}
+
+// FilDestroyAggregateResponse function as declared in filecoin-ffi/filcrypto-v2.h:294
+func FilDestroyAggregateResponse(ptr *FilAggregateResponseV2) {
+	cptr, cptrAllocMap := ptr.PassRef()
+	C.fil_destroy_aggregate_response(cptr)
+	runtime.KeepAlive(cptrAllocMap)
+}
+
+// FilDestroyClearCacheResponseV2 function as declared in filecoin-ffi/filcrypto-v2.h:296
+func FilDestroyClearCacheResponseV2(ptr *FilClearCacheResponseV2) {
+	cptr, cptrAllocMap := ptr.PassRef()
+	C.fil_destroy_clear_cache_response_v2(cptr)
+	runtime.KeepAlive(cptrAllocMap)
+}
+
+// FilDestroyFauxrepResponseV2 function as declared in filecoin-ffi/filcrypto-v2.h:298
+func FilDestroyFauxrepResponseV2(ptr *FilFauxRepResponseV2) {
+	cptr, cptrAllocMap := ptr.PassRef()
+	C.fil_destroy_fauxrep_response_v2(cptr)
+	runtime.KeepAlive(cptrAllocMap)
+}
+
+// FilDestroyFinalizeTicketResponseV2 function as declared in filecoin-ffi/filcrypto-v2.h:300
+func FilDestroyFinalizeTicketResponseV2(ptr *FilFinalizeTicketResponseV2) {
+	cptr, cptrAllocMap := ptr.PassRef()
+	C.fil_destroy_finalize_ticket_response_v2(cptr)
+	runtime.KeepAlive(cptrAllocMap)
+}
+
+// FilDestroyGenerateDataCommitmentResponseV2 function as declared in filecoin-ffi/filcrypto-v2.h:302
+func FilDestroyGenerateDataCommitmentResponseV2(ptr *FilGenerateDataCommitmentResponseV2) {
+	cptr, cptrAllocMap := ptr.PassRef()
+	C.fil_destroy_generate_data_commitment_response_v2(cptr)
+	runtime.KeepAlive(cptrAllocMap)
+}
+
+// FilDestroyGeneratePieceCommitmentResponseV2 function as declared in filecoin-ffi/filcrypto-v2.h:304
+func FilDestroyGeneratePieceCommitmentResponseV2(ptr *FilGeneratePieceCommitmentResponseV2) {
+	cptr, cptrAllocMap := ptr.PassRef()
+	C.fil_destroy_generate_piece_commitment_response_v2(cptr)
+	runtime.KeepAlive(cptrAllocMap)
+}
+
+// FilDestroyGenerateWindowPostResponseV2 function as declared in filecoin-ffi/filcrypto-v2.h:306
+func FilDestroyGenerateWindowPostResponseV2(ptr *FilGenerateWindowPoStResponseV2) {
+	cptr, cptrAllocMap := ptr.PassRef()
+	C.fil_destroy_generate_window_post_response_v2(cptr)
+	runtime.KeepAlive(cptrAllocMap)
+}
+
+// FilDestroyGenerateWinningPostResponseV2 function as declared in filecoin-ffi/filcrypto-v2.h:308
+func FilDestroyGenerateWinningPostResponseV2(ptr *FilGenerateWinningPoStResponseV2) {
+	cptr, cptrAllocMap := ptr.PassRef()
+	C.fil_destroy_generate_winning_post_response_v2(cptr)
+	runtime.KeepAlive(cptrAllocMap)
+}
+
+// FilDestroyGenerateWinningPostSectorChallengeV2 function as declared in filecoin-ffi/filcrypto-v2.h:310
+func FilDestroyGenerateWinningPostSectorChallengeV2(ptr *FilGenerateWinningPoStSectorChallengeV2) {
+	cptr, cptrAllocMap := ptr.PassRef()
+	C.fil_destroy_generate_winning_post_sector_challenge_v2(cptr)
+	runtime.KeepAlive(cptrAllocMap)
+}
+
+// FilDestroyGpuDeviceResponseV2 function as declared in filecoin-ffi/filcrypto-v2.h:312
+func FilDestroyGpuDeviceResponseV2(ptr *FilGpuDeviceResponseV2) {
+	cptr, cptrAllocMap := ptr.PassRef()
+	C.fil_destroy_gpu_device_response_v2(cptr)
+	runtime.KeepAlive(cptrAllocMap)
+}
+
+// FilDestroyHashResponse function as declared in filecoin-ffi/filcrypto-v2.h:314
+func FilDestroyHashResponse(ptr *FilHashResponseV2) {
+	cptr, cptrAllocMap := ptr.PassRef()
+	C.fil_destroy_hash_response(cptr)
+	runtime.KeepAlive(cptrAllocMap)
+}
+
+// FilDestroyInitLogFdResponseV2 function as declared in filecoin-ffi/filcrypto-v2.h:316
+func FilDestroyInitLogFdResponseV2(ptr *FilInitLogFdResponseV2) {
+	cptr, cptrAllocMap := ptr.PassRef()
+	C.fil_destroy_init_log_fd_response_v2(cptr)
+	runtime.KeepAlive(cptrAllocMap)
+}
+
+// FilDestroyPrivateKeyGenerateResponse function as declared in filecoin-ffi/filcrypto-v2.h:318
+func FilDestroyPrivateKeyGenerateResponse(ptr *FilPrivateKeyGenerateResponseV2) {
+	cptr, cptrAllocMap := ptr.PassRef()
+	C.fil_destroy_private_key_generate_response(cptr)
+	runtime.KeepAlive(cptrAllocMap)
+}
+
+// FilDestroyPrivateKeyPublicKeyResponse function as declared in filecoin-ffi/filcrypto-v2.h:320
+func FilDestroyPrivateKeyPublicKeyResponse(ptr *FilPrivateKeyPublicKeyResponseV2) {
+	cptr, cptrAllocMap := ptr.PassRef()
+	C.fil_destroy_private_key_public_key_response(cptr)
+	runtime.KeepAlive(cptrAllocMap)
+}
+
+// FilDestroyPrivateKeySignResponse function as declared in filecoin-ffi/filcrypto-v2.h:322
+func FilDestroyPrivateKeySignResponse(ptr *FilPrivateKeySignResponseV2) {
+	cptr, cptrAllocMap := ptr.PassRef()
+	C.fil_destroy_private_key_sign_response(cptr)
+	runtime.KeepAlive(cptrAllocMap)
+}
+
+// FilDestroySealCommitPhase1ResponseV2 function as declared in filecoin-ffi/filcrypto-v2.h:324
+func FilDestroySealCommitPhase1ResponseV2(ptr *FilSealCommitPhase1ResponseV2) {
+	cptr, cptrAllocMap := ptr.PassRef()
+	C.fil_destroy_seal_commit_phase1_response_v2(cptr)
+	runtime.KeepAlive(cptrAllocMap)
+}
+
+// FilDestroySealCommitPhase2ResponseV2 function as declared in filecoin-ffi/filcrypto-v2.h:326
+func FilDestroySealCommitPhase2ResponseV2(ptr *FilSealCommitPhase2ResponseV2) {
+	cptr, cptrAllocMap := ptr.PassRef()
+	C.fil_destroy_seal_commit_phase2_response_v2(cptr)
+	runtime.KeepAlive(cptrAllocMap)
+}
+
+// FilDestroySealPreCommitPhase1ResponseV2 function as declared in filecoin-ffi/filcrypto-v2.h:328
+func FilDestroySealPreCommitPhase1ResponseV2(ptr *FilSealPreCommitPhase1ResponseV2) {
+	cptr, cptrAllocMap := ptr.PassRef()
+	C.fil_destroy_seal_pre_commit_phase1_response_v2(cptr)
+	runtime.KeepAlive(cptrAllocMap)
+}
+
+// FilDestroySealPreCommitPhase2ResponseV2 function as declared in filecoin-ffi/filcrypto-v2.h:330
+func FilDestroySealPreCommitPhase2ResponseV2(ptr *FilSealPreCommitPhase2ResponseV2) {
+	cptr, cptrAllocMap := ptr.PassRef()
+	C.fil_destroy_seal_pre_commit_phase2_response_v2(cptr)
+	runtime.KeepAlive(cptrAllocMap)
+}
+
+// FilDestroyStringResponseV2 function as declared in filecoin-ffi/filcrypto-v2.h:332
+func FilDestroyStringResponseV2(ptr *FilStringResponseV2) {
+	cptr, cptrAllocMap := ptr.PassRef()
+	C.fil_destroy_string_response_v2(cptr)
+	runtime.KeepAlive(cptrAllocMap)
+}
+
+// FilDestroyUnsealRangeResponseV2 function as declared in filecoin-ffi/filcrypto-v2.h:334
+func FilDestroyUnsealRangeResponseV2(ptr *FilUnsealRangeResponseV2) {
+	cptr, cptrAllocMap := ptr.PassRef()
+	C.fil_destroy_unseal_range_response_v2(cptr)
+	runtime.KeepAlive(cptrAllocMap)
+}
+
+// FilDestroyVerifySealResponseV2 function as declared in filecoin-ffi/filcrypto-v2.h:340
+func FilDestroyVerifySealResponseV2(ptr *FilVerifySealResponseV2) {
+	cptr, cptrAllocMap := ptr.PassRef()
+	C.fil_destroy_verify_seal_response_v2(cptr)
+	runtime.KeepAlive(cptrAllocMap)
+}
+
+// FilDestroyVerifyWindowPostResponseV2 function as declared in filecoin-ffi/filcrypto-v2.h:342
+func FilDestroyVerifyWindowPostResponseV2(ptr *FilVerifyWindowPoStResponseV2) {
+	cptr, cptrAllocMap := ptr.PassRef()
+	C.fil_destroy_verify_window_post_response_v2(cptr)
+	runtime.KeepAlive(cptrAllocMap)
+}
+
+// FilDestroyVerifyWinningPostResponseV2 function as declared in filecoin-ffi/filcrypto-v2.h:348
+func FilDestroyVerifyWinningPostResponseV2(ptr *FilVerifyWinningPoStResponseV2) {
+	cptr, cptrAllocMap := ptr.PassRef()
+	C.fil_destroy_verify_winning_post_response_v2(cptr)
+	runtime.KeepAlive(cptrAllocMap)
+}
+
+// FilDestroyWriteWithAlignmentResponseV2 function as declared in filecoin-ffi/filcrypto-v2.h:350
+func FilDestroyWriteWithAlignmentResponseV2(ptr *FilWriteWithAlignmentResponseV2) {
+	cptr, cptrAllocMap := ptr.PassRef()
+	C.fil_destroy_write_with_alignment_response_v2(cptr)
+	runtime.KeepAlive(cptrAllocMap)
+}
+
+// FilDestroyWriteWithoutAlignmentResponseV2 function as declared in filecoin-ffi/filcrypto-v2.h:352
+func FilDestroyWriteWithoutAlignmentResponseV2(ptr *FilWriteWithoutAlignmentResponseV2) {
+	cptr, cptrAllocMap := ptr.PassRef()
+	C.fil_destroy_write_without_alignment_response_v2(cptr)
+	runtime.KeepAlive(cptrAllocMap)
+}
+
+// FilFauxrep2V2 function as declared in filecoin-ffi/filcrypto-v2.h:354
+func FilFauxrep2V2(registeredProof FilRegisteredSealProofV2, cacheDirPath string, existingPAuxPath string) *FilFauxRepResponseV2 {
+	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProofV2)(registeredProof), cgoAllocsUnknown
+	cacheDirPath = safeString(cacheDirPath)
+	ccacheDirPath, ccacheDirPathAllocMap := unpackPCharString(cacheDirPath)
+	existingPAuxPath = safeString(existingPAuxPath)
+	cexistingPAuxPath, cexistingPAuxPathAllocMap := unpackPCharString(existingPAuxPath)
+	__ret := C.fil_fauxrep2_v2(cregisteredProof, ccacheDirPath, cexistingPAuxPath)
+	runtime.KeepAlive(existingPAuxPath)
+	runtime.KeepAlive(cexistingPAuxPathAllocMap)
+	runtime.KeepAlive(cacheDirPath)
+	runtime.KeepAlive(ccacheDirPathAllocMap)
+	runtime.KeepAlive(cregisteredProofAllocMap)
+	__v := NewFilFauxRepResponseV2Ref(unsafe.Pointer(__ret))
+	return __v
+}
+
+// FilFauxrepV2 function as declared in filecoin-ffi/filcrypto-v2.h:358
+func FilFauxrepV2(registeredProof FilRegisteredSealProofV2, cacheDirPath string, sealedSectorPath string) *FilFauxRepResponseV2 {
+	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProofV2)(registeredProof), cgoAllocsUnknown
+	cacheDirPath = safeString(cacheDirPath)
+	ccacheDirPath, ccacheDirPathAllocMap := unpackPCharString(cacheDirPath)
+	sealedSectorPath = safeString(sealedSectorPath)
+	csealedSectorPath, csealedSectorPathAllocMap := unpackPCharString(sealedSectorPath)
+	__ret := C.fil_fauxrep_v2(cregisteredProof, ccacheDirPath, csealedSectorPath)
+	runtime.KeepAlive(sealedSectorPath)
+	runtime.KeepAlive(csealedSectorPathAllocMap)
+	runtime.KeepAlive(cacheDirPath)
+	runtime.KeepAlive(ccacheDirPathAllocMap)
+	runtime.KeepAlive(cregisteredProofAllocMap)
+	__v := NewFilFauxRepResponseV2Ref(unsafe.Pointer(__ret))
+	return __v
+}
+
+// FilGenerateDataCommitmentV2 function as declared in filecoin-ffi/filcrypto-v2.h:365
+func FilGenerateDataCommitmentV2(registeredProof FilRegisteredSealProofV2, piecesPtr []FilPublicPieceInfoV2, piecesLen uint) *FilGenerateDataCommitmentResponseV2 {
+	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProofV2)(registeredProof), cgoAllocsUnknown
+	cpiecesPtr, cpiecesPtrAllocMap := unpackArgSFilPublicPieceInfoV2(piecesPtr)
+	cpiecesLen, cpiecesLenAllocMap := (C.size_t)(piecesLen), cgoAllocsUnknown
+	__ret := C.fil_generate_data_commitment_v2(cregisteredProof, cpiecesPtr, cpiecesLen)
+	runtime.KeepAlive(cpiecesLenAllocMap)
+	packSFilPublicPieceInfoV2(piecesPtr, cpiecesPtr)
+	runtime.KeepAlive(cpiecesPtrAllocMap)
+	runtime.KeepAlive(cregisteredProofAllocMap)
+	__v := NewFilGenerateDataCommitmentResponseV2Ref(unsafe.Pointer(__ret))
+	return __v
+}
+
+// FilGeneratePieceCommitmentV2 function as declared in filecoin-ffi/filcrypto-v2.h:373
+func FilGeneratePieceCommitmentV2(registeredProof FilRegisteredSealProofV2, pieceFdRaw int32, unpaddedPieceSize uint64) *FilGeneratePieceCommitmentResponseV2 {
+	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProofV2)(registeredProof), cgoAllocsUnknown
+	cpieceFdRaw, cpieceFdRawAllocMap := (C.int)(pieceFdRaw), cgoAllocsUnknown
+	cunpaddedPieceSize, cunpaddedPieceSizeAllocMap := (C.uint64_t)(unpaddedPieceSize), cgoAllocsUnknown
+	__ret := C.fil_generate_piece_commitment_v2(cregisteredProof, cpieceFdRaw, cunpaddedPieceSize)
+	runtime.KeepAlive(cunpaddedPieceSizeAllocMap)
+	runtime.KeepAlive(cpieceFdRawAllocMap)
+	runtime.KeepAlive(cregisteredProofAllocMap)
+	__v := NewFilGeneratePieceCommitmentResponseV2Ref(unsafe.Pointer(__ret))
+	return __v
+}
+
+// FilGenerateWindowPostV2 function as declared in filecoin-ffi/filcrypto-v2.h:381
+func FilGenerateWindowPostV2(randomness Fil32ByteArrayV2, replicasPtr []FilPrivateReplicaInfoV2, replicasLen uint, proverId Fil32ByteArrayV2) *FilGenerateWindowPoStResponseV2 {
+	crandomness, crandomnessAllocMap := randomness.PassValue()
+	creplicasPtr, creplicasPtrAllocMap := unpackArgSFilPrivateReplicaInfoV2(replicasPtr)
+	creplicasLen, creplicasLenAllocMap := (C.size_t)(replicasLen), cgoAllocsUnknown
+	cproverId, cproverIdAllocMap := proverId.PassValue()
+	__ret := C.fil_generate_window_post_v2(crandomness, creplicasPtr, creplicasLen, cproverId)
+	runtime.KeepAlive(cproverIdAllocMap)
+	runtime.KeepAlive(creplicasLenAllocMap)
+	packSFilPrivateReplicaInfoV2(replicasPtr, creplicasPtr)
+	runtime.KeepAlive(creplicasPtrAllocMap)
+	runtime.KeepAlive(crandomnessAllocMap)
+	__v := NewFilGenerateWindowPoStResponseV2Ref(unsafe.Pointer(__ret))
+	return __v
+}
+
+// FilGenerateWinningPostSectorChallengeV2 function as declared in filecoin-ffi/filcrypto-v2.h:390
+func FilGenerateWinningPostSectorChallengeV2(registeredProof FilRegisteredPoStProofV2, randomness Fil32ByteArrayV2, sectorSetLen uint64, proverId Fil32ByteArrayV2) *FilGenerateWinningPoStSectorChallengeV2 {
+	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredPoStProofV2)(registeredProof), cgoAllocsUnknown
+	crandomness, crandomnessAllocMap := randomness.PassValue()
+	csectorSetLen, csectorSetLenAllocMap := (C.uint64_t)(sectorSetLen), cgoAllocsUnknown
+	cproverId, cproverIdAllocMap := proverId.PassValue()
+	__ret := C.fil_generate_winning_post_sector_challenge_v2(cregisteredProof, crandomness, csectorSetLen, cproverId)
+	runtime.KeepAlive(cproverIdAllocMap)
+	runtime.KeepAlive(csectorSetLenAllocMap)
+	runtime.KeepAlive(crandomnessAllocMap)
+	runtime.KeepAlive(cregisteredProofAllocMap)
+	__v := NewFilGenerateWinningPoStSectorChallengeV2Ref(unsafe.Pointer(__ret))
+	return __v
+}
+
+// FilGenerateWinningPostV2 function as declared in filecoin-ffi/filcrypto-v2.h:399
+func FilGenerateWinningPostV2(randomness Fil32ByteArrayV2, replicasPtr []FilPrivateReplicaInfoV2, replicasLen uint, proverId Fil32ByteArrayV2) *FilGenerateWinningPoStResponseV2 {
+	crandomness, crandomnessAllocMap := randomness.PassValue()
+	creplicasPtr, creplicasPtrAllocMap := unpackArgSFilPrivateReplicaInfoV2(replicasPtr)
+	creplicasLen, creplicasLenAllocMap := (C.size_t)(replicasLen), cgoAllocsUnknown
+	cproverId, cproverIdAllocMap := proverId.PassValue()
+	__ret := C.fil_generate_winning_post_v2(crandomness, creplicasPtr, creplicasLen, cproverId)
+	runtime.KeepAlive(cproverIdAllocMap)
+	runtime.KeepAlive(creplicasLenAllocMap)
+	packSFilPrivateReplicaInfoV2(replicasPtr, creplicasPtr)
+	runtime.KeepAlive(creplicasPtrAllocMap)
+	runtime.KeepAlive(crandomnessAllocMap)
+	__v := NewFilGenerateWinningPoStResponseV2Ref(unsafe.Pointer(__ret))
+	return __v
+}
+
+// FilGetGpuDevicesV2 function as declared in filecoin-ffi/filcrypto-v2.h:407
+func FilGetGpuDevicesV2() *FilGpuDeviceResponseV2 {
+	__ret := C.fil_get_gpu_devices_v2()
+	__v := NewFilGpuDeviceResponseV2Ref(unsafe.Pointer(__ret))
+	return __v
+}
+
+// FilGetMaxUserBytesPerStagedSectorV2 function as declared in filecoin-ffi/filcrypto-v2.h:413
+func FilGetMaxUserBytesPerStagedSectorV2(registeredProof FilRegisteredSealProofV2) uint64 {
+	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProofV2)(registeredProof), cgoAllocsUnknown
+	__ret := C.fil_get_max_user_bytes_per_staged_sector_v2(cregisteredProof)
+	runtime.KeepAlive(cregisteredProofAllocMap)
+	__v := (uint64)(__ret)
+	return __v
+}
+
+// FilGetPostCircuitIdentifierV2 function as declared in filecoin-ffi/filcrypto-v2.h:419
+func FilGetPostCircuitIdentifierV2(registeredProof FilRegisteredPoStProofV2) *FilStringResponseV2 {
+	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredPoStProofV2)(registeredProof), cgoAllocsUnknown
+	__ret := C.fil_get_post_circuit_identifier_v2(cregisteredProof)
+	runtime.KeepAlive(cregisteredProofAllocMap)
+	__v := NewFilStringResponseV2Ref(unsafe.Pointer(__ret))
+	return __v
+}
+
+// FilGetPostParamsCidV2 function as declared in filecoin-ffi/filcrypto-v2.h:425
+func FilGetPostParamsCidV2(registeredProof FilRegisteredPoStProofV2) *FilStringResponseV2 {
+	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredPoStProofV2)(registeredProof), cgoAllocsUnknown
+	__ret := C.fil_get_post_params_cid_v2(cregisteredProof)
+	runtime.KeepAlive(cregisteredProofAllocMap)
+	__v := NewFilStringResponseV2Ref(unsafe.Pointer(__ret))
+	return __v
+}
+
+// FilGetPostParamsPathV2 function as declared in filecoin-ffi/filcrypto-v2.h:432
+func FilGetPostParamsPathV2(registeredProof FilRegisteredPoStProofV2) *FilStringResponseV2 {
+	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredPoStProofV2)(registeredProof), cgoAllocsUnknown
+	__ret := C.fil_get_post_params_path_v2(cregisteredProof)
+	runtime.KeepAlive(cregisteredProofAllocMap)
+	__v := NewFilStringResponseV2Ref(unsafe.Pointer(__ret))
+	return __v
+}
+
+// FilGetPostVerifyingKeyCidV2 function as declared in filecoin-ffi/filcrypto-v2.h:438
+func FilGetPostVerifyingKeyCidV2(registeredProof FilRegisteredPoStProofV2) *FilStringResponseV2 {
+	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredPoStProofV2)(registeredProof), cgoAllocsUnknown
+	__ret := C.fil_get_post_verifying_key_cid_v2(cregisteredProof)
+	runtime.KeepAlive(cregisteredProofAllocMap)
+	__v := NewFilStringResponseV2Ref(unsafe.Pointer(__ret))
+	return __v
+}
+
+// FilGetPostVerifyingKeyPathV2 function as declared in filecoin-ffi/filcrypto-v2.h:445
+func FilGetPostVerifyingKeyPathV2(registeredProof FilRegisteredPoStProofV2) *FilStringResponseV2 {
+	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredPoStProofV2)(registeredProof), cgoAllocsUnknown
+	__ret := C.fil_get_post_verifying_key_path_v2(cregisteredProof)
+	runtime.KeepAlive(cregisteredProofAllocMap)
+	__v := NewFilStringResponseV2Ref(unsafe.Pointer(__ret))
+	return __v
+}
+
+// FilGetPostVersionV2 function as declared in filecoin-ffi/filcrypto-v2.h:451
+func FilGetPostVersionV2(registeredProof FilRegisteredPoStProofV2) *FilStringResponseV2 {
+	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredPoStProofV2)(registeredProof), cgoAllocsUnknown
+	__ret := C.fil_get_post_version_v2(cregisteredProof)
+	runtime.KeepAlive(cregisteredProofAllocMap)
+	__v := NewFilStringResponseV2Ref(unsafe.Pointer(__ret))
+	return __v
+}
+
+// FilGetSealCircuitIdentifierV2 function as declared in filecoin-ffi/filcrypto-v2.h:457
+func FilGetSealCircuitIdentifierV2(registeredProof FilRegisteredSealProofV2) *FilStringResponseV2 {
+	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProofV2)(registeredProof), cgoAllocsUnknown
+	__ret := C.fil_get_seal_circuit_identifier_v2(cregisteredProof)
+	runtime.KeepAlive(cregisteredProofAllocMap)
+	__v := NewFilStringResponseV2Ref(unsafe.Pointer(__ret))
+	return __v
+}
+
+// FilGetSealParamsCidV2 function as declared in filecoin-ffi/filcrypto-v2.h:463
+func FilGetSealParamsCidV2(registeredProof FilRegisteredSealProofV2) *FilStringResponseV2 {
+	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProofV2)(registeredProof), cgoAllocsUnknown
+	__ret := C.fil_get_seal_params_cid_v2(cregisteredProof)
+	runtime.KeepAlive(cregisteredProofAllocMap)
+	__v := NewFilStringResponseV2Ref(unsafe.Pointer(__ret))
+	return __v
+}
+
+// FilGetSealParamsPathV2 function as declared in filecoin-ffi/filcrypto-v2.h:470
+func FilGetSealParamsPathV2(registeredProof FilRegisteredSealProofV2) *FilStringResponseV2 {
+	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProofV2)(registeredProof), cgoAllocsUnknown
+	__ret := C.fil_get_seal_params_path_v2(cregisteredProof)
+	runtime.KeepAlive(cregisteredProofAllocMap)
+	__v := NewFilStringResponseV2Ref(unsafe.Pointer(__ret))
+	return __v
+}
+
+// FilGetSealVerifyingKeyCidV2 function as declared in filecoin-ffi/filcrypto-v2.h:476
+func FilGetSealVerifyingKeyCidV2(registeredProof FilRegisteredSealProofV2) *FilStringResponseV2 {
+	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProofV2)(registeredProof), cgoAllocsUnknown
+	__ret := C.fil_get_seal_verifying_key_cid_v2(cregisteredProof)
+	runtime.KeepAlive(cregisteredProofAllocMap)
+	__v := NewFilStringResponseV2Ref(unsafe.Pointer(__ret))
+	return __v
+}
+
+// FilGetSealVerifyingKeyPathV2 function as declared in filecoin-ffi/filcrypto-v2.h:483
+func FilGetSealVerifyingKeyPathV2(registeredProof FilRegisteredSealProofV2) *FilStringResponseV2 {
+	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProofV2)(registeredProof), cgoAllocsUnknown
+	__ret := C.fil_get_seal_verifying_key_path_v2(cregisteredProof)
+	runtime.KeepAlive(cregisteredProofAllocMap)
+	__v := NewFilStringResponseV2Ref(unsafe.Pointer(__ret))
+	return __v
+}
+
+// FilGetSealVersionV2 function as declared in filecoin-ffi/filcrypto-v2.h:489
+func FilGetSealVersionV2(registeredProof FilRegisteredSealProofV2) *FilStringResponseV2 {
+	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProofV2)(registeredProof), cgoAllocsUnknown
+	__ret := C.fil_get_seal_version_v2(cregisteredProof)
+	runtime.KeepAlive(cregisteredProofAllocMap)
+	__v := NewFilStringResponseV2Ref(unsafe.Pointer(__ret))
+	return __v
+}
+
+// FilHashV2 function as declared in filecoin-ffi/filcrypto-v2.h:499
+func FilHashV2(messagePtr string, messageLen uint) *FilHashResponseV2 {
+	messagePtr = safeString(messagePtr)
+	cmessagePtr, cmessagePtrAllocMap := unpackPUint8TString(messagePtr)
+	cmessageLen, cmessageLenAllocMap := (C.size_t)(messageLen), cgoAllocsUnknown
+	__ret := C.fil_hash_v2(cmessagePtr, cmessageLen)
+	runtime.KeepAlive(cmessageLenAllocMap)
+	runtime.KeepAlive(messagePtr)
+	runtime.KeepAlive(cmessagePtrAllocMap)
+	__v := NewFilHashResponseV2Ref(unsafe.Pointer(__ret))
+	return __v
+}
+
+// FilHashVerifyV2 function as declared in filecoin-ffi/filcrypto-v2.h:513
+func FilHashVerifyV2(signaturePtr string, flattenedMessagesPtr string, flattenedMessagesLen uint, messageSizesPtr []uint, messageSizesLen uint, flattenedPublicKeysPtr string, flattenedPublicKeysLen uint) int32 {
+	signaturePtr = safeString(signaturePtr)
+	csignaturePtr, csignaturePtrAllocMap := unpackPUint8TString(signaturePtr)
+	flattenedMessagesPtr = safeString(flattenedMessagesPtr)
+	cflattenedMessagesPtr, cflattenedMessagesPtrAllocMap := unpackPUint8TString(flattenedMessagesPtr)
+	cflattenedMessagesLen, cflattenedMessagesLenAllocMap := (C.size_t)(flattenedMessagesLen), cgoAllocsUnknown
+	cmessageSizesPtr, cmessageSizesPtrAllocMap := (*C.size_t)(unsafe.Pointer((*sliceHeader)(unsafe.Pointer(&messageSizesPtr)).Data)), cgoAllocsUnknown
+	cmessageSizesLen, cmessageSizesLenAllocMap := (C.size_t)(messageSizesLen), cgoAllocsUnknown
+	flattenedPublicKeysPtr = safeString(flattenedPublicKeysPtr)
+	cflattenedPublicKeysPtr, cflattenedPublicKeysPtrAllocMap := unpackPUint8TString(flattenedPublicKeysPtr)
+	cflattenedPublicKeysLen, cflattenedPublicKeysLenAllocMap := (C.size_t)(flattenedPublicKeysLen), cgoAllocsUnknown
+	__ret := C.fil_hash_verify_v2(csignaturePtr, cflattenedMessagesPtr, cflattenedMessagesLen, cmessageSizesPtr, cmessageSizesLen, cflattenedPublicKeysPtr, cflattenedPublicKeysLen)
+	runtime.KeepAlive(cflattenedPublicKeysLenAllocMap)
+	runtime.KeepAlive(flattenedPublicKeysPtr)
+	runtime.KeepAlive(cflattenedPublicKeysPtrAllocMap)
+	runtime.KeepAlive(cmessageSizesLenAllocMap)
+	runtime.KeepAlive(cmessageSizesPtrAllocMap)
+	runtime.KeepAlive(cflattenedMessagesLenAllocMap)
+	runtime.KeepAlive(flattenedMessagesPtr)
+	runtime.KeepAlive(cflattenedMessagesPtrAllocMap)
+	runtime.KeepAlive(signaturePtr)
+	runtime.KeepAlive(csignaturePtrAllocMap)
+	__v := (int32)(__ret)
+	return __v
+}
+
+// FilInitLogFdV2 function as declared in filecoin-ffi/filcrypto-v2.h:530
+func FilInitLogFdV2(logFd int32) *FilInitLogFdResponseV2 {
+	clogFd, clogFdAllocMap := (C.int)(logFd), cgoAllocsUnknown
+	__ret := C.fil_init_log_fd_v2(clogFd)
+	runtime.KeepAlive(clogFdAllocMap)
+	__v := NewFilInitLogFdResponseV2Ref(unsafe.Pointer(__ret))
+	return __v
+}
+
+// FilPrivateKeyGenerateV2 function as declared in filecoin-ffi/filcrypto-v2.h:535
+func FilPrivateKeyGenerateV2() *FilPrivateKeyGenerateResponseV2 {
+	__ret := C.fil_private_key_generate_v2()
+	__v := NewFilPrivateKeyGenerateResponseV2Ref(unsafe.Pointer(__ret))
+	return __v
+}
+
+// FilPrivateKeyGenerateWithSeedV2 function as declared in filecoin-ffi/filcrypto-v2.h:548
+func FilPrivateKeyGenerateWithSeedV2(rawSeed Fil32ByteArrayV2) *FilPrivateKeyGenerateResponseV2 {
+	crawSeed, crawSeedAllocMap := rawSeed.PassValue()
+	__ret := C.fil_private_key_generate_with_seed_v2(crawSeed)
+	runtime.KeepAlive(crawSeedAllocMap)
+	__v := NewFilPrivateKeyGenerateResponseV2Ref(unsafe.Pointer(__ret))
+	return __v
+}
+
+// FilPrivateKeyPublicKeyV2 function as declared in filecoin-ffi/filcrypto-v2.h:559
+func FilPrivateKeyPublicKeyV2(rawPrivateKeyPtr string) *FilPrivateKeyPublicKeyResponseV2 {
+	rawPrivateKeyPtr = safeString(rawPrivateKeyPtr)
+	crawPrivateKeyPtr, crawPrivateKeyPtrAllocMap := unpackPUint8TString(rawPrivateKeyPtr)
+	__ret := C.fil_private_key_public_key_v2(crawPrivateKeyPtr)
+	runtime.KeepAlive(rawPrivateKeyPtr)
+	runtime.KeepAlive(crawPrivateKeyPtrAllocMap)
+	__v := NewFilPrivateKeyPublicKeyResponseV2Ref(unsafe.Pointer(__ret))
+	return __v
+}
+
+// FilPrivateKeySignV2 function as declared in filecoin-ffi/filcrypto-v2.h:572
+func FilPrivateKeySignV2(rawPrivateKeyPtr string, messagePtr string, messageLen uint) *FilPrivateKeySignResponseV2 {
+	rawPrivateKeyPtr = safeString(rawPrivateKeyPtr)
+	crawPrivateKeyPtr, crawPrivateKeyPtrAllocMap := unpackPUint8TString(rawPrivateKeyPtr)
+	messagePtr = safeString(messagePtr)
+	cmessagePtr, cmessagePtrAllocMap := unpackPUint8TString(messagePtr)
+	cmessageLen, cmessageLenAllocMap := (C.size_t)(messageLen), cgoAllocsUnknown
+	__ret := C.fil_private_key_sign_v2(crawPrivateKeyPtr, cmessagePtr, cmessageLen)
+	runtime.KeepAlive(cmessageLenAllocMap)
+	runtime.KeepAlive(messagePtr)
+	runtime.KeepAlive(cmessagePtrAllocMap)
+	runtime.KeepAlive(rawPrivateKeyPtr)
+	runtime.KeepAlive(crawPrivateKeyPtrAllocMap)
+	__v := NewFilPrivateKeySignResponseV2Ref(unsafe.Pointer(__ret))
+	return __v
+}
+
+// FilSealCommitPhase1V2 function as declared in filecoin-ffi/filcrypto-v2.h:580
+func FilSealCommitPhase1V2(registeredProof FilRegisteredSealProofV2, commR Fil32ByteArrayV2, commD Fil32ByteArrayV2, cacheDirPath string, replicaPath string, sectorId uint64, proverId Fil32ByteArrayV2, ticket Fil32ByteArrayV2, seed Fil32ByteArrayV2, piecesPtr []FilPublicPieceInfoV2, piecesLen uint) *FilSealCommitPhase1ResponseV2 {
+	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProofV2)(registeredProof), cgoAllocsUnknown
+	ccommR, ccommRAllocMap := commR.PassValue()
+	ccommD, ccommDAllocMap := commD.PassValue()
+	cacheDirPath = safeString(cacheDirPath)
+	ccacheDirPath, ccacheDirPathAllocMap := unpackPCharString(cacheDirPath)
+	replicaPath = safeString(replicaPath)
+	creplicaPath, creplicaPathAllocMap := unpackPCharString(replicaPath)
+	csectorId, csectorIdAllocMap := (C.uint64_t)(sectorId), cgoAllocsUnknown
+	cproverId, cproverIdAllocMap := proverId.PassValue()
+	cticket, cticketAllocMap := ticket.PassValue()
+	cseed, cseedAllocMap := seed.PassValue()
+	cpiecesPtr, cpiecesPtrAllocMap := unpackArgSFilPublicPieceInfoV2(piecesPtr)
+	cpiecesLen, cpiecesLenAllocMap := (C.size_t)(piecesLen), cgoAllocsUnknown
+	__ret := C.fil_seal_commit_phase1_v2(cregisteredProof, ccommR, ccommD, ccacheDirPath, creplicaPath, csectorId, cproverId, cticket, cseed, cpiecesPtr, cpiecesLen)
+	runtime.KeepAlive(cpiecesLenAllocMap)
+	packSFilPublicPieceInfoV2(piecesPtr, cpiecesPtr)
+	runtime.KeepAlive(cpiecesPtrAllocMap)
+	runtime.KeepAlive(cseedAllocMap)
+	runtime.KeepAlive(cticketAllocMap)
+	runtime.KeepAlive(cproverIdAllocMap)
+	runtime.KeepAlive(csectorIdAllocMap)
+	runtime.KeepAlive(replicaPath)
+	runtime.KeepAlive(creplicaPathAllocMap)
+	runtime.KeepAlive(cacheDirPath)
+	runtime.KeepAlive(ccacheDirPathAllocMap)
+	runtime.KeepAlive(ccommDAllocMap)
+	runtime.KeepAlive(ccommRAllocMap)
+	runtime.KeepAlive(cregisteredProofAllocMap)
+	__v := NewFilSealCommitPhase1ResponseV2Ref(unsafe.Pointer(__ret))
+	return __v
+}
+
+// FilSealCommitPhase2V2 function as declared in filecoin-ffi/filcrypto-v2.h:592
+func FilSealCommitPhase2V2(sealCommitPhase1OutputPtr string, sealCommitPhase1OutputLen uint, sectorId uint64, proverId Fil32ByteArrayV2) *FilSealCommitPhase2ResponseV2 {
+	sealCommitPhase1OutputPtr = safeString(sealCommitPhase1OutputPtr)
+	csealCommitPhase1OutputPtr, csealCommitPhase1OutputPtrAllocMap := unpackPUint8TString(sealCommitPhase1OutputPtr)
+	csealCommitPhase1OutputLen, csealCommitPhase1OutputLenAllocMap := (C.size_t)(sealCommitPhase1OutputLen), cgoAllocsUnknown
+	csectorId, csectorIdAllocMap := (C.uint64_t)(sectorId), cgoAllocsUnknown
+	cproverId, cproverIdAllocMap := proverId.PassValue()
+	__ret := C.fil_seal_commit_phase2_v2(csealCommitPhase1OutputPtr, csealCommitPhase1OutputLen, csectorId, cproverId)
+	runtime.KeepAlive(cproverIdAllocMap)
+	runtime.KeepAlive(csectorIdAllocMap)
+	runtime.KeepAlive(csealCommitPhase1OutputLenAllocMap)
+	runtime.KeepAlive(sealCommitPhase1OutputPtr)
+	runtime.KeepAlive(csealCommitPhase1OutputPtrAllocMap)
+	__v := NewFilSealCommitPhase2ResponseV2Ref(unsafe.Pointer(__ret))
+	return __v
+}
+
+// FilSealPreCommitPhase1V2 function as declared in filecoin-ffi/filcrypto-v2.h:601
+func FilSealPreCommitPhase1V2(registeredProof FilRegisteredSealProofV2, cacheDirPath string, stagedSectorPath string, sealedSectorPath string, sectorId uint64, proverId Fil32ByteArrayV2, ticket Fil32ByteArrayV2, piecesPtr []FilPublicPieceInfoV2, piecesLen uint) *FilSealPreCommitPhase1ResponseV2 {
+	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProofV2)(registeredProof), cgoAllocsUnknown
+	cacheDirPath = safeString(cacheDirPath)
+	ccacheDirPath, ccacheDirPathAllocMap := unpackPCharString(cacheDirPath)
+	stagedSectorPath = safeString(stagedSectorPath)
+	cstagedSectorPath, cstagedSectorPathAllocMap := unpackPCharString(stagedSectorPath)
+	sealedSectorPath = safeString(sealedSectorPath)
+	csealedSectorPath, csealedSectorPathAllocMap := unpackPCharString(sealedSectorPath)
+	csectorId, csectorIdAllocMap := (C.uint64_t)(sectorId), cgoAllocsUnknown
+	cproverId, cproverIdAllocMap := proverId.PassValue()
+	cticket, cticketAllocMap := ticket.PassValue()
+	cpiecesPtr, cpiecesPtrAllocMap := unpackArgSFilPublicPieceInfoV2(piecesPtr)
+	cpiecesLen, cpiecesLenAllocMap := (C.size_t)(piecesLen), cgoAllocsUnknown
+	__ret := C.fil_seal_pre_commit_phase1_v2(cregisteredProof, ccacheDirPath, cstagedSectorPath, csealedSectorPath, csectorId, cproverId, cticket, cpiecesPtr, cpiecesLen)
+	runtime.KeepAlive(cpiecesLenAllocMap)
+	packSFilPublicPieceInfoV2(piecesPtr, cpiecesPtr)
+	runtime.KeepAlive(cpiecesPtrAllocMap)
+	runtime.KeepAlive(cticketAllocMap)
+	runtime.KeepAlive(cproverIdAllocMap)
+	runtime.KeepAlive(csectorIdAllocMap)
+	runtime.KeepAlive(sealedSectorPath)
+	runtime.KeepAlive(csealedSectorPathAllocMap)
+	runtime.KeepAlive(stagedSectorPath)
+	runtime.KeepAlive(cstagedSectorPathAllocMap)
+	runtime.KeepAlive(cacheDirPath)
+	runtime.KeepAlive(ccacheDirPathAllocMap)
+	runtime.KeepAlive(cregisteredProofAllocMap)
+	__v := NewFilSealPreCommitPhase1ResponseV2Ref(unsafe.Pointer(__ret))
+	return __v
+}
+
+// FilSealPreCommitPhase2V2 function as declared in filecoin-ffi/filcrypto-v2.h:615
+func FilSealPreCommitPhase2V2(sealPreCommitPhase1OutputPtr string, sealPreCommitPhase1OutputLen uint, cacheDirPath string, sealedSectorPath string) *FilSealPreCommitPhase2ResponseV2 {
+	sealPreCommitPhase1OutputPtr = safeString(sealPreCommitPhase1OutputPtr)
+	csealPreCommitPhase1OutputPtr, csealPreCommitPhase1OutputPtrAllocMap := unpackPUint8TString(sealPreCommitPhase1OutputPtr)
+	csealPreCommitPhase1OutputLen, csealPreCommitPhase1OutputLenAllocMap := (C.size_t)(sealPreCommitPhase1OutputLen), cgoAllocsUnknown
+	cacheDirPath = safeString(cacheDirPath)
+	ccacheDirPath, ccacheDirPathAllocMap := unpackPCharString(cacheDirPath)
+	sealedSectorPath = safeString(sealedSectorPath)
+	csealedSectorPath, csealedSectorPathAllocMap := unpackPCharString(sealedSectorPath)
+	__ret := C.fil_seal_pre_commit_phase2_v2(csealPreCommitPhase1OutputPtr, csealPreCommitPhase1OutputLen, ccacheDirPath, csealedSectorPath)
+	runtime.KeepAlive(sealedSectorPath)
+	runtime.KeepAlive(csealedSectorPathAllocMap)
+	runtime.KeepAlive(cacheDirPath)
+	runtime.KeepAlive(ccacheDirPathAllocMap)
+	runtime.KeepAlive(csealPreCommitPhase1OutputLenAllocMap)
+	runtime.KeepAlive(sealPreCommitPhase1OutputPtr)
+	runtime.KeepAlive(csealPreCommitPhase1OutputPtrAllocMap)
+	__v := NewFilSealPreCommitPhase2ResponseV2Ref(unsafe.Pointer(__ret))
+	return __v
+}
+
+// FilUnsealRangeV2 function as declared in filecoin-ffi/filcrypto-v2.h:623
+func FilUnsealRangeV2(registeredProof FilRegisteredSealProofV2, cacheDirPath string, sealedSectorFdRaw int32, unsealOutputFdRaw int32, sectorId uint64, proverId Fil32ByteArrayV2, ticket Fil32ByteArrayV2, commD Fil32ByteArrayV2, unpaddedByteIndex uint64, unpaddedBytesAmount uint64) *FilUnsealRangeResponseV2 {
+	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProofV2)(registeredProof), cgoAllocsUnknown
+	cacheDirPath = safeString(cacheDirPath)
+	ccacheDirPath, ccacheDirPathAllocMap := unpackPCharString(cacheDirPath)
+	csealedSectorFdRaw, csealedSectorFdRawAllocMap := (C.int)(sealedSectorFdRaw), cgoAllocsUnknown
+	cunsealOutputFdRaw, cunsealOutputFdRawAllocMap := (C.int)(unsealOutputFdRaw), cgoAllocsUnknown
+	csectorId, csectorIdAllocMap := (C.uint64_t)(sectorId), cgoAllocsUnknown
+	cproverId, cproverIdAllocMap := proverId.PassValue()
+	cticket, cticketAllocMap := ticket.PassValue()
+	ccommD, ccommDAllocMap := commD.PassValue()
+	cunpaddedByteIndex, cunpaddedByteIndexAllocMap := (C.uint64_t)(unpaddedByteIndex), cgoAllocsUnknown
+	cunpaddedBytesAmount, cunpaddedBytesAmountAllocMap := (C.uint64_t)(unpaddedBytesAmount), cgoAllocsUnknown
+	__ret := C.fil_unseal_range_v2(cregisteredProof, ccacheDirPath, csealedSectorFdRaw, cunsealOutputFdRaw, csectorId, cproverId, cticket, ccommD, cunpaddedByteIndex, cunpaddedBytesAmount)
+	runtime.KeepAlive(cunpaddedBytesAmountAllocMap)
+	runtime.KeepAlive(cunpaddedByteIndexAllocMap)
+	runtime.KeepAlive(ccommDAllocMap)
+	runtime.KeepAlive(cticketAllocMap)
+	runtime.KeepAlive(cproverIdAllocMap)
+	runtime.KeepAlive(csectorIdAllocMap)
+	runtime.KeepAlive(cunsealOutputFdRawAllocMap)
+	runtime.KeepAlive(csealedSectorFdRawAllocMap)
+	runtime.KeepAlive(cacheDirPath)
+	runtime.KeepAlive(ccacheDirPathAllocMap)
+	runtime.KeepAlive(cregisteredProofAllocMap)
+	__v := NewFilUnsealRangeResponseV2Ref(unsafe.Pointer(__ret))
+	return __v
+}
+
+// FilVerifySealV2 function as declared in filecoin-ffi/filcrypto-v2.h:638
+func FilVerifySealV2(registeredProof FilRegisteredSealProofV2, commR Fil32ByteArrayV2, commD Fil32ByteArrayV2, proverId Fil32ByteArrayV2, ticket Fil32ByteArrayV2, seed Fil32ByteArrayV2, sectorId uint64, proofPtr string, proofLen uint) *FilVerifySealResponseV2 {
+	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProofV2)(registeredProof), cgoAllocsUnknown
+	ccommR, ccommRAllocMap := commR.PassValue()
+	ccommD, ccommDAllocMap := commD.PassValue()
+	cproverId, cproverIdAllocMap := proverId.PassValue()
+	cticket, cticketAllocMap := ticket.PassValue()
+	cseed, cseedAllocMap := seed.PassValue()
+	csectorId, csectorIdAllocMap := (C.uint64_t)(sectorId), cgoAllocsUnknown
+	proofPtr = safeString(proofPtr)
+	cproofPtr, cproofPtrAllocMap := unpackPUint8TString(proofPtr)
+	cproofLen, cproofLenAllocMap := (C.size_t)(proofLen), cgoAllocsUnknown
+	__ret := C.fil_verify_seal_v2(cregisteredProof, ccommR, ccommD, cproverId, cticket, cseed, csectorId, cproofPtr, cproofLen)
+	runtime.KeepAlive(cproofLenAllocMap)
+	runtime.KeepAlive(proofPtr)
+	runtime.KeepAlive(cproofPtrAllocMap)
+	runtime.KeepAlive(csectorIdAllocMap)
+	runtime.KeepAlive(cseedAllocMap)
+	runtime.KeepAlive(cticketAllocMap)
+	runtime.KeepAlive(cproverIdAllocMap)
+	runtime.KeepAlive(ccommDAllocMap)
+	runtime.KeepAlive(ccommRAllocMap)
+	runtime.KeepAlive(cregisteredProofAllocMap)
+	__v := NewFilVerifySealResponseV2Ref(unsafe.Pointer(__ret))
+	return __v
+}
+
+// FilVerifyV2 function as declared in filecoin-ffi/filcrypto-v2.h:659
+func FilVerifyV2(signaturePtr string, flattenedDigestsPtr string, flattenedDigestsLen uint, flattenedPublicKeysPtr string, flattenedPublicKeysLen uint) int32 {
+	signaturePtr = safeString(signaturePtr)
+	csignaturePtr, csignaturePtrAllocMap := unpackPUint8TString(signaturePtr)
+	flattenedDigestsPtr = safeString(flattenedDigestsPtr)
+	cflattenedDigestsPtr, cflattenedDigestsPtrAllocMap := unpackPUint8TString(flattenedDigestsPtr)
+	cflattenedDigestsLen, cflattenedDigestsLenAllocMap := (C.size_t)(flattenedDigestsLen), cgoAllocsUnknown
+	flattenedPublicKeysPtr = safeString(flattenedPublicKeysPtr)
+	cflattenedPublicKeysPtr, cflattenedPublicKeysPtrAllocMap := unpackPUint8TString(flattenedPublicKeysPtr)
+	cflattenedPublicKeysLen, cflattenedPublicKeysLenAllocMap := (C.size_t)(flattenedPublicKeysLen), cgoAllocsUnknown
+	__ret := C.fil_verify_v2(csignaturePtr, cflattenedDigestsPtr, cflattenedDigestsLen, cflattenedPublicKeysPtr, cflattenedPublicKeysLen)
+	runtime.KeepAlive(cflattenedPublicKeysLenAllocMap)
+	runtime.KeepAlive(flattenedPublicKeysPtr)
+	runtime.KeepAlive(cflattenedPublicKeysPtrAllocMap)
+	runtime.KeepAlive(cflattenedDigestsLenAllocMap)
+	runtime.KeepAlive(flattenedDigestsPtr)
+	runtime.KeepAlive(cflattenedDigestsPtrAllocMap)
+	runtime.KeepAlive(signaturePtr)
+	runtime.KeepAlive(csignaturePtrAllocMap)
+	__v := (int32)(__ret)
+	return __v
+}
+
+// FilVerifyWindowPostV2 function as declared in filecoin-ffi/filcrypto-v2.h:668
+func FilVerifyWindowPostV2(randomness Fil32ByteArrayV2, replicasPtr []FilPublicReplicaInfoV2, replicasLen uint, proofsPtr []FilPoStProofV2, proofsLen uint, proverId Fil32ByteArrayV2) *FilVerifyWindowPoStResponseV2 {
+	crandomness, crandomnessAllocMap := randomness.PassValue()
+	creplicasPtr, creplicasPtrAllocMap := unpackArgSFilPublicReplicaInfoV2(replicasPtr)
+	creplicasLen, creplicasLenAllocMap := (C.size_t)(replicasLen), cgoAllocsUnknown
+	cproofsPtr, cproofsPtrAllocMap := unpackArgSFilPoStProofV2(proofsPtr)
+	cproofsLen, cproofsLenAllocMap := (C.size_t)(proofsLen), cgoAllocsUnknown
+	cproverId, cproverIdAllocMap := proverId.PassValue()
+	__ret := C.fil_verify_window_post_v2(crandomness, creplicasPtr, creplicasLen, cproofsPtr, cproofsLen, cproverId)
+	runtime.KeepAlive(cproverIdAllocMap)
+	runtime.KeepAlive(cproofsLenAllocMap)
+	packSFilPoStProofV2(proofsPtr, cproofsPtr)
+	runtime.KeepAlive(cproofsPtrAllocMap)
+	runtime.KeepAlive(creplicasLenAllocMap)
+	packSFilPublicReplicaInfoV2(replicasPtr, creplicasPtr)
+	runtime.KeepAlive(creplicasPtrAllocMap)
+	runtime.KeepAlive(crandomnessAllocMap)
+	__v := NewFilVerifyWindowPoStResponseV2Ref(unsafe.Pointer(__ret))
+	return __v
+}
+
+// FilVerifyWinningPostV2 function as declared in filecoin-ffi/filcrypto-v2.h:678
+func FilVerifyWinningPostV2(randomness Fil32ByteArrayV2, replicasPtr []FilPublicReplicaInfoV2, replicasLen uint, proofsPtr []FilPoStProofV2, proofsLen uint, proverId Fil32ByteArrayV2) *FilVerifyWinningPoStResponseV2 {
+	crandomness, crandomnessAllocMap := randomness.PassValue()
+	creplicasPtr, creplicasPtrAllocMap := unpackArgSFilPublicReplicaInfoV2(replicasPtr)
+	creplicasLen, creplicasLenAllocMap := (C.size_t)(replicasLen), cgoAllocsUnknown
+	cproofsPtr, cproofsPtrAllocMap := unpackArgSFilPoStProofV2(proofsPtr)
+	cproofsLen, cproofsLenAllocMap := (C.size_t)(proofsLen), cgoAllocsUnknown
+	cproverId, cproverIdAllocMap := proverId.PassValue()
+	__ret := C.fil_verify_winning_post_v2(crandomness, creplicasPtr, creplicasLen, cproofsPtr, cproofsLen, cproverId)
+	runtime.KeepAlive(cproverIdAllocMap)
+	runtime.KeepAlive(cproofsLenAllocMap)
+	packSFilPoStProofV2(proofsPtr, cproofsPtr)
+	runtime.KeepAlive(cproofsPtrAllocMap)
+	runtime.KeepAlive(creplicasLenAllocMap)
+	packSFilPublicReplicaInfoV2(replicasPtr, creplicasPtr)
+	runtime.KeepAlive(creplicasPtrAllocMap)
+	runtime.KeepAlive(crandomnessAllocMap)
+	__v := NewFilVerifyWinningPoStResponseV2Ref(unsafe.Pointer(__ret))
+	return __v
+}
+
+// FilWriteWithAlignmentV2 function as declared in filecoin-ffi/filcrypto-v2.h:689
+func FilWriteWithAlignmentV2(registeredProof FilRegisteredSealProofV2, srcFd int32, srcSize uint64, dstFd int32, existingPieceSizesPtr []uint64, existingPieceSizesLen uint) *FilWriteWithAlignmentResponseV2 {
+	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProofV2)(registeredProof), cgoAllocsUnknown
+	csrcFd, csrcFdAllocMap := (C.int)(srcFd), cgoAllocsUnknown
+	csrcSize, csrcSizeAllocMap := (C.uint64_t)(srcSize), cgoAllocsUnknown
+	cdstFd, cdstFdAllocMap := (C.int)(dstFd), cgoAllocsUnknown
+	cexistingPieceSizesPtr, cexistingPieceSizesPtrAllocMap := (*C.uint64_t)(unsafe.Pointer((*sliceHeader)(unsafe.Pointer(&existingPieceSizesPtr)).Data)), cgoAllocsUnknown
+	cexistingPieceSizesLen, cexistingPieceSizesLenAllocMap := (C.size_t)(existingPieceSizesLen), cgoAllocsUnknown
+	__ret := C.fil_write_with_alignment_v2(cregisteredProof, csrcFd, csrcSize, cdstFd, cexistingPieceSizesPtr, cexistingPieceSizesLen)
+	runtime.KeepAlive(cexistingPieceSizesLenAllocMap)
+	runtime.KeepAlive(cexistingPieceSizesPtrAllocMap)
+	runtime.KeepAlive(cdstFdAllocMap)
+	runtime.KeepAlive(csrcSizeAllocMap)
+	runtime.KeepAlive(csrcFdAllocMap)
+	runtime.KeepAlive(cregisteredProofAllocMap)
+	__v := NewFilWriteWithAlignmentResponseV2Ref(unsafe.Pointer(__ret))
+	return __v
+}
+
+// FilWriteWithoutAlignmentV2 function as declared in filecoin-ffi/filcrypto-v2.h:700
+func FilWriteWithoutAlignmentV2(registeredProof FilRegisteredSealProofV2, srcFd int32, srcSize uint64, dstFd int32) *FilWriteWithoutAlignmentResponseV2 {
+	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProofV2)(registeredProof), cgoAllocsUnknown
+	csrcFd, csrcFdAllocMap := (C.int)(srcFd), cgoAllocsUnknown
+	csrcSize, csrcSizeAllocMap := (C.uint64_t)(srcSize), cgoAllocsUnknown
+	cdstFd, cdstFdAllocMap := (C.int)(dstFd), cgoAllocsUnknown
+	__ret := C.fil_write_without_alignment_v2(cregisteredProof, csrcFd, csrcSize, cdstFd)
+	runtime.KeepAlive(cdstFdAllocMap)
+	runtime.KeepAlive(csrcSizeAllocMap)
+	runtime.KeepAlive(csrcFdAllocMap)
+	runtime.KeepAlive(cregisteredProofAllocMap)
+	__v := NewFilWriteWithoutAlignmentResponseV2Ref(unsafe.Pointer(__ret))
 	return __v
 }

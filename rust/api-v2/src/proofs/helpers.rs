@@ -6,19 +6,19 @@ use anyhow::{ensure, Result};
 use ffi_toolkit::{c_str_to_pbuf, c_str_to_rust_str};
 use filecoin_proofs_api_v2::{PrivateReplicaInfo, PublicReplicaInfo, SectorId};
 
-use super::types::{fil_PrivateReplicaInfo, fil_PublicReplicaInfo, fil_RegisteredPoStProof};
-use crate::proofs::types::{fil_PoStProof, PoStProof};
+use super::types::{fil_PrivateReplicaInfoV2, fil_PublicReplicaInfoV2, fil_RegisteredPoStProofV2};
+use crate::proofs::types::{fil_PoStProofV2, PoStProofV2};
 
 #[derive(Debug, Clone)]
-struct PublicReplicaInfoTmp {
-    pub registered_proof: fil_RegisteredPoStProof,
+struct PublicReplicaInfoTmpV2 {
+    pub registered_proof: fil_RegisteredPoStProofV2,
     pub comm_r: [u8; 32],
     pub sector_id: u64,
 }
 
 #[allow(clippy::type_complexity)]
-pub unsafe fn to_public_replica_info_map(
-    replicas_ptr: *const fil_PublicReplicaInfo,
+pub unsafe fn to_public_replica_info_map_v2(
+    replicas_ptr: *const fil_PublicReplicaInfoV2,
     replicas_len: libc::size_t,
 ) -> Result<BTreeMap<SectorId, PublicReplicaInfo>> {
     use rayon::prelude::*;
@@ -28,7 +28,7 @@ pub unsafe fn to_public_replica_info_map(
     let mut replicas = Vec::new();
 
     for ffi_info in from_raw_parts(replicas_ptr, replicas_len) {
-        replicas.push(PublicReplicaInfoTmp {
+        replicas.push(PublicReplicaInfoTmpV2 {
             sector_id: ffi_info.sector_id,
             registered_proof: ffi_info.registered_proof,
             comm_r: ffi_info.comm_r,
@@ -38,7 +38,7 @@ pub unsafe fn to_public_replica_info_map(
     let map = replicas
         .into_par_iter()
         .map(|info| {
-            let PublicReplicaInfoTmp {
+            let PublicReplicaInfoTmpV2 {
                 registered_proof,
                 comm_r,
                 sector_id,
@@ -55,16 +55,16 @@ pub unsafe fn to_public_replica_info_map(
 }
 
 #[derive(Debug, Clone)]
-struct PrivateReplicaInfoTmp {
-    pub registered_proof: fil_RegisteredPoStProof,
+struct PrivateReplicaInfoTmpV2 {
+    pub registered_proof: fil_RegisteredPoStProofV2,
     pub cache_dir_path: std::path::PathBuf,
     pub comm_r: [u8; 32],
     pub replica_path: std::path::PathBuf,
     pub sector_id: u64,
 }
 
-pub unsafe fn to_private_replica_info_map(
-    replicas_ptr: *const fil_PrivateReplicaInfo,
+pub unsafe fn to_private_replica_info_map_v2(
+    replicas_ptr: *const fil_PrivateReplicaInfoV2,
     replicas_len: libc::size_t,
 ) -> Result<BTreeMap<SectorId, PrivateReplicaInfo>> {
     use rayon::prelude::*;
@@ -77,7 +77,7 @@ pub unsafe fn to_private_replica_info_map(
             let cache_dir_path = c_str_to_pbuf(ffi_info.cache_dir_path);
             let replica_path = c_str_to_rust_str(ffi_info.replica_path).to_string();
 
-            PrivateReplicaInfoTmp {
+            PrivateReplicaInfoTmpV2 {
                 registered_proof: ffi_info.registered_proof,
                 cache_dir_path,
                 comm_r: ffi_info.comm_r,
@@ -90,7 +90,7 @@ pub unsafe fn to_private_replica_info_map(
     let map = replicas
         .into_par_iter()
         .map(|info| {
-            let PrivateReplicaInfoTmp {
+            let PrivateReplicaInfoTmpV2 {
                 registered_proof,
                 cache_dir_path,
                 comm_r,
@@ -113,10 +113,10 @@ pub unsafe fn to_private_replica_info_map(
     Ok(map)
 }
 
-pub unsafe fn c_to_rust_post_proofs(
-    post_proofs_ptr: *const fil_PoStProof,
+pub unsafe fn c_to_rust_post_proofs_v2(
+    post_proofs_ptr: *const fil_PoStProofV2,
     post_proofs_len: libc::size_t,
-) -> Result<Vec<PoStProof>> {
+) -> Result<Vec<PoStProofV2>> {
     ensure!(
         !post_proofs_ptr.is_null(),
         "post_proofs_ptr must not be null"
@@ -124,7 +124,7 @@ pub unsafe fn c_to_rust_post_proofs(
 
     let out = from_raw_parts(post_proofs_ptr, post_proofs_len)
         .iter()
-        .map(|fpp| PoStProof {
+        .map(|fpp| PoStProofV2 {
             registered_proof: fpp.registered_proof.into(),
             proof: from_raw_parts(fpp.proof_ptr, fpp.proof_len).to_vec(),
         })

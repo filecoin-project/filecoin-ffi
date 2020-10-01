@@ -6,13 +6,13 @@ use std::sync::Once;
 use bellperson::GPU_NVIDIA_DEVICES;
 use ffi_toolkit::{catch_panic_response, raw_ptr, rust_str_to_c_str, FCPResponseStatus};
 
-use super::types::{fil_GpuDeviceResponse, fil_InitLogFdResponse};
+use super::types::{fil_GpuDeviceResponseV2, fil_InitLogFdResponseV2};
 
 /// Protects the init off the logger.
 static LOG_INIT: Once = Once::new();
 
 /// Ensures the logger is initialized.
-pub fn init_log() {
+pub fn init_log_v2() {
     LOG_INIT.call_once(|| {
         fil_logger::init();
     });
@@ -20,7 +20,7 @@ pub fn init_log() {
 /// Initialize the logger with a file to log into
 ///
 /// Returns `None` if there is already an active logger
-pub fn init_log_with_file(file: File) -> Option<()> {
+pub fn init_log_with_file_v2(file: File) -> Option<()> {
     if LOG_INIT.is_completed() {
         None
     } else {
@@ -33,7 +33,7 @@ pub fn init_log_with_file(file: File) -> Option<()> {
 
 /// Returns an array of strings containing the device names that can be used.
 #[no_mangle]
-pub unsafe extern "C" fn fil_get_gpu_devices() -> *mut fil_GpuDeviceResponse {
+pub unsafe extern "C" fn fil_get_gpu_devices_v2() -> *mut fil_GpuDeviceResponseV2 {
     catch_panic_response(|| {
         let n = GPU_NVIDIA_DEVICES.len();
 
@@ -49,7 +49,7 @@ pub unsafe extern "C" fn fil_get_gpu_devices() -> *mut fil_GpuDeviceResponse {
 
         let dyn_array = Box::into_raw(devices.into_boxed_slice());
 
-        let mut response = fil_GpuDeviceResponse::default();
+        let mut response = fil_GpuDeviceResponseV2::default();
         response.devices_len = n;
         response.devices_ptr = dyn_array as *const *const libc::c_char;
 
@@ -66,11 +66,11 @@ pub unsafe extern "C" fn fil_get_gpu_devices() -> *mut fil_GpuDeviceResponse {
 /// be initializes implicitely and log to stderr.
 #[no_mangle]
 #[cfg(not(target_os = "windows"))]
-pub unsafe extern "C" fn fil_init_log_fd(log_fd: libc::c_int) -> *mut fil_InitLogFdResponse {
+pub unsafe extern "C" fn fil_init_log_fd_v2(log_fd: libc::c_int) -> *mut fil_InitLogFdResponseV2 {
     catch_panic_response(|| {
         let file = File::from_raw_fd(log_fd);
-        let mut response = fil_InitLogFdResponse::default();
-        if init_log_with_file(file).is_none() {
+        let mut response = fil_InitLogFdResponseV2::default();
+        if init_log_with_file_v2(file).is_none() {
             response.status_code = FCPResponseStatus::FCPUnclassifiedError;
             response.error_msg = rust_str_to_c_str("There is already an active logger. `fil_init_log_fd()` needs to be called before any other FFI function is called.");
         }
@@ -81,13 +81,13 @@ pub unsafe extern "C" fn fil_init_log_fd(log_fd: libc::c_int) -> *mut fil_InitLo
 #[cfg(test)]
 mod tests {
 
-    use crate::util::api::fil_get_gpu_devices;
-    use crate::util::types::fil_destroy_gpu_device_response;
+    use crate::util::api::fil_get_gpu_devices_v2;
+    use crate::util::types::fil_destroy_gpu_device_response_v2;
 
     #[test]
     fn test_get_gpu_devices() {
         unsafe {
-            let resp = fil_get_gpu_devices();
+            let resp = fil_get_gpu_devices_v2();
 
             let strings = std::slice::from_raw_parts_mut(
                 (*resp).devices_ptr as *mut *mut libc::c_char,
@@ -105,7 +105,7 @@ mod tests {
                 .collect();
 
             assert_eq!(devices.len(), (*resp).devices_len);
-            fil_destroy_gpu_device_response(resp);
+            fil_destroy_gpu_device_response_v2(resp);
         }
     }
 
@@ -129,8 +129,8 @@ mod tests {
 
         use ffi_toolkit::FCPResponseStatus;
 
-        use crate::util::api::fil_init_log_fd;
-        use crate::util::types::fil_destroy_init_log_fd_response;
+        use crate::util::api::fil_init_log_fd_v2;
+        use crate::util::types::fil_destroy_init_log_fd_response_v2;
 
         let mut fds: [libc::c_int; 2] = [0; 2];
         let res = unsafe { libc::pipe2(fds.as_mut_ptr(), libc::O_CLOEXEC) };
@@ -146,8 +146,8 @@ mod tests {
             // Without setting this env variable there won't be any log output
             env::set_var("RUST_LOG", "debug");
 
-            let resp = fil_init_log_fd(write_fd);
-            fil_destroy_init_log_fd_response(resp);
+            let resp = fil_init_log_fd_v2(write_fd);
+            fil_destroy_init_log_fd_response_v2(resp);
 
             log::info!("a log message");
 
@@ -160,9 +160,9 @@ mod tests {
             assert!(log_message.ends_with("a log message\n"));
 
             // Now test that there is an error when we try to init it again
-            let resp_error = fil_init_log_fd(write_fd);
+            let resp_error = fil_init_log_fd_v2(write_fd);
             assert_ne!((*resp_error).status_code, FCPResponseStatus::FCPNoError);
-            fil_destroy_init_log_fd_response(resp_error);
+            fil_destroy_init_log_fd_response_v2(resp_error);
         }
     }
 }

@@ -229,28 +229,42 @@ commands:
   publish_release:
     steps:
       - run:
-          name: Build and publish the standard release
+          name: Build and publish the standard releases
           command: |
             cd rust
 
-            TARBALL_PATH="/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-standard.tar.gz"
-            RELEASE_NAME="${CIRCLE_PROJECT_REPONAME}-$(uname)-standard"
+            TARBALL_PATH_V1="/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-v1-standard.tar.gz"
+            RELEASE_NAME_V1="${CIRCLE_PROJECT_REPONAME}-$(uname)-v1-standard"
 
-            ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) --verbose --locked --all
-            ./scripts/package-release.sh $TARBALL_PATH
-            ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
+            ./scripts/build-release.sh v1 filcrypto $(cat ./rust-toolchain) --verbose --locked --all
+            ./scripts/package-release.sh v1 $TARBALL_PATH_V1
+            ./scripts/publish-release.sh v1 $TARBALL_PATH_V1 $RELEASE_NAME_V1
+
+            TARBALL_PATH_V2="/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-v2-standard.tar.gz"
+            RELEASE_NAME_V2="${CIRCLE_PROJECT_REPONAME}-$(uname)-v2-standard"
+
+            ./scripts/build-release.sh v2 filcrypto $(cat ./rust-toolchain) --verbose --locked --all
+            ./scripts/package-release.sh v2 $TARBALL_PATH_V2
+            ./scripts/publish-release.sh v2 $TARBALL_PATH_V2 $RELEASE_NAME_V2
       - run:
-          name: Build and publish the optimized release
+          name: Build and publish the optimized releases
           command: |
             cd rust
 
-            TARBALL_PATH="/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-optimized.tar.gz"
-            RELEASE_NAME="${CIRCLE_PROJECT_REPONAME}-$(uname)-optimized"
             RUSTFLAGS="-C target-feature=$(cat rustc-target-features-optimized.json | jq -r '.[].rustc_target_feature' | tr '\n' ',')"
+            TARBALL_PATH_V1="/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-v1-optimized.tar.gz"
+            RELEASE_NAME_V1="${CIRCLE_PROJECT_REPONAME}-$(uname)-v1-optimized"
 
-            ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) --verbose --locked --all
-            ./scripts/package-release.sh $TARBALL_PATH
-            ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
+            ./scripts/build-release.sh v1 filcrypto $(cat ./rust-toolchain) --verbose --locked --all
+            ./scripts/package-release.sh v1 $TARBALL_PATH_V1
+            ./scripts/publish-release.sh v1 $TARBALL_PATH_V1 $RELEASE_NAME_V1
+
+            TARBALL_PATH_V2="/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-v2-optimized.tar.gz"
+            RELEASE_NAME_V2="${CIRCLE_PROJECT_REPONAME}-$(uname)-v2-optimized"
+
+            ./scripts/build-release.sh v2 filcrypto $(cat ./rust-toolchain) --verbose --locked --all
+            ./scripts/package-release.sh v2 $TARBALL_PATH_V2
+            ./scripts/publish-release.sh v2 $TARBALL_PATH_V2 $RELEASE_NAME_V2
   configure_environment_variables:
     parameters:
       linux:

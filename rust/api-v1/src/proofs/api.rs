@@ -536,6 +536,7 @@ pub unsafe extern "C" fn fil_verify_winning_post(
             let post_proofs = c_to_rust_post_proofs(proofs_ptr, proofs_len)?;
             let proofs: Vec<u8> = post_proofs.iter().flat_map(|pp| pp.clone().proof).collect();
 
+            println!("[V1] VERIFYING PROOF {:?}", proofs);
             filecoin_proofs_api_v1::post::verify_winning_post(
                 &randomness.inner,
                 &proofs,
@@ -870,6 +871,7 @@ pub unsafe extern "C" fn fil_generate_winning_post(
                             proof_ptr: proof.as_ptr(),
                         };
 
+                        println!("[V1] GENERATED PROOF {:?}", proof);
                         mem::forget(proof);
 
                         out
