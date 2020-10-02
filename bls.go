@@ -99,7 +99,7 @@ func PrivateKeyGenerate() PrivateKey {
 	return out
 }
 
-// PrivateKeyGenerate generates a private key in a predictable manner
+// PrivateKeyGenerateWithSeed generates a private key in a predictable manner
 func PrivateKeyGenerateWithSeed(seed PrivateKeyGenSeed) PrivateKey {
 	var ary generated_v2.Fil32ByteArray
 	copy(ary.Inner[:], seed[:])

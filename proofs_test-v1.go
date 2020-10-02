@@ -19,31 +19,38 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// TestRegisteredSealProofFunctions ...
 func TestRegisteredSealProofFunctions(t *testing.T) {
 	WorkflowRegisteredSealProofFunctions(newTestingTeeHelper(t))
 }
 
+// TestRegisteredPoStProofFunctions ...
 func TestRegisteredPoStProofFunctions(t *testing.T) {
 	WorkflowRegisteredPoStProofFunctions(newTestingTeeHelper(t))
 }
 
+// TestProofsLifecycle ...
 func TestProofsLifecycle(t *testing.T) {
 	WorkflowProofsLifecycle(newTestingTeeHelper(t))
 }
 
+// TestGetGPUDevicesDoesNotProduceAnError ...
 func TestGetGPUDevicesDoesNotProduceAnError(t *testing.T) {
 	WorkflowGetGPUDevicesDoesNotProduceAnError(newTestingTeeHelper(t))
 }
 
+// TestGenerateWinningPoStSectorChallenge ...
 func TestGenerateWinningPoStSectorChallenge(t *testing.T) {
 	WorkflowGenerateWinningPoStSectorChallenge(newTestingTeeHelper(t))
 }
 
+// TestGenerateWinningPoStSectorChallengeEdgeCase ...
 func TestGenerateWinningPoStSectorChallengeEdgeCase(t *testing.T) {
 	WorkflowGenerateWinningPoStSectorChallengeEdgeCase(newTestingTeeHelper(t))
 }
 
-func TestJsonMarshalSymmetry(t *testing.T) {
+// TestJSONMarshalSymmetry ...
+func TestJSONMarshalSymmetry(t *testing.T) {
 	for i := 0; i < 100; i++ {
 		xs := make([]publicSectorInfo, 10)
 		for j := 0; j < 10; j++ {
@@ -73,6 +80,7 @@ func TestJsonMarshalSymmetry(t *testing.T) {
 	}
 }
 
+// TestDoesNotExhaustFileDescriptors ...
 func TestDoesNotExhaustFileDescriptors(t *testing.T) {
 	m := 500         // loops
 	n := uint64(508) // quantity of piece bytes
@@ -112,6 +120,7 @@ func TestDoesNotExhaustFileDescriptors(t *testing.T) {
 	}
 }
 
+// newTestingTeeHelper ...
 func newTestingTeeHelper(t *testing.T) *testingTeeHelper {
 	return &testingTeeHelper{t: t}
 }
@@ -144,6 +153,7 @@ func (tth *testingTeeHelper) AssertTrue(value bool, msgAndArgs ...interface{}) b
 	return assert.True(tth.t, value, msgAndArgs)
 }
 
+// TestProofTypes ...
 func TestProofTypes(t *testing.T) {
 	assert.EqualValues(t, generated_v1.FilRegisteredPoStProofStackedDrgWinning2KiBV1, abi.RegisteredPoStProof_StackedDrgWinning2KiBV1)
 	assert.EqualValues(t, generated_v1.FilRegisteredPoStProofStackedDrgWinning8MiBV1, abi.RegisteredPoStProof_StackedDrgWinning8MiBV1)

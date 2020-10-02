@@ -39,7 +39,7 @@ type Message []byte
 // Digest is a compressed affine
 type Digest [DigestBytes]byte
 
-// Used when generating a private key deterministically
+// PrivateKeyGenSeed is used when generating a private key deterministically
 type PrivateKeyGenSeed [32]byte
 
 // Proofs
@@ -110,6 +110,7 @@ func (s SortedPrivateSectorInfo) MarshalJSON() ([]byte, error) {
 	return json.Marshal(s.f)
 }
 
+// UnmarshalJSON ...
 func (s *SortedPrivateSectorInfo) UnmarshalJSON(b []byte) error {
 	return json.Unmarshal(b, &s.f)
 }
@@ -120,6 +121,7 @@ type publicSectorInfo struct {
 	SectorNum     abi.SectorNumber
 }
 
+// PrivateSectorInfo ...
 type PrivateSectorInfo struct {
 	proof.SectorInfo
 	CacheDirPath     string

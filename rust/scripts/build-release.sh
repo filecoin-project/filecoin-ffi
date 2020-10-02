@@ -25,6 +25,8 @@ main() {
     #
     __build_output_log_tmp=$(mktemp)
 
+    PWD=$(pwd)
+    echo "PWD: ${PWD}"
     # clean up temp file on exit
     #
     trap '{ rm -f $__build_output_log_tmp; }' EXIT
@@ -46,17 +48,24 @@ main() {
 
     # generate pkg-config
     #
-    sed -e "s;@VERSION@;$(git rev-parse HEAD);" \
-        -e "s;@PRIVATE_LIBS@;${__linker_flags};" "../$2.pc.template" > "../$2.pc"
+    echo "PWD: ${PWD}"
+    if [[ "${PWD}" == *"api"* ]]; then
+        sed -e "s;@VERSION@;$(git rev-parse HEAD);" \
+            -e "s;@PRIVATE_LIBS@;${__linker_flags};" ../"$2.pc.template" > ../"$2.pc"
+        find -L ../../../ -type f -name "$2.h" | read
+    else
+        sed -e "s;@VERSION@;$(git rev-parse HEAD);" \
+            -e "s;@PRIVATE_LIBS@;${__linker_flags};" "$2.pc.template" > "$2.pc"
+        find -L ../../ -type f -name "$2.h" | read
+    fi
 
     # ensure header file was built
     #
-    find -L ../../ -type f -name "$2.h" | read
 
     # ensure the archive file was built
     #
     library_name="lib$(echo $2 | sed 's/-/_/g').a"
-    find -L ../../ -type f -name "${library_name}" | read
+    find -L ./ ../ ../../ -type f -name "${library_name}" | read
 }
 
 main "$@"

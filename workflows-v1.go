@@ -19,6 +19,7 @@ import (
 	"github.com/ipfs/go-cid"
 )
 
+// WorkflowProofsLifecycle ...
 func WorkflowProofsLifecycle(t TestHelper) {
 	minerID := abi.ActorID(42)
 	randomness := [32]byte{9, 9, 9}
@@ -254,12 +255,14 @@ func WorkflowProofsLifecycle(t TestHelper) {
 	t.AssertTrue(isValid, "VerifyWinningPoSt rejected the (standalone) proof as invalid")
 }
 
+// WorkflowGetGPUDevicesDoesNotProduceAnError ...
 func WorkflowGetGPUDevicesDoesNotProduceAnError(t TestHelper) {
 	devices, err := GetGPUDevices()
 	t.RequireNoError(err)
 	fmt.Printf("devices: %+v\n", devices) // clutters up test output, but useful
 }
 
+// WorkflowRegisteredSealProofFunctions ...
 func WorkflowRegisteredSealProofFunctions(t TestHelper) {
 	sealTypes := []abi.RegisteredSealProof{
 		abi.RegisteredSealProof_StackedDrg2KiBV1,
@@ -276,6 +279,7 @@ func WorkflowRegisteredSealProofFunctions(t TestHelper) {
 	}
 }
 
+// WorkflowRegisteredPoStProofFunctions ...
 func WorkflowRegisteredPoStProofFunctions(t TestHelper) {
 	postTypes := []abi.RegisteredPoStProof{
 		abi.RegisteredPoStProof_StackedDrgWinning2KiBV1,
@@ -297,6 +301,7 @@ func WorkflowRegisteredPoStProofFunctions(t TestHelper) {
 	}
 }
 
+// WorkflowGenerateWinningPoStSectorChallengeEdgeCase ...
 func WorkflowGenerateWinningPoStSectorChallengeEdgeCase(t TestHelper) {
 	for i := 0; i < 10000; i++ {
 		var randomnessFr32 [32]byte
@@ -313,6 +318,7 @@ func WorkflowGenerateWinningPoStSectorChallengeEdgeCase(t TestHelper) {
 	}
 }
 
+// WorkflowGenerateWinningPoStSectorChallenge ...
 func WorkflowGenerateWinningPoStSectorChallenge(t TestHelper) {
 	for i := 0; i < 10000; i++ {
 		var randomnessFr32 [32]byte
@@ -394,6 +400,7 @@ func visit(paths *[]string) filepath.WalkFunc {
 	}
 }
 
+// TestHelper ...
 type TestHelper interface {
 	AssertEqual(expected, actual interface{}, msgAndArgs ...interface{}) bool
 	AssertNoError(err error, msgAndArgs ...interface{}) bool

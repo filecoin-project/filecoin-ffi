@@ -27,7 +27,7 @@ import (
 	"github.com/filecoin-project/filecoin-ffi/generated_v2"
 )
 
-// VerifySeal returns true if the sealing operation from which its inputs were
+// VerifySealV2 returns true if the sealing operation from which its inputs were
 // derived was valid, and false if not.
 func VerifySealV2(info proof.SealVerifyInfo) (bool, error) {
 	sp, err := toFilRegisteredSealProof(info.SealProof)
@@ -62,7 +62,7 @@ func VerifySealV2(info proof.SealVerifyInfo) (bool, error) {
 	return resp.IsValid, nil
 }
 
-// VerifyWinningPoSt returns true if the Winning PoSt-generation operation from which its
+// VerifyWinningPoStV2 returns true if the Winning PoSt-generation operation from which its
 // inputs were derived was valid, and false if not.
 func VerifyWinningPoStV2(info proof.WinningPoStVerifyInfo) (bool, error) {
 	filPublicReplicaInfos, filPublicReplicaInfosLen, err := toFilPublicReplicaInfos(info.ChallengedSectors, "winning")
@@ -100,7 +100,7 @@ func VerifyWinningPoStV2(info proof.WinningPoStVerifyInfo) (bool, error) {
 	return resp.IsValid, nil
 }
 
-// VerifyWindowPoSt returns true if the Winning PoSt-generation operation from which its
+// VerifyWindowPoStV2 returns true if the Winning PoSt-generation operation from which its
 // inputs were derived was valid, and false if not.
 func VerifyWindowPoStV2(info proof.WindowPoStVerifyInfo) (bool, error) {
 	filPublicReplicaInfos, filPublicReplicaInfosLen, err := toFilPublicReplicaInfos(info.ChallengedSectors, "window")
@@ -136,7 +136,7 @@ func VerifyWindowPoStV2(info proof.WindowPoStVerifyInfo) (bool, error) {
 	return resp.IsValid, nil
 }
 
-// GeneratePieceCommitment produces a piece commitment for the provided data
+// GeneratePieceCIDV2 produces a piece commitment for the provided data
 // stored at a given path.
 func GeneratePieceCIDV2(proofType abi.RegisteredSealProof, piecePath string, pieceSize abi.UnpaddedPieceSize) (cid.Cid, error) {
 	pieceFile, err := os.Open(piecePath)
@@ -152,7 +152,7 @@ func GeneratePieceCIDV2(proofType abi.RegisteredSealProof, piecePath string, pie
 	return pcd, pieceFile.Close()
 }
 
-// GenerateDataCommitment produces a commitment for the sector containing the
+// GenerateUnsealedCIDV2 produces a commitment for the sector containing the
 // provided pieces.
 func GenerateUnsealedCIDV2(proofType abi.RegisteredSealProof, pieces []abi.PieceInfo) (cid.Cid, error) {
 	sp, err := toFilRegisteredSealProof(proofType)
@@ -177,7 +177,7 @@ func GenerateUnsealedCIDV2(proofType abi.RegisteredSealProof, pieces []abi.Piece
 	return commcid.DataCommitmentV1ToCID(resp.CommD[:])
 }
 
-// GeneratePieceCIDFromFile produces a piece CID for the provided data stored in
+// GeneratePieceCIDFromFileV2 produces a piece CID for the provided data stored in
 //a given file.
 func GeneratePieceCIDFromFileV2(proofType abi.RegisteredSealProof, pieceFile *os.File, pieceSize abi.UnpaddedPieceSize) (cid.Cid, error) {
 	sp, err := toFilRegisteredSealProof(proofType)
@@ -200,7 +200,7 @@ func GeneratePieceCIDFromFileV2(proofType abi.RegisteredSealProof, pieceFile *os
 	return commcid.PieceCommitmentV1ToCID(resp.CommP[:])
 }
 
-// WriteWithAlignment
+// WriteWithAlignmentV2 ...
 func WriteWithAlignmentV2(
 	proofType abi.RegisteredSealProof,
 	pieceFile *os.File,
@@ -238,7 +238,7 @@ func WriteWithAlignmentV2(
 	return abi.UnpaddedPieceSize(resp.LeftAlignmentUnpadded), abi.UnpaddedPieceSize(resp.TotalWriteUnpadded), commP, nil
 }
 
-// WriteWithoutAlignment
+// WriteWithoutAlignmentV2 ...
 func WriteWithoutAlignmentV2(
 	proofType abi.RegisteredSealProof,
 	pieceFile *os.File,
@@ -273,7 +273,7 @@ func WriteWithoutAlignmentV2(
 	return abi.UnpaddedPieceSize(resp.TotalWriteUnpadded), commP, nil
 }
 
-// SealPreCommitPhase1
+// SealPreCommitPhase1V2 ...
 func SealPreCommitPhase1V2(
 	proofType abi.RegisteredSealProof,
 	cacheDirPath string,
@@ -311,7 +311,7 @@ func SealPreCommitPhase1V2(
 	return []byte(toGoStringCopy(resp.SealPreCommitPhase1OutputPtr, resp.SealPreCommitPhase1OutputLen)), nil
 }
 
-// SealPreCommitPhase2
+// SealPreCommitPhase2V2 ...
 func SealPreCommitPhase2V2(
 	phase1Output []byte,
 	cacheDirPath string,
@@ -338,7 +338,7 @@ func SealPreCommitPhase2V2(
 	return commR, commD, nil
 }
 
-// SealCommitPhase1
+// SealCommitPhase1V2 ...
 func SealCommitPhase1V2(
 	proofType abi.RegisteredSealProof,
 	sealedCID cid.Cid,
@@ -388,7 +388,7 @@ func SealCommitPhase1V2(
 	return []byte(toGoStringCopy(resp.SealCommitPhase1OutputPtr, resp.SealCommitPhase1OutputLen)), nil
 }
 
-// SealCommitPhase2
+// SealCommitPhase2V2 ...
 func SealCommitPhase2V2(
 	phase1Output []byte,
 	sectorNum abi.SectorNumber,
@@ -411,7 +411,7 @@ func SealCommitPhase2V2(
 	return []byte(toGoStringCopy(resp.ProofPtr, resp.ProofLen)), nil
 }
 
-// Unseal
+// UnsealV2 ...
 func UnsealV2(
 	proofType abi.RegisteredSealProof,
 	cacheDirPath string,
@@ -432,7 +432,7 @@ func UnsealV2(
 	return UnsealRange(proofType, cacheDirPath, sealedSector, unsealOutput, sectorNum, minerID, ticket, unsealedCID, 0, uint64(unpaddedBytesAmount))
 }
 
-// UnsealRange
+// UnsealRangeV2 ...
 func UnsealRangeV2(
 	proofType abi.RegisteredSealProof,
 	cacheDirPath string,
@@ -478,7 +478,7 @@ func UnsealRangeV2(
 	return nil
 }
 
-// GenerateWinningPoStSectorChallenge
+// GenerateWinningPoStSectorChallengeV2 ...
 func GenerateWinningPoStSectorChallengeV2(
 	proofType abi.RegisteredPoStProof,
 	minerID abi.ActorID,
@@ -518,7 +518,7 @@ func GenerateWinningPoStSectorChallengeV2(
 	return out, nil
 }
 
-// GenerateWinningPoSt
+// GenerateWinningPoStV2 ...
 func GenerateWinningPoStV2(
 	minerID abi.ActorID,
 	privateSectorInfo SortedPrivateSectorInfo,
@@ -558,7 +558,7 @@ func GenerateWinningPoStV2(
 	return proofs, nil
 }
 
-// GenerateWindowPoSt
+// GenerateWindowPoStV2 ...
 func GenerateWindowPoStV2(
 	minerID abi.ActorID,
 	privateSectorInfo SortedPrivateSectorInfo,
@@ -599,7 +599,7 @@ func GenerateWindowPoStV2(
 	return proofs, faultySectors, nil
 }
 
-// GetGPUDevices produces a slice of strings, each representing the name of a
+// GetGPUDevicesV2 produces a slice of strings, each representing the name of a
 // detected GPU device.
 func GetGPUDevicesV2() ([]string, error) {
 	resp := generated_v2.FilGetGpuDevices()
@@ -617,7 +617,7 @@ func GetGPUDevicesV2() ([]string, error) {
 	return out, nil
 }
 
-// GetSealVersion
+// GetSealVersionV2 ...
 func GetSealVersionV2(proofType abi.RegisteredSealProof) (string, error) {
 	sp, err := toFilRegisteredSealProof(proofType)
 	if err != nil {
@@ -636,7 +636,7 @@ func GetSealVersionV2(proofType abi.RegisteredSealProof) (string, error) {
 	return generated_v2.RawString(resp.StringVal).Copy(), nil
 }
 
-// GetPoStVersion
+// GetPoStVersionV2 ...
 func GetPoStVersionV2(proofType abi.RegisteredPoStProof) (string, error) {
 	pp, err := toFilRegisteredPoStProof(proofType)
 	if err != nil {
@@ -655,7 +655,7 @@ func GetPoStVersionV2(proofType abi.RegisteredPoStProof) (string, error) {
 	return generated_v2.RawString(resp.StringVal).Copy(), nil
 }
 
-// ClearCache
+// ClearCacheV2 ...
 func ClearCacheV2(sectorSize uint64, cacheDirPath string) error {
 	resp := generated_v2.FilClearCache(sectorSize, cacheDirPath)
 	resp.Deref()
@@ -669,6 +669,7 @@ func ClearCacheV2(sectorSize uint64, cacheDirPath string) error {
 	return nil
 }
 
+// FauxRepV2 ...
 func FauxRepV2(proofType abi.RegisteredSealProof, cacheDirPath string, sealedSectorPath string) (cid.Cid, error) {
 	sp, err := toFilRegisteredSealProof(proofType)
 	if err != nil {
@@ -687,6 +688,7 @@ func FauxRepV2(proofType abi.RegisteredSealProof, cacheDirPath string, sealedSec
 	return commcid.ReplicaCommitmentV1ToCID(resp.Commitment[:])
 }
 
+// FauxRep2V2 ...
 func FauxRep2V2(proofType abi.RegisteredSealProof, cacheDirPath string, existingPAuxPath string) (cid.Cid, error) {
 	sp, err := toFilRegisteredSealProof(proofType)
 	if err != nil {
