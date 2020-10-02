@@ -2,7 +2,10 @@ use std::io::{Error, SeekFrom};
 
 use anyhow::Result;
 
-pub use ffi_toolkit::{code_and_message_impl, free_c_str, c_str_to_pbuf, catch_panic_response, raw_ptr, rust_str_to_c_str, CodeAndMessage, FCPResponseStatus};
+pub use ffi_toolkit::{
+    c_str_to_pbuf, catch_panic_response, code_and_message_impl, free_c_str, raw_ptr,
+    rust_str_to_c_str, CodeAndMessage, FCPResponseStatus,
+};
 
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]

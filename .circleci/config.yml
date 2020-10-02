@@ -236,14 +236,14 @@ commands:
             TARBALL_PATH_V1="/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-v1-standard.tar.gz"
             RELEASE_NAME_V1="${CIRCLE_PROJECT_REPONAME}-$(uname)-v1-standard"
 
-            ./scripts/build-release.sh v1 filcrypto $(cat ./rust-toolchain) --verbose --locked --all
+            ./scripts/build-release.sh v1 filcrypto-v1 $(cat ./rust-toolchain) --verbose --locked --all
             ./scripts/package-release.sh v1 $TARBALL_PATH_V1
             ./scripts/publish-release.sh v1 $TARBALL_PATH_V1 $RELEASE_NAME_V1
 
             TARBALL_PATH_V2="/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-v2-standard.tar.gz"
             RELEASE_NAME_V2="${CIRCLE_PROJECT_REPONAME}-$(uname)-v2-standard"
 
-            ./scripts/build-release.sh v2 filcrypto $(cat ./rust-toolchain) --verbose --locked --all
+            ./scripts/build-release.sh v2 filcrypto-v2 $(cat ./rust-toolchain) --verbose --locked --all
             ./scripts/package-release.sh v2 $TARBALL_PATH_V2
             ./scripts/publish-release.sh v2 $TARBALL_PATH_V2 $RELEASE_NAME_V2
       - run:

@@ -12,8 +12,8 @@ use rand::SeedableRng;
 use rand_chacha::ChaChaRng;
 use rayon::prelude::*;
 
-use crate::types::fil_32ByteArray;
 use crate::bls::types;
+use crate::types::fil_32ByteArray;
 
 pub const SIGNATURE_BYTES: usize = 96;
 pub const PRIVATE_KEY_BYTES: usize = 32;

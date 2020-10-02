@@ -579,7 +579,11 @@ pub unsafe extern "C" fn fil_generate_window_post(
         let mut response = fil_GenerateWindowPoStResponse::default();
 
         let result = to_private_replica_info_map(replicas_ptr, replicas_len).and_then(|rs| {
-            filecoin_proofs_api_v1::post::generate_window_post(&randomness.inner, &rs, prover_id.inner)
+            filecoin_proofs_api_v1::post::generate_window_post(
+                &randomness.inner,
+                &rs,
+                prover_id.inner,
+            )
         });
 
         match result {

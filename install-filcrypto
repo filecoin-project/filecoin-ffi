@@ -43,11 +43,11 @@ main() {
         # copy build assets into root of filecoin-ffi
         #
         find -L "${__tmp_dir}" -type f -name ffi-common.h -exec cp -- "{}" . \;
-        find -L "${__tmp_dir}" -type f -name filcrypto-${version}.h -exec cp -- "{}" . \;
-        find -L "${__tmp_dir}" -type f -name libfilcrypto-${version}.a -exec cp -- "{}" . \;
-        find -L "${__tmp_dir}" -type f -name filcrypto-${version}.pc -exec cp -- "{}" . \;
+        find -L "${__tmp_dir}" -type f -name filcrypto-"${version}".h -exec cp -- "{}" . \;
+        find -L "${__tmp_dir}" -type f -name libfilcrypto-"${version}".a -exec cp -- "{}" . \;
+        find -L "${__tmp_dir}" -type f -name filcrypto-"${version}".pc -exec cp -- "{}" . \;
 
-        check_installed_files ${version}
+        check_installed_files "${version}"
 
         (>&2 echo "[install-filcrypto/main] successfully installed prebuilt libfilcrypto-${version}")
     else
@@ -60,9 +60,9 @@ main() {
         # copy from Rust's build directory (target) to root of filecoin-ffi
         #
         find -L "include" -type f -name ffi-common.h -exec cp -- "{}" . \;
-        find -L "include" -type f -name filcrypto-${version}.h -exec cp -- "{}" . \;
-        find -L "${rust_sources_dir}/target/release" -type f -name libfilcrypto_${version}.a -exec cp -- "{}" . \;
-        find -L "${rust_sources_dir}" -type f -name filcrypto-${version}.pc -exec cp -- "{}" . \;
+        find -L "include" -type f -name filcrypto-"${version}".h -exec cp -- "{}" . \;
+        find -L "${rust_sources_dir}/target/release" -type f -name libfilcrypto_"${version}".a -exec cp -- "{}" . \;
+        find -L "${rust_sources_dir}" -type f -name filcrypto-"${version}".pc -exec cp -- "{}" . \;
 
         check_installed_files "${version}"
 

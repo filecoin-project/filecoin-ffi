@@ -2,5 +2,5 @@
 #![allow(clippy::missing_safety_doc)]
 
 pub mod bls;
-pub mod util;
 pub mod types;
+pub mod util;

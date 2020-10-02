@@ -578,7 +578,11 @@ pub unsafe extern "C" fn fil_generate_window_post_v2(
         let mut response = fil_GenerateWindowPoStResponse::default();
 
         let result = to_private_replica_info_map_v2(replicas_ptr, replicas_len).and_then(|rs| {
-            filecoin_proofs_api_v2::post::generate_window_post(&randomness.inner, &rs, prover_id.inner)
+            filecoin_proofs_api_v2::post::generate_window_post(
+                &randomness.inner,
+                &rs,
+                prover_id.inner,
+            )
         });
 
         match result {
@@ -1208,7 +1212,7 @@ pub mod tests {
     use std::os::unix::io::IntoRawFd;
 
     use anyhow::Result;
-    use ffi_toolkit::{c_str_to_rust_str};
+    use ffi_toolkit::c_str_to_rust_str;
     use rand::{thread_rng, Rng};
 
     use super::*;
@@ -1453,8 +1457,11 @@ pub mod tests {
                 },
             ];
 
-            let resp_x =
-                fil_generate_data_commitment_v2(registered_proof_seal, pieces.as_ptr(), pieces.len());
+            let resp_x = fil_generate_data_commitment_v2(
+                registered_proof_seal,
+                pieces.as_ptr(),
+                pieces.len(),
+            );
 
             if (*resp_x).status_code != FCPResponseStatus::FCPNoError {
                 let msg = c_str_to_rust_str((*resp_x).error_msg);
@@ -1816,8 +1823,11 @@ pub mod tests {
                 },
             ];
 
-            let resp_x =
-                fil_generate_data_commitment_v2(registered_proof_seal, pieces.as_ptr(), pieces.len());
+            let resp_x = fil_generate_data_commitment_v2(
+                registered_proof_seal,
+                pieces.as_ptr(),
+                pieces.len(),
+            );
 
             if (*resp_x).status_code != FCPResponseStatus::FCPNoError {
                 let msg = c_str_to_rust_str((*resp_x).error_msg);

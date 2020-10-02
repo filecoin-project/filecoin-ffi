@@ -2,9 +2,7 @@ use std::ptr;
 use std::slice::from_raw_parts;
 
 use drop_struct_macro_derive::DropStructMacro;
-use ffi_common::types::{
-    code_and_message_impl, free_c_str, CodeAndMessage, FCPResponseStatus,
-};
+use ffi_common::types::{code_and_message_impl, free_c_str, CodeAndMessage, FCPResponseStatus};
 use filecoin_proofs_api_v1::{
     PieceInfo, RegisteredPoStProof, RegisteredSealProof, UnpaddedBytesAmount,
 };
