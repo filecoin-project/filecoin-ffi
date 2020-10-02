@@ -1,5 +1,4 @@
 **/*.rs.bk
-**/include
 **/paramcache
 **/target
 .install-filcrypto
