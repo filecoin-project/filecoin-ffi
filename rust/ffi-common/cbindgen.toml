@@ -1,0 +1,23 @@
+header = """
+/* ffi_common Header */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+"""
+trailer = """
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
+"""
+
+include_guard = "ffi_common_H"
+include_version = true
+language = "C"
+
+[parse]
+parse_deps = true
+include = ["ffi-toolkit"]
+
+[enum]
+prefix_with_name = true

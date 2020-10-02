@@ -1,6 +1,6 @@
 ---
 GENERATOR:
-  PackageName: generated
+  PackageName: generated_v1
   PackageDescription:
   PackageLicense:
   Options:
@@ -8,11 +8,10 @@ GENERATOR:
   Includes:
     - ../ffi-common.h
     - ../filcrypto-v1.h
-    - ../filcrypto-v2.h
   FlagGroups:
     - {name: CXXFLAGS, flags: ["-std=c++11"]}
-    - {name: LDFLAGS, flags: ["-L${SRCDIR}/.. -lstdc++ -lfilcrypto_v1 -lfilcrypto_v2"]}
-    - {name: pkg-config, flags: ["${SRCDIR}/../filcrypto-v1.pc", "${SRCDIR}/../filcrypto-v2.pc"]}
+    - {name: LDFLAGS, flags: ["-L${SRCDIR}/.. -lstdc++ -lfilcrypto_v1"]}
+    - {name: pkg-config, flags: ["${SRCDIR}/../filcrypto-v1.pc"]}
 
 PARSER:
   Defines:
@@ -21,7 +20,6 @@ PARSER:
   SourcesPaths:
     - ./ffi-common.h
     - ./filcrypto-v1.h
-    - ./filcrypto-v2.h
 
 TRANSLATOR:
   ConstRules:

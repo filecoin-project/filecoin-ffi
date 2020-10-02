@@ -29,8 +29,10 @@ anyhow = "1.0.23"
 bellperson = { version = "0.9.2", features = ["gpu"] }
 serde_json = "1.0.46"
 
-neptune = "=1.1.1"
-neptune-triton = "=1.0.0"
+neptune = "=1.2.0"
+neptune-triton = "=1.1.0"
+
+ffi-common = { path = "../ffi-common" }
 
 [dependencies.filecoin-proofs-api-v1]
 package = "filecoin-proofs-api"

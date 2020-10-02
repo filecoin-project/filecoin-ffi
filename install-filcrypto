@@ -42,6 +42,7 @@ main() {
 
         # copy build assets into root of filecoin-ffi
         #
+        find -L "${__tmp_dir}" -type f -name ffi-common.h -exec cp -- "{}" . \;
         find -L "${__tmp_dir}" -type f -name filcrypto-${version}.h -exec cp -- "{}" . \;
         find -L "${__tmp_dir}" -type f -name libfilcrypto-${version}.a -exec cp -- "{}" . \;
         find -L "${__tmp_dir}" -type f -name filcrypto-${version}.pc -exec cp -- "{}" . \;
@@ -58,6 +59,7 @@ main() {
 
         # copy from Rust's build directory (target) to root of filecoin-ffi
         #
+        find -L "include" -type f -name ffi-common.h -exec cp -- "{}" . \;
         find -L "include" -type f -name filcrypto-${version}.h -exec cp -- "{}" . \;
         find -L "${rust_sources_dir}/target/release" -type f -name libfilcrypto_${version}.a -exec cp -- "{}" . \;
         find -L "${rust_sources_dir}" -type f -name filcrypto-${version}.pc -exec cp -- "{}" . \;
@@ -209,6 +211,10 @@ get_release_flags() {
 
 check_installed_files() {
     local version=$1
+    if [[ ! -f "./ffi-common.h" ]]; then
+        (>&2 echo "[check_installed_files] failed to install ffi-common.h")
+        exit 1
+    fi
     if [[ ! -f "./filcrypto-${version}.h" ]]; then
         (>&2 echo "[check_installed_files] failed to install filcrypto-${version}.h")
         exit 1

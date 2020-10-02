@@ -1,6 +1,7 @@
 [workspace]
 
 members = [
+  "ffi-common",
   "api-v1",
   "api-v2",
 ]

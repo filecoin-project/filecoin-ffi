@@ -1,18 +1,17 @@
 ---
 GENERATOR:
-  PackageName: generated
+  PackageName: generated_v2
   PackageDescription:
   PackageLicense:
   Options:
     SafeStrings: true
   Includes:
     - ../ffi-common.h
-    - ../filcrypto-v1.h
     - ../filcrypto-v2.h
   FlagGroups:
     - {name: CXXFLAGS, flags: ["-std=c++11"]}
-    - {name: LDFLAGS, flags: ["-L${SRCDIR}/.. -lstdc++ -lfilcrypto_v1 -lfilcrypto_v2"]}
-    - {name: pkg-config, flags: ["${SRCDIR}/../filcrypto-v1.pc", "${SRCDIR}/../filcrypto-v2.pc"]}
+    - {name: LDFLAGS, flags: ["-L${SRCDIR}/.. -lstdc++ -lfilcrypto_v2"]}
+    - {name: pkg-config, flags: ["${SRCDIR}/../filcrypto-v2.pc"]}
 
 PARSER:
   Defines:
@@ -20,7 +19,6 @@ PARSER:
     - ./headerstubs/
   SourcesPaths:
     - ./ffi-common.h
-    - ./filcrypto-v1.h
     - ./filcrypto-v2.h
 
 TRANSLATOR:
@@ -33,7 +31,7 @@ TRANSLATOR:
   Rules:
     global:
       - {action: accept, from: "^fil"}
-      - {action: accept, from: "^FCPResponseStatus"}
+      - {action: deny, from: "^FCPResponseStatus"}
       - {transform: export}
     private:
       - {transform: unexport}

@@ -1,4 +1,4 @@
-use ffi_toolkit::{
+use ffi_common::types::{
     c_str_to_pbuf, catch_panic_response, raw_ptr, rust_str_to_c_str, FCPResponseStatus,
 };
 use filecoin_proofs_api_v1::seal::SealPreCommitPhase2Output;
@@ -13,7 +13,8 @@ use std::slice::from_raw_parts;
 
 use super::helpers::{c_to_rust_post_proofs, to_private_replica_info_map};
 use super::types::*;
-use crate::util::api::init_log;
+use ffi_common::types::*;
+use ffi_common::util::api::init_log;
 
 /// TODO: document
 ///
