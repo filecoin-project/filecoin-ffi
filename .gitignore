@@ -7,7 +7,3 @@ filecoin.h
 filecoin.pc
 *.a
 simulator
-filcrypto-v1.h
-filcrypto-v1.pc
-filcrypto-v2.h
-filcrypto-v2.pc
