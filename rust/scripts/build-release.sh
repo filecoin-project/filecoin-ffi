@@ -48,24 +48,24 @@ main() {
 
     # generate pkg-config
     #
+    # ensure header file was built
+    #
+    # ensure the archive file was built
+    #
+    library_name="lib$(echo $2 | sed 's/-/_/g').a"
     echo "PWD: ${PWD}"
     if [[ "${PWD}" == *"api"* ]]; then
         sed -e "s;@VERSION@;$(git rev-parse HEAD);" \
             -e "s;@PRIVATE_LIBS@;${__linker_flags};" ../"$2.pc.template" > ../"$2.pc"
         find -L ../../../ -type f -name "$2.h" | read
+        find -L ../../../ -type f -name "${library_name}" | read
     else
         sed -e "s;@VERSION@;$(git rev-parse HEAD);" \
             -e "s;@PRIVATE_LIBS@;${__linker_flags};" "$2.pc.template" > "$2.pc"
         find -L ../../ -type f -name "$2.h" | read
+        find -L ../../ -type f -name "${library_name}" | read
     fi
 
-    # ensure header file was built
-    #
-
-    # ensure the archive file was built
-    #
-    library_name="lib$(echo $2 | sed 's/-/_/g').a"
-    find -L ./ ../ ../../ -type f -name "${library_name}" | read
 }
 
 main "$@"
