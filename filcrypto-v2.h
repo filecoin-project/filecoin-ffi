@@ -15,12 +15,6 @@ extern "C" {
 #include <stdint.h>
 #include <stdlib.h>
 
-typedef enum {
-  FCPResponseStatus_FCPNoError = 0,
-  FCPResponseStatus_FCPUnclassifiedError = 1,
-  FCPResponseStatus_FCPCallerError = 2,
-  FCPResponseStatus_FCPReceiverError = 3,
-} FCPResponseStatus;
 
 typedef enum {
   fil_RegisteredPoStProof_StackedDrgWinning2KiBV2,
