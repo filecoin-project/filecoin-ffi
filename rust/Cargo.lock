@@ -1062,7 +1062,19 @@ checksum = "5d0cd82d2ae0577885bd03f742d627c6ffd424294a1163db172b9382715d382d"
 dependencies = [
  "anyhow",
  "bincode",
- "filecoin-proofs",
+ "filecoin-proofs 5.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "paired",
+ "serde",
+]
+
+[[package]]
+name = "filecoin-proofs-api-v2"
+version = "6.0.0"
+source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=proofs-upgrade#ca8290ad6cb6bbd61e99c1a83e78b5944e5b07a9"
+dependencies = [
+ "anyhow",
+ "bincode",
+ "filecoin-proofs 5.2.1 (git+https://github.com/filecoin-project/rust-fil-proofs?branch=upgrade-testing)",
  "paired",
  "serde",
 ]
@@ -2636,6 +2648,16 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 [[package]]
 name = "storage-proofs"
 version = "5.2.1"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=upgrade-testing#570898d62294cf9cd8ee6eae6bce11c0aae3221d"
+dependencies = [
+ "storage-proofs-core 5.2.1 (git+https://github.com/filecoin-project/rust-fil-proofs?branch=upgrade-testing)",
+ "storage-proofs-porep 5.2.1 (git+https://github.com/filecoin-project/rust-fil-proofs?branch=upgrade-testing)",
+ "storage-proofs-post 5.2.1 (git+https://github.com/filecoin-project/rust-fil-proofs?branch=upgrade-testing)",
+]
+
+[[package]]
+name = "storage-proofs"
+version = "5.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bb2827bf577e6f792ab93508d441acd22421530073e5fcf32b8372221eec1bea"
 dependencies = [
@@ -2723,7 +2745,42 @@ dependencies = [
 
 [[package]]
 name = "storage-proofs-porep"
-version = "5.2.0"
+version = "5.2.1"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=upgrade-testing#570898d62294cf9cd8ee6eae6bce11c0aae3221d"
+dependencies = [
+ "anyhow",
+ "bellperson",
+ "bincode",
+ "byte-slice-cast",
+ "byteorder 1.3.4",
+ "crossbeam",
+ "digest 0.9.0",
+ "fff",
+ "fil-sapling-crypto",
+ "generic-array 0.13.2",
+ "hex",
+ "lazy_static",
+ "log",
+ "mapr",
+ "merkletree",
+ "neptune",
+ "num-bigint 0.2.6",
+ "num-traits 0.2.12",
+ "num_cpus",
+ "paired",
+ "pretty_assertions",
+ "rand 0.7.3",
+ "rayon",
+ "serde",
+ "serde_json",
+ "sha2",
+ "sha2raw 2.0.0 (git+https://github.com/filecoin-project/rust-fil-proofs?branch=upgrade-testing)",
+ "storage-proofs-core 5.2.1 (git+https://github.com/filecoin-project/rust-fil-proofs?branch=upgrade-testing)",
+]
+
+[[package]]
+name = "storage-proofs-porep"
+version = "5.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fed2e6ab67a74d1dc6c26c11d1d2a4cee0f7f150930aa0c57c8f453bba0baaa3"
 dependencies = [
