@@ -177,23 +177,17 @@ pub struct fil_VanillaProof {
 
 impl Clone for fil_VanillaProof {
     fn clone(&self) -> Self {
-        let mut clone = fil_VanillaProof {
-            proof_len: 0,
-            proof_ptr: ptr::null(),
-        };
+        let slice: &[u8] = unsafe { std::slice::from_raw_parts(self.proof_ptr, self.proof_len) };
+        let cloned: Vec<u8> = slice.to_vec();
+        debug_assert_eq!(self.proof_len, cloned.len());
 
-        unsafe {
-            clone.proof_len = self.proof_len;
-            clone.proof_ptr = libc::malloc(self.proof_len) as *const u8;
+        let proof_ptr = cloned.as_ptr();
+        std::mem::forget(cloned);
 
-            libc::memcpy(
-                clone.proof_ptr as *mut core::ffi::c_void,
-                self.proof_ptr as *const core::ffi::c_void,
-                self.proof_len,
-            );
+        fil_VanillaProof {
+            proof_len: self.proof_len,
+            proof_ptr,
         }
-
-        clone
     }
 }
 
