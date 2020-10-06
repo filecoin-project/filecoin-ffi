@@ -574,6 +574,7 @@ func GenerateWindowPoSt(
 	resp.Deref()
 	resp.ProofsPtr = make([]generated.FilPoStProof, resp.ProofsLen)
 	resp.Deref()
+	resp.FaultySectorsPtr = resp.FaultySectorsPtr[:resp.FaultySectorsLen]
 
 	defer generated.FilDestroyGenerateWindowPostResponse(resp)
 
@@ -767,6 +768,28 @@ func toFilPublicReplicaInfos(src []proof.SectorInfo, typ string) ([]generated.Fi
 	}
 
 	return out, uint(len(out)), nil
+}
+
+func toFilPrivateReplicaInfo(src PrivateSectorInfo) (generated.FilPrivateReplicaInfo, func(), error) {
+	commR, err := to32ByteCommR(src.SealedCID)
+	if err != nil {
+		return generated.FilPrivateReplicaInfo{}, func() {}, err
+	}
+
+	pp, err := toFilRegisteredPoStProof(src.PoStProofType)
+	if err != nil {
+		return generated.FilPrivateReplicaInfo{}, func() {}, err
+	}
+
+	out := generated.FilPrivateReplicaInfo{
+		RegisteredProof: pp,
+		CacheDirPath:    src.CacheDirPath,
+		CommR:           commR.Inner,
+		ReplicaPath:     src.SealedSectorPath,
+		SectorId:        uint64(src.SectorNumber),
+	}
+	free := out.AllocateProxy()
+	return out, free, nil
 }
 
 func toFilPrivateReplicaInfos(src []PrivateSectorInfo, typ string) ([]generated.FilPrivateReplicaInfo, uint, func(), error) {
@@ -991,4 +1014,24 @@ func toGoStringCopy(raw string, rawLen uint) string {
 type stringHeader struct {
 	Data unsafe.Pointer
 	Len  int
+}
+
+func toVanillaProofs(src [][]byte) ([]generated.FilVanillaProof, func()) {
+	frees := make([]func(), len(src))
+
+	out := make([]generated.FilVanillaProof, len(src))
+	for idx := range out {
+		out[idx] = generated.FilVanillaProof{
+			ProofLen: uint(len(src[idx])),
+			ProofPtr: string(src[idx]),
+		}
+
+		frees[idx] = out[idx].AllocateProxy()
+	}
+
+	return out, func() {
+		for idx := range frees {
+			frees[idx]()
+		}
+	}
 }

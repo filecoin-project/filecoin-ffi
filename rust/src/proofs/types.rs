@@ -169,6 +169,38 @@ impl Drop for fil_PoStProof {
     }
 }
 
+#[repr(C)]
+pub struct fil_VanillaProof {
+    pub proof_len: libc::size_t,
+    pub proof_ptr: *const u8,
+}
+
+impl Clone for fil_VanillaProof {
+    fn clone(&self) -> Self {
+        let slice: &[u8] = unsafe { std::slice::from_raw_parts(self.proof_ptr, self.proof_len) };
+        let cloned: Vec<u8> = slice.to_vec();
+        debug_assert_eq!(self.proof_len, cloned.len());
+
+        let proof_ptr = cloned.as_ptr();
+        std::mem::forget(cloned);
+
+        fil_VanillaProof {
+            proof_len: self.proof_len,
+            proof_ptr,
+        }
+    }
+}
+
+impl Drop for fil_VanillaProof {
+    fn drop(&mut self) {
+        // Note that this operation also does the equivalent of
+        // libc::free(self.proof_ptr as *mut libc::c_void);
+        let _ = unsafe {
+            Vec::from_raw_parts(self.proof_ptr as *mut u8, self.proof_len, self.proof_len)
+        };
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct PoStProof {
     pub registered_proof: RegisteredPoStProof,
@@ -225,6 +257,57 @@ impl Default for fil_GenerateWinningPoStSectorChallenge {
 }
 
 code_and_message_impl!(fil_GenerateWinningPoStSectorChallenge);
+
+#[repr(C)]
+#[derive(DropStructMacro)]
+pub struct fil_GenerateFallbackSectorChallengesResponse {
+    pub error_msg: *const libc::c_char,
+    pub status_code: FCPResponseStatus,
+    pub ids_ptr: *const u64,
+    pub ids_len: libc::size_t,
+    pub challenges_ptr: *const u64,
+    pub challenges_len: libc::size_t,
+    pub challenges_stride: libc::size_t,
+}
+
+impl Default for fil_GenerateFallbackSectorChallengesResponse {
+    fn default() -> fil_GenerateFallbackSectorChallengesResponse {
+        fil_GenerateFallbackSectorChallengesResponse {
+            challenges_len: 0,
+            challenges_stride: 0,
+            challenges_ptr: ptr::null(),
+            ids_len: 0,
+            ids_ptr: ptr::null(),
+            error_msg: ptr::null(),
+            status_code: FCPResponseStatus::FCPNoError,
+        }
+    }
+}
+
+code_and_message_impl!(fil_GenerateFallbackSectorChallengesResponse);
+
+#[repr(C)]
+#[derive(DropStructMacro)]
+pub struct fil_GenerateSingleVanillaProofResponse {
+    pub error_msg: *const libc::c_char,
+    pub vanilla_proof: fil_VanillaProof,
+    pub status_code: FCPResponseStatus,
+}
+
+impl Default for fil_GenerateSingleVanillaProofResponse {
+    fn default() -> fil_GenerateSingleVanillaProofResponse {
+        fil_GenerateSingleVanillaProofResponse {
+            error_msg: ptr::null(),
+            vanilla_proof: fil_VanillaProof {
+                proof_len: 0,
+                proof_ptr: ptr::null(),
+            },
+            status_code: FCPResponseStatus::FCPNoError,
+        }
+    }
+}
+
+code_and_message_impl!(fil_GenerateSingleVanillaProofResponse);
 
 #[repr(C)]
 #[derive(DropStructMacro)]

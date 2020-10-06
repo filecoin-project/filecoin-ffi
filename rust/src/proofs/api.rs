@@ -3,10 +3,11 @@ use ffi_toolkit::{
 };
 use filecoin_proofs_api::seal::SealPreCommitPhase2Output;
 use filecoin_proofs_api::{
-    PieceInfo, RegisteredPoStProof, RegisteredSealProof, SectorId, UnpaddedByteIndex,
-    UnpaddedBytesAmount,
+    PieceInfo, PrivateReplicaInfo, RegisteredPoStProof, RegisteredSealProof, SectorId,
+    UnpaddedByteIndex, UnpaddedBytesAmount,
 };
-use log::info;
+
+use log::{error, info};
 use std::mem;
 use std::path::PathBuf;
 use std::slice::from_raw_parts;
@@ -14,6 +15,9 @@ use std::slice::from_raw_parts;
 use super::helpers::{c_to_rust_post_proofs, to_private_replica_info_map};
 use super::types::*;
 use crate::util::api::init_log;
+
+// A byte serialized representation of a vanilla proof.
+pub type VanillaProof = Vec<u8>;
 
 /// TODO: document
 ///
@@ -513,6 +517,325 @@ pub unsafe extern "C" fn fil_verify_seal(
     })
 }
 
+/// TODO: document
+///
+#[no_mangle]
+pub unsafe extern "C" fn fil_generate_winning_post_sector_challenge(
+    registered_proof: fil_RegisteredPoStProof,
+    randomness: fil_32ByteArray,
+    sector_set_len: u64,
+    prover_id: fil_32ByteArray,
+) -> *mut fil_GenerateWinningPoStSectorChallenge {
+    catch_panic_response(|| {
+        init_log();
+
+        info!("generate_winning_post_sector_challenge: start");
+
+        let mut response = fil_GenerateWinningPoStSectorChallenge::default();
+
+        let result = filecoin_proofs_api::post::generate_winning_post_sector_challenge(
+            registered_proof.into(),
+            &randomness.inner,
+            sector_set_len,
+            prover_id.inner,
+        );
+
+        match result {
+            Ok(output) => {
+                let mapped: Vec<u64> = output.into_iter().map(u64::from).collect();
+
+                response.status_code = FCPResponseStatus::FCPNoError;
+                response.ids_ptr = mapped.as_ptr();
+                response.ids_len = mapped.len();
+
+                mem::forget(mapped);
+            }
+            Err(err) => {
+                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+            }
+        }
+
+        info!("generate_winning_post_sector_challenge: finish");
+
+        raw_ptr(response)
+    })
+}
+
+/// TODO: document
+///
+#[no_mangle]
+pub unsafe extern "C" fn fil_generate_fallback_sector_challenges(
+    registered_proof: fil_RegisteredPoStProof,
+    randomness: fil_32ByteArray,
+    sector_ids_ptr: *const u64,
+    sector_ids_len: libc::size_t,
+    prover_id: fil_32ByteArray,
+) -> *mut fil_GenerateFallbackSectorChallengesResponse {
+    catch_panic_response(|| {
+        init_log();
+
+        info!("generate_fallback_sector_challenges: start");
+
+        let pub_sectors: Vec<SectorId> = from_raw_parts(sector_ids_ptr, sector_ids_len)
+            .iter()
+            .cloned()
+            .map(Into::into)
+            .collect();
+
+        let result = filecoin_proofs_api::post::generate_fallback_sector_challenges(
+            registered_proof.into(),
+            &randomness.inner,
+            &pub_sectors,
+            prover_id.inner,
+        );
+
+        let mut response = fil_GenerateFallbackSectorChallengesResponse::default();
+
+        match result {
+            Ok(output) => {
+                response.status_code = FCPResponseStatus::FCPNoError;
+
+                let sector_ids: Vec<u64> = output
+                    .clone()
+                    .into_iter()
+                    .map(|(id, _challenges)| u64::from(id))
+                    .collect();
+                let mut challenges_stride = 0;
+                let mut challenges_stride_mismatch = false;
+                let challenges: Vec<u64> = output
+                    .into_iter()
+                    .flat_map(|(_id, challenges)| {
+                        if challenges_stride == 0 {
+                            challenges_stride = challenges.len();
+                        }
+
+                        if !challenges_stride_mismatch && challenges_stride != challenges.len() {
+                            error!(
+                                "All challenge strides must be equal: {} != {}",
+                                challenges_stride,
+                                challenges.len()
+                            );
+                            challenges_stride_mismatch = true;
+                        }
+
+                        challenges
+                    })
+                    .collect();
+
+                if challenges_stride_mismatch {
+                    response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                    response.error_msg = rust_str_to_c_str("Challenge stride mismatch".to_string());
+                } else {
+                    response.status_code = FCPResponseStatus::FCPNoError;
+                    response.ids_ptr = sector_ids.as_ptr();
+                    response.ids_len = sector_ids.len();
+                    response.challenges_ptr = challenges.as_ptr();
+                    response.challenges_len = challenges.len();
+                    response.challenges_stride = challenges_stride;
+
+                    mem::forget(sector_ids);
+                    mem::forget(challenges);
+                }
+            }
+            Err(err) => {
+                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+            }
+        };
+
+        info!("generate_fallback_sector_challenges: finish");
+
+        raw_ptr(response)
+    })
+}
+
+/// TODO: document
+///
+#[no_mangle]
+pub unsafe extern "C" fn fil_generate_single_vanilla_proof(
+    replica: fil_PrivateReplicaInfo,
+    challenges_ptr: *const u64,
+    challenges_len: libc::size_t,
+) -> *mut fil_GenerateSingleVanillaProofResponse {
+    catch_panic_response(|| {
+        init_log();
+
+        info!("generate_single_vanilla_proof: start");
+
+        let challenges: Vec<u64> = from_raw_parts(challenges_ptr, challenges_len)
+            .iter()
+            .copied()
+            .collect();
+
+        let sector_id = SectorId::from(replica.sector_id);
+        let cache_dir_path = c_str_to_pbuf(replica.cache_dir_path);
+        let replica_path = c_str_to_pbuf(replica.replica_path);
+
+        let replica_v1 = PrivateReplicaInfo::new(
+            replica.registered_proof.into(),
+            replica.comm_r,
+            cache_dir_path,
+            replica_path,
+        );
+
+        let result = filecoin_proofs_api::post::generate_single_vanilla_proof(
+            replica.registered_proof.into(),
+            sector_id,
+            &replica_v1,
+            &challenges,
+        );
+
+        let mut response = fil_GenerateSingleVanillaProofResponse::default();
+
+        match result {
+            Ok(output) => {
+                response.status_code = FCPResponseStatus::FCPNoError;
+                response.vanilla_proof.proof_len = output.len();
+                response.vanilla_proof.proof_ptr = output.as_ptr();
+
+                mem::forget(output);
+            }
+            Err(err) => {
+                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+            }
+        };
+
+        info!("generate_single_vanilla_proof: finish");
+
+        raw_ptr(response)
+    })
+}
+
+/// TODO: document
+///
+#[no_mangle]
+pub unsafe extern "C" fn fil_generate_winning_post_with_vanilla(
+    registered_proof: fil_RegisteredPoStProof,
+    randomness: fil_32ByteArray,
+    prover_id: fil_32ByteArray,
+    vanilla_proofs_ptr: *const fil_VanillaProof,
+    vanilla_proofs_len: libc::size_t,
+) -> *mut fil_GenerateWinningPoStResponse {
+    catch_panic_response(|| {
+        init_log();
+
+        info!("generate_winning_post_with_vanilla: start");
+
+        let vanilla_proofs: Vec<VanillaProof> =
+            from_raw_parts(vanilla_proofs_ptr, vanilla_proofs_len)
+                .iter()
+                .cloned()
+                .map(|vanilla_proof| {
+                    from_raw_parts(vanilla_proof.proof_ptr, vanilla_proof.proof_len).to_vec()
+                })
+                .collect();
+
+        let result = filecoin_proofs_api::post::generate_winning_post_with_vanilla(
+            registered_proof.into(),
+            &randomness.inner,
+            prover_id.inner,
+            &vanilla_proofs,
+        );
+
+        let mut response = fil_GenerateWinningPoStResponse::default();
+
+        match result {
+            Ok(output) => {
+                let mapped: Vec<fil_PoStProof> = output
+                    .iter()
+                    .cloned()
+                    .map(|(t, proof)| {
+                        let out = fil_PoStProof {
+                            registered_proof: (t).into(),
+                            proof_len: proof.len(),
+                            proof_ptr: proof.as_ptr(),
+                        };
+
+                        mem::forget(proof);
+
+                        out
+                    })
+                    .collect();
+
+                response.status_code = FCPResponseStatus::FCPNoError;
+                response.proofs_ptr = mapped.as_ptr();
+                response.proofs_len = mapped.len();
+
+                mem::forget(mapped);
+            }
+            Err(err) => {
+                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+            }
+        }
+
+        info!("generate_winning_post_with_vanilla: finish");
+
+        raw_ptr(response)
+    })
+}
+
+/// TODO: document
+///
+#[no_mangle]
+pub unsafe extern "C" fn fil_generate_winning_post(
+    randomness: fil_32ByteArray,
+    replicas_ptr: *const fil_PrivateReplicaInfo,
+    replicas_len: libc::size_t,
+    prover_id: fil_32ByteArray,
+) -> *mut fil_GenerateWinningPoStResponse {
+    catch_panic_response(|| {
+        init_log();
+
+        info!("generate_winning_post: start");
+
+        let mut response = fil_GenerateWinningPoStResponse::default();
+
+        let result = to_private_replica_info_map(replicas_ptr, replicas_len).and_then(|rs| {
+            filecoin_proofs_api::post::generate_winning_post(
+                &randomness.inner,
+                &rs,
+                prover_id.inner,
+            )
+        });
+
+        match result {
+            Ok(output) => {
+                let mapped: Vec<fil_PoStProof> = output
+                    .iter()
+                    .cloned()
+                    .map(|(t, proof)| {
+                        let out = fil_PoStProof {
+                            registered_proof: (t).into(),
+                            proof_len: proof.len(),
+                            proof_ptr: proof.as_ptr(),
+                        };
+
+                        mem::forget(proof);
+
+                        out
+                    })
+                    .collect();
+
+                response.status_code = FCPResponseStatus::FCPNoError;
+                response.proofs_ptr = mapped.as_ptr();
+                response.proofs_len = mapped.len();
+                mem::forget(mapped);
+            }
+            Err(err) => {
+                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+            }
+        }
+
+        info!("generate_winning_post: finish");
+
+        raw_ptr(response)
+    })
+}
+
 /// Verifies that a proof-of-spacetime is valid.
 #[no_mangle]
 pub unsafe extern "C" fn fil_verify_winning_post(
@@ -556,6 +879,87 @@ pub unsafe extern "C" fn fil_verify_winning_post(
         };
 
         info!("verify_winning_post: {}", "finish");
+        raw_ptr(response)
+    })
+}
+
+/// TODO: document
+///
+#[no_mangle]
+pub unsafe extern "C" fn fil_generate_window_post_with_vanilla(
+    registered_proof: fil_RegisteredPoStProof,
+    randomness: fil_32ByteArray,
+    prover_id: fil_32ByteArray,
+    vanilla_proofs_ptr: *const fil_VanillaProof,
+    vanilla_proofs_len: libc::size_t,
+) -> *mut fil_GenerateWindowPoStResponse {
+    catch_panic_response(|| {
+        init_log();
+
+        info!("generate_window_post_with_vanilla: start");
+
+        let vanilla_proofs: Vec<VanillaProof> =
+            from_raw_parts(vanilla_proofs_ptr, vanilla_proofs_len)
+                .iter()
+                .cloned()
+                .map(|vanilla_proof| {
+                    from_raw_parts(vanilla_proof.proof_ptr, vanilla_proof.proof_len).to_vec()
+                })
+                .collect();
+
+        let result = filecoin_proofs_api::post::generate_window_post_with_vanilla(
+            registered_proof.into(),
+            &randomness.inner,
+            prover_id.inner,
+            &vanilla_proofs,
+        );
+
+        let mut response = fil_GenerateWindowPoStResponse::default();
+
+        match result {
+            Ok(output) => {
+                let mapped: Vec<fil_PoStProof> = output
+                    .iter()
+                    .cloned()
+                    .map(|(t, proof)| {
+                        let out = fil_PoStProof {
+                            registered_proof: (t).into(),
+                            proof_len: proof.len(),
+                            proof_ptr: proof.as_ptr(),
+                        };
+
+                        mem::forget(proof);
+
+                        out
+                    })
+                    .collect();
+
+                response.status_code = FCPResponseStatus::FCPNoError;
+                response.proofs_ptr = mapped.as_ptr();
+                response.proofs_len = mapped.len();
+                mem::forget(mapped);
+            }
+            Err(err) => {
+                // If there were faulty sectors, add them to the response
+                if let Some(filecoin_proofs_api::StorageProofsError::FaultySectors(sectors)) =
+                    err.downcast_ref::<filecoin_proofs_api::StorageProofsError>()
+                {
+                    let sectors_u64 = sectors
+                        .iter()
+                        .map(|sector| u64::from(*sector))
+                        .collect::<Vec<u64>>();
+                    response.faulty_sectors_len = sectors_u64.len();
+                    response.faulty_sectors_ptr = sectors_u64.as_ptr();
+                    mem::forget(sectors_u64)
+                }
+
+                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+            }
+        }
+
+        info!("generate_window_post_with_vanilla: finish");
+
         raw_ptr(response)
     })
 }
@@ -785,109 +1189,6 @@ pub unsafe extern "C" fn fil_clear_cache(
                 response.error_msg = rust_str_to_c_str(format!("{:?}", err));
             }
         };
-
-        raw_ptr(response)
-    })
-}
-
-/// TODO: document
-///
-#[no_mangle]
-pub unsafe extern "C" fn fil_generate_winning_post_sector_challenge(
-    registered_proof: fil_RegisteredPoStProof,
-    randomness: fil_32ByteArray,
-    sector_set_len: u64,
-    prover_id: fil_32ByteArray,
-) -> *mut fil_GenerateWinningPoStSectorChallenge {
-    catch_panic_response(|| {
-        init_log();
-
-        info!("generate_winning_post_sector_challenge: start");
-
-        let mut response = fil_GenerateWinningPoStSectorChallenge::default();
-
-        let result = filecoin_proofs_api::post::generate_winning_post_sector_challenge(
-            registered_proof.into(),
-            &randomness.inner,
-            sector_set_len,
-            prover_id.inner,
-        );
-
-        match result {
-            Ok(output) => {
-                let mapped: Vec<u64> = output.into_iter().map(u64::from).collect();
-
-                response.status_code = FCPResponseStatus::FCPNoError;
-                response.ids_ptr = mapped.as_ptr();
-                response.ids_len = mapped.len();
-                mem::forget(mapped);
-            }
-            Err(err) => {
-                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
-            }
-        }
-
-        info!("generate_winning_post_sector_challenge: finish");
-
-        raw_ptr(response)
-    })
-}
-
-/// TODO: document
-///
-#[no_mangle]
-pub unsafe extern "C" fn fil_generate_winning_post(
-    randomness: fil_32ByteArray,
-    replicas_ptr: *const fil_PrivateReplicaInfo,
-    replicas_len: libc::size_t,
-    prover_id: fil_32ByteArray,
-) -> *mut fil_GenerateWinningPoStResponse {
-    catch_panic_response(|| {
-        init_log();
-
-        info!("generate_winning_post: start");
-
-        let mut response = fil_GenerateWinningPoStResponse::default();
-
-        let result = to_private_replica_info_map(replicas_ptr, replicas_len).and_then(|rs| {
-            filecoin_proofs_api::post::generate_winning_post(
-                &randomness.inner,
-                &rs,
-                prover_id.inner,
-            )
-        });
-
-        match result {
-            Ok(output) => {
-                let mapped: Vec<fil_PoStProof> = output
-                    .iter()
-                    .cloned()
-                    .map(|(t, proof)| {
-                        let out = fil_PoStProof {
-                            registered_proof: (t).into(),
-                            proof_len: proof.len(),
-                            proof_ptr: proof.as_ptr(),
-                        };
-
-                        mem::forget(proof);
-
-                        out
-                    })
-                    .collect();
-
-                response.status_code = FCPResponseStatus::FCPNoError;
-                response.proofs_ptr = mapped.as_ptr();
-                response.proofs_len = mapped.len();
-                mem::forget(mapped);
-            }
-            Err(err) => {
-                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
-            }
-        }
-
-        info!("generate_winning_post: finish");
 
         raw_ptr(response)
     })
@@ -1174,6 +1475,20 @@ pub unsafe extern "C" fn fil_destroy_verify_window_post_response(
 }
 
 #[no_mangle]
+pub unsafe extern "C" fn fil_destroy_generate_fallback_sector_challenges_response(
+    ptr: *mut fil_GenerateFallbackSectorChallengesResponse,
+) {
+    let _ = Box::from_raw(ptr);
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn fil_destroy_generate_single_vanilla_proof_response(
+    ptr: *mut fil_GenerateSingleVanillaProofResponse,
+) {
+    let _ = Box::from_raw(ptr);
+}
+
+#[no_mangle]
 pub unsafe extern "C" fn fil_destroy_generate_winning_post_response(
     ptr: *mut fil_GenerateWinningPoStResponse,
 ) {
@@ -1367,6 +1682,7 @@ pub mod tests {
     }
 
     #[test]
+    #[allow(clippy::cognitive_complexity)]
     fn test_sealing() -> Result<()> {
         let wrap = |x| fil_32ByteArray { inner: x };
 
@@ -1381,6 +1697,7 @@ pub mod tests {
         let prover_id = fil_32ByteArray { inner: [1u8; 32] };
         let randomness = fil_32ByteArray { inner: [7u8; 32] };
         let sector_id = 42;
+        let sector_id2 = 43;
         let seed = fil_32ByteArray { inner: [5u8; 32] };
         let ticket = fil_32ByteArray { inner: [6u8; 32] };
 
@@ -1662,6 +1979,103 @@ pub mod tests {
                 panic!("verify_winning_post rejected the provided proof as invalid");
             }
 
+            //////////////////////////////////////////////
+            // Winning PoSt using distributed API
+            //
+            // NOTE: This performs the winning post all over again, just using
+            // a different API.  This is just for testing and would not normally
+            // be repeated like this in sequence.
+            //
+            //////////////////////////////////////////////
+
+            // First generate sector challenges.
+            let resp_sc = fil_generate_fallback_sector_challenges(
+                registered_proof_winning_post,
+                randomness,
+                sectors.as_ptr(),
+                sectors.len(),
+                prover_id,
+            );
+
+            if (*resp_sc).status_code != FCPResponseStatus::FCPNoError {
+                let msg = c_str_to_rust_str((*resp_sc).error_msg);
+                panic!("fallback_sector_challenges failed: {:?}", msg);
+            }
+
+            let sector_ids: Vec<u64> =
+                from_raw_parts((*resp_sc).ids_ptr, (*resp_sc).ids_len).to_vec();
+            let sector_challenges: Vec<u64> =
+                from_raw_parts((*resp_sc).challenges_ptr, (*resp_sc).challenges_len).to_vec();
+            let challenges_stride = (*resp_sc).challenges_stride;
+            let challenge_iterations = sector_challenges.len() / challenges_stride;
+            assert_eq!(
+                sector_ids.len(),
+                challenge_iterations,
+                "Challenge iterations must match the number of sector ids"
+            );
+
+            let mut vanilla_proofs: Vec<fil_VanillaProof> = Vec::with_capacity(sector_ids.len());
+
+            // Gather up all vanilla proofs.
+            for i in 0..challenge_iterations {
+                let sector_id = sector_ids[i];
+                let challenges: Vec<_> = sector_challenges
+                    [i * challenges_stride..i * challenges_stride + challenges_stride]
+                    .to_vec();
+                let private_replica = private_replicas
+                    .iter()
+                    .find(|&replica| replica.sector_id == sector_id)
+                    .expect("failed to find private replica info")
+                    .clone();
+
+                let resp_vp = fil_generate_single_vanilla_proof(
+                    private_replica,
+                    challenges.as_ptr(),
+                    challenges.len(),
+                );
+
+                if (*resp_vp).status_code != FCPResponseStatus::FCPNoError {
+                    let msg = c_str_to_rust_str((*resp_vp).error_msg);
+                    panic!("generate_single_vanilla_proof failed: {:?}", msg);
+                }
+
+                vanilla_proofs.push((*resp_vp).vanilla_proof.clone());
+                fil_destroy_generate_single_vanilla_proof_response(resp_vp);
+            }
+
+            let resp_wpwv = fil_generate_winning_post_with_vanilla(
+                registered_proof_winning_post,
+                randomness,
+                prover_id,
+                vanilla_proofs.as_ptr(),
+                vanilla_proofs.len(),
+            );
+
+            if (*resp_wpwv).status_code != FCPResponseStatus::FCPNoError {
+                let msg = c_str_to_rust_str((*resp_wpwv).error_msg);
+                panic!("generate_winning_post_with_vanilla failed: {:?}", msg);
+            }
+
+            // Verify the second winning post (generated by the
+            // distributed post API)
+            let resp_di = fil_verify_winning_post(
+                randomness,
+                public_replicas.as_ptr(),
+                public_replicas.len(),
+                (*resp_wpwv).proofs_ptr,
+                (*resp_wpwv).proofs_len,
+                prover_id,
+            );
+
+            if (*resp_di).status_code != FCPResponseStatus::FCPNoError {
+                let msg = c_str_to_rust_str((*resp_di).error_msg);
+                panic!("verify_winning_post failed: {:?}", msg);
+            }
+
+            if !(*resp_di).is_valid {
+                panic!("verify_winning_post rejected the provided proof as invalid");
+            }
+
             // window post
 
             let private_replicas = vec![fil_PrivateReplicaInfo {
@@ -1708,6 +2122,132 @@ pub mod tests {
                 panic!("verify_window_post rejected the provided proof as invalid");
             }
 
+            //////////////////////////////////////////////
+            // Window PoSt using distributed API
+            //
+            // NOTE: This performs the window post all over again, just using
+            // a different API.  This is just for testing and would not normally
+            // be repeated like this in sequence.
+            //
+            //////////////////////////////////////////////
+
+            let sectors = vec![sector_id, sector_id2];
+            let private_replicas = vec![
+                fil_PrivateReplicaInfo {
+                    registered_proof: registered_proof_window_post,
+                    cache_dir_path: cache_dir_path_c_str,
+                    comm_r: (*resp_b2).comm_r,
+                    replica_path: replica_path_c_str,
+                    sector_id,
+                },
+                fil_PrivateReplicaInfo {
+                    registered_proof: registered_proof_window_post,
+                    cache_dir_path: cache_dir_path_c_str,
+                    comm_r: (*resp_b2).comm_r,
+                    replica_path: replica_path_c_str,
+                    sector_id: sector_id2,
+                },
+            ];
+            let public_replicas = vec![
+                fil_PublicReplicaInfo {
+                    registered_proof: registered_proof_window_post,
+                    sector_id,
+                    comm_r: (*resp_b2).comm_r,
+                },
+                fil_PublicReplicaInfo {
+                    registered_proof: registered_proof_window_post,
+                    sector_id: sector_id2,
+                    comm_r: (*resp_b2).comm_r,
+                },
+            ];
+
+            // Generate sector challenges.
+            let resp_sc2 = fil_generate_fallback_sector_challenges(
+                registered_proof_window_post,
+                randomness,
+                sectors.as_ptr(),
+                sectors.len(),
+                prover_id,
+            );
+
+            if (*resp_sc2).status_code != FCPResponseStatus::FCPNoError {
+                let msg = c_str_to_rust_str((*resp_sc2).error_msg);
+                panic!("fallback_sector_challenges failed: {:?}", msg);
+            }
+
+            let sector_ids: Vec<u64> =
+                from_raw_parts((*resp_sc2).ids_ptr, (*resp_sc2).ids_len).to_vec();
+            let sector_challenges: Vec<u64> =
+                from_raw_parts((*resp_sc2).challenges_ptr, (*resp_sc2).challenges_len).to_vec();
+            let challenges_stride = (*resp_sc2).challenges_stride;
+            let challenge_iterations = sector_challenges.len() / challenges_stride;
+            assert_eq!(
+                sector_ids.len(),
+                challenge_iterations,
+                "Challenge iterations must match the number of sector ids"
+            );
+
+            let mut vanilla_proofs: Vec<fil_VanillaProof> = Vec::with_capacity(sector_ids.len());
+
+            // Gather up all vanilla proofs.
+            for i in 0..challenge_iterations {
+                let sector_id = sector_ids[i];
+                let challenges: Vec<_> = sector_challenges
+                    [i * challenges_stride..i * challenges_stride + challenges_stride]
+                    .to_vec();
+
+                let private_replica = private_replicas
+                    .iter()
+                    .find(|&replica| replica.sector_id == sector_id)
+                    .expect("failed to find private replica info")
+                    .clone();
+
+                let resp_vp = fil_generate_single_vanilla_proof(
+                    private_replica,
+                    challenges.as_ptr(),
+                    challenges.len(),
+                );
+
+                if (*resp_vp).status_code != FCPResponseStatus::FCPNoError {
+                    let msg = c_str_to_rust_str((*resp_vp).error_msg);
+                    panic!("generate_single_vanilla_proof failed: {:?}", msg);
+                }
+
+                vanilla_proofs.push((*resp_vp).vanilla_proof.clone());
+                fil_destroy_generate_single_vanilla_proof_response(resp_vp);
+            }
+
+            let resp_wpwv2 = fil_generate_window_post_with_vanilla(
+                registered_proof_window_post,
+                randomness,
+                prover_id,
+                vanilla_proofs.as_ptr(),
+                vanilla_proofs.len(),
+            );
+
+            if (*resp_wpwv2).status_code != FCPResponseStatus::FCPNoError {
+                let msg = c_str_to_rust_str((*resp_wpwv2).error_msg);
+                panic!("generate_window_post_with_vanilla failed: {:?}", msg);
+            }
+
+            let resp_k2 = fil_verify_window_post(
+                randomness,
+                public_replicas.as_ptr(),
+                public_replicas.len(),
+                (*resp_wpwv2).proofs_ptr,
+                (*resp_wpwv2).proofs_len,
+                prover_id,
+            );
+
+            if (*resp_k2).status_code != FCPResponseStatus::FCPNoError {
+                let msg = c_str_to_rust_str((*resp_k2).error_msg);
+                panic!("verify_window_post failed: {:?}", msg);
+            }
+
+            if !(*resp_k2).is_valid {
+                panic!("verify_window_post rejected the provided proof as invalid");
+            }
+
             fil_destroy_write_without_alignment_response(resp_a1);
             fil_destroy_write_with_alignment_response(resp_a2);
             fil_destroy_generate_data_commitment_response(resp_x);
@@ -1721,11 +2261,17 @@ pub mod tests {
             fil_destroy_unseal_range_response(resp_e);
 
             fil_destroy_generate_winning_post_sector_challenge(resp_f);
+            fil_destroy_generate_fallback_sector_challenges_response(resp_sc);
             fil_destroy_generate_winning_post_response(resp_h);
+            fil_destroy_generate_winning_post_response(resp_wpwv);
             fil_destroy_verify_winning_post_response(resp_i);
+            fil_destroy_verify_winning_post_response(resp_di);
 
+            fil_destroy_generate_fallback_sector_challenges_response(resp_sc2);
             fil_destroy_generate_window_post_response(resp_j);
+            fil_destroy_generate_window_post_response(resp_wpwv2);
             fil_destroy_verify_window_post_response(resp_k);
+            fil_destroy_verify_window_post_response(resp_k2);
 
             c_str_to_rust_str(cache_dir_path_c_str);
             c_str_to_rust_str(staged_path_c_str);
