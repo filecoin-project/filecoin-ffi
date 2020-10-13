@@ -326,7 +326,7 @@ commands:
              sudo make install
       - run:
           name: Run the Rust tests
-          command: cd rust && FIL_PROOFS_PARAMETER_CACHE="${HOME}/filecoin-proof-parameters/" RUST_LOG=info cargo test --all --release && cd ..
+          command: cd rust && LD_LIBRARY_PATH=/usr/local/lib FIL_PROOFS_PARAMETER_CACHE="${HOME}/filecoin-proof-parameters/" RUST_LOG=info cargo test --all --release && cd ..
           no_output_timeout: 60m
       - run:
           name: Run the Go tests
