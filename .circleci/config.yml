@@ -330,7 +330,7 @@ commands:
           no_output_timeout: 60m
       - run:
           name: Run the Go tests
-          command: GODEBUG=cgocheck=2 RUST_LOG=info go test -p 1 -timeout 60m
+          command: GODEBUG=cgocheck=2 LD_LIBRARY_PATH=/usr/local/lib RUST_LOG=info go test -p 1 -timeout 60m
           no_output_timeout: 60m
   compile_tests:
     steps:
