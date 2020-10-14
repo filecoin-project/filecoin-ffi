@@ -149,6 +149,9 @@ build_from_source() {
     popd
     rm -rf /tmp/${HWLOC_PACKAGE}
 
+    echo "${HWLOC_INSTALL_DIR}/lib" > /etc/ld.so.conf.d/hwloc.conf
+    sudo /sbin/ldconfig
+
     (>&2 echo "building from source @ ${__repo_sha1_truncated}")
 
     if ! [ -x "$(command -v cargo)" ]; then
