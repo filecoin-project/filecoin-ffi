@@ -315,22 +315,12 @@ commands:
                 command: make cgo-leakdetect
                 no_output_timeout: 60m
       - run:
-          name: Install hwloc 1.11.9
-          command: |
-             cd /tmp
-             curl https://www.open-mpi.org/software/hwloc/v1.11/downloads/hwloc-1.11.9.tar.gz --location --output /tmp/hwloc-1.11.9.tar.gz
-             tar xzvf hwloc-1.11.9.tar.gz
-             cd hwloc-1.11.9
-             ./configure
-             make
-             sudo make install
-      - run:
           name: Run the Rust tests
-          command: cd rust && LD_LIBRARY_PATH=/usr/local/lib FIL_PROOFS_PARAMETER_CACHE="${HOME}/filecoin-proof-parameters/" RUST_LOG=info cargo test --all --release && cd ..
+          command: cd rust && FIL_PROOFS_PARAMETER_CACHE="${HOME}/filecoin-proof-parameters/" RUSTFLAGS="-L/tmp/__fil-hwloc/lib -lhwloc" RUST_LOG=info LD_LIBRARY_PATH="/tmp/__fil-hwloc/lib" cargo test --all --release && cd ..
           no_output_timeout: 60m
       - run:
           name: Run the Go tests
-          command: GODEBUG=cgocheck=2 LD_LIBRARY_PATH=/usr/local/lib RUST_LOG=info go test -p 1 -timeout 60m
+          command: CGO_LDFLAGS="-L/tmp/__fil-hwloc/lib -lhwloc" LD_LIBRARY_PATH="/tmp/__fil-hwloc/lib" GODEBUG=cgocheck=2 RUST_LOG=info go test -p 1 -timeout 60m
           no_output_timeout: 60m
   compile_tests:
     steps:
