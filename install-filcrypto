@@ -146,7 +146,11 @@ build_from_source() {
     popd
     rm -rf /tmp/${HWLOC_PACKAGE}
 
-    echo "${HWLOC_INSTALL_DIR}/lib" | sudo tee /etc/ld.so.conf.d/hwloc.conf
+    if [ -d /etc/ld.so.conf.d ]; then
+        echo "${HWLOC_INSTALL_DIR}/lib" | sudo tee /etc/ld.so.conf.d/hwloc.conf
+    else
+        echo "${HWLOC_INSTALL_DIR}/lib" | sudo tee /etc/ld.so.conf
+    fi
     sudo /sbin/ldconfig
 
     (>&2 echo "building from source @ ${__repo_sha1_truncated}")
