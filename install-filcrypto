@@ -148,9 +148,9 @@ build_from_source() {
         rm -rf /tmp/${HWLOC_PACKAGE}
 
         if [ -d /etc/ld.so.conf.d ]; then
-            echo "${HWLOC_INSTALL_DIR}/lib" | sudo tee /etc/ld.so.conf.d/hwloc.conf
+            echo "${HWLOC_INSTALL_DIR}/lib" | sudo tee -a /etc/ld.so.conf.d/hwloc.conf
         else
-            echo "${HWLOC_INSTALL_DIR}/lib" | sudo tee /etc/ld.so.conf
+            echo "${HWLOC_INSTALL_DIR}/lib" | sudo tee -a /etc/ld.so.conf
         fi
         sudo /sbin/ldconfig
     fi
