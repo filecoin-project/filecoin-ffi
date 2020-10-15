@@ -132,10 +132,10 @@ build_from_source() {
     local __repo_sha1_truncated="${__repo_sha1:0:16}"
 
     if [ "$(uname)" = "Linux" ]; then
-        # Install hwloc2 on Linux dependency from source into /usr/local/fil-hwloc.
+        # Install hwloc2 on Linux dependency from source.
         HWLOC_PACKAGE="hwloc-2.3.0"
         HWLOC_DOWNLOAD_URL="https://download.open-mpi.org/release/hwloc/v2.3/hwloc-2.3.0.tar.gz"
-        HWLOC_INSTALL_DIR="/usr/local/fil-hwloc"
+        HWLOC_INSTALL_DIR="/tmp/__fil-hwloc"
         rm -rf ${HWLOC_INSTALL_DIR}
 
         curl ${HWLOC_DOWNLOAD_URL} --location --output /tmp/${HWLOC_PACKAGE}.tar.gz
@@ -143,16 +143,9 @@ build_from_source() {
         tar -xf ${HWLOC_PACKAGE}.tar.gz
         rm -f /tmp/${HWLOC_PACKAGE}.tar.gz
         cd ${HWLOC_PACKAGE}
-        ./configure --prefix=${HWLOC_INSTALL_DIR} && make && sudo make install
+        ./configure --prefix=${HWLOC_INSTALL_DIR} && make && make install
         popd
         rm -rf /tmp/${HWLOC_PACKAGE}
-
-        if [ -d /etc/ld.so.conf.d ]; then
-            echo "${HWLOC_INSTALL_DIR}/lib" | sudo tee -a /etc/ld.so.conf.d/hwloc.conf
-        else
-            echo "${HWLOC_INSTALL_DIR}/lib" | sudo tee -a /etc/ld.so.conf
-        fi
-        sudo /sbin/ldconfig
     fi
 
     (>&2 echo "building from source @ ${__repo_sha1_truncated}")
