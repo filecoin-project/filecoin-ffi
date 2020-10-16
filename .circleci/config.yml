@@ -312,7 +312,7 @@ commands:
           steps:
             - run:
                 name: Run leak detector
-                command: make cgo-leakdetect
+                command: LD_LIBRARY_PATH="/tmp/__fil-hwloc/lib" make cgo-leakdetect
                 no_output_timeout: 60m
       - run:
           name: Run the Rust tests
