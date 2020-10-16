@@ -34,7 +34,7 @@ jobs:
           gobin: $HOME/.local/bin
           version: 1.23.8
       - run:
-          command: make go-lint
+          command: LD_LIBRARY_PATH="/tmp/__fil-hwloc/lib" make go-lint
   build_and_test_linux_cgo_bindings:
     parameters:
       run_leak_detector:
