@@ -34,7 +34,7 @@ jobs:
           gobin: $HOME/.local/bin
           version: 1.23.8
       - run:
-          command: make go-lint
+          command: LD_LIBRARY_PATH="/tmp/__fil-hwloc/lib" make go-lint
   build_and_test_linux_cgo_bindings:
     parameters:
       run_leak_detector:
@@ -213,7 +213,7 @@ commands:
                   go version
             - run:
                 name: Install other dependencies with Homebrew
-                command: HOMEBREW_NO_AUTO_UPDATE=1 brew install pkg-config md5sha1sum jq
+                command: HOMEBREW_NO_AUTO_UPDATE=1 brew install pkg-config md5sha1sum jq hwloc
             - run:
                 name: Install Rust toolchain
                 command: |
@@ -312,16 +312,15 @@ commands:
           steps:
             - run:
                 name: Run leak detector
-                command: make cgo-leakdetect
+                command: LD_LIBRARY_PATH="/tmp/__fil-hwloc/lib" make cgo-leakdetect
                 no_output_timeout: 60m
-
       - run:
           name: Run the Rust tests
-          command: cd rust && FIL_PROOFS_PARAMETER_CACHE="${HOME}/filecoin-proof-parameters/" RUST_LOG=info cargo test --all --release && cd ..
+          command: cd rust && FIL_PROOFS_PARAMETER_CACHE="${HOME}/filecoin-proof-parameters/" RUSTFLAGS="-L/tmp/__fil-hwloc/lib -lhwloc" RUST_LOG=info LD_LIBRARY_PATH="/tmp/__fil-hwloc/lib" cargo test --all --release && cd ..
           no_output_timeout: 60m
       - run:
           name: Run the Go tests
-          command: GODEBUG=cgocheck=2 RUST_LOG=info go test -p 1 -timeout 60m
+          command: CGO_LDFLAGS="-L/tmp/__fil-hwloc/lib -lhwloc" LD_LIBRARY_PATH="/tmp/__fil-hwloc/lib" GODEBUG=cgocheck=2 RUST_LOG=info go test -p 1 -timeout 60m
           no_output_timeout: 60m
   compile_tests:
     steps:
