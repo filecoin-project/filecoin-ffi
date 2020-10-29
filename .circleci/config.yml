@@ -254,29 +254,25 @@ commands:
             ./scripts/package-release.sh $TARBALL_PATH
             ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
       - run:
-          name: Build and publish the optimized release (pairing)
+          name: Build the optimized release (pairing)
           command: |
             cd rust
 
             TARBALL_PATH="/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-optimized.tar.gz"
-            RELEASE_NAME="${CIRCLE_PROJECT_REPONAME}-$(uname)-optimized"
             RUSTFLAGS="-C target-feature=$(cat rustc-target-features-optimized.json | jq -r '.[].rustc_target_feature' | tr '\n' ',')"
 
             ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) --verbose --locked --no-default-features --features pairing
             ./scripts/package-release.sh $TARBALL_PATH
-            ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
       - run:
-          name: Build and publish the optimized release (blst)
+          name: Build the optimized release (blst)
           command: |
             cd rust
 
             TARBALL_PATH="/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-optimized.tar.gz"
-            RELEASE_NAME="${CIRCLE_PROJECT_REPONAME}-$(uname)-optimized-blst"
             RUSTFLAGS="-C target-feature=$(cat rustc-target-features-optimized.json | jq -r '.[].rustc_target_feature' | tr '\n' ',')"
 
             ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) --verbose --locked --all
             ./scripts/package-release.sh $TARBALL_PATH
-            ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
   configure_environment_variables:
     parameters:
       linux:

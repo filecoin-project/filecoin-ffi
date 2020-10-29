@@ -76,12 +76,12 @@ download_release_tarball() {
     local __release_tag="${__release_sha1:0:16}"
     local __release_tag_url="https://api.github.com/repos/filecoin-project/${__repo_name}/releases/tags/${__release_tag}"
 
-    # FIXME: Disable optimized release download, as it can't support properly support all native cpu flag detections
-    #if [ -z $release_flags ]; then
+    # Download either the non-optimized standard or standard-blst release.
+    if [ "${FFI_USE_BLST}" == "1" ]; then
+        release_flag_name="standard-blst"
+    else
         release_flag_name="standard"
-    #else
-    #    release_flag_name="optimized"
-    #fi
+    fi
 
     # TODO: This function shouldn't make assumptions about how these releases'
     # names are constructed. Marginally less-bad would be to require that this
@@ -166,10 +166,17 @@ build_from_source() {
 
     cargo --version
 
-    if [ -n "${__release_flags}" ]; then
-        RUSTFLAGS="-C target-feature=${__release_flags}" ./scripts/build-release.sh "${__library_name}" "$(cat rust-toolchain)"
+    # Add feature specific rust flags as needed here.
+    if [ "${FFI_USE_BLST}" == "1" ]; then
+        additional_flags="--no-default-features --features blst"
     else
-        ./scripts/build-release.sh "${__library_name}" "$(cat rust-toolchain)"
+        additional_flags=""
+    fi
+
+    if [ -n "${__release_flags}" ]; then
+        RUSTFLAGS="-C target-feature=${__release_flags}" ./scripts/build-release.sh "${__library_name}" "$(cat rust-toolchain)" "${additional_flags}"
+    else
+        ./scripts/build-release.sh "${__library_name}" "$(cat rust-toolchain)" "${additional_flags}"
     fi
 
     popd
