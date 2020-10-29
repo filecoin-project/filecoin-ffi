@@ -1716,7 +1716,7 @@ dependencies = [
 [[package]]
 name = "neptune"
 version = "2.0.0"
-source = "git+https://github.com/filecoin-project/neptune?branch=blstrs-9#07c4761c66d9e006f87f2efebaf5128a5005db3c"
+source = "git+https://github.com/filecoin-project/neptune?branch=blstrs-9#3976fe9b7a24fbfc410a8ebc5bb375e8ff179b12"
 dependencies = [
  "bellperson 0.11.0",
  "blake2s_simd",
