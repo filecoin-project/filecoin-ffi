@@ -27,13 +27,10 @@ rayon = "1.2.1"
 anyhow = "1.0.23"
 bellperson = { version = "0.11", default-features = false, features = ["gpu"] }
 serde_json = "1.0.46"
-neptune = "~1.2"
 
 [dependencies.filecoin-proofs-api]
 package = "filecoin-proofs-api"
-# version = "5.2.0"
-git = "https://github.com/filecoin-project/rust-filecoin-proofs-api"
-branch = "blstrs"
+version = "5.3.0"
 default-features = false
 
 [build-dependencies]
