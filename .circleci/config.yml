@@ -35,7 +35,8 @@ jobs:
           version: 1.32.0
       - run:
           command: LD_LIBRARY_PATH="/tmp/__fil-hwloc/lib" make go-lint
-  build_and_test_linux_cgo_bindings:
+
+  build_and_test_linux_cgo_bindings_pairing:
     parameters:
       run_leak_detector:
         type: boolean
@@ -51,6 +52,24 @@ jobs:
       - save_parameter_cache
       - run_tests:
           run_leak_detector: << parameters.run_leak_detector >>
+
+  build_and_test_linux_cgo_bindings_blst:
+    parameters:
+      run_leak_detector:
+        type: boolean
+        default: false
+    executor: golang
+    working_directory: ~/go/src/github.com/filecoin-project/filecoin-ffi
+    steps:
+      - configure_environment_variables
+      - prepare
+      - build_project
+      - restore_parameter_cache
+      - obtain_filecoin_parameters
+      - save_parameter_cache
+      - run_tests:
+          run_leak_detector: << parameters.run_leak_detector >>
+
   build_darwin_cgo_bindings:
     macos:
       xcode: "10.0.0"
@@ -160,18 +179,32 @@ workflows:
             - cargo_fetch
       - gofmt
       - go_lint
-      - build_and_test_linux_cgo_bindings:
+      - build_and_test_linux_cgo_bindings_pairing:
           filters:
             branches:
               only:
                 - master
           run_leak_detector: true
-      - build_and_test_linux_cgo_bindings:
+      - build_and_test_linux_cgo_bindings_pairing:
           filters:
             branches:
               ignore:
                 - master
           run_leak_detector: false
+
+      - build_and_test_linux_cgo_bindings_blst:
+          filters:
+            branches:
+              only:
+                - master
+          run_leak_detector: true
+      - build_and_test_linux_cgo_bindings_blst:
+          filters:
+            branches:
+              ignore:
+                - master
+          run_leak_detector: false
+
       - publish_linux_staticlib:
           filters:
             branches:
@@ -308,14 +341,25 @@ commands:
           GOPATH=/tmp GO111MODULE=off go get github.com/filecoin-project/go-paramfetch/paramfetch
           GOPATH=/tmp GO111MODULE=off go build -o go-paramfetch github.com/filecoin-project/go-paramfetch/paramfetch
           ./go-paramfetch 2048 "${DIR}/parameters.json"
+
   build_project:
+    parameters:
+      blst:
+        default: false
+        description: build with blst backend?
+        type: boolean
     steps:
+      - when:
+          condition: << parameters.blst >>
+          steps:
+            - run: export FFI_USE_BLST=1
       - run:
           name: Build project
           command: make
       - run:
           name: Build project without CGO
           command: env CGO_ENABLED=0 go build .
+
   ensure_generated_cgo_up_to_date:
     steps:
       - run:
