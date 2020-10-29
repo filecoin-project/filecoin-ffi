@@ -32,7 +32,7 @@ jobs:
       - go/mod-download
       - go/install-golangci-lint:
           gobin: $HOME/.local/bin
-          version: 1.23.8
+          version: 1.32.0
       - run:
           command: LD_LIBRARY_PATH="/tmp/__fil-hwloc/lib" make go-lint
   build_and_test_linux_cgo_bindings:
