@@ -356,13 +356,12 @@ commands:
             - run:
                 name: Build project (blst)
                 command: FFI_USE_BLST=1 make
-      - when:
-          condition:
-            not: << parameters.blst >>
-            steps:
-              - run:
-                  name: Build project (pairing)
-                  command: make
+      - unless:
+          condition: << parameters.blst >>
+          steps:
+            - run:
+                name: Build project (pairing)
+                command: make
                 
       - run:
           name: Build project without CGO
