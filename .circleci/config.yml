@@ -138,8 +138,11 @@ jobs:
       - run: cd rust && rustup component add clippy
       - run: cd rust && cargo fetch
       - run:
-          name: Run cargo clippy
-          command: cd rust && cargo +$(cat rust-toolchain) clippy --all-targets --all-features -- -D warnings
+          name: Run cargo clippy (pairing)
+          command: cd rust && cargo +$(cat rust-toolchain) clippy --all-targets -- -D warnings
+      - run:
+          name: Run cargo clippy (blst)
+          command: cd rust && cargo +$(cat rust-toolchain) clippy --all-targets --no-default-features --features blst -- -D warnings
 
 workflows:
   version: 2
