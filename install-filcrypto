@@ -131,23 +131,6 @@ build_from_source() {
     local __repo_sha1=$(git rev-parse HEAD)
     local __repo_sha1_truncated="${__repo_sha1:0:16}"
 
-    if [ "$(uname)" = "Linux" ]; then
-        # Install hwloc2 on Linux dependency from source.
-        HWLOC_PACKAGE="hwloc-2.3.0"
-        HWLOC_DOWNLOAD_URL="https://download.open-mpi.org/release/hwloc/v2.3/hwloc-2.3.0.tar.gz"
-        HWLOC_INSTALL_DIR="/tmp/__fil-hwloc"
-        rm -rf ${HWLOC_INSTALL_DIR}
-
-        curl ${HWLOC_DOWNLOAD_URL} --location --output /tmp/${HWLOC_PACKAGE}.tar.gz
-        pushd /tmp/
-        tar -xf ${HWLOC_PACKAGE}.tar.gz
-        rm -f /tmp/${HWLOC_PACKAGE}.tar.gz
-        cd ${HWLOC_PACKAGE}
-        ./configure --prefix=${HWLOC_INSTALL_DIR} && make && make install
-        popd
-        rm -rf /tmp/${HWLOC_PACKAGE}
-    fi
-
     (>&2 echo "building from source @ ${__repo_sha1_truncated}")
 
     if ! [ -x "$(command -v cargo)" ]; then
@@ -170,7 +153,7 @@ build_from_source() {
     if [ "${FFI_USE_BLST}" == "1" ]; then
         additional_flags="--no-default-features --features blst"
     else
-        additional_flags=""
+        additional_flags="--no-default-features --features pairing"
     fi
 
     if [ -n "${__release_flags}" ]; then

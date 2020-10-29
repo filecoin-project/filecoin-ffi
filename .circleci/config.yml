@@ -34,7 +34,7 @@ jobs:
           gobin: $HOME/.local/bin
           version: 1.32.0
       - run:
-          command: LIBRARY_PATH="/tmp/__fil-hwloc/lib" make go-lint
+          command: make go-lint
 
   build_and_test_linux_cgo_bindings_pairing:
     parameters:
@@ -237,7 +237,7 @@ commands:
             - go/install-ssh
             - go/install: {package: git}
             - run: sudo apt-get update
-            - run: sudo apt-get install -y jq valgrind ocl-icd-opencl-dev clang libssl-dev
+            - run: sudo apt-get install -y jq valgrind ocl-icd-opencl-dev clang libssl-dev libhwloc-dev
             - run: curl https://sh.rustup.rs -sSf | sh -s -- -y
       - when:
           condition: << parameters.darwin >>
@@ -385,15 +385,15 @@ commands:
           steps:
             - run:
                 name: Run leak detector
-                command: LIBRARY_PATH="/tmp/__fil-hwloc/lib" make cgo-leakdetect
+                command: make cgo-leakdetect
                 no_output_timeout: 60m
       - run:
           name: Run the Rust tests
-          command: cd rust && FIL_PROOFS_PARAMETER_CACHE="${HOME}/filecoin-proof-parameters/" RUSTFLAGS="-L/tmp/__fil-hwloc/lib -lhwloc" RUST_LOG=info LD_LIBRARY_PATH="/tmp/__fil-hwloc/lib" cargo test --all --release && cd ..
+          command: cd rust && FIL_PROOFS_PARAMETER_CACHE="${HOME}/filecoin-proof-parameters/" RUST_LOG=info cargo test --all --release && cd ..
           no_output_timeout: 60m
       - run:
           name: Run the Go tests
-          command: CGO_LDFLAGS="-L/tmp/__fil-hwloc/lib -lhwloc" LD_LIBRARY_PATH="/tmp/__fil-hwloc/lib" GODEBUG=cgocheck=2 RUST_LOG=info go test -p 1 -timeout 60m
+          command: GODEBUG=cgocheck=2 RUST_LOG=info go test -p 1 -timeout 60m
           no_output_timeout: 60m
   compile_tests:
     steps:
