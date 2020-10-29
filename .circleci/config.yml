@@ -63,7 +63,8 @@ jobs:
     steps:
       - configure_environment_variables
       - prepare
-      - build_project
+      - build_project:
+          blst: true
       - restore_parameter_cache
       - obtain_filecoin_parameters
       - save_parameter_cache
