@@ -34,7 +34,7 @@ jobs:
           gobin: $HOME/.local/bin
           version: 1.32.0
       - run:
-          command: LD_LIBRARY_PATH="/tmp/__fil-hwloc/lib" make go-lint
+          command: LIBRARY_PATH="/tmp/__fil-hwloc/lib" make go-lint
 
   build_and_test_linux_cgo_bindings_pairing:
     parameters:
@@ -385,7 +385,7 @@ commands:
           steps:
             - run:
                 name: Run leak detector
-                command: LD_LIBRARY_PATH="/tmp/__fil-hwloc/lib" make cgo-leakdetect
+                command: LIBRARY_PATH="/tmp/__fil-hwloc/lib" make cgo-leakdetect
                 no_output_timeout: 60m
       - run:
           name: Run the Rust tests
