@@ -32,10 +32,11 @@ jobs:
       - go/mod-download
       - go/install-golangci-lint:
           gobin: $HOME/.local/bin
-          version: 1.23.8
+          version: 1.32.0
       - run:
-          command: LD_LIBRARY_PATH="/tmp/__fil-hwloc/lib" make go-lint
-  build_and_test_linux_cgo_bindings:
+          command: make go-lint
+
+  build_and_test_linux_cgo_bindings_pairing:
     parameters:
       run_leak_detector:
         type: boolean
@@ -51,6 +52,25 @@ jobs:
       - save_parameter_cache
       - run_tests:
           run_leak_detector: << parameters.run_leak_detector >>
+
+  build_and_test_linux_cgo_bindings_blst:
+    parameters:
+      run_leak_detector:
+        type: boolean
+        default: false
+    executor: golang
+    working_directory: ~/go/src/github.com/filecoin-project/filecoin-ffi
+    steps:
+      - configure_environment_variables
+      - prepare
+      - build_project:
+          blst: true
+      - restore_parameter_cache
+      - obtain_filecoin_parameters
+      - save_parameter_cache
+      - run_tests:
+          run_leak_detector: << parameters.run_leak_detector >>
+
   build_darwin_cgo_bindings:
     macos:
       xcode: "10.0.0"
@@ -138,8 +158,11 @@ jobs:
       - run: cd rust && rustup component add clippy
       - run: cd rust && cargo fetch
       - run:
-          name: Run cargo clippy
-          command: cd rust && cargo +$(cat rust-toolchain) clippy --all-targets --all-features -- -D warnings
+          name: Run cargo clippy (pairing)
+          command: cd rust && cargo +$(cat rust-toolchain) clippy --all-targets -- -D warnings
+      - run:
+          name: Run cargo clippy (blst)
+          command: cd rust && cargo +$(cat rust-toolchain) clippy --all-targets --no-default-features --features blst -- -D warnings
 
 workflows:
   version: 2
@@ -157,18 +180,32 @@ workflows:
             - cargo_fetch
       - gofmt
       - go_lint
-      - build_and_test_linux_cgo_bindings:
+      - build_and_test_linux_cgo_bindings_pairing:
           filters:
             branches:
               only:
                 - master
           run_leak_detector: true
-      - build_and_test_linux_cgo_bindings:
+      - build_and_test_linux_cgo_bindings_pairing:
           filters:
             branches:
               ignore:
                 - master
           run_leak_detector: false
+
+      - build_and_test_linux_cgo_bindings_blst:
+          filters:
+            branches:
+              only:
+                - master
+          run_leak_detector: true
+      - build_and_test_linux_cgo_bindings_blst:
+          filters:
+            branches:
+              ignore:
+                - master
+          run_leak_detector: false
+
       - publish_linux_staticlib:
           filters:
             branches:
@@ -200,7 +237,7 @@ commands:
             - go/install-ssh
             - go/install: {package: git}
             - run: sudo apt-get update
-            - run: sudo apt-get install -y jq valgrind ocl-icd-opencl-dev clang libssl-dev
+            - run: sudo apt-get install -y jq valgrind ocl-icd-opencl-dev clang libssl-dev libhwloc-dev
             - run: curl https://sh.rustup.rs -sSf | sh -s -- -y
       - when:
           condition: << parameters.darwin >>
@@ -229,28 +266,47 @@ commands:
   publish_release:
     steps:
       - run:
-          name: Build and publish the standard release
+          name: Build and publish the standard release (pairing)
           command: |
             cd rust
 
             TARBALL_PATH="/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-standard.tar.gz"
             RELEASE_NAME="${CIRCLE_PROJECT_REPONAME}-$(uname)-standard"
 
-            ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) --verbose --locked --all
+            ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) --verbose --locked --no-default-features --features pairing
             ./scripts/package-release.sh $TARBALL_PATH
             ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
       - run:
-          name: Build and publish the optimized release
+          name: Build and publish the standard release (blst)
+          command: |
+            cd rust
+
+            TARBALL_PATH="/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-standard-blst.tar.gz"
+            RELEASE_NAME="${CIRCLE_PROJECT_REPONAME}-$(uname)-standard-blst"
+
+            ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) --verbose --locked --no-default-features --features blst
+            ./scripts/package-release.sh $TARBALL_PATH
+            ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
+      - run:
+          name: Build the optimized release (pairing)
           command: |
             cd rust
 
             TARBALL_PATH="/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-optimized.tar.gz"
-            RELEASE_NAME="${CIRCLE_PROJECT_REPONAME}-$(uname)-optimized"
+            RUSTFLAGS="-C target-feature=$(cat rustc-target-features-optimized.json | jq -r '.[].rustc_target_feature' | tr '\n' ',')"
+
+            ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) --verbose --locked --no-default-features --features pairing
+            ./scripts/package-release.sh $TARBALL_PATH
+      - run:
+          name: Build the optimized release (blst)
+          command: |
+            cd rust
+
+            TARBALL_PATH="/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-optimized.tar.gz"
             RUSTFLAGS="-C target-feature=$(cat rustc-target-features-optimized.json | jq -r '.[].rustc_target_feature' | tr '\n' ',')"
 
             ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) --verbose --locked --all
             ./scripts/package-release.sh $TARBALL_PATH
-            ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
   configure_environment_variables:
     parameters:
       linux:
@@ -286,14 +342,31 @@ commands:
           GOPATH=/tmp GO111MODULE=off go get github.com/filecoin-project/go-paramfetch/paramfetch
           GOPATH=/tmp GO111MODULE=off go build -o go-paramfetch github.com/filecoin-project/go-paramfetch/paramfetch
           ./go-paramfetch 2048 "${DIR}/parameters.json"
+
   build_project:
+    parameters:
+      blst:
+        default: false
+        description: build with blst backend?
+        type: boolean
     steps:
-      - run:
-          name: Build project
-          command: make
+      - when:
+          condition: << parameters.blst >>
+          steps:
+            - run:
+                name: Build project (blst)
+                command: FFI_USE_BLST=1 make
+      - unless:
+          condition: << parameters.blst >>
+          steps:
+            - run:
+                name: Build project (pairing)
+                command: make
+                
       - run:
           name: Build project without CGO
           command: env CGO_ENABLED=0 go build .
+
   ensure_generated_cgo_up_to_date:
     steps:
       - run:
@@ -312,15 +385,15 @@ commands:
           steps:
             - run:
                 name: Run leak detector
-                command: LD_LIBRARY_PATH="/tmp/__fil-hwloc/lib" make cgo-leakdetect
+                command: make cgo-leakdetect
                 no_output_timeout: 60m
       - run:
           name: Run the Rust tests
-          command: cd rust && FIL_PROOFS_PARAMETER_CACHE="${HOME}/filecoin-proof-parameters/" RUSTFLAGS="-L/tmp/__fil-hwloc/lib -lhwloc" RUST_LOG=info LD_LIBRARY_PATH="/tmp/__fil-hwloc/lib" cargo test --all --release && cd ..
+          command: cd rust && FIL_PROOFS_PARAMETER_CACHE="${HOME}/filecoin-proof-parameters/" RUST_LOG=info cargo test --all --release && cd ..
           no_output_timeout: 60m
       - run:
           name: Run the Go tests
-          command: CGO_LDFLAGS="-L/tmp/__fil-hwloc/lib -lhwloc" LD_LIBRARY_PATH="/tmp/__fil-hwloc/lib" GODEBUG=cgocheck=2 RUST_LOG=info go test -p 1 -timeout 60m
+          command: GODEBUG=cgocheck=2 RUST_LOG=info go test -p 1 -timeout 60m
           no_output_timeout: 60m
   compile_tests:
     steps:

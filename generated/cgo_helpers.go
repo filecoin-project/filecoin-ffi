@@ -4,8 +4,8 @@
 package generated
 
 /*
-#cgo LDFLAGS: -L${SRCDIR}/.. -lfilcrypto -L/tmp/__fil-hwloc/lib -lhwloc
-#cgo pkg-config: ${SRCDIR}/../filcrypto.pc --static
+#cgo LDFLAGS: -L${SRCDIR}/..
+#cgo pkg-config: ${SRCDIR}/../filcrypto.pc
 #include "../filcrypto.h"
 #include <stdlib.h>
 #include "cgo_helpers.h"
