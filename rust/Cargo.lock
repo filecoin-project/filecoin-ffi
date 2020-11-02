@@ -28,9 +28,15 @@ dependencies = [
 
 [[package]]
 name = "aes-soft"
+<<<<<<< HEAD
 version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e39964420d0ab27e20c12b348bf901ef3f69e43694dd25ca4dbafe050781a7fe"
+=======
+version = "0.6.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4e8bdbc97ba3854ecf597a3b69d7bd30a719dee72d22ce6313c84dbf2c8f2694"
+>>>>>>> ce5c5bb... feat: proofs upgrade for sdr expander truncation
 dependencies = [
  "cipher",
  "opaque-debug 0.3.0",
@@ -44,6 +50,16 @@ checksum = "ea2e11f5e94c2f7d386164cc2aa1f97823fed6f259e486940a71c174dd01b0ce"
 dependencies = [
  "cipher",
  "opaque-debug 0.3.0",
+]
+
+[[package]]
+name = "ahash"
+version = "0.5.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b2deff5792519f5985c9cdd5a0399df3ca3419114841d282bae646acadbf0a99"
+dependencies = [
+ "getrandom 0.2.0",
+ "lazy_static",
 ]
 
 [[package]]
@@ -135,13 +151,49 @@ version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ab0cebe27517c36c61d88fc7d2b88f3b1680a918c862c731b08442d6a1d44141"
 dependencies = [
- "ahash",
+ "ahash 0.3.8",
  "bit-vec",
  "blake2s_simd",
  "blstrs",
  "byteorder 1.3.4",
+<<<<<<< HEAD
  "crossbeam-channel 0.5.0",
  "ff-cl-gen",
+=======
+ "crossbeam-channel 0.4.4",
+ "ff-cl-gen 0.1.3",
+>>>>>>> ce5c5bb... feat: proofs upgrade for sdr expander truncation
+ "fff",
+ "fil-ocl",
+ "fs2",
+ "groupy",
+ "lazy_static",
+ "log",
+ "memmap",
+ "num_cpus",
+<<<<<<< HEAD
+ "paired 0.21.0",
+=======
+ "paired 0.20.1",
+>>>>>>> ce5c5bb... feat: proofs upgrade for sdr expander truncation
+ "rand 0.7.3",
+ "rand_core 0.5.1",
+ "rayon",
+ "thiserror",
+]
+
+[[package]]
+name = "bellperson"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ab0cebe27517c36c61d88fc7d2b88f3b1680a918c862c731b08442d6a1d44141"
+dependencies = [
+ "ahash 0.5.6",
+ "bit-vec",
+ "blake2s_simd",
+ "byteorder 1.3.4",
+ "crossbeam-channel 0.5.0",
+ "ff-cl-gen 0.1.3",
  "fff",
  "fil-ocl",
  "fs2",
@@ -158,6 +210,35 @@ dependencies = [
 ]
 
 [[package]]
+<<<<<<< HEAD
+=======
+name = "bellperson"
+version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8be0711234ed395975b11f68f178e419272f27e6cd4b76b4a0733aeac2b3444c"
+dependencies = [
+ "ahash 0.5.6",
+ "bit-vec",
+ "blake2s_simd",
+ "byteorder 1.3.4",
+ "crossbeam-channel 0.5.0",
+ "ff-cl-gen 0.2.0",
+ "fff",
+ "fs2",
+ "groupy",
+ "lazy_static",
+ "log",
+ "memmap",
+ "num_cpus",
+ "paired 0.21.0",
+ "rand 0.7.3",
+ "rand_core 0.5.1",
+ "rayon",
+ "rust-gpu-tools",
+ "thiserror",
+]
+
+[[package]]
 name = "bincode"
 version = "1.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -168,6 +249,7 @@ dependencies = [
 ]
 
 [[package]]
+>>>>>>> ce5c5bb... feat: proofs upgrade for sdr expander truncation
 name = "bit-vec"
 version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -395,9 +477,15 @@ dependencies = [
 
 [[package]]
 name = "cipher"
+<<<<<<< HEAD
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a1f7954ae5588102b35257639b1c36a2e7425cc6540fcdb4de19dcb91055d659"
+=======
+version = "0.2.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "12f8e7987cbd042a63249497f41aed09f8e65add917ea6566effbc56578d6801"
+>>>>>>> ce5c5bb... feat: proofs upgrade for sdr expander truncation
 dependencies = [
  "generic-array 0.14.4",
 ]
@@ -707,6 +795,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "dirs"
+version = "2.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "13aea89a5c93364a98e9b37b2fa237effbb694d5cfe01c5b70941f7eb087d5e3"
+dependencies = [
+ "cfg-if 0.1.10",
+ "dirs-sys",
+]
+
+[[package]]
+name = "dirs-sys"
+version = "0.3.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8e93d7f5705de3e49895a2b5e0b8855a1c27f080192ae9c32a6432d50741a57a"
+dependencies = [
+ "libc",
+ "redox_users",
+ "winapi 0.3.9",
+]
+
+[[package]]
 name = "drop_struct_macro_derive"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -737,11 +846,11 @@ checksum = "a357d28ed41a50f9c765dbfe56cbc04a64e53e5fc58ba79fbc34c10ef3df831f"
 
 [[package]]
 name = "encoding_rs"
-version = "0.8.24"
+version = "0.8.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a51b8cf747471cb9499b6d59e59b0444f4c90eba8968c4e44874e92b5b64ace2"
+checksum = "f62bc5e388624f1a13da83b479275dbec9663a876e414df80decf7d2cdab6670"
 dependencies = [
- "cfg-if 0.1.10",
+ "cfg-if 1.0.0",
 ]
 
 [[package]]
@@ -807,6 +916,17 @@ name = "ff-cl-gen"
 version = "0.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8350e4691067d53e0eb3ca652d84112540e426d7962e9ac1a582c1af1af1edf6"
+dependencies = [
+ "fff",
+ "itertools 0.8.2",
+ "num-bigint 0.2.6",
+]
+
+[[package]]
+name = "ff-cl-gen"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c37f4f4ccbc173bd5abd9251222392c564f7dc8d9a5ddde6cf3fe55c163d465f"
 dependencies = [
  "fff",
  "itertools 0.8.2",
@@ -896,7 +1016,7 @@ name = "filcrypto"
 version = "0.7.5"
 dependencies = [
  "anyhow",
- "bellperson",
+ "bellperson 0.9.3",
  "bls-signatures",
  "byteorder 1.3.4",
  "cbindgen",
@@ -907,6 +1027,11 @@ dependencies = [
  "filecoin-proofs-api",
  "libc",
  "log",
+<<<<<<< HEAD
+=======
+ "neptune 1.2.3",
+ "paired 0.20.1",
+>>>>>>> ce5c5bb... feat: proofs upgrade for sdr expander truncation
  "rand 0.7.3",
  "rand_chacha",
  "rayon",
@@ -916,12 +1041,18 @@ dependencies = [
 
 [[package]]
 name = "filecoin-proofs"
+<<<<<<< HEAD
 version = "5.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "16844ea3ba6ac49ab40b2c8bd45e1fcc25f2580f4460658f0bfdddbdc3a75aed"
+=======
+version = "5.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c49a59b1148dcdb4711bec11faa88f8b350a4edd8326d2bb7b2437c4a019fbec"
+>>>>>>> ce5c5bb... feat: proofs upgrade for sdr expander truncation
 dependencies = [
  "anyhow",
- "bellperson",
+ "bellperson 0.12.0",
  "bincode",
  "bitintr",
  "bitvec",
@@ -955,7 +1086,7 @@ dependencies = [
  "reqwest",
  "serde",
  "serde_json",
- "sha2",
+ "sha2 0.9.1",
  "simplelog",
  "storage-proofs",
  "structopt",
@@ -966,11 +1097,17 @@ dependencies = [
 [[package]]
 name = "filecoin-proofs-api"
 version = "5.3.0"
+<<<<<<< HEAD
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "03c2d38ac0a9f9ef88d8e82c964fb47d3da52a186ca6a9527ecb6407ac29d457"
 dependencies = [
  "anyhow",
  "bellperson",
+=======
+dependencies = [
+ "anyhow",
+ "bellperson 0.11.0",
+>>>>>>> ce5c5bb... feat: proofs upgrade for sdr expander truncation
  "bincode",
  "filecoin-proofs",
  "serde",
@@ -1642,7 +1779,23 @@ version = "2.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9544fd96d146785c717b0b5373d3480f0a55a1d8169f668fb88df9760ea826fc"
 dependencies = [
- "bellperson",
+ "bellperson 0.9.3",
+ "blake2s_simd",
+ "byteorder 1.3.4",
+ "fff",
+ "generic-array 0.14.4",
+ "lazy_static",
+ "log",
+ "paired 0.20.1",
+]
+
+[[package]]
+name = "neptune"
+version = "2.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "453fff5e63fb9155c6571ca4fe3d1799ae57a66d5c27346a201eafd8c655a09a"
+dependencies = [
+ "bellperson 0.12.0",
  "blake2s_simd",
  "byteorder 1.3.4",
  "fff",
@@ -1939,11 +2092,17 @@ checksum = "d4fd5641d01c8f18a23da7b6fe29298ff4b55afcccdf78973b24cf3175fee32e"
 
 [[package]]
 name = "phase21"
+<<<<<<< HEAD
 version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e5fa3912a0a09b9e91c962676339c09eda05a5eabd5d6df3a71851cd1d926d6c"
+=======
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e2e4dd94fa82b154cb22a5d708d231592d1310da9402825d1e338aa5b6864d65"
+>>>>>>> ce5c5bb... feat: proofs upgrade for sdr expander truncation
 dependencies = [
- "bellperson",
+ "bellperson 0.12.0",
  "blake2b_simd",
  "byteorder 1.3.4",
  "crossbeam 0.8.0",
@@ -2069,6 +2228,15 @@ dependencies = [
 ]
 
 [[package]]
+<<<<<<< HEAD
+=======
+name = "proc-macro-hack"
+version = "0.5.19"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dbf0c48bc1d91375ae5c3cd81e3722dff1abcf81a30960240640d223f59fe0e5"
+
+[[package]]
+>>>>>>> ce5c5bb... feat: proofs upgrade for sdr expander truncation
 name = "proc-macro2"
 version = "0.4.30"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2250,10 +2418,21 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "41cc0f7e4d5d4544e8861606a285bb08d3e70712ccc7d2b84d7c0ccfaf4b05ce"
 
 [[package]]
-name = "regex"
-version = "1.4.1"
+name = "redox_users"
+version = "0.3.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8963b85b8ce3074fecffde43b4b0dded83ce2f367dc8d363afc56679f3ee820b"
+checksum = "de0737333e7a9502c789a36d7c7fa6092a49895d4faa31ca5df163857ded2e9d"
+dependencies = [
+ "getrandom 0.1.15",
+ "redox_syscall",
+ "rust-argon2",
+]
+
+[[package]]
+name = "regex"
+version = "1.4.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "38cf2c13ed4745de91a5eb834e11c00bcc3709e773173b2ce4c56c9fbde04b9c"
 dependencies = [
  "aho-corasick",
  "memchr",
@@ -2263,9 +2442,9 @@ dependencies = [
 
 [[package]]
 name = "regex-syntax"
-version = "0.6.20"
+version = "0.6.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8cab7a364d15cde1e505267766a2d3c4e22a843e1a601f0fa7564c0f82ced11c"
+checksum = "3b181ba2dcf07aaccad5448e8ead58db5b742cf85dfe035e2227f137a539a189"
 
 [[package]]
 name = "remove_dir_all"
@@ -2312,12 +2491,40 @@ dependencies = [
 ]
 
 [[package]]
+name = "rust-argon2"
+version = "0.8.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9dab61250775933275e84053ac235621dfb739556d5c54a2f2e9313b7cf43a19"
+dependencies = [
+ "base64",
+ "blake2b_simd",
+ "constant_time_eq",
+ "crossbeam-utils 0.7.2",
+]
+
+[[package]]
+<<<<<<< HEAD
+=======
+name = "rust-gpu-tools"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c6c9f6405dd1a52ca610445abadb9faa3216f0f9a6e136c4b66df5e655224e52"
+dependencies = [
+ "dirs",
+ "fil-ocl",
+ "lazy_static",
+ "sha2 0.8.2",
+ "thiserror",
+]
+
+[[package]]
 name = "rustc-demangle"
 version = "0.1.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6e3bad0ee36814ca07d7968269dd4b7ec89ec2da10c4bb613928d3077083c232"
 
 [[package]]
+>>>>>>> ce5c5bb... feat: proofs upgrade for sdr expander truncation
 name = "rustc-serialize"
 version = "0.3.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2452,6 +2659,18 @@ dependencies = [
 
 [[package]]
 name = "sha2"
+version = "0.8.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a256f46ea78a0c0d9ff00077504903ac881a1dafdc20da66545699e7776b3e69"
+dependencies = [
+ "block-buffer 0.7.3",
+ "digest 0.8.1",
+ "fake-simd",
+ "opaque-debug 0.2.3",
+]
+
+[[package]]
+name = "sha2"
 version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2933378ddfeda7ea26f48c555bdad8bb446bf8a3d17832dc83e380d444cfb8c1"
@@ -2544,9 +2763,15 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
 name = "storage-proofs"
+<<<<<<< HEAD
 version = "5.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3f0b9cb2af1e4687e95168a160ce75af1e780ce277083975cfffee19535f2927"
+=======
+version = "5.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "12e40112e2867c532f611c3fc4af826a6e9db2144e269fda545826375bafb084"
+>>>>>>> ce5c5bb... feat: proofs upgrade for sdr expander truncation
 dependencies = [
  "storage-proofs-core",
  "storage-proofs-porep",
@@ -2555,13 +2780,19 @@ dependencies = [
 
 [[package]]
 name = "storage-proofs-core"
+<<<<<<< HEAD
 version = "5.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7168624bf6fde20d30effdaf60b792e35c4631d4c90272623e085fb561f7b362"
+=======
+version = "5.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "191e0ad20e15d20dd2a173338816970d74654f0fd0ae89db188e9993760b98cb"
+>>>>>>> ce5c5bb... feat: proofs upgrade for sdr expander truncation
 dependencies = [
  "aes",
  "anyhow",
- "bellperson",
+ "bellperson 0.12.0",
  "blake2b_simd",
  "blake2s_simd",
  "block-modes",
@@ -2576,14 +2807,14 @@ dependencies = [
  "log",
  "memmap",
  "merkletree",
- "neptune",
+ "neptune 2.2.0",
  "num_cpus",
  "rand 0.7.3",
  "rand_chacha",
  "rayon",
  "serde",
  "serde_json",
- "sha2",
+ "sha2 0.9.1",
  "tempfile",
  "thiserror",
  "toml",
@@ -2591,12 +2822,18 @@ dependencies = [
 
 [[package]]
 name = "storage-proofs-porep"
+<<<<<<< HEAD
 version = "5.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c978e4d0b24810eb6fff2d733c79244a9edf15e462c507c373484243bb916158"
+=======
+version = "5.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b20609e5bb968c708747c3922e6cd15661cb1515d5508bd96e0a4f1600acabe0"
+>>>>>>> ce5c5bb... feat: proofs upgrade for sdr expander truncation
 dependencies = [
  "anyhow",
- "bellperson",
+ "bellperson 0.12.0",
  "bincode",
  "byte-slice-cast",
  "byteorder 1.3.4",
@@ -2611,7 +2848,7 @@ dependencies = [
  "log",
  "mapr",
  "merkletree",
- "neptune",
+ "neptune 2.2.0",
  "num-bigint 0.2.6",
  "num-traits 0.2.14",
  "num_cpus",
@@ -2620,19 +2857,25 @@ dependencies = [
  "rayon",
  "serde",
  "serde_json",
- "sha2",
+ "sha2 0.9.1",
  "sha2raw",
  "storage-proofs-core",
 ]
 
 [[package]]
 name = "storage-proofs-post"
+<<<<<<< HEAD
 version = "5.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "905e4d1a409b859c4d7a0feae7f753f05741426fdfdd84c2d61b8ed333bb1dca"
+=======
+version = "5.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "48d3f62e46745d71c5359472a7f1017782eca46ea0c186dcb1a1cf5fad1e5c26"
+>>>>>>> ce5c5bb... feat: proofs upgrade for sdr expander truncation
 dependencies = [
  "anyhow",
- "bellperson",
+ "bellperson 0.12.0",
  "blake2b_simd",
  "blake2s_simd",
  "byteorder 1.3.4",
@@ -2642,12 +2885,12 @@ dependencies = [
  "hex",
  "log",
  "merkletree",
- "neptune",
+ "neptune 2.2.0",
  "num_cpus",
  "rand 0.7.3",
  "rayon",
  "serde",
- "sha2",
+ "sha2 0.9.1",
  "storage-proofs-core",
 ]
 
