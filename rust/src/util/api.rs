@@ -33,7 +33,7 @@ pub fn init_log_with_file(file: File) -> Option<()> {
 /// Returns an array of strings containing the device names that can be used.
 #[no_mangle]
 pub unsafe extern "C" fn fil_get_gpu_devices() -> *mut fil_GpuDeviceResponse {
-catch_panic_response(|| {
+    catch_panic_response(|| {
         let mut response = fil_GpuDeviceResponse::default();
         match rust_gpu_tools::opencl::Device::all() {
             Ok(devices) => {
