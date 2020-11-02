@@ -80,7 +80,7 @@ download_release_tarball() {
     if [ "${FFI_USE_BLST}" == "1" ]; then
         release_flag_name="standard-blst"
     else
-        release_flag_name="standard"
+        release_flag_name="standard-pairing"
     fi
 
     # TODO: This function shouldn't make assumptions about how these releases'
