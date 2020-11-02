@@ -54,6 +54,7 @@ dependencies = [
 
 [[package]]
 name = "ahash"
+<<<<<<< HEAD
 version = "0.5.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b2deff5792519f5985c9cdd5a0399df3ca3419114841d282bae646acadbf0a99"
@@ -64,6 +65,8 @@ dependencies = [
 
 [[package]]
 name = "ahash"
+=======
+>>>>>>> e1851df... update bellperson and neptune
 version = "0.5.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b2deff5792519f5985c9cdd5a0399df3ca3419114841d282bae646acadbf0a99"
@@ -147,6 +150,7 @@ checksum = "3441f0f7b02788e948e47f457ca01f1d7e6d92c693bc132c22b087d3141c03ff"
 
 [[package]]
 name = "bellperson"
+<<<<<<< HEAD
 version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ab0cebe27517c36c61d88fc7d2b88f3b1680a918c862c731b08442d6a1d44141"
@@ -184,11 +188,13 @@ dependencies = [
 
 [[package]]
 name = "bellperson"
+=======
+>>>>>>> e1851df... update bellperson and neptune
 version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ab0cebe27517c36c61d88fc7d2b88f3b1680a918c862c731b08442d6a1d44141"
 dependencies = [
- "ahash 0.5.6",
+ "ahash",
  "bit-vec",
  "blake2s_simd",
  "byteorder 1.3.4",
@@ -217,7 +223,7 @@ version = "0.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8be0711234ed395975b11f68f178e419272f27e6cd4b76b4a0733aeac2b3444c"
 dependencies = [
- "ahash 0.5.6",
+ "ahash",
  "bit-vec",
  "blake2s_simd",
  "byteorder 1.3.4",
@@ -1016,7 +1022,7 @@ name = "filcrypto"
 version = "0.7.5"
 dependencies = [
  "anyhow",
- "bellperson 0.9.3",
+ "bellperson 0.12.0",
  "bls-signatures",
  "byteorder 1.3.4",
  "cbindgen",
@@ -1028,13 +1034,18 @@ dependencies = [
  "libc",
  "log",
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
  "neptune 1.2.3",
+=======
+ "neptune",
+>>>>>>> e1851df... update bellperson and neptune
  "paired 0.20.1",
 >>>>>>> ce5c5bb... feat: proofs upgrade for sdr expander truncation
  "rand 0.7.3",
  "rand_chacha",
  "rayon",
+ "rust-gpu-tools",
  "serde_json",
  "tempfile",
 ]
@@ -1096,6 +1107,7 @@ dependencies = [
 
 [[package]]
 name = "filecoin-proofs-api"
+<<<<<<< HEAD
 version = "5.3.0"
 <<<<<<< HEAD
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1104,6 +1116,11 @@ dependencies = [
  "anyhow",
  "bellperson",
 =======
+=======
+version = "5.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5c2cd642496ee6f349d24768f67a1bd3005c9bdfb48c78b451af944a74728c47"
+>>>>>>> e1851df... update bellperson and neptune
 dependencies = [
  "anyhow",
  "bellperson 0.11.0",
@@ -1775,6 +1792,7 @@ dependencies = [
 
 [[package]]
 name = "neptune"
+<<<<<<< HEAD
 version = "2.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9544fd96d146785c717b0b5373d3480f0a55a1d8169f668fb88df9760ea826fc"
@@ -1791,6 +1809,8 @@ dependencies = [
 
 [[package]]
 name = "neptune"
+=======
+>>>>>>> e1851df... update bellperson and neptune
 version = "2.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "453fff5e63fb9155c6571ca4fe3d1799ae57a66d5c27346a201eafd8c655a09a"
@@ -2229,6 +2249,7 @@ dependencies = [
 
 [[package]]
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 name = "proc-macro-hack"
 version = "0.5.19"
@@ -2237,6 +2258,8 @@ checksum = "dbf0c48bc1d91375ae5c3cd81e3722dff1abcf81a30960240640d223f59fe0e5"
 
 [[package]]
 >>>>>>> ce5c5bb... feat: proofs upgrade for sdr expander truncation
+=======
+>>>>>>> e1851df... update bellperson and neptune
 name = "proc-macro2"
 version = "0.4.30"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2807,7 +2830,7 @@ dependencies = [
  "log",
  "memmap",
  "merkletree",
- "neptune 2.2.0",
+ "neptune",
  "num_cpus",
  "rand 0.7.3",
  "rand_chacha",
@@ -2848,7 +2871,7 @@ dependencies = [
  "log",
  "mapr",
  "merkletree",
- "neptune 2.2.0",
+ "neptune",
  "num-bigint 0.2.6",
  "num-traits 0.2.14",
  "num_cpus",
@@ -2885,7 +2908,7 @@ dependencies = [
  "hex",
  "log",
  "merkletree",
- "neptune 2.2.0",
+ "neptune",
  "num_cpus",
  "rand 0.7.3",
  "rayon",
