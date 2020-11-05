@@ -48,3 +48,6 @@ tempfile = "3.0.8"
 default = ["pairing"]
 pairing = ["filecoin-proofs-api/pairing", "bellperson/pairing"]
 blst = ["filecoin-proofs-api/blst", "bellperson/blst"]
+
+[patch.crates-io]
+bellperson = { git = "https://github.com/filecoin-project/bellperson", branch = "fix-locking"}
