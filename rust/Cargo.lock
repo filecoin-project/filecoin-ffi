@@ -132,7 +132,7 @@ checksum = "3441f0f7b02788e948e47f457ca01f1d7e6d92c693bc132c22b087d3141c03ff"
 [[package]]
 name = "bellperson"
 version = "0.12.0"
-source = "git+https://github.com/filecoin-project/bellperson?branch=fix-locking#a9e1ffe05f3543045eebf8639b5c8821954e228d"
+source = "git+https://github.com/filecoin-project/bellperson?branch=fix-locking#426bbee08403771165e319b94f7a0fb8cdf89699"
 dependencies = [
  "ahash",
  "bit-vec",
