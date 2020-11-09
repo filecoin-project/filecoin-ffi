@@ -1604,6 +1604,12 @@ pub mod tests {
             fil_RegisteredSealProof::StackedDrg8MiBV1,
             fil_RegisteredSealProof::StackedDrg512MiBV1,
             fil_RegisteredSealProof::StackedDrg32GiBV1,
+            fil_RegisteredSealProof::StackedDrg64GiBV1,
+            fil_RegisteredSealProof::StackedDrg2KiBV1_1,
+            fil_RegisteredSealProof::StackedDrg8MiBV1_1,
+            fil_RegisteredSealProof::StackedDrg512MiBV1_1,
+            fil_RegisteredSealProof::StackedDrg32GiBV1_1,
+            fil_RegisteredSealProof::StackedDrg64GiBV1_1,
         ];
 
         let post_types = vec![
@@ -1611,10 +1617,12 @@ pub mod tests {
             fil_RegisteredPoStProof::StackedDrgWinning8MiBV1,
             fil_RegisteredPoStProof::StackedDrgWinning512MiBV1,
             fil_RegisteredPoStProof::StackedDrgWinning32GiBV1,
+            fil_RegisteredPoStProof::StackedDrgWinning64GiBV1,
             fil_RegisteredPoStProof::StackedDrgWindow2KiBV1,
             fil_RegisteredPoStProof::StackedDrgWindow8MiBV1,
             fil_RegisteredPoStProof::StackedDrgWindow512MiBV1,
             fil_RegisteredPoStProof::StackedDrgWindow32GiBV1,
+            fil_RegisteredPoStProof::StackedDrgWindow64GiBV1,
         ];
 
         let num_ops = (seal_types.len() + post_types.len()) * 6;
@@ -1683,11 +1691,20 @@ pub mod tests {
 
     #[test]
     #[allow(clippy::cognitive_complexity)]
-    fn test_sealing() -> Result<()> {
+    fn test_sealing_v1() -> Result<()> {
+        test_sealing_inner(fil_RegisteredSealProof::StackedDrg2KiBV1)
+    }
+
+    #[test]
+    #[allow(clippy::cognitive_complexity)]
+    fn test_sealing_v1_1() -> Result<()> {
+        test_sealing_inner(fil_RegisteredSealProof::StackedDrg2KiBV1_1)
+    }
+
+    fn test_sealing_inner(registered_proof_seal: fil_RegisteredSealProof) -> Result<()> {
         let wrap = |x| fil_32ByteArray { inner: x };
 
         // miscellaneous setup and shared values
-        let registered_proof_seal = fil_RegisteredSealProof::StackedDrg2KiBV1;
         let registered_proof_winning_post = fil_RegisteredPoStProof::StackedDrgWinning2KiBV1;
         let registered_proof_window_post = fil_RegisteredPoStProof::StackedDrgWindow2KiBV1;
 
@@ -2283,9 +2300,17 @@ pub mod tests {
     }
 
     #[test]
-    fn test_faulty_sectors() -> Result<()> {
+    fn test_faulty_sectors_v1() -> Result<()> {
+        test_faulty_sectors_inner(fil_RegisteredSealProof::StackedDrg2KiBV1)
+    }
+
+    #[test]
+    fn test_faulty_sectors_v1_1() -> Result<()> {
+        test_faulty_sectors_inner(fil_RegisteredSealProof::StackedDrg2KiBV1_1)
+    }
+
+    fn test_faulty_sectors_inner(registered_proof_seal: fil_RegisteredSealProof) -> Result<()> {
         // miscellaneous setup and shared values
-        let registered_proof_seal = fil_RegisteredSealProof::StackedDrg2KiBV1;
         let registered_proof_window_post = fil_RegisteredPoStProof::StackedDrgWindow2KiBV1;
 
         let cache_dir = tempfile::tempdir()?;

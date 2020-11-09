@@ -386,11 +386,11 @@ commands:
             - run:
                 name: Run leak detector
                 command: make cgo-leakdetect
-                no_output_timeout: 60m
+                no_output_timeout: 90m
       - run:
           name: Run the Rust tests
-          command: cd rust && FIL_PROOFS_PARAMETER_CACHE="${HOME}/filecoin-proof-parameters/" RUST_LOG=info cargo test --all --release && cd ..
-          no_output_timeout: 60m
+          command: cd rust && FIL_PROOFS_PARAMETER_CACHE="${HOME}/filecoin-proof-parameters/" RUST_LOG=info cargo test --all --release -- --test-threads 1&& cd ..
+          no_output_timeout: 90m
       - run:
           name: Run the Go tests
           command: GODEBUG=cgocheck=2 RUST_LOG=info go test -p 1 -timeout 60m

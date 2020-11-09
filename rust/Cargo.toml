@@ -2,7 +2,11 @@
 name = "filcrypto"
 description = "FFI Interface to Filecoin Proofs"
 version = "0.7.5"
-authors = ["laser <l@s3r.com>"]
+authors = [
+  "nemo <nemo@protocol.ai>",
+  "dignifiedquire <me@dignifiedquire.com>",
+  "laser <l@s3r.com>"
+]
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/filecoin-project/filecoin-ffi"
 readme = "README.md"
@@ -25,12 +29,13 @@ rand = "0.7"
 rand_chacha = "0.2.1"
 rayon = "1.2.1"
 anyhow = "1.0.23"
-bellperson = { version = "0.11", default-features = false, features = ["gpu"] }
+bellperson = { version = "0.12.0", default-features = false, features = ["gpu"] }
 serde_json = "1.0.46"
+rust-gpu-tools = "0.2.0"
 
 [dependencies.filecoin-proofs-api]
 package = "filecoin-proofs-api"
-version = "5.3.0"
+version = "5.4.1"
 default-features = false
 
 [build-dependencies]

@@ -40,14 +40,19 @@ const (
 	FilRegisteredPoStProofStackedDrgWindow64GiBV1   FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrgWindow64GiBV1
 )
 
-// FilRegisteredSealProof as declared in filecoin-ffi/filcrypto.h:52
+// FilRegisteredSealProof as declared in filecoin-ffi/filcrypto.h:57
 type FilRegisteredSealProof int32
 
-// FilRegisteredSealProof enumeration from filecoin-ffi/filcrypto.h:52
+// FilRegisteredSealProof enumeration from filecoin-ffi/filcrypto.h:57
 const (
-	FilRegisteredSealProofStackedDrg2KiBV1   FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg2KiBV1
-	FilRegisteredSealProofStackedDrg8MiBV1   FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg8MiBV1
-	FilRegisteredSealProofStackedDrg512MiBV1 FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg512MiBV1
-	FilRegisteredSealProofStackedDrg32GiBV1  FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg32GiBV1
-	FilRegisteredSealProofStackedDrg64GiBV1  FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg64GiBV1
+	FilRegisteredSealProofStackedDrg2KiBV1    FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg2KiBV1
+	FilRegisteredSealProofStackedDrg8MiBV1    FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg8MiBV1
+	FilRegisteredSealProofStackedDrg512MiBV1  FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg512MiBV1
+	FilRegisteredSealProofStackedDrg32GiBV1   FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg32GiBV1
+	FilRegisteredSealProofStackedDrg64GiBV1   FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg64GiBV1
+	FilRegisteredSealProofStackedDrg2KiBV11   FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg2KiBV1_1
+	FilRegisteredSealProofStackedDrg8MiBV11   FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg8MiBV1_1
+	FilRegisteredSealProofStackedDrg512MiBV11 FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg512MiBV1_1
+	FilRegisteredSealProofStackedDrg32GiBV11  FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg32GiBV1_1
+	FilRegisteredSealProofStackedDrg64GiBV11  FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg64GiBV1_1
 )
