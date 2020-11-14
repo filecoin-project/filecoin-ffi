@@ -12,7 +12,7 @@ import (
 
 // Hash computes the digest of a message
 func Hash(message Message) Digest {
-	resp := generated.FilHash(string(message), uint(len(message)))
+	resp := generated.FilHash(message, uint(len(message)))
 	resp.Deref()
 	resp.Digest.Deref()
 
@@ -36,17 +36,17 @@ func Verify(signature *Signature, digests []Digest, publicKeys []PublicKey) bool
 		copy(flattenedPublicKeys[(PublicKeyBytes*idx):(PublicKeyBytes*(1+idx))], publicKey[:])
 	}
 
-	isValid := generated.FilVerify(string(signature[:]), string(flattenedDigests), uint(len(flattenedDigests)), string(flattenedPublicKeys), uint(len(flattenedPublicKeys)))
+	isValid := generated.FilVerify(signature[:], flattenedDigests, uint(len(flattenedDigests)), flattenedPublicKeys, uint(len(flattenedPublicKeys)))
 
 	return isValid > 0
 }
 
 // HashVerify verifies that a signature is the aggregated signature of hashed messages.
 func HashVerify(signature *Signature, messages []Message, publicKeys []PublicKey) bool {
-	var flattenedMessages string
+	var flattenedMessages []byte
 	messagesSizes := make([]uint, len(messages))
 	for idx := range messages {
-		flattenedMessages = flattenedMessages + string(messages[idx])
+		flattenedMessages = append(flattenedMessages, messages[idx]...)
 		messagesSizes[idx] = uint(len(messages[idx]))
 	}
 
@@ -55,7 +55,7 @@ func HashVerify(signature *Signature, messages []Message, publicKeys []PublicKey
 		copy(flattenedPublicKeys[(PublicKeyBytes*idx):(PublicKeyBytes*(1+idx))], publicKey[:])
 	}
 
-	isValid := generated.FilHashVerify(string(signature[:]), flattenedMessages, uint(len(flattenedMessages)), messagesSizes, uint(len(messagesSizes)), string(flattenedPublicKeys), uint(len(flattenedPublicKeys)))
+	isValid := generated.FilHashVerify(signature[:], flattenedMessages, uint(len(flattenedMessages)), messagesSizes, uint(len(messagesSizes)), flattenedPublicKeys, uint(len(flattenedPublicKeys)))
 
 	return isValid > 0
 }
@@ -70,7 +70,7 @@ func Aggregate(signatures []Signature) *Signature {
 		copy(flattenedSignatures[(SignatureBytes*idx):(SignatureBytes*(1+idx))], sig[:])
 	}
 
-	resp := generated.FilAggregate(string(flattenedSignatures), uint(len(flattenedSignatures)))
+	resp := generated.FilAggregate(flattenedSignatures, uint(len(flattenedSignatures)))
 	if resp == nil {
 		return nil
 	}
@@ -114,7 +114,7 @@ func PrivateKeyGenerateWithSeed(seed PrivateKeyGenSeed) PrivateKey {
 
 // PrivateKeySign signs a message
 func PrivateKeySign(privateKey PrivateKey, message Message) *Signature {
-	resp := generated.FilPrivateKeySign(string(privateKey[:]), string(message), uint(len(message)))
+	resp := generated.FilPrivateKeySign(privateKey[:], message, uint(len(message)))
 	resp.Deref()
 	resp.Signature.Deref()
 
@@ -127,7 +127,7 @@ func PrivateKeySign(privateKey PrivateKey, message Message) *Signature {
 
 // PrivateKeyPublicKey gets the public key for a private key
 func PrivateKeyPublicKey(privateKey PrivateKey) PublicKey {
-	resp := generated.FilPrivateKeyPublicKey(string(privateKey[:]))
+	resp := generated.FilPrivateKeyPublicKey(privateKey[:])
 	resp.Deref()
 	resp.PublicKey.Deref()
 

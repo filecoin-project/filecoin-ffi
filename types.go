@@ -126,3 +126,8 @@ type PrivateSectorInfo struct {
 	PoStProofType    abi.RegisteredPoStProof
 	SealedSectorPath string
 }
+
+// AllocationManager is an interface that provides Free() capability.
+type AllocationManager interface {
+	Free()
+}

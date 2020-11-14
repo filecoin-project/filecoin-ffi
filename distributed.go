@@ -88,7 +88,7 @@ func GenerateSingleVanillaProof(
 
 	resp.VanillaProof.Deref()
 
-	return []byte(toGoStringCopy(resp.VanillaProof.ProofPtr, resp.VanillaProof.ProofLen)), nil
+	return copyBytes(resp.VanillaProof.ProofPtr, resp.VanillaProof.ProofLen), nil
 }
 
 func GenerateWinningPoStWithVanilla(

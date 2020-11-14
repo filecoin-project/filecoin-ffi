@@ -87,7 +87,7 @@ type FilGeneratePieceCommitmentResponse struct {
 // FilVanillaProof as declared in filecoin-ffi/filcrypto.h:117
 type FilVanillaProof struct {
 	ProofLen       uint
-	ProofPtr       string
+	ProofPtr       []byte
 	refb3e7638c    *C.fil_VanillaProof
 	allocsb3e7638c interface{}
 }
@@ -105,7 +105,7 @@ type FilGenerateSingleVanillaProofResponse struct {
 type FilPoStProof struct {
 	RegisteredProof FilRegisteredPoStProof
 	ProofLen        uint
-	ProofPtr        string
+	ProofPtr        []byte
 	ref3451bfa      *C.fil_PoStProof
 	allocs3451bfa   interface{}
 }
@@ -213,7 +213,7 @@ type FilPrivateKeySignResponse struct {
 type FilSealCommitPhase1Response struct {
 	StatusCode                FCPResponseStatus
 	ErrorMsg                  string
-	SealCommitPhase1OutputPtr string
+	SealCommitPhase1OutputPtr []byte
 	SealCommitPhase1OutputLen uint
 	ref61ed8561               *C.fil_SealCommitPhase1Response
 	allocs61ed8561            interface{}
@@ -223,7 +223,7 @@ type FilSealCommitPhase1Response struct {
 type FilSealCommitPhase2Response struct {
 	StatusCode     FCPResponseStatus
 	ErrorMsg       string
-	ProofPtr       string
+	ProofPtr       []byte
 	ProofLen       uint
 	ref5860b9a4    *C.fil_SealCommitPhase2Response
 	allocs5860b9a4 interface{}
@@ -233,7 +233,7 @@ type FilSealCommitPhase2Response struct {
 type FilSealPreCommitPhase1Response struct {
 	ErrorMsg                     string
 	StatusCode                   FCPResponseStatus
-	SealPreCommitPhase1OutputPtr string
+	SealPreCommitPhase1OutputPtr []byte
 	SealPreCommitPhase1OutputLen uint
 	ref132bbfd8                  *C.fil_SealPreCommitPhase1Response
 	allocs132bbfd8               interface{}
