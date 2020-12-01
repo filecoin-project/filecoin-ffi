@@ -293,7 +293,7 @@ commands:
             cd rust
 
             TARBALL_PATH="/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-optimized.tar.gz"
-            RUSTFLAGS="-C target-feature=$(cat rustc-target-features-optimized.json | jq -r '.[].rustc_target_feature' | tr '\n' ',')"
+            RUSTFLAGS="-C target-cpu=native -C target-feature=$(cat rustc-target-features-optimized.json | jq -r '.[].rustc_target_feature' | tr '\n' ',')"
 
             ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) --verbose --locked --no-default-features --features pairing
             ./scripts/package-release.sh $TARBALL_PATH
@@ -303,7 +303,7 @@ commands:
             cd rust
 
             TARBALL_PATH="/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-optimized.tar.gz"
-            RUSTFLAGS="-C target-feature=$(cat rustc-target-features-optimized.json | jq -r '.[].rustc_target_feature' | tr '\n' ',')"
+            RUSTFLAGS="-C target-cpu=native -C target-feature=$(cat rustc-target-features-optimized.json | jq -r '.[].rustc_target_feature' | tr '\n' ',')"
 
             ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) --verbose --locked --all
             ./scripts/package-release.sh $TARBALL_PATH

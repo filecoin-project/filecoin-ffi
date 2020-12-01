@@ -159,7 +159,7 @@ build_from_source() {
     if [ -n "${__release_flags}" ]; then
         RUSTFLAGS="-C target-cpu=native -C target-feature=${__release_flags}" ./scripts/build-release.sh "${__library_name}" "$(cat rust-toolchain)" "${additional_flags}"
     else
-        ./scripts/build-release.sh "${__library_name}" "$(cat rust-toolchain)" "${additional_flags}"
+        RUSTFLAGS="-C target-cpu=native" ./scripts/build-release.sh "${__library_name}" "$(cat rust-toolchain)" "${additional_flags}"
     fi
 
     popd
