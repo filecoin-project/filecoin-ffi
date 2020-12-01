@@ -35,7 +35,7 @@ rust-gpu-tools = "0.2.0"
 
 [dependencies.filecoin-proofs-api]
 package = "filecoin-proofs-api"
-version = "5.4.1"
+version = "6.0.0"
 default-features = false
 
 [build-dependencies]
