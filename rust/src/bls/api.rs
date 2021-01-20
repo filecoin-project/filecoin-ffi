@@ -1,12 +1,12 @@
 use std::slice::from_raw_parts;
 
 use bls_signatures::{
-    aggregate as aggregate_sig,
-    groupy::{CurveAffine, CurveProjective, EncodedPoint, GroupDecodingError},
-    hash as hash_sig,
-    paired::bls12_381::{G2Affine, G2Compressed},
-    verify as verify_sig, PrivateKey, PublicKey, Serialize, Signature,
+    aggregate as aggregate_sig, hash as hash_sig, verify as verify_sig,
+    verify_messages as verify_messages_sig, PrivateKey, PublicKey, Serialize, Signature,
 };
+use blstrs::{G2Affine, G2Compressed};
+use groupy::{CurveAffine, CurveProjective, EncodedPoint, GroupDecodingError};
+
 use rand::rngs::OsRng;
 use rand::SeedableRng;
 use rand_chacha::ChaChaRng;
@@ -177,7 +177,7 @@ pub unsafe extern "C" fn fil_verify(
     verify_sig(&signature, digests.as_slice(), public_keys.as_slice()) as libc::c_int
 }
 
-/// Verify that a signature is the aggregated signature of the hhashed messages
+/// Verify that a signature is the aggregated signature of the hashed messages
 ///
 /// # Arguments
 ///
@@ -219,11 +219,6 @@ pub unsafe extern "C" fn fil_hash_verify(
         return 0;
     }
 
-    let digests: Vec<_> = messages
-        .into_par_iter()
-        .map(|message: &[u8]| hash_sig(message))
-        .collect::<Vec<_>>();
-
     let public_keys: Vec<_> = try_ffi!(
         raw_public_keys
             .par_chunks(PUBLIC_KEY_BYTES)
@@ -232,7 +227,7 @@ pub unsafe extern "C" fn fil_hash_verify(
         0
     );
 
-    verify_sig(&signature, &digests, &public_keys) as libc::c_int
+    verify_messages_sig(&signature, &messages, &public_keys) as libc::c_int
 }
 
 /// Generate a new private key
@@ -427,8 +422,8 @@ mod tests {
                 .inner;
             assert_eq!(
                 [
-                    115, 245, 77, 209, 4, 57, 40, 107, 10, 153, 141, 16, 153, 172, 85, 197, 125,
-                    163, 35, 217, 108, 241, 64, 235, 231, 220, 131, 1, 77, 253, 176, 19
+                    56, 13, 181, 159, 37, 1, 12, 96, 45, 77, 254, 118, 103, 235, 218, 176, 220,
+                    241, 142, 119, 206, 233, 83, 35, 26, 15, 118, 198, 192, 120, 179, 52
                 ],
                 private_key,
             );
