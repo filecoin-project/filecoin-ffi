@@ -17,11 +17,13 @@ publish = false
 crate-type = ["rlib", "staticlib"]
 
 [dependencies]
-bls-signatures = "0.6.0"
+bls-signatures = { version = "0.7.0", default-features = false, features = ["blst"] }
+blstrs = { version = "0.1.2" }
 byteorder = "1.2"
 drop_struct_macro_derive = "0.4.0"
 ff = { version = "0.2.1", package = "fff" }
 ffi-toolkit = "0.4.0"
+groupy = "0.3.0"
 libc = "0.2.58"
 log = "0.4.7"
 fil_logger = "0.1.0"
@@ -48,3 +50,4 @@ tempfile = "3.0.8"
 default = ["pairing"]
 pairing = ["filecoin-proofs-api/pairing", "bellperson/pairing"]
 blst = ["filecoin-proofs-api/blst", "bellperson/blst"]
+
