@@ -137,3 +137,17 @@ func PrivateKeyPublicKey(privateKey PrivateKey) PublicKey {
 	copy(publicKey[:], resp.PublicKey.Inner[:])
 	return publicKey
 }
+
+// CreateZeroSignature creates a zero signature, used as placeholder in filecoin.
+func CreateZeroSignature() Signature {
+	resp := generated.FilCreateZeroSignature()
+	resp.Deref()
+	resp.Signature.Deref()
+
+	defer generated.FilDestroyZeroSignatureResponse(resp)
+
+	var sig Signature
+	copy(sig[:], resp.Signature.Inner[:])
+
+	return sig
+}

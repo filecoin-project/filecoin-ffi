@@ -65,3 +65,15 @@ pub unsafe extern "C" fn fil_destroy_private_key_public_key_response(
 ) {
     let _ = Box::from_raw(ptr);
 }
+
+/// AggregateResponse
+
+#[repr(C)]
+pub struct fil_ZeroSignatureResponse {
+    pub signature: fil_BLSSignature,
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn fil_destroy_zero_signature_response(ptr: *mut fil_ZeroSignatureResponse) {
+    let _ = Box::from_raw(ptr);
+}
