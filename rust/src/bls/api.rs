@@ -345,6 +345,33 @@ pub unsafe extern "C" fn fil_private_key_public_key(
     Box::into_raw(Box::new(response))
 }
 
+/// Returns a zero signature, used as placeholder in Filecoin.
+///
+/// The return value is a pointer to a compressed signature in bytes, of length `SIGNATURE_BYTES`
+#[no_mangle]
+pub unsafe extern "C" fn fil_create_zero_signature() -> *mut types::fil_ZeroSignatureResponse {
+    let sig: Signature = G2Affine::zero().into();
+
+    let mut raw_signature: [u8; SIGNATURE_BYTES] = [0; SIGNATURE_BYTES];
+
+    sig.write_bytes(&mut raw_signature.as_mut())
+        .expect("preallocated");
+
+    let response = types::fil_ZeroSignatureResponse {
+        signature: fil_BLSSignature {
+            inner: raw_signature,
+        },
+    };
+
+    Box::into_raw(Box::new(response))
+}
+
+/// Frees the memory of the returned value of `fil_create_zero_signature`.
+#[no_mangle]
+pub unsafe extern "C" fn fil_drop_signature(sig: *mut u8) {
+    let _: &[u8] = std::slice::from_raw_parts_mut(sig, SIGNATURE_BYTES);
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -427,6 +454,18 @@ mod tests {
                 ],
                 private_key,
             );
+        }
+    }
+
+    #[test]
+    fn test_zero_key() {
+        unsafe {
+            let resp = fil_create_zero_signature();
+            let sig = Signature::from_bytes(&(*resp).signature.inner).unwrap();
+
+            assert_eq!(sig, Signature::from(G2Affine::zero()));
+
+            types::fil_destroy_zero_signature_response(resp);
         }
     }
 }

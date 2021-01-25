@@ -369,6 +369,87 @@ func (x *FilClearCacheResponse) Deref() {
 	x.StatusCode = (FCPResponseStatus)(x.refa9a80400.status_code)
 }
 
+// allocFilZeroSignatureResponseMemory allocates memory for type C.fil_ZeroSignatureResponse in C.
+// The caller is responsible for freeing the this memory via C.free.
+func allocFilZeroSignatureResponseMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilZeroSignatureResponseValue))
+	if mem == nil {
+		panic(fmt.Sprintln("memory alloc error: ", err))
+	}
+	return mem
+}
+
+const sizeOfFilZeroSignatureResponseValue = unsafe.Sizeof([1]C.fil_ZeroSignatureResponse{})
+
+// Ref returns the underlying reference to C object or nil if struct is nil.
+func (x *FilZeroSignatureResponse) Ref() *C.fil_ZeroSignatureResponse {
+	if x == nil {
+		return nil
+	}
+	return x.ref835a0405
+}
+
+// Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
+// Does nothing if struct is nil or has no allocation map.
+func (x *FilZeroSignatureResponse) Free() {
+	if x != nil && x.allocs835a0405 != nil {
+		x.allocs835a0405.(*cgoAllocMap).Free()
+		x.ref835a0405 = nil
+	}
+}
+
+// NewFilZeroSignatureResponseRef creates a new wrapper struct with underlying reference set to the original C object.
+// Returns nil if the provided pointer to C object is nil too.
+func NewFilZeroSignatureResponseRef(ref unsafe.Pointer) *FilZeroSignatureResponse {
+	if ref == nil {
+		return nil
+	}
+	obj := new(FilZeroSignatureResponse)
+	obj.ref835a0405 = (*C.fil_ZeroSignatureResponse)(unsafe.Pointer(ref))
+	return obj
+}
+
+// PassRef returns the underlying C object, otherwise it will allocate one and set its values
+// from this wrapping struct, counting allocations into an allocation map.
+func (x *FilZeroSignatureResponse) PassRef() (*C.fil_ZeroSignatureResponse, *cgoAllocMap) {
+	if x == nil {
+		return nil, nil
+	} else if x.ref835a0405 != nil {
+		return x.ref835a0405, nil
+	}
+	mem835a0405 := allocFilZeroSignatureResponseMemory(1)
+	ref835a0405 := (*C.fil_ZeroSignatureResponse)(mem835a0405)
+	allocs835a0405 := new(cgoAllocMap)
+	allocs835a0405.Add(mem835a0405)
+
+	var csignature_allocs *cgoAllocMap
+	ref835a0405.signature, csignature_allocs = x.Signature.PassValue()
+	allocs835a0405.Borrow(csignature_allocs)
+
+	x.ref835a0405 = ref835a0405
+	x.allocs835a0405 = allocs835a0405
+	return ref835a0405, allocs835a0405
+
+}
+
+// PassValue does the same as PassRef except that it will try to dereference the returned pointer.
+func (x FilZeroSignatureResponse) PassValue() (C.fil_ZeroSignatureResponse, *cgoAllocMap) {
+	if x.ref835a0405 != nil {
+		return *x.ref835a0405, nil
+	}
+	ref, allocs := x.PassRef()
+	return *ref, allocs
+}
+
+// Deref uses the underlying reference to C object and fills the wrapping struct with values.
+// Do not forget to call this method whether you get a struct for C object and want to read its values.
+func (x *FilZeroSignatureResponse) Deref() {
+	if x.ref835a0405 == nil {
+		return
+	}
+	x.Signature = *NewFilBLSSignatureRef(unsafe.Pointer(&x.ref835a0405.signature))
+}
+
 // allocFilFauxRepResponseMemory allocates memory for type C.fil_FauxRepResponse in C.
 // The caller is responsible for freeing the this memory via C.free.
 func allocFilFauxRepResponseMemory(n int) unsafe.Pointer {
