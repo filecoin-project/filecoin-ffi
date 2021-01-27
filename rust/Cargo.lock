@@ -806,6 +806,7 @@ dependencies = [
  "ffi-toolkit",
  "fil_logger",
  "filecoin-proofs-api",
+ "filepath",
  "groupy",
  "libc",
  "log",
@@ -887,7 +888,44 @@ dependencies = [
  "filecoin-proofs",
  "fr32",
  "serde",
+<<<<<<< HEAD
  "storage-proofs-core",
+=======
+]
+
+[[package]]
+name = "filepath"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0dd50318458226958db06f173610f54f01d26f0a9ccfa3d38bd60f70bc9939ff"
+dependencies = [
+ "libc",
+ "winapi 0.3.9",
+]
+
+[[package]]
+name = "filetime"
+version = "0.2.14"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1d34cfa13a63ae058bfa601fe9e313bbdb3746427c1459185464ce0fcf62e1e8"
+dependencies = [
+ "cfg-if 1.0.0",
+ "libc",
+ "redox_syscall 0.2.5",
+ "winapi 0.3.9",
+]
+
+[[package]]
+name = "flate2"
+version = "1.0.20"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cd3aec53de10fe96d7d8c565eb17f2c687bb5518a2ec453b5b1252964526abe0"
+dependencies = [
+ "cfg-if 1.0.0",
+ "crc32fast",
+ "libc",
+ "miniz_oxide",
+>>>>>>> 3a81d24... feat: re-factor unseal_range to use get_unsealed_range for performance
 ]
 
 [[package]]
