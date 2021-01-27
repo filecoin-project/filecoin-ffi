@@ -26,6 +26,14 @@ rm .install-filcrypto \
     ; FFI_BUILD_FROM_SOURCE=1 make
 ```
 
+To allow portable building of the `blst` dependency, set `FFI_USE_BLST_PORTABLE=1`:
+
+```shell
+rm .install-filcrypto \
+    ; make clean \
+    ; FFI_BUILD_FROM_SOURCE=1 FFI_USE_BLST_PORTABLE=1 make
+```
+
 ## Updating rust-fil-proofs (via rust-filecoin-proofs-api)
 
 If rust-fil-proofs has changed from commit X to Y and you wish to get Y into

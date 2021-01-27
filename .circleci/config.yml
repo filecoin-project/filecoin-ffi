@@ -273,7 +273,8 @@ commands:
             TARBALL_PATH="/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-standard-pairing.tar.gz"
             RELEASE_NAME="${CIRCLE_PROJECT_REPONAME}-$(uname)-standard-pairing"
 
-            ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) --verbose --locked --no-default-features --features pairing
+            # Note: the blst dependency uses the portable configuration for maximum compatibility
+            ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) --verbose --locked --no-default-features --features pairing --features blst-portable
             ./scripts/package-release.sh $TARBALL_PATH
             ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
       - run:
@@ -284,7 +285,8 @@ commands:
             TARBALL_PATH="/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-standard-blst.tar.gz"
             RELEASE_NAME="${CIRCLE_PROJECT_REPONAME}-$(uname)-standard-blst"
 
-            ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) --verbose --locked --no-default-features --features blst
+            # Note: the blst dependency uses the portable configuration for maximum compatibility
+            ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) --verbose --locked --no-default-features --features blst --features blst-portable
             ./scripts/package-release.sh $TARBALL_PATH
             ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
       - run:
