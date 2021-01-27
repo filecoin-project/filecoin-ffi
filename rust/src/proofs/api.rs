@@ -421,8 +421,8 @@ pub unsafe extern "C" fn fil_unseal_range(
 
         info!("unseal_range: start");
 
-        use std::os::unix::io::{FromRawFd, IntoRawFd};
         use filepath::FilePath;
+        use std::os::unix::io::{FromRawFd, IntoRawFd};
 
         let sealed_sector = std::fs::File::from_raw_fd(sealed_sector_fd_raw);
         let unseal_output = std::fs::File::from_raw_fd(unseal_output_fd_raw);
