@@ -17,8 +17,10 @@ publish = false
 crate-type = ["rlib", "staticlib"]
 
 [dependencies]
-bls-signatures = { version = "0.7.0", default-features = false, features = ["blst"] }
-blstrs = { version = "0.1.2" }
+#bls-signatures = { version = "0.7.0", default-features = false, features = ["blst"] }
+bls-signatures = { git = "https://github.com/filecoin-project/bls-signatures", branch = "portable", default-features = false, features = ["blst"] }
+#blstrs = { version = "0.1.2" }
+blstrs = { git = "https://github.com/filecoin-project/blstrs", branch = "0-1-portable" }
 byteorder = "1.2"
 drop_struct_macro_derive = "0.4.0"
 ff = { version = "0.2.1", package = "fff" }
@@ -50,4 +52,4 @@ tempfile = "3.0.8"
 default = ["pairing"]
 pairing = ["filecoin-proofs-api/pairing", "bellperson/pairing"]
 blst = ["filecoin-proofs-api/blst", "bellperson/blst"]
-
+blst-portable = ["bls-signatures/blst-portable", "blstrs/portable"]
