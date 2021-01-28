@@ -422,16 +422,18 @@ pub unsafe extern "C" fn fil_unseal_range(
         info!("unseal_range: start");
 
         use filepath::FilePath;
+        use std::io::BufWriter;
         use std::os::unix::io::{FromRawFd, IntoRawFd};
 
         let sealed_sector = std::fs::File::from_raw_fd(sealed_sector_fd_raw);
         let unseal_output = std::fs::File::from_raw_fd(unseal_output_fd_raw);
+        let unseal_out = BufWriter::new(&unseal_output);
 
-        let result = filecoin_proofs_api::seal::get_unsealed_range(
+        let result = filecoin_proofs_api::seal::get_unsealed_range_mapped(
             registered_proof.into(),
             c_str_to_pbuf(cache_dir_path),
             sealed_sector.path().unwrap(),
-            unseal_output.path().unwrap(),
+            unseal_out,
             prover_id.inner,
             SectorId::from(sector_id),
             comm_d.inner,
