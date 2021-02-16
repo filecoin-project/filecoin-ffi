@@ -121,9 +121,9 @@ checksum = "904dfeac50f3cdaba28fc6f57fdcddb75f49ed61346676a78c4ffe55877802fd"
 
 [[package]]
 name = "bellperson"
-version = "0.12.4"
+version = "0.12.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0497992d240c8ba947b0f9fe525b963f54164e9259afa9662d3a7e6ffeb08659"
+checksum = "6c53631e678154f40b6d1b986e6ab638172d1b6aa992e49498567f90f64b483a"
 dependencies = [
  "bit-vec",
  "blake2s_simd",
