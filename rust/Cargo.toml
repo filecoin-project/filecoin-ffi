@@ -38,7 +38,9 @@ rust-gpu-tools = "0.2.0"
 
 [dependencies.filecoin-proofs-api]
 package = "filecoin-proofs-api"
-version = "7.0"
+#version = "7.0"
+git = "https://github.com/filecoin-project/rust-filecoin-proofs-api"
+branch = "feat-aggregation"
 default-features = false
 
 [build-dependencies]
@@ -53,3 +55,10 @@ pairing = ["filecoin-proofs-api/pairing", "bellperson/pairing"]
 blst = ["filecoin-proofs-api/blst", "bellperson/blst"]
 blst-portable = ["bls-signatures/blst-portable", "blstrs/portable"]
 gpu = ["filecoin-proofs-api/gpu", "bellperson/gpu"]
+
+[patch.crates-io]
+paired = { git = "https://github.com/filecoin-project/paired", branch = "ser-de" }
+fff = { git = "https://github.com/filecoin-project/ff", branch = "ser-de" }
+groupy = { git = "https://github.com/filecoin-project/group", branch = "ser-de" }
+blstrs = { git = "https://github.com/cryptonemo/blstrs", branch = "ser-de-0-1" }
+bellperson = { version = "=0.12.5", git = "https://github.com/cryptonemo/bellman", branch = "feat-ipp2" }

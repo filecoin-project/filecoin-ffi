@@ -116,19 +116,35 @@ dependencies = [
 
 [[package]]
 name = "bellperson"
+<<<<<<< HEAD
 version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "58dc83bfec3df87b46f14b01e0593a5144332ea4e712a68de2255694da755f87"
+=======
+version = "0.12.5"
+source = "git+https://github.com/cryptonemo/bellman?branch=feat-ipp2#116aadc036f2c6e3a47db270b2f82d73dd77de50"
+>>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
 dependencies = [
+ "bincode",
  "bit-vec",
  "blake2s_simd",
  "blstrs",
+<<<<<<< HEAD
  "byteorder 1.4.3",
+<<<<<<< HEAD
  "crossbeam-channel 0.5.1",
+=======
+=======
+ "byteorder 1.3.4",
+>>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
+ "crossbeam-channel 0.5.0",
+ "digest 0.9.0",
+>>>>>>> 90c0444... feat: update dependencies to use proof aggregation branches
  "ff-cl-gen",
  "fff",
  "fs2",
  "groupy",
+ "itertools 0.9.0",
  "lazy_static",
  "log",
  "memmap",
@@ -139,15 +155,30 @@ dependencies = [
  "rayon",
  "rust-gpu-tools 0.2.2",
  "rustc-hash",
+ "serde",
+ "sha2 0.9.3",
+ "tempfile",
  "thiserror",
 ]
 
 [[package]]
 name = "bincode"
+<<<<<<< HEAD
 version = "1.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b1f45e9417d87227c7a56d22e471c6206462cba514c7590c09aff4cf6d1ddcad"
 dependencies = [
+=======
+version = "1.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d175dfa69e619905c4c3cdb7c3c203fa3bdd5d51184e3afdb2742c0280493772"
+dependencies = [
+<<<<<<< HEAD
+ "byteorder 1.4.3",
+=======
+ "byteorder 1.3.4",
+>>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
+>>>>>>> 90c0444... feat: update dependencies to use proof aggregation branches
  "serde",
 ]
 
@@ -209,8 +240,13 @@ checksum = "c0940dc441f31689269e10ac70eb1002a3a1d3ad1390e030043662eb7fe4688b"
 dependencies = [
  "block-padding 0.1.5",
  "byte-tools",
+<<<<<<< HEAD
  "byteorder 1.4.3",
  "generic-array 0.12.4",
+=======
+ "byteorder 1.3.4",
+ "generic-array 0.12.3",
+>>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
 ]
 
 [[package]]
@@ -276,9 +312,14 @@ dependencies = [
 
 [[package]]
 name = "blstrs"
+<<<<<<< HEAD
 version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ecf78c2e543a5fd41b41499fc242d603862b436dc2c167658e7f4870523781ac"
+=======
+version = "0.1.3"
+source = "git+https://github.com/cryptonemo/blstrs?branch=ser-de-0-1#30ac8ac79096560b5c1f41e97a43d3546d5643b6"
+>>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
 dependencies = [
  "blst",
  "fff",
@@ -307,9 +348,15 @@ checksum = "0fc10e8cc6b2580fda3f36eb6dc5316657f812a3df879a44a66fc9f0fdbc4855"
 
 [[package]]
 name = "byteorder"
+<<<<<<< HEAD
 version = "1.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "14c189c53d098945499cdfa7ecc63567cf3886b3332b312a5b4585d8d3a6a610"
+=======
+version = "1.3.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "08c48aae112d48ed9f069b33538ea9e3e90aa263cfa3d1c24309612b1f7472de"
+>>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
 
 [[package]]
 name = "cbindgen"
@@ -445,9 +492,21 @@ dependencies = [
  "cfg-if 1.0.0",
  "crossbeam-channel 0.5.1",
  "crossbeam-deque 0.8.0",
+<<<<<<< HEAD
  "crossbeam-epoch 0.9.4",
  "crossbeam-queue 0.3.1",
  "crossbeam-utils 0.8.4",
+=======
+<<<<<<< HEAD
+ "crossbeam-epoch 0.9.3",
+ "crossbeam-queue 0.3.1",
+ "crossbeam-utils 0.8.3",
+=======
+ "crossbeam-epoch 0.9.2",
+ "crossbeam-queue 0.3.1",
+ "crossbeam-utils 0.8.2",
+>>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
+>>>>>>> 9b3cd4f... feat: update dependencies to use proof aggregation branches
 ]
 
 [[package]]
@@ -467,7 +526,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "06ed27e177f16d65f0f0c22a213e17c696ace5dd64b14258b52f9417ccb52db4"
 dependencies = [
  "cfg-if 1.0.0",
+<<<<<<< HEAD
  "crossbeam-utils 0.8.4",
+=======
+<<<<<<< HEAD
+ "crossbeam-utils 0.8.3",
+=======
+ "crossbeam-utils 0.8.2",
+>>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
+>>>>>>> 9b3cd4f... feat: update dependencies to use proof aggregation branches
 ]
 
 [[package]]
@@ -488,8 +555,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "94af6efb46fef72616855b036a624cf27ba656ffc9be1b9a3c931cfc7749a9a9"
 dependencies = [
  "cfg-if 1.0.0",
+<<<<<<< HEAD
  "crossbeam-epoch 0.9.4",
  "crossbeam-utils 0.8.4",
+=======
+<<<<<<< HEAD
+ "crossbeam-epoch 0.9.3",
+ "crossbeam-utils 0.8.3",
+=======
+ "crossbeam-epoch 0.9.2",
+ "crossbeam-utils 0.8.2",
+>>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
+>>>>>>> 9b3cd4f... feat: update dependencies to use proof aggregation branches
 ]
 
 [[package]]
@@ -509,14 +586,36 @@ dependencies = [
 
 [[package]]
 name = "crossbeam-epoch"
+<<<<<<< HEAD
 version = "0.9.4"
+=======
+<<<<<<< HEAD
+version = "0.9.3"
+>>>>>>> 9b3cd4f... feat: update dependencies to use proof aggregation branches
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "52fb27eab85b17fbb9f6fd667089e07d6a2eb8743d02639ee7f6a7a7729c9c94"
 dependencies = [
  "cfg-if 1.0.0",
+<<<<<<< HEAD
  "crossbeam-utils 0.8.4",
+=======
+ "crossbeam-utils 0.8.3",
+=======
+version = "0.9.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d60ab4a8dba064f2fbb5aa270c28da5cf4bbd0e72dae1140a6b0353a779dbe00"
+dependencies = [
+ "cfg-if 1.0.0",
+ "crossbeam-utils 0.8.2",
+>>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
+>>>>>>> 9b3cd4f... feat: update dependencies to use proof aggregation branches
  "lazy_static",
+<<<<<<< HEAD
  "memoffset 0.6.3",
+=======
+ "loom",
+ "memoffset 0.6.1",
+>>>>>>> 90c0444... feat: update dependencies to use proof aggregation branches
  "scopeguard",
 ]
 
@@ -538,7 +637,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0f6cb3c7f5b8e51bc3ebb73a2327ad4abdbd119dc13223f14f961d2f38486756"
 dependencies = [
  "cfg-if 1.0.0",
+<<<<<<< HEAD
  "crossbeam-utils 0.8.4",
+=======
+<<<<<<< HEAD
+ "crossbeam-utils 0.8.3",
+=======
+ "crossbeam-utils 0.8.2",
+>>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
+>>>>>>> 9b3cd4f... feat: update dependencies to use proof aggregation branches
 ]
 
 [[package]]
@@ -554,13 +661,26 @@ dependencies = [
 
 [[package]]
 name = "crossbeam-utils"
+<<<<<<< HEAD
 version = "0.8.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4feb231f0d4d6af81aed15928e58ecf5816aa62a2393e2c82f46973e92a9a278"
+=======
+<<<<<<< HEAD
+version = "0.8.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e7e9d99fa91428effe99c5c6d4634cdeba32b8cf784fc428a2a687f61a952c49"
+=======
+version = "0.8.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bae8f328835f8f5a6ceb6a7842a7f2d0c03692adb5c889347235d59194731fe3"
+>>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
+>>>>>>> 9b3cd4f... feat: update dependencies to use proof aggregation branches
 dependencies = [
  "autocfg",
  "cfg-if 1.0.0",
  "lazy_static",
+ "loom",
 ]
 
 [[package]]
@@ -580,7 +700,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5e98e2ad1a782e33928b96fc3948e7c355e5af34ba4de7670fe8bac2a3b2006d"
 dependencies = [
  "quote 1.0.9",
+<<<<<<< HEAD
  "syn 1.0.72",
+=======
+<<<<<<< HEAD
+ "syn 1.0.71",
+=======
+<<<<<<< HEAD
+ "syn 1.0.63",
+=======
+ "syn 1.0.60",
+>>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
+>>>>>>> 90c0444... feat: update dependencies to use proof aggregation branches
+>>>>>>> 9b3cd4f... feat: update dependencies to use proof aggregation branches
 ]
 
 [[package]]
@@ -716,21 +848,24 @@ dependencies = [
 [[package]]
 name = "fff"
 version = "0.2.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2544d325b4870bd803d371a7df3c6845e84dcfcb6ebe7ffcae0eac6d5d676133"
+source = "git+https://github.com/filecoin-project/ff?branch=ser-de#231b29f9df9b13f510566e1d4b69e6b0e1bfc34e"
 dependencies = [
+<<<<<<< HEAD
  "byteorder 1.4.3",
+=======
+ "byteorder 1.3.4",
+>>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
  "cc",
  "fff_derive",
  "lazy_static",
  "rand_core 0.5.1",
+ "serde",
 ]
 
 [[package]]
 name = "fff_derive"
 version = "0.2.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "844b389fbe323d3b35ed1b3b119e75b11dca536d291d31342acea5b4c8984558"
+source = "git+https://github.com/filecoin-project/ff?branch=ser-de#231b29f9df9b13f510566e1d4b69e6b0e1bfc34e"
 dependencies = [
  "num-bigint 0.2.6",
  "num-integer",
@@ -799,7 +934,11 @@ dependencies = [
  "bellperson",
  "bls-signatures",
  "blstrs",
+<<<<<<< HEAD
  "byteorder 1.4.3",
+=======
+ "byteorder 1.3.4",
+>>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
  "cbindgen",
  "drop_struct_macro_derive",
  "fff",
@@ -820,9 +959,26 @@ dependencies = [
 
 [[package]]
 name = "filecoin-hashers"
+<<<<<<< HEAD
 version = "2.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cf97f8325dd8aa6ab1e791c47f937ff942b59b5df0d80ebfede20645c67ca920"
+=======
+<<<<<<< HEAD
+version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "51c5d4ca3e721a49f2a1caa6078ddf16006a42b3d8fb6cf7474e2e15fae1cd51"
+=======
+<<<<<<< HEAD
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bf565398110cc0d13cfa33e6fe35fd3931ead236705bfe65dd98de0648687fc6"
+=======
+version = "1.0.1"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#38b242079714847cfd87a2b4531a5ab932d08760"
+>>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
+>>>>>>> 90c0444... feat: update dependencies to use proof aggregation branches
+>>>>>>> 9b3cd4f... feat: update dependencies to use proof aggregation branches
 dependencies = [
  "anyhow",
  "bellperson",
@@ -839,9 +995,26 @@ dependencies = [
 
 [[package]]
 name = "filecoin-proofs"
+<<<<<<< HEAD
 version = "7.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d853051a7873b22f159ca6808b5ea257de7868e27d7dc15a05354baca1d69d9c"
+=======
+<<<<<<< HEAD
+version = "7.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f7298dd396ea87e73b37ec308a414da6e0d821bfab051b3eb0cea0984975d34c"
+=======
+<<<<<<< HEAD
+version = "6.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f41847588c8f6513238613d651003ee53aede586e275113544c5f99b65131940"
+=======
+version = "6.0.0"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#38b242079714847cfd87a2b4531a5ab932d08760"
+>>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
+>>>>>>> 90c0444... feat: update dependencies to use proof aggregation branches
+>>>>>>> 9b3cd4f... feat: update dependencies to use proof aggregation branches
 dependencies = [
  "anyhow",
  "bellperson",
@@ -850,7 +1023,11 @@ dependencies = [
  "blake2b_simd",
  "blake2s_simd",
  "byte-slice-cast",
+<<<<<<< HEAD
  "byteorder 1.4.3",
+=======
+ "byteorder 1.3.4",
+>>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
  "fff",
  "fil_logger",
  "filecoin-hashers",
@@ -877,9 +1054,20 @@ dependencies = [
 
 [[package]]
 name = "filecoin-proofs-api"
+<<<<<<< HEAD
 version = "7.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "87031861c2287fc21114b3f5de2760a3a8b0e70b83edb369ac7171aad595e62b"
+=======
+<<<<<<< HEAD
+version = "6.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a622e652d0e9d31cf9e64ec693497de794e1cb5a53b3ece2ea60880876a4635f"
+=======
+version = "6.0.0"
+source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=feat-aggregation#a7b0ba925d132b9b43a650e47eac7ac1739398ae"
+>>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
+>>>>>>> 90c0444... feat: update dependencies to use proof aggregation branches
 dependencies = [
  "anyhow",
  "bellperson",
@@ -916,14 +1104,29 @@ dependencies = [
 
 [[package]]
 name = "fr32"
+<<<<<<< HEAD
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "80b8a719b5b65296a27043a36524d4bc5714d1031f1021f18ed55b77a5cbd50e"
+=======
+<<<<<<< HEAD
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "61435ec5a58135c51c94b7a6d62448392e9f77a3b9906b4f77c957a0286b6db0"
+=======
+version = "0.1.0"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#38b242079714847cfd87a2b4531a5ab932d08760"
+>>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
+>>>>>>> 9b3cd4f... feat: update dependencies to use proof aggregation branches
 dependencies = [
  "anyhow",
  "bellperson",
  "byte-slice-cast",
+<<<<<<< HEAD
  "byteorder 1.4.3",
+=======
+ "byteorder 1.3.4",
+>>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
  "fff",
  "thiserror",
 ]
@@ -949,6 +1152,22 @@ name = "futures"
 version = "0.1.31"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3a471a38ef8ed83cd6e40aa59c1ffe17db6855c18e3604d9c4ed8c08ebc28678"
+<<<<<<< HEAD
+=======
+
+[[package]]
+name = "generator"
+version = "0.6.24"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a9fed24fd1e18827652b4d55652899a1e9da8e54d91624dc3437a5bc3a9f9a9c"
+dependencies = [
+ "cc",
+ "libc",
+ "log",
+ "rustversion",
+ "winapi 0.3.9",
+]
+>>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
 
 [[package]]
 name = "generic-array"
@@ -1006,12 +1225,12 @@ checksum = "9b919933a397b79c37e33b77bb2aa3dc8eb6e165ad809e58ff75bc7db2e34574"
 [[package]]
 name = "groupy"
 version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2d38f1bec17d75a7c30b754cd74db6e7cb5927529021ced14fbd622411c04d8b"
+source = "git+https://github.com/filecoin-project/group?branch=ser-de#57d0d799e2281f562499454c80c7dae6a8e8d379"
 dependencies = [
  "fff",
  "rand 0.7.3",
  "rand_xorshift",
+ "serde",
  "thiserror",
 ]
 
@@ -1132,6 +1351,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "loom"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d44c73b4636e497b4917eb21c33539efa3816741a2d3ff26c6316f1b529481a4"
+dependencies = [
+ "cfg-if 1.0.0",
+ "generator",
+ "scoped-tls",
+]
+
+[[package]]
 name = "mapr"
 version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1218,7 +1448,11 @@ checksum = "6981728ae8254e8417f6c2f84ac83acdc31a567c9dc1344e30e5bbe916024e15"
 dependencies = [
  "bellperson",
  "blake2s_simd",
+<<<<<<< HEAD
  "byteorder 1.4.3",
+=======
+ "byteorder 1.3.4",
+>>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
  "ff-cl-gen",
  "fff",
  "generic-array 0.14.4",
@@ -1369,6 +1603,21 @@ dependencies = [
 ]
 
 [[package]]
+<<<<<<< HEAD
+=======
+name = "once_cell"
+<<<<<<< HEAD
+version = "1.7.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "af8b08b04175473088b46763e51ee54da5f9a164bc162f615b91bc179dbf15a3"
+=======
+version = "1.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4ad167a2f54e832b82dbe003a046280dceffe5227b5f79e08e363a29638cfddd"
+>>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
+
+[[package]]
+>>>>>>> 90c0444... feat: update dependencies to use proof aggregation branches
 name = "opaque-debug"
 version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1392,11 +1641,14 @@ dependencies = [
 [[package]]
 name = "paired"
 version = "0.21.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "42fc2daf8d5a8e22a9833f798e72c0d6862b5f0288f0a2d289b37cd03fa5e283"
+source = "git+https://github.com/filecoin-project/paired?branch=ser-de#a31e08071305a59d1aa2a7273d4a2ab44508f6df"
 dependencies = [
  "blake2b_simd",
+<<<<<<< HEAD
  "byteorder 1.4.3",
+=======
+ "byteorder 1.3.4",
+>>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
  "digest 0.9.0",
  "fff",
  "groupy",
@@ -1640,7 +1892,15 @@ checksum = "9ab346ac5921dc62ffa9f89b7a773907511cdfa5490c572ae9be1be33e8afa4a"
 dependencies = [
  "crossbeam-channel 0.5.1",
  "crossbeam-deque 0.8.0",
+<<<<<<< HEAD
  "crossbeam-utils 0.8.4",
+=======
+<<<<<<< HEAD
+ "crossbeam-utils 0.8.3",
+=======
+ "crossbeam-utils 0.8.2",
+>>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
+>>>>>>> 9b3cd4f... feat: update dependencies to use proof aggregation branches
  "lazy_static",
  "num_cpus",
 ]
@@ -1700,6 +1960,25 @@ dependencies = [
 ]
 
 [[package]]
+<<<<<<< HEAD
+=======
+name = "rust-argon2"
+version = "0.8.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4b18820d944b33caa75a71378964ac46f58517c92b6ae5f762636247c09e78fb"
+dependencies = [
+ "base64",
+ "blake2b_simd",
+ "constant_time_eq",
+<<<<<<< HEAD
+ "crossbeam-utils 0.8.3",
+=======
+ "crossbeam-utils 0.8.2",
+>>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
+]
+
+[[package]]
+>>>>>>> 90c0444... feat: update dependencies to use proof aggregation branches
 name = "rust-gpu-tools"
 version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1754,12 +2033,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "rustversion"
+version = "1.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cb5d2a036dc6d2d8fd16fde3498b04306e29bd193bf306a57427019b823d5acd"
+
+[[package]]
 name = "ryu"
 version = "1.0.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "71d301d4193d031abdd79ff7e3dd721168a9572ef3fe51a1517aba235bd8f86e"
 
 [[package]]
+<<<<<<< HEAD
+=======
+name = "scoped-tls"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ea6a9290e3c9cf0f18145ef7ffa62d68ee0bf5fcd651017e586dc7fd5da448c2"
+
+[[package]]
+>>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
 name = "scopeguard"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1852,12 +2146,24 @@ dependencies = [
 
 [[package]]
 name = "sha2raw"
+<<<<<<< HEAD
 version = "2.1.1"
+=======
+<<<<<<< HEAD
+version = "2.1.0"
+>>>>>>> 9b3cd4f... feat: update dependencies to use proof aggregation branches
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "539cc80f0a1bb359db15f51cbb356c6fe524aa77b63a50417597ee3b25aa7e1b"
 dependencies = [
  "block-buffer 0.9.0",
  "byteorder 1.4.3",
+=======
+version = "2.0.0"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#38b242079714847cfd87a2b4531a5ab932d08760"
+dependencies = [
+ "block-buffer 0.9.0",
+ "byteorder 1.3.4",
+>>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
  "cpuid-bool",
  "digest 0.9.0",
  "fake-simd",
@@ -1874,9 +2180,26 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
 name = "storage-proofs-core"
+<<<<<<< HEAD
 version = "7.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0ed03d8eff05c8f55c9b77ef88557dda0880b1e2813727676c87c50a664c65c1"
+=======
+<<<<<<< HEAD
+version = "7.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d59560d4b2c8537392be225b0ab569ec055a9e3a577bb7f7e4c60abfdea7d4f9"
+=======
+<<<<<<< HEAD
+version = "6.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "79672ae7e4f2259ff49622d7179942fc68648886509b7cb3301a9487cd7fcfc8"
+=======
+version = "6.0.0"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#38b242079714847cfd87a2b4531a5ab932d08760"
+>>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
+>>>>>>> 90c0444... feat: update dependencies to use proof aggregation branches
+>>>>>>> 9b3cd4f... feat: update dependencies to use proof aggregation branches
 dependencies = [
  "aes",
  "anyhow",
@@ -1884,7 +2207,11 @@ dependencies = [
  "blake2b_simd",
  "blake2s_simd",
  "block-modes",
+<<<<<<< HEAD
  "byteorder 1.4.3",
+=======
+ "byteorder 1.3.4",
+>>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
  "config",
  "fff",
  "filecoin-hashers",
@@ -1913,15 +2240,36 @@ dependencies = [
 
 [[package]]
 name = "storage-proofs-porep"
+<<<<<<< HEAD
 version = "7.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cec29ccd370645d253a5d3d1ff4a15abf8bea2fd75e94fbc5833d647c9d8e70a"
+=======
+<<<<<<< HEAD
+version = "7.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "122e972e524806f4a0dba57ad0477a0a57b1c2fc76e900c5a26da2554dc47667"
+=======
+<<<<<<< HEAD
+version = "6.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "19254773f548abbf17924c558017864ae15741459a4b5819d88ac9db244f9349"
+=======
+version = "6.0.0"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#38b242079714847cfd87a2b4531a5ab932d08760"
+>>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
+>>>>>>> 90c0444... feat: update dependencies to use proof aggregation branches
+>>>>>>> 9b3cd4f... feat: update dependencies to use proof aggregation branches
 dependencies = [
  "anyhow",
  "bellperson",
  "bincode",
  "byte-slice-cast",
+<<<<<<< HEAD
  "byteorder 1.4.3",
+=======
+ "byteorder 1.3.4",
+>>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
  "crossbeam 0.8.0",
  "digest 0.9.0",
  "fdlimit",
@@ -1952,15 +2300,36 @@ dependencies = [
 
 [[package]]
 name = "storage-proofs-post"
+<<<<<<< HEAD
 version = "7.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "49761699df4532827cdaf44891de2e6f7d591559ab51c2774979791e1d3416e5"
+=======
+<<<<<<< HEAD
+version = "7.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8ee7fcaf75e2d526680891548667477dc07862e11b1dd346421dff9784ff66e4"
+=======
+<<<<<<< HEAD
+version = "6.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "deb7e3c02fe1b3867bfed65f651d5c5448b5d310d0f4aaf120b4d9adf26c42fa"
+=======
+version = "6.0.0"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#38b242079714847cfd87a2b4531a5ab932d08760"
+>>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
+>>>>>>> 90c0444... feat: update dependencies to use proof aggregation branches
+>>>>>>> 9b3cd4f... feat: update dependencies to use proof aggregation branches
 dependencies = [
  "anyhow",
  "bellperson",
  "blake2b_simd",
  "blake2s_simd",
+<<<<<<< HEAD
  "byteorder 1.4.3",
+=======
+ "byteorder 1.3.4",
+>>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
  "crossbeam 0.8.0",
  "fff",
  "filecoin-hashers",
@@ -2198,6 +2567,7 @@ name = "yansi"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9fc79f4a1e39857fc00c3f662cbf2651c771f00e9c15fe2abc341806bd46bd71"
+<<<<<<< HEAD
 
 [[package]]
 name = "zeroize"
@@ -2219,3 +2589,5 @@ dependencies = [
  "syn 1.0.72",
  "synstructure",
 ]
+=======
+>>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
