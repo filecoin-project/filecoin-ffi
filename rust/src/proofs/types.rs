@@ -265,7 +265,7 @@ impl Drop for fil_AggregationInputs {
             )
         };
 
-        let total_len = input_lens.iter().fold(0, |sum, input_len| sum + input_len);
+        let total_len = input_lens.iter().sum();
         // Note that this operation also does the equivalent of
         // libc::free(self.proof_ptr as *mut libc::c_void);
         let _ = unsafe { Vec::from_raw_parts(self.input_ptr as *mut u8, total_len, total_len) };
