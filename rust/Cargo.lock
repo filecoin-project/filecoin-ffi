@@ -879,7 +879,7 @@ dependencies = [
 [[package]]
 name = "filecoin-proofs-api"
 version = "6.0.0"
-source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=feat-aggregation#a7b0ba925d132b9b43a650e47eac7ac1739398ae"
+source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=feat-aggregation#bf85a2398e0e9c0fa61ecdb8778be3ec5c615dcd"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1393,9 +1393,9 @@ dependencies = [
 
 [[package]]
 name = "once_cell"
-version = "1.6.0"
+version = "1.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4ad167a2f54e832b82dbe003a046280dceffe5227b5f79e08e363a29638cfddd"
+checksum = "10acf907b94fc1b1a152d08ef97e7759650268cf986bf127f387e602b02c7e5a"
 
 [[package]]
 name = "opaque-debug"
