@@ -230,6 +230,48 @@ impl Drop for fil_VanillaProof {
     }
 }
 
+#[repr(C)]
+pub struct fil_AggregateProof {
+    pub proof_len: libc::size_t,
+    pub proof_ptr: *const u8,
+}
+
+#[repr(C)]
+pub struct fil_AggregationInputs {
+    pub num_inputs: libc::size_t,
+    pub input_ptr: *const u8,
+    pub input_lens_ptr: *const libc::size_t,
+}
+
+impl Default for fil_AggregationInputs {
+    fn default() -> fil_AggregationInputs {
+        fil_AggregationInputs {
+            num_inputs: 0,
+            input_ptr: ptr::null(),
+            input_lens_ptr: ptr::null(),
+        }
+    }
+}
+
+impl Drop for fil_AggregationInputs {
+    fn drop(&mut self) {
+        // Note that this operation also does the equivalent of
+        // libc::free(self.proof_ptr as *mut libc::c_void);
+        let input_lens = unsafe {
+            Vec::from_raw_parts(
+                self.input_lens_ptr as *mut libc::size_t,
+                self.num_inputs,
+                self.num_inputs,
+            )
+        };
+
+        let total_len = input_lens.iter().fold(0, |sum, input_len| sum + input_len);
+        // Note that this operation also does the equivalent of
+        // libc::free(self.proof_ptr as *mut libc::c_void);
+        let _ = unsafe { Vec::from_raw_parts(self.input_ptr as *mut u8, total_len, total_len) };
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct PoStProof {
     pub registered_proof: RegisteredPoStProof,
@@ -541,6 +583,30 @@ impl Default for fil_SealCommitPhase2Response {
 }
 
 code_and_message_impl!(fil_SealCommitPhase2Response);
+
+#[repr(C)]
+#[derive(DropStructMacro)]
+pub struct fil_SealAggregationCommitPhase2Response {
+    pub status_code: FCPResponseStatus,
+    pub error_msg: *const libc::c_char,
+    pub proof_ptr: *const u8,
+    pub proof_len: libc::size_t,
+    pub inputs: fil_AggregationInputs,
+}
+
+impl Default for fil_SealAggregationCommitPhase2Response {
+    fn default() -> fil_SealAggregationCommitPhase2Response {
+        fil_SealAggregationCommitPhase2Response {
+            status_code: FCPResponseStatus::FCPNoError,
+            error_msg: ptr::null(),
+            proof_ptr: ptr::null(),
+            proof_len: 0,
+            inputs: fil_AggregationInputs::default(),
+        }
+    }
+}
+
+code_and_message_impl!(fil_SealAggregationCommitPhase2Response);
 
 #[repr(C)]
 #[derive(DropStructMacro)]

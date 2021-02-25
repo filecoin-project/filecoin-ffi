@@ -1065,9 +1065,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a622e652d0e9d31cf9e64ec693497de794e1cb5a53b3ece2ea60880876a4635f"
 =======
 version = "6.0.0"
+<<<<<<< HEAD
 source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=feat-aggregation#a7b0ba925d132b9b43a650e47eac7ac1739398ae"
 >>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
+<<<<<<< HEAD
 >>>>>>> 90c0444... feat: update dependencies to use proof aggregation branches
+=======
+=======
+source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=feat-aggregation#bf85a2398e0e9c0fa61ecdb8778be3ec5c615dcd"
+>>>>>>> 78c98c6... feat: start stubbing in the proof aggregation API internals
+>>>>>>> 3950fd9... feat: start stubbing in the proof aggregation API internals
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1607,6 +1614,7 @@ dependencies = [
 =======
 name = "once_cell"
 <<<<<<< HEAD
+<<<<<<< HEAD
 version = "1.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "af8b08b04175473088b46763e51ee54da5f9a164bc162f615b91bc179dbf15a3"
@@ -1615,6 +1623,11 @@ version = "1.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4ad167a2f54e832b82dbe003a046280dceffe5227b5f79e08e363a29638cfddd"
 >>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
+=======
+version = "1.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "10acf907b94fc1b1a152d08ef97e7759650268cf986bf127f387e602b02c7e5a"
+>>>>>>> 78c98c6... feat: start stubbing in the proof aggregation API internals
 
 [[package]]
 >>>>>>> 90c0444... feat: update dependencies to use proof aggregation branches

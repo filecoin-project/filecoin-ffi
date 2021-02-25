@@ -3,8 +3,8 @@ use ffi_toolkit::{
 };
 use filecoin_proofs_api::seal::SealPreCommitPhase2Output;
 use filecoin_proofs_api::{
-    PieceInfo, PrivateReplicaInfo, RegisteredPoStProof, RegisteredSealProof, SectorId,
-    UnpaddedByteIndex, UnpaddedBytesAmount,
+    fr32::fr_into_bytes, PieceInfo, PrivateReplicaInfo, RegisteredPoStProof, RegisteredSealProof,
+    SectorId, UnpaddedByteIndex, UnpaddedBytesAmount,
 };
 
 use log::{error, info};
@@ -397,6 +397,76 @@ pub unsafe extern "C" fn fil_seal_commit_phase2(
         }
 
         info!("seal_commit_phase2: finish");
+
+        raw_ptr(response)
+    })
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn fil_seal_commit_phase2_for_aggregation(
+    seal_commit_phase1_output_ptr: *const u8,
+    seal_commit_phase1_output_len: libc::size_t,
+    sector_id: u64,
+    prover_id: fil_32ByteArray,
+) -> *mut fil_SealAggregationCommitPhase2Response {
+    catch_panic_response(|| {
+        init_log();
+
+        info!("seal_commit_phase2_for_aggregation: start");
+
+        let mut response = fil_SealAggregationCommitPhase2Response::default();
+
+        let scp1o = serde_json::from_slice(from_raw_parts(
+            seal_commit_phase1_output_ptr,
+            seal_commit_phase1_output_len,
+        ))
+        .map_err(Into::into);
+
+        let result = scp1o.and_then(|o| {
+            filecoin_proofs_api::seal::seal_commit_phase2_for_aggregation(
+                o,
+                prover_id.inner,
+                SectorId::from(sector_id),
+            )
+        });
+
+        match result {
+            Ok((output, inputs)) => {
+                response.status_code = FCPResponseStatus::FCPNoError;
+                response.proof_ptr = output.proof.as_ptr();
+                response.proof_len = output.proof.len();
+                mem::forget(output.proof);
+
+                // Given that we have a Vec<Vec<u8>>, this flattens it into a
+                // single u8 array, marking the length of each inner stride
+                // for reconstruction, as they may be uneven values
+                let mut input_lens = Vec::with_capacity(inputs.len());
+                let flat_inputs = inputs.iter().fold(Vec::new(), |mut acc, input| {
+                    let flat_inner_inputs =
+                        input.iter().fold(Vec::new(), |mut inner_acc, element| {
+                            inner_acc.extend(fr_into_bytes(&element));
+                            inner_acc
+                        });
+
+                    input_lens.push(flat_inner_inputs.len());
+                    acc.extend(flat_inner_inputs);
+                    acc
+                });
+
+                response.inputs.num_inputs = inputs.len();
+                response.inputs.input_lens_ptr = input_lens.as_ptr();
+                response.inputs.input_ptr = flat_inputs.as_ptr();
+
+                mem::forget(input_lens);
+                mem::forget(flat_inputs);
+            }
+            Err(err) => {
+                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+            }
+        }
+
+        info!("seal_commit_phase2_for_aggregation: finish");
 
         raw_ptr(response)
     })
@@ -1243,6 +1313,13 @@ pub unsafe extern "C" fn fil_destroy_seal_commit_phase2_response(
 }
 
 #[no_mangle]
+pub unsafe extern "C" fn fil_destroy_seal_commit_phase2_for_aggregation_response(
+    ptr: *mut fil_SealAggregationCommitPhase2Response,
+) {
+    let _ = Box::from_raw(ptr);
+}
+
+#[no_mangle]
 pub unsafe extern "C" fn fil_destroy_unseal_range_response(ptr: *mut fil_UnsealRangeResponse) {
     let _ = Box::from_raw(ptr);
 }
@@ -1853,7 +1930,7 @@ pub mod tests {
                 panic!("seal_commit_phase1 failed: {:?}", msg);
             }
 
-            let resp_c2 = fil_seal_commit_phase2(
+            let resp_c2 = fil_seal_commit_phase2_for_aggregation(
                 (*resp_c1).seal_commit_phase1_output_ptr,
                 (*resp_c1).seal_commit_phase1_output_len,
                 sector_id,
@@ -2271,7 +2348,7 @@ pub mod tests {
             fil_destroy_seal_pre_commit_phase1_response(resp_b1);
             fil_destroy_seal_pre_commit_phase2_response(resp_b2);
             fil_destroy_seal_commit_phase1_response(resp_c1);
-            fil_destroy_seal_commit_phase2_response(resp_c2);
+            fil_destroy_seal_commit_phase2_for_aggregation_response(resp_c2);
 
             fil_destroy_verify_seal_response(resp_d);
             fil_destroy_unseal_range_response(resp_e);
