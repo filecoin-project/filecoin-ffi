@@ -1,7 +1,7 @@
 use ffi_toolkit::{
     c_str_to_pbuf, catch_panic_response, raw_ptr, rust_str_to_c_str, FCPResponseStatus,
 };
-use filecoin_proofs_api::seal::{SealPreCommitPhase2Output, SealCommitPhase2Output};
+use filecoin_proofs_api::seal::{SealCommitPhase2Output, SealPreCommitPhase2Output};
 use filecoin_proofs_api::{
     fr32::fr_into_bytes, PieceInfo, PrivateReplicaInfo, RegisteredPoStProof, RegisteredSealProof,
     SectorId, UnpaddedByteIndex, UnpaddedBytesAmount,
@@ -456,9 +456,6 @@ pub unsafe extern "C" fn fil_seal_commit_phase2_for_aggregation(
                 response.input_lens_ptr = input_lens.as_ptr();
                 response.input_ptr = flat_inputs.as_ptr();
 
-                info!("PROOF PTR {:?}, PROOF_LEN {}", response.proof_ptr, response.proof_len);
-                info!("FLAT INPUT PTR {:?}, INPUT_LENS {:?}, NUM INPUTS {}", response.input_ptr, response.input_lens_ptr, response.num_inputs);
-
                 mem::forget(output.proof);
                 mem::forget(input_lens);
                 mem::forget(flat_inputs);
@@ -482,18 +479,20 @@ pub unsafe extern "C" fn fil_aggregate_seal_proofs(
 ) -> *mut fil_AggregateProof {
     info!("aggregate_seal_proofs: start");
 
-    info!("SEAL COMMIT RESPONSES PTR {:?}, SEAL COMMIT RESPONSES LEN {}",
-          seal_commit_responses_ptr, seal_commit_responses_len);
-    let seal_commit_outputs: Vec<SealAggregationCommitPhase2Response> = from_raw_parts(seal_commit_responses_ptr, seal_commit_responses_len)
-        .iter()
-        .map(Into::into)
-        .collect();
+    let seal_commit_outputs: Vec<SealAggregationCommitPhase2Response> =
+        from_raw_parts(seal_commit_responses_ptr, seal_commit_responses_len)
+            .iter()
+            .map(Into::into)
+            .collect();
 
     let mut response = fil_AggregateProof::default();
-    let outputs: Vec<SealCommitPhase2Output> = seal_commit_outputs.iter().map(|x| x.commit_output.clone()).collect();
+    let outputs: Vec<SealCommitPhase2Output> = seal_commit_outputs
+        .iter()
+        .map(|x| x.commit_output.clone())
+        .collect();
 
-    let result = filecoin_proofs_api::seal::aggregate_seal_commit_proofs(
-        registered_proof.into(), &outputs);
+    let result =
+        filecoin_proofs_api::seal::aggregate_seal_commit_proofs(registered_proof.into(), &outputs);
 
     match result {
         Ok(output) => {
@@ -2870,7 +2869,8 @@ pub mod tests {
             let _resp_aggregate_proof = fil_aggregate_seal_proofs(
                 registered_proof_seal,
                 seal_commit_responses.as_ptr(),
-                seal_commit_responses.len());
+                seal_commit_responses.len(),
+            );
 
             let resp_e = fil_unseal_range(
                 registered_proof_seal,

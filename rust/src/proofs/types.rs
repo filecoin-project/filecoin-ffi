@@ -6,7 +6,8 @@ use anyhow::Result;
 use drop_struct_macro_derive::DropStructMacro;
 use ffi_toolkit::{code_and_message_impl, free_c_str, CodeAndMessage, FCPResponseStatus};
 use filecoin_proofs_api::{
-    PieceInfo, RegisteredPoStProof, RegisteredSealProof, UnpaddedBytesAmount, seal::SealCommitPhase2Output,
+    seal::SealCommitPhase2Output, PieceInfo, RegisteredPoStProof, RegisteredSealProof,
+    UnpaddedBytesAmount,
 };
 
 #[repr(C)]
@@ -617,7 +618,9 @@ impl Drop for fil_SealAggregationCommitPhase2Response {
         let _ = unsafe { Vec::from_raw_parts(self.input_ptr as *mut u8, total_len, total_len) };
         // Note that this operation also does the equivalent of
         // libc::free(self.proof_ptr as *mut libc::c_void);
-        let _ = unsafe { Vec::from_raw_parts(self.proof_ptr as *mut u8, self.proof_len, self.proof_len) };
+        let _ = unsafe {
+            Vec::from_raw_parts(self.proof_ptr as *mut u8, self.proof_len, self.proof_len)
+        };
     }
 }
 
@@ -631,14 +634,16 @@ pub struct SealAggregationCommitPhase2Response {
 impl From<&fil_SealAggregationCommitPhase2Response> for SealAggregationCommitPhase2Response {
     fn from(other: &fil_SealAggregationCommitPhase2Response) -> Self {
         use log::trace;
-        trace!("from fil_sealaggregationcommitphase2response -> sealaggregationcommitPhase2Response");
+        trace!(
+            "from fil_sealaggregationcommitphase2response -> sealaggregationcommitPhase2Response"
+        );
         let proof: Vec<u8> = unsafe {
-            trace!("proof ptr {:?}, proof len {}", other.proof_ptr, other.proof_len);
-            Vec::from_raw_parts(
-                other.proof_ptr as *mut u8,
-                other.proof_len,
-                other.proof_len,
-            )
+            trace!(
+                "proof ptr {:?}, proof len {}",
+                other.proof_ptr,
+                other.proof_len
+            );
+            Vec::from_raw_parts(other.proof_ptr as *mut u8, other.proof_len, other.proof_len)
         };
         trace!("proof: {:?}, proof len {}", proof, proof.len());
 
@@ -651,7 +656,8 @@ impl From<&fil_SealAggregationCommitPhase2Response> for SealAggregationCommitPha
         };
         let total_len = input_lens.iter().sum();
         trace!("input lens {:?}, total len {}", input_lens, total_len);
-        let flat_input_data = unsafe { Vec::from_raw_parts(other.input_ptr as *mut u8, total_len, total_len) };
+        let flat_input_data =
+            unsafe { Vec::from_raw_parts(other.input_ptr as *mut u8, total_len, total_len) };
 
         trace!("flat input data {:?}", flat_input_data);
         let mut start = 0;
@@ -662,9 +668,7 @@ impl From<&fil_SealAggregationCommitPhase2Response> for SealAggregationCommitPha
         }
 
         SealAggregationCommitPhase2Response {
-            commit_output: SealCommitPhase2Output {
-                proof
-            },
+            commit_output: SealCommitPhase2Output { proof },
             inputs,
         }
     }
