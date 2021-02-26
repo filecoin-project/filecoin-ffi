@@ -2521,17 +2521,17 @@ func (x *FilSealCommitPhase1Response) Deref() {
 	x.SealCommitPhase1OutputLen = (uint)(x.ref61ed8561.seal_commit_phase1_output_len)
 }
 
-// allocFilAggregationInputsMemory allocates memory for type C.fil_AggregationInputs in C.
+// allocFilSealAggregationCommitPhase2ResponseMemory allocates memory for type C.fil_SealAggregationCommitPhase2Response in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocFilAggregationInputsMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilAggregationInputsValue))
+func allocFilSealAggregationCommitPhase2ResponseMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilSealAggregationCommitPhase2ResponseValue))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfFilAggregationInputsValue = unsafe.Sizeof([1]C.fil_AggregationInputs{})
+const sizeOfFilSealAggregationCommitPhase2ResponseValue = unsafe.Sizeof([1]C.fil_SealAggregationCommitPhase2Response{})
 
 // copyPSizeTBytes copies the data from Go slice as *C.size_t.
 func copyPSizeTBytes(slice *sliceHeader) (*C.size_t, *cgoAllocMap) {
@@ -2561,105 +2561,6 @@ func allocSizeTMemory(n int) unsafe.Pointer {
 }
 
 const sizeOfSizeTValue = unsafe.Sizeof([1]C.size_t{})
-
-// Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *FilAggregationInputs) Ref() *C.fil_AggregationInputs {
-	if x == nil {
-		return nil
-	}
-	return x.ref90b967c9
-}
-
-// Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
-// Does nothing if struct is nil or has no allocation map.
-func (x *FilAggregationInputs) Free() {
-	if x != nil && x.allocs90b967c9 != nil {
-		x.allocs90b967c9.(*cgoAllocMap).Free()
-		x.ref90b967c9 = nil
-	}
-}
-
-// NewFilAggregationInputsRef creates a new wrapper struct with underlying reference set to the original C object.
-// Returns nil if the provided pointer to C object is nil too.
-func NewFilAggregationInputsRef(ref unsafe.Pointer) *FilAggregationInputs {
-	if ref == nil {
-		return nil
-	}
-	obj := new(FilAggregationInputs)
-	obj.ref90b967c9 = (*C.fil_AggregationInputs)(unsafe.Pointer(ref))
-	return obj
-}
-
-// PassRef returns the underlying C object, otherwise it will allocate one and set its values
-// from this wrapping struct, counting allocations into an allocation map.
-func (x *FilAggregationInputs) PassRef() (*C.fil_AggregationInputs, *cgoAllocMap) {
-	if x == nil {
-		return nil, nil
-	} else if x.ref90b967c9 != nil {
-		return x.ref90b967c9, nil
-	}
-	mem90b967c9 := allocFilAggregationInputsMemory(1)
-	ref90b967c9 := (*C.fil_AggregationInputs)(mem90b967c9)
-	allocs90b967c9 := new(cgoAllocMap)
-	allocs90b967c9.Add(mem90b967c9)
-
-	var cnum_inputs_allocs *cgoAllocMap
-	ref90b967c9.num_inputs, cnum_inputs_allocs = (C.size_t)(x.NumInputs), cgoAllocsUnknown
-	allocs90b967c9.Borrow(cnum_inputs_allocs)
-
-	var cinput_ptr_allocs *cgoAllocMap
-	ref90b967c9.input_ptr, cinput_ptr_allocs = copyPUint8TBytes((*sliceHeader)(unsafe.Pointer(&x.InputPtr)))
-	allocs90b967c9.Borrow(cinput_ptr_allocs)
-
-	var cinput_lens_ptr_allocs *cgoAllocMap
-	ref90b967c9.input_lens_ptr, cinput_lens_ptr_allocs = copyPSizeTBytes((*sliceHeader)(unsafe.Pointer(&x.InputLensPtr)))
-	allocs90b967c9.Borrow(cinput_lens_ptr_allocs)
-
-	x.ref90b967c9 = ref90b967c9
-	x.allocs90b967c9 = allocs90b967c9
-	return ref90b967c9, allocs90b967c9
-
-}
-
-// PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x FilAggregationInputs) PassValue() (C.fil_AggregationInputs, *cgoAllocMap) {
-	if x.ref90b967c9 != nil {
-		return *x.ref90b967c9, nil
-	}
-	ref, allocs := x.PassRef()
-	return *ref, allocs
-}
-
-// Deref uses the underlying reference to C object and fills the wrapping struct with values.
-// Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *FilAggregationInputs) Deref() {
-	if x.ref90b967c9 == nil {
-		return
-	}
-	x.NumInputs = (uint)(x.ref90b967c9.num_inputs)
-	hxf2fab0d := (*sliceHeader)(unsafe.Pointer(&x.InputPtr))
-	hxf2fab0d.Data = unsafe.Pointer(x.ref90b967c9.input_ptr)
-	hxf2fab0d.Cap = 0x7fffffff
-	// hxf2fab0d.Len = ?
-
-	hxf69fe70 := (*sliceHeader)(unsafe.Pointer(&x.InputLensPtr))
-	hxf69fe70.Data = unsafe.Pointer(x.ref90b967c9.input_lens_ptr)
-	hxf69fe70.Cap = 0x7fffffff
-	// hxf69fe70.Len = ?
-
-}
-
-// allocFilSealAggregationCommitPhase2ResponseMemory allocates memory for type C.fil_SealAggregationCommitPhase2Response in C.
-// The caller is responsible for freeing the this memory via C.free.
-func allocFilSealAggregationCommitPhase2ResponseMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilSealAggregationCommitPhase2ResponseValue))
-	if mem == nil {
-		panic(fmt.Sprintln("memory alloc error: ", err))
-	}
-	return mem
-}
-
-const sizeOfFilSealAggregationCommitPhase2ResponseValue = unsafe.Sizeof([1]C.fil_SealAggregationCommitPhase2Response{})
 
 // Ref returns the underlying reference to C object or nil if struct is nil.
 func (x *FilSealAggregationCommitPhase2Response) Ref() *C.fil_SealAggregationCommitPhase2Response {
@@ -2718,9 +2619,17 @@ func (x *FilSealAggregationCommitPhase2Response) PassRef() (*C.fil_SealAggregati
 	ref376236d0.proof_len, cproof_len_allocs = (C.size_t)(x.ProofLen), cgoAllocsUnknown
 	allocs376236d0.Borrow(cproof_len_allocs)
 
-	var cinputs_allocs *cgoAllocMap
-	ref376236d0.inputs, cinputs_allocs = x.Inputs.PassValue()
-	allocs376236d0.Borrow(cinputs_allocs)
+	var cnum_inputs_allocs *cgoAllocMap
+	ref376236d0.num_inputs, cnum_inputs_allocs = (C.size_t)(x.NumInputs), cgoAllocsUnknown
+	allocs376236d0.Borrow(cnum_inputs_allocs)
+
+	var cinput_ptr_allocs *cgoAllocMap
+	ref376236d0.input_ptr, cinput_ptr_allocs = copyPUint8TBytes((*sliceHeader)(unsafe.Pointer(&x.InputPtr)))
+	allocs376236d0.Borrow(cinput_ptr_allocs)
+
+	var cinput_lens_ptr_allocs *cgoAllocMap
+	ref376236d0.input_lens_ptr, cinput_lens_ptr_allocs = copyPSizeTBytes((*sliceHeader)(unsafe.Pointer(&x.InputLensPtr)))
+	allocs376236d0.Borrow(cinput_lens_ptr_allocs)
 
 	x.ref376236d0 = ref376236d0
 	x.allocs376236d0 = allocs376236d0
@@ -2745,13 +2654,23 @@ func (x *FilSealAggregationCommitPhase2Response) Deref() {
 	}
 	x.StatusCode = (FCPResponseStatus)(x.ref376236d0.status_code)
 	x.ErrorMsg = packPCharString(x.ref376236d0.error_msg)
-	hxf65bf54 := (*sliceHeader)(unsafe.Pointer(&x.ProofPtr))
-	hxf65bf54.Data = unsafe.Pointer(x.ref376236d0.proof_ptr)
+	hxf2fab0d := (*sliceHeader)(unsafe.Pointer(&x.ProofPtr))
+	hxf2fab0d.Data = unsafe.Pointer(x.ref376236d0.proof_ptr)
+	hxf2fab0d.Cap = 0x7fffffff
+	// hxf2fab0d.Len = ?
+
+	x.ProofLen = (uint)(x.ref376236d0.proof_len)
+	x.NumInputs = (uint)(x.ref376236d0.num_inputs)
+	hxf69fe70 := (*sliceHeader)(unsafe.Pointer(&x.InputPtr))
+	hxf69fe70.Data = unsafe.Pointer(x.ref376236d0.input_ptr)
+	hxf69fe70.Cap = 0x7fffffff
+	// hxf69fe70.Len = ?
+
+	hxf65bf54 := (*sliceHeader)(unsafe.Pointer(&x.InputLensPtr))
+	hxf65bf54.Data = unsafe.Pointer(x.ref376236d0.input_lens_ptr)
 	hxf65bf54.Cap = 0x7fffffff
 	// hxf65bf54.Len = ?
 
-	x.ProofLen = (uint)(x.ref376236d0.proof_len)
-	x.Inputs = *NewFilAggregationInputsRef(unsafe.Pointer(&x.ref376236d0.inputs))
 }
 
 // allocFilSealCommitPhase2ResponseMemory allocates memory for type C.fil_SealCommitPhase2Response in C.

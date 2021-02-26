@@ -12,6 +12,7 @@ dependencies = [
 [[package]]
 name = "adler"
 <<<<<<< HEAD
+<<<<<<< HEAD
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f26201604c87b1e01bd3d98f8d5d9a8fcbb815e8cedb41ffccbeb4bf593a35fe"
@@ -20,6 +21,11 @@ version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bedc89c5c7b5550ffb9372eb5c5ffc7f9f705cc3f4a128bd4669b9745f555093"
 >>>>>>> 12ec8c1... fix: regenerate bindings and fix clippy warning
+=======
+version = "1.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f26201604c87b1e01bd3d98f8d5d9a8fcbb815e8cedb41ffccbeb4bf593a35fe"
+>>>>>>> 42559ca... feat: proof aggregation call is stubbed in, but broken at the moment
 
 [[package]]
 name = "aes"
@@ -843,6 +849,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "drop_struct_macro_derive"
+version = "0.4.0"
+source = "git+https://github.com/cryptonemo/rust-fil-ffi-toolkit?branch=enum-copy-clone#a02ab5706609cec4213de5d731a047bb5701a437"
+dependencies = [
+ "proc-macro2 0.4.30",
+ "quote 0.6.13",
+ "syn 0.15.44",
+]
+
+[[package]]
 name = "either"
 version = "1.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -949,10 +965,9 @@ dependencies = [
 [[package]]
 name = "ffi-toolkit"
 version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5c95b7fe28637086befd927caf2c920b3c8c80c9a707d354bf80a7397cd8d9f2"
+source = "git+https://github.com/cryptonemo/rust-fil-ffi-toolkit?branch=enum-copy-clone#a02ab5706609cec4213de5d731a047bb5701a437"
 dependencies = [
- "drop_struct_macro_derive",
+ "drop_struct_macro_derive 0.4.0 (git+https://github.com/cryptonemo/rust-fil-ffi-toolkit?branch=enum-copy-clone)",
  "libc",
 ]
 
@@ -1011,7 +1026,7 @@ dependencies = [
  "byteorder 1.3.4",
 >>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
  "cbindgen",
- "drop_struct_macro_derive",
+ "drop_struct_macro_derive 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "fff",
  "ffi-toolkit",
  "fil_logger",
@@ -1046,10 +1061,20 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bf565398110cc0d13cfa33e6fe35fd3931ead236705bfe65dd98de0648687fc6"
 =======
 version = "1.0.1"
+<<<<<<< HEAD
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#38b242079714847cfd87a2b4531a5ab932d08760"
 >>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
+<<<<<<< HEAD
 >>>>>>> 90c0444... feat: update dependencies to use proof aggregation branches
+<<<<<<< HEAD
 >>>>>>> 9b3cd4f... feat: update dependencies to use proof aggregation branches
+=======
+=======
+=======
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#194f842540c4654f44f623e610359b4194493fc0"
+>>>>>>> 42559ca... feat: proof aggregation call is stubbed in, but broken at the moment
+>>>>>>> 4731a12... feat: proof aggregation call is stubbed in, but broken at the moment
+>>>>>>> 1d92854... feat: proof aggregation call is stubbed in, but broken at the moment
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1082,10 +1107,20 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f41847588c8f6513238613d651003ee53aede586e275113544c5f99b65131940"
 =======
 version = "6.0.0"
+<<<<<<< HEAD
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#38b242079714847cfd87a2b4531a5ab932d08760"
 >>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
+<<<<<<< HEAD
 >>>>>>> 90c0444... feat: update dependencies to use proof aggregation branches
+<<<<<<< HEAD
 >>>>>>> 9b3cd4f... feat: update dependencies to use proof aggregation branches
+=======
+=======
+=======
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#194f842540c4654f44f623e610359b4194493fc0"
+>>>>>>> 42559ca... feat: proof aggregation call is stubbed in, but broken at the moment
+>>>>>>> 4731a12... feat: proof aggregation call is stubbed in, but broken at the moment
+>>>>>>> 1d92854... feat: proof aggregation call is stubbed in, but broken at the moment
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1193,9 +1228,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "61435ec5a58135c51c94b7a6d62448392e9f77a3b9906b4f77c957a0286b6db0"
 =======
 version = "0.1.0"
+<<<<<<< HEAD
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#38b242079714847cfd87a2b4531a5ab932d08760"
 >>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
+<<<<<<< HEAD
 >>>>>>> 9b3cd4f... feat: update dependencies to use proof aggregation branches
+=======
+=======
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#194f842540c4654f44f623e610359b4194493fc0"
+>>>>>>> 42559ca... feat: proof aggregation call is stubbed in, but broken at the moment
+>>>>>>> 1d92854... feat: proof aggregation call is stubbed in, but broken at the moment
 dependencies = [
  "anyhow",
  "bellperson",
@@ -2251,7 +2293,7 @@ dependencies = [
  "byteorder 1.4.3",
 =======
 version = "2.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#38b242079714847cfd87a2b4531a5ab932d08760"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#194f842540c4654f44f623e610359b4194493fc0"
 dependencies = [
  "block-buffer 0.9.0",
  "byteorder 1.3.4",
@@ -2288,10 +2330,20 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "79672ae7e4f2259ff49622d7179942fc68648886509b7cb3301a9487cd7fcfc8"
 =======
 version = "6.0.0"
+<<<<<<< HEAD
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#38b242079714847cfd87a2b4531a5ab932d08760"
 >>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
+<<<<<<< HEAD
 >>>>>>> 90c0444... feat: update dependencies to use proof aggregation branches
+<<<<<<< HEAD
 >>>>>>> 9b3cd4f... feat: update dependencies to use proof aggregation branches
+=======
+=======
+=======
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#194f842540c4654f44f623e610359b4194493fc0"
+>>>>>>> 42559ca... feat: proof aggregation call is stubbed in, but broken at the moment
+>>>>>>> 4731a12... feat: proof aggregation call is stubbed in, but broken at the moment
+>>>>>>> 1d92854... feat: proof aggregation call is stubbed in, but broken at the moment
 dependencies = [
  "aes",
  "anyhow",
@@ -2348,10 +2400,20 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "19254773f548abbf17924c558017864ae15741459a4b5819d88ac9db244f9349"
 =======
 version = "6.0.0"
+<<<<<<< HEAD
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#38b242079714847cfd87a2b4531a5ab932d08760"
 >>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
+<<<<<<< HEAD
 >>>>>>> 90c0444... feat: update dependencies to use proof aggregation branches
+<<<<<<< HEAD
 >>>>>>> 9b3cd4f... feat: update dependencies to use proof aggregation branches
+=======
+=======
+=======
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#194f842540c4654f44f623e610359b4194493fc0"
+>>>>>>> 42559ca... feat: proof aggregation call is stubbed in, but broken at the moment
+>>>>>>> 4731a12... feat: proof aggregation call is stubbed in, but broken at the moment
+>>>>>>> 1d92854... feat: proof aggregation call is stubbed in, but broken at the moment
 dependencies = [
  "anyhow",
  "bellperson",
@@ -2408,10 +2470,20 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "deb7e3c02fe1b3867bfed65f651d5c5448b5d310d0f4aaf120b4d9adf26c42fa"
 =======
 version = "6.0.0"
+<<<<<<< HEAD
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#38b242079714847cfd87a2b4531a5ab932d08760"
 >>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
+<<<<<<< HEAD
 >>>>>>> 90c0444... feat: update dependencies to use proof aggregation branches
+<<<<<<< HEAD
 >>>>>>> 9b3cd4f... feat: update dependencies to use proof aggregation branches
+=======
+=======
+=======
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#194f842540c4654f44f623e610359b4194493fc0"
+>>>>>>> 42559ca... feat: proof aggregation call is stubbed in, but broken at the moment
+>>>>>>> 4731a12... feat: proof aggregation call is stubbed in, but broken at the moment
+>>>>>>> 1d92854... feat: proof aggregation call is stubbed in, but broken at the moment
 dependencies = [
  "anyhow",
  "bellperson",
