@@ -6,7 +6,7 @@ use anyhow::Result;
 use drop_struct_macro_derive::DropStructMacro;
 use ffi_toolkit::{code_and_message_impl, free_c_str, CodeAndMessage, FCPResponseStatus};
 use filecoin_proofs_api::{
-    PieceInfo, RegisteredPoStProof, RegisteredSealProof, UnpaddedBytesAmount,
+    PieceInfo, RegisteredPoStProof, RegisteredSealProof, UnpaddedBytesAmount, seal::SealCommitPhase2Output,
 };
 
 #[repr(C)]
@@ -232,43 +232,30 @@ impl Drop for fil_VanillaProof {
 
 #[repr(C)]
 pub struct fil_AggregateProof {
+    pub status_code: FCPResponseStatus,
+    pub error_msg: *const libc::c_char,
     pub proof_len: libc::size_t,
     pub proof_ptr: *const u8,
 }
 
-#[repr(C)]
-pub struct fil_AggregationInputs {
-    pub num_inputs: libc::size_t,
-    pub input_ptr: *const u8,
-    pub input_lens_ptr: *const libc::size_t,
-}
-
-impl Default for fil_AggregationInputs {
-    fn default() -> fil_AggregationInputs {
-        fil_AggregationInputs {
-            num_inputs: 0,
-            input_ptr: ptr::null(),
-            input_lens_ptr: ptr::null(),
+impl Default for fil_AggregateProof {
+    fn default() -> fil_AggregateProof {
+        fil_AggregateProof {
+            status_code: FCPResponseStatus::FCPNoError,
+            error_msg: ptr::null(),
+            proof_len: 0,
+            proof_ptr: ptr::null(),
         }
     }
 }
 
-impl Drop for fil_AggregationInputs {
+impl Drop for fil_AggregateProof {
     fn drop(&mut self) {
         // Note that this operation also does the equivalent of
         // libc::free(self.proof_ptr as *mut libc::c_void);
-        let input_lens = unsafe {
-            Vec::from_raw_parts(
-                self.input_lens_ptr as *mut libc::size_t,
-                self.num_inputs,
-                self.num_inputs,
-            )
+        let _ = unsafe {
+            Vec::from_raw_parts(self.proof_ptr as *mut u8, self.proof_len, self.proof_len)
         };
-
-        let total_len = input_lens.iter().sum();
-        // Note that this operation also does the equivalent of
-        // libc::free(self.proof_ptr as *mut libc::c_void);
-        let _ = unsafe { Vec::from_raw_parts(self.input_ptr as *mut u8, total_len, total_len) };
     }
 }
 
@@ -585,13 +572,16 @@ impl Default for fil_SealCommitPhase2Response {
 code_and_message_impl!(fil_SealCommitPhase2Response);
 
 #[repr(C)]
-#[derive(DropStructMacro)]
 pub struct fil_SealAggregationCommitPhase2Response {
     pub status_code: FCPResponseStatus,
     pub error_msg: *const libc::c_char,
     pub proof_ptr: *const u8,
     pub proof_len: libc::size_t,
-    pub inputs: fil_AggregationInputs,
+
+    // Inputs required for aggregation
+    pub num_inputs: libc::size_t,
+    pub input_ptr: *const u8,
+    pub input_lens_ptr: *const libc::size_t,
 }
 
 impl Default for fil_SealAggregationCommitPhase2Response {
@@ -601,12 +591,84 @@ impl Default for fil_SealAggregationCommitPhase2Response {
             error_msg: ptr::null(),
             proof_ptr: ptr::null(),
             proof_len: 0,
-            inputs: fil_AggregationInputs::default(),
+            num_inputs: 0,
+            input_ptr: ptr::null(),
+            input_lens_ptr: ptr::null(),
         }
     }
 }
 
+impl Drop for fil_SealAggregationCommitPhase2Response {
+    fn drop(&mut self) {
+        // Note that this operation also does the equivalent of
+        // libc::free(self.proof_ptr as *mut libc::c_void);
+        let input_lens = unsafe {
+            Vec::from_raw_parts(
+                self.input_lens_ptr as *mut libc::size_t,
+                self.num_inputs,
+                self.num_inputs,
+            )
+        };
+
+        let total_len = input_lens.iter().sum();
+
+        // Note that this operation also does the equivalent of
+        // libc::free(self.proof_ptr as *mut libc::c_void);
+        let _ = unsafe { Vec::from_raw_parts(self.input_ptr as *mut u8, total_len, total_len) };
+        // Note that this operation also does the equivalent of
+        // libc::free(self.proof_ptr as *mut libc::c_void);
+        let _ = unsafe { Vec::from_raw_parts(self.proof_ptr as *mut u8, self.proof_len, self.proof_len) };
+    }
+}
+
 code_and_message_impl!(fil_SealAggregationCommitPhase2Response);
+
+pub struct SealAggregationCommitPhase2Response {
+    pub commit_output: SealCommitPhase2Output,
+    pub inputs: Vec<Vec<u8>>,
+}
+
+impl From<&fil_SealAggregationCommitPhase2Response> for SealAggregationCommitPhase2Response {
+    fn from(other: &fil_SealAggregationCommitPhase2Response) -> Self {
+        use log::trace;
+        trace!("from fil_sealaggregationcommitphase2response -> sealaggregationcommitPhase2Response");
+        let proof: Vec<u8> = unsafe {
+            trace!("proof ptr {:?}, proof len {}", other.proof_ptr, other.proof_len);
+            Vec::from_raw_parts(
+                other.proof_ptr as *mut u8,
+                other.proof_len,
+                other.proof_len,
+            )
+        };
+        trace!("proof: {:?}, proof len {}", proof, proof.len());
+
+        let input_lens = unsafe {
+            Vec::from_raw_parts(
+                other.input_lens_ptr as *mut libc::size_t,
+                other.num_inputs,
+                other.num_inputs,
+            )
+        };
+        let total_len = input_lens.iter().sum();
+        trace!("input lens {:?}, total len {}", input_lens, total_len);
+        let flat_input_data = unsafe { Vec::from_raw_parts(other.input_ptr as *mut u8, total_len, total_len) };
+
+        trace!("flat input data {:?}", flat_input_data);
+        let mut start = 0;
+        let mut inputs = Vec::new();
+        for len in input_lens {
+            inputs.push(flat_input_data[start..start + len].to_vec());
+            start += len;
+        }
+
+        SealAggregationCommitPhase2Response {
+            commit_output: SealCommitPhase2Output {
+                proof
+            },
+            inputs,
+        }
+    }
+}
 
 #[repr(C)]
 #[derive(DropStructMacro)]
