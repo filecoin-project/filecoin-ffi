@@ -886,7 +886,7 @@ dependencies = [
 [[package]]
 name = "filecoin-proofs-api"
 version = "6.0.0"
-source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=feat-aggregation#bf85a2398e0e9c0fa61ecdb8778be3ec5c615dcd"
+source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=feat-aggregation#b761c0ae2872646c62fc202ff55df8a1a160a56c"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1836,9 +1836,9 @@ dependencies = [
 
 [[package]]
 name = "serde_json"
-version = "1.0.63"
+version = "1.0.64"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "43535db9747a4ba938c0ce0a98cc631a46ebf943c9e1d604e091df6007620bf6"
+checksum = "799e97dc9fdae36a5c8b8f2cae9ce2ee9fdce2058c57a93e6099d919fd982f79"
 dependencies = [
  "itoa",
  "ryu",
