@@ -257,8 +257,12 @@ dependencies = [
  "generic-array 0.12.4",
 =======
  "byteorder 1.3.4",
+<<<<<<< HEAD
  "generic-array 0.12.3",
 >>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
+=======
+ "generic-array 0.12.4",
+>>>>>>> c87f3a4... feat: regenerate bindings for the added api
 ]
 
 [[package]]
@@ -1467,9 +1471,21 @@ dependencies = [
 
 [[package]]
 name = "libc"
+<<<<<<< HEAD
 version = "0.2.94"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "18794a8ad5b29321f790b55d93dfba91e125cb1a9edbd4f8e3150acc771c1a5e"
+=======
+<<<<<<< HEAD
+version = "0.2.88"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "03b07a082330a35e43f63177cc01689da34fbffa0105e1246cf0311472cac73a"
+=======
+version = "0.2.87"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "265d751d31d6780a3f956bb5b8022feba2d94eeee5a84ba64f4212eedca42213"
+>>>>>>> c87f3a4... feat: regenerate bindings for the added api
+>>>>>>> 7facac3... feat: regenerate bindings for the added api
 
 [[package]]
 name = "log"
@@ -1727,6 +1743,7 @@ dependencies = [
 name = "once_cell"
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 version = "1.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "af8b08b04175473088b46763e51ee54da5f9a164bc162f615b91bc179dbf15a3"
@@ -1740,6 +1757,11 @@ version = "1.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "10acf907b94fc1b1a152d08ef97e7759650268cf986bf127f387e602b02c7e5a"
 >>>>>>> 78c98c6... feat: start stubbing in the proof aggregation API internals
+=======
+version = "1.7.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "af8b08b04175473088b46763e51ee54da5f9a164bc162f615b91bc179dbf15a3"
+>>>>>>> c87f3a4... feat: regenerate bindings for the added api
 
 [[package]]
 >>>>>>> 90c0444... feat: update dependencies to use proof aggregation branches
