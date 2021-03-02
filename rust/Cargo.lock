@@ -1172,6 +1172,7 @@ checksum = "a622e652d0e9d31cf9e64ec693497de794e1cb5a53b3ece2ea60880876a4635f"
 =======
 version = "6.0.0"
 <<<<<<< HEAD
+<<<<<<< HEAD
 source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=feat-aggregation#a7b0ba925d132b9b43a650e47eac7ac1739398ae"
 >>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
 <<<<<<< HEAD
@@ -1180,7 +1181,13 @@ source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branc
 =======
 source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=feat-aggregation#bf85a2398e0e9c0fa61ecdb8778be3ec5c615dcd"
 >>>>>>> 78c98c6... feat: start stubbing in the proof aggregation API internals
+<<<<<<< HEAD
 >>>>>>> 3950fd9... feat: start stubbing in the proof aggregation API internals
+=======
+=======
+source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=feat-aggregation#b761c0ae2872646c62fc202ff55df8a1a160a56c"
+>>>>>>> 95d89f3... feat: get end to end testing working
+>>>>>>> 4a8ab78... feat: get end to end testing working
 dependencies = [
  "anyhow",
  "bellperson",
@@ -2228,6 +2235,7 @@ dependencies = [
 [[package]]
 name = "serde_json"
 <<<<<<< HEAD
+<<<<<<< HEAD
 version = "1.0.64"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "799e97dc9fdae36a5c8b8f2cae9ce2ee9fdce2058c57a93e6099d919fd982f79"
@@ -2236,6 +2244,11 @@ version = "1.0.63"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "43535db9747a4ba938c0ce0a98cc631a46ebf943c9e1d604e091df6007620bf6"
 >>>>>>> 12ec8c1... fix: regenerate bindings and fix clippy warning
+=======
+version = "1.0.64"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "799e97dc9fdae36a5c8b8f2cae9ce2ee9fdce2058c57a93e6099d919fd982f79"
+>>>>>>> 95d89f3... feat: get end to end testing working
 dependencies = [
  "itoa",
  "ryu",

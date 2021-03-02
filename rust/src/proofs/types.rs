@@ -3,11 +3,12 @@ use std::ptr;
 use std::slice::from_raw_parts;
 
 use anyhow::Result;
+use bellperson::bls::Fr;
 use drop_struct_macro_derive::DropStructMacro;
 use ffi_toolkit::{code_and_message_impl, free_c_str, CodeAndMessage, FCPResponseStatus};
 use filecoin_proofs_api::{
-    seal::SealCommitPhase2Output, PieceInfo, RegisteredPoStProof, RegisteredSealProof,
-    UnpaddedBytesAmount,
+    fr32, seal::SealCommitPhase2Output, PieceInfo, RegisteredPoStProof, RegisteredSealProof,
+    UnpaddedBytesAmount, NODE_SIZE,
 };
 
 #[repr(C)]
@@ -259,6 +260,8 @@ impl Drop for fil_AggregateProof {
         };
     }
 }
+
+code_and_message_impl!(fil_AggregateProof);
 
 #[derive(Clone, Debug)]
 pub struct PoStProof {
@@ -573,25 +576,42 @@ impl Default for fil_SealCommitPhase2Response {
 code_and_message_impl!(fil_SealCommitPhase2Response);
 
 #[repr(C)]
-pub struct fil_SealAggregationCommitPhase2Response {
-    pub status_code: FCPResponseStatus,
-    pub error_msg: *const libc::c_char,
-    pub proof_ptr: *const u8,
-    pub proof_len: libc::size_t,
-
+pub struct fil_AggregationInputs {
     // Inputs required for aggregation
     pub num_inputs: libc::size_t,
     pub input_ptr: *const u8,
     pub input_lens_ptr: *const libc::size_t,
 }
 
-impl Default for fil_SealAggregationCommitPhase2Response {
-    fn default() -> fil_SealAggregationCommitPhase2Response {
-        fil_SealAggregationCommitPhase2Response {
-            status_code: FCPResponseStatus::FCPNoError,
-            error_msg: ptr::null(),
-            proof_ptr: ptr::null(),
-            proof_len: 0,
+impl Clone for fil_AggregationInputs {
+    fn clone(&self) -> Self {
+        let slice: &[libc::size_t] =
+            unsafe { std::slice::from_raw_parts(self.input_lens_ptr, self.num_inputs) };
+        let input_lens: Vec<usize> = slice.to_vec();
+
+        debug_assert_eq!(self.num_inputs, input_lens.len());
+        let total_len = input_lens.iter().sum();
+
+        let slice: &[u8] = unsafe { std::slice::from_raw_parts(self.input_ptr, total_len) };
+        let input = slice.to_vec();
+
+        let input_ptr = input.as_ptr();
+        let input_lens_ptr = input_lens.as_ptr();
+
+        std::mem::forget(input);
+        std::mem::forget(input_lens);
+
+        fil_AggregationInputs {
+            num_inputs: self.num_inputs,
+            input_ptr,
+            input_lens_ptr,
+        }
+    }
+}
+
+impl Default for fil_AggregationInputs {
+    fn default() -> fil_AggregationInputs {
+        fil_AggregationInputs {
             num_inputs: 0,
             input_ptr: ptr::null(),
             input_lens_ptr: ptr::null(),
@@ -599,7 +619,7 @@ impl Default for fil_SealAggregationCommitPhase2Response {
     }
 }
 
-impl Drop for fil_SealAggregationCommitPhase2Response {
+impl Drop for fil_AggregationInputs {
     fn drop(&mut self) {
         // Note that this operation also does the equivalent of
         // libc::free(self.proof_ptr as *mut libc::c_void);
@@ -616,6 +636,53 @@ impl Drop for fil_SealAggregationCommitPhase2Response {
         // Note that this operation also does the equivalent of
         // libc::free(self.proof_ptr as *mut libc::c_void);
         let _ = unsafe { Vec::from_raw_parts(self.input_ptr as *mut u8, total_len, total_len) };
+    }
+}
+
+#[repr(C)]
+pub struct fil_SealAggregationCommitPhase2Response {
+    pub status_code: FCPResponseStatus,
+    pub error_msg: *const libc::c_char,
+    pub proof_ptr: *const u8,
+    pub proof_len: libc::size_t,
+    pub inputs: fil_AggregationInputs,
+}
+
+impl Default for fil_SealAggregationCommitPhase2Response {
+    fn default() -> fil_SealAggregationCommitPhase2Response {
+        fil_SealAggregationCommitPhase2Response {
+            status_code: FCPResponseStatus::FCPNoError,
+            error_msg: ptr::null(),
+            proof_ptr: ptr::null(),
+            proof_len: 0,
+            inputs: fil_AggregationInputs::default(),
+        }
+    }
+}
+
+impl Clone for fil_SealAggregationCommitPhase2Response {
+    fn clone(&self) -> Self {
+        let slice: &[u8] = unsafe { std::slice::from_raw_parts(self.proof_ptr, self.proof_len) };
+        let proof: Vec<u8> = slice.to_vec();
+        debug_assert_eq!(self.proof_len, proof.len());
+
+        let proof_len = proof.len();
+        let proof_ptr = proof.as_ptr();
+
+        std::mem::forget(proof);
+
+        fil_SealAggregationCommitPhase2Response {
+            status_code: self.status_code,
+            error_msg: self.error_msg,
+            proof_ptr,
+            proof_len,
+            inputs: self.inputs.clone(),
+        }
+    }
+}
+
+impl Drop for fil_SealAggregationCommitPhase2Response {
+    fn drop(&mut self) {
         // Note that this operation also does the equivalent of
         // libc::free(self.proof_ptr as *mut libc::c_void);
         let _ = unsafe {
@@ -628,44 +695,43 @@ code_and_message_impl!(fil_SealAggregationCommitPhase2Response);
 
 pub struct SealAggregationCommitPhase2Response {
     pub commit_output: SealCommitPhase2Output,
-    pub inputs: Vec<Vec<u8>>,
+    pub inputs: Vec<Vec<Fr>>,
+}
+
+// A utility converter for fil_AggregationInputs struct to Vec<Vec<Fr>>
+pub fn convert_aggregation_inputs(input: &fil_AggregationInputs) -> Vec<Vec<Fr>> {
+    let slice: &[libc::size_t] =
+        unsafe { std::slice::from_raw_parts(input.input_lens_ptr, input.num_inputs) };
+    let input_lens: Vec<usize> = slice.to_vec();
+
+    debug_assert_eq!(input.num_inputs, input_lens.len());
+    let total_len = input_lens.iter().sum();
+
+    let slice: &[u8] = unsafe { std::slice::from_raw_parts(input.input_ptr, total_len) };
+    let flat_input_data: Vec<u8> = slice.to_vec();
+
+    let mut start = 0;
+    let mut inputs = Vec::new();
+    for len in &input_lens {
+        assert_eq!(len % NODE_SIZE, 0);
+        let elements: Vec<Fr> = flat_input_data[start..start + len]
+            .to_vec()
+            .chunks(NODE_SIZE)
+            .map(|x| fr32::bytes_into_fr(x).unwrap())
+            .collect();
+        inputs.push(elements);
+        start += len;
+    }
+
+    inputs
 }
 
 impl From<&fil_SealAggregationCommitPhase2Response> for SealAggregationCommitPhase2Response {
     fn from(other: &fil_SealAggregationCommitPhase2Response) -> Self {
-        use log::trace;
-        trace!(
-            "from fil_sealaggregationcommitphase2response -> sealaggregationcommitPhase2Response"
-        );
-        let proof: Vec<u8> = unsafe {
-            trace!(
-                "proof ptr {:?}, proof len {}",
-                other.proof_ptr,
-                other.proof_len
-            );
-            Vec::from_raw_parts(other.proof_ptr as *mut u8, other.proof_len, other.proof_len)
-        };
-        trace!("proof: {:?}, proof len {}", proof, proof.len());
+        let slice: &[u8] = unsafe { std::slice::from_raw_parts(other.proof_ptr, other.proof_len) };
+        let proof: Vec<u8> = slice.to_vec();
 
-        let input_lens = unsafe {
-            Vec::from_raw_parts(
-                other.input_lens_ptr as *mut libc::size_t,
-                other.num_inputs,
-                other.num_inputs,
-            )
-        };
-        let total_len = input_lens.iter().sum();
-        trace!("input lens {:?}, total len {}", input_lens, total_len);
-        let flat_input_data =
-            unsafe { Vec::from_raw_parts(other.input_ptr as *mut u8, total_len, total_len) };
-
-        trace!("flat input data {:?}", flat_input_data);
-        let mut start = 0;
-        let mut inputs = Vec::new();
-        for len in input_lens {
-            inputs.push(flat_input_data[start..start + len].to_vec());
-            start += len;
-        }
+        let inputs = convert_aggregation_inputs(&other.inputs);
 
         SealAggregationCommitPhase2Response {
             commit_output: SealCommitPhase2Output { proof },
@@ -711,6 +777,26 @@ impl Default for fil_VerifySealResponse {
 }
 
 code_and_message_impl!(fil_VerifySealResponse);
+
+#[repr(C)]
+#[derive(DropStructMacro)]
+pub struct fil_VerifyAggregateSealProofResponse {
+    pub status_code: FCPResponseStatus,
+    pub error_msg: *const libc::c_char,
+    pub is_valid: bool,
+}
+
+impl Default for fil_VerifyAggregateSealProofResponse {
+    fn default() -> fil_VerifyAggregateSealProofResponse {
+        fil_VerifyAggregateSealProofResponse {
+            status_code: FCPResponseStatus::FCPNoError,
+            error_msg: ptr::null(),
+            is_valid: false,
+        }
+    }
+}
+
+code_and_message_impl!(fil_VerifyAggregateSealProofResponse);
 
 #[repr(C)]
 #[derive(DropStructMacro)]
