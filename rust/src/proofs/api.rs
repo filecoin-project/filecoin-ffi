@@ -528,7 +528,7 @@ pub unsafe extern "C" fn fil_verify_aggregate_seal_proof(
     proof_bytes.clone_from_slice(from_raw_parts(proof_ptr, proof_len));
 
     let commit_inputs: Vec<fil_AggregationInputs> =
-        Vec::from_raw_parts(commit_inputs_ptr, commit_inputs_len, commit_inputs_len);
+        std::slice::from_raw_parts(commit_inputs_ptr, commit_inputs_len).to_vec();
 
     let mut inputs: Vec<Vec<Fr>> = Vec::new();
     for input in &commit_inputs {
