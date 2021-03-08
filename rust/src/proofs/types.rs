@@ -681,6 +681,16 @@ impl Clone for fil_SealAggregationCommitPhase2Response {
     }
 }
 
+// General note on Vec::from_raw_parts vs std::slice::from_raw_parts:
+//
+// Vec::from_raw_parts takes ownership of the allocation and will free
+// it when it's dropped.
+//
+// std::slice::from_raw_parts borrows the allocation, and does not
+// affect ownership.
+//
+// In general, usages should borrow via the slice and Drop methods
+// should take ownership using the Vec.
 impl Drop for fil_SealAggregationCommitPhase2Response {
     fn drop(&mut self) {
         // Note that this operation also does the equivalent of
