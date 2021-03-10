@@ -3,14 +3,14 @@ use ffi_toolkit::{
 };
 use filecoin_proofs_api::seal::{
     add_piece, aggregate_seal_commit_proofs, clear_cache, compute_comm_d, fauxrep, fauxrep2,
-    generate_piece_commitment, seal_commit_phase1, seal_commit_phase2,
-    seal_commit_phase2_for_aggregation, seal_pre_commit_phase1, seal_pre_commit_phase2,
-    unseal_range, verify_aggregate_seal_commit_proofs, verify_seal, write_and_preprocess,
-    SealCommitPhase2Output, SealPreCommitPhase2Output,
+    generate_piece_commitment, get_seal_inputs, seal_commit_phase1, seal_commit_phase2,
+    seal_pre_commit_phase1, seal_pre_commit_phase2, unseal_range,
+    verify_aggregate_seal_commit_proofs, verify_seal, write_and_preprocess, SealCommitPhase2Output,
+    SealPreCommitPhase2Output,
 };
 use filecoin_proofs_api::{
-    fr32::fr_into_bytes, PieceInfo, PrivateReplicaInfo, RegisteredPoStProof, RegisteredSealProof,
-    SectorId, StorageProofsError, UnpaddedByteIndex, UnpaddedBytesAmount,
+    PieceInfo, PrivateReplicaInfo, RegisteredPoStProof, RegisteredSealProof, SectorId,
+    StorageProofsError, UnpaddedByteIndex, UnpaddedBytesAmount,
 };
 
 use bellperson::bls::Fr;
@@ -404,91 +404,29 @@ pub unsafe extern "C" fn fil_seal_commit_phase2(
     })
 }
 
+/// Aggregates some number of seal proofs.
+///
 #[no_mangle]
-pub unsafe extern "C" fn fil_seal_commit_phase2_for_aggregation(
-    seal_commit_phase1_output_ptr: *const u8,
-    seal_commit_phase1_output_len: libc::size_t,
-    sector_id: u64,
-    prover_id: fil_32ByteArray,
-) -> *mut fil_SealAggregationCommitPhase2Response {
-    catch_panic_response(|| {
-        init_log();
-
-        info!("seal_commit_phase2_for_aggregation: start");
-
-        let mut response = fil_SealAggregationCommitPhase2Response::default();
-
-        let scp1o = serde_json::from_slice(from_raw_parts(
-            seal_commit_phase1_output_ptr,
-            seal_commit_phase1_output_len,
-        ))
-        .map_err(Into::into);
-
-        let result = scp1o.and_then(|o| {
-            seal_commit_phase2_for_aggregation(o, prover_id.inner, SectorId::from(sector_id))
-        });
-
-        match result {
-            Ok((output, inputs)) => {
-                response.status_code = FCPResponseStatus::FCPNoError;
-                response.proof_ptr = output.proof.as_ptr();
-                response.proof_len = output.proof.len();
-
-                // Given that we have a Vec<Vec<u8>>, this flattens it into a
-                // single u8 array, marking the length of each inner stride
-                // for reconstruction, as they may be uneven values
-                let mut input_lens = Vec::with_capacity(inputs.len());
-                let flat_inputs = inputs.iter().fold(Vec::new(), |mut acc, input| {
-                    let flat_inner_inputs =
-                        input.iter().fold(Vec::new(), |mut inner_acc, element| {
-                            inner_acc.extend(fr_into_bytes(&element));
-                            inner_acc
-                        });
-
-                    input_lens.push(flat_inner_inputs.len());
-                    acc.extend(flat_inner_inputs);
-                    acc
-                });
-
-                response.inputs.num_inputs = inputs.len();
-                response.inputs.input_lens_ptr = input_lens.as_ptr();
-                response.inputs.input_ptr = flat_inputs.as_ptr();
-
-                mem::forget(output.proof);
-                mem::forget(input_lens);
-                mem::forget(flat_inputs);
-            }
-            Err(err) => {
-                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
-            }
-        }
-
-        info!("seal_commit_phase2_for_aggregation: finish");
-
-        raw_ptr(response)
-    })
-}
-
 pub unsafe extern "C" fn fil_aggregate_seal_proofs(
     registered_proof: fil_RegisteredSealProof,
-    seal_commit_responses_ptr: *const fil_SealAggregationCommitPhase2Response,
+    seal_commit_responses_ptr: *const fil_SealCommitPhase2Response,
     seal_commit_responses_len: libc::size_t,
 ) -> *mut fil_AggregateProof {
     info!("aggregate_seal_proofs: start");
 
-    let seal_commit_outputs: Vec<SealAggregationCommitPhase2Response> =
+    let outputs: Vec<SealCommitPhase2Output> =
         from_raw_parts(seal_commit_responses_ptr, seal_commit_responses_len)
             .iter()
-            .map(Into::into)
+            .map(|x| {
+                let slice: &[u8] = std::slice::from_raw_parts(x.proof_ptr, x.proof_len);
+
+                SealCommitPhase2Output {
+                    proof: slice.to_vec(),
+                }
+            })
             .collect();
 
     let mut response = fil_AggregateProof::default();
-    let outputs: Vec<SealCommitPhase2Output> = seal_commit_outputs
-        .iter()
-        .map(|x| x.commit_output.clone())
-        .collect();
-
     let result = aggregate_seal_commit_proofs(registered_proof.into(), &outputs);
 
     match result {
@@ -510,11 +448,38 @@ pub unsafe extern "C" fn fil_aggregate_seal_proofs(
     raw_ptr(response)
 }
 
+/// Retrieves the seal inputs based on the provided input, used for aggregation verification.
+///
+#[no_mangle]
+pub fn convert_aggregation_inputs(
+    registered_proof: fil_RegisteredSealProof,
+    prover_id: fil_32ByteArray,
+    input: &fil_AggregationInputs,
+) -> Vec<Vec<Fr>> {
+    get_seal_inputs(
+        registered_proof.into(),
+        input.comm_r.inner,
+        input.comm_d.inner,
+        prover_id.inner,
+        SectorId::from(input.sector_id),
+        input.ticket.inner,
+        input.seed.inner,
+    )
+    .expect(
+        format!(
+            "failed convert aggregation inputs for sector {}",
+            input.sector_id
+        )
+        .as_str(),
+    )
+}
+
 /// Verifies the output of an aggregated seal.
 ///
 #[no_mangle]
 pub unsafe extern "C" fn fil_verify_aggregate_seal_proof(
     registered_proof: fil_RegisteredSealProof,
+    prover_id: fil_32ByteArray,
     proof_ptr: *const u8,
     proof_len: libc::size_t,
     commit_inputs_ptr: *mut fil_AggregationInputs,
@@ -532,7 +497,11 @@ pub unsafe extern "C" fn fil_verify_aggregate_seal_proof(
 
     let mut inputs: Vec<Vec<Fr>> = Vec::new();
     for input in &commit_inputs {
-        inputs.extend(convert_aggregation_inputs(&input));
+        inputs.extend(convert_aggregation_inputs(
+            registered_proof,
+            prover_id,
+            &input,
+        ));
     }
 
     let result = verify_aggregate_seal_commit_proofs(
@@ -1398,13 +1367,6 @@ pub unsafe extern "C" fn fil_destroy_seal_commit_phase1_response(
 #[no_mangle]
 pub unsafe extern "C" fn fil_destroy_seal_commit_phase2_response(
     ptr: *mut fil_SealCommitPhase2Response,
-) {
-    let _ = Box::from_raw(ptr);
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn fil_destroy_seal_commit_phase2_for_aggregation_response(
-    ptr: *mut fil_SealAggregationCommitPhase2Response,
 ) {
     let _ = Box::from_raw(ptr);
 }
@@ -2841,7 +2803,7 @@ pub mod tests {
                 panic!("seal_commit_phase1 failed: {:?}", msg);
             }
 
-            let resp_c2 = fil_seal_commit_phase2_for_aggregation(
+            let resp_c2 = fil_seal_commit_phase2(
                 (*resp_c1).seal_commit_phase1_output_ptr,
                 (*resp_c1).seal_commit_phase1_output_len,
                 sector_id,
@@ -2872,7 +2834,7 @@ pub mod tests {
 
             assert!((*resp_d).is_valid, "proof was not valid");
 
-            let resp_c22 = fil_seal_commit_phase2_for_aggregation(
+            let resp_c22 = fil_seal_commit_phase2(
                 (*resp_c1).seal_commit_phase1_output_ptr,
                 (*resp_c1).seal_commit_phase1_output_len,
                 sector_id,
@@ -2903,7 +2865,7 @@ pub mod tests {
 
             assert!((*resp_d2).is_valid, "proof was not valid");
 
-            let seal_commit_responses: Vec<fil_SealAggregationCommitPhase2Response> =
+            let seal_commit_responses: Vec<fil_SealCommitPhase2Response> =
                 vec![(*resp_c2).clone(), (*resp_c22).clone()];
 
             let resp_aggregate_proof = fil_aggregate_seal_proofs(
@@ -2917,11 +2879,20 @@ pub mod tests {
                 panic!("aggregate_seal_proofs failed: {:?}", msg);
             }
 
-            let mut inputs: Vec<fil_AggregationInputs> =
-                vec![(*resp_c2).inputs.clone(), (*resp_c22).inputs.clone()];
+            let mut inputs: Vec<fil_AggregationInputs> = seal_commit_responses
+                .iter()
+                .map(|_| fil_AggregationInputs {
+                    comm_r: wrap((*resp_b2).comm_r),
+                    comm_d: wrap((*resp_b2).comm_d),
+                    sector_id,
+                    ticket,
+                    seed,
+                })
+                .collect();
 
             let resp_ad = fil_verify_aggregate_seal_proof(
                 registered_proof_seal,
+                prover_id,
                 (*resp_aggregate_proof).proof_ptr,
                 (*resp_aggregate_proof).proof_len,
                 inputs.as_mut_ptr(),
@@ -2943,8 +2914,8 @@ pub mod tests {
             fil_destroy_seal_pre_commit_phase2_response(resp_b2);
             fil_destroy_seal_commit_phase1_response(resp_c1);
 
-            fil_destroy_seal_commit_phase2_for_aggregation_response(resp_c2);
-            fil_destroy_seal_commit_phase2_for_aggregation_response(resp_c22);
+            fil_destroy_seal_commit_phase2_response(resp_c2);
+            fil_destroy_seal_commit_phase2_response(resp_c22);
 
             fil_destroy_verify_seal_response(resp_d);
             fil_destroy_verify_seal_response(resp_d2);
