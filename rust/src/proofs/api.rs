@@ -465,13 +465,12 @@ pub fn convert_aggregation_inputs(
         input.ticket.inner,
         input.seed.inner,
     )
-    .expect(
-        format!(
+    .unwrap_or_else(|_| {
+        panic!(
             "failed convert aggregation inputs for sector {}",
             input.sector_id
         )
-        .as_str(),
-    )
+    })
 }
 
 /// Verifies the output of an aggregated seal.
