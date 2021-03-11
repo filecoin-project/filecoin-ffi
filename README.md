@@ -34,6 +34,14 @@ rm .install-filcrypto \
     ; FFI_BUILD_FROM_SOURCE=1 FFI_USE_BLST_PORTABLE=1 make
 ```
 
+By default, a 'gpu' option is used in the proofs library.  There is now an experimental 'gpu2' feature which has improved performance.  To allow building with the 'gpu2' dependency, set `FFI_USE_GPU2=1`:
+
+```shell
+rm .install-filcrypto \
+    ; make clean \
+    ; FFI_BUILD_FROM_SOURCE=1 FFI_USE_BLST=1 FFI_USE_GPU2=1 make
+```
+
 ## Updating rust-fil-proofs (via rust-filecoin-proofs-api)
 
 If rust-fil-proofs has changed from commit X to Y and you wish to get Y into
