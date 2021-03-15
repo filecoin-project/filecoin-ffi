@@ -127,11 +127,7 @@ checksum = "58dc83bfec3df87b46f14b01e0593a5144332ea4e712a68de2255694da755f87"
 dependencies = [
  "bit-vec",
  "blake2s_simd",
-<<<<<<< HEAD
  "blstrs",
-=======
- "blstrs 0.1.3",
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
  "byteorder 1.4.3",
  "crossbeam-channel 0.5.0",
  "ff-cl-gen",
@@ -146,32 +142,7 @@ dependencies = [
  "rand 0.7.3",
  "rand_core 0.5.1",
  "rayon",
- "rust-gpu-tools",
- "rustc-hash",
- "thiserror",
-]
-
-[[package]]
-name = "bellperson"
-version = "0.13.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "58dc83bfec3df87b46f14b01e0593a5144332ea4e712a68de2255694da755f87"
-dependencies = [
- "bit-vec",
- "blake2s_simd",
- "blstrs 0.2.2",
- "byteorder 1.4.3",
- "crossbeam-channel 0.5.0",
- "fff",
- "groupy",
- "lazy_static",
- "log",
- "memmap",
- "num_cpus",
- "paired",
- "rand 0.7.3",
- "rand_core 0.5.1",
- "rayon",
+ "rust-gpu-tools 0.2.2",
  "rustc-hash",
  "thiserror",
 ]
@@ -288,8 +259,8 @@ version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b3b9d0864a470e950b91d40fb0a7f8e914c3c32d7b72f124a3bf3a22ef8146ac"
 dependencies = [
- "blst 0.2.0",
- "blstrs 0.1.3",
+ "blst",
+ "blstrs",
  "fff",
  "groupy",
  "rand_core 0.5.1",
@@ -310,44 +281,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "blst"
-version = "0.3.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dd7cb1b48c09ac759808ad27811ca44e27c037d309f837651fc80506bc19819f"
-dependencies = [
- "cc",
- "glob",
- "threadpool",
- "zeroize",
-]
-
-[[package]]
 name = "blstrs"
 version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ecf78c2e543a5fd41b41499fc242d603862b436dc2c167658e7f4870523781ac"
 dependencies = [
- "blst 0.2.0",
- "fff",
- "groupy",
- "rand_core 0.5.1",
-]
-
-[[package]]
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-name = "bumpalo"
-version = "3.6.0"
-=======
-name = "blstrs"
-version = "0.2.2"
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ecf78c2e543a5fd41b41499fc242d603862b436dc2c167658e7f4870523781ac"
-dependencies = [
- "blst 0.3.3",
+ "blst",
  "fff",
  "groupy",
  "rand_core 0.5.1",
@@ -355,12 +294,6 @@ dependencies = [
 ]
 
 [[package]]
-<<<<<<< HEAD
-=======
->>>>>>> 90d1451... feat: use get_unsealed_range_mapped api
->>>>>>> 14d5e1d... feat: use get_unsealed_range_mapped api
-=======
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
 name = "byte-slice-cast"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -380,21 +313,9 @@ checksum = "0fc10e8cc6b2580fda3f36eb6dc5316657f812a3df879a44a66fc9f0fdbc4855"
 
 [[package]]
 name = "byteorder"
-<<<<<<< HEAD
-<<<<<<< HEAD
 version = "1.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "14c189c53d098945499cdfa7ecc63567cf3886b3332b312a5b4585d8d3a6a610"
-=======
-version = "1.4.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ae44d1a3d5a19df61dd0c8beb138458ac2a53a7ac09eba97d55592540004306b"
->>>>>>> 14d5e1d... feat: use get_unsealed_range_mapped api
-=======
-version = "1.4.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "14c189c53d098945499cdfa7ecc63567cf3886b3332b312a5b4585d8d3a6a610"
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
 
 [[package]]
 name = "cbindgen"
@@ -408,11 +329,7 @@ dependencies = [
  "quote 1.0.9",
  "serde",
  "serde_json",
-<<<<<<< HEAD
- "syn 1.0.63",
-=======
  "syn 1.0.64",
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
  "tempfile",
  "toml",
 ]
@@ -494,18 +411,6 @@ dependencies = [
 ]
 
 [[package]]
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-name = "const_fn"
-version = "0.4.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "28b9d6de7f49e22cf97ad17fc4036ece69300032f45f78f30b4a4482cdc3f4a6"
-
-[[package]]
->>>>>>> 14d5e1d... feat: use get_unsealed_range_mapped api
-=======
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
 name = "constant_time_eq"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -675,28 +580,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e8f45d9ad417bcef4817d614a501ab55cdd96a6fdb24f49aab89a54acfd66b19"
 dependencies = [
  "quote 1.0.9",
-<<<<<<< HEAD
-<<<<<<< HEAD
- "syn 1.0.63",
-=======
- "syn 1.0.60",
-]
-
-[[package]]
-<<<<<<< HEAD
-name = "dialoguer"
-version = "0.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "70f807b2943dc90f9747497d9d65d7e92472149be0b88bf4ce1201b4ac979c26"
-dependencies = [
- "console 0.13.0",
- "lazy_static",
- "tempfile",
- "zeroize",
->>>>>>> 14d5e1d... feat: use get_unsealed_range_mapped api
-=======
  "syn 1.0.64",
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
 ]
 
 [[package]]
@@ -762,30 +646,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e78d4f1cc4ae33bbfc157ed5d5a5ef3bc29227303d595861deb238fcec4e9457"
 
 [[package]]
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-name = "encode_unicode"
-version = "0.3.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a357d28ed41a50f9c765dbfe56cbc04a64e53e5fc58ba79fbc34c10ef3df831f"
-
-[[package]]
-name = "encoding_rs"
-version = "0.8.28"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "80df024fbc5ac80f87dfef0d9f5209a252f2a497f7f42944cff24d8253cac065"
-dependencies = [
- "cfg-if 1.0.0",
-]
-
-[[package]]
-=======
->>>>>>> 90d1451... feat: use get_unsealed_range_mapped api
->>>>>>> 14d5e1d... feat: use get_unsealed_range_mapped api
-=======
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
 name = "enum_primitive"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -823,11 +683,7 @@ checksum = "aa4da3c766cd7a0db8242e326e9e4e081edd567072893ed320008189715366a4"
 dependencies = [
  "proc-macro2 1.0.24",
  "quote 1.0.9",
-<<<<<<< HEAD
- "syn 1.0.63",
-=======
  "syn 1.0.64",
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
  "synstructure",
 ]
 
@@ -881,11 +737,7 @@ dependencies = [
  "num-traits 0.2.14",
  "proc-macro2 1.0.24",
  "quote 1.0.9",
-<<<<<<< HEAD
- "syn 1.0.63",
-=======
  "syn 1.0.64",
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
 ]
 
 [[package]]
@@ -944,13 +796,9 @@ name = "filcrypto"
 version = "0.7.5"
 dependencies = [
  "anyhow",
- "bellperson 0.12.5",
+ "bellperson",
  "bls-signatures",
-<<<<<<< HEAD
  "blstrs",
-=======
- "blstrs 0.1.3",
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
  "byteorder 1.4.3",
  "cbindgen",
  "drop_struct_macro_derive",
@@ -965,29 +813,18 @@ dependencies = [
  "rand 0.7.3",
  "rand_chacha 0.2.2",
  "rayon",
- "rust-gpu-tools",
+ "rust-gpu-tools 0.2.2",
  "serde_json",
  "tempfile",
 ]
 
 [[package]]
 name = "filecoin-hashers"
-<<<<<<< HEAD
-<<<<<<< HEAD
 version = "1.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bf565398110cc0d13cfa33e6fe35fd3931ead236705bfe65dd98de0648687fc6"
-=======
-version = "1.0.1"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=fix-ram-unseal#9ad002449a0e32a568f8c384ad1bfe76422a5e87"
->>>>>>> 14d5e1d... feat: use get_unsealed_range_mapped api
-=======
-version = "1.1.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=fix-ram-unseal#0f84d01aca0b0241e44afe9e4075dbb2f2fff44f"
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=fix-ram-unseal#395d3cf25ee04fae7d5f27695b06b3a89b0fe596"
 dependencies = [
  "anyhow",
- "bellperson 0.13.0",
+ "bellperson",
  "fff",
  "generic-array 0.14.4",
  "hex",
@@ -996,49 +833,22 @@ dependencies = [
  "neptune",
  "rand 0.7.3",
  "serde",
-<<<<<<< HEAD
-<<<<<<< HEAD
  "sha2 0.9.3",
-=======
- "sha2 0.9.2",
->>>>>>> 14d5e1d... feat: use get_unsealed_range_mapped api
-=======
- "sha2 0.9.3",
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
 ]
 
 [[package]]
 name = "filecoin-proofs"
-<<<<<<< HEAD
-<<<<<<< HEAD
 version = "6.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f41847588c8f6513238613d651003ee53aede586e275113544c5f99b65131940"
-=======
-version = "6.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=fix-ram-unseal#9ad002449a0e32a568f8c384ad1bfe76422a5e87"
->>>>>>> 14d5e1d... feat: use get_unsealed_range_mapped api
-=======
-version = "6.1.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=fix-ram-unseal#0f84d01aca0b0241e44afe9e4075dbb2f2fff44f"
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=fix-ram-unseal#395d3cf25ee04fae7d5f27695b06b3a89b0fe596"
 dependencies = [
  "anyhow",
- "bellperson 0.13.0",
+ "bellperson",
  "bincode",
  "bitvec",
  "blake2b_simd",
  "blake2s_simd",
  "byte-slice-cast",
-<<<<<<< HEAD
-<<<<<<< HEAD
  "byteorder 1.4.3",
-=======
- "byteorder 1.4.2",
->>>>>>> 14d5e1d... feat: use get_unsealed_range_mapped api
-=======
- "byteorder 1.4.3",
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
  "fff",
  "fil_logger",
  "filecoin-hashers",
@@ -1057,61 +867,25 @@ dependencies = [
  "serde",
  "serde_json",
  "sha2 0.9.3",
-<<<<<<< HEAD
-<<<<<<< HEAD
  "storage-proofs-core",
  "storage-proofs-porep",
  "storage-proofs-post",
-=======
- "simplelog",
- "storage-proofs",
- "structopt",
- "tar",
-=======
- "sha2 0.9.2",
- "storage-proofs-core",
- "storage-proofs-porep",
- "storage-proofs-post",
->>>>>>> 90d1451... feat: use get_unsealed_range_mapped api
->>>>>>> 14d5e1d... feat: use get_unsealed_range_mapped api
-=======
- "storage-proofs-core",
- "storage-proofs-porep",
- "storage-proofs-post",
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
  "typenum",
 ]
 
 [[package]]
 name = "filecoin-proofs-api"
-<<<<<<< HEAD
-<<<<<<< HEAD
-version = "6.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a622e652d0e9d31cf9e64ec693497de794e1cb5a53b3ece2ea60880876a4635f"
-=======
-version = "6.0.0"
-source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=fix-ram-unseal#d75af5ca8f86f96f22893e20b7fd3f2f3c2853ff"
->>>>>>> 14d5e1d... feat: use get_unsealed_range_mapped api
-=======
 version = "6.1.0"
 source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=fix-ram-unseal#b4491abe39a7ac93213d139090e9d1ddbad2cb5b"
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
 dependencies = [
  "anyhow",
- "bellperson 0.13.0",
+ "bellperson",
  "bincode",
  "filecoin-hashers",
  "filecoin-proofs",
  "fr32",
  "serde",
-<<<<<<< HEAD
-<<<<<<< HEAD
  "storage-proofs-core",
-=======
-=======
- "storage-proofs-core",
->>>>>>> 14d5e1d... feat: use get_unsealed_range_mapped api
 ]
 
 [[package]]
@@ -1125,37 +899,6 @@ dependencies = [
 ]
 
 [[package]]
-<<<<<<< HEAD
-<<<<<<< HEAD
-name = "filetime"
-version = "0.2.14"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1d34cfa13a63ae058bfa601fe9e313bbdb3746427c1459185464ce0fcf62e1e8"
-dependencies = [
- "cfg-if 1.0.0",
- "libc",
- "redox_syscall 0.2.5",
- "winapi 0.3.9",
-]
-
-[[package]]
-name = "flate2"
-version = "1.0.20"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cd3aec53de10fe96d7d8c565eb17f2c687bb5518a2ec453b5b1252964526abe0"
-dependencies = [
- "cfg-if 1.0.0",
- "crc32fast",
- "libc",
- "miniz_oxide",
->>>>>>> 3a81d24... feat: re-factor unseal_range to use get_unsealed_range for performance
-]
-
-[[package]]
-=======
->>>>>>> 90d1451... feat: use get_unsealed_range_mapped api
-=======
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
 name = "flexi_logger"
 version = "0.14.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1170,32 +913,13 @@ dependencies = [
 
 [[package]]
 name = "fr32"
-<<<<<<< HEAD
-<<<<<<< HEAD
 version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "61435ec5a58135c51c94b7a6d62448392e9f77a3b9906b4f77c957a0286b6db0"
-=======
-version = "0.1.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=fix-ram-unseal#9ad002449a0e32a568f8c384ad1bfe76422a5e87"
->>>>>>> 14d5e1d... feat: use get_unsealed_range_mapped api
-=======
-version = "0.2.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=fix-ram-unseal#0f84d01aca0b0241e44afe9e4075dbb2f2fff44f"
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=fix-ram-unseal#395d3cf25ee04fae7d5f27695b06b3a89b0fe596"
 dependencies = [
  "anyhow",
- "bellperson 0.13.0",
+ "bellperson",
  "byte-slice-cast",
-<<<<<<< HEAD
-<<<<<<< HEAD
  "byteorder 1.4.3",
-=======
- "byteorder 1.4.2",
->>>>>>> 14d5e1d... feat: use get_unsealed_range_mapped api
-=======
- "byteorder 1.4.3",
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
  "fff",
  "thiserror",
 ]
@@ -1218,21 +942,9 @@ checksum = "a06f77d526c1a601b7c4cdd98f54b5eaabffc14d5f2f0296febdc7f357c6d3ba"
 
 [[package]]
 name = "futures"
-<<<<<<< HEAD
-<<<<<<< HEAD
 version = "0.1.31"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3a471a38ef8ed83cd6e40aa59c1ffe17db6855c18e3604d9c4ed8c08ebc28678"
-=======
-version = "0.1.30"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4c7e4c2612746b0df8fed4ce0c69156021b704c9aefa360311c04e6e9e002eed"
->>>>>>> 14d5e1d... feat: use get_unsealed_range_mapped api
-=======
-version = "0.1.31"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3a471a38ef8ed83cd6e40aa59c1ffe17db6855c18e3604d9c4ed8c08ebc28678"
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
 
 [[package]]
 name = "generic-array"
@@ -1335,54 +1047,6 @@ dependencies = [
 ]
 
 [[package]]
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-name = "http"
-version = "0.2.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7245cd7449cc792608c3c8a9eaf69bd4eabbabf802713748fd739c98b82f0747"
-dependencies = [
- "bytes 1.0.1",
- "fnv",
- "itoa",
-]
-
-[[package]]
-name = "http-body"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "13d5ff830006f7646652e057693569bfe0d51760c0085a071769d142a205111b"
-dependencies = [
- "bytes 0.5.6",
- "http",
-]
-
-[[package]]
-name = "httparse"
-version = "1.3.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "615caabe2c3160b313d52ccc905335f4ed5f10881dd63dc5699d47e90be85691"
-
-[[package]]
-name = "httpdate"
-version = "0.3.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "494b4d60369511e7dea41cf646832512a94e542f68bb9c49e54518e0f468eb47"
-
-[[package]]
-name = "humansize"
-version = "1.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b6cab2627acfc432780848602f3f558f7e9dd427352224b0d9324025796d2a5e"
-
-[[package]]
-=======
->>>>>>> 90d1451... feat: use get_unsealed_range_mapped api
->>>>>>> 14d5e1d... feat: use get_unsealed_range_mapped api
-=======
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
 name = "hwloc"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1396,51 +1060,12 @@ dependencies = [
 ]
 
 [[package]]
-<<<<<<< HEAD
-<<<<<<< HEAD
-name = "itertools"
-version = "0.8.2"
-=======
-<<<<<<< HEAD
-name = "hyper"
-version = "0.13.10"
->>>>>>> 14d5e1d... feat: use get_unsealed_range_mapped api
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f56a2d0bc861f9165be4eb3442afd3c236d8a98afd426f65d92324ae1091a484"
-dependencies = [
-<<<<<<< HEAD
- "either",
-=======
- "bytes 0.5.6",
- "futures-channel",
- "futures-core",
- "futures-util",
- "h2",
- "http",
- "http-body",
- "httparse",
- "httpdate",
- "itoa",
- "pin-project 1.0.5",
- "socket2",
- "tokio",
- "tower-service",
- "tracing",
- "want",
-=======
-=======
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
 name = "itertools"
 version = "0.8.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f56a2d0bc861f9165be4eb3442afd3c236d8a98afd426f65d92324ae1091a484"
 dependencies = [
  "either",
-<<<<<<< HEAD
->>>>>>> 90d1451... feat: use get_unsealed_range_mapped api
->>>>>>> 14d5e1d... feat: use get_unsealed_range_mapped api
-=======
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
 ]
 
 [[package]]
@@ -1453,34 +1078,10 @@ dependencies = [
 ]
 
 [[package]]
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-name = "idna"
-version = "0.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "de910d521f7cc3135c4de8db1cb910e0b5ed1dc6f57c381cd07e8e661ce10094"
-dependencies = [
- "matches",
- "unicode-bidi",
- "unicode-normalization",
-]
-=======
->>>>>>> 14d5e1d... feat: use get_unsealed_range_mapped api
-=======
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
 name = "itoa"
 version = "0.4.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dd25036021b0de88a0aff6b850051563c6516d0bf53f8638938edbb9de732736"
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 90d1451... feat: use get_unsealed_range_mapped api
->>>>>>> 14d5e1d... feat: use get_unsealed_range_mapped api
-=======
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
 
 [[package]]
 name = "kernel32-sys"
@@ -1513,27 +1114,9 @@ dependencies = [
 
 [[package]]
 name = "libc"
-<<<<<<< HEAD
-<<<<<<< HEAD
-version = "0.2.88"
+version = "0.2.89"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "03b07a082330a35e43f63177cc01689da34fbffa0105e1246cf0311472cac73a"
-=======
-<<<<<<< HEAD
-version = "0.2.86"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b7282d924be3275cec7f6756ff4121987bc6481325397dde6ba3e7802b1a8b1c"
-=======
-version = "0.2.83"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7eb0c4e9c72ee9d69b767adebc5f4788462a3b45624acd919475c92597bcaf4f"
->>>>>>> 90d1451... feat: use get_unsealed_range_mapped api
->>>>>>> 14d5e1d... feat: use get_unsealed_range_mapped api
-=======
-version = "0.2.88"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "03b07a082330a35e43f63177cc01689da34fbffa0105e1246cf0311472cac73a"
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
+checksum = "538c092e5586f4cdd7dd8078c4a79220e3e168880218124dcbce860f0ea938c6"
 
 [[package]]
 name = "log"
@@ -1629,7 +1212,7 @@ version = "2.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6981728ae8254e8417f6c2f84ac83acdc31a567c9dc1344e30e5bbe916024e15"
 dependencies = [
- "bellperson 0.13.0",
+ "bellperson",
  "blake2s_simd",
  "byteorder 1.4.3",
  "ff-cl-gen",
@@ -1638,6 +1221,17 @@ dependencies = [
  "itertools 0.8.2",
  "lazy_static",
  "log",
+ "neptune-triton",
+ "rust-gpu-tools 0.3.0",
+]
+
+[[package]]
+name = "neptune-triton"
+version = "2.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "16ef7eb7a6dc2b5186caea63098f6f47a26ac8814c292fa0a236cc53478ddbfa"
+dependencies = [
+ "cc",
 ]
 
 [[package]]
@@ -1781,15 +1375,6 @@ dependencies = [
 ]
 
 [[package]]
-<<<<<<< HEAD
-name = "once_cell"
-version = "1.7.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "af8b08b04175473088b46763e51ee54da5f9a164bc162f615b91bc179dbf15a3"
-
-[[package]]
-=======
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
 name = "opaque-debug"
 version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1827,113 +1412,6 @@ dependencies = [
 ]
 
 [[package]]
-<<<<<<< HEAD
-<<<<<<< HEAD
-name = "pest"
-version = "2.1.3"
-=======
-<<<<<<< HEAD
-name = "pbr"
-version = "1.0.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ff5751d87f7c00ae6403eb1fcbba229b9c76c9a30de8c1cf87182177b168cea2"
-dependencies = [
- "crossbeam-channel 0.5.0",
- "libc",
- "time",
- "winapi 0.3.9",
-]
-
-[[package]]
-name = "percent-encoding"
-version = "2.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d4fd5641d01c8f18a23da7b6fe29298ff4b55afcccdf78973b24cf3175fee32e"
-
-[[package]]
-name = "phase21"
-version = "0.11.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e2e4dd94fa82b154cb22a5d708d231592d1310da9402825d1e338aa5b6864d65"
-dependencies = [
- "bellperson",
- "blake2b_simd",
- "byteorder 1.4.2",
- "crossbeam 0.8.0",
- "fff",
- "groupy",
- "log",
- "num_cpus",
- "rand 0.7.3",
- "rand_chacha 0.2.2",
- "rayon",
-]
-
-[[package]]
-name = "pin-project"
-version = "0.4.27"
->>>>>>> 14d5e1d... feat: use get_unsealed_range_mapped api
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "10f4872ae94d7b90ae48754df22fd42ad52ce740b8f370b03da4835417403e53"
-dependencies = [
- "ucd-trie",
-]
-
-[[package]]
-<<<<<<< HEAD
-=======
-name = "pin-project"
-version = "1.0.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "96fa8ebb90271c4477f144354485b8068bd8f6b78b428b01ba892ca26caf0b63"
-dependencies = [
- "pin-project-internal 1.0.5",
-]
-
-[[package]]
-name = "pin-project-internal"
-version = "0.4.27"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "65ad2ae56b6abe3a1ee25f15ee605bacadb9a764edaba9c2bf4103800d4a1895"
-dependencies = [
- "proc-macro2 1.0.24",
- "quote 1.0.9",
- "syn 1.0.60",
-]
-
-[[package]]
-name = "pin-project-internal"
-version = "1.0.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "758669ae3558c6f74bd2a18b41f7ac0b5a195aea6639d6a9b5e5d1ad5ba24c0b"
-dependencies = [
- "proc-macro2 1.0.24",
- "quote 1.0.9",
- "syn 1.0.60",
-]
-
-[[package]]
-name = "pin-project-lite"
-version = "0.1.11"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c917123afa01924fc84bb20c4c03f004d9c38e5127e3c039bbf7f4b9c76a2f6b"
-
-[[package]]
-name = "pin-project-lite"
-version = "0.2.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "439697af366c49a6d0a010c56a0d97685bc140ce0d377b13a2ea2aa42d64a827"
-
-[[package]]
-name = "pin-utils"
-version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8b870d8c151b6f2fb93e84a13146138f05d02ed11c7e7c54f8826aaaf7c9f184"
-
-[[package]]
-=======
-=======
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
 name = "pest"
 version = "2.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1943,11 +1421,6 @@ dependencies = [
 ]
 
 [[package]]
-<<<<<<< HEAD
->>>>>>> 90d1451... feat: use get_unsealed_range_mapped api
->>>>>>> 14d5e1d... feat: use get_unsealed_range_mapped api
-=======
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
 name = "pkg-config"
 version = "0.3.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1984,39 +1457,6 @@ dependencies = [
 ]
 
 [[package]]
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-name = "proc-macro-error"
-version = "1.0.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "da25490ff9892aab3fcf7c36f08cfb902dd3e71ca0f9f9517bea02a73a5ce38c"
-dependencies = [
- "proc-macro-error-attr",
- "proc-macro2 1.0.24",
- "quote 1.0.9",
- "syn 1.0.60",
- "version_check",
-]
-
-[[package]]
-name = "proc-macro-error-attr"
-version = "1.0.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a1be40180e52ecc98ad80b184934baf3d0d29f979574e439af5a55274b35f869"
-dependencies = [
- "proc-macro2 1.0.24",
- "quote 1.0.9",
- "version_check",
-]
-
-[[package]]
-=======
->>>>>>> 90d1451... feat: use get_unsealed_range_mapped api
->>>>>>> 14d5e1d... feat: use get_unsealed_range_mapped api
-=======
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
 name = "proc-macro2"
 version = "0.4.30"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2298,6 +1738,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "rust-gpu-tools"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "39a221f75523a16675b1b3b78aa70cc361c4fffde33255a3d4414419a5f1347d"
+dependencies = [
+ "dirs",
+ "fil-ocl",
+ "lazy_static",
+ "log",
+ "sha2 0.8.2",
+ "thiserror",
+]
+
+[[package]]
 name = "rustc-demangle"
 version = "0.1.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2338,8 +1792,6 @@ checksum = "d29ab0c6d3fc0ee92fe66e2d99f700eab17a8d57d1c1d3b748380fb20baa78cd"
 
 [[package]]
 name = "semver"
-<<<<<<< HEAD
-<<<<<<< HEAD
 version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f301af10236f6df4160f7c3f04eec6dbc70ace82d23326abad5edee88801c6b6"
@@ -2357,33 +1809,6 @@ dependencies = [
 ]
 
 [[package]]
-=======
-version = "0.1.20"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d4f410fedcf71af0345d7607d246e7ad15faaadd49d240ee3b24e5dc21a820ac"
-
-[[package]]
-name = "semver"
-=======
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
-version = "0.11.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f301af10236f6df4160f7c3f04eec6dbc70ace82d23326abad5edee88801c6b6"
-dependencies = [
- "semver-parser",
-]
-
-[[package]]
-name = "semver-parser"
-version = "0.10.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "00b0bef5b7f9e0df16536d3961cfb6e84331c065b4066afb39768d0e319411f7"
-dependencies = [
- "pest",
-]
-
-[[package]]
->>>>>>> 14d5e1d... feat: use get_unsealed_range_mapped api
 name = "serde"
 version = "1.0.124"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2400,11 +1825,7 @@ checksum = "1800f7693e94e186f5e25a28291ae1570da908aff7d97a095dec1e56ff99069b"
 dependencies = [
  "proc-macro2 1.0.24",
  "quote 1.0.9",
-<<<<<<< HEAD
- "syn 1.0.63",
-=======
  "syn 1.0.64",
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
 ]
 
 [[package]]
@@ -2456,28 +1877,11 @@ dependencies = [
 
 [[package]]
 name = "sha2raw"
-<<<<<<< HEAD
-<<<<<<< HEAD
 version = "2.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1e9ae672be1f15d562d77c473a5767343a6f437ba502b8da517e1ac0b412b75e"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=fix-ram-unseal#395d3cf25ee04fae7d5f27695b06b3a89b0fe596"
 dependencies = [
  "block-buffer 0.9.0",
  "byteorder 1.4.3",
-=======
-version = "2.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=fix-ram-unseal#9ad002449a0e32a568f8c384ad1bfe76422a5e87"
-dependencies = [
- "block-buffer 0.9.0",
- "byteorder 1.4.2",
->>>>>>> 14d5e1d... feat: use get_unsealed_range_mapped api
-=======
-version = "2.1.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=fix-ram-unseal#0f84d01aca0b0241e44afe9e4075dbb2f2fff44f"
-dependencies = [
- "block-buffer 0.9.0",
- "byteorder 1.4.3",
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
  "cpuid-bool",
  "digest 0.9.0",
  "fake-simd",
@@ -2494,23 +1898,12 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
 name = "storage-proofs-core"
-<<<<<<< HEAD
-<<<<<<< HEAD
 version = "6.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "79672ae7e4f2259ff49622d7179942fc68648886509b7cb3301a9487cd7fcfc8"
-=======
-version = "6.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=fix-ram-unseal#9ad002449a0e32a568f8c384ad1bfe76422a5e87"
->>>>>>> 14d5e1d... feat: use get_unsealed_range_mapped api
-=======
-version = "6.1.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=fix-ram-unseal#0f84d01aca0b0241e44afe9e4075dbb2f2fff44f"
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=fix-ram-unseal#395d3cf25ee04fae7d5f27695b06b3a89b0fe596"
 dependencies = [
  "aes",
  "anyhow",
- "bellperson 0.13.0",
+ "bellperson",
  "blake2b_simd",
  "blake2s_simd",
  "block-modes",
@@ -2532,15 +1925,7 @@ dependencies = [
  "rand 0.7.3",
  "rand_chacha 0.2.2",
  "rayon",
-<<<<<<< HEAD
-<<<<<<< HEAD
  "semver",
-=======
- "semver 0.11.0",
->>>>>>> 14d5e1d... feat: use get_unsealed_range_mapped api
-=======
- "semver",
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
  "serde",
  "serde_json",
  "sha2 0.9.3",
@@ -2551,22 +1936,11 @@ dependencies = [
 
 [[package]]
 name = "storage-proofs-porep"
-<<<<<<< HEAD
-<<<<<<< HEAD
 version = "6.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "19254773f548abbf17924c558017864ae15741459a4b5819d88ac9db244f9349"
-=======
-version = "6.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=fix-ram-unseal#9ad002449a0e32a568f8c384ad1bfe76422a5e87"
->>>>>>> 14d5e1d... feat: use get_unsealed_range_mapped api
-=======
-version = "6.1.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=fix-ram-unseal#0f84d01aca0b0241e44afe9e4075dbb2f2fff44f"
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=fix-ram-unseal#395d3cf25ee04fae7d5f27695b06b3a89b0fe596"
 dependencies = [
  "anyhow",
- "bellperson 0.13.0",
+ "bellperson",
  "bincode",
  "byte-slice-cast",
  "byteorder 1.4.3",
@@ -2600,22 +1974,11 @@ dependencies = [
 
 [[package]]
 name = "storage-proofs-post"
-<<<<<<< HEAD
-<<<<<<< HEAD
 version = "6.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "deb7e3c02fe1b3867bfed65f651d5c5448b5d310d0f4aaf120b4d9adf26c42fa"
-=======
-version = "6.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=fix-ram-unseal#9ad002449a0e32a568f8c384ad1bfe76422a5e87"
->>>>>>> 14d5e1d... feat: use get_unsealed_range_mapped api
-=======
-version = "6.1.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=fix-ram-unseal#0f84d01aca0b0241e44afe9e4075dbb2f2fff44f"
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=fix-ram-unseal#395d3cf25ee04fae7d5f27695b06b3a89b0fe596"
 dependencies = [
  "anyhow",
- "bellperson 0.13.0",
+ "bellperson",
  "blake2b_simd",
  "blake2s_simd",
  "byteorder 1.4.3",
@@ -2643,39 +2006,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8ea5119cdb4c55b55d432abb513a0429384878c15dde60cc77b1c99de1a95a6a"
 
 [[package]]
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-name = "structopt"
-version = "0.3.21"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5277acd7ee46e63e5168a80734c9f6ee81b1367a7d8772a2d765df2a3705d28c"
-dependencies = [
- "clap",
- "lazy_static",
- "structopt-derive",
-]
-
-[[package]]
-name = "structopt-derive"
-version = "0.4.14"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5ba9cdfda491b814720b6b06e0cac513d922fc407582032e8706e9f137976f90"
-dependencies = [
- "heck",
- "proc-macro-error",
- "proc-macro2 1.0.24",
- "quote 1.0.9",
- "syn 1.0.60",
-]
-
-[[package]]
-=======
->>>>>>> 90d1451... feat: use get_unsealed_range_mapped api
->>>>>>> 14d5e1d... feat: use get_unsealed_range_mapped api
-=======
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
 name = "subtle"
 version = "2.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2694,15 +2024,9 @@ dependencies = [
 
 [[package]]
 name = "syn"
-<<<<<<< HEAD
-version = "1.0.63"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8fd9bc7ccc2688b3344c2f48b9b546648b25ce0b20fc717ee7fa7981a8ca9717"
-=======
 version = "1.0.64"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3fd9d1e9976102a03c542daa2eff1b43f9d72306342f3f8b3ed5fb8908195d6f"
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
 dependencies = [
  "proc-macro2 1.0.24",
  "quote 1.0.9",
@@ -2717,11 +2041,7 @@ checksum = "b834f2d66f734cb897113e34aaff2f1ab4719ca946f9a7358dba8f8064148701"
 dependencies = [
  "proc-macro2 1.0.24",
  "quote 1.0.9",
-<<<<<<< HEAD
- "syn 1.0.63",
-=======
  "syn 1.0.64",
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
  "unicode-xid 0.2.1",
 ]
 
@@ -2775,20 +2095,7 @@ checksum = "7765189610d8241a44529806d6fd1f2e0a08734313a35d5b3a556f92b381f3c0"
 dependencies = [
  "proc-macro2 1.0.24",
  "quote 1.0.9",
-<<<<<<< HEAD
- "syn 1.0.63",
-]
-
-[[package]]
-name = "thread_local"
-version = "1.1.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8018d24e04c95ac8790716a5987d0fec4f8b27249ffa0f7d33f1369bdfb88cbd"
-dependencies = [
- "once_cell",
-=======
  "syn 1.0.64",
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
 ]
 
 [[package]]
@@ -2811,72 +2118,6 @@ dependencies = [
 ]
 
 [[package]]
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-name = "tinyvec"
-version = "1.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "317cca572a0e89c3ce0ca1f1bdc9369547fe318a683418e42ac8f59d14701023"
-dependencies = [
- "tinyvec_macros",
-]
-
-[[package]]
-name = "tinyvec_macros"
-version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cda74da7e1a664f795bb1f8a87ec406fb89a02522cf6e50620d016add6dbbf5c"
-
-[[package]]
-name = "tokio"
-version = "0.2.25"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6703a273949a90131b290be1fe7b039d0fc884aa1935860dfcbe056f28cd8092"
-dependencies = [
- "bytes 0.5.6",
- "fnv",
- "futures-core",
- "iovec",
- "lazy_static",
- "memchr",
- "mio",
- "num_cpus",
- "pin-project-lite 0.1.11",
- "slab",
-]
-
-[[package]]
-name = "tokio-tls"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9a70f4fcd7b3b24fb194f837560168208f669ca8cb70d0c4b862944452396343"
-dependencies = [
- "native-tls",
- "tokio",
-]
-
-[[package]]
-name = "tokio-util"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "be8242891f2b6cbef26a2d7e8605133c2c554cd35b3e4948ea892d6d68436499"
-dependencies = [
- "bytes 0.5.6",
- "futures-core",
- "futures-sink",
- "log",
- "pin-project-lite 0.1.11",
- "tokio",
-]
-
-[[package]]
-=======
->>>>>>> 90d1451... feat: use get_unsealed_range_mapped api
->>>>>>> 14d5e1d... feat: use get_unsealed_range_mapped api
-=======
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
 name = "toml"
 version = "0.5.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2886,93 +2127,14 @@ dependencies = [
 ]
 
 [[package]]
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-name = "tower-service"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "360dfd1d6d30e05fda32ace2c8c70e9c0a9da713275777f5a4dbb8a1893930c6"
-
-[[package]]
-name = "tracing"
-version = "0.1.23"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f7d40a22fd029e33300d8d89a5cc8ffce18bb7c587662f54629e94c9de5487f3"
-dependencies = [
- "cfg-if 1.0.0",
- "log",
- "pin-project-lite 0.2.4",
- "tracing-core",
-]
-
-[[package]]
-name = "tracing-core"
-version = "0.1.17"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f50de3927f93d202783f4513cda820ab47ef17f624b03c096e86ef00c67e6b5f"
-dependencies = [
- "lazy_static",
-]
-
-[[package]]
-name = "tracing-futures"
-version = "0.2.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ab7bb6f14721aa00656086e9335d363c5c8747bae02ebe32ea2c7dece5689b4c"
-dependencies = [
- "pin-project 0.4.27",
- "tracing",
-]
-
-[[package]]
-name = "try-lock"
-version = "0.2.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "59547bce71d9c38b83d9c0e92b6066c4253371f15005def0c30d9657f50c7642"
-
-[[package]]
-=======
->>>>>>> 90d1451... feat: use get_unsealed_range_mapped api
->>>>>>> 14d5e1d... feat: use get_unsealed_range_mapped api
-name = "typenum"
-version = "1.12.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "373c8a200f9e67a0c95e62a4f52fbf80c23b4381c05a17845531982fa99e6b33"
-
-[[package]]
-<<<<<<< HEAD
-name = "ucd-trie"
-version = "0.1.3"
-=======
-<<<<<<< HEAD
-name = "unicase"
-version = "2.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "50f37be617794602aabbeee0be4f259dc1778fabe05e2d67ee8f79326d5cb4f6"
-dependencies = [
- "version_check",
-]
-
-[[package]]
-name = "unicode-bidi"
-version = "0.3.4"
-=======
 name = "typenum"
 version = "1.13.0"
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "879f6906492a7cd215bfa4cf595b600146ccfac0c79bcbd1f3000162af5e8b06"
 
 [[package]]
 name = "ucd-trie"
 version = "0.1.3"
-<<<<<<< HEAD
->>>>>>> 90d1451... feat: use get_unsealed_range_mapped api
->>>>>>> 14d5e1d... feat: use get_unsealed_range_mapped api
-=======
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "56dee185309b50d1f11bfedef0fe6d036842e3fb77413abef29f8f8d1c5d4c1c"
 
@@ -3002,9 +2164,9 @@ checksum = "f1bddf1187be692e79c5ffeab891132dfb0f236ed36a43c7ed39f1165ee20191"
 
 [[package]]
 name = "version_check"
-version = "0.9.2"
+version = "0.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b5a972e5669d67ba988ce3dc826706fb0a8b01471c088cb0b6110b805cc36aed"
+checksum = "5fecdca9a5291cc2b8dcf7dc02453fee791a280f3743cb0905f8822ae463b3fe"
 
 [[package]]
 name = "wasi"
@@ -3019,94 +2181,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fd6fbd9a79829dd1ad0cc20627bf1ed606756a7f77edff7b66b7064f9cb327c6"
 
 [[package]]
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-name = "wasm-bindgen"
-version = "0.2.70"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "55c0f7123de74f0dab9b7d00fd614e7b19349cd1e2f5252bbe9b1754b59433be"
-dependencies = [
- "cfg-if 1.0.0",
- "serde",
- "serde_json",
- "wasm-bindgen-macro",
-]
-
-[[package]]
-name = "wasm-bindgen-backend"
-version = "0.2.70"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7bc45447f0d4573f3d65720f636bbcc3dd6ce920ed704670118650bcd47764c7"
-dependencies = [
- "bumpalo",
- "lazy_static",
- "log",
- "proc-macro2 1.0.24",
- "quote 1.0.9",
- "syn 1.0.60",
- "wasm-bindgen-shared",
-]
-
-[[package]]
-name = "wasm-bindgen-futures"
-version = "0.4.20"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3de431a2910c86679c34283a33f66f4e4abd7e0aec27b6669060148872aadf94"
-dependencies = [
- "cfg-if 1.0.0",
- "js-sys",
- "wasm-bindgen",
- "web-sys",
-]
-
-[[package]]
-name = "wasm-bindgen-macro"
-version = "0.2.70"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3b8853882eef39593ad4174dd26fc9865a64e84026d223f63bb2c42affcbba2c"
-dependencies = [
- "quote 1.0.9",
- "wasm-bindgen-macro-support",
-]
-
-[[package]]
-name = "wasm-bindgen-macro-support"
-version = "0.2.70"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4133b5e7f2a531fa413b3a1695e925038a05a71cf67e87dafa295cb645a01385"
-dependencies = [
- "proc-macro2 1.0.24",
- "quote 1.0.9",
- "syn 1.0.60",
- "wasm-bindgen-backend",
- "wasm-bindgen-shared",
-]
-
-[[package]]
-name = "wasm-bindgen-shared"
-version = "0.2.70"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dd4945e4943ae02d15c13962b38a5b1e81eadd4b71214eee75af64a4d6a4fd64"
-
-[[package]]
-name = "web-sys"
-version = "0.3.47"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c40dc691fc48003eba817c38da7113c15698142da971298003cac3ef175680b3"
-dependencies = [
- "js-sys",
- "wasm-bindgen",
-]
-=======
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fd6fbd9a79829dd1ad0cc20627bf1ed606756a7f77edff7b66b7064f9cb327c6"
->>>>>>> 90d1451... feat: use get_unsealed_range_mapped api
-
-[[package]]
->>>>>>> 14d5e1d... feat: use get_unsealed_range_mapped api
-=======
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
 name = "winapi"
 version = "0.2.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3148,17 +2222,6 @@ checksum = "9fc79f4a1e39857fc00c3f662cbf2651c771f00e9c15fe2abc341806bd46bd71"
 
 [[package]]
 name = "zeroize"
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-version = "0.9.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "45af6a010d13e4cf5b54c94ba5a2b2eba5596b9e46bf5875612d332a1f2b3f86"
-=======
->>>>>>> 14d5e1d... feat: use get_unsealed_range_mapped api
-=======
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "81a974bcdd357f0dca4d41677db03436324d45a4c9ed2d0b873a5a360ce41c36"
@@ -3173,22 +2236,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c3f369ddb18862aba61aa49bf31e74d29f0f162dec753063200e1dc084345d16"
 dependencies = [
  "proc-macro2 1.0.24",
-<<<<<<< HEAD
-<<<<<<< HEAD
- "quote 1.0.9",
- "syn 1.0.63",
- "synstructure",
-]
-=======
- "quote 1.0.8",
- "syn 1.0.60",
- "synstructure",
-]
->>>>>>> 90d1451... feat: use get_unsealed_range_mapped api
->>>>>>> 14d5e1d... feat: use get_unsealed_range_mapped api
-=======
  "quote 1.0.9",
  "syn 1.0.64",
  "synstructure",
 ]
->>>>>>> 52a2a10... fix: point to testable branch (tests fail locally)
