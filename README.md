@@ -16,7 +16,13 @@ set `GITHUB_TOKEN` to personal access token.
 If no precompiled static library is available for your operating system, the
 build tooling will attempt to compile a static library from local Rust sources.
 
-### Forcing Local Build
+### Installation notes
+
+By default, building this will download a pre-built binary of the ffi.  The advantages for downloading it are faster build times, and not requiring a rust toolchain and build environment.
+
+The disadvantage to downloading the pre-built binary is that it will not be optimized for your specific hardware.  This means that if raw performance is of utmost importance to you, it's highly recommended that you build from source.
+
+### Building from Source
 
 To opt out of downloading precompiled assets, set `FFI_BUILD_FROM_SOURCE=1`:
 
@@ -32,6 +38,14 @@ To allow portable building of the `blst` dependency, set `FFI_USE_BLST_PORTABLE=
 rm .install-filcrypto \
     ; make clean \
     ; FFI_BUILD_FROM_SOURCE=1 FFI_USE_BLST_PORTABLE=1 make
+```
+
+By default, a 'gpu' option is used in the proofs library.  There is now an experimental 'gpu2' feature which has improved performance.  To allow building with the 'gpu2' dependency, set `FFI_USE_GPU2=1`:
+
+```shell
+rm .install-filcrypto \
+    ; make clean \
+    ; FFI_BUILD_FROM_SOURCE=1 FFI_USE_BLST=1 FFI_USE_GPU2=1 make
 ```
 
 ## Updating rust-fil-proofs (via rust-filecoin-proofs-api)

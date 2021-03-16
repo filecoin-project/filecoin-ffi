@@ -149,13 +149,21 @@ build_from_source() {
 
     cargo --version
 
+    # Add gpu flags if specified
+    gpu_flags=""
+    if [ "${FFI_USE_GPU}" == "1" ]; then
+        gpu_flags=",gpu"
+    elif [ "${FFI_USE_GPU2}" == "1" ]; then
+        gpu_flags=",gpu2"
+    fi
+
     # Add feature specific rust flags as needed here.
     if [ "${FFI_USE_BLST_PORTABLE}" == "1" ]; then
-        additional_flags="--no-default-features --features blst --features blst-portable"
+        additional_flags="--no-default-features --features blst --features blst-portable${gpu_flags}"
     elif [ "${FFI_USE_BLST}" == "1" ]; then
-        additional_flags="--no-default-features --features blst"
+        additional_flags="--no-default-features --features blst${gpu_flags}"
     else
-        additional_flags="--no-default-features --features pairing"
+        additional_flags="--no-default-features --features pairing${gpu_flags}"
     fi
 
     if [ -n "${__release_flags}" ]; then
