@@ -11,21 +11,9 @@ dependencies = [
 
 [[package]]
 name = "adler"
-<<<<<<< HEAD
-<<<<<<< HEAD
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f26201604c87b1e01bd3d98f8d5d9a8fcbb815e8cedb41ffccbeb4bf593a35fe"
-=======
-version = "1.0.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bedc89c5c7b5550ffb9372eb5c5ffc7f9f705cc3f4a128bd4669b9745f555093"
->>>>>>> 12ec8c1... fix: regenerate bindings and fix clippy warning
-=======
-version = "1.0.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f26201604c87b1e01bd3d98f8d5d9a8fcbb815e8cedb41ffccbeb4bf593a35fe"
->>>>>>> 42559ca... feat: proof aggregation call is stubbed in, but broken at the moment
 
 [[package]]
 name = "aes"
@@ -134,43 +122,23 @@ dependencies = [
 
 [[package]]
 name = "bellperson"
-<<<<<<< HEAD
-<<<<<<< HEAD
 version = "0.13.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "58dc83bfec3df87b46f14b01e0593a5144332ea4e712a68de2255694da755f87"
-=======
-version = "0.12.5"
-source = "git+https://github.com/cryptonemo/bellman?branch=feat-ipp2#116aadc036f2c6e3a47db270b2f82d73dd77de50"
->>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
-=======
-version = "0.13.0"
-<<<<<<< HEAD
-<<<<<<< HEAD
-source = "git+https://github.com/filecoin-project/bellman?branch=feat-ipp2#4e0bb6f17a0b6739be96fced83c4eddb9eb13a1d"
-<<<<<<< HEAD
->>>>>>> bf5f740... feat: re-factor aggregation API after initial feedback
-=======
-=======
 source = "git+https://github.com/filecoin-project/bellman?branch=feat-ipp2#7d2887da486ce6d1ae6495d2deafef2056de5127"
->>>>>>> 9bc7c8f... feat: update to the latest proofs aggregation API
->>>>>>> e762d29... feat: update to the latest proofs aggregation API
-=======
-source = "git+https://github.com/filecoin-project/bellman?branch=feat-ipp2#7d2887da486ce6d1ae6495d2deafef2056de5127"
->>>>>>> 10335c0... feat: additional re-factors of API (some unused, for consideration only)
 dependencies = [
  "bincode",
  "bit-vec",
  "blake2s_simd",
  "blstrs",
 <<<<<<< HEAD
+<<<<<<< HEAD
  "byteorder 1.4.3",
 <<<<<<< HEAD
  "crossbeam-channel 0.5.1",
 =======
 =======
+=======
+>>>>>>> cee544c... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
  "byteorder 1.3.4",
->>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
  "crossbeam-channel 0.5.0",
  "digest 0.9.0",
 >>>>>>> 90c0444... feat: update dependencies to use proof aggregation branches
@@ -187,7 +155,7 @@ dependencies = [
  "rand 0.7.3",
  "rand_core 0.5.1",
  "rayon",
- "rust-gpu-tools",
+ "rust-gpu-tools 0.2.2",
  "rustc-hash",
  "serde",
  "sha2 0.9.3",
@@ -206,12 +174,12 @@ version = "1.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d175dfa69e619905c4c3cdb7c3c203fa3bdd5d51184e3afdb2742c0280493772"
 dependencies = [
-<<<<<<< HEAD
- "byteorder 1.4.3",
-=======
  "byteorder 1.3.4",
+<<<<<<< HEAD
 >>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
 >>>>>>> 90c0444... feat: update dependencies to use proof aggregation branches
+=======
+>>>>>>> cee544c... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
  "serde",
 ]
 
@@ -273,17 +241,8 @@ checksum = "c0940dc441f31689269e10ac70eb1002a3a1d3ad1390e030043662eb7fe4688b"
 dependencies = [
  "block-padding 0.1.5",
  "byte-tools",
-<<<<<<< HEAD
- "byteorder 1.4.3",
- "generic-array 0.12.4",
-=======
  "byteorder 1.3.4",
-<<<<<<< HEAD
- "generic-array 0.12.3",
->>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
-=======
  "generic-array 0.12.4",
->>>>>>> c87f3a4... feat: regenerate bindings for the added api
 ]
 
 [[package]]
@@ -349,30 +308,8 @@ dependencies = [
 
 [[package]]
 name = "blstrs"
-<<<<<<< HEAD
-<<<<<<< HEAD
 version = "0.2.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ecf78c2e543a5fd41b41499fc242d603862b436dc2c167658e7f4870523781ac"
-=======
-version = "0.1.3"
-source = "git+https://github.com/cryptonemo/blstrs?branch=ser-de-0-1#30ac8ac79096560b5c1f41e97a43d3546d5643b6"
->>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
-=======
-version = "0.2.2"
-<<<<<<< HEAD
-<<<<<<< HEAD
-source = "git+https://github.com/filecoin-project/blstrs?branch=ser-de#361109745c7cf9671933bc0c7b3f283cd837bb5e"
-<<<<<<< HEAD
->>>>>>> bf5f740... feat: re-factor aggregation API after initial feedback
-=======
-=======
 source = "git+https://github.com/filecoin-project/blstrs?branch=feat-compression#6b7e732c18d92554e6aa1a7d57ce043056b991e1"
->>>>>>> 9bc7c8f... feat: update to the latest proofs aggregation API
->>>>>>> e762d29... feat: update to the latest proofs aggregation API
-=======
-source = "git+https://github.com/filecoin-project/blstrs?branch=feat-compression#6b7e732c18d92554e6aa1a7d57ce043056b991e1"
->>>>>>> 10335c0... feat: additional re-factors of API (some unused, for consideration only)
 dependencies = [
  "blst",
  "fff",
@@ -401,15 +338,9 @@ checksum = "0fc10e8cc6b2580fda3f36eb6dc5316657f812a3df879a44a66fc9f0fdbc4855"
 
 [[package]]
 name = "byteorder"
-<<<<<<< HEAD
-version = "1.4.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "14c189c53d098945499cdfa7ecc63567cf3886b3332b312a5b4585d8d3a6a610"
-=======
 version = "1.3.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "08c48aae112d48ed9f069b33538ea9e3e90aa263cfa3d1c24309612b1f7472de"
->>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
 
 [[package]]
 name = "cbindgen"
@@ -427,6 +358,7 @@ dependencies = [
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  "syn 1.0.72",
 =======
 =======
@@ -435,6 +367,8 @@ dependencies = [
 >>>>>>> 95ea821... feat: update to the latest proofs aggregation API
 =======
 >>>>>>> dc6d81e... feat: additional re-factors of API (some unused, for consideration only)
+=======
+>>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 <<<<<<< HEAD
  "syn 1.0.71",
 =======
@@ -480,7 +414,13 @@ dependencies = [
  "syn 1.0.64",
 >>>>>>> 10335c0... feat: additional re-factors of API (some unused, for consideration only)
 >>>>>>> 7af25dc... feat: additional re-factors of API (some unused, for consideration only)
+<<<<<<< HEAD
 >>>>>>> dc6d81e... feat: additional re-factors of API (some unused, for consideration only)
+=======
+=======
+ "syn 1.0.64",
+>>>>>>> cee544c... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
+>>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
  "tempfile",
  "toml",
 ]
@@ -604,6 +544,7 @@ dependencies = [
  "crossbeam-deque 0.8.0",
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  "crossbeam-epoch 0.9.4",
  "crossbeam-queue 0.3.1",
  "crossbeam-utils 0.8.4",
@@ -628,6 +569,11 @@ dependencies = [
  "crossbeam-utils 0.8.3",
 >>>>>>> 12ec8c1... fix: regenerate bindings and fix clippy warning
 >>>>>>> e1cf0ab... fix: regenerate bindings and fix clippy warning
+=======
+ "crossbeam-epoch 0.9.3",
+ "crossbeam-queue 0.3.1",
+ "crossbeam-utils 0.8.3",
+>>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 ]
 
 [[package]]
@@ -649,6 +595,7 @@ dependencies = [
  "cfg-if 1.0.0",
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  "crossbeam-utils 0.8.4",
 =======
 =======
@@ -665,6 +612,9 @@ dependencies = [
  "crossbeam-utils 0.8.3",
 >>>>>>> 12ec8c1... fix: regenerate bindings and fix clippy warning
 >>>>>>> e1cf0ab... fix: regenerate bindings and fix clippy warning
+=======
+ "crossbeam-utils 0.8.3",
+>>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 ]
 
 [[package]]
@@ -687,6 +637,7 @@ dependencies = [
  "cfg-if 1.0.0",
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  "crossbeam-epoch 0.9.4",
  "crossbeam-utils 0.8.4",
 =======
@@ -707,6 +658,10 @@ dependencies = [
  "crossbeam-utils 0.8.3",
 >>>>>>> 12ec8c1... fix: regenerate bindings and fix clippy warning
 >>>>>>> e1cf0ab... fix: regenerate bindings and fix clippy warning
+=======
+ "crossbeam-epoch 0.9.3",
+ "crossbeam-utils 0.8.3",
+>>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 ]
 
 [[package]]
@@ -728,6 +683,7 @@ dependencies = [
 name = "crossbeam-epoch"
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 version = "0.9.4"
 =======
 =======
@@ -746,12 +702,14 @@ dependencies = [
 =======
 version = "0.9.2"
 =======
+=======
+>>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 version = "0.9.3"
->>>>>>> 12ec8c1... fix: regenerate bindings and fix clippy warning
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2584f639eb95fea8c798496315b297cf81b9b58b6d30ab066a75455333cf4b12"
 dependencies = [
  "cfg-if 1.0.0",
+<<<<<<< HEAD
 <<<<<<< HEAD
  "crossbeam-utils 0.8.2",
 >>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
@@ -762,6 +720,9 @@ dependencies = [
  "crossbeam-utils 0.8.3",
 >>>>>>> 12ec8c1... fix: regenerate bindings and fix clippy warning
 >>>>>>> e1cf0ab... fix: regenerate bindings and fix clippy warning
+=======
+ "crossbeam-utils 0.8.3",
+>>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
  "lazy_static",
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -795,6 +756,7 @@ dependencies = [
  "cfg-if 1.0.0",
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  "crossbeam-utils 0.8.4",
 =======
 =======
@@ -811,6 +773,9 @@ dependencies = [
  "crossbeam-utils 0.8.3",
 >>>>>>> 12ec8c1... fix: regenerate bindings and fix clippy warning
 >>>>>>> e1cf0ab... fix: regenerate bindings and fix clippy warning
+=======
+ "crossbeam-utils 0.8.3",
+>>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 ]
 
 [[package]]
@@ -826,6 +791,7 @@ dependencies = [
 
 [[package]]
 name = "crossbeam-utils"
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 version = "0.8.4"
@@ -852,6 +818,11 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e7e9d99fa91428effe99c5c6d4634cdeba32b8cf784fc428a2a687f61a952c49"
 >>>>>>> 12ec8c1... fix: regenerate bindings and fix clippy warning
 >>>>>>> e1cf0ab... fix: regenerate bindings and fix clippy warning
+=======
+version = "0.8.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e7e9d99fa91428effe99c5c6d4634cdeba32b8cf784fc428a2a687f61a952c49"
+>>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 dependencies = [
  "autocfg",
  "cfg-if 1.0.0",
@@ -880,6 +851,7 @@ dependencies = [
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  "syn 1.0.72",
 =======
 =======
@@ -890,6 +862,8 @@ dependencies = [
 >>>>>>> 95ea821... feat: update to the latest proofs aggregation API
 =======
 >>>>>>> dc6d81e... feat: additional re-factors of API (some unused, for consideration only)
+=======
+>>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 <<<<<<< HEAD
  "syn 1.0.71",
 =======
@@ -946,7 +920,13 @@ dependencies = [
  "syn 1.0.64",
 >>>>>>> 10335c0... feat: additional re-factors of API (some unused, for consideration only)
 >>>>>>> 7af25dc... feat: additional re-factors of API (some unused, for consideration only)
+<<<<<<< HEAD
 >>>>>>> dc6d81e... feat: additional re-factors of API (some unused, for consideration only)
+=======
+=======
+ "syn 1.0.64",
+>>>>>>> cee544c... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
+>>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 ]
 
 [[package]]
@@ -1063,6 +1043,7 @@ dependencies = [
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  "syn 1.0.72",
 =======
 =======
@@ -1071,6 +1052,8 @@ dependencies = [
 >>>>>>> 95ea821... feat: update to the latest proofs aggregation API
 =======
 >>>>>>> dc6d81e... feat: additional re-factors of API (some unused, for consideration only)
+=======
+>>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 <<<<<<< HEAD
  "syn 1.0.71",
 =======
@@ -1116,7 +1099,13 @@ dependencies = [
  "syn 1.0.64",
 >>>>>>> 10335c0... feat: additional re-factors of API (some unused, for consideration only)
 >>>>>>> 7af25dc... feat: additional re-factors of API (some unused, for consideration only)
+<<<<<<< HEAD
 >>>>>>> dc6d81e... feat: additional re-factors of API (some unused, for consideration only)
+=======
+=======
+ "syn 1.0.64",
+>>>>>>> cee544c... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
+>>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
  "synstructure",
 ]
 
@@ -1151,11 +1140,7 @@ name = "fff"
 version = "0.2.3"
 source = "git+https://github.com/filecoin-project/ff?branch=ser-de#231b29f9df9b13f510566e1d4b69e6b0e1bfc34e"
 dependencies = [
-<<<<<<< HEAD
- "byteorder 1.4.3",
-=======
  "byteorder 1.3.4",
->>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
  "cc",
  "fff_derive",
  "lazy_static",
@@ -1177,6 +1162,7 @@ dependencies = [
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  "syn 1.0.72",
 =======
 =======
@@ -1185,6 +1171,8 @@ dependencies = [
 >>>>>>> 95ea821... feat: update to the latest proofs aggregation API
 =======
 >>>>>>> dc6d81e... feat: additional re-factors of API (some unused, for consideration only)
+=======
+>>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 <<<<<<< HEAD
  "syn 1.0.71",
 =======
@@ -1230,7 +1218,13 @@ dependencies = [
  "syn 1.0.64",
 >>>>>>> 10335c0... feat: additional re-factors of API (some unused, for consideration only)
 >>>>>>> 7af25dc... feat: additional re-factors of API (some unused, for consideration only)
+<<<<<<< HEAD
 >>>>>>> dc6d81e... feat: additional re-factors of API (some unused, for consideration only)
+=======
+=======
+ "syn 1.0.64",
+>>>>>>> cee544c... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
+>>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 ]
 
 [[package]]
@@ -1291,11 +1285,7 @@ dependencies = [
  "bellperson",
  "bls-signatures",
  "blstrs",
-<<<<<<< HEAD
- "byteorder 1.4.3",
-=======
  "byteorder 1.3.4",
->>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
  "cbindgen",
  "drop_struct_macro_derive 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "fff",
@@ -1309,7 +1299,7 @@ dependencies = [
  "rand 0.7.3",
  "rand_chacha 0.2.2",
  "rayon",
- "rust-gpu-tools",
+ "rust-gpu-tools 0.2.2",
  "serde_json",
  "tempfile",
 ]
@@ -1318,12 +1308,15 @@ dependencies = [
 name = "filecoin-hashers"
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 version = "2.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cf97f8325dd8aa6ab1e791c47f937ff942b59b5df0d80ebfede20645c67ca920"
 =======
 =======
 >>>>>>> 4f86b57... feat: re-factor aggregation API after initial feedback
+=======
+>>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 <<<<<<< HEAD
 version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1393,7 +1386,14 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-ag
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#4596099cc5f51f88c505ead222befede1cb9e11d"
 >>>>>>> 10335c0... feat: additional re-factors of API (some unused, for consideration only)
 >>>>>>> 7af25dc... feat: additional re-factors of API (some unused, for consideration only)
+<<<<<<< HEAD
 >>>>>>> dc6d81e... feat: additional re-factors of API (some unused, for consideration only)
+=======
+=======
+version = "1.1.0"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#4596099cc5f51f88c505ead222befede1cb9e11d"
+>>>>>>> cee544c... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
+>>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1412,12 +1412,15 @@ dependencies = [
 name = "filecoin-proofs"
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 version = "7.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d853051a7873b22f159ca6808b5ea257de7868e27d7dc15a05354baca1d69d9c"
 =======
 =======
 >>>>>>> 4f86b57... feat: re-factor aggregation API after initial feedback
+=======
+>>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 <<<<<<< HEAD
 version = "7.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1487,7 +1490,14 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-ag
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#4596099cc5f51f88c505ead222befede1cb9e11d"
 >>>>>>> 10335c0... feat: additional re-factors of API (some unused, for consideration only)
 >>>>>>> 7af25dc... feat: additional re-factors of API (some unused, for consideration only)
+<<<<<<< HEAD
 >>>>>>> dc6d81e... feat: additional re-factors of API (some unused, for consideration only)
+=======
+=======
+version = "6.1.0"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#4596099cc5f51f88c505ead222befede1cb9e11d"
+>>>>>>> cee544c... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
+>>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1496,11 +1506,7 @@ dependencies = [
  "blake2b_simd",
  "blake2s_simd",
  "byte-slice-cast",
-<<<<<<< HEAD
- "byteorder 1.4.3",
-=======
  "byteorder 1.3.4",
->>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
  "fff",
  "fil_logger",
  "filecoin-hashers",
@@ -1527,6 +1533,7 @@ dependencies = [
 
 [[package]]
 name = "filecoin-proofs-api"
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1587,6 +1594,10 @@ version = "6.1.0"
 source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=feat-aggregation#a547522401e247ca86196daa12251231f3d79e63"
 >>>>>>> 10335c0... feat: additional re-factors of API (some unused, for consideration only)
 >>>>>>> 7af25dc... feat: additional re-factors of API (some unused, for consideration only)
+=======
+version = "6.1.0"
+source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=feat-aggregation#a547522401e247ca86196daa12251231f3d79e63"
+>>>>>>> cee544c... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1623,6 +1634,7 @@ dependencies = [
 
 [[package]]
 name = "fr32"
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 version = "0.2.1"
@@ -1678,15 +1690,15 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-ag
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#4596099cc5f51f88c505ead222befede1cb9e11d"
 >>>>>>> 10335c0... feat: additional re-factors of API (some unused, for consideration only)
 >>>>>>> dc6d81e... feat: additional re-factors of API (some unused, for consideration only)
+=======
+version = "0.2.0"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#4596099cc5f51f88c505ead222befede1cb9e11d"
+>>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 dependencies = [
  "anyhow",
  "bellperson",
  "byte-slice-cast",
-<<<<<<< HEAD
- "byteorder 1.4.3",
-=======
  "byteorder 1.3.4",
->>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
  "fff",
  "thiserror",
 ]
@@ -1712,27 +1724,8 @@ name = "futures"
 version = "0.1.31"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3a471a38ef8ed83cd6e40aa59c1ffe17db6855c18e3604d9c4ed8c08ebc28678"
-<<<<<<< HEAD
-=======
 
 [[package]]
-<<<<<<< HEAD
-name = "generator"
-version = "0.6.24"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a9fed24fd1e18827652b4d55652899a1e9da8e54d91624dc3437a5bc3a9f9a9c"
-dependencies = [
- "cc",
- "libc",
- "log",
- "rustversion",
- "winapi 0.3.9",
-]
->>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
-
-[[package]]
-=======
->>>>>>> 12ec8c1... fix: regenerate bindings and fix clippy warning
 name = "generic-array"
 version = "0.12.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1903,6 +1896,7 @@ name = "libc"
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 version = "0.2.94"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "18794a8ad5b29321f790b55d93dfba91e125cb1a9edbd4f8e3150acc771c1a5e"
@@ -1937,6 +1931,11 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8916b1f6ca17130ec6568feccee27c156ad12037880833a3b842a823236502e7"
 >>>>>>> e762d29... feat: update to the latest proofs aggregation API
 >>>>>>> 49397a4... feat: update to the latest proofs aggregation API
+=======
+version = "0.2.91"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8916b1f6ca17130ec6568feccee27c156ad12037880833a3b842a823236502e7"
+>>>>>>> cee544c... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 
 [[package]]
 name = "log"
@@ -2034,11 +2033,7 @@ checksum = "6981728ae8254e8417f6c2f84ac83acdc31a567c9dc1344e30e5bbe916024e15"
 dependencies = [
  "bellperson",
  "blake2s_simd",
-<<<<<<< HEAD
- "byteorder 1.4.3",
-=======
  "byteorder 1.3.4",
->>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
  "ff-cl-gen",
  "fff",
  "generic-array 0.14.4",
@@ -2046,9 +2041,23 @@ dependencies = [
  "lazy_static",
  "log",
 <<<<<<< HEAD
+<<<<<<< HEAD
  "rust-gpu-tools 0.3.0",
 =======
 >>>>>>> 49397a4... feat: update to the latest proofs aggregation API
+=======
+ "neptune-triton",
+ "rust-gpu-tools 0.3.0",
+]
+
+[[package]]
+name = "neptune-triton"
+version = "2.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "16ef7eb7a6dc2b5186caea63098f6f47a26ac8814c292fa0a236cc53478ddbfa"
+dependencies = [
+ "cc",
+>>>>>>> cee544c... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 ]
 
 [[package]]
@@ -2194,6 +2203,7 @@ dependencies = [
 [[package]]
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> 49397a4... feat: update to the latest proofs aggregation API
@@ -2227,6 +2237,8 @@ checksum = "af8b08b04175473088b46763e51ee54da5f9a164bc162f615b91bc179dbf15a3"
 =======
 >>>>>>> e762d29... feat: update to the latest proofs aggregation API
 >>>>>>> 49397a4... feat: update to the latest proofs aggregation API
+=======
+>>>>>>> cee544c... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 name = "opaque-debug"
 version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2253,11 +2265,7 @@ version = "0.21.0"
 source = "git+https://github.com/filecoin-project/paired?branch=feat-compression#f2f02233988eb1d58cc5bb967041f76eb6acd671"
 dependencies = [
  "blake2b_simd",
-<<<<<<< HEAD
- "byteorder 1.4.3",
-=======
  "byteorder 1.3.4",
->>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
  "digest 0.9.0",
  "fff",
  "groupy",
@@ -2503,6 +2511,7 @@ dependencies = [
  "crossbeam-deque 0.8.0",
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  "crossbeam-utils 0.8.4",
 =======
 =======
@@ -2519,6 +2528,9 @@ dependencies = [
  "crossbeam-utils 0.8.3",
 >>>>>>> 12ec8c1... fix: regenerate bindings and fix clippy warning
 >>>>>>> e1cf0ab... fix: regenerate bindings and fix clippy warning
+=======
+ "crossbeam-utils 0.8.3",
+>>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
  "lazy_static",
  "num_cpus",
 ]
@@ -2600,15 +2612,7 @@ dependencies = [
  "base64",
  "blake2b_simd",
  "constant_time_eq",
-<<<<<<< HEAD
-<<<<<<< HEAD
  "crossbeam-utils 0.8.3",
-=======
- "crossbeam-utils 0.8.2",
->>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
-=======
- "crossbeam-utils 0.8.3",
->>>>>>> 12ec8c1... fix: regenerate bindings and fix clippy warning
 ]
 
 [[package]]
@@ -2621,6 +2625,20 @@ dependencies = [
  "dirs",
  "fil-ocl",
  "lazy_static",
+ "sha2 0.8.2",
+ "thiserror",
+]
+
+[[package]]
+name = "rust-gpu-tools"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "39a221f75523a16675b1b3b78aa70cc361c4fffde33255a3d4414419a5f1347d"
+dependencies = [
+ "dirs",
+ "fil-ocl",
+ "lazy_static",
+ "log",
  "sha2 0.8.2",
  "thiserror",
 ]
@@ -2659,18 +2677,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "71d301d4193d031abdd79ff7e3dd721168a9572ef3fe51a1517aba235bd8f86e"
 
 [[package]]
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-name = "scoped-tls"
-version = "1.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ea6a9290e3c9cf0f18145ef7ffa62d68ee0bf5fcd651017e586dc7fd5da448c2"
-
-[[package]]
->>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
-=======
->>>>>>> 12ec8c1... fix: regenerate bindings and fix clippy warning
 name = "scopeguard"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2715,6 +2721,7 @@ dependencies = [
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  "syn 1.0.72",
 =======
 =======
@@ -2723,6 +2730,8 @@ dependencies = [
 >>>>>>> 95ea821... feat: update to the latest proofs aggregation API
 =======
 >>>>>>> dc6d81e... feat: additional re-factors of API (some unused, for consideration only)
+=======
+>>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 <<<<<<< HEAD
  "syn 1.0.71",
 =======
@@ -2768,26 +2777,20 @@ dependencies = [
  "syn 1.0.64",
 >>>>>>> 10335c0... feat: additional re-factors of API (some unused, for consideration only)
 >>>>>>> 7af25dc... feat: additional re-factors of API (some unused, for consideration only)
+<<<<<<< HEAD
 >>>>>>> dc6d81e... feat: additional re-factors of API (some unused, for consideration only)
+=======
+=======
+ "syn 1.0.64",
+>>>>>>> cee544c... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
+>>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 ]
 
 [[package]]
 name = "serde_json"
-<<<<<<< HEAD
-<<<<<<< HEAD
 version = "1.0.64"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "799e97dc9fdae36a5c8b8f2cae9ce2ee9fdce2058c57a93e6099d919fd982f79"
-=======
-version = "1.0.63"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "43535db9747a4ba938c0ce0a98cc631a46ebf943c9e1d604e091df6007620bf6"
->>>>>>> 12ec8c1... fix: regenerate bindings and fix clippy warning
-=======
-version = "1.0.64"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "799e97dc9fdae36a5c8b8f2cae9ce2ee9fdce2058c57a93e6099d919fd982f79"
->>>>>>> 95d89f3... feat: get end to end testing working
 dependencies = [
  "itoa",
  "ryu",
@@ -2834,6 +2837,7 @@ dependencies = [
 name = "sha2raw"
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 version = "2.1.1"
 =======
 =======
@@ -2862,12 +2866,13 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-ag
 >>>>>>> 9bc7c8f... feat: update to the latest proofs aggregation API
 >>>>>>> e762d29... feat: update to the latest proofs aggregation API
 =======
+=======
+version = "2.1.0"
+>>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#4596099cc5f51f88c505ead222befede1cb9e11d"
->>>>>>> 10335c0... feat: additional re-factors of API (some unused, for consideration only)
 dependencies = [
  "block-buffer 0.9.0",
  "byteorder 1.3.4",
->>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
  "cpuid-bool",
  "digest 0.9.0",
  "fake-simd",
@@ -2886,12 +2891,15 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 name = "storage-proofs-core"
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 version = "7.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0ed03d8eff05c8f55c9b77ef88557dda0880b1e2813727676c87c50a664c65c1"
 =======
 =======
 >>>>>>> 4f86b57... feat: re-factor aggregation API after initial feedback
+=======
+>>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 <<<<<<< HEAD
 version = "7.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2961,7 +2969,14 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-ag
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#4596099cc5f51f88c505ead222befede1cb9e11d"
 >>>>>>> 10335c0... feat: additional re-factors of API (some unused, for consideration only)
 >>>>>>> 7af25dc... feat: additional re-factors of API (some unused, for consideration only)
+<<<<<<< HEAD
 >>>>>>> dc6d81e... feat: additional re-factors of API (some unused, for consideration only)
+=======
+=======
+version = "6.1.0"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#4596099cc5f51f88c505ead222befede1cb9e11d"
+>>>>>>> cee544c... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
+>>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 dependencies = [
  "aes",
  "anyhow",
@@ -2969,11 +2984,7 @@ dependencies = [
  "blake2b_simd",
  "blake2s_simd",
  "block-modes",
-<<<<<<< HEAD
- "byteorder 1.4.3",
-=======
  "byteorder 1.3.4",
->>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
  "config",
  "fff",
  "filecoin-hashers",
@@ -3004,12 +3015,15 @@ dependencies = [
 name = "storage-proofs-porep"
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 version = "7.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cec29ccd370645d253a5d3d1ff4a15abf8bea2fd75e94fbc5833d647c9d8e70a"
 =======
 =======
 >>>>>>> 4f86b57... feat: re-factor aggregation API after initial feedback
+=======
+>>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 <<<<<<< HEAD
 version = "7.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3079,17 +3093,20 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-ag
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#4596099cc5f51f88c505ead222befede1cb9e11d"
 >>>>>>> 10335c0... feat: additional re-factors of API (some unused, for consideration only)
 >>>>>>> 7af25dc... feat: additional re-factors of API (some unused, for consideration only)
+<<<<<<< HEAD
 >>>>>>> dc6d81e... feat: additional re-factors of API (some unused, for consideration only)
+=======
+=======
+version = "6.1.0"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#4596099cc5f51f88c505ead222befede1cb9e11d"
+>>>>>>> cee544c... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
+>>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 dependencies = [
  "anyhow",
  "bellperson",
  "bincode",
  "byte-slice-cast",
-<<<<<<< HEAD
- "byteorder 1.4.3",
-=======
  "byteorder 1.3.4",
->>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
  "crossbeam 0.8.0",
  "digest 0.9.0",
  "fdlimit",
@@ -3122,12 +3139,15 @@ dependencies = [
 name = "storage-proofs-post"
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 version = "7.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "49761699df4532827cdaf44891de2e6f7d591559ab51c2774979791e1d3416e5"
 =======
 =======
 >>>>>>> 4f86b57... feat: re-factor aggregation API after initial feedback
+=======
+>>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 <<<<<<< HEAD
 version = "7.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3197,17 +3217,20 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-ag
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#4596099cc5f51f88c505ead222befede1cb9e11d"
 >>>>>>> 10335c0... feat: additional re-factors of API (some unused, for consideration only)
 >>>>>>> 7af25dc... feat: additional re-factors of API (some unused, for consideration only)
+<<<<<<< HEAD
 >>>>>>> dc6d81e... feat: additional re-factors of API (some unused, for consideration only)
+=======
+=======
+version = "6.1.0"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#4596099cc5f51f88c505ead222befede1cb9e11d"
+>>>>>>> cee544c... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
+>>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 dependencies = [
  "anyhow",
  "bellperson",
  "blake2b_simd",
  "blake2s_simd",
-<<<<<<< HEAD
- "byteorder 1.4.3",
-=======
  "byteorder 1.3.4",
->>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
  "crossbeam 0.8.0",
  "fff",
  "filecoin-hashers",
@@ -3254,6 +3277,7 @@ name = "syn"
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 version = "1.0.72"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a1e8cdbefb79a9a5a65e0db8b47b723ee907b7c7f8496c76a1770b5c310bab82"
@@ -3264,6 +3288,8 @@ checksum = "a1e8cdbefb79a9a5a65e0db8b47b723ee907b7c7f8496c76a1770b5c310bab82"
 >>>>>>> 95ea821... feat: update to the latest proofs aggregation API
 =======
 >>>>>>> dc6d81e... feat: additional re-factors of API (some unused, for consideration only)
+=======
+>>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 <<<<<<< HEAD
 version = "1.0.71"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3323,7 +3349,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3fd9d1e9976102a03c542daa2eff1b43f9d72306342f3f8b3ed5fb8908195d6f"
 >>>>>>> 10335c0... feat: additional re-factors of API (some unused, for consideration only)
 >>>>>>> 7af25dc... feat: additional re-factors of API (some unused, for consideration only)
+<<<<<<< HEAD
 >>>>>>> dc6d81e... feat: additional re-factors of API (some unused, for consideration only)
+=======
+=======
+version = "1.0.64"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3fd9d1e9976102a03c542daa2eff1b43f9d72306342f3f8b3ed5fb8908195d6f"
+>>>>>>> cee544c... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
+>>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 dependencies = [
  "proc-macro2 1.0.26",
  "quote 1.0.9",
@@ -3342,6 +3376,7 @@ dependencies = [
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  "syn 1.0.72",
  "unicode-xid 0.2.2",
 =======
@@ -3351,6 +3386,8 @@ dependencies = [
 >>>>>>> 95ea821... feat: update to the latest proofs aggregation API
 =======
 >>>>>>> dc6d81e... feat: additional re-factors of API (some unused, for consideration only)
+=======
+>>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 <<<<<<< HEAD
  "syn 1.0.71",
 =======
@@ -3387,6 +3424,9 @@ dependencies = [
  "syn 1.0.64",
 >>>>>>> 10335c0... feat: additional re-factors of API (some unused, for consideration only)
 >>>>>>> 7af25dc... feat: additional re-factors of API (some unused, for consideration only)
+=======
+ "syn 1.0.64",
+>>>>>>> cee544c... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
  "unicode-xid 0.2.1",
 >>>>>>> 648c822... style: deps update
 ]
@@ -3445,6 +3485,7 @@ dependencies = [
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  "syn 1.0.72",
 =======
 =======
@@ -3453,6 +3494,8 @@ dependencies = [
 >>>>>>> 95ea821... feat: update to the latest proofs aggregation API
 =======
 >>>>>>> dc6d81e... feat: additional re-factors of API (some unused, for consideration only)
+=======
+>>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 <<<<<<< HEAD
  "syn 1.0.71",
 =======
@@ -3490,6 +3533,8 @@ dependencies = [
 =======
 =======
 >>>>>>> 10335c0... feat: additional re-factors of API (some unused, for consideration only)
+=======
+>>>>>>> cee544c... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
  "syn 1.0.64",
 <<<<<<< HEAD
 >>>>>>> 9bc7c8f... feat: update to the latest proofs aggregation API
@@ -3623,10 +3668,6 @@ name = "yansi"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9fc79f4a1e39857fc00c3f662cbf2651c771f00e9c15fe2abc341806bd46bd71"
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> bf5f740... feat: re-factor aggregation API after initial feedback
 
 [[package]]
 name = "zeroize"
@@ -3669,8 +3710,3 @@ dependencies = [
 >>>>>>> dc6d81e... feat: additional re-factors of API (some unused, for consideration only)
  "synstructure",
 ]
-<<<<<<< HEAD
-=======
->>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
-=======
->>>>>>> bf5f740... feat: re-factor aggregation API after initial feedback
