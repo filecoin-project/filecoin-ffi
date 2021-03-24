@@ -57,9 +57,9 @@ blst-portable = ["bls-signatures/blst-portable", "blstrs/portable"]
 gpu = ["filecoin-proofs-api/gpu", "bellperson/gpu"]
 
 [patch.crates-io]
-paired = { git = "https://github.com/filecoin-project/paired", branch = "ser-de" }
+paired = { git = "https://github.com/filecoin-project/paired", branch = "feat-compression" }
 fff = { git = "https://github.com/filecoin-project/ff", branch = "ser-de" }
 groupy = { git = "https://github.com/filecoin-project/group", branch = "ser-de" }
+blstrs = { git = "https://github.com/filecoin-project/blstrs", branch = "feat-compression" }
 bellperson = { git = "https://github.com/filecoin-project/bellman", branch = "feat-ipp2" }
-blstrs = { git = "https://github.com/filecoin-project/blstrs", branch = "ser-de" }
 ffi-toolkit = { git = "https://github.com/cryptonemo/rust-fil-ffi-toolkit", branch = "enum-copy-clone" }

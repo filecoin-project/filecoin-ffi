@@ -7,8 +7,7 @@ use bellperson::bls::Fr;
 use drop_struct_macro_derive::DropStructMacro;
 use ffi_toolkit::{code_and_message_impl, free_c_str, CodeAndMessage, FCPResponseStatus};
 use filecoin_proofs_api::{
-    seal::SealCommitPhase2Output, PieceInfo, RegisteredPoStProof, RegisteredSealProof,
-    UnpaddedBytesAmount,
+    fr32, PieceInfo, RegisteredPoStProof, RegisteredSealProof, UnpaddedBytesAmount, NODE_SIZE,
 };
 
 #[repr(C)]
@@ -606,30 +605,112 @@ impl Clone for fil_SealCommitPhase2Response {
 code_and_message_impl!(fil_SealCommitPhase2Response);
 
 #[repr(C)]
-#[derive(Clone, DropStructMacro)]
+pub struct fil_AggregationInputsResponse {
+    pub status_code: FCPResponseStatus,
+    pub error_msg: *const libc::c_char,
+    pub inputs: fil_AggregationInputs,
+}
+
+impl Default for fil_AggregationInputsResponse {
+    fn default() -> fil_AggregationInputsResponse {
+        fil_AggregationInputsResponse {
+            status_code: FCPResponseStatus::FCPNoError,
+            error_msg: ptr::null(),
+            inputs: fil_AggregationInputs::default(),
+        }
+    }
+}
+
+code_and_message_impl!(fil_AggregationInputsResponse);
+
+#[repr(C)]
 pub struct fil_AggregationInputs {
-    pub comm_r: fil_32ByteArray,
-    pub comm_d: fil_32ByteArray,
-    pub sector_id: u64,
-    pub ticket: fil_32ByteArray,
-    pub seed: fil_32ByteArray,
+    // Inputs required for aggregation
+    pub num_inputs: libc::size_t,
+    pub input_ptr: *const u8,
+    pub input_lens_ptr: *const libc::size_t,
+}
+
+impl Clone for fil_AggregationInputs {
+    fn clone(&self) -> Self {
+        let slice: &[libc::size_t] =
+            unsafe { std::slice::from_raw_parts(self.input_lens_ptr, self.num_inputs) };
+        let input_lens: Vec<usize> = slice.to_vec();
+
+        debug_assert_eq!(self.num_inputs, input_lens.len());
+        let total_len = input_lens.iter().sum();
+
+        let slice: &[u8] = unsafe { std::slice::from_raw_parts(self.input_ptr, total_len) };
+        let input = slice.to_vec();
+
+        let input_ptr = input.as_ptr();
+        let input_lens_ptr = input_lens.as_ptr();
+
+        std::mem::forget(input);
+        std::mem::forget(input_lens);
+
+        fil_AggregationInputs {
+            num_inputs: self.num_inputs,
+            input_ptr,
+            input_lens_ptr,
+        }
+    }
 }
 
 impl Default for fil_AggregationInputs {
     fn default() -> fil_AggregationInputs {
         fil_AggregationInputs {
-            comm_r: fil_32ByteArray::default(),
-            comm_d: fil_32ByteArray::default(),
-            sector_id: 0,
-            ticket: fil_32ByteArray::default(),
-            seed: fil_32ByteArray::default(),
+            num_inputs: 0,
+            input_ptr: ptr::null(),
+            input_lens_ptr: ptr::null(),
         }
     }
 }
 
-pub struct SealAggregationCommitPhase2Response {
-    pub commit_output: SealCommitPhase2Output,
-    pub inputs: Vec<Vec<Fr>>,
+impl Drop for fil_AggregationInputs {
+    fn drop(&mut self) {
+        // Note that this operation also does the equivalent of
+        // libc::free(self.proof_ptr as *mut libc::c_void);
+        let input_lens = unsafe {
+            Vec::from_raw_parts(
+                self.input_lens_ptr as *mut libc::size_t,
+                self.num_inputs,
+                self.num_inputs,
+            )
+        };
+
+        let total_len = input_lens.iter().sum();
+
+        // Note that this operation also does the equivalent of
+        // libc::free(self.proof_ptr as *mut libc::c_void);
+        let _ = unsafe { Vec::from_raw_parts(self.input_ptr as *mut u8, total_len, total_len) };
+    }
+}
+
+// A utility converter for fil_AggregationInputs struct to Vec<Vec<Fr>>
+pub fn convert_aggregation_inputs(input: &fil_AggregationInputs) -> Vec<Vec<Fr>> {
+    let slice: &[libc::size_t] =
+        unsafe { std::slice::from_raw_parts(input.input_lens_ptr, input.num_inputs) };
+    let input_lens: Vec<usize> = slice.to_vec();
+
+    debug_assert_eq!(input.num_inputs, input_lens.len());
+    let total_len = input_lens.iter().sum();
+
+    let slice: &[u8] = unsafe { std::slice::from_raw_parts(input.input_ptr, total_len) };
+    let flat_input_data: Vec<u8> = slice.to_vec();
+
+    let mut start = 0;
+    let mut inputs = Vec::new();
+    for len in &input_lens {
+        assert_eq!(len % NODE_SIZE, 0);
+        let elements: Vec<Fr> = flat_input_data[start..start + len]
+            .to_vec()
+            .chunks(NODE_SIZE)
+            .map(|x| fr32::bytes_into_fr(x).unwrap())
+            .collect();
+        inputs.push(elements);
+        start += len;
+    }
 }
 
 #[repr(C)]

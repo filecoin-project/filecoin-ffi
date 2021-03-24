@@ -404,9 +404,6 @@ pub unsafe extern "C" fn fil_seal_commit_phase2(
     })
 }
 
-/// Aggregates some number of seal proofs.
-///
-#[no_mangle]
 pub unsafe extern "C" fn fil_aggregate_seal_proofs(
     registered_proof: fil_RegisteredSealProof,
     seal_commit_responses_ptr: *const fil_SealCommitPhase2Response,
@@ -419,15 +416,15 @@ pub unsafe extern "C" fn fil_aggregate_seal_proofs(
             .iter()
             .map(|x| {
                 let slice: &[u8] = std::slice::from_raw_parts(x.proof_ptr, x.proof_len);
+                let proof: Vec<u8> = slice.to_vec();
 
-                SealCommitPhase2Output {
-                    proof: slice.to_vec(),
-                }
+                SealCommitPhase2Output { proof }
             })
             .collect();
 
-    let mut response = fil_AggregateProof::default();
     let result = aggregate_seal_commit_proofs(registered_proof.into(), &outputs);
+
+    let mut response = fil_AggregateProof::default();
 
     match result {
         Ok(output) => {
@@ -448,29 +445,69 @@ pub unsafe extern "C" fn fil_aggregate_seal_proofs(
     raw_ptr(response)
 }
 
-/// Retrieves the seal inputs based on the provided input, used for aggregation verification.
+/// Retrieves the inputs used for a seal proof, useful for aggregate
+/// proof verification.
 ///
 #[no_mangle]
-pub fn convert_aggregation_inputs(
+pub unsafe extern "C" fn fil_get_seal_inputs(
     registered_proof: fil_RegisteredSealProof,
+    comm_r: fil_32ByteArray,
+    comm_d: fil_32ByteArray,
     prover_id: fil_32ByteArray,
-    input: &fil_AggregationInputs,
-) -> Vec<Vec<Fr>> {
-    get_seal_inputs(
+    sector_id: u64,
+    ticket: fil_32ByteArray,
+    seed: fil_32ByteArray,
+) -> *mut fil_AggregationInputsResponse {
+    init_log();
+
+    info!("get_seal_inputs: start");
+
+    let result = get_seal_inputs(
         registered_proof.into(),
-        input.comm_r.inner,
-        input.comm_d.inner,
+        comm_r.inner,
+        comm_d.inner,
         prover_id.inner,
-        SectorId::from(input.sector_id),
-        input.ticket.inner,
-        input.seed.inner,
-    )
-    .unwrap_or_else(|_| {
-        panic!(
-            "failed convert aggregation inputs for sector {}",
-            input.sector_id
-        )
-    })
+        SectorId::from(sector_id),
+        ticket.inner,
+        seed.inner,
+    );
+
+    let mut response = fil_AggregationInputsResponse::default();
+
+    match result {
+        Ok(inputs) => {
+            response.status_code = FCPResponseStatus::FCPNoError;
+            // Given that we have a Vec<Vec<u8>>, this flattens it into a
+            // single u8 array, marking the length of each inner stride
+            // for reconstruction, as they may be uneven values
+            let mut input_lens = Vec::with_capacity(inputs.len());
+            let flat_inputs = inputs.iter().fold(Vec::new(), |mut acc, input| {
+                let flat_inner_inputs = input.iter().fold(Vec::new(), |mut inner_acc, element| {
+                    inner_acc.extend(fr_into_bytes(&element));
+                    inner_acc
+                });
+
+                input_lens.push(flat_inner_inputs.len());
+                acc.extend(flat_inner_inputs);
+                acc
+            });
+
+            response.inputs.num_inputs = inputs.len();
+            response.inputs.input_lens_ptr = input_lens.as_ptr();
+            response.inputs.input_ptr = flat_inputs.as_ptr();
+
+            mem::forget(input_lens);
+            mem::forget(flat_inputs);
+        }
+        Err(err) => {
+            response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+            response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+        }
+    };
+
+    info!("get_seal_inputs: finish");
+
+    raw_ptr(response)
 }
 
 /// Verifies the output of an aggregated seal.
@@ -1366,6 +1403,13 @@ pub unsafe extern "C" fn fil_destroy_seal_commit_phase1_response(
 #[no_mangle]
 pub unsafe extern "C" fn fil_destroy_seal_commit_phase2_response(
     ptr: *mut fil_SealCommitPhase2Response,
+) {
+    let _ = Box::from_raw(ptr);
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn fil_destroy_aggregation_inputs_response(
+    ptr: *mut fil_AggregationInputsResponse,
 ) {
     let _ = Box::from_raw(ptr);
 }
@@ -2878,16 +2922,40 @@ pub mod tests {
                 panic!("aggregate_seal_proofs failed: {:?}", msg);
             }
 
-            let mut inputs: Vec<fil_AggregationInputs> = seal_commit_responses
-                .iter()
-                .map(|_| fil_AggregationInputs {
-                    comm_r: wrap((*resp_b2).comm_r),
-                    comm_d: wrap((*resp_b2).comm_d),
-                    sector_id,
-                    ticket,
-                    seed,
-                })
-                .collect();
+            let resp_c2_inputs = fil_get_seal_inputs(
+                registered_proof_seal,
+                wrap((*resp_b2).comm_r),
+                wrap((*resp_b2).comm_d),
+                prover_id,
+                sector_id,
+                ticket,
+                seed,
+            );
+
+            if (*resp_c2_inputs).status_code != FCPResponseStatus::FCPNoError {
+                let msg = c_str_to_rust_str((*resp_c2_inputs).error_msg);
+                panic!("get_seal_inputs failed: {:?}", msg);
+            }
+
+            let resp_c22_inputs = fil_get_seal_inputs(
+                registered_proof_seal,
+                wrap((*resp_b2).comm_r),
+                wrap((*resp_b2).comm_d),
+                prover_id,
+                sector_id,
+                ticket,
+                seed,
+            );
+
+            if (*resp_c22_inputs).status_code != FCPResponseStatus::FCPNoError {
+                let msg = c_str_to_rust_str((*resp_c22_inputs).error_msg);
+                panic!("get_seal_inputs failed: {:?}", msg);
+            }
+
+            let mut inputs: Vec<fil_AggregationInputs> = vec![
+                (*resp_c2_inputs).inputs.clone(),
+                (*resp_c22_inputs).inputs.clone(),
+            ];
 
             let resp_ad = fil_verify_aggregate_seal_proof(
                 registered_proof_seal,
@@ -2920,6 +2988,9 @@ pub mod tests {
             fil_destroy_verify_seal_response(resp_d2);
 
             fil_destroy_verify_aggregate_seal_response(resp_ad);
+
+            fil_destroy_aggregation_inputs_response(resp_c2_inputs);
+            fil_destroy_aggregation_inputs_response(resp_c22_inputs);
 
             fil_destroy_aggregate_proof(resp_aggregate_proof);
 
