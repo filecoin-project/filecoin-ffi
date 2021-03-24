@@ -462,12 +462,12 @@ pub fn convert_aggregation_inputs(
         input.ticket.inner,
         input.seed.inner,
     )
-        .unwrap_or_else(|_| {
-            panic!(
-                "failed convert aggregation inputs for sector {}",
-                input.sector_id
-            )
-        })
+    .unwrap_or_else(|_| {
+        panic!(
+            "failed convert aggregation inputs for sector {}",
+            input.sector_id
+        )
+    })
 }
 
 /*
@@ -2989,14 +2989,14 @@ pub mod tests {
                     comm_d: wrap((*resp_b2).comm_d),
                     sector_id,
                     ticket,
-                    seed
+                    seed,
                 },
                 fil_AggregationInputs {
                     comm_r: wrap((*resp_b2).comm_r),
                     comm_d: wrap((*resp_b2).comm_d),
                     sector_id,
                     ticket,
-                    seed
+                    seed,
                 },
             ];
 

@@ -695,13 +695,13 @@ pub struct fil_AggregationInputs {
 
 impl Default for fil_AggregationInputs {
     fn default() -> fil_AggregationInputs {
-    fil_AggregationInputs {
-        comm_r: fil_32ByteArray::default(),
-        comm_d: fil_32ByteArray::default(),
-        sector_id: 0,
-        ticket: fil_32ByteArray::default(),
-        seed: fil_32ByteArray::default(),
-    }
+        fil_AggregationInputs {
+            comm_r: fil_32ByteArray::default(),
+            comm_d: fil_32ByteArray::default(),
+            sector_id: 0,
+            ticket: fil_32ByteArray::default(),
+            seed: fil_32ByteArray::default(),
+        }
     }
 }
 #[repr(C)]
