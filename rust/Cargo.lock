@@ -146,6 +146,7 @@ source = "git+https://github.com/cryptonemo/bellman?branch=feat-ipp2#116aadc036f
 =======
 version = "0.13.0"
 <<<<<<< HEAD
+<<<<<<< HEAD
 source = "git+https://github.com/filecoin-project/bellman?branch=feat-ipp2#4e0bb6f17a0b6739be96fced83c4eddb9eb13a1d"
 <<<<<<< HEAD
 >>>>>>> bf5f740... feat: re-factor aggregation API after initial feedback
@@ -154,6 +155,9 @@ source = "git+https://github.com/filecoin-project/bellman?branch=feat-ipp2#4e0bb
 source = "git+https://github.com/filecoin-project/bellman?branch=feat-ipp2#7d2887da486ce6d1ae6495d2deafef2056de5127"
 >>>>>>> 9bc7c8f... feat: update to the latest proofs aggregation API
 >>>>>>> e762d29... feat: update to the latest proofs aggregation API
+=======
+source = "git+https://github.com/filecoin-project/bellman?branch=feat-ipp2#7d2887da486ce6d1ae6495d2deafef2056de5127"
+>>>>>>> 10335c0... feat: additional re-factors of API (some unused, for consideration only)
 dependencies = [
  "bincode",
  "bit-vec",
@@ -357,6 +361,7 @@ source = "git+https://github.com/cryptonemo/blstrs?branch=ser-de-0-1#30ac8ac7909
 =======
 version = "0.2.2"
 <<<<<<< HEAD
+<<<<<<< HEAD
 source = "git+https://github.com/filecoin-project/blstrs?branch=ser-de#361109745c7cf9671933bc0c7b3f283cd837bb5e"
 <<<<<<< HEAD
 >>>>>>> bf5f740... feat: re-factor aggregation API after initial feedback
@@ -365,6 +370,9 @@ source = "git+https://github.com/filecoin-project/blstrs?branch=ser-de#361109745
 source = "git+https://github.com/filecoin-project/blstrs?branch=feat-compression#6b7e732c18d92554e6aa1a7d57ce043056b991e1"
 >>>>>>> 9bc7c8f... feat: update to the latest proofs aggregation API
 >>>>>>> e762d29... feat: update to the latest proofs aggregation API
+=======
+source = "git+https://github.com/filecoin-project/blstrs?branch=feat-compression#6b7e732c18d92554e6aa1a7d57ce043056b991e1"
+>>>>>>> 10335c0... feat: additional re-factors of API (some unused, for consideration only)
 dependencies = [
  "blst",
  "fff",
@@ -418,12 +426,15 @@ dependencies = [
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  "syn 1.0.72",
 =======
 =======
 >>>>>>> 4f86b57... feat: re-factor aggregation API after initial feedback
 =======
 >>>>>>> 95ea821... feat: update to the latest proofs aggregation API
+=======
+>>>>>>> dc6d81e... feat: additional re-factors of API (some unused, for consideration only)
 <<<<<<< HEAD
  "syn 1.0.71",
 =======
@@ -431,6 +442,8 @@ dependencies = [
 >>>>>>> 036e042... feat: re-factor aggregation API after initial feedback
 =======
 >>>>>>> 49397a4... feat: update to the latest proofs aggregation API
+=======
+>>>>>>> 7af25dc... feat: additional re-factors of API (some unused, for consideration only)
 <<<<<<< HEAD
  "syn 1.0.63",
 =======
@@ -457,8 +470,17 @@ dependencies = [
  "syn 1.0.64",
 >>>>>>> 9bc7c8f... feat: update to the latest proofs aggregation API
 >>>>>>> e762d29... feat: update to the latest proofs aggregation API
+<<<<<<< HEAD
 >>>>>>> 49397a4... feat: update to the latest proofs aggregation API
+<<<<<<< HEAD
 >>>>>>> 95ea821... feat: update to the latest proofs aggregation API
+=======
+=======
+=======
+ "syn 1.0.64",
+>>>>>>> 10335c0... feat: additional re-factors of API (some unused, for consideration only)
+>>>>>>> 7af25dc... feat: additional re-factors of API (some unused, for consideration only)
+>>>>>>> dc6d81e... feat: additional re-factors of API (some unused, for consideration only)
  "tempfile",
  "toml",
 ]
@@ -857,6 +879,7 @@ dependencies = [
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  "syn 1.0.72",
 =======
 =======
@@ -865,6 +888,8 @@ dependencies = [
 >>>>>>> 4f86b57... feat: re-factor aggregation API after initial feedback
 =======
 >>>>>>> 95ea821... feat: update to the latest proofs aggregation API
+=======
+>>>>>>> dc6d81e... feat: additional re-factors of API (some unused, for consideration only)
 <<<<<<< HEAD
  "syn 1.0.71",
 =======
@@ -874,6 +899,8 @@ dependencies = [
 >>>>>>> 036e042... feat: re-factor aggregation API after initial feedback
 =======
 >>>>>>> 49397a4... feat: update to the latest proofs aggregation API
+=======
+>>>>>>> 7af25dc... feat: additional re-factors of API (some unused, for consideration only)
 <<<<<<< HEAD
  "syn 1.0.63",
 =======
@@ -909,8 +936,17 @@ dependencies = [
  "syn 1.0.64",
 >>>>>>> 9bc7c8f... feat: update to the latest proofs aggregation API
 >>>>>>> e762d29... feat: update to the latest proofs aggregation API
+<<<<<<< HEAD
 >>>>>>> 49397a4... feat: update to the latest proofs aggregation API
+<<<<<<< HEAD
 >>>>>>> 95ea821... feat: update to the latest proofs aggregation API
+=======
+=======
+=======
+ "syn 1.0.64",
+>>>>>>> 10335c0... feat: additional re-factors of API (some unused, for consideration only)
+>>>>>>> 7af25dc... feat: additional re-factors of API (some unused, for consideration only)
+>>>>>>> dc6d81e... feat: additional re-factors of API (some unused, for consideration only)
 ]
 
 [[package]]
@@ -1026,12 +1062,15 @@ dependencies = [
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  "syn 1.0.72",
 =======
 =======
 >>>>>>> 4f86b57... feat: re-factor aggregation API after initial feedback
 =======
 >>>>>>> 95ea821... feat: update to the latest proofs aggregation API
+=======
+>>>>>>> dc6d81e... feat: additional re-factors of API (some unused, for consideration only)
 <<<<<<< HEAD
  "syn 1.0.71",
 =======
@@ -1039,6 +1078,8 @@ dependencies = [
 >>>>>>> 036e042... feat: re-factor aggregation API after initial feedback
 =======
 >>>>>>> 49397a4... feat: update to the latest proofs aggregation API
+=======
+>>>>>>> 7af25dc... feat: additional re-factors of API (some unused, for consideration only)
 <<<<<<< HEAD
  "syn 1.0.63",
 =======
@@ -1065,8 +1106,17 @@ dependencies = [
  "syn 1.0.64",
 >>>>>>> 9bc7c8f... feat: update to the latest proofs aggregation API
 >>>>>>> e762d29... feat: update to the latest proofs aggregation API
+<<<<<<< HEAD
 >>>>>>> 49397a4... feat: update to the latest proofs aggregation API
+<<<<<<< HEAD
 >>>>>>> 95ea821... feat: update to the latest proofs aggregation API
+=======
+=======
+=======
+ "syn 1.0.64",
+>>>>>>> 10335c0... feat: additional re-factors of API (some unused, for consideration only)
+>>>>>>> 7af25dc... feat: additional re-factors of API (some unused, for consideration only)
+>>>>>>> dc6d81e... feat: additional re-factors of API (some unused, for consideration only)
  "synstructure",
 ]
 
@@ -1126,12 +1176,15 @@ dependencies = [
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  "syn 1.0.72",
 =======
 =======
 >>>>>>> 4f86b57... feat: re-factor aggregation API after initial feedback
 =======
 >>>>>>> 95ea821... feat: update to the latest proofs aggregation API
+=======
+>>>>>>> dc6d81e... feat: additional re-factors of API (some unused, for consideration only)
 <<<<<<< HEAD
  "syn 1.0.71",
 =======
@@ -1139,6 +1192,8 @@ dependencies = [
 >>>>>>> 036e042... feat: re-factor aggregation API after initial feedback
 =======
 >>>>>>> 49397a4... feat: update to the latest proofs aggregation API
+=======
+>>>>>>> 7af25dc... feat: additional re-factors of API (some unused, for consideration only)
 <<<<<<< HEAD
  "syn 1.0.63",
 =======
@@ -1165,8 +1220,17 @@ dependencies = [
  "syn 1.0.64",
 >>>>>>> 9bc7c8f... feat: update to the latest proofs aggregation API
 >>>>>>> e762d29... feat: update to the latest proofs aggregation API
+<<<<<<< HEAD
 >>>>>>> 49397a4... feat: update to the latest proofs aggregation API
+<<<<<<< HEAD
 >>>>>>> 95ea821... feat: update to the latest proofs aggregation API
+=======
+=======
+=======
+ "syn 1.0.64",
+>>>>>>> 10335c0... feat: additional re-factors of API (some unused, for consideration only)
+>>>>>>> 7af25dc... feat: additional re-factors of API (some unused, for consideration only)
+>>>>>>> dc6d81e... feat: additional re-factors of API (some unused, for consideration only)
 ]
 
 [[package]]
@@ -1304,6 +1368,7 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-ag
 =======
 version = "1.1.0"
 <<<<<<< HEAD
+<<<<<<< HEAD
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#02110de4a0f8fdeaabdaa7289c721d39c3524127"
 <<<<<<< HEAD
 >>>>>>> bf5f740... feat: re-factor aggregation API after initial feedback
@@ -1318,8 +1383,17 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-ag
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#4596099cc5f51f88c505ead222befede1cb9e11d"
 >>>>>>> 9bc7c8f... feat: update to the latest proofs aggregation API
 >>>>>>> e762d29... feat: update to the latest proofs aggregation API
+<<<<<<< HEAD
 >>>>>>> 49397a4... feat: update to the latest proofs aggregation API
+<<<<<<< HEAD
 >>>>>>> 95ea821... feat: update to the latest proofs aggregation API
+=======
+=======
+=======
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#4596099cc5f51f88c505ead222befede1cb9e11d"
+>>>>>>> 10335c0... feat: additional re-factors of API (some unused, for consideration only)
+>>>>>>> 7af25dc... feat: additional re-factors of API (some unused, for consideration only)
+>>>>>>> dc6d81e... feat: additional re-factors of API (some unused, for consideration only)
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1388,6 +1462,7 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-ag
 =======
 version = "6.1.0"
 <<<<<<< HEAD
+<<<<<<< HEAD
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#02110de4a0f8fdeaabdaa7289c721d39c3524127"
 <<<<<<< HEAD
 >>>>>>> bf5f740... feat: re-factor aggregation API after initial feedback
@@ -1402,8 +1477,17 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-ag
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#4596099cc5f51f88c505ead222befede1cb9e11d"
 >>>>>>> 9bc7c8f... feat: update to the latest proofs aggregation API
 >>>>>>> e762d29... feat: update to the latest proofs aggregation API
+<<<<<<< HEAD
 >>>>>>> 49397a4... feat: update to the latest proofs aggregation API
+<<<<<<< HEAD
 >>>>>>> 95ea821... feat: update to the latest proofs aggregation API
+=======
+=======
+=======
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#4596099cc5f51f88c505ead222befede1cb9e11d"
+>>>>>>> 10335c0... feat: additional re-factors of API (some unused, for consideration only)
+>>>>>>> 7af25dc... feat: additional re-factors of API (some unused, for consideration only)
+>>>>>>> dc6d81e... feat: additional re-factors of API (some unused, for consideration only)
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1445,12 +1529,15 @@ dependencies = [
 name = "filecoin-proofs-api"
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 version = "7.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "87031861c2287fc21114b3f5de2760a3a8b0e70b83edb369ac7171aad595e62b"
 =======
 =======
 >>>>>>> 49397a4... feat: update to the latest proofs aggregation API
+=======
+>>>>>>> 7af25dc... feat: additional re-factors of API (some unused, for consideration only)
 <<<<<<< HEAD
 version = "6.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1492,7 +1579,14 @@ version = "6.1.0"
 source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=feat-aggregation#a547522401e247ca86196daa12251231f3d79e63"
 >>>>>>> 9bc7c8f... feat: update to the latest proofs aggregation API
 >>>>>>> e762d29... feat: update to the latest proofs aggregation API
+<<<<<<< HEAD
 >>>>>>> 49397a4... feat: update to the latest proofs aggregation API
+=======
+=======
+version = "6.1.0"
+source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=feat-aggregation#a547522401e247ca86196daa12251231f3d79e63"
+>>>>>>> 10335c0... feat: additional re-factors of API (some unused, for consideration only)
+>>>>>>> 7af25dc... feat: additional re-factors of API (some unused, for consideration only)
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1565,6 +1659,7 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-ag
 =======
 version = "0.2.0"
 <<<<<<< HEAD
+<<<<<<< HEAD
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#02110de4a0f8fdeaabdaa7289c721d39c3524127"
 <<<<<<< HEAD
 >>>>>>> bf5f740... feat: re-factor aggregation API after initial feedback
@@ -1576,7 +1671,13 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-ag
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#4596099cc5f51f88c505ead222befede1cb9e11d"
 >>>>>>> 9bc7c8f... feat: update to the latest proofs aggregation API
 >>>>>>> e762d29... feat: update to the latest proofs aggregation API
+<<<<<<< HEAD
 >>>>>>> 95ea821... feat: update to the latest proofs aggregation API
+=======
+=======
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#4596099cc5f51f88c505ead222befede1cb9e11d"
+>>>>>>> 10335c0... feat: additional re-factors of API (some unused, for consideration only)
+>>>>>>> dc6d81e... feat: additional re-factors of API (some unused, for consideration only)
 dependencies = [
  "anyhow",
  "bellperson",
@@ -2613,12 +2714,15 @@ dependencies = [
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  "syn 1.0.72",
 =======
 =======
 >>>>>>> 4f86b57... feat: re-factor aggregation API after initial feedback
 =======
 >>>>>>> 95ea821... feat: update to the latest proofs aggregation API
+=======
+>>>>>>> dc6d81e... feat: additional re-factors of API (some unused, for consideration only)
 <<<<<<< HEAD
  "syn 1.0.71",
 =======
@@ -2626,6 +2730,8 @@ dependencies = [
 >>>>>>> 036e042... feat: re-factor aggregation API after initial feedback
 =======
 >>>>>>> 49397a4... feat: update to the latest proofs aggregation API
+=======
+>>>>>>> 7af25dc... feat: additional re-factors of API (some unused, for consideration only)
 <<<<<<< HEAD
  "syn 1.0.63",
 =======
@@ -2652,8 +2758,17 @@ dependencies = [
  "syn 1.0.64",
 >>>>>>> 9bc7c8f... feat: update to the latest proofs aggregation API
 >>>>>>> e762d29... feat: update to the latest proofs aggregation API
+<<<<<<< HEAD
 >>>>>>> 49397a4... feat: update to the latest proofs aggregation API
+<<<<<<< HEAD
 >>>>>>> 95ea821... feat: update to the latest proofs aggregation API
+=======
+=======
+=======
+ "syn 1.0.64",
+>>>>>>> 10335c0... feat: additional re-factors of API (some unused, for consideration only)
+>>>>>>> 7af25dc... feat: additional re-factors of API (some unused, for consideration only)
+>>>>>>> dc6d81e... feat: additional re-factors of API (some unused, for consideration only)
 ]
 
 [[package]]
@@ -2737,6 +2852,7 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-ag
 =======
 version = "2.1.0"
 <<<<<<< HEAD
+<<<<<<< HEAD
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#02110de4a0f8fdeaabdaa7289c721d39c3524127"
 <<<<<<< HEAD
 >>>>>>> bf5f740... feat: re-factor aggregation API after initial feedback
@@ -2745,6 +2861,9 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-ag
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#4596099cc5f51f88c505ead222befede1cb9e11d"
 >>>>>>> 9bc7c8f... feat: update to the latest proofs aggregation API
 >>>>>>> e762d29... feat: update to the latest proofs aggregation API
+=======
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#4596099cc5f51f88c505ead222befede1cb9e11d"
+>>>>>>> 10335c0... feat: additional re-factors of API (some unused, for consideration only)
 dependencies = [
  "block-buffer 0.9.0",
  "byteorder 1.3.4",
@@ -2817,6 +2936,7 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-ag
 =======
 version = "6.1.0"
 <<<<<<< HEAD
+<<<<<<< HEAD
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#02110de4a0f8fdeaabdaa7289c721d39c3524127"
 <<<<<<< HEAD
 >>>>>>> bf5f740... feat: re-factor aggregation API after initial feedback
@@ -2831,8 +2951,17 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-ag
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#4596099cc5f51f88c505ead222befede1cb9e11d"
 >>>>>>> 9bc7c8f... feat: update to the latest proofs aggregation API
 >>>>>>> e762d29... feat: update to the latest proofs aggregation API
+<<<<<<< HEAD
 >>>>>>> 49397a4... feat: update to the latest proofs aggregation API
+<<<<<<< HEAD
 >>>>>>> 95ea821... feat: update to the latest proofs aggregation API
+=======
+=======
+=======
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#4596099cc5f51f88c505ead222befede1cb9e11d"
+>>>>>>> 10335c0... feat: additional re-factors of API (some unused, for consideration only)
+>>>>>>> 7af25dc... feat: additional re-factors of API (some unused, for consideration only)
+>>>>>>> dc6d81e... feat: additional re-factors of API (some unused, for consideration only)
 dependencies = [
  "aes",
  "anyhow",
@@ -2925,6 +3054,7 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-ag
 =======
 version = "6.1.0"
 <<<<<<< HEAD
+<<<<<<< HEAD
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#02110de4a0f8fdeaabdaa7289c721d39c3524127"
 <<<<<<< HEAD
 >>>>>>> bf5f740... feat: re-factor aggregation API after initial feedback
@@ -2939,8 +3069,17 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-ag
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#4596099cc5f51f88c505ead222befede1cb9e11d"
 >>>>>>> 9bc7c8f... feat: update to the latest proofs aggregation API
 >>>>>>> e762d29... feat: update to the latest proofs aggregation API
+<<<<<<< HEAD
 >>>>>>> 49397a4... feat: update to the latest proofs aggregation API
+<<<<<<< HEAD
 >>>>>>> 95ea821... feat: update to the latest proofs aggregation API
+=======
+=======
+=======
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#4596099cc5f51f88c505ead222befede1cb9e11d"
+>>>>>>> 10335c0... feat: additional re-factors of API (some unused, for consideration only)
+>>>>>>> 7af25dc... feat: additional re-factors of API (some unused, for consideration only)
+>>>>>>> dc6d81e... feat: additional re-factors of API (some unused, for consideration only)
 dependencies = [
  "anyhow",
  "bellperson",
@@ -3033,6 +3172,7 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-ag
 =======
 version = "6.1.0"
 <<<<<<< HEAD
+<<<<<<< HEAD
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#02110de4a0f8fdeaabdaa7289c721d39c3524127"
 <<<<<<< HEAD
 >>>>>>> bf5f740... feat: re-factor aggregation API after initial feedback
@@ -3047,8 +3187,17 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-ag
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#4596099cc5f51f88c505ead222befede1cb9e11d"
 >>>>>>> 9bc7c8f... feat: update to the latest proofs aggregation API
 >>>>>>> e762d29... feat: update to the latest proofs aggregation API
+<<<<<<< HEAD
 >>>>>>> 49397a4... feat: update to the latest proofs aggregation API
+<<<<<<< HEAD
 >>>>>>> 95ea821... feat: update to the latest proofs aggregation API
+=======
+=======
+=======
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#4596099cc5f51f88c505ead222befede1cb9e11d"
+>>>>>>> 10335c0... feat: additional re-factors of API (some unused, for consideration only)
+>>>>>>> 7af25dc... feat: additional re-factors of API (some unused, for consideration only)
+>>>>>>> dc6d81e... feat: additional re-factors of API (some unused, for consideration only)
 dependencies = [
  "anyhow",
  "bellperson",
@@ -3104,6 +3253,7 @@ name = "syn"
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 version = "1.0.72"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a1e8cdbefb79a9a5a65e0db8b47b723ee907b7c7f8496c76a1770b5c310bab82"
@@ -3112,6 +3262,8 @@ checksum = "a1e8cdbefb79a9a5a65e0db8b47b723ee907b7c7f8496c76a1770b5c310bab82"
 >>>>>>> 4f86b57... feat: re-factor aggregation API after initial feedback
 =======
 >>>>>>> 95ea821... feat: update to the latest proofs aggregation API
+=======
+>>>>>>> dc6d81e... feat: additional re-factors of API (some unused, for consideration only)
 <<<<<<< HEAD
 version = "1.0.71"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3121,6 +3273,8 @@ checksum = "ad184cc9470f9117b2ac6817bfe297307418819ba40552f9b3846f05c33d5373"
 >>>>>>> 036e042... feat: re-factor aggregation API after initial feedback
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> 7af25dc... feat: additional re-factors of API (some unused, for consideration only)
 <<<<<<< HEAD
 =======
 >>>>>>> e762d29... feat: update to the latest proofs aggregation API
@@ -3157,8 +3311,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3fd9d1e9976102a03c542daa2eff1b43f9d72306342f3f8b3ed5fb8908195d6f"
 >>>>>>> 9bc7c8f... feat: update to the latest proofs aggregation API
 >>>>>>> e762d29... feat: update to the latest proofs aggregation API
+<<<<<<< HEAD
 >>>>>>> 49397a4... feat: update to the latest proofs aggregation API
+<<<<<<< HEAD
 >>>>>>> 95ea821... feat: update to the latest proofs aggregation API
+=======
+=======
+=======
+version = "1.0.64"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3fd9d1e9976102a03c542daa2eff1b43f9d72306342f3f8b3ed5fb8908195d6f"
+>>>>>>> 10335c0... feat: additional re-factors of API (some unused, for consideration only)
+>>>>>>> 7af25dc... feat: additional re-factors of API (some unused, for consideration only)
+>>>>>>> dc6d81e... feat: additional re-factors of API (some unused, for consideration only)
 dependencies = [
  "proc-macro2 1.0.26",
  "quote 1.0.9",
@@ -3176,6 +3341,7 @@ dependencies = [
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  "syn 1.0.72",
  "unicode-xid 0.2.2",
 =======
@@ -3183,6 +3349,8 @@ dependencies = [
 >>>>>>> 4f86b57... feat: re-factor aggregation API after initial feedback
 =======
 >>>>>>> 95ea821... feat: update to the latest proofs aggregation API
+=======
+>>>>>>> dc6d81e... feat: additional re-factors of API (some unused, for consideration only)
 <<<<<<< HEAD
  "syn 1.0.71",
 =======
@@ -3190,6 +3358,8 @@ dependencies = [
 >>>>>>> 036e042... feat: re-factor aggregation API after initial feedback
 =======
 >>>>>>> 49397a4... feat: update to the latest proofs aggregation API
+=======
+>>>>>>> 7af25dc... feat: additional re-factors of API (some unused, for consideration only)
 <<<<<<< HEAD
  "syn 1.0.63",
 =======
@@ -3210,7 +3380,13 @@ dependencies = [
  "syn 1.0.64",
 >>>>>>> 9bc7c8f... feat: update to the latest proofs aggregation API
 >>>>>>> e762d29... feat: update to the latest proofs aggregation API
+<<<<<<< HEAD
 >>>>>>> 49397a4... feat: update to the latest proofs aggregation API
+=======
+=======
+ "syn 1.0.64",
+>>>>>>> 10335c0... feat: additional re-factors of API (some unused, for consideration only)
+>>>>>>> 7af25dc... feat: additional re-factors of API (some unused, for consideration only)
  "unicode-xid 0.2.1",
 >>>>>>> 648c822... style: deps update
 ]
@@ -3268,12 +3444,15 @@ dependencies = [
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  "syn 1.0.72",
 =======
 =======
 >>>>>>> 4f86b57... feat: re-factor aggregation API after initial feedback
 =======
 >>>>>>> 95ea821... feat: update to the latest proofs aggregation API
+=======
+>>>>>>> dc6d81e... feat: additional re-factors of API (some unused, for consideration only)
 <<<<<<< HEAD
  "syn 1.0.71",
 =======
@@ -3281,6 +3460,8 @@ dependencies = [
 >>>>>>> 036e042... feat: re-factor aggregation API after initial feedback
 =======
 >>>>>>> 49397a4... feat: update to the latest proofs aggregation API
+=======
+>>>>>>> 7af25dc... feat: additional re-factors of API (some unused, for consideration only)
 <<<<<<< HEAD
  "syn 1.0.63",
 =======
@@ -3307,10 +3488,18 @@ dependencies = [
 =======
 =======
 =======
+=======
+>>>>>>> 10335c0... feat: additional re-factors of API (some unused, for consideration only)
  "syn 1.0.64",
+<<<<<<< HEAD
 >>>>>>> 9bc7c8f... feat: update to the latest proofs aggregation API
 >>>>>>> 49397a4... feat: update to the latest proofs aggregation API
+<<<<<<< HEAD
 >>>>>>> 95ea821... feat: update to the latest proofs aggregation API
+=======
+=======
+>>>>>>> 7af25dc... feat: additional re-factors of API (some unused, for consideration only)
+>>>>>>> dc6d81e... feat: additional re-factors of API (some unused, for consideration only)
 ]
 
 [[package]]
@@ -3457,8 +3646,11 @@ dependencies = [
  "proc-macro2 1.0.26",
  "quote 1.0.9",
 <<<<<<< HEAD
+<<<<<<< HEAD
  "syn 1.0.72",
 =======
+=======
+>>>>>>> dc6d81e... feat: additional re-factors of API (some unused, for consideration only)
 <<<<<<< HEAD
  "syn 1.0.71",
 =======
@@ -3468,7 +3660,13 @@ dependencies = [
  "syn 1.0.64",
 >>>>>>> 9bc7c8f... feat: update to the latest proofs aggregation API
 >>>>>>> 49397a4... feat: update to the latest proofs aggregation API
+<<<<<<< HEAD
 >>>>>>> 95ea821... feat: update to the latest proofs aggregation API
+=======
+=======
+ "syn 1.0.64",
+>>>>>>> 7af25dc... feat: additional re-factors of API (some unused, for consideration only)
+>>>>>>> dc6d81e... feat: additional re-factors of API (some unused, for consideration only)
  "synstructure",
 ]
 <<<<<<< HEAD

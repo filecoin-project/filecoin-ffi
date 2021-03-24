@@ -3,11 +3,10 @@ use std::ptr;
 use std::slice::from_raw_parts;
 
 use anyhow::Result;
-use bellperson::bls::Fr;
 use drop_struct_macro_derive::DropStructMacro;
 use ffi_toolkit::{code_and_message_impl, free_c_str, CodeAndMessage, FCPResponseStatus};
 use filecoin_proofs_api::{
-    fr32, PieceInfo, RegisteredPoStProof, RegisteredSealProof, UnpaddedBytesAmount, NODE_SIZE,
+    PieceInfo, RegisteredPoStProof, RegisteredSealProof, UnpaddedBytesAmount,
 };
 
 #[repr(C)]
@@ -604,11 +603,14 @@ impl Clone for fil_SealCommitPhase2Response {
 
 code_and_message_impl!(fil_SealCommitPhase2Response);
 
+/*
 #[repr(C)]
 pub struct fil_AggregationInputsResponse {
     pub status_code: FCPResponseStatus,
     pub error_msg: *const libc::c_char,
-    pub inputs: fil_AggregationInputs,
+    pub num_inputs: libc::size_t,
+    pub input_ptr: *const u8,
+    pub input_lens_ptr: *const libc::size_t,
 }
 
 impl Default for fil_AggregationInputsResponse {
@@ -616,22 +618,14 @@ impl Default for fil_AggregationInputsResponse {
         fil_AggregationInputsResponse {
             status_code: FCPResponseStatus::FCPNoError,
             error_msg: ptr::null(),
-            inputs: fil_AggregationInputs::default(),
+            num_inputs: 0,
+            input_ptr: ptr::null(),
+            input_lens_ptr: ptr::null(),
         }
     }
 }
 
-code_and_message_impl!(fil_AggregationInputsResponse);
-
-#[repr(C)]
-pub struct fil_AggregationInputs {
-    // Inputs required for aggregation
-    pub num_inputs: libc::size_t,
-    pub input_ptr: *const u8,
-    pub input_lens_ptr: *const libc::size_t,
-}
-
-impl Clone for fil_AggregationInputs {
+impl Clone for fil_AggregationInputsResponse {
     fn clone(&self) -> Self {
         let slice: &[libc::size_t] =
             unsafe { std::slice::from_raw_parts(self.input_lens_ptr, self.num_inputs) };
@@ -649,7 +643,9 @@ impl Clone for fil_AggregationInputs {
         std::mem::forget(input);
         std::mem::forget(input_lens);
 
-        fil_AggregationInputs {
+        fil_AggregationInputsResponse {
+            status_code: self.status_code,
+            error_msg: self.error_msg,
             num_inputs: self.num_inputs,
             input_ptr,
             input_lens_ptr,
@@ -657,38 +653,9 @@ impl Clone for fil_AggregationInputs {
     }
 }
 
-impl Default for fil_AggregationInputs {
-    fn default() -> fil_AggregationInputs {
-        fil_AggregationInputs {
-            num_inputs: 0,
-            input_ptr: ptr::null(),
-            input_lens_ptr: ptr::null(),
-        }
-    }
-}
+code_and_message_impl!(fil_AggregationInputsResponse);
 
-impl Drop for fil_AggregationInputs {
-    fn drop(&mut self) {
-        // Note that this operation also does the equivalent of
-        // libc::free(self.proof_ptr as *mut libc::c_void);
-        let input_lens = unsafe {
-            Vec::from_raw_parts(
-                self.input_lens_ptr as *mut libc::size_t,
-                self.num_inputs,
-                self.num_inputs,
-            )
-        };
-
-        let total_len = input_lens.iter().sum();
-
-        // Note that this operation also does the equivalent of
-        // libc::free(self.proof_ptr as *mut libc::c_void);
-        let _ = unsafe { Vec::from_raw_parts(self.input_ptr as *mut u8, total_len, total_len) };
-    }
-}
-
-// A utility converter for fil_AggregationInputs struct to Vec<Vec<Fr>>
-pub fn convert_aggregation_inputs(input: &fil_AggregationInputs) -> Vec<Vec<Fr>> {
+pub fn convert_aggregation_inputs_response(input: &fil_AggregationInputsResponse) -> Vec<Vec<Fr>> {
     let slice: &[libc::size_t] =
         unsafe { std::slice::from_raw_parts(input.input_lens_ptr, input.num_inputs) };
     let input_lens: Vec<usize> = slice.to_vec();
@@ -711,8 +678,32 @@ pub fn convert_aggregation_inputs(input: &fil_AggregationInputs) -> Vec<Vec<Fr>>
         inputs.push(elements);
         start += len;
     }
+
+    inputs
+}
+*/
+
+#[repr(C)]
+#[derive(Clone, DropStructMacro)]
+pub struct fil_AggregationInputs {
+    pub comm_r: fil_32ByteArray,
+    pub comm_d: fil_32ByteArray,
+    pub sector_id: u64,
+    pub ticket: fil_32ByteArray,
+    pub seed: fil_32ByteArray,
 }
 
+impl Default for fil_AggregationInputs {
+    fn default() -> fil_AggregationInputs {
+    fil_AggregationInputs {
+        comm_r: fil_32ByteArray::default(),
+        comm_d: fil_32ByteArray::default(),
+        sector_id: 0,
+        ticket: fil_32ByteArray::default(),
+        seed: fil_32ByteArray::default(),
+    }
+    }
+}
 #[repr(C)]
 #[derive(DropStructMacro)]
 pub struct fil_UnsealRangeResponse {
