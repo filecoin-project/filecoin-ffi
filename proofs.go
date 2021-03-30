@@ -99,9 +99,16 @@ func VerifyAggregateSeals(aggregate proof3.AggregateSealVerifyProofAndInfos) (bo
 		return false, err
 	}
 
-	generated.FilVerifyAggregateSealProof(sp, proverID, aggregate.Proof, uint(len(aggregate.Proof)), inputs, uint(len(inputs)))
+	resp := generated.FilVerifyAggregateSealProof(sp, proverID, aggregate.Proof, uint(len(aggregate.Proof)), inputs, uint(len(inputs)))
+	resp.Deref()
 
-	return false, nil
+	defer generated.FilDestroyVerifyAggregateSealResponse(resp)
+
+	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
+		return false, errors.New(generated.RawString(resp.ErrorMsg).Copy())
+	}
+
+	return resp.IsValid, nil
 }
 
 // VerifyWinningPoSt returns true if the Winning PoSt-generation operation from which its
