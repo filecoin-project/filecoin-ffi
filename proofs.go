@@ -460,6 +460,32 @@ func SealCommitPhase2(
 	return copyBytes(resp.ProofPtr, resp.ProofLen), nil
 }
 
+func AggregateSealProofs(proofType abi.RegisteredSealProof, proofs [][]byte) (out []byte, err error) {
+	sp, err := toFilRegisteredSealProof(proofType)
+	if err != nil {
+		return nil, err
+	}
+
+	pfs := make([]generated.FilSealCommitPhase2Response, len(proofs))
+	for i := range proofs {
+		pfs[i] = generated.FilSealCommitPhase2Response{
+			ProofPtr:   proofs[i],
+			ProofLen: uint(len(proofs[i])),
+		}
+	}
+
+	resp := generated.FilAggregateSealProofs(sp, pfs, uint(len(pfs)))
+	resp.Deref()
+
+	defer generated.FilDestroyAggregateProof(resp)
+
+	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
+		return nil, errors.New(generated.RawString(resp.ErrorMsg).Copy())
+	}
+
+	return copyBytes(resp.ProofPtr, resp.ProofLen), nil
+}
+
 // Unseal
 func Unseal(
 	proofType abi.RegisteredSealProof,
