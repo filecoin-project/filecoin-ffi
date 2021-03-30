@@ -70,19 +70,36 @@ func VerifyAggregateSeals(aggregate proof3.AggregateSealVerifyProofAndInfos) (bo
 			return false, xerrors.Errorf("seal %d had unexpected seal proof type - expected %d, got %d", i, spt, info.SealProof)
 		}
 
+		commR, err := to32ByteCommR(info.SealedCID)
+		if err != nil {
+			return false, err
+		}
+
+		commD, err := to32ByteCommD(info.UnsealedCID)
+		if err != nil {
+			return false, err
+		}
+
 		inputs[i] = generated.FilAggregationInputs{
-			NumInputs:    0,
-			InputPtr:     nil,
-			InputLensPtr: nil,
+			CommR:    commR,
+			CommD:    commD,
+			SectorId: uint64(info.Number),
+			Ticket:   to32ByteArray(info.Randomness),
+			Seed:     to32ByteArray(info.InteractiveRandomness),
 		}
 	}
 
-	_, err := toFilRegisteredSealProof(spt)
+	sp, err := toFilRegisteredSealProof(spt)
 	if err != nil {
 		return false, err
 	}
 
-	//generated.FilVerifyAggregateSealProof(sp, aggregate.Proof, uint(len(aggregate.Proof)))
+	proverID, err := toProverID(aggregate.Miner)
+	if err != nil {
+		return false, err
+	}
+
+	generated.FilVerifyAggregateSealProof(sp, proverID, aggregate.Proof, uint(len(aggregate.Proof)), inputs, uint(len(inputs)))
 
 	return false, nil
 }
