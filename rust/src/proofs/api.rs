@@ -404,6 +404,7 @@ pub unsafe extern "C" fn fil_seal_commit_phase2(
     })
 }
 
+#[no_mangle]
 pub unsafe extern "C" fn fil_aggregate_seal_proofs(
     registered_proof: fil_RegisteredSealProof,
     seal_commit_responses_ptr: *const fil_SealCommitPhase2Response,
