@@ -45,7 +45,7 @@ By default, a 'gpu' option is used in the proofs library.  This feature is also 
 ```shell
 rm .install-filcrypto \
     ; make clean \
-    ; FFI_BUILD_FROM_SOURCE=1 FFI_USE_BLST=1 FFI_USE_GPU=0 make
+    ; FFI_BUILD_FROM_SOURCE=1 FFI_USE_BLST=1 make
 ```
 
 ## Updating rust-fil-proofs (via rust-filecoin-proofs-api)
