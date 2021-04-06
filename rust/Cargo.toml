@@ -35,7 +35,6 @@ anyhow = "1.0.23"
 bellperson = { version = "0.13", default-features = false }
 serde_json = "1.0.46"
 rust-gpu-tools = "0.2.0"
-
 filecoin-proofs-api = { git = "https://github.com/filecoin-project/rust-filecoin-proofs-api", branch = "fix-ram-unseal", default-features = false }
 
 #[dependencies.filecoin-proofs-api]
@@ -55,4 +54,3 @@ pairing = ["filecoin-proofs-api/pairing", "bellperson/pairing"]
 blst = ["filecoin-proofs-api/blst", "bellperson/blst"]
 blst-portable = ["bls-signatures/blst-portable", "blstrs/portable"]
 gpu = ["filecoin-proofs-api/gpu", "bellperson/gpu"]
-gpu2 = ["filecoin-proofs-api/gpu2", "bellperson/gpu"]
