@@ -129,7 +129,7 @@ dependencies = [
 [[package]]
 name = "bellperson"
 version = "0.13.0"
-source = "git+https://github.com/filecoin-project/bellman?branch=feat-ipp2#ce53d6d79663bdba69e9509fe27f2e7b09c5eacf"
+source = "git+https://github.com/filecoin-project/bellman?branch=feat-ipp2#d007311d971de6d5f83485843861ce49f3d8da92"
 dependencies = [
  "bincode",
  "bit-vec",
@@ -1372,6 +1372,7 @@ checksum = "51c5d4ca3e721a49f2a1caa6078ddf16006a42b3d8fb6cf7474e2e15fae1cd51"
 >>>>>>> 036e042... feat: re-factor aggregation API after initial feedback
 <<<<<<< HEAD
 version = "1.1.0"
+<<<<<<< HEAD
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bf565398110cc0d13cfa33e6fe35fd3931ead236705bfe65dd98de0648687fc6"
 =======
@@ -1446,7 +1447,13 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-ag
 =======
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#36b3d91690594a8dfdab44b0d2356a726bb7a380"
 >>>>>>> 973487a... feat: update dependencies
+<<<<<<< HEAD
 >>>>>>> 066cb15... feat: update dependencies
+=======
+=======
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#ab958b57d2196f35e24ee62ab79d750f605cbf13"
+>>>>>>> 79d2c60... fix: clippy warnings and updated deps
+>>>>>>> 9468026... fix: clippy warnings and updated deps
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1520,6 +1527,7 @@ version = "6.1.0"
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#02110de4a0f8fdeaabdaa7289c721d39c3524127"
 <<<<<<< HEAD
 >>>>>>> bf5f740... feat: re-factor aggregation API after initial feedback
@@ -1557,7 +1565,13 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-ag
 =======
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#36b3d91690594a8dfdab44b0d2356a726bb7a380"
 >>>>>>> 973487a... feat: update dependencies
+<<<<<<< HEAD
 >>>>>>> 066cb15... feat: update dependencies
+=======
+=======
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#ab958b57d2196f35e24ee62ab79d750f605cbf13"
+>>>>>>> 79d2c60... fix: clippy warnings and updated deps
+>>>>>>> 9468026... fix: clippy warnings and updated deps
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1709,6 +1723,7 @@ checksum = "80b8a719b5b65296a27043a36524d4bc5714d1031f1021f18ed55b77a5cbd50e"
 >>>>>>> 4f86b57... feat: re-factor aggregation API after initial feedback
 <<<<<<< HEAD
 version = "0.2.0"
+<<<<<<< HEAD
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "61435ec5a58135c51c94b7a6d62448392e9f77a3b9906b4f77c957a0286b6db0"
 =======
@@ -1762,6 +1777,9 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-ag
 =======
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#36b3d91690594a8dfdab44b0d2356a726bb7a380"
 >>>>>>> 066cb15... feat: update dependencies
+=======
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#ab958b57d2196f35e24ee62ab79d750f605cbf13"
+>>>>>>> 9468026... fix: clippy warnings and updated deps
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1966,6 +1984,7 @@ name = "libc"
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 version = "0.2.94"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "18794a8ad5b29321f790b55d93dfba91e125cb1a9edbd4f8e3150acc771c1a5e"
@@ -2010,6 +2029,11 @@ version = "0.2.92"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "56d855069fafbb9b344c0f962150cd2c1187975cb1c22c1522c240d8c4986714"
 >>>>>>> 973487a... feat: update dependencies
+=======
+version = "0.2.93"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9385f66bf6105b241aa65a61cb923ef20efc665cb9f9bb50ac2f0c4b7f378d41"
+>>>>>>> 79d2c60... fix: clippy warnings and updated deps
 
 [[package]]
 name = "log"
@@ -2958,11 +2982,15 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-ag
 =======
 version = "2.1.0"
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#4596099cc5f51f88c505ead222befede1cb9e11d"
 =======
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#36b3d91690594a8dfdab44b0d2356a726bb7a380"
 >>>>>>> 066cb15... feat: update dependencies
+=======
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#ab958b57d2196f35e24ee62ab79d750f605cbf13"
+>>>>>>> 9468026... fix: clippy warnings and updated deps
 dependencies = [
  "block-buffer 0.9.0",
  "byteorder 1.3.4",
@@ -3039,6 +3067,7 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-ag
 version = "6.1.0"
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#02110de4a0f8fdeaabdaa7289c721d39c3524127"
 <<<<<<< HEAD
 >>>>>>> bf5f740... feat: re-factor aggregation API after initial feedback
@@ -3076,7 +3105,13 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-ag
 =======
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#36b3d91690594a8dfdab44b0d2356a726bb7a380"
 >>>>>>> 973487a... feat: update dependencies
+<<<<<<< HEAD
 >>>>>>> 066cb15... feat: update dependencies
+=======
+=======
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#ab958b57d2196f35e24ee62ab79d750f605cbf13"
+>>>>>>> 79d2c60... fix: clippy warnings and updated deps
+>>>>>>> 9468026... fix: clippy warnings and updated deps
 dependencies = [
  "aes",
  "anyhow",
@@ -3133,6 +3168,7 @@ checksum = "122e972e524806f4a0dba57ad0477a0a57b1c2fc76e900c5a26da2554dc47667"
 >>>>>>> 036e042... feat: re-factor aggregation API after initial feedback
 <<<<<<< HEAD
 version = "6.1.0"
+<<<<<<< HEAD
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "19254773f548abbf17924c558017864ae15741459a4b5819d88ac9db244f9349"
 =======
@@ -3207,7 +3243,13 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-ag
 =======
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#36b3d91690594a8dfdab44b0d2356a726bb7a380"
 >>>>>>> 973487a... feat: update dependencies
+<<<<<<< HEAD
 >>>>>>> 066cb15... feat: update dependencies
+=======
+=======
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#ab958b57d2196f35e24ee62ab79d750f605cbf13"
+>>>>>>> 79d2c60... fix: clippy warnings and updated deps
+>>>>>>> 9468026... fix: clippy warnings and updated deps
 dependencies = [
  "anyhow",
  "bellperson",
@@ -3300,6 +3342,7 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-ag
 version = "6.1.0"
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#02110de4a0f8fdeaabdaa7289c721d39c3524127"
 <<<<<<< HEAD
 >>>>>>> bf5f740... feat: re-factor aggregation API after initial feedback
@@ -3338,7 +3381,13 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-ag
 =======
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#36b3d91690594a8dfdab44b0d2356a726bb7a380"
 >>>>>>> 973487a... feat: update dependencies
+<<<<<<< HEAD
 >>>>>>> 066cb15... feat: update dependencies
+=======
+=======
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#ab958b57d2196f35e24ee62ab79d750f605cbf13"
+>>>>>>> 79d2c60... fix: clippy warnings and updated deps
+>>>>>>> 9468026... fix: clippy warnings and updated deps
 dependencies = [
  "anyhow",
  "bellperson",
