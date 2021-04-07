@@ -37,7 +37,9 @@ rust-gpu-tools = "0.2.0"
 
 [dependencies.filecoin-proofs-api]
 package = "filecoin-proofs-api"
-version = "~6.1"
+#version = "~6.1"
+git = "https://github.com/filecoin-project/rust-filecoin-proofs-api"
+branch = "m1-portable"
 default-features = false
 
 [build-dependencies]
@@ -52,4 +54,3 @@ pairing = ["filecoin-proofs-api/pairing", "bellperson/pairing"]
 blst = ["filecoin-proofs-api/blst", "bellperson/blst"]
 blst-portable = ["bls-signatures/blst-portable", "blstrs/portable"]
 gpu = ["filecoin-proofs-api/gpu", "bellperson/gpu"]
-gpu2 = ["filecoin-proofs-api/gpu2", "bellperson/gpu"]
