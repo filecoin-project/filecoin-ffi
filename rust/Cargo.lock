@@ -113,9 +113,15 @@ checksum = "cdb031dd78e28731d87d56cc8ffef4a8f36ca26c38fe2de700543e627f8a464a"
 
 [[package]]
 name = "backtrace"
+<<<<<<< HEAD
 version = "0.3.58"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "88fb5a785d6b44fd9d6700935608639af1b8356de1e55d5f7c2740f4faa15d82"
+=======
+version = "0.3.57"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "78ed203b9ba68b242c62b3fb7480f589dd49829be1edb3fe8fc8b4ffda2dcb8d"
+>>>>>>> 7f4effb... fix: remove dead code
 dependencies = [
  "addr2line",
  "cc",
@@ -129,12 +135,13 @@ dependencies = [
 [[package]]
 name = "bellperson"
 version = "0.13.0"
-source = "git+https://github.com/filecoin-project/bellman?branch=feat-ipp2#d007311d971de6d5f83485843861ce49f3d8da92"
+source = "git+https://github.com/filecoin-project/bellman?branch=feat-ipp2#854f254b116844056f9ba09585414cffb78db6ef"
 dependencies = [
  "bincode",
  "bit-vec",
  "blake2s_simd",
  "blstrs",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
  "byteorder 1.4.3",
@@ -146,6 +153,10 @@ dependencies = [
 >>>>>>> cee544c... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
  "byteorder 1.3.4",
  "crossbeam-channel 0.5.0",
+=======
+ "byteorder 1.4.3",
+ "crossbeam-channel 0.5.1",
+>>>>>>> 7f4effb... fix: remove dead code
  "digest 0.9.0",
 >>>>>>> 90c0444... feat: update dependencies to use proof aggregation branches
  "ff-cl-gen",
@@ -171,21 +182,28 @@ dependencies = [
 [[package]]
 name = "bincode"
 <<<<<<< HEAD
+<<<<<<< HEAD
 version = "1.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b1f45e9417d87227c7a56d22e471c6206462cba514c7590c09aff4cf6d1ddcad"
 dependencies = [
 =======
 version = "1.3.2"
+=======
+version = "1.3.3"
+>>>>>>> 7f4effb... fix: remove dead code
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d175dfa69e619905c4c3cdb7c3c203fa3bdd5d51184e3afdb2742c0280493772"
+checksum = "b1f45e9417d87227c7a56d22e471c6206462cba514c7590c09aff4cf6d1ddcad"
 dependencies = [
+<<<<<<< HEAD
  "byteorder 1.3.4",
 <<<<<<< HEAD
 >>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
 >>>>>>> 90c0444... feat: update dependencies to use proof aggregation branches
 =======
 >>>>>>> cee544c... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
+=======
+>>>>>>> 7f4effb... fix: remove dead code
  "serde",
 ]
 
@@ -247,7 +265,7 @@ checksum = "c0940dc441f31689269e10ac70eb1002a3a1d3ad1390e030043662eb7fe4688b"
 dependencies = [
  "block-padding 0.1.5",
  "byte-tools",
- "byteorder 1.3.4",
+ "byteorder 1.4.3",
  "generic-array 0.12.4",
 ]
 
@@ -344,9 +362,9 @@ checksum = "0fc10e8cc6b2580fda3f36eb6dc5316657f812a3df879a44a66fc9f0fdbc4855"
 
 [[package]]
 name = "byteorder"
-version = "1.3.4"
+version = "1.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "08c48aae112d48ed9f069b33538ea9e3e90aa263cfa3d1c24309612b1f7472de"
+checksum = "14c189c53d098945499cdfa7ecc63567cf3886b3332b312a5b4585d8d3a6a610"
 
 [[package]]
 name = "cbindgen"
@@ -366,6 +384,7 @@ dependencies = [
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  "syn 1.0.72",
 =======
 =======
@@ -378,6 +397,8 @@ dependencies = [
 >>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 =======
 >>>>>>> 066cb15... feat: update dependencies
+=======
+>>>>>>> 4b6c635... fix: remove dead code
 <<<<<<< HEAD
  "syn 1.0.71",
 =======
@@ -435,7 +456,13 @@ dependencies = [
 =======
  "syn 1.0.68",
 >>>>>>> 973487a... feat: update dependencies
+<<<<<<< HEAD
 >>>>>>> 066cb15... feat: update dependencies
+=======
+=======
+ "syn 1.0.69",
+>>>>>>> 7f4effb... fix: remove dead code
+>>>>>>> 4b6c635... fix: remove dead code
  "tempfile",
  "toml",
 ]
@@ -872,6 +899,7 @@ dependencies = [
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  "syn 1.0.72",
 =======
 =======
@@ -886,6 +914,8 @@ dependencies = [
 >>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 =======
 >>>>>>> 066cb15... feat: update dependencies
+=======
+>>>>>>> 4b6c635... fix: remove dead code
 <<<<<<< HEAD
  "syn 1.0.71",
 =======
@@ -954,7 +984,13 @@ dependencies = [
 =======
  "syn 1.0.68",
 >>>>>>> 973487a... feat: update dependencies
+<<<<<<< HEAD
 >>>>>>> 066cb15... feat: update dependencies
+=======
+=======
+ "syn 1.0.69",
+>>>>>>> 7f4effb... fix: remove dead code
+>>>>>>> 4b6c635... fix: remove dead code
 ]
 
 [[package]]
@@ -1073,6 +1109,7 @@ dependencies = [
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  "syn 1.0.72",
 =======
 =======
@@ -1085,6 +1122,8 @@ dependencies = [
 >>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 =======
 >>>>>>> 066cb15... feat: update dependencies
+=======
+>>>>>>> 4b6c635... fix: remove dead code
 <<<<<<< HEAD
  "syn 1.0.71",
 =======
@@ -1142,7 +1181,13 @@ dependencies = [
 =======
  "syn 1.0.68",
 >>>>>>> 973487a... feat: update dependencies
+<<<<<<< HEAD
 >>>>>>> 066cb15... feat: update dependencies
+=======
+=======
+ "syn 1.0.69",
+>>>>>>> 7f4effb... fix: remove dead code
+>>>>>>> 4b6c635... fix: remove dead code
  "synstructure",
 ]
 
@@ -1177,7 +1222,7 @@ name = "fff"
 version = "0.2.3"
 source = "git+https://github.com/filecoin-project/ff?branch=ser-de#231b29f9df9b13f510566e1d4b69e6b0e1bfc34e"
 dependencies = [
- "byteorder 1.3.4",
+ "byteorder 1.4.3",
  "cc",
  "fff_derive",
  "lazy_static",
@@ -1201,6 +1246,7 @@ dependencies = [
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  "syn 1.0.72",
 =======
 =======
@@ -1213,6 +1259,8 @@ dependencies = [
 >>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 =======
 >>>>>>> 066cb15... feat: update dependencies
+=======
+>>>>>>> 4b6c635... fix: remove dead code
 <<<<<<< HEAD
  "syn 1.0.71",
 =======
@@ -1270,7 +1318,13 @@ dependencies = [
 =======
  "syn 1.0.68",
 >>>>>>> 973487a... feat: update dependencies
+<<<<<<< HEAD
 >>>>>>> 066cb15... feat: update dependencies
+=======
+=======
+ "syn 1.0.69",
+>>>>>>> 7f4effb... fix: remove dead code
+>>>>>>> 4b6c635... fix: remove dead code
 ]
 
 [[package]]
@@ -1331,7 +1385,7 @@ dependencies = [
  "bellperson",
  "bls-signatures",
  "blstrs",
- "byteorder 1.3.4",
+ "byteorder 1.4.3",
  "cbindgen",
  "drop_struct_macro_derive 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "fff",
@@ -1372,6 +1426,7 @@ checksum = "51c5d4ca3e721a49f2a1caa6078ddf16006a42b3d8fb6cf7474e2e15fae1cd51"
 >>>>>>> 036e042... feat: re-factor aggregation API after initial feedback
 <<<<<<< HEAD
 version = "1.1.0"
+<<<<<<< HEAD
 <<<<<<< HEAD
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bf565398110cc0d13cfa33e6fe35fd3931ead236705bfe65dd98de0648687fc6"
@@ -1453,7 +1508,13 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-ag
 =======
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#ab958b57d2196f35e24ee62ab79d750f605cbf13"
 >>>>>>> 79d2c60... fix: clippy warnings and updated deps
+<<<<<<< HEAD
 >>>>>>> 9468026... fix: clippy warnings and updated deps
+=======
+=======
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#107a172e598bdb0dc478dc9cd586ba2ca4b59cdc"
+>>>>>>> 7f4effb... fix: remove dead code
+>>>>>>> 4b6c635... fix: remove dead code
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1490,6 +1551,7 @@ checksum = "f7298dd396ea87e73b37ec308a414da6e0d821bfab051b3eb0cea0984975d34c"
 >>>>>>> 036e042... feat: re-factor aggregation API after initial feedback
 <<<<<<< HEAD
 version = "6.1.0"
+<<<<<<< HEAD
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f41847588c8f6513238613d651003ee53aede586e275113544c5f99b65131940"
 =======
@@ -1571,7 +1633,13 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-ag
 =======
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#ab958b57d2196f35e24ee62ab79d750f605cbf13"
 >>>>>>> 79d2c60... fix: clippy warnings and updated deps
+<<<<<<< HEAD
 >>>>>>> 9468026... fix: clippy warnings and updated deps
+=======
+=======
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#107a172e598bdb0dc478dc9cd586ba2ca4b59cdc"
+>>>>>>> 7f4effb... fix: remove dead code
+>>>>>>> 4b6c635... fix: remove dead code
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1580,7 +1648,7 @@ dependencies = [
  "blake2b_simd",
  "blake2s_simd",
  "byte-slice-cast",
- "byteorder 1.3.4",
+ "byteorder 1.4.3",
  "fff",
  "fil_logger",
  "filecoin-hashers",
@@ -1724,6 +1792,7 @@ checksum = "80b8a719b5b65296a27043a36524d4bc5714d1031f1021f18ed55b77a5cbd50e"
 <<<<<<< HEAD
 version = "0.2.0"
 <<<<<<< HEAD
+<<<<<<< HEAD
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "61435ec5a58135c51c94b7a6d62448392e9f77a3b9906b4f77c957a0286b6db0"
 =======
@@ -1780,11 +1849,14 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-ag
 =======
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#ab958b57d2196f35e24ee62ab79d750f605cbf13"
 >>>>>>> 9468026... fix: clippy warnings and updated deps
+=======
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#107a172e598bdb0dc478dc9cd586ba2ca4b59cdc"
+>>>>>>> 4b6c635... fix: remove dead code
 dependencies = [
  "anyhow",
  "bellperson",
  "byte-slice-cast",
- "byteorder 1.3.4",
+ "byteorder 1.4.3",
  "fff",
  "thiserror",
 ]
@@ -2131,7 +2203,7 @@ checksum = "6981728ae8254e8417f6c2f84ac83acdc31a567c9dc1344e30e5bbe916024e15"
 dependencies = [
  "bellperson",
  "blake2s_simd",
- "byteorder 1.3.4",
+ "byteorder 1.4.3",
  "ff-cl-gen",
  "fff",
  "generic-array 0.14.4",
@@ -2369,7 +2441,7 @@ version = "0.21.0"
 source = "git+https://github.com/filecoin-project/paired?branch=feat-compression#f2f02233988eb1d58cc5bb967041f76eb6acd671"
 dependencies = [
  "blake2b_simd",
- "byteorder 1.3.4",
+ "byteorder 1.4.3",
  "digest 0.9.0",
  "fff",
  "groupy",
@@ -2650,7 +2722,20 @@ dependencies = [
 
 [[package]]
 name = "redox_syscall"
+<<<<<<< HEAD
 version = "0.2.8"
+=======
+<<<<<<< HEAD
+=======
+version = "0.1.57"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "41cc0f7e4d5d4544e8861606a285bb08d3e70712ccc7d2b84d7c0ccfaf4b05ce"
+
+[[package]]
+name = "redox_syscall"
+>>>>>>> 7f4effb... fix: remove dead code
+version = "0.2.6"
+>>>>>>> 4b6c635... fix: remove dead code
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "742739e41cd49414de871ea5e549afb7e2a3ac77b589bcbebe8c82fab37147fc"
 dependencies = [
@@ -2827,6 +2912,7 @@ dependencies = [
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  "syn 1.0.72",
 =======
 =======
@@ -2839,6 +2925,8 @@ dependencies = [
 >>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 =======
 >>>>>>> 066cb15... feat: update dependencies
+=======
+>>>>>>> 4b6c635... fix: remove dead code
 <<<<<<< HEAD
  "syn 1.0.71",
 =======
@@ -2896,7 +2984,13 @@ dependencies = [
 =======
  "syn 1.0.68",
 >>>>>>> 973487a... feat: update dependencies
+<<<<<<< HEAD
 >>>>>>> 066cb15... feat: update dependencies
+=======
+=======
+ "syn 1.0.69",
+>>>>>>> 7f4effb... fix: remove dead code
+>>>>>>> 4b6c635... fix: remove dead code
 ]
 
 [[package]]
@@ -2957,6 +3051,7 @@ version = "2.1.1"
 >>>>>>> 4f86b57... feat: re-factor aggregation API after initial feedback
 <<<<<<< HEAD
 version = "2.1.0"
+<<<<<<< HEAD
 >>>>>>> 9b3cd4f... feat: update dependencies to use proof aggregation branches
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "539cc80f0a1bb359db15f51cbb356c6fe524aa77b63a50417597ee3b25aa7e1b"
@@ -2991,9 +3086,12 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-ag
 =======
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#ab958b57d2196f35e24ee62ab79d750f605cbf13"
 >>>>>>> 9468026... fix: clippy warnings and updated deps
+=======
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#107a172e598bdb0dc478dc9cd586ba2ca4b59cdc"
+>>>>>>> 4b6c635... fix: remove dead code
 dependencies = [
  "block-buffer 0.9.0",
- "byteorder 1.3.4",
+ "byteorder 1.4.3",
  "cpuid-bool",
  "digest 0.9.0",
  "fake-simd",
@@ -3097,6 +3195,7 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-ag
 =======
 =======
 version = "6.1.0"
+<<<<<<< HEAD
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#4596099cc5f51f88c505ead222befede1cb9e11d"
 >>>>>>> cee544c... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 <<<<<<< HEAD
@@ -3111,7 +3210,13 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-ag
 =======
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#ab958b57d2196f35e24ee62ab79d750f605cbf13"
 >>>>>>> 79d2c60... fix: clippy warnings and updated deps
+<<<<<<< HEAD
 >>>>>>> 9468026... fix: clippy warnings and updated deps
+=======
+=======
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#107a172e598bdb0dc478dc9cd586ba2ca4b59cdc"
+>>>>>>> 7f4effb... fix: remove dead code
+>>>>>>> 4b6c635... fix: remove dead code
 dependencies = [
  "aes",
  "anyhow",
@@ -3119,7 +3224,7 @@ dependencies = [
  "blake2b_simd",
  "blake2s_simd",
  "block-modes",
- "byteorder 1.3.4",
+ "byteorder 1.4.3",
  "config",
  "fff",
  "filecoin-hashers",
@@ -3168,6 +3273,7 @@ checksum = "122e972e524806f4a0dba57ad0477a0a57b1c2fc76e900c5a26da2554dc47667"
 >>>>>>> 036e042... feat: re-factor aggregation API after initial feedback
 <<<<<<< HEAD
 version = "6.1.0"
+<<<<<<< HEAD
 <<<<<<< HEAD
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "19254773f548abbf17924c558017864ae15741459a4b5819d88ac9db244f9349"
@@ -3249,13 +3355,19 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-ag
 =======
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#ab958b57d2196f35e24ee62ab79d750f605cbf13"
 >>>>>>> 79d2c60... fix: clippy warnings and updated deps
+<<<<<<< HEAD
 >>>>>>> 9468026... fix: clippy warnings and updated deps
+=======
+=======
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#107a172e598bdb0dc478dc9cd586ba2ca4b59cdc"
+>>>>>>> 7f4effb... fix: remove dead code
+>>>>>>> 4b6c635... fix: remove dead code
 dependencies = [
  "anyhow",
  "bellperson",
  "bincode",
  "byte-slice-cast",
- "byteorder 1.3.4",
+ "byteorder 1.4.3",
  "crossbeam 0.8.0",
  "digest 0.9.0",
  "fdlimit",
@@ -3343,6 +3455,7 @@ version = "6.1.0"
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#02110de4a0f8fdeaabdaa7289c721d39c3524127"
 <<<<<<< HEAD
 >>>>>>> bf5f740... feat: re-factor aggregation API after initial feedback
@@ -3387,13 +3500,19 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-ag
 =======
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#ab958b57d2196f35e24ee62ab79d750f605cbf13"
 >>>>>>> 79d2c60... fix: clippy warnings and updated deps
+<<<<<<< HEAD
 >>>>>>> 9468026... fix: clippy warnings and updated deps
+=======
+=======
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#107a172e598bdb0dc478dc9cd586ba2ca4b59cdc"
+>>>>>>> 7f4effb... fix: remove dead code
+>>>>>>> 4b6c635... fix: remove dead code
 dependencies = [
  "anyhow",
  "bellperson",
  "blake2b_simd",
  "blake2s_simd",
- "byteorder 1.3.4",
+ "byteorder 1.4.3",
  "crossbeam 0.8.0",
  "fff",
  "filecoin-hashers",
@@ -3442,6 +3561,7 @@ name = "syn"
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 version = "1.0.72"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a1e8cdbefb79a9a5a65e0db8b47b723ee907b7c7f8496c76a1770b5c310bab82"
@@ -3456,6 +3576,8 @@ checksum = "a1e8cdbefb79a9a5a65e0db8b47b723ee907b7c7f8496c76a1770b5c310bab82"
 >>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 =======
 >>>>>>> 066cb15... feat: update dependencies
+=======
+>>>>>>> 4b6c635... fix: remove dead code
 <<<<<<< HEAD
 version = "1.0.71"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3531,7 +3653,15 @@ version = "1.0.68"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3ce15dd3ed8aa2f8eeac4716d6ef5ab58b6b9256db41d7e1a0224c2788e8fd87"
 >>>>>>> 973487a... feat: update dependencies
+<<<<<<< HEAD
 >>>>>>> 066cb15... feat: update dependencies
+=======
+=======
+version = "1.0.69"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "48fe99c6bd8b1cc636890bcc071842de909d902c81ac7dab53ba33c421ab8ffb"
+>>>>>>> 7f4effb... fix: remove dead code
+>>>>>>> 4b6c635... fix: remove dead code
 dependencies = [
  "proc-macro2 1.0.26",
  "quote 1.0.9",
@@ -3552,6 +3682,7 @@ dependencies = [
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  "syn 1.0.72",
  "unicode-xid 0.2.2",
 =======
@@ -3565,6 +3696,8 @@ dependencies = [
 >>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 =======
 >>>>>>> 066cb15... feat: update dependencies
+=======
+>>>>>>> 4b6c635... fix: remove dead code
 <<<<<<< HEAD
  "syn 1.0.71",
 =======
@@ -3607,6 +3740,9 @@ dependencies = [
 =======
  "syn 1.0.68",
 >>>>>>> 973487a... feat: update dependencies
+=======
+ "syn 1.0.69",
+>>>>>>> 7f4effb... fix: remove dead code
  "unicode-xid 0.2.1",
 >>>>>>> 648c822... style: deps update
 ]
@@ -3630,7 +3766,11 @@ dependencies = [
  "cfg-if 1.0.0",
  "libc",
  "rand 0.8.3",
+<<<<<<< HEAD
  "redox_syscall",
+=======
+ "redox_syscall 0.2.6",
+>>>>>>> 7f4effb... fix: remove dead code
  "remove_dir_all",
  "winapi 0.3.9",
 ]
@@ -3667,6 +3807,7 @@ dependencies = [
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  "syn 1.0.72",
 =======
 =======
@@ -3679,6 +3820,8 @@ dependencies = [
 >>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 =======
 >>>>>>> 066cb15... feat: update dependencies
+=======
+>>>>>>> 4b6c635... fix: remove dead code
 <<<<<<< HEAD
  "syn 1.0.71",
 =======
@@ -3733,7 +3876,13 @@ dependencies = [
 =======
  "syn 1.0.68",
 >>>>>>> 973487a... feat: update dependencies
+<<<<<<< HEAD
 >>>>>>> 066cb15... feat: update dependencies
+=======
+=======
+ "syn 1.0.69",
+>>>>>>> 7f4effb... fix: remove dead code
+>>>>>>> 4b6c635... fix: remove dead code
 ]
 
 [[package]]
@@ -3878,12 +4027,15 @@ dependencies = [
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  "syn 1.0.72",
 =======
 =======
 >>>>>>> dc6d81e... feat: additional re-factors of API (some unused, for consideration only)
 =======
 >>>>>>> 066cb15... feat: update dependencies
+=======
+>>>>>>> 4b6c635... fix: remove dead code
 <<<<<<< HEAD
  "syn 1.0.71",
 =======
@@ -3905,6 +4057,12 @@ dependencies = [
 =======
  "syn 1.0.68",
 >>>>>>> 973487a... feat: update dependencies
+<<<<<<< HEAD
 >>>>>>> 066cb15... feat: update dependencies
+=======
+=======
+ "syn 1.0.69",
+>>>>>>> 7f4effb... fix: remove dead code
+>>>>>>> 4b6c635... fix: remove dead code
  "synstructure",
 ]
