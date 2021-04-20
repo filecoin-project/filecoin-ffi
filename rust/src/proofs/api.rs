@@ -411,6 +411,7 @@ pub unsafe extern "C" fn fil_aggregate_seal_proofs(
     seal_commit_responses_len: libc::size_t,
 ) -> *mut fil_AggregateProof {
     catch_panic_response(|| {
+        init_log();
         info!("aggregate_seal_proofs: start");
 
         let outputs: Vec<SealCommitPhase2Output> =
@@ -492,40 +493,47 @@ pub unsafe extern "C" fn fil_verify_aggregate_seal_proof(
         let mut response = fil_VerifyAggregateSealProofResponse::default();
 
         let mut inputs: Vec<Vec<Fr>> = Vec::new();
+        let mut failed_conversion = false;
         for input in &commit_inputs {
             let converted = match convert_aggregation_inputs(registered_proof, prover_id, &input) {
                 Ok(x) => x,
                 Err(err) => {
                     response.status_code = FCPResponseStatus::FCPUnclassifiedError;
                     response.error_msg = rust_str_to_c_str(format!("{:?}", err));
-                    return raw_ptr(response);
+                    response.is_valid = false;
+
+                    failed_conversion = true;
+                    break;
                 }
             };
 
             inputs.extend(converted);
         }
 
-        let result = verify_aggregate_seal_commit_proofs(
-            registered_proof.into(),
-            commit_inputs.len(),
-            proof_bytes,
-            inputs,
-        );
+        if !failed_conversion {
+            let result = verify_aggregate_seal_commit_proofs(
+                registered_proof.into(),
+                commit_inputs.len(),
+                proof_bytes,
+                inputs,
+            );
 
-        match result {
-            Ok(true) => {
-                response.status_code = FCPResponseStatus::FCPNoError;
-                response.is_valid = true;
-            }
-            Ok(false) => {
-                response.status_code = FCPResponseStatus::FCPNoError;
-                response.is_valid = false;
-            }
-            Err(err) => {
-                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
-            }
-        };
+            match result {
+                Ok(true) => {
+                    response.status_code = FCPResponseStatus::FCPNoError;
+                    response.is_valid = true;
+                }
+                Ok(false) => {
+                    response.status_code = FCPResponseStatus::FCPNoError;
+                    response.is_valid = false;
+                }
+                Err(err) => {
+                    response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                    response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                    response.is_valid = false;
+                }
+            };
+        }
 
         info!("verify_aggregate_seal_proof: finish");
 
