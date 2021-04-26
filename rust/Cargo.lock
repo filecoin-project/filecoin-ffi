@@ -385,6 +385,7 @@ dependencies = [
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  "syn 1.0.72",
 =======
 =======
@@ -399,6 +400,8 @@ dependencies = [
 >>>>>>> 066cb15... feat: update dependencies
 =======
 >>>>>>> 4b6c635... fix: remove dead code
+=======
+>>>>>>> 2edaa92... feat: add RegisteredAggregationProof type and supported helpers
 <<<<<<< HEAD
  "syn 1.0.71",
 =======
@@ -462,7 +465,13 @@ dependencies = [
 =======
  "syn 1.0.69",
 >>>>>>> 7f4effb... fix: remove dead code
+<<<<<<< HEAD
 >>>>>>> 4b6c635... fix: remove dead code
+=======
+=======
+ "syn 1.0.70",
+>>>>>>> 0c12af0... feat: add RegisteredAggregationProof type and supported helpers
+>>>>>>> 2edaa92... feat: add RegisteredAggregationProof type and supported helpers
  "tempfile",
  "toml",
 ]
@@ -900,6 +909,7 @@ dependencies = [
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  "syn 1.0.72",
 =======
 =======
@@ -916,6 +926,8 @@ dependencies = [
 >>>>>>> 066cb15... feat: update dependencies
 =======
 >>>>>>> 4b6c635... fix: remove dead code
+=======
+>>>>>>> 2edaa92... feat: add RegisteredAggregationProof type and supported helpers
 <<<<<<< HEAD
  "syn 1.0.71",
 =======
@@ -990,7 +1002,13 @@ dependencies = [
 =======
  "syn 1.0.69",
 >>>>>>> 7f4effb... fix: remove dead code
+<<<<<<< HEAD
 >>>>>>> 4b6c635... fix: remove dead code
+=======
+=======
+ "syn 1.0.70",
+>>>>>>> 0c12af0... feat: add RegisteredAggregationProof type and supported helpers
+>>>>>>> 2edaa92... feat: add RegisteredAggregationProof type and supported helpers
 ]
 
 [[package]]
@@ -1110,6 +1128,7 @@ dependencies = [
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  "syn 1.0.72",
 =======
 =======
@@ -1124,6 +1143,8 @@ dependencies = [
 >>>>>>> 066cb15... feat: update dependencies
 =======
 >>>>>>> 4b6c635... fix: remove dead code
+=======
+>>>>>>> 2edaa92... feat: add RegisteredAggregationProof type and supported helpers
 <<<<<<< HEAD
  "syn 1.0.71",
 =======
@@ -1187,7 +1208,13 @@ dependencies = [
 =======
  "syn 1.0.69",
 >>>>>>> 7f4effb... fix: remove dead code
+<<<<<<< HEAD
 >>>>>>> 4b6c635... fix: remove dead code
+=======
+=======
+ "syn 1.0.70",
+>>>>>>> 0c12af0... feat: add RegisteredAggregationProof type and supported helpers
+>>>>>>> 2edaa92... feat: add RegisteredAggregationProof type and supported helpers
  "synstructure",
 ]
 
@@ -1247,6 +1274,7 @@ dependencies = [
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  "syn 1.0.72",
 =======
 =======
@@ -1261,6 +1289,8 @@ dependencies = [
 >>>>>>> 066cb15... feat: update dependencies
 =======
 >>>>>>> 4b6c635... fix: remove dead code
+=======
+>>>>>>> 2edaa92... feat: add RegisteredAggregationProof type and supported helpers
 <<<<<<< HEAD
  "syn 1.0.71",
 =======
@@ -1324,7 +1354,13 @@ dependencies = [
 =======
  "syn 1.0.69",
 >>>>>>> 7f4effb... fix: remove dead code
+<<<<<<< HEAD
 >>>>>>> 4b6c635... fix: remove dead code
+=======
+=======
+ "syn 1.0.70",
+>>>>>>> 0c12af0... feat: add RegisteredAggregationProof type and supported helpers
+>>>>>>> 2edaa92... feat: add RegisteredAggregationProof type and supported helpers
 ]
 
 [[package]]
@@ -1734,6 +1770,7 @@ source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branc
 =======
 =======
 version = "6.1.0"
+<<<<<<< HEAD
 source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=feat-aggregation#a547522401e247ca86196daa12251231f3d79e63"
 >>>>>>> 10335c0... feat: additional re-factors of API (some unused, for consideration only)
 >>>>>>> 7af25dc... feat: additional re-factors of API (some unused, for consideration only)
@@ -1744,6 +1781,9 @@ source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branc
 =======
 source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=feat-aggregation#de20a07d5585dc5465db8ae3ced7b481c1cdfce7"
 >>>>>>> 973487a... feat: update dependencies
+=======
+source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=feat-aggregation#6b0bf94d4ee250bc9da39a6d83153eb786d4e462"
+>>>>>>> 0c12af0... feat: add RegisteredAggregationProof type and supported helpers
 dependencies = [
  "anyhow",
  "bellperson",
@@ -2057,6 +2097,7 @@ name = "libc"
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 version = "0.2.94"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "18794a8ad5b29321f790b55d93dfba91e125cb1a9edbd4f8e3150acc771c1a5e"
@@ -2106,6 +2147,11 @@ version = "0.2.93"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9385f66bf6105b241aa65a61cb923ef20efc665cb9f9bb50ac2f0c4b7f378d41"
 >>>>>>> 79d2c60... fix: clippy warnings and updated deps
+=======
+version = "0.2.94"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "18794a8ad5b29321f790b55d93dfba91e125cb1a9edbd4f8e3150acc771c1a5e"
+>>>>>>> 0c12af0... feat: add RegisteredAggregationProof type and supported helpers
 
 [[package]]
 name = "log"
@@ -2723,8 +2769,11 @@ dependencies = [
 [[package]]
 name = "redox_syscall"
 <<<<<<< HEAD
+<<<<<<< HEAD
 version = "0.2.8"
 =======
+=======
+>>>>>>> 2edaa92... feat: add RegisteredAggregationProof type and supported helpers
 <<<<<<< HEAD
 =======
 version = "0.1.57"
@@ -2734,6 +2783,8 @@ checksum = "41cc0f7e4d5d4544e8861606a285bb08d3e70712ccc7d2b84d7c0ccfaf4b05ce"
 [[package]]
 name = "redox_syscall"
 >>>>>>> 7f4effb... fix: remove dead code
+=======
+>>>>>>> 0c12af0... feat: add RegisteredAggregationProof type and supported helpers
 version = "0.2.6"
 >>>>>>> 4b6c635... fix: remove dead code
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2755,10 +2806,13 @@ dependencies = [
 [[package]]
 name = "regex"
 <<<<<<< HEAD
+<<<<<<< HEAD
 version = "1.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ce5f1ceb7f74abbce32601642fcf8e8508a8a8991e0621c7d750295b9095702b"
 =======
+=======
+>>>>>>> 2edaa92... feat: add RegisteredAggregationProof type and supported helpers
 <<<<<<< HEAD
 version = "1.4.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2768,7 +2822,15 @@ version = "1.4.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "957056ecddbeba1b26965114e191d2e8589ce74db242b6ea25fc4062427a5c19"
 >>>>>>> 49397a4... feat: update to the latest proofs aggregation API
+<<<<<<< HEAD
 >>>>>>> 95ea821... feat: update to the latest proofs aggregation API
+=======
+=======
+version = "1.4.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2a26af418b574bd56588335b3a3659a65725d4e636eb1016c2f9e3b38c7cc759"
+>>>>>>> 0c12af0... feat: add RegisteredAggregationProof type and supported helpers
+>>>>>>> 2edaa92... feat: add RegisteredAggregationProof type and supported helpers
 dependencies = [
  "aho-corasick",
  "memchr",
@@ -2792,6 +2854,7 @@ dependencies = [
 
 [[package]]
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 name = "rust-argon2"
 version = "0.8.3"
@@ -2806,6 +2869,8 @@ dependencies = [
 
 [[package]]
 >>>>>>> 90c0444... feat: update dependencies to use proof aggregation branches
+=======
+>>>>>>> 0c12af0... feat: add RegisteredAggregationProof type and supported helpers
 name = "rust-gpu-tools"
 version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2913,6 +2978,7 @@ dependencies = [
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  "syn 1.0.72",
 =======
 =======
@@ -2927,6 +2993,8 @@ dependencies = [
 >>>>>>> 066cb15... feat: update dependencies
 =======
 >>>>>>> 4b6c635... fix: remove dead code
+=======
+>>>>>>> 2edaa92... feat: add RegisteredAggregationProof type and supported helpers
 <<<<<<< HEAD
  "syn 1.0.71",
 =======
@@ -2990,7 +3058,13 @@ dependencies = [
 =======
  "syn 1.0.69",
 >>>>>>> 7f4effb... fix: remove dead code
+<<<<<<< HEAD
 >>>>>>> 4b6c635... fix: remove dead code
+=======
+=======
+ "syn 1.0.70",
+>>>>>>> 0c12af0... feat: add RegisteredAggregationProof type and supported helpers
+>>>>>>> 2edaa92... feat: add RegisteredAggregationProof type and supported helpers
 ]
 
 [[package]]
@@ -3562,6 +3636,7 @@ name = "syn"
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 version = "1.0.72"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a1e8cdbefb79a9a5a65e0db8b47b723ee907b7c7f8496c76a1770b5c310bab82"
@@ -3578,6 +3653,8 @@ checksum = "a1e8cdbefb79a9a5a65e0db8b47b723ee907b7c7f8496c76a1770b5c310bab82"
 >>>>>>> 066cb15... feat: update dependencies
 =======
 >>>>>>> 4b6c635... fix: remove dead code
+=======
+>>>>>>> 2edaa92... feat: add RegisteredAggregationProof type and supported helpers
 <<<<<<< HEAD
 version = "1.0.71"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3661,7 +3738,15 @@ version = "1.0.69"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "48fe99c6bd8b1cc636890bcc071842de909d902c81ac7dab53ba33c421ab8ffb"
 >>>>>>> 7f4effb... fix: remove dead code
+<<<<<<< HEAD
 >>>>>>> 4b6c635... fix: remove dead code
+=======
+=======
+version = "1.0.70"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b9505f307c872bab8eb46f77ae357c8eba1fdacead58ee5a850116b1d7f82883"
+>>>>>>> 0c12af0... feat: add RegisteredAggregationProof type and supported helpers
+>>>>>>> 2edaa92... feat: add RegisteredAggregationProof type and supported helpers
 dependencies = [
  "proc-macro2 1.0.26",
  "quote 1.0.9",
@@ -3676,6 +3761,7 @@ checksum = "b834f2d66f734cb897113e34aaff2f1ab4719ca946f9a7358dba8f8064148701"
 dependencies = [
  "proc-macro2 1.0.26",
  "quote 1.0.9",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -3698,6 +3784,8 @@ dependencies = [
 >>>>>>> 066cb15... feat: update dependencies
 =======
 >>>>>>> 4b6c635... fix: remove dead code
+=======
+>>>>>>> 2edaa92... feat: add RegisteredAggregationProof type and supported helpers
 <<<<<<< HEAD
  "syn 1.0.71",
 =======
@@ -3743,6 +3831,9 @@ dependencies = [
 =======
  "syn 1.0.69",
 >>>>>>> 7f4effb... fix: remove dead code
+=======
+ "syn 1.0.70",
+>>>>>>> 0c12af0... feat: add RegisteredAggregationProof type and supported helpers
  "unicode-xid 0.2.1",
 >>>>>>> 648c822... style: deps update
 ]
@@ -3767,10 +3858,14 @@ dependencies = [
  "libc",
  "rand 0.8.3",
 <<<<<<< HEAD
+<<<<<<< HEAD
  "redox_syscall",
 =======
  "redox_syscall 0.2.6",
 >>>>>>> 7f4effb... fix: remove dead code
+=======
+ "redox_syscall",
+>>>>>>> 0c12af0... feat: add RegisteredAggregationProof type and supported helpers
  "remove_dir_all",
  "winapi 0.3.9",
 ]
@@ -3808,6 +3903,7 @@ dependencies = [
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  "syn 1.0.72",
 =======
 =======
@@ -3822,6 +3918,8 @@ dependencies = [
 >>>>>>> 066cb15... feat: update dependencies
 =======
 >>>>>>> 4b6c635... fix: remove dead code
+=======
+>>>>>>> 2edaa92... feat: add RegisteredAggregationProof type and supported helpers
 <<<<<<< HEAD
  "syn 1.0.71",
 =======
@@ -3882,7 +3980,13 @@ dependencies = [
 =======
  "syn 1.0.69",
 >>>>>>> 7f4effb... fix: remove dead code
+<<<<<<< HEAD
 >>>>>>> 4b6c635... fix: remove dead code
+=======
+=======
+ "syn 1.0.70",
+>>>>>>> 0c12af0... feat: add RegisteredAggregationProof type and supported helpers
+>>>>>>> 2edaa92... feat: add RegisteredAggregationProof type and supported helpers
 ]
 
 [[package]]
@@ -4028,6 +4132,7 @@ dependencies = [
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  "syn 1.0.72",
 =======
 =======
@@ -4036,6 +4141,8 @@ dependencies = [
 >>>>>>> 066cb15... feat: update dependencies
 =======
 >>>>>>> 4b6c635... fix: remove dead code
+=======
+>>>>>>> 2edaa92... feat: add RegisteredAggregationProof type and supported helpers
 <<<<<<< HEAD
  "syn 1.0.71",
 =======
@@ -4063,6 +4170,12 @@ dependencies = [
 =======
  "syn 1.0.69",
 >>>>>>> 7f4effb... fix: remove dead code
+<<<<<<< HEAD
 >>>>>>> 4b6c635... fix: remove dead code
+=======
+=======
+ "syn 1.0.70",
+>>>>>>> 0c12af0... feat: add RegisteredAggregationProof type and supported helpers
+>>>>>>> 2edaa92... feat: add RegisteredAggregationProof type and supported helpers
  "synstructure",
 ]

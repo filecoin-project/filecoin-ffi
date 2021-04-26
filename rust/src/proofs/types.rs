@@ -6,7 +6,7 @@ use anyhow::Result;
 use drop_struct_macro_derive::DropStructMacro;
 use ffi_toolkit::{code_and_message_impl, free_c_str, CodeAndMessage, FCPResponseStatus};
 use filecoin_proofs_api::{
-    PieceInfo, RegisteredPoStProof, RegisteredSealProof, UnpaddedBytesAmount,
+    PieceInfo, RegisteredAggregationProof, RegisteredPoStProof, RegisteredSealProof, UnpaddedBytesAmount,
 };
 
 #[repr(C)]
@@ -161,6 +161,28 @@ impl From<fil_RegisteredPoStProof> for RegisteredPoStProof {
             fil_RegisteredPoStProof::StackedDrgWindow512MiBV1 => StackedDrgWindow512MiBV1,
             fil_RegisteredPoStProof::StackedDrgWindow32GiBV1 => StackedDrgWindow32GiBV1,
             fil_RegisteredPoStProof::StackedDrgWindow64GiBV1 => StackedDrgWindow64GiBV1,
+        }
+    }
+}
+
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub enum fil_RegisteredAggregationProof {
+    IppPoRepV1,
+}
+
+impl From<RegisteredAggregationProof> for fil_RegisteredAggregationProof {
+    fn from(other: RegisteredAggregationProof) -> Self {
+        match other {
+            RegisteredAggregationProof::IppPoRepV1 => fil_RegisteredAggregationProof::IppPoRepV1,
+        }
+    }
+}
+
+impl From<fil_RegisteredAggregationProof> for RegisteredAggregationProof {
+    fn from(other: fil_RegisteredAggregationProof) -> Self {
+        match other {
+            fil_RegisteredAggregationProof::IppPoRepV1 => RegisteredAggregationProof::IppPoRepV1,
         }
     }
 }

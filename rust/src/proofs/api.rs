@@ -406,6 +406,7 @@ pub unsafe extern "C" fn fil_seal_commit_phase2(
 #[no_mangle]
 pub unsafe extern "C" fn fil_aggregate_seal_proofs(
     registered_proof: fil_RegisteredSealProof,
+    registered_aggregation: fil_RegisteredAggregationProof,
     seal_commit_responses_ptr: *const fil_SealCommitPhase2Response,
     seal_commit_responses_len: libc::size_t,
 ) -> *mut fil_AggregateProof {
@@ -425,7 +426,7 @@ pub unsafe extern "C" fn fil_aggregate_seal_proofs(
             })
             .collect();
 
-        let result = aggregate_seal_commit_proofs(registered_proof.into(), &outputs);
+        let result = aggregate_seal_commit_proofs(registered_proof.into(), registered_aggregation.into(), &outputs);
 
         let mut response = fil_AggregateProof::default();
 
@@ -473,6 +474,7 @@ pub fn convert_aggregation_inputs(
 #[no_mangle]
 pub unsafe extern "C" fn fil_verify_aggregate_seal_proof(
     registered_proof: fil_RegisteredSealProof,
+    registered_aggregation: fil_RegisteredAggregationProof,
     prover_id: fil_32ByteArray,
     proof_ptr: *const u8,
     proof_len: libc::size_t,
@@ -512,6 +514,7 @@ pub unsafe extern "C" fn fil_verify_aggregate_seal_proof(
         if !failed_conversion {
             let result = verify_aggregate_seal_commit_proofs(
                 registered_proof.into(),
+                registered_aggregation.into(),
                 commit_inputs.len(),
                 proof_bytes,
                 inputs,
@@ -2685,16 +2688,16 @@ pub mod tests {
     #[test]
     #[ignore]
     fn test_sealing_aggregation_v1() -> Result<()> {
-        test_sealing_aggregation(fil_RegisteredSealProof::StackedDrg2KiBV1)
+        test_sealing_aggregation(fil_RegisteredSealProof::StackedDrg2KiBV1, fil_RegisteredAggregationProof::IppPoRepV1)
     }
 
     #[test]
     #[ignore]
     fn test_sealing_aggregation_v1_1() -> Result<()> {
-        test_sealing_aggregation(fil_RegisteredSealProof::StackedDrg2KiBV1_1)
+        test_sealing_aggregation(fil_RegisteredSealProof::StackedDrg2KiBV1_1, fil_RegisteredAggregationProof::IppPoRepV1)
     }
 
-    fn test_sealing_aggregation(registered_proof_seal: fil_RegisteredSealProof) -> Result<()> {
+    fn test_sealing_aggregation(registered_proof_seal: fil_RegisteredSealProof, registered_aggregation: fil_RegisteredAggregationProof) -> Result<()> {
         let wrap = |x| fil_32ByteArray { inner: x };
 
         // miscellaneous setup and shared values
@@ -2905,6 +2908,7 @@ pub mod tests {
 
             let resp_aggregate_proof = fil_aggregate_seal_proofs(
                 registered_proof_seal,
+                registered_aggregation,
                 seal_commit_responses.as_ptr(),
                 seal_commit_responses.len(),
             );
@@ -2933,6 +2937,7 @@ pub mod tests {
 
             let resp_ad = fil_verify_aggregate_seal_proof(
                 registered_proof_seal,
+                registered_aggregation,
                 prover_id,
                 (*resp_aggregate_proof).proof_ptr,
                 (*resp_aggregate_proof).proof_len,
