@@ -15,6 +15,7 @@ use filecoin_proofs_api::{
 
 use bellperson::bls::Fr;
 use log::{error, info};
+
 use std::mem;
 use std::path::PathBuf;
 use std::slice::from_raw_parts;
@@ -45,11 +46,13 @@ pub unsafe extern "C" fn fil_write_with_alignment(
 
         let mut response = fil_WriteWithAlignmentResponse::default();
 
-        let piece_sizes: Vec<UnpaddedBytesAmount> =
-            from_raw_parts(existing_piece_sizes_ptr, existing_piece_sizes_len)
-                .iter()
-                .map(|n| UnpaddedBytesAmount(*n))
-                .collect();
+        let slice: &[u64] =
+            std::slice::from_raw_parts(existing_piece_sizes_ptr, existing_piece_sizes_len);
+        let piece_sizes: Vec<UnpaddedBytesAmount> = slice
+            .to_vec()
+            .iter()
+            .map(|n| UnpaddedBytesAmount(*n))
+            .collect();
 
         let n = UnpaddedBytesAmount(src_size);
 
@@ -209,11 +212,9 @@ pub unsafe extern "C" fn fil_seal_pre_commit_phase1(
 
         info!("seal_pre_commit_phase1: start");
 
-        let public_pieces: Vec<PieceInfo> = from_raw_parts(pieces_ptr, pieces_len)
-            .iter()
-            .cloned()
-            .map(Into::into)
-            .collect();
+        let slice: &[fil_PublicPieceInfo] = std::slice::from_raw_parts(pieces_ptr, pieces_len);
+        let public_pieces: Vec<PieceInfo> =
+            slice.to_vec().iter().cloned().map(Into::into).collect();
 
         let mut response: fil_SealPreCommitPhase1Response = Default::default();
 
@@ -326,11 +327,9 @@ pub unsafe extern "C" fn fil_seal_commit_phase1(
             comm_d: comm_d.inner,
         };
 
-        let public_pieces: Vec<PieceInfo> = from_raw_parts(pieces_ptr, pieces_len)
-            .iter()
-            .cloned()
-            .map(Into::into)
-            .collect();
+        let slice: &[fil_PublicPieceInfo] = std::slice::from_raw_parts(pieces_ptr, pieces_len);
+        let public_pieces: Vec<PieceInfo> =
+            slice.to_vec().iter().cloned().map(Into::into).collect();
 
         let result = seal_commit_phase1(
             c_str_to_pbuf(cache_dir_path),
@@ -414,16 +413,17 @@ pub unsafe extern "C" fn fil_aggregate_seal_proofs(
         init_log();
         info!("aggregate_seal_proofs: start");
 
-        let outputs: Vec<SealCommitPhase2Output> =
-            from_raw_parts(seal_commit_responses_ptr, seal_commit_responses_len)
-                .iter()
-                .map(|x| {
-                    let slice: &[u8] = std::slice::from_raw_parts(x.proof_ptr, x.proof_len);
-                    let proof: Vec<u8> = slice.to_vec();
+        let responses: &[fil_SealCommitPhase2Response] =
+            std::slice::from_raw_parts(seal_commit_responses_ptr, seal_commit_responses_len);
+        let outputs: Vec<SealCommitPhase2Output> = responses
+            .iter()
+            .map(|x| {
+                let slice: &[u8] = std::slice::from_raw_parts(x.proof_ptr, x.proof_len);
+                let proof: Vec<u8> = slice.to_vec();
 
-                    SealCommitPhase2Output { proof }
-                })
-                .collect();
+                SealCommitPhase2Output { proof }
+            })
+            .collect();
 
         let result = aggregate_seal_commit_proofs(registered_proof.into(), &outputs);
 
@@ -484,8 +484,7 @@ pub unsafe extern "C" fn fil_verify_aggregate_seal_proof(
 
         info!("verify_aggregate_seal_proof: start");
 
-        let mut proof_bytes: Vec<u8> = vec![0; proof_len];
-        proof_bytes.clone_from_slice(from_raw_parts(proof_ptr, proof_len));
+        let proof_bytes: Vec<u8> = std::slice::from_raw_parts(proof_ptr, proof_len).to_vec();
 
         let commit_inputs: Vec<fil_AggregationInputs> =
             std::slice::from_raw_parts(commit_inputs_ptr, commit_inputs_len).to_vec();
@@ -620,8 +619,7 @@ pub unsafe extern "C" fn fil_verify_seal(
 
         info!("verify_seal: start");
 
-        let mut proof_bytes: Vec<u8> = vec![0; proof_len];
-        proof_bytes.clone_from_slice(from_raw_parts(proof_ptr, proof_len));
+        let proof_bytes: Vec<u8> = std::slice::from_raw_parts(proof_ptr, proof_len).to_vec();
 
         let result = verify_seal(
             registered_proof.into(),
@@ -717,11 +715,8 @@ pub unsafe extern "C" fn fil_generate_fallback_sector_challenges(
 
         info!("generate_fallback_sector_challenges: start");
 
-        let pub_sectors: Vec<SectorId> = from_raw_parts(sector_ids_ptr, sector_ids_len)
-            .iter()
-            .cloned()
-            .map(Into::into)
-            .collect();
+        let slice: &[u64] = std::slice::from_raw_parts(sector_ids_ptr, sector_ids_len);
+        let pub_sectors: Vec<SectorId> = slice.to_vec().iter().cloned().map(Into::into).collect();
 
         let result = filecoin_proofs_api::post::generate_fallback_sector_challenges(
             registered_proof.into(),
@@ -803,7 +798,8 @@ pub unsafe extern "C" fn fil_generate_single_vanilla_proof(
 
         info!("generate_single_vanilla_proof: start");
 
-        let challenges: Vec<u64> = from_raw_parts(challenges_ptr, challenges_len)
+        let challenges: Vec<u64> = std::slice::from_raw_parts(challenges_ptr, challenges_len)
+            .to_vec()
             .iter()
             .copied()
             .collect();
@@ -863,14 +859,16 @@ pub unsafe extern "C" fn fil_generate_winning_post_with_vanilla(
 
         info!("generate_winning_post_with_vanilla: start");
 
-        let vanilla_proofs: Vec<VanillaProof> =
-            from_raw_parts(vanilla_proofs_ptr, vanilla_proofs_len)
-                .iter()
-                .cloned()
-                .map(|vanilla_proof| {
-                    from_raw_parts(vanilla_proof.proof_ptr, vanilla_proof.proof_len).to_vec()
-                })
-                .collect();
+        let proofs: &[fil_VanillaProof] =
+            std::slice::from_raw_parts(vanilla_proofs_ptr, vanilla_proofs_len);
+        let vanilla_proofs: Vec<VanillaProof> = proofs
+            .iter()
+            .cloned()
+            .map(|vanilla_proof| {
+                std::slice::from_raw_parts(vanilla_proof.proof_ptr, vanilla_proof.proof_len)
+                    .to_vec()
+            })
+            .collect();
 
         let result = filecoin_proofs_api::post::generate_winning_post_with_vanilla(
             registered_proof.into(),
@@ -1039,11 +1037,12 @@ pub unsafe extern "C" fn fil_generate_window_post_with_vanilla(
         info!("generate_window_post_with_vanilla: start");
 
         let vanilla_proofs: Vec<VanillaProof> =
-            from_raw_parts(vanilla_proofs_ptr, vanilla_proofs_len)
+            std::slice::from_raw_parts(vanilla_proofs_ptr, vanilla_proofs_len)
                 .iter()
                 .cloned()
                 .map(|vanilla_proof| {
-                    from_raw_parts(vanilla_proof.proof_ptr, vanilla_proof.proof_len).to_vec()
+                    std::slice::from_raw_parts(vanilla_proof.proof_ptr, vanilla_proof.proof_len)
+                        .to_vec()
                 })
                 .collect();
 
@@ -1279,7 +1278,8 @@ pub unsafe extern "C" fn fil_generate_data_commitment(
 
         info!("generate_data_commitment: start");
 
-        let public_pieces: Vec<PieceInfo> = from_raw_parts(pieces_ptr, pieces_len)
+        let public_pieces: Vec<PieceInfo> = std::slice::from_raw_parts(pieces_ptr, pieces_len)
+            .to_vec()
             .iter()
             .cloned()
             .map(Into::into)
@@ -1670,10 +1670,11 @@ pub unsafe extern "C" fn fil_destroy_aggregate_proof(ptr: *mut fil_AggregateProo
 
 #[cfg(test)]
 pub mod tests {
+    use std::fs::remove_file;
     use std::io::{Read, Seek, SeekFrom, Write};
     use std::os::unix::io::IntoRawFd;
 
-    use anyhow::Result;
+    use anyhow::{ensure, Result};
     use ffi_toolkit::{c_str_to_rust_str, FCPResponseStatus};
     use rand::{thread_rng, Rng};
 
@@ -2088,7 +2089,7 @@ pub mod tests {
 
             // ensure unsealed bytes match what we had in our piece
             let mut buf_b = Vec::with_capacity(2032);
-            let mut f = std::fs::File::open(unseal_path)?;
+            let mut f = std::fs::File::open(&unseal_path)?;
 
             let _ = f.read_to_end(&mut buf_b)?;
 
@@ -2128,7 +2129,7 @@ pub mod tests {
 
             // exercise the ticket-finalizing code path (but don't do anything
             // with the results
-            let result: &[u64] = from_raw_parts((*resp_f).ids_ptr, (*resp_f).ids_len);
+            let result: &[u64] = std::slice::from_raw_parts((*resp_f).ids_ptr, (*resp_f).ids_len);
 
             if result.is_empty() {
                 panic!("generate_candidates produced no results");
@@ -2203,9 +2204,10 @@ pub mod tests {
             }
 
             let sector_ids: Vec<u64> =
-                from_raw_parts((*resp_sc).ids_ptr, (*resp_sc).ids_len).to_vec();
+                std::slice::from_raw_parts((*resp_sc).ids_ptr, (*resp_sc).ids_len).to_vec();
             let sector_challenges: Vec<u64> =
-                from_raw_parts((*resp_sc).challenges_ptr, (*resp_sc).challenges_len).to_vec();
+                std::slice::from_raw_parts((*resp_sc).challenges_ptr, (*resp_sc).challenges_len)
+                    .to_vec();
             let challenges_stride = (*resp_sc).challenges_stride;
             let challenge_iterations = sector_challenges.len() / challenges_stride;
             assert_eq!(
@@ -2376,9 +2378,10 @@ pub mod tests {
             }
 
             let sector_ids: Vec<u64> =
-                from_raw_parts((*resp_sc2).ids_ptr, (*resp_sc2).ids_len).to_vec();
+                std::slice::from_raw_parts((*resp_sc2).ids_ptr, (*resp_sc2).ids_len).to_vec();
             let sector_challenges: Vec<u64> =
-                from_raw_parts((*resp_sc2).challenges_ptr, (*resp_sc2).challenges_len).to_vec();
+                std::slice::from_raw_parts((*resp_sc2).challenges_ptr, (*resp_sc2).challenges_len)
+                    .to_vec();
             let challenges_stride = (*resp_sc2).challenges_stride;
             let challenge_iterations = sector_challenges.len() / challenges_stride;
             assert_eq!(
@@ -2477,6 +2480,19 @@ pub mod tests {
             c_str_to_rust_str(staged_path_c_str);
             c_str_to_rust_str(replica_path_c_str);
             c_str_to_rust_str(unseal_path_c_str);
+
+            ensure!(
+                remove_file(&staged_path).is_ok(),
+                "failed to remove staged_path"
+            );
+            ensure!(
+                remove_file(&sealed_path).is_ok(),
+                "failed to remove sealed_path"
+            );
+            ensure!(
+                remove_file(&unseal_path).is_ok(),
+                "failed to remove unseal_path"
+            );
         }
 
         Ok(())
@@ -2635,8 +2651,10 @@ pub mod tests {
                 "generate_window_post should have failed"
             );
 
-            let faulty_sectors: &[u64] =
-                from_raw_parts((*resp_j).faulty_sectors_ptr, (*resp_j).faulty_sectors_len);
+            let faulty_sectors: &[u64] = std::slice::from_raw_parts(
+                (*resp_j).faulty_sectors_ptr,
+                (*resp_j).faulty_sectors_len,
+            );
             assert_eq!(faulty_sectors, &[42], "sector 42 should be faulty");
 
             fil_destroy_write_without_alignment_response(resp_a1);
@@ -2650,6 +2668,15 @@ pub mod tests {
             c_str_to_rust_str(cache_dir_path_c_str);
             c_str_to_rust_str(staged_path_c_str);
             c_str_to_rust_str(replica_path_c_str);
+
+            ensure!(
+                remove_file(&staged_path).is_ok(),
+                "failed to remove staged_path"
+            );
+            ensure!(
+                remove_file(&sealed_path).is_ok(),
+                "failed to remove sealed_path"
+            );
         }
 
         Ok(())
@@ -2944,6 +2971,15 @@ pub mod tests {
             c_str_to_rust_str(cache_dir_path_c_str);
             c_str_to_rust_str(staged_path_c_str);
             c_str_to_rust_str(replica_path_c_str);
+
+            ensure!(
+                remove_file(&staged_path).is_ok(),
+                "failed to remove staged_path"
+            );
+            ensure!(
+                remove_file(&sealed_path).is_ok(),
+                "failed to remove sealed_path"
+            );
         }
 
         Ok(())
