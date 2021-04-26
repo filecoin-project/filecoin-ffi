@@ -6,7 +6,8 @@ use anyhow::Result;
 use drop_struct_macro_derive::DropStructMacro;
 use ffi_toolkit::{code_and_message_impl, free_c_str, CodeAndMessage, FCPResponseStatus};
 use filecoin_proofs_api::{
-    PieceInfo, RegisteredAggregationProof, RegisteredPoStProof, RegisteredSealProof, UnpaddedBytesAmount,
+    PieceInfo, RegisteredAggregationProof, RegisteredPoStProof, RegisteredSealProof,
+    UnpaddedBytesAmount,
 };
 
 #[repr(C)]

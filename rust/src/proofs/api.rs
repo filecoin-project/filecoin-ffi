@@ -426,7 +426,11 @@ pub unsafe extern "C" fn fil_aggregate_seal_proofs(
             })
             .collect();
 
-        let result = aggregate_seal_commit_proofs(registered_proof.into(), registered_aggregation.into(), &outputs);
+        let result = aggregate_seal_commit_proofs(
+            registered_proof.into(),
+            registered_aggregation.into(),
+            &outputs,
+        );
 
         let mut response = fil_AggregateProof::default();
 
@@ -2688,16 +2692,25 @@ pub mod tests {
     #[test]
     #[ignore]
     fn test_sealing_aggregation_v1() -> Result<()> {
-        test_sealing_aggregation(fil_RegisteredSealProof::StackedDrg2KiBV1, fil_RegisteredAggregationProof::IppPoRepV1)
+        test_sealing_aggregation(
+            fil_RegisteredSealProof::StackedDrg2KiBV1,
+            fil_RegisteredAggregationProof::IppPoRepV1,
+        )
     }
 
     #[test]
     #[ignore]
     fn test_sealing_aggregation_v1_1() -> Result<()> {
-        test_sealing_aggregation(fil_RegisteredSealProof::StackedDrg2KiBV1_1, fil_RegisteredAggregationProof::IppPoRepV1)
+        test_sealing_aggregation(
+            fil_RegisteredSealProof::StackedDrg2KiBV1_1,
+            fil_RegisteredAggregationProof::IppPoRepV1,
+        )
     }
 
-    fn test_sealing_aggregation(registered_proof_seal: fil_RegisteredSealProof, registered_aggregation: fil_RegisteredAggregationProof) -> Result<()> {
+    fn test_sealing_aggregation(
+        registered_proof_seal: fil_RegisteredSealProof,
+        registered_aggregation: fil_RegisteredAggregationProof,
+    ) -> Result<()> {
         let wrap = |x| fil_32ByteArray { inner: x };
 
         // miscellaneous setup and shared values
