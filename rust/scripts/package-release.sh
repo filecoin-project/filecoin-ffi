@@ -24,14 +24,13 @@ main() {
 
     # copy assets into temporary directory
     #
-    mkdir $__tmp_dir/filcrypto
-    find -L . -type f -name filcrypto.h -exec cp -- "{}" $__tmp_dir/filcrypto \;
-    find -L . -type f -name libfilcrypto.a -exec cp -- "{}" $__tmp_dir/filcrypto \;
-    find -L . -type f -name filcrypto.pc -exec cp -- "{}" $__tmp_dir/filcrypto \;
+    find -L . -type f -name filcrypto.h -exec cp -- "{}" $__tmp_dir/ \;
+    find -L . -type f -name libfilcrypto.a -exec cp -- "{}" $__tmp_dir/ \;
+    find -L . -type f -name filcrypto.pc -exec cp -- "{}" $__tmp_dir/ \;
 
     # create gzipped tarball from contents of temporary directory
     #
-    tar -czf $__tarball_output_path -C $__tmp_dir filcrypto/*
+    tar -czf $__tarball_output_path $__tmp_dir/*
 
     (>&2 echo "[package-release/main] release file created: $__tarball_output_path")
 }
