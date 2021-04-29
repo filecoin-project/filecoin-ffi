@@ -23,6 +23,7 @@ byteorder = "1.2"
 drop_struct_macro_derive = "0.4.0"
 ff = { version = "0.2.1", package = "fff" }
 ffi-toolkit = "0.4.0"
+filepath = "0.1.1"
 groupy = "0.3.0"
 libc = "0.2.58"
 log = "0.4.7"
@@ -37,7 +38,7 @@ rust-gpu-tools = "0.2.0"
 
 [dependencies.filecoin-proofs-api]
 package = "filecoin-proofs-api"
-version = "~6.1"
+version = "7.0"
 default-features = false
 
 [build-dependencies]
@@ -52,4 +53,3 @@ pairing = ["filecoin-proofs-api/pairing", "bellperson/pairing"]
 blst = ["filecoin-proofs-api/blst", "bellperson/blst"]
 blst-portable = ["bls-signatures/blst-portable", "blstrs/portable"]
 gpu = ["filecoin-proofs-api/gpu", "bellperson/gpu"]
-gpu2 = ["filecoin-proofs-api/gpu2", "bellperson/gpu"]

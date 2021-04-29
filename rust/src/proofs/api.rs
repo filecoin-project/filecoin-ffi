@@ -421,15 +421,16 @@ pub unsafe extern "C" fn fil_unseal_range(
 
         info!("unseal_range: start");
 
+        use filepath::FilePath;
         use std::os::unix::io::{FromRawFd, IntoRawFd};
 
-        let mut sealed_sector = std::fs::File::from_raw_fd(sealed_sector_fd_raw);
+        let sealed_sector = std::fs::File::from_raw_fd(sealed_sector_fd_raw);
         let mut unseal_output = std::fs::File::from_raw_fd(unseal_output_fd_raw);
 
-        let result = filecoin_proofs_api::seal::unseal_range(
+        let result = filecoin_proofs_api::seal::get_unsealed_range_mapped(
             registered_proof.into(),
             c_str_to_pbuf(cache_dir_path),
-            &mut sealed_sector,
+            sealed_sector.path().unwrap(),
             &mut unseal_output,
             prover_id.inner,
             SectorId::from(sector_id),
@@ -1598,7 +1599,7 @@ pub mod tests {
     }
 
     #[test]
-    fn test_proof_types() -> Result<()> {
+    fn test_proof_types() {
         let seal_types = vec![
             fil_RegisteredSealProof::StackedDrg2KiBV1,
             fil_RegisteredSealProof::StackedDrg8MiBV1,
@@ -1685,8 +1686,6 @@ pub mod tests {
                 fil_destroy_string_response(r);
             }
         }
-
-        Ok(())
     }
 
     #[test]
