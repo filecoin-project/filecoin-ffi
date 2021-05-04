@@ -250,7 +250,7 @@ commands:
                   go version
             - run:
                 name: Install other dependencies with Homebrew
-                command: HOMEBREW_NO_AUTO_UPDATE=1 brew install pkg-config md5sha1sum jq hwloc
+                command: HOMEBREW_NO_AUTO_UPDATE=1 brew install pkg-config md5sha1sum jq hwloc || brew link --overwrite python@2
             - run:
                 name: Install Rust toolchain
                 command: |
