@@ -4,9 +4,8 @@ use ffi_toolkit::{
 use filecoin_proofs_api::seal::{
     add_piece, aggregate_seal_commit_proofs, clear_cache, compute_comm_d, fauxrep, fauxrep2,
     generate_piece_commitment, get_seal_inputs, seal_commit_phase1, seal_commit_phase2,
-    seal_pre_commit_phase1, seal_pre_commit_phase2, unseal_range,
-    verify_aggregate_seal_commit_proofs, verify_seal, write_and_preprocess, SealCommitPhase2Output,
-    SealPreCommitPhase2Output,
+    seal_pre_commit_phase1, seal_pre_commit_phase2, verify_aggregate_seal_commit_proofs,
+    verify_seal, write_and_preprocess, SealCommitPhase2Output, SealPreCommitPhase2Output,
 };
 use filecoin_proofs_api::{
     PieceInfo, PrivateReplicaInfo, RegisteredPoStProof, RegisteredSealProof, SectorId,
