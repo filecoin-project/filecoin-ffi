@@ -28,7 +28,7 @@ type FilRegisteredAggregationProof int32
 
 // FilRegisteredAggregationProof enumeration from filecoin-ffi/filcrypto.h:35
 const (
-	FilRegisteredAggregationProofIppPoRepV1 FilRegisteredAggregationProof = C.fil_RegisteredAggregationProof_IppPoRepV1
+	FilRegisteredAggregationProofSnarkPackV1 FilRegisteredAggregationProof = C.fil_RegisteredAggregationProof_SnarkPackV1
 )
 
 // FilRegisteredPoStProof as declared in filecoin-ffi/filcrypto.h:48
