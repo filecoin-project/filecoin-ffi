@@ -66,21 +66,9 @@ dependencies = [
 
 [[package]]
 name = "anyhow"
-<<<<<<< HEAD
-<<<<<<< HEAD
 version = "1.0.40"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "28b2cd92db5cbd74e8e5028f7e27dd7aa3090e89e4f2a197cc7c8dfb69c7063b"
-=======
-version = "1.0.39"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "81cddc5f91628367664cc7c69714ff08deee8a3efc54623011c772544d7b2767"
->>>>>>> 49397a4... feat: update to the latest proofs aggregation API
-=======
-version = "1.0.40"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "28b2cd92db5cbd74e8e5028f7e27dd7aa3090e89e4f2a197cc7c8dfb69c7063b"
->>>>>>> 973487a... feat: update dependencies
 
 [[package]]
 name = "arrayref"
@@ -113,15 +101,9 @@ checksum = "cdb031dd78e28731d87d56cc8ffef4a8f36ca26c38fe2de700543e627f8a464a"
 
 [[package]]
 name = "backtrace"
-<<<<<<< HEAD
 version = "0.3.58"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "88fb5a785d6b44fd9d6700935608639af1b8356de1e55d5f7c2740f4faa15d82"
-=======
-version = "0.3.57"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "78ed203b9ba68b242c62b3fb7480f589dd49829be1edb3fe8fc8b4ffda2dcb8d"
->>>>>>> 7f4effb... fix: remove dead code
 dependencies = [
  "addr2line",
  "cc",
@@ -135,30 +117,15 @@ dependencies = [
 [[package]]
 name = "bellperson"
 version = "0.13.0"
-source = "git+https://github.com/filecoin-project/bellman?branch=feat-ipp2#854f254b116844056f9ba09585414cffb78db6ef"
+source = "git+https://github.com/filecoin-project/bellman?branch=feat-ipp2#70ffde64957692eea9af93451de380493c627ac3"
 dependencies = [
  "bincode",
  "bit-vec",
  "blake2s_simd",
  "blstrs",
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
- "byteorder 1.4.3",
-<<<<<<< HEAD
- "crossbeam-channel 0.5.1",
-=======
-=======
-=======
->>>>>>> cee544c... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
- "byteorder 1.3.4",
- "crossbeam-channel 0.5.0",
-=======
  "byteorder 1.4.3",
  "crossbeam-channel 0.5.1",
->>>>>>> 7f4effb... fix: remove dead code
  "digest 0.9.0",
->>>>>>> 90c0444... feat: update dependencies to use proof aggregation branches
  "ff-cl-gen",
  "fff",
  "fs2",
@@ -181,29 +148,10 @@ dependencies = [
 
 [[package]]
 name = "bincode"
-<<<<<<< HEAD
-<<<<<<< HEAD
 version = "1.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b1f45e9417d87227c7a56d22e471c6206462cba514c7590c09aff4cf6d1ddcad"
 dependencies = [
-=======
-version = "1.3.2"
-=======
-version = "1.3.3"
->>>>>>> 7f4effb... fix: remove dead code
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b1f45e9417d87227c7a56d22e471c6206462cba514c7590c09aff4cf6d1ddcad"
-dependencies = [
-<<<<<<< HEAD
- "byteorder 1.3.4",
-<<<<<<< HEAD
->>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
->>>>>>> 90c0444... feat: update dependencies to use proof aggregation branches
-=======
->>>>>>> cee544c... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
-=======
->>>>>>> 7f4effb... fix: remove dead code
  "serde",
 ]
 
@@ -386,6 +334,7 @@ dependencies = [
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  "syn 1.0.72",
 =======
 =======
@@ -472,6 +421,9 @@ dependencies = [
  "syn 1.0.70",
 >>>>>>> 0c12af0... feat: add RegisteredAggregationProof type and supported helpers
 >>>>>>> 2edaa92... feat: add RegisteredAggregationProof type and supported helpers
+=======
+ "syn 1.0.72",
+>>>>>>> 6b0e09d... feat: update registered aggregation proof type to match FIP13
  "tempfile",
  "toml",
 ]
@@ -596,6 +548,7 @@ dependencies = [
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  "crossbeam-epoch 0.9.4",
  "crossbeam-queue 0.3.1",
  "crossbeam-utils 0.8.4",
@@ -625,6 +578,11 @@ dependencies = [
  "crossbeam-queue 0.3.1",
  "crossbeam-utils 0.8.3",
 >>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
+=======
+ "crossbeam-epoch 0.9.4",
+ "crossbeam-queue 0.3.1",
+ "crossbeam-utils 0.8.4",
+>>>>>>> 6b0e09d... feat: update registered aggregation proof type to match FIP13
 ]
 
 [[package]]
@@ -647,6 +605,7 @@ dependencies = [
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  "crossbeam-utils 0.8.4",
 =======
 =======
@@ -666,6 +625,9 @@ dependencies = [
 =======
  "crossbeam-utils 0.8.3",
 >>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
+=======
+ "crossbeam-utils 0.8.4",
+>>>>>>> 6b0e09d... feat: update registered aggregation proof type to match FIP13
 ]
 
 [[package]]
@@ -689,6 +651,7 @@ dependencies = [
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  "crossbeam-epoch 0.9.4",
  "crossbeam-utils 0.8.4",
 =======
@@ -713,6 +676,10 @@ dependencies = [
  "crossbeam-epoch 0.9.3",
  "crossbeam-utils 0.8.3",
 >>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
+=======
+ "crossbeam-epoch 0.9.4",
+ "crossbeam-utils 0.8.4",
+>>>>>>> 6b0e09d... feat: update registered aggregation proof type to match FIP13
 ]
 
 [[package]]
@@ -732,6 +699,7 @@ dependencies = [
 
 [[package]]
 name = "crossbeam-epoch"
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -756,10 +724,14 @@ version = "0.9.2"
 =======
 >>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 version = "0.9.3"
+=======
+version = "0.9.4"
+>>>>>>> 6b0e09d... feat: update registered aggregation proof type to match FIP13
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2584f639eb95fea8c798496315b297cf81b9b58b6d30ab066a75455333cf4b12"
+checksum = "52fb27eab85b17fbb9f6fd667089e07d6a2eb8743d02639ee7f6a7a7729c9c94"
 dependencies = [
  "cfg-if 1.0.0",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
  "crossbeam-utils 0.8.2",
@@ -774,20 +746,11 @@ dependencies = [
 =======
  "crossbeam-utils 0.8.3",
 >>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
+=======
+ "crossbeam-utils 0.8.4",
+>>>>>>> 6b0e09d... feat: update registered aggregation proof type to match FIP13
  "lazy_static",
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
  "memoffset 0.6.3",
-=======
- "loom",
-=======
->>>>>>> 9320401... fix: regenerate bindings and fix clippy warning
- "memoffset 0.6.1",
->>>>>>> 90c0444... feat: update dependencies to use proof aggregation branches
-=======
- "memoffset 0.6.3",
->>>>>>> 973487a... feat: update dependencies
  "scopeguard",
 ]
 
@@ -812,6 +775,7 @@ dependencies = [
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  "crossbeam-utils 0.8.4",
 =======
 =======
@@ -831,6 +795,9 @@ dependencies = [
 =======
  "crossbeam-utils 0.8.3",
 >>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
+=======
+ "crossbeam-utils 0.8.4",
+>>>>>>> 6b0e09d... feat: update registered aggregation proof type to match FIP13
 ]
 
 [[package]]
@@ -846,6 +813,7 @@ dependencies = [
 
 [[package]]
 name = "crossbeam-utils"
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -878,6 +846,11 @@ version = "0.8.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e7e9d99fa91428effe99c5c6d4634cdeba32b8cf784fc428a2a687f61a952c49"
 >>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
+=======
+version = "0.8.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4feb231f0d4d6af81aed15928e58ecf5816aa62a2393e2c82f46973e92a9a278"
+>>>>>>> 6b0e09d... feat: update registered aggregation proof type to match FIP13
 dependencies = [
  "autocfg",
  "cfg-if 1.0.0",
@@ -901,6 +874,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5e98e2ad1a782e33928b96fc3948e7c355e5af34ba4de7670fe8bac2a3b2006d"
 dependencies = [
  "quote 1.0.9",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1009,6 +983,9 @@ dependencies = [
  "syn 1.0.70",
 >>>>>>> 0c12af0... feat: add RegisteredAggregationProof type and supported helpers
 >>>>>>> 2edaa92... feat: add RegisteredAggregationProof type and supported helpers
+=======
+ "syn 1.0.72",
+>>>>>>> 6b0e09d... feat: update registered aggregation proof type to match FIP13
 ]
 
 [[package]]
@@ -1129,6 +1106,7 @@ dependencies = [
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  "syn 1.0.72",
 =======
 =======
@@ -1215,6 +1193,9 @@ dependencies = [
  "syn 1.0.70",
 >>>>>>> 0c12af0... feat: add RegisteredAggregationProof type and supported helpers
 >>>>>>> 2edaa92... feat: add RegisteredAggregationProof type and supported helpers
+=======
+ "syn 1.0.72",
+>>>>>>> 6b0e09d... feat: update registered aggregation proof type to match FIP13
  "synstructure",
 ]
 
@@ -1275,6 +1256,7 @@ dependencies = [
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  "syn 1.0.72",
 =======
 =======
@@ -1361,6 +1343,9 @@ dependencies = [
  "syn 1.0.70",
 >>>>>>> 0c12af0... feat: add RegisteredAggregationProof type and supported helpers
 >>>>>>> 2edaa92... feat: add RegisteredAggregationProof type and supported helpers
+=======
+ "syn 1.0.72",
+>>>>>>> 6b0e09d... feat: update registered aggregation proof type to match FIP13
 ]
 
 [[package]]
@@ -1442,6 +1427,7 @@ dependencies = [
 
 [[package]]
 name = "filecoin-hashers"
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1551,6 +1537,10 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-ag
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#107a172e598bdb0dc478dc9cd586ba2ca4b59cdc"
 >>>>>>> 7f4effb... fix: remove dead code
 >>>>>>> 4b6c635... fix: remove dead code
+=======
+version = "2.0.0"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#4de56580908eb6ff4827cb9f214ff3209e324060"
+>>>>>>> 6b0e09d... feat: update registered aggregation proof type to match FIP13
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1567,6 +1557,7 @@ dependencies = [
 
 [[package]]
 name = "filecoin-proofs"
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1676,6 +1667,10 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-ag
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#107a172e598bdb0dc478dc9cd586ba2ca4b59cdc"
 >>>>>>> 7f4effb... fix: remove dead code
 >>>>>>> 4b6c635... fix: remove dead code
+=======
+version = "7.0.0"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#4de56580908eb6ff4827cb9f214ff3209e324060"
+>>>>>>> 6b0e09d... feat: update registered aggregation proof type to match FIP13
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1711,79 +1706,8 @@ dependencies = [
 
 [[package]]
 name = "filecoin-proofs-api"
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 version = "7.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "87031861c2287fc21114b3f5de2760a3a8b0e70b83edb369ac7171aad595e62b"
-=======
-=======
->>>>>>> 49397a4... feat: update to the latest proofs aggregation API
-=======
->>>>>>> 7af25dc... feat: additional re-factors of API (some unused, for consideration only)
-<<<<<<< HEAD
-version = "6.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a622e652d0e9d31cf9e64ec693497de794e1cb5a53b3ece2ea60880876a4635f"
-=======
-=======
->>>>>>> e762d29... feat: update to the latest proofs aggregation API
-version = "6.0.0"
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=feat-aggregation#a7b0ba925d132b9b43a650e47eac7ac1739398ae"
->>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
-<<<<<<< HEAD
->>>>>>> 90c0444... feat: update dependencies to use proof aggregation branches
-=======
-=======
-source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=feat-aggregation#bf85a2398e0e9c0fa61ecdb8778be3ec5c615dcd"
->>>>>>> 78c98c6... feat: start stubbing in the proof aggregation API internals
-<<<<<<< HEAD
->>>>>>> 3950fd9... feat: start stubbing in the proof aggregation API internals
-=======
-=======
-source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=feat-aggregation#b761c0ae2872646c62fc202ff55df8a1a160a56c"
->>>>>>> 95d89f3... feat: get end to end testing working
-<<<<<<< HEAD
->>>>>>> 4a8ab78... feat: get end to end testing working
-=======
-=======
-source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=feat-aggregation#508a3c1623cf85ecf2919f4e929db8545cbdcbbf"
-<<<<<<< HEAD
->>>>>>> bf5f740... feat: re-factor aggregation API after initial feedback
-<<<<<<< HEAD
->>>>>>> 036e042... feat: re-factor aggregation API after initial feedback
-=======
-=======
-=======
-version = "6.1.0"
-<<<<<<< HEAD
-source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=feat-aggregation#a547522401e247ca86196daa12251231f3d79e63"
->>>>>>> 9bc7c8f... feat: update to the latest proofs aggregation API
->>>>>>> e762d29... feat: update to the latest proofs aggregation API
-<<<<<<< HEAD
->>>>>>> 49397a4... feat: update to the latest proofs aggregation API
-=======
-=======
-version = "6.1.0"
-<<<<<<< HEAD
-source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=feat-aggregation#a547522401e247ca86196daa12251231f3d79e63"
->>>>>>> 10335c0... feat: additional re-factors of API (some unused, for consideration only)
->>>>>>> 7af25dc... feat: additional re-factors of API (some unused, for consideration only)
-=======
-version = "6.1.0"
-source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=feat-aggregation#a547522401e247ca86196daa12251231f3d79e63"
->>>>>>> cee544c... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
-=======
-source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=feat-aggregation#de20a07d5585dc5465db8ae3ced7b481c1cdfce7"
->>>>>>> 973487a... feat: update dependencies
-=======
-source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=feat-aggregation#6b0bf94d4ee250bc9da39a6d83153eb786d4e462"
->>>>>>> 0c12af0... feat: add RegisteredAggregationProof type and supported helpers
+source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=feat-aggregation#a537d4fdda5fa1d86b1ec8fbd61d3227c858c64e"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1881,6 +1805,7 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-ag
 =======
 version = "0.2.0"
 <<<<<<< HEAD
+<<<<<<< HEAD
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#4596099cc5f51f88c505ead222befede1cb9e11d"
 >>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 =======
@@ -1892,6 +1817,9 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-ag
 =======
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#107a172e598bdb0dc478dc9cd586ba2ca4b59cdc"
 >>>>>>> 4b6c635... fix: remove dead code
+=======
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#4de56580908eb6ff4827cb9f214ff3209e324060"
+>>>>>>> 6b0e09d... feat: update registered aggregation proof type to match FIP13
 dependencies = [
  "anyhow",
  "bellperson",
@@ -2091,67 +2019,9 @@ dependencies = [
 
 [[package]]
 name = "libc"
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 version = "0.2.94"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "18794a8ad5b29321f790b55d93dfba91e125cb1a9edbd4f8e3150acc771c1a5e"
-=======
-=======
->>>>>>> c749ff9... style: deps update
-=======
->>>>>>> 49397a4... feat: update to the latest proofs aggregation API
-<<<<<<< HEAD
-version = "0.2.88"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "03b07a082330a35e43f63177cc01689da34fbffa0105e1246cf0311472cac73a"
-=======
-version = "0.2.87"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "265d751d31d6780a3f956bb5b8022feba2d94eeee5a84ba64f4212eedca42213"
->>>>>>> c87f3a4... feat: regenerate bindings for the added api
-<<<<<<< HEAD
->>>>>>> 7facac3... feat: regenerate bindings for the added api
-=======
-=======
-version = "0.2.88"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "03b07a082330a35e43f63177cc01689da34fbffa0105e1246cf0311472cac73a"
->>>>>>> a860597... style: deps update
-<<<<<<< HEAD
->>>>>>> c749ff9... style: deps update
-=======
-=======
-version = "0.2.91"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8916b1f6ca17130ec6568feccee27c156ad12037880833a3b842a823236502e7"
->>>>>>> e762d29... feat: update to the latest proofs aggregation API
->>>>>>> 49397a4... feat: update to the latest proofs aggregation API
-=======
-version = "0.2.91"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8916b1f6ca17130ec6568feccee27c156ad12037880833a3b842a823236502e7"
->>>>>>> cee544c... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
-=======
-version = "0.2.92"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "56d855069fafbb9b344c0f962150cd2c1187975cb1c22c1522c240d8c4986714"
->>>>>>> 973487a... feat: update dependencies
-=======
-version = "0.2.93"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9385f66bf6105b241aa65a61cb923ef20efc665cb9f9bb50ac2f0c4b7f378d41"
->>>>>>> 79d2c60... fix: clippy warnings and updated deps
-=======
-version = "0.2.94"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "18794a8ad5b29321f790b55d93dfba91e125cb1a9edbd4f8e3150acc771c1a5e"
->>>>>>> 0c12af0... feat: add RegisteredAggregationProof type and supported helpers
 
 [[package]]
 name = "log"
@@ -2256,33 +2126,10 @@ dependencies = [
  "itertools 0.8.2",
  "lazy_static",
  "log",
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
- "rust-gpu-tools 0.3.0",
-=======
->>>>>>> 49397a4... feat: update to the latest proofs aggregation API
-=======
- "neptune-triton",
-=======
->>>>>>> 973487a... feat: update dependencies
  "rust-gpu-tools 0.3.0",
 ]
 
 [[package]]
-<<<<<<< HEAD
-name = "neptune-triton"
-version = "2.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "16ef7eb7a6dc2b5186caea63098f6f47a26ac8814c292fa0a236cc53478ddbfa"
-dependencies = [
- "cc",
->>>>>>> cee544c... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
-]
-
-[[package]]
-=======
->>>>>>> 973487a... feat: update dependencies
 name = "nodrop"
 version = "0.1.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2423,44 +2270,6 @@ dependencies = [
 ]
 
 [[package]]
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> 49397a4... feat: update to the latest proofs aggregation API
-name = "once_cell"
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-version = "1.7.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "af8b08b04175473088b46763e51ee54da5f9a164bc162f615b91bc179dbf15a3"
-=======
-version = "1.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4ad167a2f54e832b82dbe003a046280dceffe5227b5f79e08e363a29638cfddd"
->>>>>>> fc32f3b... feat: update dependencies to use proof aggregation branches
-=======
-version = "1.7.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "10acf907b94fc1b1a152d08ef97e7759650268cf986bf127f387e602b02c7e5a"
->>>>>>> 78c98c6... feat: start stubbing in the proof aggregation API internals
-=======
-version = "1.7.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "af8b08b04175473088b46763e51ee54da5f9a164bc162f615b91bc179dbf15a3"
->>>>>>> c87f3a4... feat: regenerate bindings for the added api
-
-[[package]]
-<<<<<<< HEAD
->>>>>>> 90c0444... feat: update dependencies to use proof aggregation branches
-=======
-=======
->>>>>>> e762d29... feat: update to the latest proofs aggregation API
->>>>>>> 49397a4... feat: update to the latest proofs aggregation API
-=======
->>>>>>> cee544c... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 name = "opaque-debug"
 version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2734,6 +2543,7 @@ dependencies = [
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  "crossbeam-utils 0.8.4",
 =======
 =======
@@ -2753,6 +2563,9 @@ dependencies = [
 =======
  "crossbeam-utils 0.8.3",
 >>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
+=======
+ "crossbeam-utils 0.8.4",
+>>>>>>> 6b0e09d... feat: update registered aggregation proof type to match FIP13
  "lazy_static",
  "num_cpus",
 ]
@@ -2768,6 +2581,7 @@ dependencies = [
 
 [[package]]
 name = "redox_syscall"
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 version = "0.2.8"
@@ -2787,6 +2601,9 @@ name = "redox_syscall"
 >>>>>>> 0c12af0... feat: add RegisteredAggregationProof type and supported helpers
 version = "0.2.6"
 >>>>>>> 4b6c635... fix: remove dead code
+=======
+version = "0.2.8"
+>>>>>>> 6b0e09d... feat: update registered aggregation proof type to match FIP13
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "742739e41cd49414de871ea5e549afb7e2a3ac77b589bcbebe8c82fab37147fc"
 dependencies = [
@@ -2805,6 +2622,7 @@ dependencies = [
 
 [[package]]
 name = "regex"
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 version = "1.5.3"
@@ -2831,6 +2649,11 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2a26af418b574bd56588335b3a3659a65725d4e636eb1016c2f9e3b38c7cc759"
 >>>>>>> 0c12af0... feat: add RegisteredAggregationProof type and supported helpers
 >>>>>>> 2edaa92... feat: add RegisteredAggregationProof type and supported helpers
+=======
+version = "1.5.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ce5f1ceb7f74abbce32601642fcf8e8508a8a8991e0621c7d750295b9095702b"
+>>>>>>> 6b0e09d... feat: update registered aggregation proof type to match FIP13
 dependencies = [
  "aho-corasick",
  "memchr",
@@ -2853,24 +2676,6 @@ dependencies = [
 ]
 
 [[package]]
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-name = "rust-argon2"
-version = "0.8.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4b18820d944b33caa75a71378964ac46f58517c92b6ae5f762636247c09e78fb"
-dependencies = [
- "base64",
- "blake2b_simd",
- "constant_time_eq",
- "crossbeam-utils 0.8.3",
-]
-
-[[package]]
->>>>>>> 90c0444... feat: update dependencies to use proof aggregation branches
-=======
->>>>>>> 0c12af0... feat: add RegisteredAggregationProof type and supported helpers
 name = "rust-gpu-tools"
 version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2979,6 +2784,7 @@ dependencies = [
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  "syn 1.0.72",
 =======
 =======
@@ -3065,6 +2871,9 @@ dependencies = [
  "syn 1.0.70",
 >>>>>>> 0c12af0... feat: add RegisteredAggregationProof type and supported helpers
 >>>>>>> 2edaa92... feat: add RegisteredAggregationProof type and supported helpers
+=======
+ "syn 1.0.72",
+>>>>>>> 6b0e09d... feat: update registered aggregation proof type to match FIP13
 ]
 
 [[package]]
@@ -3152,6 +2961,7 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-ag
 version = "2.1.0"
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 7d6e296... feat: regenerate latest go code and fix the broken cargo.lock from rebasing
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#4596099cc5f51f88c505ead222befede1cb9e11d"
 =======
@@ -3163,6 +2973,9 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-ag
 =======
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#107a172e598bdb0dc478dc9cd586ba2ca4b59cdc"
 >>>>>>> 4b6c635... fix: remove dead code
+=======
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#4de56580908eb6ff4827cb9f214ff3209e324060"
+>>>>>>> 6b0e09d... feat: update registered aggregation proof type to match FIP13
 dependencies = [
  "block-buffer 0.9.0",
  "byteorder 1.4.3",
@@ -3182,6 +2995,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
 name = "storage-proofs-core"
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -3291,6 +3105,10 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-ag
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#107a172e598bdb0dc478dc9cd586ba2ca4b59cdc"
 >>>>>>> 7f4effb... fix: remove dead code
 >>>>>>> 4b6c635... fix: remove dead code
+=======
+version = "7.0.0"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#4de56580908eb6ff4827cb9f214ff3209e324060"
+>>>>>>> 6b0e09d... feat: update registered aggregation proof type to match FIP13
 dependencies = [
  "aes",
  "anyhow",
@@ -3327,6 +3145,7 @@ dependencies = [
 
 [[package]]
 name = "storage-proofs-porep"
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -3436,6 +3255,10 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-ag
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#107a172e598bdb0dc478dc9cd586ba2ca4b59cdc"
 >>>>>>> 7f4effb... fix: remove dead code
 >>>>>>> 4b6c635... fix: remove dead code
+=======
+version = "7.0.0"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#4de56580908eb6ff4827cb9f214ff3209e324060"
+>>>>>>> 6b0e09d... feat: update registered aggregation proof type to match FIP13
 dependencies = [
  "anyhow",
  "bellperson",
@@ -3472,6 +3295,7 @@ dependencies = [
 
 [[package]]
 name = "storage-proofs-post"
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -3581,6 +3405,10 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-ag
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#107a172e598bdb0dc478dc9cd586ba2ca4b59cdc"
 >>>>>>> 7f4effb... fix: remove dead code
 >>>>>>> 4b6c635... fix: remove dead code
+=======
+version = "7.0.0"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#4de56580908eb6ff4827cb9f214ff3209e324060"
+>>>>>>> 6b0e09d... feat: update registered aggregation proof type to match FIP13
 dependencies = [
  "anyhow",
  "bellperson",
@@ -3629,6 +3457,7 @@ dependencies = [
 
 [[package]]
 name = "syn"
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -3747,6 +3576,11 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b9505f307c872bab8eb46f77ae357c8eba1fdacead58ee5a850116b1d7f82883"
 >>>>>>> 0c12af0... feat: add RegisteredAggregationProof type and supported helpers
 >>>>>>> 2edaa92... feat: add RegisteredAggregationProof type and supported helpers
+=======
+version = "1.0.72"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a1e8cdbefb79a9a5a65e0db8b47b723ee907b7c7f8496c76a1770b5c310bab82"
+>>>>>>> 6b0e09d... feat: update registered aggregation proof type to match FIP13
 dependencies = [
  "proc-macro2 1.0.26",
  "quote 1.0.9",
@@ -3761,6 +3595,7 @@ checksum = "b834f2d66f734cb897113e34aaff2f1ab4719ca946f9a7358dba8f8064148701"
 dependencies = [
  "proc-macro2 1.0.26",
  "quote 1.0.9",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -3836,6 +3671,10 @@ dependencies = [
 >>>>>>> 0c12af0... feat: add RegisteredAggregationProof type and supported helpers
  "unicode-xid 0.2.1",
 >>>>>>> 648c822... style: deps update
+=======
+ "syn 1.0.72",
+ "unicode-xid 0.2.2",
+>>>>>>> 6b0e09d... feat: update registered aggregation proof type to match FIP13
 ]
 
 [[package]]
@@ -3857,15 +3696,7 @@ dependencies = [
  "cfg-if 1.0.0",
  "libc",
  "rand 0.8.3",
-<<<<<<< HEAD
-<<<<<<< HEAD
  "redox_syscall",
-=======
- "redox_syscall 0.2.6",
->>>>>>> 7f4effb... fix: remove dead code
-=======
- "redox_syscall",
->>>>>>> 0c12af0... feat: add RegisteredAggregationProof type and supported helpers
  "remove_dir_all",
  "winapi 0.3.9",
 ]
@@ -3896,6 +3727,7 @@ checksum = "7765189610d8241a44529806d6fd1f2e0a08734313a35d5b3a556f92b381f3c0"
 dependencies = [
  "proc-macro2 1.0.26",
  "quote 1.0.9",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -3987,6 +3819,9 @@ dependencies = [
  "syn 1.0.70",
 >>>>>>> 0c12af0... feat: add RegisteredAggregationProof type and supported helpers
 >>>>>>> 2edaa92... feat: add RegisteredAggregationProof type and supported helpers
+=======
+ "syn 1.0.72",
+>>>>>>> 6b0e09d... feat: update registered aggregation proof type to match FIP13
 ]
 
 [[package]]
@@ -4133,6 +3968,7 @@ dependencies = [
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  "syn 1.0.72",
 =======
 =======
@@ -4177,5 +4013,8 @@ dependencies = [
  "syn 1.0.70",
 >>>>>>> 0c12af0... feat: add RegisteredAggregationProof type and supported helpers
 >>>>>>> 2edaa92... feat: add RegisteredAggregationProof type and supported helpers
+=======
+ "syn 1.0.72",
+>>>>>>> 6b0e09d... feat: update registered aggregation proof type to match FIP13
  "synstructure",
 ]

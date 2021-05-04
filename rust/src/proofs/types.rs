@@ -169,13 +169,13 @@ impl From<fil_RegisteredPoStProof> for RegisteredPoStProof {
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub enum fil_RegisteredAggregationProof {
-    IppPoRepV1,
+    SnarkPackV1,
 }
 
 impl From<RegisteredAggregationProof> for fil_RegisteredAggregationProof {
     fn from(other: RegisteredAggregationProof) -> Self {
         match other {
-            RegisteredAggregationProof::IppPoRepV1 => fil_RegisteredAggregationProof::IppPoRepV1,
+            RegisteredAggregationProof::SnarkPackV1 => fil_RegisteredAggregationProof::SnarkPackV1,
         }
     }
 }
@@ -183,7 +183,7 @@ impl From<RegisteredAggregationProof> for fil_RegisteredAggregationProof {
 impl From<fil_RegisteredAggregationProof> for RegisteredAggregationProof {
     fn from(other: fil_RegisteredAggregationProof) -> Self {
         match other {
-            fil_RegisteredAggregationProof::IppPoRepV1 => RegisteredAggregationProof::IppPoRepV1,
+            fil_RegisteredAggregationProof::SnarkPackV1 => RegisteredAggregationProof::SnarkPackV1,
         }
     }
 }

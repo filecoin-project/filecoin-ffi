@@ -2694,7 +2694,7 @@ pub mod tests {
     fn test_sealing_aggregation_v1() -> Result<()> {
         test_sealing_aggregation(
             fil_RegisteredSealProof::StackedDrg2KiBV1,
-            fil_RegisteredAggregationProof::IppPoRepV1,
+            fil_RegisteredAggregationProof::SnarkPackV1,
         )
     }
 
@@ -2703,7 +2703,7 @@ pub mod tests {
     fn test_sealing_aggregation_v1_1() -> Result<()> {
         test_sealing_aggregation(
             fil_RegisteredSealProof::StackedDrg2KiBV1_1,
-            fil_RegisteredAggregationProof::IppPoRepV1,
+            fil_RegisteredAggregationProof::SnarkPackV1,
         )
     }
 
