@@ -581,6 +581,8 @@ pub struct fil_SealCommitPhase2Response {
     pub error_msg: *const libc::c_char,
     pub proof_ptr: *const u8,
     pub proof_len: libc::size_t,
+    pub commit_inputs_ptr: *const fil_AggregationInputs,
+    pub commit_inputs_len: libc::size_t,
 }
 
 impl Default for fil_SealCommitPhase2Response {
@@ -590,6 +592,8 @@ impl Default for fil_SealCommitPhase2Response {
             error_msg: ptr::null(),
             proof_ptr: ptr::null(),
             proof_len: 0,
+            commit_inputs_ptr: ptr::null(),
+            commit_inputs_len: 0,
         }
     }
 }
@@ -613,13 +617,23 @@ impl Clone for fil_SealCommitPhase2Response {
         let proof_len = proof.len();
         let proof_ptr = proof.as_ptr();
 
+        let slice: &[fil_AggregationInputs] = unsafe { std::slice::from_raw_parts(self.commit_inputs_ptr, self.commit_inputs_len) };
+        let commit_inputs: Vec<fil_AggregationInputs> = slice.to_vec();
+        debug_assert_eq!(self.commit_inputs_len, commit_inputs.len());
+
+        let commit_inputs_len = commit_inputs.len();
+        let commit_inputs_ptr = commit_inputs.as_ptr();
+
         std::mem::forget(proof);
+        std::mem::forget(commit_inputs_ptr);
 
         fil_SealCommitPhase2Response {
             status_code: self.status_code,
             error_msg: self.error_msg,
             proof_ptr,
             proof_len,
+            commit_inputs_ptr,
+            commit_inputs_len,
         }
     }
 }

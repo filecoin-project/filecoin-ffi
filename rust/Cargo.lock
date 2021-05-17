@@ -4,9 +4,9 @@ version = 3
 
 [[package]]
 name = "addr2line"
-version = "0.14.1"
+version = "0.15.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a55f82cfe485775d02112886f4169bde0c5894d75e79ead7eafe7e40a25e45f7"
+checksum = "03345e98af8f3d786b6d9f656ccfa6ac316d954e92bc4841f0bba20789d5fb5a"
 dependencies = [
  "gimli",
 ]
@@ -103,9 +103,9 @@ checksum = "cdb031dd78e28731d87d56cc8ffef4a8f36ca26c38fe2de700543e627f8a464a"
 
 [[package]]
 name = "backtrace"
-version = "0.3.58"
+version = "0.3.59"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "88fb5a785d6b44fd9d6700935608639af1b8356de1e55d5f7c2740f4faa15d82"
+checksum = "4717cfcbfaa661a0fd48f8453951837ae7e8f81e481fbb136e3202d72805a744"
 dependencies = [
  "addr2line",
  "cc",
@@ -119,7 +119,7 @@ dependencies = [
 [[package]]
 name = "bellperson"
 version = "0.13.0"
-source = "git+https://github.com/filecoin-project/bellman?branch=feat-ipp2#70ffde64957692eea9af93451de380493c627ac3"
+source = "git+https://github.com/filecoin-project/bellman?branch=feat-ipp2#3a82256a23a75775a2d1819ef985aa7e4e78eb38"
 dependencies = [
  "bincode",
  "bit-vec",
@@ -144,7 +144,7 @@ dependencies = [
  "rust-gpu-tools 0.2.2",
  "rustc-hash",
  "serde",
- "sha2 0.9.4",
+ "sha2 0.9.5",
  "thiserror",
 ]
 
@@ -417,9 +417,9 @@ checksum = "245097e9a4535ee1e3e3931fcfcd55a796a44c643e8596ff6566d68f09b87bbc"
 
 [[package]]
 name = "cpufeatures"
-version = "0.1.1"
+version = "0.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dec1028182c380cc45a2e2c5ec841134f2dfd0f8f5f0a5bcd68004f81b5efdf4"
+checksum = "ed00c67cb5d0a7d64a44f6ad2668db7e7530311dd53ea79bcd4fb022c64911c8"
 dependencies = [
  "libc",
 ]
@@ -837,7 +837,7 @@ dependencies = [
 [[package]]
 name = "filecoin-hashers"
 version = "2.0.1"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#60bbb66230738891e2ac3da3d4ad5970874e5390"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#4740d2059e6b313a9cc9620a11febdf32dc66755"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -849,13 +849,13 @@ dependencies = [
  "neptune",
  "rand 0.7.3",
  "serde",
- "sha2 0.9.4",
+ "sha2 0.9.5",
 ]
 
 [[package]]
 name = "filecoin-proofs"
 version = "7.0.1"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#60bbb66230738891e2ac3da3d4ad5970874e5390"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#4740d2059e6b313a9cc9620a11febdf32dc66755"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -882,7 +882,7 @@ dependencies = [
  "rayon",
  "serde",
  "serde_json",
- "sha2 0.9.4",
+ "sha2 0.9.5",
  "storage-proofs-core",
  "storage-proofs-porep",
  "storage-proofs-post",
@@ -892,7 +892,7 @@ dependencies = [
 [[package]]
 name = "filecoin-proofs-api"
 version = "7.0.0"
-source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=feat-aggregation#a537d4fdda5fa1d86b1ec8fbd61d3227c858c64e"
+source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=feat-aggregation#ca8436445fb302157512f9e215f5a8575d1a5383"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -930,7 +930,7 @@ dependencies = [
 [[package]]
 name = "fr32"
 version = "0.2.1"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#60bbb66230738891e2ac3da3d4ad5970874e5390"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#4740d2059e6b313a9cc9620a11febdf32dc66755"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1005,9 +1005,9 @@ dependencies = [
 
 [[package]]
 name = "gimli"
-version = "0.23.0"
+version = "0.24.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f6503fe142514ca4799d4c26297c4248239fe8838d827db6bd6065c6ed29a6ce"
+checksum = "0e4075386626662786ddb0ec9081e7c7eeb1ba31951f447ca780ef9f5d568189"
 
 [[package]]
 name = "glob"
@@ -1367,9 +1367,9 @@ dependencies = [
 
 [[package]]
 name = "object"
-version = "0.23.0"
+version = "0.24.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a9a7ab5d64814df0fe4a4b5ead45ed6c5f181ee3ff04ba344313a6c80446c5d4"
+checksum = "1a5b3dd1c072ee7963717671d1ca129f1048fda25edea6b752bfc71ac8854170"
 
 [[package]]
 name = "ocl-core-vector"
@@ -1796,18 +1796,18 @@ dependencies = [
 
 [[package]]
 name = "serde"
-version = "1.0.125"
+version = "1.0.126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "558dc50e1a5a5fa7112ca2ce4effcb321b0300c0d4ccf0776a9f60cd89031171"
+checksum = "ec7505abeacaec74ae4778d9d9328fe5a5d04253220a85c4ee022239fc996d03"
 dependencies = [
  "serde_derive",
 ]
 
 [[package]]
 name = "serde_derive"
-version = "1.0.125"
+version = "1.0.126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b093b7a2bb58203b5da3056c05b4ec1fed827dcfdb37347a8841695263b3d06d"
+checksum = "963a7dbc9895aeac7ac90e74f34a5d5261828f79df35cbed41e10189d3804d43"
 dependencies = [
  "proc-macro2 1.0.26",
  "quote 1.0.9",
@@ -1839,15 +1839,14 @@ dependencies = [
 
 [[package]]
 name = "sha2"
-version = "0.9.4"
+version = "0.9.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d8f6b75b17576b792bef0db1bcc4b8b8bcdf9506744cf34b974195487af6cff2"
+checksum = "b362ae5752fd2137731f9fa25fd4d9058af34666ca1966fb969119cc35719f12"
 dependencies = [
  "block-buffer 0.9.0",
  "cfg-if 1.0.0",
  "cpufeatures",
  "digest 0.9.0",
- "libc",
  "opaque-debug 0.3.0",
  "sha2-asm",
 ]
@@ -1864,7 +1863,7 @@ dependencies = [
 [[package]]
 name = "sha2raw"
 version = "2.1.1"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#60bbb66230738891e2ac3da3d4ad5970874e5390"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#4740d2059e6b313a9cc9620a11febdf32dc66755"
 dependencies = [
  "block-buffer 0.9.0",
  "byteorder 1.4.3",
@@ -1885,7 +1884,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 [[package]]
 name = "storage-proofs-core"
 version = "7.0.1"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#60bbb66230738891e2ac3da3d4ad5970874e5390"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#4740d2059e6b313a9cc9620a11febdf32dc66755"
 dependencies = [
  "aes",
  "anyhow",
@@ -1914,7 +1913,7 @@ dependencies = [
  "semver",
  "serde",
  "serde_json",
- "sha2 0.9.4",
+ "sha2 0.9.5",
  "tempfile",
  "thiserror",
  "toml",
@@ -1923,7 +1922,7 @@ dependencies = [
 [[package]]
 name = "storage-proofs-porep"
 version = "7.0.1"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#60bbb66230738891e2ac3da3d4ad5970874e5390"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#4740d2059e6b313a9cc9620a11febdf32dc66755"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1953,7 +1952,7 @@ dependencies = [
  "rayon",
  "serde",
  "serde_json",
- "sha2 0.9.4",
+ "sha2 0.9.5",
  "sha2raw",
  "storage-proofs-core",
 ]
@@ -1961,7 +1960,7 @@ dependencies = [
 [[package]]
 name = "storage-proofs-post"
 version = "7.0.1"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#60bbb66230738891e2ac3da3d4ad5970874e5390"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#4740d2059e6b313a9cc9620a11febdf32dc66755"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1981,7 +1980,7 @@ dependencies = [
  "rand 0.7.3",
  "rayon",
  "serde",
- "sha2 0.9.4",
+ "sha2 0.9.5",
  "storage-proofs-core",
 ]
 

@@ -406,6 +406,9 @@ pub unsafe extern "C" fn fil_seal_commit_phase2(
 pub unsafe extern "C" fn fil_aggregate_seal_proofs(
     registered_proof: fil_RegisteredSealProof,
     registered_aggregation: fil_RegisteredAggregationProof,
+    prover_id: fil_32ByteArray,
+    commit_inputs_ptr: *mut fil_AggregationInputs,
+    commit_inputs_len: libc::size_t,
     seal_commit_responses_ptr: *const fil_SealCommitPhase2Response,
     seal_commit_responses_len: libc::size_t,
 ) -> *mut fil_AggregateProof {
@@ -425,25 +428,49 @@ pub unsafe extern "C" fn fil_aggregate_seal_proofs(
             })
             .collect();
 
-        let result = aggregate_seal_commit_proofs(
-            registered_proof.into(),
-            registered_aggregation.into(),
-            &outputs,
-        );
+
+        let commit_inputs: Vec<fil_AggregationInputs> =
+            std::slice::from_raw_parts(commit_inputs_ptr, commit_inputs_len).to_vec();
 
         let mut response = fil_AggregateProof::default();
 
-        match result {
-            Ok(output) => {
-                response.status_code = FCPResponseStatus::FCPNoError;
-                response.proof_ptr = output.as_ptr();
-                response.proof_len = output.len();
+        let mut inputs: Vec<Vec<Fr>> = Vec::new();
+        let mut failed_conversion = false;
+        for input in &commit_inputs {
+            let converted = match convert_aggregation_inputs(registered_proof, prover_id, &input) {
+                Ok(x) => x,
+                Err(err) => {
+                    response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                    response.error_msg = rust_str_to_c_str(format!("{:?}", err));
 
-                mem::forget(output);
-            }
-            Err(err) => {
-                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                    failed_conversion = true;
+                    break;
+                }
+            };
+
+            inputs.extend(converted);
+        }
+
+        if !failed_conversion {
+            let result = aggregate_seal_commit_proofs(
+                registered_proof.into(),
+                registered_aggregation.into(),
+                inputs,
+                &outputs,
+            );
+
+            match result {
+                Ok(output) => {
+                    response.status_code = FCPResponseStatus::FCPNoError;
+                    response.proof_ptr = output.as_ptr();
+                    response.proof_len = output.len();
+
+                    mem::forget(output);
+                }
+                Err(err) => {
+                    response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                    response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                }
             }
         }
 
@@ -537,7 +564,7 @@ pub unsafe extern "C" fn fil_verify_aggregate_seal_proof(
                     response.error_msg = rust_str_to_c_str(format!("{:?}", err));
                     response.is_valid = false;
                 }
-            };
+            }
         }
 
         info!("verify_aggregate_seal_proof: finish");
@@ -2918,18 +2945,6 @@ pub mod tests {
             let seal_commit_responses: Vec<fil_SealCommitPhase2Response> =
                 vec![(*resp_c2).clone(), (*resp_c22).clone()];
 
-            let resp_aggregate_proof = fil_aggregate_seal_proofs(
-                registered_proof_seal,
-                registered_aggregation,
-                seal_commit_responses.as_ptr(),
-                seal_commit_responses.len(),
-            );
-
-            if (*resp_aggregate_proof).status_code != FCPResponseStatus::FCPNoError {
-                let msg = c_str_to_rust_str((*resp_aggregate_proof).error_msg);
-                panic!("aggregate_seal_proofs failed: {:?}", msg);
-            }
-
             let mut inputs: Vec<fil_AggregationInputs> = vec![
                 fil_AggregationInputs {
                     comm_r: wrap((*resp_b2).comm_r),
@@ -2946,6 +2961,21 @@ pub mod tests {
                     seed,
                 },
             ];
+
+            let resp_aggregate_proof = fil_aggregate_seal_proofs(
+                registered_proof_seal,
+                registered_aggregation,
+                prover_id,
+                inputs.as_mut_ptr(),
+                inputs.len(),
+                seal_commit_responses.as_ptr(),
+                seal_commit_responses.len(),
+            );
+
+            if (*resp_aggregate_proof).status_code != FCPResponseStatus::FCPNoError {
+                let msg = c_str_to_rust_str((*resp_aggregate_proof).error_msg);
+                panic!("aggregate_seal_proofs failed: {:?}", msg);
+            }
 
             let resp_ad = fil_verify_aggregate_seal_proof(
                 registered_proof_seal,
