@@ -62,14 +62,10 @@ func VerifyAggregateSeals(aggregate proof5.AggregateSealVerifyProofAndInfos) (bo
 		return false, xerrors.New("no seal verify infos")
 	}
 
-	spt := aggregate.Infos[0].SealProof // todo assuming this needs to be the same for all sectors, potentially makes sense to put in AggregateSealVerifyProofAndInfos
+	spt := aggregate.SealProof // todo assuming this needs to be the same for all sectors, potentially makes sense to put in AggregateSealVerifyProofAndInfos
 	inputs := make([]generated.FilAggregationInputs, len(aggregate.Infos))
 
 	for i, info := range aggregate.Infos {
-		if info.SealProof != spt {
-			return false, xerrors.Errorf("seal %d had unexpected seal proof type - expected %d, got %d", i, spt, info.SealProof)
-		}
-
 		commR, err := to32ByteCommR(info.SealedCID)
 		if err != nil {
 			return false, err
@@ -99,7 +95,12 @@ func VerifyAggregateSeals(aggregate proof5.AggregateSealVerifyProofAndInfos) (bo
 		return false, err
 	}
 
-	resp := generated.FilVerifyAggregateSealProof(sp, proverID, aggregate.Proof, uint(len(aggregate.Proof)), inputs, uint(len(inputs)))
+	rap, err := toFilRegisteredAggregationProof(aggregate.AggregateProof)
+	if err != nil {
+		return false, err
+	}
+
+	resp := generated.FilVerifyAggregateSealProof(sp, rap, proverID, aggregate.Proof, uint(len(aggregate.Proof)), inputs, uint(len(inputs)))
 	resp.Deref()
 
 	defer generated.FilDestroyVerifyAggregateSealResponse(resp)
@@ -460,7 +461,7 @@ func SealCommitPhase2(
 	return copyBytes(resp.ProofPtr, resp.ProofLen), nil
 }
 
-func AggregateSealProofs(proofType abi.RegisteredSealProof, proofs [][]byte) (out []byte, err error) {
+func AggregateSealProofs(proofType abi.RegisteredSealProof, arap abi.RegisteredAggregationProof, proofs [][]byte) (out []byte, err error) {
 	sp, err := toFilRegisteredSealProof(proofType)
 	if err != nil {
 		return nil, err
@@ -474,7 +475,12 @@ func AggregateSealProofs(proofType abi.RegisteredSealProof, proofs [][]byte) (ou
 		}
 	}
 
-	resp := generated.FilAggregateSealProofs(sp, pfs, uint(len(pfs)))
+	rap, err := toFilRegisteredAggregationProof(arap)
+	if err != nil {
+		return nil, err
+	}
+
+	resp := generated.FilAggregateSealProofs(sp, rap, pfs, uint(len(pfs)))
 	resp.Deref()
 
 	defer generated.FilDestroyAggregateProof(resp)
@@ -1069,6 +1075,15 @@ func toFilRegisteredSealProof(p abi.RegisteredSealProof) (generated.FilRegistere
 		return generated.FilRegisteredSealProofStackedDrg64GiBV11, nil
 	default:
 		return 0, errors.Errorf("no mapping to C.FFIRegisteredSealProof value available for: %v", p)
+	}
+}
+
+func toFilRegisteredAggregationProof(p abi.RegisteredAggregationProof) (generated.FilRegisteredAggregationProof, error) {
+	switch p {
+	case abi.RegisteredAggregationProof_SnarkPackV1:
+		return generated.FilRegisteredAggregationProofSnarkPackV1, nil
+	default:
+		return 0, errors.Errorf("no mapping to abi.RegisteredAggregationProof value available for: %v", p)
 	}
 }
 
