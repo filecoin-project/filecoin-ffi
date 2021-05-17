@@ -428,7 +428,6 @@ pub unsafe extern "C" fn fil_aggregate_seal_proofs(
             })
             .collect();
 
-
         let commit_inputs: Vec<fil_AggregationInputs> =
             std::slice::from_raw_parts(commit_inputs_ptr, commit_inputs_len).to_vec();
 

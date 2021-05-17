@@ -617,7 +617,8 @@ impl Clone for fil_SealCommitPhase2Response {
         let proof_len = proof.len();
         let proof_ptr = proof.as_ptr();
 
-        let slice: &[fil_AggregationInputs] = unsafe { std::slice::from_raw_parts(self.commit_inputs_ptr, self.commit_inputs_len) };
+        let slice: &[fil_AggregationInputs] =
+            unsafe { std::slice::from_raw_parts(self.commit_inputs_ptr, self.commit_inputs_len) };
         let commit_inputs: Vec<fil_AggregationInputs> = slice.to_vec();
         debug_assert_eq!(self.commit_inputs_len, commit_inputs.len());
 
