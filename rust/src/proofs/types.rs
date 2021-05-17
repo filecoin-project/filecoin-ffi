@@ -626,7 +626,7 @@ impl Clone for fil_SealCommitPhase2Response {
         let commit_inputs_ptr = commit_inputs.as_ptr();
 
         std::mem::forget(proof);
-        std::mem::forget(commit_inputs_ptr);
+        std::mem::forget(commit_inputs);
 
         fil_SealCommitPhase2Response {
             status_code: self.status_code,
