@@ -461,10 +461,31 @@ func SealCommitPhase2(
 	return copyBytes(resp.ProofPtr, resp.ProofLen), nil
 }
 
-func AggregateSealProofs(proofType abi.RegisteredSealProof, arap abi.RegisteredAggregationProof, proofs [][]byte) (out []byte, err error) {
-	sp, err := toFilRegisteredSealProof(proofType)
+func AggregateSealProofs(aggregateInfo proof5.AggregateSealVerifyProofAndInfos, proofs [][]byte) (out []byte, err error) {
+	sp, err := toFilRegisteredSealProof(aggregateInfo.SealProof)
 	if err != nil {
 		return nil, err
+	}
+
+	inputs := make([]generated.FilAggregationInputs, len(aggregateInfo.Infos))
+	for i, info := range aggregateInfo.Infos {
+		commR, err := to32ByteCommR(info.SealedCID)
+		if err != nil {
+			return nil, err
+		}
+
+		commD, err := to32ByteCommD(info.UnsealedCID)
+		if err != nil {
+			return nil, err
+		}
+
+		inputs[i] = generated.FilAggregationInputs{
+			CommR:    commR,
+			CommD:    commD,
+			SectorId: uint64(info.Number),
+			Ticket:   to32ByteArray(info.Randomness),
+			Seed:     to32ByteArray(info.InteractiveRandomness),
+		}
 	}
 
 	pfs := make([]generated.FilSealCommitPhase2Response, len(proofs))
@@ -475,12 +496,17 @@ func AggregateSealProofs(proofType abi.RegisteredSealProof, arap abi.RegisteredA
 		}
 	}
 
-	rap, err := toFilRegisteredAggregationProof(arap)
+	rap, err := toFilRegisteredAggregationProof(aggregateInfo.AggregateProof)
 	if err != nil {
 		return nil, err
 	}
 
-	resp := generated.FilAggregateSealProofs(sp, rap, pfs, uint(len(pfs)))
+	proverID, err := toProverID(aggregateInfo.Miner)
+	if err != nil {
+		return nil, err
+	}
+
+	resp := generated.FilAggregateSealProofs(sp, rap, proverID, inputs, uint(len(inputs)), pfs, uint(len(pfs)))
 	resp.Deref()
 
 	defer generated.FilDestroyAggregateProof(resp)
