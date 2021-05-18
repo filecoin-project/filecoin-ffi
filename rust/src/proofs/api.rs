@@ -544,7 +544,6 @@ pub unsafe extern "C" fn fil_verify_aggregate_seal_proof(
             let result = verify_aggregate_seal_commit_proofs(
                 registered_proof.into(),
                 registered_aggregation.into(),
-                commit_inputs.len(),
                 proof_bytes,
                 inputs,
             );

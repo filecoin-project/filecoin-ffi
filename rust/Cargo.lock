@@ -837,7 +837,7 @@ dependencies = [
 [[package]]
 name = "filecoin-hashers"
 version = "2.0.1"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#c999bddeedc95c9397596eefed290e2f84765c5c"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#302fcf261841abad93de3a96cc077d9ce48d3487"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -855,7 +855,7 @@ dependencies = [
 [[package]]
 name = "filecoin-proofs"
 version = "7.0.1"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#c999bddeedc95c9397596eefed290e2f84765c5c"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#302fcf261841abad93de3a96cc077d9ce48d3487"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -892,7 +892,7 @@ dependencies = [
 [[package]]
 name = "filecoin-proofs-api"
 version = "7.0.0"
-source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=feat-aggregation#ca8436445fb302157512f9e215f5a8575d1a5383"
+source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=feat-aggregation#3902333181e400b798f6e76fd46c37ded292f33e"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -930,7 +930,7 @@ dependencies = [
 [[package]]
 name = "fr32"
 version = "0.2.1"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#c999bddeedc95c9397596eefed290e2f84765c5c"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#302fcf261841abad93de3a96cc077d9ce48d3487"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1863,7 +1863,7 @@ dependencies = [
 [[package]]
 name = "sha2raw"
 version = "2.1.1"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#c999bddeedc95c9397596eefed290e2f84765c5c"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#302fcf261841abad93de3a96cc077d9ce48d3487"
 dependencies = [
  "block-buffer 0.9.0",
  "byteorder 1.4.3",
@@ -1884,7 +1884,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 [[package]]
 name = "storage-proofs-core"
 version = "7.0.1"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#c999bddeedc95c9397596eefed290e2f84765c5c"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#302fcf261841abad93de3a96cc077d9ce48d3487"
 dependencies = [
  "aes",
  "anyhow",
@@ -1922,7 +1922,7 @@ dependencies = [
 [[package]]
 name = "storage-proofs-porep"
 version = "7.0.1"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#c999bddeedc95c9397596eefed290e2f84765c5c"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#302fcf261841abad93de3a96cc077d9ce48d3487"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1960,7 +1960,7 @@ dependencies = [
 [[package]]
 name = "storage-proofs-post"
 version = "7.0.1"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#c999bddeedc95c9397596eefed290e2f84765c5c"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#302fcf261841abad93de3a96cc077d9ce48d3487"
 dependencies = [
  "anyhow",
  "bellperson",
