@@ -274,11 +274,16 @@ impl Default for fil_AggregateProof {
 
 impl Drop for fil_AggregateProof {
     fn drop(&mut self) {
-        // Note that this operation also does the equivalent of
-        // libc::free(self.proof_ptr as *mut libc::c_void);
-        let _ = unsafe {
-            Vec::from_raw_parts(self.proof_ptr as *mut u8, self.proof_len, self.proof_len)
-        };
+        unsafe {
+            // Note that this operation also does the equivalent of
+            // libc::free(self.proof_ptr as *mut libc::c_void);
+            drop(Vec::from_raw_parts(
+                self.proof_ptr as *mut u8,
+                self.proof_len,
+                self.proof_len,
+            ));
+            free_c_str(self.error_msg as *mut libc::c_char);
+        }
     }
 }
 
