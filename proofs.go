@@ -491,7 +491,7 @@ func AggregateSealProofs(aggregateInfo proof5.AggregateSealVerifyProofAndInfos, 
 	pfs := make([]generated.FilSealCommitPhase2Response, len(proofs))
 	for i := range proofs {
 		pfs[i] = generated.FilSealCommitPhase2Response{
-			ProofPtr:   proofs[i],
+			ProofPtr: proofs[i],
 			ProofLen: uint(len(proofs[i])),
 		}
 	}
