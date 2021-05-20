@@ -4168,8 +4168,8 @@ func (x *FilPublicReplicaInfo) Deref() {
 	x.SectorId = (uint64)(x.ref81b617c2.sector_id)
 }
 
-// unpackArgSFilAggregationInputs transforms a sliced Go data structure into plain C format.
-func unpackArgSFilAggregationInputs(x []FilAggregationInputs) (unpacked *C.fil_AggregationInputs, allocs *cgoAllocMap) {
+// unpackArgSFil32ByteArray transforms a sliced Go data structure into plain C format.
+func unpackArgSFil32ByteArray(x []Fil32ByteArray) (unpacked *C.fil_32ByteArray, allocs *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
 	}
@@ -4179,22 +4179,31 @@ func unpackArgSFilAggregationInputs(x []FilAggregationInputs) (unpacked *C.fil_A
 	})
 
 	len0 := len(x)
-	mem0 := allocFilAggregationInputsMemory(len0)
+	mem0 := allocFil32ByteArrayMemory(len0)
 	allocs.Add(mem0)
 	h0 := &sliceHeader{
 		Data: mem0,
 		Cap:  len0,
 		Len:  len0,
 	}
-	v0 := *(*[]C.fil_AggregationInputs)(unsafe.Pointer(h0))
+	v0 := *(*[]C.fil_32ByteArray)(unsafe.Pointer(h0))
 	for i0 := range x {
 		allocs0 := new(cgoAllocMap)
 		v0[i0], allocs0 = x[i0].PassValue()
 		allocs.Borrow(allocs0)
 	}
 	h := (*sliceHeader)(unsafe.Pointer(&v0))
-	unpacked = (*C.fil_AggregationInputs)(h.Data)
+	unpacked = (*C.fil_32ByteArray)(h.Data)
 	return
+}
+
+// packSFil32ByteArray reads sliced Go data structure out from plain C format.
+func packSFil32ByteArray(v []Fil32ByteArray, ptr0 *C.fil_32ByteArray) {
+	const m = 0x7fffffff
+	for i0 := range v {
+		ptr1 := (*(*[m / sizeOfFil32ByteArrayValue]C.fil_32ByteArray)(unsafe.Pointer(ptr0)))[i0]
+		v[i0] = *NewFil32ByteArrayRef(unsafe.Pointer(&ptr1))
+	}
 }
 
 // unpackArgSFilSealCommitPhase2Response transforms a sliced Go data structure into plain C format.
@@ -4377,6 +4386,35 @@ func allocSizeTMemory(n int) unsafe.Pointer {
 }
 
 const sizeOfSizeTValue = unsafe.Sizeof([1]C.size_t{})
+
+// unpackArgSFilAggregationInputs transforms a sliced Go data structure into plain C format.
+func unpackArgSFilAggregationInputs(x []FilAggregationInputs) (unpacked *C.fil_AggregationInputs, allocs *cgoAllocMap) {
+	if x == nil {
+		return nil, nil
+	}
+	allocs = new(cgoAllocMap)
+	defer runtime.SetFinalizer(allocs, func(a *cgoAllocMap) {
+		go a.Free()
+	})
+
+	len0 := len(x)
+	mem0 := allocFilAggregationInputsMemory(len0)
+	allocs.Add(mem0)
+	h0 := &sliceHeader{
+		Data: mem0,
+		Cap:  len0,
+		Len:  len0,
+	}
+	v0 := *(*[]C.fil_AggregationInputs)(unsafe.Pointer(h0))
+	for i0 := range x {
+		allocs0 := new(cgoAllocMap)
+		v0[i0], allocs0 = x[i0].PassValue()
+		allocs.Borrow(allocs0)
+	}
+	h := (*sliceHeader)(unsafe.Pointer(&v0))
+	unpacked = (*C.fil_AggregationInputs)(h.Data)
+	return
+}
 
 // unpackArgSFilPublicReplicaInfo transforms a sliced Go data structure into plain C format.
 func unpackArgSFilPublicReplicaInfo(x []FilPublicReplicaInfo) (unpacked *C.fil_PublicReplicaInfo, allocs *cgoAllocMap) {
