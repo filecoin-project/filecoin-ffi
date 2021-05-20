@@ -181,10 +181,6 @@ workflows:
       - gofmt
       - go_lint
       - build_and_test_linux_cgo_bindings_pairing:
-          filters:
-            branches:
-              only:
-                - master
           run_leak_detector: true
       - build_and_test_linux_cgo_bindings_pairing:
           filters:
@@ -194,10 +190,6 @@ workflows:
           run_leak_detector: false
 
       - build_and_test_linux_cgo_bindings_blst:
-          filters:
-            branches:
-              only:
-                - master
           run_leak_detector: true
       - build_and_test_linux_cgo_bindings_blst:
           filters:
@@ -206,11 +198,7 @@ workflows:
                 - master
           run_leak_detector: false
 
-      - publish_linux_staticlib:
-          filters:
-            branches:
-              only:
-                - master
+      - publish_linux_staticlib
       - build_darwin_cgo_bindings
       - publish_darwin_staticlib:
           filters:
