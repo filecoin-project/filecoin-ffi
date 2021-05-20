@@ -487,8 +487,6 @@ pub unsafe extern "C" fn fil_verify_aggregate_seal_proof(
     prover_id: fil_32ByteArray,
     proof_ptr: *const u8,
     proof_len: libc::size_t,
-    seeds_ptr: *const fil_32ByteArray,
-    seeds_len: libc::size_t,
     commit_inputs_ptr: *mut fil_AggregationInputs,
     commit_inputs_len: libc::size_t,
 ) -> *mut fil_VerifyAggregateSealProofResponse {
@@ -504,6 +502,7 @@ pub unsafe extern "C" fn fil_verify_aggregate_seal_proof(
 
         let mut response = fil_VerifyAggregateSealProofResponse::default();
 
+        let mut seeds: Vec<[u8; 32]> = Vec::new();
         let mut inputs: Vec<Vec<Fr>> = Vec::new();
         let mut failed_conversion = false;
         for input in &commit_inputs {
@@ -520,12 +519,10 @@ pub unsafe extern "C" fn fil_verify_aggregate_seal_proof(
             };
 
             inputs.extend(converted);
+            seeds.push(input.seed.inner);
         }
 
         if !failed_conversion {
-            let raw_seeds: &[fil_32ByteArray] = std::slice::from_raw_parts(seeds_ptr, seeds_len);
-            let seeds: Vec<[u8; 32]> = raw_seeds.iter().map(|x| x.inner).collect();
-
             let result = verify_aggregate_seal_commit_proofs(
                 registered_proof.into(),
                 registered_aggregation.into(),
@@ -2967,8 +2964,6 @@ pub mod tests {
                 prover_id,
                 (*resp_aggregate_proof).proof_ptr,
                 (*resp_aggregate_proof).proof_len,
-                seeds.as_ptr(),
-                seeds.len(),
                 inputs.as_mut_ptr(),
                 inputs.len(),
             );
