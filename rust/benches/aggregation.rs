@@ -1,4 +1,4 @@
-use cid::{Cid};
+use cid::Cid;
 use criterion::{criterion_group, criterion_main, Criterion};
 use multihash::Sha2_256;
 use serde::Deserialize;
@@ -8,8 +8,8 @@ use std::convert::TryFrom;
 use ffi_toolkit::{c_str_to_rust_str, FCPResponseStatus};
 use filcrypto::proofs::api::fil_verify_aggregate_seal_proof;
 use filcrypto::proofs::types::{
-    fil_32ByteArray, fil_AggregationInputs, fil_RegisteredAggregationProof, fil_RegisteredSealProof,
-    fil_VerifyAggregateSealProofResponse,
+    fil_32ByteArray, fil_AggregationInputs, fil_RegisteredAggregationProof,
+    fil_RegisteredSealProof, fil_VerifyAggregateSealProofResponse,
 };
 
 #[derive(Deserialize, Debug)]
@@ -59,8 +59,9 @@ pub fn agg_verify_benchmark(c: &mut Criterion) {
 
     let mut prover_id_raw: [u8; 32] = [0u8; 32];
     prover_id_raw[..4].copy_from_slice(&[0x00u8, 0xE5u8, 0xAEu8, 0x01u8]);
-    let prover_id = fil_32ByteArray { inner: prover_id_raw };
-
+    let prover_id = fil_32ByteArray {
+        inner: prover_id_raw,
+    };
 
     let proof: Vec<u8> = base64::decode(&entry.Proof).expect("failed to decode base64 proof");
     let mut commit_inputs: Vec<fil_AggregationInputs> = Vec::with_capacity(entry.Infos.len());
@@ -81,15 +82,16 @@ pub fn agg_verify_benchmark(c: &mut Criterion) {
             inner: seed_decoded,
         };
 
-        println!("Sealed CID: {:?}", info.SealedCID["/"]);
-        let comm_r_cid = Cid::from(info.SealedCID["/"].to_string()).expect("failed to decode commr");
-        let comm_d_cid = Cid::from(info.UnsealedCID["/"].to_string()).expect("failed to decode commd");
+        let SealedCID = info.SealedCID["/"].as_str().unwrap();
+        let UnsealedCID = info.UnsealedCID["/"].as_str().unwrap();
+        let (_, comm_r_cid) = multibase::decode(SealedCID).expect("failed to decode commr");
+        let (_, comm_d_cid) = multibase::decode(UnsealedCID).expect("failed to decode commd");
 
         let mut comm_r_raw: [u8; 32] = [0u8; 32];
         let mut comm_d_raw: [u8; 32] = [0u8; 32];
 
-        comm_r_raw.copy_from_slice(&comm_r_cid.hash);
-        comm_d_raw.copy_from_slice(&comm_d_cid.hash);
+        comm_r_raw.copy_from_slice(&comm_r_cid[comm_r_cid.len() - 32..]);
+        comm_d_raw.copy_from_slice(&comm_d_cid[comm_d_cid.len() - 32..]);
 
         let comm_r = fil_32ByteArray { inner: comm_r_raw };
         let comm_d = fil_32ByteArray { inner: comm_d_raw };
@@ -103,6 +105,18 @@ pub fn agg_verify_benchmark(c: &mut Criterion) {
         });
     }
 
+    // prewarm using direct call
+    unsafe {
+        fil_verify_aggregate_seal_proof(
+            fil_RegisteredSealProof::StackedDrg32GiBV1_1,
+            fil_RegisteredAggregationProof::SnarkPackV1,
+            prover_id,
+            proof.as_ptr(),
+            proof.len(),
+            commit_inputs.as_mut_ptr(),
+            commit_inputs.len(),
+        );
+    }
     c.bench_function("agg 1.6k", |b| {
         b.iter(|| unsafe {
             let response = bench_verify_agg(
