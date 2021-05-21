@@ -48,6 +48,8 @@ cbindgen = "= 0.14.0"
 
 [dev-dependencies]
 tempfile = "3.0.8"
+criterion = "0.3"
+
 
 [features]
 default = ["pairing", "gpu"]
@@ -64,3 +66,7 @@ blstrs = { git = "https://github.com/filecoin-project/blstrs", branch = "feat-co
 #bellperson = { git = "https://github.com/filecoin-project/bellman", branch = "feat-ipp2" }
 bellperson = { git = "https://github.com/filecoin-project/bellman", branch = "feat-ipp2-transcript" }
 ffi-toolkit = { git = "https://github.com/cryptonemo/rust-fil-ffi-toolkit", branch = "enum-copy-clone" }
+
+[[bench]]
+name = "aggregation"
+harness = false
