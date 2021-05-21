@@ -56,8 +56,16 @@ pub fn agg_verify_benchmark(c: &mut Criterion) {
     let values: Value = serde_json::from_str(agg_str).expect("failed to convert json");
     let entry = AggregateEntry::deserialize(&values).expect("failed to convert entries");
 
-    let sealed: Cid = Cid::new(Codec::DagProtobuf, Version::V1, &Sha2_256::digest(values["Infos"]["SealedCID"].to_string().as_bytes()));
-    let unsealed: Cid = Cid::new(Codec::DagProtobuf, Version::V1, &Sha2_256::digest(values["Infos"]["SealedCID"].to_string().as_bytes()));
+    let sealed: Cid = Cid::new(
+        Codec::DagProtobuf,
+        Version::V1,
+        &Sha2_256::digest(values["Infos"]["SealedCID"].to_string().as_bytes()),
+    );
+    let unsealed: Cid = Cid::new(
+        Codec::DagProtobuf,
+        Version::V1,
+        &Sha2_256::digest(values["Infos"]["SealedCID"].to_string().as_bytes()),
+    );
     let sector_id = 0;
 
     let sealed_decoded = sealed.to_bytes();
@@ -70,14 +78,12 @@ pub fn agg_verify_benchmark(c: &mut Criterion) {
     let comm_d = fil_32ByteArray { inner: comm_d_raw };
     let prover_id = fil_32ByteArray { inner: [0u8; 32] };
 
-    let proof: Vec<u8> =
-        base64::decode(&entry.Proof).expect("failed to decode base64 proof");
-    let mut commit_inputs: Vec<fil_AggregationInputs> =
-        Vec::with_capacity(entry.Infos.len());
+    let proof: Vec<u8> = base64::decode(&entry.Proof).expect("failed to decode base64 proof");
+    let mut commit_inputs: Vec<fil_AggregationInputs> = Vec::with_capacity(entry.Infos.len());
+
     for info in entry.Infos.iter() {
         let mut ticket_decoded: [u8; 32] = [0u8; 32];
-        let ticket_slice =
-            base64::decode(&info.Randomness).expect("failed to convert randomness");
+        let ticket_slice = base64::decode(&info.Randomness).expect("failed to convert randomness");
         ticket_decoded.copy_from_slice(&ticket_slice);
         let ticket: fil_32ByteArray = fil_32ByteArray {
             inner: ticket_decoded,
@@ -101,27 +107,47 @@ pub fn agg_verify_benchmark(c: &mut Criterion) {
     }
 
     c.bench_function("agg 1.6k", |b| {
-        b.iter(|| {
-            unsafe {
-                let response = fil_verify_aggregate_seal_proof(
-                    fil_RegisteredSealProof::StackedDrg32GiBV1_1,
-                    fil_RegisteredAggregationProof::SnarkPackV1,
-                    prover_id,
-                    proof.as_ptr(),
-                    proof.len(),
-                    commit_inputs.as_mut_ptr(),
-                    commit_inputs.len(),
-                );
-                if (*response).status_code != FCPResponseStatus::FCPNoError {
-                    let msg = c_str_to_rust_str((*response).error_msg);
-                    panic!("verify_aggregate_seal_proof failed: {:?}", msg);
-                }
-                if !(*response).is_valid {
-                    println!("VERIFY FAILED");
-                }
+        b.iter(|| unsafe {
+            let response = fil_verify_aggregate_seal_proof(
+                fil_RegisteredSealProof::StackedDrg32GiBV1_1,
+                fil_RegisteredAggregationProof::SnarkPackV1,
+                prover_id,
+                proof.as_ptr(),
+                proof.len(),
+                commit_inputs.as_mut_ptr(),
+                commit_inputs.len(),
+            );
+            if (*response).status_code != FCPResponseStatus::FCPNoError {
+                let msg = c_str_to_rust_str((*response).error_msg);
+                panic!("verify_aggregate_seal_proof failed: {:?}", msg);
+            }
+            if !(*response).is_valid {
+                println!("VERIFY FAILED");
             }
         })
     });
+}
+
+// it is here so it shows up in stack traces
+#[inline(never)]
+pub unsafe fn bench_verify_agg(
+    registered_proof: fil_RegisteredSealProof,
+    registered_aggregation: fil_RegisteredAggregationProof,
+    prover_id: fil_32ByteArray,
+    proof_ptr: *const u8,
+    proof_len: libc::size_t,
+    commit_inputs_ptr: *mut fil_AggregationInputs,
+    commit_inputs_len: libc::size_t,
+) -> *mut fil_VerifyAggregateSealProofResponse {
+    return fil_verify_aggregate_seal_proof(
+        registered_proof,
+        registered_aggregation,
+        prover_id,
+        proof_ptr,
+        proof_len,
+        commit_inputs_ptr,
+        commit_inputs_len,
+    );
 }
 
 criterion_group!(benches, agg_verify_benchmark);
