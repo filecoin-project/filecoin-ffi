@@ -8,8 +8,23 @@ import (
 	proof5 "github.com/filecoin-project/specs-actors/v5/actors/runtime/proof"
 )
 
+func TestAggregate(t *testing.T) {
+	f, err := os.Open("./rust/benches/agg1.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	d := json.NewDecoder(f)
+	var agg proof5.AggregateSealVerifyProofAndInfos
+	err = d.Decode(&agg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, _ = VerifyAggregateSeals(agg)
+}
+
 func BenchmarkAggregate(b *testing.B) {
-	f, err := os.Open("agg1.ndjson")
+	f, err := os.Open("./rust/benches/agg1.json")
 	if err != nil {
 		b.Fatal(err)
 	}
