@@ -72,3 +72,7 @@ ffi-toolkit = { git = "https://github.com/cryptonemo/rust-fil-ffi-toolkit", bran
 [[bench]]
 name = "aggregation"
 harness = false
+
+[profile.release]
+debug = 1
+
