@@ -46,6 +46,8 @@ cbindgen = "= 0.14.0"
 
 [dev-dependencies]
 tempfile = "3.0.8"
+criterion = "0.3"
+
 
 [features]
 default = ["pairing", "gpu"]
@@ -53,3 +55,8 @@ pairing = ["filecoin-proofs-api/pairing", "bellperson/pairing"]
 blst = ["filecoin-proofs-api/blst", "bellperson/blst"]
 blst-portable = ["bls-signatures/blst-portable", "blstrs/portable"]
 gpu = ["filecoin-proofs-api/gpu", "bellperson/gpu"]
+
+[[bench]]
+name = "aggregation"
+harness = false
+
