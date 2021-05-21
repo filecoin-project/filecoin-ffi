@@ -48,6 +48,12 @@ cbindgen = "= 0.14.0"
 
 [dev-dependencies]
 tempfile = "3.0.8"
+criterion = "0.3"
+base64 = { version = "0.13" }
+serde = { version = "1.0", features = ["derive"]}
+multihash = "0.10"
+multibase = { version = "0.9.1" }
+
 
 [features]
 default = ["pairing", "gpu"]
@@ -62,3 +68,8 @@ filecoin-proofs-v1 = { package = "filecoin-proofs", git = "https://github.com/fi
 filecoin-hashers = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "finalize-snarkpack", default-features = false, features = ["poseidon", "sha256"] }
 fr32 = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "finalize-snarkpack", default-features = false }
 storage-proofs-core = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "finalize-snarkpack", default-features = false }
+
+[[bench]]
+name = "aggregation"
+harness = false
+
