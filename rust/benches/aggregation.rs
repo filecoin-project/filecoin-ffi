@@ -1,4 +1,4 @@
-use cid::{Cid, Codec, Version};
+use cid::{Cid};
 use criterion::{criterion_group, criterion_main, Criterion};
 use multihash::Sha2_256;
 use serde::Deserialize;
@@ -9,11 +9,12 @@ use ffi_toolkit::{c_str_to_rust_str, FCPResponseStatus};
 use filcrypto::proofs::api::fil_verify_aggregate_seal_proof;
 use filcrypto::proofs::types::{
     fil_32ByteArray, fil_AggregationInputs, fil_RegisteredAggregationProof, fil_RegisteredSealProof,
+    fil_VerifyAggregateSealProofResponse,
 };
 
 #[derive(Deserialize, Debug)]
 struct Info {
-    Number: usize,
+    Number: u64,
     Randomness: String,
     InteractiveRandomness: String,
     SealedCID: Value,
@@ -22,7 +23,7 @@ struct Info {
 
 #[derive(Deserialize, Debug)]
 struct AggregateEntry {
-    Miner: usize,
+    Miner: u64,
     SealProof: usize,
     AggregateProof: usize,
     Proof: String,
@@ -56,27 +57,10 @@ pub fn agg_verify_benchmark(c: &mut Criterion) {
     let values: Value = serde_json::from_str(agg_str).expect("failed to convert json");
     let entry = AggregateEntry::deserialize(&values).expect("failed to convert entries");
 
-    let sealed: Cid = Cid::new(
-        Codec::DagProtobuf,
-        Version::V1,
-        &Sha2_256::digest(values["Infos"]["SealedCID"].to_string().as_bytes()),
-    );
-    let unsealed: Cid = Cid::new(
-        Codec::DagProtobuf,
-        Version::V1,
-        &Sha2_256::digest(values["Infos"]["SealedCID"].to_string().as_bytes()),
-    );
-    let sector_id = 0;
+    let mut prover_id_raw: [u8; 32] = [0u8; 32];
+    prover_id_raw[..4].copy_from_slice(&[0x00u8, 0xE5u8, 0xAEu8, 0x01u8]);
+    let prover_id = fil_32ByteArray { inner: prover_id_raw };
 
-    let sealed_decoded = sealed.to_bytes();
-    let unsealed_decoded = sealed.to_bytes();
-    let mut comm_r_raw: [u8; 32] = [0u8; 32];
-    let mut comm_d_raw: [u8; 32] = [0u8; 32];
-    comm_r_raw.copy_from_slice(&sealed_decoded[4..36]);
-    comm_d_raw.copy_from_slice(&unsealed_decoded[4..36]);
-    let comm_r = fil_32ByteArray { inner: comm_r_raw };
-    let comm_d = fil_32ByteArray { inner: comm_d_raw };
-    let prover_id = fil_32ByteArray { inner: [0u8; 32] };
 
     let proof: Vec<u8> = base64::decode(&entry.Proof).expect("failed to decode base64 proof");
     let mut commit_inputs: Vec<fil_AggregationInputs> = Vec::with_capacity(entry.Infos.len());
@@ -97,10 +81,23 @@ pub fn agg_verify_benchmark(c: &mut Criterion) {
             inner: seed_decoded,
         };
 
+        println!("Sealed CID: {:?}", info.SealedCID["/"]);
+        let comm_r_cid = Cid::from(info.SealedCID["/"].to_string()).expect("failed to decode commr");
+        let comm_d_cid = Cid::from(info.UnsealedCID["/"].to_string()).expect("failed to decode commd");
+
+        let mut comm_r_raw: [u8; 32] = [0u8; 32];
+        let mut comm_d_raw: [u8; 32] = [0u8; 32];
+
+        comm_r_raw.copy_from_slice(&comm_r_cid.hash);
+        comm_d_raw.copy_from_slice(&comm_d_cid.hash);
+
+        let comm_r = fil_32ByteArray { inner: comm_r_raw };
+        let comm_d = fil_32ByteArray { inner: comm_d_raw };
+
         commit_inputs.push(fil_AggregationInputs {
             comm_r,
             comm_d,
-            sector_id,
+            sector_id: info.Number,
             ticket,
             seed,
         });
@@ -108,7 +105,7 @@ pub fn agg_verify_benchmark(c: &mut Criterion) {
 
     c.bench_function("agg 1.6k", |b| {
         b.iter(|| unsafe {
-            let response = fil_verify_aggregate_seal_proof(
+            let response = bench_verify_agg(
                 fil_RegisteredSealProof::StackedDrg32GiBV1_1,
                 fil_RegisteredAggregationProof::SnarkPackV1,
                 prover_id,
