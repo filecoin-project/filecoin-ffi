@@ -22,6 +22,7 @@ bls-signatures = { version = "0.8", default-features = false, features = ["blst"
 blstrs = { version = "0.2" }
 byteorder = "1.2"
 cid = { version = "0.3.2" }
+multibase = { version = "0.9.1" }
 drop_struct_macro_derive = "0.4.0"
 ff = { version = "0.2.1", package = "fff" }
 ffi-toolkit = "0.4.0"
