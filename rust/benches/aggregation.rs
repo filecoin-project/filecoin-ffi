@@ -133,7 +133,7 @@ pub fn agg_verify_benchmark(c: &mut Criterion) {
                 panic!("verify_aggregate_seal_proof failed: {:?}", msg);
             }
             if !(*response).is_valid {
-                println!("VERIFY FAILED");
+                // println!("VERIFY FAILED");
             }
         })
     });
@@ -150,7 +150,7 @@ pub unsafe fn bench_verify_agg(
     commit_inputs_ptr: *mut fil_AggregationInputs,
     commit_inputs_len: libc::size_t,
 ) -> *mut fil_VerifyAggregateSealProofResponse {
-    return fil_verify_aggregate_seal_proof(
+    fil_verify_aggregate_seal_proof(
         registered_proof,
         registered_aggregation,
         prover_id,
@@ -158,7 +158,7 @@ pub unsafe fn bench_verify_agg(
         proof_len,
         commit_inputs_ptr,
         commit_inputs_len,
-    );
+    )
 }
 
 criterion_group!(benches, agg_verify_benchmark);

@@ -14,6 +14,7 @@ use filecoin_proofs_api::{
 
 use bellperson::bls::Fr;
 use log::{error, info};
+use rayon::prelude::*;
 
 use std::mem;
 use std::path::PathBuf;
@@ -497,54 +498,48 @@ pub unsafe extern "C" fn fil_verify_aggregate_seal_proof(
 
         let proof_bytes: Vec<u8> = std::slice::from_raw_parts(proof_ptr, proof_len).to_vec();
 
-        let commit_inputs: Vec<fil_AggregationInputs> =
-            std::slice::from_raw_parts(commit_inputs_ptr, commit_inputs_len).to_vec();
+        let commit_inputs: &[fil_AggregationInputs] =
+            std::slice::from_raw_parts(commit_inputs_ptr, commit_inputs_len);
 
         let mut response = fil_VerifyAggregateSealProofResponse::default();
 
-        let mut seeds: Vec<[u8; 32]> = Vec::new();
-        let mut inputs: Vec<Vec<Fr>> = Vec::new();
-        let mut failed_conversion = false;
-        for input in &commit_inputs {
-            let converted = match convert_aggregation_inputs(registered_proof, prover_id, &input) {
-                Ok(x) => x,
-                Err(err) => {
-                    response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                    response.error_msg = rust_str_to_c_str(format!("{:?}", err));
-                    response.is_valid = false;
+        let inputs: anyhow::Result<Vec<_>> = commit_inputs.par_iter().map(|input| {
+            convert_aggregation_inputs(registered_proof, prover_id, &input)
+        }).collect();
 
-                    failed_conversion = true;
-                    break;
-                }
-            };
+        match inputs {
+            Ok(inputs) => {
+                let seeds: Vec<[u8; 32]> = commit_inputs.iter().map(|input| input.seed.inner).collect();
+                let inputs_flat = inputs.into_iter().flatten().collect();
 
-            inputs.extend(converted);
-            seeds.push(input.seed.inner);
-        }
+                let result = verify_aggregate_seal_commit_proofs(
+                    registered_proof.into(),
+                    registered_aggregation.into(),
+                    proof_bytes,
+                    &seeds,
+                    inputs_flat,
+                );
 
-        if !failed_conversion {
-            let result = verify_aggregate_seal_commit_proofs(
-                registered_proof.into(),
-                registered_aggregation.into(),
-                proof_bytes,
-                &seeds,
-                inputs,
-            );
-
-            match result {
-                Ok(true) => {
-                    response.status_code = FCPResponseStatus::FCPNoError;
-                    response.is_valid = true;
+                match result {
+                    Ok(true) => {
+                        response.status_code = FCPResponseStatus::FCPNoError;
+                        response.is_valid = true;
+                    }
+                    Ok(false) => {
+                        response.status_code = FCPResponseStatus::FCPNoError;
+                        response.is_valid = false;
+                    }
+                    Err(err) => {
+                        response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                        response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                        response.is_valid = false;
+                    }
                 }
-                Ok(false) => {
-                    response.status_code = FCPResponseStatus::FCPNoError;
-                    response.is_valid = false;
-                }
-                Err(err) => {
-                    response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                    response.error_msg = rust_str_to_c_str(format!("{:?}", err));
-                    response.is_valid = false;
-                }
+            }
+            Err(err) => {
+                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                response.is_valid = false;
             }
         }
 
