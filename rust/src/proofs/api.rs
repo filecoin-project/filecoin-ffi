@@ -503,21 +503,23 @@ pub unsafe extern "C" fn fil_verify_aggregate_seal_proof(
 
         let mut response = fil_VerifyAggregateSealProofResponse::default();
 
-        let inputs: anyhow::Result<Vec<_>> = commit_inputs.par_iter().map(|input| {
+        let inputs: anyhow::Result<Vec<Vec<Fr>>> = commit_inputs.par_iter().map(|input| {
             convert_aggregation_inputs(registered_proof, prover_id, &input)
-        }).collect();
+        }).try_reduce(|| Vec::new(), |mut acc, current| {
+            acc.extend(current);
+            Ok(acc)
+        });
 
         match inputs {
             Ok(inputs) => {
                 let seeds: Vec<[u8; 32]> = commit_inputs.iter().map(|input| input.seed.inner).collect();
-                let inputs_flat = inputs.into_iter().flatten().collect();
 
                 let result = verify_aggregate_seal_commit_proofs(
                     registered_proof.into(),
                     registered_aggregation.into(),
                     proof_bytes,
                     &seeds,
-                    inputs_flat,
+                    inputs,
                 );
 
                 match result {
