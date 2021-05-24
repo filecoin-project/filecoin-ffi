@@ -418,15 +418,7 @@ pub unsafe extern "C" fn fil_aggregate_seal_proofs(
 
         let responses: &[fil_SealCommitPhase2Response] =
             std::slice::from_raw_parts(seal_commit_responses_ptr, seal_commit_responses_len);
-        let outputs: Vec<SealCommitPhase2Output> = responses
-            .iter()
-            .map(|x| {
-                let slice: &[u8] = std::slice::from_raw_parts(x.proof_ptr, x.proof_len);
-                let proof: Vec<u8> = slice.to_vec();
-
-                SealCommitPhase2Output { proof }
-            })
-            .collect();
+        let outputs: Vec<SealCommitPhase2Output> = responses.iter().map(|x| x.into()).collect();
 
         let raw_seeds: &[fil_32ByteArray] = std::slice::from_raw_parts(seeds_ptr, seeds_len);
         let seeds: Vec<[u8; 32]> = raw_seeds.iter().map(|x| x.inner).collect();
@@ -503,16 +495,18 @@ pub unsafe extern "C" fn fil_verify_aggregate_seal_proof(
 
         let mut response = fil_VerifyAggregateSealProofResponse::default();
 
-        let inputs: anyhow::Result<Vec<Vec<Fr>>> = commit_inputs.par_iter().map(|input| {
-            convert_aggregation_inputs(registered_proof, prover_id, &input)
-        }).try_reduce(|| Vec::new(), |mut acc, current| {
-            acc.extend(current);
-            Ok(acc)
-        });
+        let inputs: anyhow::Result<Vec<Vec<Fr>>> = commit_inputs
+            .par_iter()
+            .map(|input| convert_aggregation_inputs(registered_proof, prover_id, &input))
+            .try_reduce(Vec::new, |mut acc, current| {
+                acc.extend(current);
+                Ok(acc)
+            });
 
         match inputs {
             Ok(inputs) => {
-                let seeds: Vec<[u8; 32]> = commit_inputs.iter().map(|input| input.seed.inner).collect();
+                let seeds: Vec<[u8; 32]> =
+                    commit_inputs.iter().map(|input| input.seed.inner).collect();
 
                 let result = verify_aggregate_seal_commit_proofs(
                     registered_proof.into(),

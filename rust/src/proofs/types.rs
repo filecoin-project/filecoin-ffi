@@ -6,8 +6,8 @@ use anyhow::Result;
 use drop_struct_macro_derive::DropStructMacro;
 use ffi_toolkit::{code_and_message_impl, free_c_str, CodeAndMessage, FCPResponseStatus};
 use filecoin_proofs_api::{
-    PieceInfo, RegisteredAggregationProof, RegisteredPoStProof, RegisteredSealProof,
-    UnpaddedBytesAmount,
+    seal::SealCommitPhase2Output, PieceInfo, RegisteredAggregationProof, RegisteredPoStProof,
+    RegisteredSealProof, UnpaddedBytesAmount,
 };
 
 #[repr(C)]
@@ -588,6 +588,15 @@ pub struct fil_SealCommitPhase2Response {
     pub proof_len: libc::size_t,
     pub commit_inputs_ptr: *const fil_AggregationInputs,
     pub commit_inputs_len: libc::size_t,
+}
+
+impl From<&fil_SealCommitPhase2Response> for SealCommitPhase2Output {
+    fn from(other: &fil_SealCommitPhase2Response) -> Self {
+        let slice: &[u8] = unsafe { std::slice::from_raw_parts(other.proof_ptr, other.proof_len) };
+        let proof: Vec<u8> = slice.to_vec();
+
+        SealCommitPhase2Output { proof }
+    }
 }
 
 impl Default for fil_SealCommitPhase2Response {
