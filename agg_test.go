@@ -2,9 +2,11 @@ package ffi
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"testing"
 
+	"github.com/filecoin-project/go-address"
 	proof5 "github.com/filecoin-project/specs-actors/v5/actors/runtime/proof"
 )
 
@@ -20,6 +22,14 @@ func TestAggregate(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	a, err := address.NewIDAddress(uint64(agg.Miner))
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Printf("%X", a.Bytes())
+	return
+
 	_, _ = VerifyAggregateSeals(agg)
 }
 
