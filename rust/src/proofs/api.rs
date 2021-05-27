@@ -488,12 +488,8 @@ pub unsafe extern "C" fn fil_verify_aggregate_seal_proof(
 
         info!("verify_aggregate_seal_proof: start");
 
-        let proof_bytes: Vec<u8> = std::slice::from_raw_parts(proof_ptr, proof_len).to_vec();
-
         let commit_inputs: &[fil_AggregationInputs] =
             std::slice::from_raw_parts(commit_inputs_ptr, commit_inputs_len);
-
-        let mut response = fil_VerifyAggregateSealProofResponse::default();
 
         let inputs: anyhow::Result<Vec<Vec<Fr>>> = commit_inputs
             .par_iter()
@@ -503,8 +499,12 @@ pub unsafe extern "C" fn fil_verify_aggregate_seal_proof(
                 Ok(acc)
             });
 
+        let mut response = fil_VerifyAggregateSealProofResponse::default();
+
         match inputs {
             Ok(inputs) => {
+                let proof_bytes: Vec<u8> =
+                    std::slice::from_raw_parts(proof_ptr, proof_len).to_vec();
                 let seeds: Vec<[u8; 32]> =
                     commit_inputs.iter().map(|input| input.seed.inner).collect();
 
