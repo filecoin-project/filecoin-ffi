@@ -118,8 +118,9 @@ dependencies = [
 
 [[package]]
 name = "bellperson"
-version = "0.13.0"
-source = "git+https://github.com/filecoin-project/bellman?branch=feat-ipp2#e988d1479244ff586e584660c0fe42451a0b6f29"
+version = "0.14.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5413e4d5c2ec0b389f376ef1241cd059a57cb453dfeeb9f5f1b424358e981c61"
 dependencies = [
  "bincode",
  "bit-vec",
@@ -141,7 +142,7 @@ dependencies = [
  "rand 0.7.3",
  "rand_core 0.5.1",
  "rayon",
- "rust-gpu-tools 0.2.2",
+ "rust-gpu-tools",
  "rustc-hash",
  "serde",
  "sha2 0.9.5",
@@ -255,16 +256,15 @@ checksum = "8d696c370c750c948ada61c69a0ee2cbbb9c50b1019ddb86d9317157a99c2cae"
 
 [[package]]
 name = "bls-signatures"
-version = "0.8.0"
+version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b3b9d0864a470e950b91d40fb0a7f8e914c3c32d7b72f124a3bf3a22ef8146ac"
+checksum = "374a0400b490c778bd27c0e35062d1682c3575dd275964a533f0297e6f749cc8"
 dependencies = [
  "blst",
  "blstrs",
  "fff",
  "groupy",
  "rand_core 0.5.1",
- "rayon",
  "thiserror",
 ]
 
@@ -282,8 +282,9 @@ dependencies = [
 
 [[package]]
 name = "blstrs"
-version = "0.2.2"
-source = "git+https://github.com/filecoin-project/blstrs?branch=feat-compression#6b7e732c18d92554e6aa1a7d57ce043056b991e1"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "53d8da63ee520ce742de7945be04dff884dda94486df7a39b79c2e0aaf2839c7"
 dependencies = [
  "blst",
  "fff",
@@ -446,16 +447,16 @@ dependencies = [
 
 [[package]]
 name = "crossbeam"
-version = "0.8.0"
+version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fd01a6eb3daaafa260f6fc94c3a6c36390abc2080e38e3e34ced87393fb77d80"
+checksum = "4ae5588f6b3c3cb05239e90bd110f257254aecd01e4635400391aeae07497845"
 dependencies = [
  "cfg-if 1.0.0",
  "crossbeam-channel 0.5.1",
  "crossbeam-deque 0.8.0",
- "crossbeam-epoch 0.9.4",
- "crossbeam-queue 0.3.1",
- "crossbeam-utils 0.8.4",
+ "crossbeam-epoch 0.9.5",
+ "crossbeam-queue 0.3.2",
+ "crossbeam-utils 0.8.5",
 ]
 
 [[package]]
@@ -475,7 +476,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "06ed27e177f16d65f0f0c22a213e17c696ace5dd64b14258b52f9417ccb52db4"
 dependencies = [
  "cfg-if 1.0.0",
- "crossbeam-utils 0.8.4",
+ "crossbeam-utils 0.8.5",
 ]
 
 [[package]]
@@ -496,8 +497,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "94af6efb46fef72616855b036a624cf27ba656ffc9be1b9a3c931cfc7749a9a9"
 dependencies = [
  "cfg-if 1.0.0",
- "crossbeam-epoch 0.9.4",
- "crossbeam-utils 0.8.4",
+ "crossbeam-epoch 0.9.5",
+ "crossbeam-utils 0.8.5",
 ]
 
 [[package]]
@@ -517,12 +518,12 @@ dependencies = [
 
 [[package]]
 name = "crossbeam-epoch"
-version = "0.9.4"
+version = "0.9.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "52fb27eab85b17fbb9f6fd667089e07d6a2eb8743d02639ee7f6a7a7729c9c94"
+checksum = "4ec02e091aa634e2c3ada4a392989e7c3116673ef0ac5b72232439094d73b7fd"
 dependencies = [
  "cfg-if 1.0.0",
- "crossbeam-utils 0.8.4",
+ "crossbeam-utils 0.8.5",
  "lazy_static",
  "memoffset 0.6.4",
  "scopeguard",
@@ -541,12 +542,12 @@ dependencies = [
 
 [[package]]
 name = "crossbeam-queue"
-version = "0.3.1"
+version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0f6cb3c7f5b8e51bc3ebb73a2327ad4abdbd119dc13223f14f961d2f38486756"
+checksum = "9b10ddc024425c88c2ad148c1b0fd53f4c6d38db9697c9f1588381212fa657c9"
 dependencies = [
  "cfg-if 1.0.0",
- "crossbeam-utils 0.8.4",
+ "crossbeam-utils 0.8.5",
 ]
 
 [[package]]
@@ -562,11 +563,10 @@ dependencies = [
 
 [[package]]
 name = "crossbeam-utils"
-version = "0.8.4"
+version = "0.8.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4feb231f0d4d6af81aed15928e58ecf5816aa62a2393e2c82f46973e92a9a278"
+checksum = "d82cfc11ce7f2c3faef78d8a684447b40d503d9681acebed6cb728d45940c4db"
 dependencies = [
- "autocfg",
  "cfg-if 1.0.0",
  "lazy_static",
 ]
@@ -638,19 +638,9 @@ dependencies = [
 
 [[package]]
 name = "drop_struct_macro_derive"
-version = "0.4.0"
-source = "git+https://github.com/cryptonemo/rust-fil-ffi-toolkit?branch=enum-copy-clone#a02ab5706609cec4213de5d731a047bb5701a437"
-dependencies = [
- "proc-macro2 0.4.30",
- "quote 0.6.13",
- "syn 0.15.44",
-]
-
-[[package]]
-name = "drop_struct_macro_derive"
-version = "0.4.0"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f30523b3385bd3a6bcc5bcb37f103ef08919724c5000cec7e4ac6d146fb6457f"
+checksum = "c66c28195b2c389d2a4d41a098f69cc5c689bf9536b435dc377d015f3c69d5de"
 dependencies = [
  "proc-macro2 0.4.30",
  "quote 0.6.13",
@@ -722,9 +712,9 @@ dependencies = [
 
 [[package]]
 name = "ff-cl-gen"
-version = "0.2.0"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c37f4f4ccbc173bd5abd9251222392c564f7dc8d9a5ddde6cf3fe55c163d465f"
+checksum = "fdeff015146e5eaa0da7b567dd12152112d17edab0521cbef9507d38e20f26b9"
 dependencies = [
  "fff",
  "itertools 0.8.2",
@@ -733,8 +723,9 @@ dependencies = [
 
 [[package]]
 name = "fff"
-version = "0.2.3"
-source = "git+https://github.com/filecoin-project/ff?branch=ser-de#231b29f9df9b13f510566e1d4b69e6b0e1bfc34e"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7edbba9b259baf4dea8d2167240013ca63a75f7719fc75145a906e9f2c6b3f7b"
 dependencies = [
  "byteorder 1.4.3",
  "cc",
@@ -746,8 +737,9 @@ dependencies = [
 
 [[package]]
 name = "fff_derive"
-version = "0.2.2"
-source = "git+https://github.com/filecoin-project/ff?branch=ser-de#231b29f9df9b13f510566e1d4b69e6b0e1bfc34e"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "78dcbbfd77fe2bb6535a6ab35f643bf94d4c3ad30590dcbd0574fcc638747535"
 dependencies = [
  "num-bigint 0.2.6",
  "num-integer",
@@ -759,10 +751,11 @@ dependencies = [
 
 [[package]]
 name = "ffi-toolkit"
-version = "0.4.0"
-source = "git+https://github.com/cryptonemo/rust-fil-ffi-toolkit?branch=enum-copy-clone#a02ab5706609cec4213de5d731a047bb5701a437"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b92ec22ace9da5ca0ad6ab61fa6cab1eb46faad7aaaaf9bcf24394c22b7e605a"
 dependencies = [
- "drop_struct_macro_derive 0.4.0 (git+https://github.com/cryptonemo/rust-fil-ffi-toolkit?branch=enum-copy-clone)",
+ "drop_struct_macro_derive",
  "libc",
 ]
 
@@ -817,7 +810,7 @@ dependencies = [
  "blstrs",
  "byteorder 1.4.3",
  "cbindgen",
- "drop_struct_macro_derive 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "drop_struct_macro_derive",
  "fff",
  "ffi-toolkit",
  "fil_logger",
@@ -829,15 +822,16 @@ dependencies = [
  "rand 0.7.3",
  "rand_chacha 0.2.2",
  "rayon",
- "rust-gpu-tools 0.2.2",
+ "rust-gpu-tools",
  "serde_json",
  "tempfile",
 ]
 
 [[package]]
 name = "filecoin-hashers"
-version = "2.0.1"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#eaaded58207fe23f9a7dee4e0519c3b1f67adb18"
+version = "3.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bb4a41b6c668933602bb4b334d05a57792738dc76001c95bee536b3e3f38021e"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -854,8 +848,9 @@ dependencies = [
 
 [[package]]
 name = "filecoin-proofs"
-version = "7.0.1"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#eaaded58207fe23f9a7dee4e0519c3b1f67adb18"
+version = "8.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "df3b33c2f1e03d13a1a0ef2b69890e974805be69e664de4debfaddaddd206827"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -891,8 +886,9 @@ dependencies = [
 
 [[package]]
 name = "filecoin-proofs-api"
-version = "7.0.0"
-source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=feat-aggregation#23ea85697e80b33562fc77e05cbb1ae7e68020ef"
+version = "8.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7c4b59d47e36070a0fe4f1a838c48b14f9d9612d9d0cfdb8f37e2e96e34338e1"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -929,8 +925,9 @@ dependencies = [
 
 [[package]]
 name = "fr32"
-version = "0.2.1"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#eaaded58207fe23f9a7dee4e0519c3b1f67adb18"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2324aec2f87499492d0462788d9a47e66bbd707cd8284b88901f1233d162fab6"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1017,8 +1014,9 @@ checksum = "9b919933a397b79c37e33b77bb2aa3dc8eb6e165ad809e58ff75bc7db2e34574"
 
 [[package]]
 name = "groupy"
-version = "0.3.1"
-source = "git+https://github.com/filecoin-project/group?branch=ser-de#57d0d799e2281f562499454c80c7dae6a8e8d379"
+version = "0.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7f6bb213b2bbd427227350f65bf092686dd2eb32aad337604e11b978881f1825"
 dependencies = [
  "fff",
  "rand 0.7.3",
@@ -1224,9 +1222,9 @@ dependencies = [
 
 [[package]]
 name = "neptune"
-version = "2.7.0"
+version = "3.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6981728ae8254e8417f6c2f84ac83acdc31a567c9dc1344e30e5bbe916024e15"
+checksum = "ec660e9f6f2ff666996be8d34fa70142f05bf25b4268d0ab9f325d80378bf4e5"
 dependencies = [
  "bellperson",
  "blake2s_simd",
@@ -1237,7 +1235,7 @@ dependencies = [
  "itertools 0.8.2",
  "lazy_static",
  "log",
- "rust-gpu-tools 0.3.0",
+ "rust-gpu-tools",
 ]
 
 [[package]]
@@ -1403,8 +1401,9 @@ dependencies = [
 
 [[package]]
 name = "paired"
-version = "0.21.0"
-source = "git+https://github.com/filecoin-project/paired?branch=feat-compression#f2f02233988eb1d58cc5bb967041f76eb6acd671"
+version = "0.22.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "45c020887ea8ffb42b44be82835ed60de0653c1e39b2aedd9bee3ccfa046569e"
 dependencies = [
  "blake2b_simd",
  "byteorder 1.4.3",
@@ -1651,7 +1650,7 @@ checksum = "d78120e2c850279833f1dd3582f730c4ab53ed95aeaaaa862a2a5c71b1656d8e"
 dependencies = [
  "crossbeam-channel 0.5.1",
  "crossbeam-deque 0.8.0",
- "crossbeam-utils 0.8.4",
+ "crossbeam-utils 0.8.5",
  "lazy_static",
  "num_cpus",
 ]
@@ -1708,19 +1707,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3acd125665422973a33ac9d3dd2df85edad0f4ae9b00dafb1a05e43a9f5ef8e7"
 dependencies = [
  "winapi 0.3.9",
-]
-
-[[package]]
-name = "rust-gpu-tools"
-version = "0.2.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a2717ff33d3333071628716627a5a7ea059b3fd4eb8f4dd82064ccb6436c81d1"
-dependencies = [
- "dirs",
- "fil-ocl",
- "lazy_static",
- "sha2 0.8.2",
- "thiserror",
 ]
 
 [[package]]
@@ -1862,8 +1848,9 @@ dependencies = [
 
 [[package]]
 name = "sha2raw"
-version = "2.1.1"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#eaaded58207fe23f9a7dee4e0519c3b1f67adb18"
+version = "3.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "725e30bba35f578f397f1ff30a966d35ccc853ca6dc8b0444997a1d0ee3fc945"
 dependencies = [
  "block-buffer 0.9.0",
  "byteorder 1.4.3",
@@ -1883,8 +1870,9 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
 name = "storage-proofs-core"
-version = "7.0.1"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#eaaded58207fe23f9a7dee4e0519c3b1f67adb18"
+version = "8.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6bba689eb001c1e918fb12629192d5961856f4199eebe5cb59e29c6452d22286"
 dependencies = [
  "aes",
  "anyhow",
@@ -1921,15 +1909,16 @@ dependencies = [
 
 [[package]]
 name = "storage-proofs-porep"
-version = "7.0.1"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#eaaded58207fe23f9a7dee4e0519c3b1f67adb18"
+version = "8.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e32f1b66776077c134fc5464268ffa96021c51b8bb79eabcbcadd39f948899e8"
 dependencies = [
  "anyhow",
  "bellperson",
  "bincode",
  "byte-slice-cast",
  "byteorder 1.4.3",
- "crossbeam 0.8.0",
+ "crossbeam 0.8.1",
  "digest 0.9.0",
  "fdlimit",
  "fff",
@@ -1959,15 +1948,16 @@ dependencies = [
 
 [[package]]
 name = "storage-proofs-post"
-version = "7.0.1"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-aggregation#eaaded58207fe23f9a7dee4e0519c3b1f67adb18"
+version = "8.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1c246fb9f7b2a5c782ced0a947160bb961f36aa9436c6a53cb60f3dfa960fa01"
 dependencies = [
  "anyhow",
  "bellperson",
  "blake2b_simd",
  "blake2s_simd",
  "byteorder 1.4.3",
- "crossbeam 0.8.0",
+ "crossbeam 0.8.1",
  "fff",
  "filecoin-hashers",
  "fr32",
