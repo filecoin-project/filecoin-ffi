@@ -6,11 +6,12 @@ use anyhow::Result;
 use drop_struct_macro_derive::DropStructMacro;
 use ffi_toolkit::{code_and_message_impl, free_c_str, CodeAndMessage, FCPResponseStatus};
 use filecoin_proofs_api::{
-    PieceInfo, RegisteredPoStProof, RegisteredSealProof, UnpaddedBytesAmount,
+    seal::SealCommitPhase2Output, PieceInfo, RegisteredAggregationProof, RegisteredPoStProof,
+    RegisteredSealProof, UnpaddedBytesAmount,
 };
 
 #[repr(C)]
-#[derive(Debug, Clone, Copy)]
+#[derive(Default, Debug, Clone, Copy)]
 pub struct fil_32ByteArray {
     pub inner: [u8; 32],
 }
@@ -166,6 +167,28 @@ impl From<fil_RegisteredPoStProof> for RegisteredPoStProof {
 }
 
 #[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub enum fil_RegisteredAggregationProof {
+    SnarkPackV1,
+}
+
+impl From<RegisteredAggregationProof> for fil_RegisteredAggregationProof {
+    fn from(other: RegisteredAggregationProof) -> Self {
+        match other {
+            RegisteredAggregationProof::SnarkPackV1 => fil_RegisteredAggregationProof::SnarkPackV1,
+        }
+    }
+}
+
+impl From<fil_RegisteredAggregationProof> for RegisteredAggregationProof {
+    fn from(other: fil_RegisteredAggregationProof) -> Self {
+        match other {
+            fil_RegisteredAggregationProof::SnarkPackV1 => RegisteredAggregationProof::SnarkPackV1,
+        }
+    }
+}
+
+#[repr(C)]
 #[derive(Clone)]
 pub struct fil_PublicPieceInfo {
     pub num_bytes: u64,
@@ -229,6 +252,42 @@ impl Drop for fil_VanillaProof {
         };
     }
 }
+
+#[repr(C)]
+pub struct fil_AggregateProof {
+    pub status_code: FCPResponseStatus,
+    pub error_msg: *const libc::c_char,
+    pub proof_len: libc::size_t,
+    pub proof_ptr: *const u8,
+}
+
+impl Default for fil_AggregateProof {
+    fn default() -> fil_AggregateProof {
+        fil_AggregateProof {
+            status_code: FCPResponseStatus::FCPNoError,
+            error_msg: ptr::null(),
+            proof_len: 0,
+            proof_ptr: ptr::null(),
+        }
+    }
+}
+
+impl Drop for fil_AggregateProof {
+    fn drop(&mut self) {
+        unsafe {
+            // Note that this operation also does the equivalent of
+            // libc::free(self.proof_ptr as *mut libc::c_void);
+            drop(Vec::from_raw_parts(
+                self.proof_ptr as *mut u8,
+                self.proof_len,
+                self.proof_len,
+            ));
+            free_c_str(self.error_msg as *mut libc::c_char);
+        }
+    }
+}
+
+code_and_message_impl!(fil_AggregateProof);
 
 #[derive(Clone, Debug)]
 pub struct PoStProof {
@@ -527,6 +586,17 @@ pub struct fil_SealCommitPhase2Response {
     pub error_msg: *const libc::c_char,
     pub proof_ptr: *const u8,
     pub proof_len: libc::size_t,
+    pub commit_inputs_ptr: *const fil_AggregationInputs,
+    pub commit_inputs_len: libc::size_t,
+}
+
+impl From<&fil_SealCommitPhase2Response> for SealCommitPhase2Output {
+    fn from(other: &fil_SealCommitPhase2Response) -> Self {
+        let slice: &[u8] = unsafe { std::slice::from_raw_parts(other.proof_ptr, other.proof_len) };
+        let proof: Vec<u8> = slice.to_vec();
+
+        SealCommitPhase2Output { proof }
+    }
 }
 
 impl Default for fil_SealCommitPhase2Response {
@@ -536,12 +606,76 @@ impl Default for fil_SealCommitPhase2Response {
             error_msg: ptr::null(),
             proof_ptr: ptr::null(),
             proof_len: 0,
+            commit_inputs_ptr: ptr::null(),
+            commit_inputs_len: 0,
+        }
+    }
+}
+
+// General note on Vec::from_raw_parts vs std::slice::from_raw_parts:
+//
+// Vec::from_raw_parts takes ownership of the allocation and will free
+// it when it's dropped.
+//
+// std::slice::from_raw_parts borrows the allocation, and does not
+// affect ownership.
+//
+// In general, usages should borrow via the slice and Drop methods
+// should take ownership using the Vec.
+impl Clone for fil_SealCommitPhase2Response {
+    fn clone(&self) -> Self {
+        let slice: &[u8] = unsafe { std::slice::from_raw_parts(self.proof_ptr, self.proof_len) };
+        let proof: Vec<u8> = slice.to_vec();
+        debug_assert_eq!(self.proof_len, proof.len());
+
+        let proof_len = proof.len();
+        let proof_ptr = proof.as_ptr();
+
+        let slice: &[fil_AggregationInputs] =
+            unsafe { std::slice::from_raw_parts(self.commit_inputs_ptr, self.commit_inputs_len) };
+        let commit_inputs: Vec<fil_AggregationInputs> = slice.to_vec();
+        debug_assert_eq!(self.commit_inputs_len, commit_inputs.len());
+
+        let commit_inputs_len = commit_inputs.len();
+        let commit_inputs_ptr = commit_inputs.as_ptr();
+
+        std::mem::forget(proof);
+        std::mem::forget(commit_inputs);
+
+        fil_SealCommitPhase2Response {
+            status_code: self.status_code,
+            error_msg: self.error_msg,
+            proof_ptr,
+            proof_len,
+            commit_inputs_ptr,
+            commit_inputs_len,
         }
     }
 }
 
 code_and_message_impl!(fil_SealCommitPhase2Response);
 
+#[repr(C)]
+#[derive(Clone, DropStructMacro)]
+pub struct fil_AggregationInputs {
+    pub comm_r: fil_32ByteArray,
+    pub comm_d: fil_32ByteArray,
+    pub sector_id: u64,
+    pub ticket: fil_32ByteArray,
+    pub seed: fil_32ByteArray,
+}
+
+impl Default for fil_AggregationInputs {
+    fn default() -> fil_AggregationInputs {
+        fil_AggregationInputs {
+            comm_r: fil_32ByteArray::default(),
+            comm_d: fil_32ByteArray::default(),
+            sector_id: 0,
+            ticket: fil_32ByteArray::default(),
+            seed: fil_32ByteArray::default(),
+        }
+    }
+}
 #[repr(C)]
 #[derive(DropStructMacro)]
 pub struct fil_UnsealRangeResponse {
@@ -579,6 +713,26 @@ impl Default for fil_VerifySealResponse {
 }
 
 code_and_message_impl!(fil_VerifySealResponse);
+
+#[repr(C)]
+#[derive(DropStructMacro)]
+pub struct fil_VerifyAggregateSealProofResponse {
+    pub status_code: FCPResponseStatus,
+    pub error_msg: *const libc::c_char,
+    pub is_valid: bool,
+}
+
+impl Default for fil_VerifyAggregateSealProofResponse {
+    fn default() -> fil_VerifyAggregateSealProofResponse {
+        fil_VerifyAggregateSealProofResponse {
+            status_code: FCPResponseStatus::FCPNoError,
+            error_msg: ptr::null(),
+            is_valid: false,
+        }
+    }
+}
+
+code_and_message_impl!(fil_VerifyAggregateSealProofResponse);
 
 #[repr(C)]
 #[derive(DropStructMacro)]

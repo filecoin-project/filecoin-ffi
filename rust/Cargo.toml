@@ -17,14 +17,14 @@ publish = false
 crate-type = ["rlib", "staticlib"]
 
 [dependencies]
-bls-signatures = { version = "0.8", default-features = false, features = ["blst"] }
-blstrs = { version = "0.2" }
+bls-signatures = { version = "0.10.0", default-features = false, features = ["blst"] }
+blstrs = { version = "0.3" }
 byteorder = "1.2"
-drop_struct_macro_derive = "0.4.0"
-ff = { version = "0.2.1", package = "fff" }
-ffi-toolkit = "0.4.0"
+drop_struct_macro_derive = "0.5.0"
+ff = { version = "0.3.1", package = "fff" }
+ffi-toolkit = "0.5.0"
 filepath = "0.1.1"
-groupy = "0.3.0"
+groupy = "0.4.1"
 libc = "0.2.58"
 log = "0.4.7"
 fil_logger = "0.1.0"
@@ -32,13 +32,13 @@ rand = "0.7"
 rand_chacha = "0.2.1"
 rayon = "1.2.1"
 anyhow = "1.0.23"
-bellperson = { version = "0.13", default-features = false }
+bellperson = { version = "0.14.0", default-features = false }
 serde_json = "1.0.46"
-rust-gpu-tools = "0.2.0"
+rust-gpu-tools = "0.3.0"
 
 [dependencies.filecoin-proofs-api]
 package = "filecoin-proofs-api"
-version = "7.0"
+version = "8.0"
 default-features = false
 
 [build-dependencies]

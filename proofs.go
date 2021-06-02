@@ -14,7 +14,7 @@ import (
 	"github.com/filecoin-project/go-address"
 	commcid "github.com/filecoin-project/go-fil-commcid"
 	"github.com/filecoin-project/go-state-types/abi"
-	"github.com/filecoin-project/specs-actors/actors/runtime/proof"
+	proof5 "github.com/filecoin-project/specs-actors/v5/actors/runtime/proof"
 	"github.com/ipfs/go-cid"
 	"github.com/pkg/errors"
 	"golang.org/x/xerrors"
@@ -24,7 +24,7 @@ import (
 
 // VerifySeal returns true if the sealing operation from which its inputs were
 // derived was valid, and false if not.
-func VerifySeal(info proof.SealVerifyInfo) (bool, error) {
+func VerifySeal(info proof5.SealVerifyInfo) (bool, error) {
 	sp, err := toFilRegisteredSealProof(info.SealProof)
 	if err != nil {
 		return false, err
@@ -57,9 +57,64 @@ func VerifySeal(info proof.SealVerifyInfo) (bool, error) {
 	return resp.IsValid, nil
 }
 
+func VerifyAggregateSeals(aggregate proof5.AggregateSealVerifyProofAndInfos) (bool, error) {
+	if len(aggregate.Infos) == 0 {
+		return false, xerrors.New("no seal verify infos")
+	}
+
+	spt := aggregate.SealProof // todo assuming this needs to be the same for all sectors, potentially makes sense to put in AggregateSealVerifyProofAndInfos
+	inputs := make([]generated.FilAggregationInputs, len(aggregate.Infos))
+
+	for i, info := range aggregate.Infos {
+		commR, err := to32ByteCommR(info.SealedCID)
+		if err != nil {
+			return false, err
+		}
+
+		commD, err := to32ByteCommD(info.UnsealedCID)
+		if err != nil {
+			return false, err
+		}
+
+		inputs[i] = generated.FilAggregationInputs{
+			CommR:    commR,
+			CommD:    commD,
+			SectorId: uint64(info.Number),
+			Ticket:   to32ByteArray(info.Randomness),
+			Seed:     to32ByteArray(info.InteractiveRandomness),
+		}
+	}
+
+	sp, err := toFilRegisteredSealProof(spt)
+	if err != nil {
+		return false, err
+	}
+
+	proverID, err := toProverID(aggregate.Miner)
+	if err != nil {
+		return false, err
+	}
+
+	rap, err := toFilRegisteredAggregationProof(aggregate.AggregateProof)
+	if err != nil {
+		return false, err
+	}
+
+	resp := generated.FilVerifyAggregateSealProof(sp, rap, proverID, aggregate.Proof, uint(len(aggregate.Proof)), inputs, uint(len(inputs)))
+	resp.Deref()
+
+	defer generated.FilDestroyVerifyAggregateSealResponse(resp)
+
+	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
+		return false, errors.New(generated.RawString(resp.ErrorMsg).Copy())
+	}
+
+	return resp.IsValid, nil
+}
+
 // VerifyWinningPoSt returns true if the Winning PoSt-generation operation from which its
 // inputs were derived was valid, and false if not.
-func VerifyWinningPoSt(info proof.WinningPoStVerifyInfo) (bool, error) {
+func VerifyWinningPoSt(info proof5.WinningPoStVerifyInfo) (bool, error) {
 	filPublicReplicaInfos, filPublicReplicaInfosLen, err := toFilPublicReplicaInfos(info.ChallengedSectors, "winning")
 	if err != nil {
 		return false, errors.Wrap(err, "failed to create public replica info array for FFI")
@@ -97,7 +152,7 @@ func VerifyWinningPoSt(info proof.WinningPoStVerifyInfo) (bool, error) {
 
 // VerifyWindowPoSt returns true if the Winning PoSt-generation operation from which its
 // inputs were derived was valid, and false if not.
-func VerifyWindowPoSt(info proof.WindowPoStVerifyInfo) (bool, error) {
+func VerifyWindowPoSt(info proof5.WindowPoStVerifyInfo) (bool, error) {
 	filPublicReplicaInfos, filPublicReplicaInfosLen, err := toFilPublicReplicaInfos(info.ChallengedSectors, "window")
 	if err != nil {
 		return false, errors.Wrap(err, "failed to create public replica info array for FFI")
@@ -406,6 +461,44 @@ func SealCommitPhase2(
 	return copyBytes(resp.ProofPtr, resp.ProofLen), nil
 }
 
+// TODO AggregateSealProofs it only needs InteractiveRandomness out of the aggregateInfo.Infos
+func AggregateSealProofs(aggregateInfo proof5.AggregateSealVerifyProofAndInfos, proofs [][]byte) (out []byte, err error) {
+	sp, err := toFilRegisteredSealProof(aggregateInfo.SealProof)
+	if err != nil {
+		return nil, err
+	}
+
+	seeds := make([]generated.Fil32ByteArray, len(aggregateInfo.Infos))
+	for i, info := range aggregateInfo.Infos {
+		seeds[i] = to32ByteArray(info.InteractiveRandomness)
+
+	}
+
+	pfs := make([]generated.FilSealCommitPhase2Response, len(proofs))
+	for i := range proofs {
+		pfs[i] = generated.FilSealCommitPhase2Response{
+			ProofPtr: proofs[i],
+			ProofLen: uint(len(proofs[i])),
+		}
+	}
+
+	rap, err := toFilRegisteredAggregationProof(aggregateInfo.AggregateProof)
+	if err != nil {
+		return nil, err
+	}
+
+	resp := generated.FilAggregateSealProofs(sp, rap, seeds, uint(len(seeds)), pfs, uint(len(pfs)))
+	resp.Deref()
+
+	defer generated.FilDestroyAggregateProof(resp)
+
+	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
+		return nil, errors.New(generated.RawString(resp.ErrorMsg).Copy())
+	}
+
+	return copyBytes(resp.ProofPtr, resp.ProofLen), nil
+}
+
 // Unseal
 func Unseal(
 	proofType abi.RegisteredSealProof,
@@ -518,7 +611,7 @@ func GenerateWinningPoSt(
 	minerID abi.ActorID,
 	privateSectorInfo SortedPrivateSectorInfo,
 	randomness abi.PoStRandomness,
-) ([]proof.PoStProof, error) {
+) ([]proof5.PoStProof, error) {
 	filReplicas, filReplicasLen, free, err := toFilPrivateReplicaInfos(privateSectorInfo.Values(), "winning")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create private replica info array for FFI")
@@ -558,7 +651,7 @@ func GenerateWindowPoSt(
 	minerID abi.ActorID,
 	privateSectorInfo SortedPrivateSectorInfo,
 	randomness abi.PoStRandomness,
-) ([]proof.PoStProof, []abi.SectorNumber, error) {
+) ([]proof5.PoStProof, []abi.SectorNumber, error) {
 	filReplicas, filReplicasLen, free, err := toFilPrivateReplicaInfos(privateSectorInfo.Values(), "window")
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "failed to create private replica info array for FFI")
@@ -729,7 +822,7 @@ func toFilPublicPieceInfos(src []abi.PieceInfo) ([]generated.FilPublicPieceInfo,
 	return out, uint(len(out)), nil
 }
 
-func toFilPublicReplicaInfos(src []proof.SectorInfo, typ string) ([]generated.FilPublicReplicaInfo, uint, error) {
+func toFilPublicReplicaInfos(src []proof5.SectorInfo, typ string) ([]generated.FilPublicReplicaInfo, uint, error) {
 	out := make([]generated.FilPublicReplicaInfo, len(src))
 
 	for idx := range out {
@@ -847,8 +940,8 @@ func fromFilPoStFaultySectors(ptr []uint64, l uint) ([]abi.SectorNumber, error) 
 	return snums, nil
 }
 
-func fromFilPoStProofs(src []generated.FilPoStProof) ([]proof.PoStProof, error) {
-	out := make([]proof.PoStProof, len(src))
+func fromFilPoStProofs(src []generated.FilPoStProof) ([]proof5.PoStProof, error) {
+	out := make([]proof5.PoStProof, len(src))
 
 	for idx := range out {
 		src[idx].Deref()
@@ -858,7 +951,7 @@ func fromFilPoStProofs(src []generated.FilPoStProof) ([]proof.PoStProof, error) 
 			return nil, err
 		}
 
-		out[idx] = proof.PoStProof{
+		out[idx] = proof5.PoStProof{
 			PoStProof:  pp,
 			ProofBytes: copyBytes(src[idx].ProofPtr, src[idx].ProofLen),
 		}
@@ -867,7 +960,7 @@ func fromFilPoStProofs(src []generated.FilPoStProof) ([]proof.PoStProof, error) 
 	return out, nil
 }
 
-func toFilPoStProofs(src []proof.PoStProof) ([]generated.FilPoStProof, uint, func(), error) {
+func toFilPoStProofs(src []proof5.PoStProof) ([]generated.FilPoStProof, uint, func(), error) {
 	allocs := make([]AllocationManager, len(src))
 
 	out := make([]generated.FilPoStProof, len(src))
@@ -989,6 +1082,15 @@ func toFilRegisteredSealProof(p abi.RegisteredSealProof) (generated.FilRegistere
 		return generated.FilRegisteredSealProofStackedDrg64GiBV11, nil
 	default:
 		return 0, errors.Errorf("no mapping to C.FFIRegisteredSealProof value available for: %v", p)
+	}
+}
+
+func toFilRegisteredAggregationProof(p abi.RegisteredAggregationProof) (generated.FilRegisteredAggregationProof, error) {
+	switch p {
+	case abi.RegisteredAggregationProof_SnarkPackV1:
+		return generated.FilRegisteredAggregationProofSnarkPackV1, nil
+	default:
+		return 0, errors.Errorf("no mapping to abi.RegisteredAggregationProof value available for: %v", p)
 	}
 }
 
