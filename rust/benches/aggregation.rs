@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{Context, Result};
 use criterion::{criterion_group, criterion_main, Criterion};
 use serde::Deserialize;
 use serde_json::Value;
@@ -60,7 +60,7 @@ struct AggregateEntry {
 fn agg_verify_benchmark(c: &mut Criterion) -> Result<()> {
     let agg_file = std::fs::File::open("./benches/agg1.json")?;
     let values: Value = serde_json::from_reader(agg_file)?;
-    let entry = AggregateEntry::deserialize(&values)?;
+    let entry = AggregateEntry::deserialize(&values).context("deserialize aggregate")?;
 
     let mut prover_id_raw = [0u8; 32];
     prover_id_raw[..4].copy_from_slice(&[0x00u8, 0xE5u8, 0xAEu8, 0x01u8]);
@@ -68,11 +68,11 @@ fn agg_verify_benchmark(c: &mut Criterion) -> Result<()> {
         inner: prover_id_raw,
     };
 
-    let proof: Vec<u8> = base64::decode(&entry.proof)?;
+    let proof: Vec<u8> = base64::decode(&entry.proof).context("decode proof")?;
     let mut commit_inputs: Vec<fil_AggregationInputs> = Vec::with_capacity(entry.infos.len());
 
     for info in entry.infos.iter() {
-        let ticket_slice = base64::decode(&info.randomness)?;
+        let ticket_slice = base64::decode(&info.randomness).context("decode ticket")?;
         let ticket: fil_32ByteArray = fil_32ByteArray {
             inner: ticket_slice.try_into().unwrap(),
         };
