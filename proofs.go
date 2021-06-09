@@ -468,10 +468,14 @@ func AggregateSealProofs(aggregateInfo proof5.AggregateSealVerifyProofAndInfos, 
 		return nil, err
 	}
 
+	commRs := make([]generated.Fil32ByteArray, len(aggregateInfo.Infos))
 	seeds := make([]generated.Fil32ByteArray, len(aggregateInfo.Infos))
 	for i, info := range aggregateInfo.Infos {
 		seeds[i] = to32ByteArray(info.InteractiveRandomness)
-
+		commRs[i], err = to32ByteCommR(info.SealedCID)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	pfs := make([]generated.FilSealCommitPhase2Response, len(proofs))
@@ -487,7 +491,7 @@ func AggregateSealProofs(aggregateInfo proof5.AggregateSealVerifyProofAndInfos, 
 		return nil, err
 	}
 
-	resp := generated.FilAggregateSealProofs(sp, rap, seeds, uint(len(seeds)), pfs, uint(len(pfs)))
+	resp := generated.FilAggregateSealProofs(sp, rap, commRs, uint(len(commRs)), seeds, uint(len(seeds)), pfs, uint(len(pfs)))
 	resp.Deref()
 
 	defer generated.FilDestroyAggregateProof(resp)
