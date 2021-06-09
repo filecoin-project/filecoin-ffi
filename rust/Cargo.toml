@@ -38,7 +38,9 @@ rust-gpu-tools = "0.3.0"
 
 [dependencies.filecoin-proofs-api]
 package = "filecoin-proofs-api"
-version = "8.0"
+#version = "8.0"
+git = "https://github.com/filecoin-project/rust-filecoin-proofs-api"
+branch = "finalize-snarkpack"
 default-features = false
 
 [build-dependencies]
@@ -53,3 +55,10 @@ pairing = ["filecoin-proofs-api/pairing", "bellperson/pairing"]
 blst = ["filecoin-proofs-api/blst", "bellperson/blst"]
 blst-portable = ["bls-signatures/blst-portable", "blstrs/portable"]
 gpu = ["filecoin-proofs-api/gpu", "bellperson/gpu"]
+
+[patch.crates-io]
+bellperson = { git = "https://github.com/filecoin-project/bellperson", branch = "fix-snarkpack-audit" }
+filecoin-proofs-v1 = { package = "filecoin-proofs", git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "finalize-snarkpack", default-features = false }
+filecoin-hashers = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "finalize-snarkpack", default-features = false, features = ["poseidon", "sha256"] }
+fr32 = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "finalize-snarkpack", default-features = false }
+storage-proofs-core = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "finalize-snarkpack", default-features = false }

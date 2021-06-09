@@ -4,9 +4,9 @@ version = 3
 
 [[package]]
 name = "addr2line"
-version = "0.15.1"
+version = "0.15.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "03345e98af8f3d786b6d9f656ccfa6ac316d954e92bc4841f0bba20789d5fb5a"
+checksum = "e7a2e47a1fbe209ee101dd6d61285226744c6c8d3c21c8dc878ba6cb9f467f3a"
 dependencies = [
  "gimli",
 ]
@@ -103,9 +103,9 @@ checksum = "cdb031dd78e28731d87d56cc8ffef4a8f36ca26c38fe2de700543e627f8a464a"
 
 [[package]]
 name = "backtrace"
-version = "0.3.59"
+version = "0.3.60"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4717cfcbfaa661a0fd48f8453951837ae7e8f81e481fbb136e3202d72805a744"
+checksum = "b7815ea54e4d821e791162e078acbebfd6d8c8939cd559c9335dceb1c8ca7282"
 dependencies = [
  "addr2line",
  "cc",
@@ -119,8 +119,7 @@ dependencies = [
 [[package]]
 name = "bellperson"
 version = "0.14.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5413e4d5c2ec0b389f376ef1241cd059a57cb453dfeeb9f5f1b424358e981c61"
+source = "git+https://github.com/filecoin-project/bellperson?branch=fix-snarkpack-audit#1edef5909a67fb18a3bbd009328b2ac976a450f2"
 dependencies = [
  "bincode",
  "bit-vec",
@@ -163,12 +162,6 @@ name = "bit-vec"
 version = "0.6.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "349f9b6a179ed607305526ca489b34ad0a41aed5f7980fa90eb03160b69598fb"
-
-[[package]]
-name = "bitflags"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8dead7461c1127cf637931a1e50934eb6eee8bff2f74433ac7909e9afcee04a3"
 
 [[package]]
 name = "bitflags"
@@ -391,7 +384,7 @@ checksum = "37e58ac78573c40708d45522f0d80fa2f01cc4f9b4e2bf749807255454312002"
 dependencies = [
  "ansi_term",
  "atty",
- "bitflags 1.2.1",
+ "bitflags",
  "strsim",
  "textwrap",
  "unicode-width",
@@ -663,17 +656,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "errno"
-version = "0.1.8"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1e2b2decb0484e15560df3210cf0d78654bb0864b2c138977c07e377a1bae0e2"
-dependencies = [
- "kernel32-sys",
- "libc",
- "winapi 0.2.8",
-]
-
-[[package]]
 name = "failure"
 version = "0.1.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -779,7 +761,7 @@ version = "0.11.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "827ceba5f0c5dc932509a9c097f7f1f671b179c64bc224cffbdf6e39827c0ffc"
 dependencies = [
- "bitflags 1.2.1",
+ "bitflags",
  "cl-sys",
  "enum_primitive",
  "failure",
@@ -830,8 +812,7 @@ dependencies = [
 [[package]]
 name = "filecoin-hashers"
 version = "3.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bb4a41b6c668933602bb4b334d05a57792738dc76001c95bee536b3e3f38021e"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=finalize-snarkpack#1efd006d35b4b2974e5a41fa9e25e5627920a120"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -849,8 +830,7 @@ dependencies = [
 [[package]]
 name = "filecoin-proofs"
 version = "8.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "df3b33c2f1e03d13a1a0ef2b69890e974805be69e664de4debfaddaddd206827"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=finalize-snarkpack#1efd006d35b4b2974e5a41fa9e25e5627920a120"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -887,8 +867,7 @@ dependencies = [
 [[package]]
 name = "filecoin-proofs-api"
 version = "8.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7c4b59d47e36070a0fe4f1a838c48b14f9d9612d9d0cfdb8f37e2e96e34338e1"
+source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=finalize-snarkpack#e624dfaf27ee93d3366e1d356015da8f40fcf0f3"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -926,8 +905,7 @@ dependencies = [
 [[package]]
 name = "fr32"
 version = "1.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2324aec2f87499492d0462788d9a47e66bbd707cd8284b88901f1233d162fab6"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=finalize-snarkpack#1efd006d35b4b2974e5a41fa9e25e5627920a120"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1061,19 +1039,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "hwloc"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "657dd2f25a0ff8c4f19c4f7ab42d3ffad0a7f282b6e73adafa4b4448d95f60cf"
-dependencies = [
- "bitflags 0.4.0",
- "errno",
- "libc",
- "num",
- "pkg-config",
-]
-
-[[package]]
 name = "itertools"
 version = "0.8.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1120,7 +1085,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6607c62aa161d23d17a9072cc5da0be67cdfc89d3afb1e8d9c842bebc2525ffe"
 dependencies = [
  "arrayvec",
- "bitflags 1.2.1",
+ "bitflags",
  "cfg-if 1.0.0",
  "ryu",
  "static_assertions",
@@ -1128,9 +1093,9 @@ dependencies = [
 
 [[package]]
 name = "libc"
-version = "0.2.95"
+version = "0.2.96"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "789da6d93f1b866ffe175afc5322a4d76c038605a1c3319bb57b06967ca98a36"
+checksum = "5600b4e6efc5421841a2138a6b082e07fe12f9aaa12783d50e5d13325b26b4fc"
 
 [[package]]
 name = "log"
@@ -1365,9 +1330,12 @@ dependencies = [
 
 [[package]]
 name = "object"
-version = "0.24.0"
+version = "0.25.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1a5b3dd1c072ee7963717671d1ca129f1048fda25edea6b752bfc71ac8854170"
+checksum = "f8bc1d42047cf336f0f939c99e97183cf31551bf0f2865a2ec9c8d91fd4ffb5e"
+dependencies = [
+ "memchr",
+]
 
 [[package]]
 name = "ocl-core-vector"
@@ -1423,12 +1391,6 @@ checksum = "10f4872ae94d7b90ae48754df22fd42ad52ce740b8f370b03da4835417403e53"
 dependencies = [
  "ucd-trie",
 ]
-
-[[package]]
-name = "pkg-config"
-version = "0.3.19"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3831453b3449ceb48b6d9c7ad7c96d5ea673e9b470a1dc578c2ce6521230884c"
 
 [[package]]
 name = "positioned-io"
@@ -1670,7 +1632,7 @@ version = "0.2.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "742739e41cd49414de871ea5e549afb7e2a3ac77b589bcbebe8c82fab37147fc"
 dependencies = [
- "bitflags 1.2.1",
+ "bitflags",
 ]
 
 [[package]]
@@ -1849,8 +1811,7 @@ dependencies = [
 [[package]]
 name = "sha2raw"
 version = "3.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "725e30bba35f578f397f1ff30a966d35ccc853ca6dc8b0444997a1d0ee3fc945"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=finalize-snarkpack#1efd006d35b4b2974e5a41fa9e25e5627920a120"
 dependencies = [
  "block-buffer 0.9.0",
  "byteorder 1.4.3",
@@ -1871,8 +1832,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 [[package]]
 name = "storage-proofs-core"
 version = "8.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6bba689eb001c1e918fb12629192d5961856f4199eebe5cb59e29c6452d22286"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=finalize-snarkpack#1efd006d35b4b2974e5a41fa9e25e5627920a120"
 dependencies = [
  "aes",
  "anyhow",
@@ -1910,8 +1870,7 @@ dependencies = [
 [[package]]
 name = "storage-proofs-porep"
 version = "8.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e32f1b66776077c134fc5464268ffa96021c51b8bb79eabcbcadd39f948899e8"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=finalize-snarkpack#1efd006d35b4b2974e5a41fa9e25e5627920a120"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1926,7 +1885,6 @@ dependencies = [
  "fr32",
  "generic-array 0.14.4",
  "hex",
- "hwloc",
  "lazy_static",
  "libc",
  "log",
@@ -1949,8 +1907,7 @@ dependencies = [
 [[package]]
 name = "storage-proofs-post"
 version = "8.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1c246fb9f7b2a5c782ced0a947160bb961f36aa9436c6a53cb60f3dfa960fa01"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=finalize-snarkpack#1efd006d35b4b2974e5a41fa9e25e5627920a120"
 dependencies = [
  "anyhow",
  "bellperson",

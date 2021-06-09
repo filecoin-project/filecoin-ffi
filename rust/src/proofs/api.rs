@@ -407,6 +407,8 @@ pub unsafe extern "C" fn fil_seal_commit_phase2(
 pub unsafe extern "C" fn fil_aggregate_seal_proofs(
     registered_proof: fil_RegisteredSealProof,
     registered_aggregation: fil_RegisteredAggregationProof,
+    comm_rs_ptr: *const fil_32ByteArray,
+    comm_rs_len: libc::size_t,
     seeds_ptr: *const fil_32ByteArray,
     seeds_len: libc::size_t,
     seal_commit_responses_ptr: *const fil_SealCommitPhase2Response,
@@ -420,6 +422,9 @@ pub unsafe extern "C" fn fil_aggregate_seal_proofs(
             std::slice::from_raw_parts(seal_commit_responses_ptr, seal_commit_responses_len);
         let outputs: Vec<SealCommitPhase2Output> = responses.iter().map(|x| x.into()).collect();
 
+        let raw_comm_rs: &[fil_32ByteArray] = std::slice::from_raw_parts(comm_rs_ptr, comm_rs_len);
+        let comm_rs: Vec<[u8; 32]> = raw_comm_rs.iter().map(|x| x.inner).collect();
+
         let raw_seeds: &[fil_32ByteArray] = std::slice::from_raw_parts(seeds_ptr, seeds_len);
         let seeds: Vec<[u8; 32]> = raw_seeds.iter().map(|x| x.inner).collect();
 
@@ -428,6 +433,7 @@ pub unsafe extern "C" fn fil_aggregate_seal_proofs(
         let result = aggregate_seal_commit_proofs(
             registered_proof.into(),
             registered_aggregation.into(),
+            &comm_rs,
             &seeds,
             &outputs,
         );
@@ -505,6 +511,10 @@ pub unsafe extern "C" fn fil_verify_aggregate_seal_proof(
             Ok(inputs) => {
                 let proof_bytes: Vec<u8> =
                     std::slice::from_raw_parts(proof_ptr, proof_len).to_vec();
+                let comm_rs: Vec<[u8; 32]> = commit_inputs
+                    .iter()
+                    .map(|input| input.comm_r.inner)
+                    .collect();
                 let seeds: Vec<[u8; 32]> =
                     commit_inputs.iter().map(|input| input.seed.inner).collect();
 
@@ -512,6 +522,7 @@ pub unsafe extern "C" fn fil_verify_aggregate_seal_proof(
                     registered_proof.into(),
                     registered_aggregation.into(),
                     proof_bytes,
+                    &comm_rs,
                     &seeds,
                     inputs,
                 );
@@ -2917,10 +2928,20 @@ pub mod tests {
             let seal_commit_responses: Vec<fil_SealCommitPhase2Response> =
                 vec![(*resp_c2).clone(), (*resp_c22).clone()];
 
+            let comm_rs = vec![
+                fil_32ByteArray {
+                    inner: (*resp_b2).comm_r,
+                },
+                fil_32ByteArray {
+                    inner: (*resp_b2).comm_r,
+                },
+            ];
             let seeds = vec![seed, seed];
             let resp_aggregate_proof = fil_aggregate_seal_proofs(
                 registered_proof_seal,
                 registered_aggregation,
+                comm_rs.as_ptr(),
+                comm_rs.len(),
                 seeds.as_ptr(),
                 seeds.len(),
                 seal_commit_responses.as_ptr(),
