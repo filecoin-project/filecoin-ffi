@@ -1,9 +1,8 @@
-use cid::Cid;
+use anyhow::Result;
 use criterion::{criterion_group, criterion_main, Criterion};
-use multihash::Sha2_256;
 use serde::Deserialize;
 use serde_json::Value;
-use std::convert::TryFrom;
+use std::convert::TryInto;
 
 use ffi_toolkit::{c_str_to_rust_str, FCPResponseStatus};
 use filcrypto::proofs::api::fil_verify_aggregate_seal_proof;
@@ -14,20 +13,26 @@ use filcrypto::proofs::types::{
 
 #[derive(Deserialize, Debug)]
 struct Info {
-    Number: u64,
-    Randomness: String,
-    InteractiveRandomness: String,
-    SealedCID: Value,
-    UnsealedCID: Value,
+    #[serde(rename = "Number")]
+    number: u64,
+    #[serde(rename = "Randomness")]
+    randomness: String,
+    #[serde(rename = "InteractiveRandomness")]
+    interactive_randomness: String,
+    #[serde(rename = "SealedCID")]
+    sealed_cid: Value,
+    #[serde(rename = "UnsealedCID")]
+    unsealed_cid: Value,
 }
 
 #[derive(Deserialize, Debug)]
+#[serde(rename_all = "PascalCase")]
 struct AggregateEntry {
-    Miner: u64,
-    SealProof: usize,
-    AggregateProof: usize,
-    Proof: String,
-    Infos: Vec<Info>,
+    miner: u64,
+    seal_proof: usize,
+    aggregate_proof: usize,
+    proof: String,
+    infos: Vec<Info>,
 }
 
 /* JSON input format:
@@ -52,46 +57,38 @@ struct AggregateEntry {
   }
 */
 
-pub fn agg_verify_benchmark(c: &mut Criterion) {
-    let agg_str = std::include_str!("agg1.json");
-    let values: Value = serde_json::from_str(agg_str).expect("failed to convert json");
-    let entry = AggregateEntry::deserialize(&values).expect("failed to convert entries");
+fn agg_verify_benchmark(c: &mut Criterion) -> Result<()> {
+    let agg_file = std::fs::File::open("./benches/agg1.json")?;
+    let values: Value = serde_json::from_reader(agg_file)?;
+    let entry = AggregateEntry::deserialize(&values)?;
 
-    let mut prover_id_raw: [u8; 32] = [0u8; 32];
+    let mut prover_id_raw = [0u8; 32];
     prover_id_raw[..4].copy_from_slice(&[0x00u8, 0xE5u8, 0xAEu8, 0x01u8]);
     let prover_id = fil_32ByteArray {
         inner: prover_id_raw,
     };
 
-    let proof: Vec<u8> = base64::decode(&entry.Proof).expect("failed to decode base64 proof");
-    let mut commit_inputs: Vec<fil_AggregationInputs> = Vec::with_capacity(entry.Infos.len());
+    let proof: Vec<u8> = base64::decode(&entry.proof)?;
+    let mut commit_inputs: Vec<fil_AggregationInputs> = Vec::with_capacity(entry.infos.len());
 
-    for info in entry.Infos.iter() {
-        let mut ticket_decoded: [u8; 32] = [0u8; 32];
-        let ticket_slice = base64::decode(&info.Randomness).expect("failed to convert randomness");
-        ticket_decoded.copy_from_slice(&ticket_slice);
+    for info in entry.infos.iter() {
+        let ticket_slice = base64::decode(&info.randomness)?;
         let ticket: fil_32ByteArray = fil_32ByteArray {
-            inner: ticket_decoded,
+            inner: ticket_slice.try_into().unwrap(),
         };
 
-        let mut seed_decoded: [u8; 32] = [0u8; 32];
-        let seed_slice = base64::decode(&info.InteractiveRandomness)
-            .expect("failed to convert interactive randomness");
-        seed_decoded.copy_from_slice(&seed_slice);
+        let seed_slice = base64::decode(&info.interactive_randomness)?;
         let seed = fil_32ByteArray {
-            inner: seed_decoded,
+            inner: seed_slice.try_into().unwrap(),
         };
 
-        let SealedCID = info.SealedCID["/"].as_str().unwrap();
-        let UnsealedCID = info.UnsealedCID["/"].as_str().unwrap();
-        let (_, comm_r_cid) = multibase::decode(SealedCID).expect("failed to decode commr");
-        let (_, comm_d_cid) = multibase::decode(UnsealedCID).expect("failed to decode commd");
+        let sealed_cid = info.sealed_cid["/"].as_str().unwrap();
+        let unsealed_cid = info.unsealed_cid["/"].as_str().unwrap();
+        let (_, comm_r_cid) = multibase::decode(sealed_cid)?;
+        let (_, comm_d_cid) = multibase::decode(unsealed_cid)?;
 
-        let mut comm_r_raw: [u8; 32] = [0u8; 32];
-        let mut comm_d_raw: [u8; 32] = [0u8; 32];
-
-        comm_r_raw.copy_from_slice(&comm_r_cid[comm_r_cid.len() - 32..]);
-        comm_d_raw.copy_from_slice(&comm_d_cid[comm_d_cid.len() - 32..]);
+        let comm_r_raw = comm_r_cid[comm_r_cid.len() - 32..].try_into().unwrap();
+        let comm_d_raw = comm_d_cid[comm_d_cid.len() - 32..].try_into().unwrap();
 
         let comm_r = fil_32ByteArray { inner: comm_r_raw };
         let comm_d = fil_32ByteArray { inner: comm_d_raw };
@@ -99,7 +96,7 @@ pub fn agg_verify_benchmark(c: &mut Criterion) {
         commit_inputs.push(fil_AggregationInputs {
             comm_r,
             comm_d,
-            sector_id: info.Number,
+            sector_id: info.number,
             ticket,
             seed,
         });
@@ -137,6 +134,8 @@ pub fn agg_verify_benchmark(c: &mut Criterion) {
             }
         })
     });
+
+    Ok(())
 }
 
 // it is here so it shows up in stack traces
@@ -161,5 +160,9 @@ pub unsafe fn bench_verify_agg(
     );
 }
 
-criterion_group!(benches, agg_verify_benchmark);
+fn aggregate_verify(c: &mut Criterion) {
+    agg_verify_benchmark(c).unwrap();
+}
+
+criterion_group!(benches, aggregate_verify);
 criterion_main!(benches);

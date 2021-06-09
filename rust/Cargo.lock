@@ -405,17 +405,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "cid"
-version = "0.3.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6196acc20e2646b4b763fa602354fdb38faceba09359cfa066517f450db29a5b"
-dependencies = [
- "integer-encoding",
- "multibase 0.8.0",
- "multihash",
-]
-
-[[package]]
 name = "cipher"
 version = "0.2.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -945,7 +934,6 @@ dependencies = [
  "blstrs",
  "byteorder 1.4.3",
  "cbindgen",
- "cid",
  "criterion",
  "drop_struct_macro_derive",
  "fff",
@@ -956,7 +944,7 @@ dependencies = [
  "groupy",
  "libc",
  "log",
- "multibase 0.9.1",
+ "multibase",
  "multihash",
  "rand 0.7.3",
  "rand_chacha 0.2.2",
@@ -1220,12 +1208,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "integer-encoding"
-version = "1.1.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "48dc51180a9b377fd75814d0cc02199c20f8e99433d6762f650d39cdbbd3b56f"
-
-[[package]]
 name = "itertools"
 version = "0.8.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1394,17 +1376,6 @@ checksum = "a92518e98c078586bc6c934028adcca4c92a53d6a958196de835170a01d84e4b"
 dependencies = [
  "adler",
  "autocfg",
-]
-
-[[package]]
-name = "multibase"
-version = "0.8.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b78c60039650ff12e140ae867ef5299a58e19dded4d334c849dc7177083667e2"
-dependencies = [
- "base-x",
- "data-encoding",
- "data-encoding-macro",
 ]
 
 [[package]]
