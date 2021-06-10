@@ -162,7 +162,7 @@ jobs:
           command: cd rust && cargo +$(cat rust-toolchain) clippy --all-targets -- -D warnings
       - run:
           name: Run cargo clippy (blst)
-          command: cd rust && cargo +$(cat rust-toolchain) clippy --all-targets --no-default-features --features blst -- -D warnings
+          command: cd rust && cargo +$(cat rust-toolchain) clippy --all-targets --no-default-features --features multicore-sdr --features blst -- -D warnings
 
 workflows:
   version: 2
@@ -262,7 +262,7 @@ commands:
             RELEASE_NAME="${CIRCLE_PROJECT_REPONAME}-$(uname)-standard-pairing"
 
             # Note: the blst dependency uses the portable configuration for maximum compatibility
-            ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) --verbose --locked --no-default-features --features pairing,gpu --features blst-portable
+            ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) --verbose --locked --no-default-features --features multicore-sdr --features pairing,gpu --features blst-portable
             ./scripts/package-release.sh $TARBALL_PATH
             ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
       - run:
@@ -274,7 +274,7 @@ commands:
             RELEASE_NAME="${CIRCLE_PROJECT_REPONAME}-$(uname)-standard-blst"
 
             # Note: the blst dependency uses the portable configuration for maximum compatibility
-            ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) --verbose --locked --no-default-features --features blst,gpu --features blst-portable
+            ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) --verbose --locked --no-default-features --features multicore-sdr --features blst,gpu --features blst-portable
             ./scripts/package-release.sh $TARBALL_PATH
             ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
       - run:
@@ -285,7 +285,7 @@ commands:
             TARBALL_PATH="/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-optimized.tar.gz"
             RUSTFLAGS="-C target-feature=$(cat rustc-target-features-optimized.json | jq -r '.[].rustc_target_feature' | tr '\n' ',')"
 
-            ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) --verbose --locked --no-default-features --features pairing,gpu
+            ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) --verbose --locked --no-default-features --features multicore-sdr --features pairing,gpu
             ./scripts/package-release.sh $TARBALL_PATH
       - run:
           name: Build the optimized release (blst)
