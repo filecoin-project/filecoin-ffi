@@ -164,7 +164,7 @@ build_from_source() {
     if [ "${FFI_USE_BLST_PORTABLE}" == "1" ]; then
         additional_flags="--no-default-features ${use_multicore_sdr} --features blst --features blst-portable${gpu_flags}"
     elif [ "${FFI_USE_BLST}" == "1" ]; then
-        additional_flags="--no-default-features ${use_multicore_sdr} --features blst${gpu_flags} --verbose"
+        additional_flags="--no-default-features ${use_multicore_sdr} --features blst${gpu_flags}"
     else
         additional_flags="--no-default-features ${use_multicore_sdr} --features pairing${gpu_flags}"
     fi
