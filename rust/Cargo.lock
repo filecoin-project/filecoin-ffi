@@ -166,6 +166,12 @@ checksum = "349f9b6a179ed607305526ca489b34ad0a41aed5f7980fa90eb03160b69598fb"
 
 [[package]]
 name = "bitflags"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8dead7461c1127cf637931a1e50934eb6eee8bff2f74433ac7909e9afcee04a3"
+
+[[package]]
+name = "bitflags"
 version = "1.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cf1de2fe8c75bc145a2f577add951f8134889b4795d47466a54a5c846d691693"
@@ -385,7 +391,7 @@ checksum = "37e58ac78573c40708d45522f0d80fa2f01cc4f9b4e2bf749807255454312002"
 dependencies = [
  "ansi_term",
  "atty",
- "bitflags",
+ "bitflags 1.2.1",
  "strsim",
  "textwrap",
  "unicode-width",
@@ -657,6 +663,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "errno"
+version = "0.1.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1e2b2decb0484e15560df3210cf0d78654bb0864b2c138977c07e377a1bae0e2"
+dependencies = [
+ "kernel32-sys",
+ "libc",
+ "winapi 0.2.8",
+]
+
+[[package]]
 name = "failure"
 version = "0.1.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -762,7 +779,7 @@ version = "0.11.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "827ceba5f0c5dc932509a9c097f7f1f671b179c64bc224cffbdf6e39827c0ffc"
 dependencies = [
- "bitflags",
+ "bitflags 1.2.1",
  "cl-sys",
  "enum_primitive",
  "failure",
@@ -813,8 +830,7 @@ dependencies = [
 [[package]]
 name = "filecoin-hashers"
 version = "3.0.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "822830a54cbff8dc8d407f80c7f064a7c1c18b825a432c3fcbf7a5e2ae43f22c"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=revert-multicore-sdr-fix#386e92a096047b376f203e2e0c7a2bf94bd141e9"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -832,8 +848,7 @@ dependencies = [
 [[package]]
 name = "filecoin-proofs"
 version = "8.0.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0ec052f152527c2201bdb42a53297a927f5ec7774f2e977a4f3b1938bbcd8c90"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=revert-multicore-sdr-fix#386e92a096047b376f203e2e0c7a2bf94bd141e9"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -846,7 +861,7 @@ dependencies = [
  "fff",
  "fil_logger",
  "filecoin-hashers",
- "fr32",
+ "fr32 1.0.1 (git+https://github.com/filecoin-project/rust-fil-proofs?branch=revert-multicore-sdr-fix)",
  "generic-array 0.14.4",
  "groupy",
  "hex",
@@ -878,7 +893,7 @@ dependencies = [
  "bincode",
  "filecoin-hashers",
  "filecoin-proofs",
- "fr32",
+ "fr32 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde",
  "storage-proofs-core",
 ]
@@ -904,6 +919,19 @@ dependencies = [
  "log",
  "regex",
  "yansi",
+]
+
+[[package]]
+name = "fr32"
+version = "1.0.1"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=revert-multicore-sdr-fix#386e92a096047b376f203e2e0c7a2bf94bd141e9"
+dependencies = [
+ "anyhow",
+ "bellperson",
+ "byte-slice-cast",
+ "byteorder 1.4.3",
+ "fff",
+ "thiserror",
 ]
 
 [[package]]
@@ -1044,6 +1072,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "hwloc"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "657dd2f25a0ff8c4f19c4f7ab42d3ffad0a7f282b6e73adafa4b4448d95f60cf"
+dependencies = [
+ "bitflags 0.4.0",
+ "errno",
+ "libc",
+ "num",
+ "pkg-config",
+]
+
+[[package]]
 name = "itertools"
 version = "0.8.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1090,7 +1131,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6607c62aa161d23d17a9072cc5da0be67cdfc89d3afb1e8d9c842bebc2525ffe"
 dependencies = [
  "arrayvec",
- "bitflags",
+ "bitflags 1.2.1",
  "cfg-if 1.0.0",
  "ryu",
  "static_assertions",
@@ -1398,6 +1439,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "pkg-config"
+version = "0.3.19"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3831453b3449ceb48b6d9c7ad7c96d5ea673e9b470a1dc578c2ce6521230884c"
+
+[[package]]
 name = "positioned-io"
 version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1637,7 +1684,7 @@ version = "0.2.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "742739e41cd49414de871ea5e549afb7e2a3ac77b589bcbebe8c82fab37147fc"
 dependencies = [
- "bitflags",
+ "bitflags 1.2.1",
 ]
 
 [[package]]
@@ -1816,8 +1863,7 @@ dependencies = [
 [[package]]
 name = "sha2raw"
 version = "3.0.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e86fefffe79fe0a9752cb6b472befa1f25f20a2c947bcf9377c79a056a437545"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=revert-multicore-sdr-fix#386e92a096047b376f203e2e0c7a2bf94bd141e9"
 dependencies = [
  "block-buffer 0.9.0",
  "byteorder 1.4.3",
@@ -1838,8 +1884,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 [[package]]
 name = "storage-proofs-core"
 version = "8.0.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "24ccaf8c77c2b159c2642f2f4d834bb0efb3b1e53241c60d30e0e12e3b4e8244"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=revert-multicore-sdr-fix#386e92a096047b376f203e2e0c7a2bf94bd141e9"
 dependencies = [
  "aes",
  "anyhow",
@@ -1851,7 +1896,7 @@ dependencies = [
  "config",
  "fff",
  "filecoin-hashers",
- "fr32",
+ "fr32 1.0.1 (git+https://github.com/filecoin-project/rust-fil-proofs?branch=revert-multicore-sdr-fix)",
  "fs2",
  "generic-array 0.14.4",
  "hex",
@@ -1877,8 +1922,7 @@ dependencies = [
 [[package]]
 name = "storage-proofs-porep"
 version = "8.0.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "54e66a548c346ffcc16c543c7117e394787aa16c5a152d72819ab1acfe3dd975"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=revert-multicore-sdr-fix#386e92a096047b376f203e2e0c7a2bf94bd141e9"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1890,9 +1934,10 @@ dependencies = [
  "fdlimit",
  "fff",
  "filecoin-hashers",
- "fr32",
+ "fr32 1.0.1 (git+https://github.com/filecoin-project/rust-fil-proofs?branch=revert-multicore-sdr-fix)",
  "generic-array 0.14.4",
  "hex",
+ "hwloc",
  "lazy_static",
  "libc",
  "log",
@@ -1915,8 +1960,7 @@ dependencies = [
 [[package]]
 name = "storage-proofs-post"
 version = "8.0.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e8f2e3a4f15aba154b48443872633a6632f5709faa95a2d676ce13ec5941c9e0"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=revert-multicore-sdr-fix#386e92a096047b376f203e2e0c7a2bf94bd141e9"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1926,7 +1970,7 @@ dependencies = [
  "crossbeam 0.8.1",
  "fff",
  "filecoin-hashers",
- "fr32",
+ "fr32 1.0.1 (git+https://github.com/filecoin-project/rust-fil-proofs?branch=revert-multicore-sdr-fix)",
  "generic-array 0.14.4",
  "hex",
  "log",

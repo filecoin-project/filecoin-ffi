@@ -53,3 +53,8 @@ pairing = ["filecoin-proofs-api/pairing", "bellperson/pairing"]
 blst = ["filecoin-proofs-api/blst", "bellperson/blst"]
 blst-portable = ["bls-signatures/blst-portable", "blstrs/portable"]
 gpu = ["filecoin-proofs-api/gpu", "bellperson/gpu"]
+
+[patch.crates-io]
+filecoin-proofs = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "revert-multicore-sdr-fix" }
+filecoin-hashers = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "revert-multicore-sdr-fix" }
+storage-proofs-core = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "revert-multicore-sdr-fix" }
