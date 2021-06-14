@@ -119,7 +119,7 @@ dependencies = [
 [[package]]
 name = "bellperson"
 version = "0.14.1"
-source = "git+https://github.com/cryptonemo/bellman?branch=remove-par-in-verify#6921c1c57bd58f3e5c069d6f838a47a0f27bf606"
+source = "git+https://github.com/cryptonemo/bellman?branch=remove-par-in-verify#d87f07211fa2bdf0b973f5837d77ba1e2dc75943"
 dependencies = [
  "bincode",
  "bit-vec",
