@@ -118,8 +118,9 @@ dependencies = [
 
 [[package]]
 name = "bellperson"
-version = "0.14.1"
-source = "git+https://github.com/filecoin-project/bellman?branch=remove-par-in-verify#a9568d0ebad41080c946dda0885fc11f3ebffc3e"
+version = "0.14.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7edb7b07cab660137847825b90d1c88e82907689ee1e935eb2101579bc649e0a"
 dependencies = [
  "bincode",
  "bit-vec",
