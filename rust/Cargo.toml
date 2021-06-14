@@ -57,4 +57,4 @@ gpu = ["filecoin-proofs-api/gpu", "bellperson/gpu", "storage-proofs-porep/gpu"]
 multicore-sdr = ["storage-proofs-porep/multicore-sdr"]
 
 [patch.crates-io]
-bellperson = { git = "https://github.com/cryptonemo/bellman", branch = "remove-par-in-verify" }
+bellperson = { git = "https://github.com/filecoin-project/bellman", branch = "remove-par-in-verify" }
