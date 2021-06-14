@@ -8,10 +8,12 @@ all: $(DEPS)
 $(DEPS): .install-filcrypto  ;
 
 .install-filcrypto: rust
+	go clean -cache -testcache .
 	./install-filcrypto
 	@touch $@
 
 clean:
+	go clean -cache -testcache .
 	rm -rf $(DEPS) .install-filcrypto
 	rm -f ./runner
 	cd rust && cargo clean && cd ..
