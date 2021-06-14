@@ -32,13 +32,14 @@ rand = "0.7"
 rand_chacha = "0.2.1"
 rayon = "1.2.1"
 anyhow = "1.0.23"
-bellperson = { version = "0.14.0", default-features = false }
+bellperson = { version = "0.14.1", default-features = false }
 serde_json = "1.0.46"
 rust-gpu-tools = "0.3.0"
+storage-proofs-porep = { version = "~8.0.1", default-features = false }
 
 [dependencies.filecoin-proofs-api]
 package = "filecoin-proofs-api"
-version = "8.0"
+version = "8.0.1"
 default-features = false
 
 [build-dependencies]
@@ -48,8 +49,9 @@ cbindgen = "= 0.14.0"
 tempfile = "3.0.8"
 
 [features]
-default = ["pairing", "gpu"]
-pairing = ["filecoin-proofs-api/pairing", "bellperson/pairing"]
-blst = ["filecoin-proofs-api/blst", "bellperson/blst"]
+default = ["pairing", "gpu", "multicore-sdr" ]
+pairing = ["filecoin-proofs-api/pairing", "bellperson/pairing", "storage-proofs-porep/pairing"]
+blst = ["filecoin-proofs-api/blst", "bellperson/blst", "storage-proofs-porep/blst"]
 blst-portable = ["bls-signatures/blst-portable", "blstrs/portable"]
-gpu = ["filecoin-proofs-api/gpu", "bellperson/gpu"]
+gpu = ["filecoin-proofs-api/gpu", "bellperson/gpu", "storage-proofs-porep/gpu"]
+multicore-sdr = ["storage-proofs-porep/multicore-sdr"]

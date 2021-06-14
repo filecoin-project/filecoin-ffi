@@ -154,14 +154,19 @@ build_from_source() {
     if [ "${FFI_USE_GPU}" == "0" ]; then
         gpu_flags=""
     fi
+    # Default to use multicore_sdr flags, unless specified to disable
+    use_multicore_sdr="--features multicore-sdr"
+    if [ "${FFI_USE_MULTICORE_SDR}" == "0" ]; then
+        use_multicore_sdr=""
+    fi
 
     # Add feature specific rust flags as needed here.
     if [ "${FFI_USE_BLST_PORTABLE}" == "1" ]; then
-        additional_flags="--no-default-features --features blst --features blst-portable${gpu_flags}"
+        additional_flags="--no-default-features ${use_multicore_sdr} --features blst --features blst-portable${gpu_flags}"
     elif [ "${FFI_USE_BLST}" == "1" ]; then
-        additional_flags="--no-default-features --features blst${gpu_flags}"
+        additional_flags="--no-default-features ${use_multicore_sdr} --features blst${gpu_flags}"
     else
-        additional_flags="--no-default-features --features pairing${gpu_flags}"
+        additional_flags="--no-default-features ${use_multicore_sdr} --features pairing${gpu_flags}"
     fi
 
     if [ -n "${__release_flags}" ]; then

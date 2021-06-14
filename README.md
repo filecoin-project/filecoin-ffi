@@ -40,12 +40,20 @@ rm .install-filcrypto \
     ; FFI_BUILD_FROM_SOURCE=1 FFI_USE_BLST_PORTABLE=1 make
 ```
 
-By default, a 'gpu' option is used in the proofs library.  This feature is also used in FFI unless explicitly disabled.  .  To disable building with the 'gpu' dependency, set `FFI_USE_GPU=0`:
+By default, a 'gpu' option is used in the proofs library.  This feature is also used in FFI unless explicitly disabled.  To disable building with the 'gpu' dependency, set `FFI_USE_GPU=0`:
 
 ```shell
 rm .install-filcrypto \
     ; make clean \
-    ; FFI_BUILD_FROM_SOURCE=1 FFI_USE_BLST=1 make
+    ; FFI_BUILD_FROM_SOURCE=1 FFI_USE_BLST=1 FFI_USE_GPU=0 make
+```
+
+By default, a 'multicore-sdr' option is used in the proofs library.  This feature is also used in FFI unless explicitly disabled.  To disable building with the 'multicore-sdr' dependency, set `FFI_USE_MULTICORE_SDR=0`:
+
+```shell
+rm .install-filcrypto \
+    ; make clean \
+    ; FFI_BUILD_FROM_SOURCE=1 FFI_USE_MULTICORE_SDR=0 make
 ```
 
 ## Updating rust-fil-proofs (via rust-filecoin-proofs-api)
