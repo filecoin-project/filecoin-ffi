@@ -129,9 +129,9 @@ fn agg_verify_benchmark(c: &mut Criterion) -> Result<()> {
                 let msg = c_str_to_rust_str((*response).error_msg);
                 panic!("verify_aggregate_seal_proof failed: {:?}", msg);
             }
-            if !(*response).is_valid {
-                println!("VERIFY FAILED");
-            }
+            //if !(*response).is_valid {
+            //    println!("VERIFY FAILED");
+            //}
         })
     });
 
