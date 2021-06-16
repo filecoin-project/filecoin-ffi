@@ -138,8 +138,9 @@ fn agg_verify_benchmark(c: &mut Criterion) -> Result<()> {
     Ok(())
 }
 
-// it is here so it shows up in stack traces
+/// It is here so it shows up in stack traces.
 #[inline(never)]
+#[allow(clippy::missing_safety_doc)]
 pub unsafe fn bench_verify_agg(
     registered_proof: fil_RegisteredSealProof,
     registered_aggregation: fil_RegisteredAggregationProof,
@@ -149,7 +150,7 @@ pub unsafe fn bench_verify_agg(
     commit_inputs_ptr: *mut fil_AggregationInputs,
     commit_inputs_len: libc::size_t,
 ) -> *mut fil_VerifyAggregateSealProofResponse {
-    return fil_verify_aggregate_seal_proof(
+    fil_verify_aggregate_seal_proof(
         registered_proof,
         registered_aggregation,
         prover_id,
@@ -157,7 +158,7 @@ pub unsafe fn bench_verify_agg(
         proof_len,
         commit_inputs_ptr,
         commit_inputs_len,
-    );
+    )
 }
 
 fn aggregate_verify(c: &mut Criterion) {
