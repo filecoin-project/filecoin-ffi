@@ -139,9 +139,16 @@ build_from_source() {
         exit 1
     fi
 
+    if ! [ -x "$(command -v rustc)" ]; then
+        (>&2 echo '[build_from_source] Error: rust is not installed.')
+        (>&2 echo '[build_from_source] install Rust toolchain to resolve this problem.')
+        exit 1
+    fi
+
     pushd "${__rust_sources_path}"
 
     cargo --version
+    rustc --version
 
     # Default to use gpu flags, unless specified to disable
     gpu_flags=",gpu"
