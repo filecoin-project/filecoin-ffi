@@ -830,9 +830,9 @@ dependencies = [
 
 [[package]]
 name = "filecoin-hashers"
-version = "3.0.1"
+version = "3.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "822830a54cbff8dc8d407f80c7f064a7c1c18b825a432c3fcbf7a5e2ae43f22c"
+checksum = "f64d4dbf998e165e1f29e4ea3af74dd35afb0ae4d9dc90242b2e05d6f54f908a"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -849,9 +849,9 @@ dependencies = [
 
 [[package]]
 name = "filecoin-proofs"
-version = "8.0.1"
+version = "8.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0ec052f152527c2201bdb42a53297a927f5ec7774f2e977a4f3b1938bbcd8c90"
+checksum = "2e21d7e3bf0c9980c50f36c1e668a88796c34c5bf4dc4d0158af33d4f8a578d9"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -926,9 +926,9 @@ dependencies = [
 
 [[package]]
 name = "fr32"
-version = "1.0.1"
+version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a2c030cab1b14a4892dcdb70ba3eaf4dbba1247aa0605fc27d974e03288043ed"
+checksum = "dedf8113967195ca3c674f0e1c9793cc686bf8a80efc84d1de8dd045c3ab0553"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1544,14 +1544,14 @@ dependencies = [
 
 [[package]]
 name = "rand"
-version = "0.8.3"
+version = "0.8.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0ef9e7e66b4468674bfcb0c81af8b7fa0bb154fa9f28eb840da5c447baeb8d7e"
+checksum = "2e7573632e6454cf6b99d7aac4ccca54be06da05aca2ef7423d22d27d4d4bcd8"
 dependencies = [
  "libc",
  "rand_chacha 0.3.1",
- "rand_core 0.6.2",
- "rand_hc 0.3.0",
+ "rand_core 0.6.3",
+ "rand_hc 0.3.1",
 ]
 
 [[package]]
@@ -1571,7 +1571,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e6c10a63a0fa32252be49d21e7709d4d4baf8d231c2dbce1eaa8141b9b127d88"
 dependencies = [
  "ppv-lite86",
- "rand_core 0.6.2",
+ "rand_core 0.6.3",
 ]
 
 [[package]]
@@ -1600,9 +1600,9 @@ dependencies = [
 
 [[package]]
 name = "rand_core"
-version = "0.6.2"
+version = "0.6.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "34cf66eb183df1c5876e2dcf6b13d57340741e8dc255b48e40a26de954d06ae7"
+checksum = "d34f1408f55294453790c48b2f1ebbb1c5b4b7563eb1f418bcfcfdbb06ebb4e7"
 dependencies = [
  "getrandom 0.2.3",
 ]
@@ -1618,11 +1618,11 @@ dependencies = [
 
 [[package]]
 name = "rand_hc"
-version = "0.3.0"
+version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3190ef7066a446f2e7f42e239d161e905420ccab01eb967c9eb27d21b2322a73"
+checksum = "d51e9f596de227fda2ea6c84607f5558e196eeaf43c986b724ba4fb8fdf497e7"
 dependencies = [
- "rand_core 0.6.2",
+ "rand_core 0.6.3",
 ]
 
 [[package]]
@@ -1670,9 +1670,9 @@ dependencies = [
 
 [[package]]
 name = "redox_syscall"
-version = "0.2.8"
+version = "0.2.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "742739e41cd49414de871ea5e549afb7e2a3ac77b589bcbebe8c82fab37147fc"
+checksum = "5ab49abadf3f9e1c4bc499e8845e152ad87d2ad2d30371841171169e9d75feee"
 dependencies = [
  "bitflags 1.2.1",
 ]
@@ -1852,9 +1852,9 @@ dependencies = [
 
 [[package]]
 name = "sha2raw"
-version = "3.0.1"
+version = "3.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e86fefffe79fe0a9752cb6b472befa1f25f20a2c947bcf9377c79a056a437545"
+checksum = "94fad39b7b5a95c5b6aa822d1b5a2246306ca8913084687cb5f03cd217ad2514"
 dependencies = [
  "block-buffer 0.9.0",
  "byteorder 1.4.3",
@@ -1874,9 +1874,9 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
 name = "storage-proofs-core"
-version = "8.0.1"
+version = "8.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "24ccaf8c77c2b159c2642f2f4d834bb0efb3b1e53241c60d30e0e12e3b4e8244"
+checksum = "21b6344ca35feeda13a5dbe282f00d85a0bb86bc6a78a619dc2858fe81ee2d9c"
 dependencies = [
  "aes",
  "anyhow",
@@ -1913,9 +1913,9 @@ dependencies = [
 
 [[package]]
 name = "storage-proofs-porep"
-version = "8.0.1"
+version = "8.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "54e66a548c346ffcc16c543c7117e394787aa16c5a152d72819ab1acfe3dd975"
+checksum = "191fd7c7a2743199263629d6dbd32c52db1a50430eca150c0345a20259649077"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1952,9 +1952,9 @@ dependencies = [
 
 [[package]]
 name = "storage-proofs-post"
-version = "8.0.1"
+version = "8.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e8f2e3a4f15aba154b48443872633a6632f5709faa95a2d676ce13ec5941c9e0"
+checksum = "8379954982a7669bef1b272bef7d0158ae8edddaf60a83e31e142aabbce40935"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -2042,7 +2042,7 @@ checksum = "dac1c663cfc93810f88aed9b8941d48cabf856a1b111c29a40439018d870eb22"
 dependencies = [
  "cfg-if 1.0.0",
  "libc",
- "rand 0.8.3",
+ "rand 0.8.4",
  "redox_syscall",
  "remove_dir_all",
  "winapi 0.3.9",
