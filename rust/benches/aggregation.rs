@@ -124,7 +124,7 @@ fn agg_verify_benchmark(c: &mut Criterion, num_threads_per_iteration: usize) -> 
                         let response = bench_verify_agg(
                             fil_RegisteredSealProof::StackedDrg32GiBV1_1,
                             fil_RegisteredAggregationProof::SnarkPackV1,
-                            prover_id.clone(),
+                            prover_id,
                             proof.as_ptr(),
                             proof.len(),
                             inputs.as_mut_ptr(),
