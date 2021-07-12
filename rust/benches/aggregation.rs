@@ -57,7 +57,7 @@ struct AggregateEntry {
   }
 */
 
-fn agg_verify_benchmark(c: &mut Criterion) -> Result<()> {
+fn agg_verify_benchmark(c: &mut Criterion, num_threads_per_iteration: usize) -> Result<()> {
     let agg_file = std::fs::File::open("./benches/agg1.json")?;
     let values: Value = serde_json::from_reader(agg_file)?;
     let entry = AggregateEntry::deserialize(&values).context("deserialize aggregate")?;
@@ -116,22 +116,30 @@ fn agg_verify_benchmark(c: &mut Criterion) -> Result<()> {
     }
     c.bench_function("agg 1.6k", |b| {
         b.iter(|| unsafe {
-            let response = bench_verify_agg(
-                fil_RegisteredSealProof::StackedDrg32GiBV1_1,
-                fil_RegisteredAggregationProof::SnarkPackV1,
-                prover_id,
-                proof.as_ptr(),
-                proof.len(),
-                commit_inputs.as_mut_ptr(),
-                commit_inputs.len(),
-            );
-            if (*response).status_code != FCPResponseStatus::FCPNoError {
-                let msg = c_str_to_rust_str((*response).error_msg);
-                panic!("verify_aggregate_seal_proof failed: {:?}", msg);
-            }
-            //if !(*response).is_valid {
-            //    println!("VERIFY FAILED");
-            //}
+            rayon::scope(|s| {
+                for _ in 0..num_threads_per_iteration {
+                    let mut inputs = commit_inputs.clone();
+                    let proof = proof.clone();
+                    s.spawn(move |_| {
+                        let response = bench_verify_agg(
+                            fil_RegisteredSealProof::StackedDrg32GiBV1_1,
+                            fil_RegisteredAggregationProof::SnarkPackV1,
+                            prover_id.clone(),
+                            proof.as_ptr(),
+                            proof.len(),
+                            inputs.as_mut_ptr(),
+                            inputs.len(),
+                        );
+                        if (*response).status_code != FCPResponseStatus::FCPNoError {
+                            let msg = c_str_to_rust_str((*response).error_msg);
+                            panic!("verify_aggregate_seal_proof failed: {:?}", msg);
+                        }
+                        //if !(*response).is_valid {
+                        //    println!("VERIFY FAILED");
+                        //}
+                    });
+                }
+            });
         })
     });
 
@@ -162,7 +170,8 @@ pub unsafe fn bench_verify_agg(
 }
 
 fn aggregate_verify(c: &mut Criterion) {
-    agg_verify_benchmark(c).unwrap();
+    let num_threads_per_iteration = 4;
+    agg_verify_benchmark(c, num_threads_per_iteration).unwrap();
 }
 
 criterion_group!(benches, aggregate_verify);
