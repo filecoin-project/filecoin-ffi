@@ -319,10 +319,13 @@ commands:
             RELEASE_NAME="${CIRCLE_PROJECT_REPONAME}-$(uname)-aarch64-standard-pairing"
 
             rustup default nightly-aarch64-apple-darwin
+            # Temporarily move the rust-toolchain file since that won't allow it to be used
+            mv ./rust-toolchain ./rust-toolchain.bak
             # Note: the blst dependency uses the portable configuration for maximum compatibility
             ./scripts/build-release.sh filcrypto nightly-aarch64-apple-darwin --verbose --locked --no-default-features --features multicore-sdr --features pairing,gpu --features blst-portable
             ./scripts/package-release.sh $TARBALL_PATH
             ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
+            mv ./rust-toolchain.bak ./rust-toolchain
       - run:
           name: Build and publish the standard release for x86_64 (blst)
           command: |
