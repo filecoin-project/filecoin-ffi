@@ -104,6 +104,8 @@ jobs:
           linux: false
           darwin: true
       - run: cd rust && rustup install $(cat rust-toolchain)
+      - run: cd rust && rustup install nightly-aarch64-apple-darwin
+      - run: cd rust && rustup target add aarch64-apple-darwin
       - run: cd rust && rustup default $(cat rust-toolchain)
       - run: cd rust && cargo fetch
       - publish_darwin_release
@@ -315,11 +317,11 @@ commands:
             TARBALL_PATH="/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-aarch64-standard-pairing.tar.gz"
             RELEASE_NAME="${CIRCLE_PROJECT_REPONAME}-$(uname)-aarch64-standard-pairing"
 
-            xcode-select --print-path
+            rustup default nightly-aarch64-apple-darwin
             # Note: the blst dependency uses the portable configuration for maximum compatibility
-            #RUSTFLAGS="-C target-cpu=aarch64-apple-darwin" ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) --verbose --locked --no-default-features --features multicore-sdr --features pairing,gpu --features blst-portable
-            #./scripts/package-release.sh $TARBALL_PATH
-            #./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
+            ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) --verbose --locked --no-default-features --features multicore-sdr --features pairing,gpu --features blst-portable
+            ./scripts/package-release.sh $TARBALL_PATH
+            ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
       - run:
           name: Build and publish the standard release for x86_64 (blst)
           command: |
@@ -328,6 +330,7 @@ commands:
             TARBALL_PATH="/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-standard-blst.tar.gz"
             RELEASE_NAME="${CIRCLE_PROJECT_REPONAME}-$(uname)-standard-blst"
 
+            rustup default $(cat rust-toolchain)
             # Note: the blst dependency uses the portable configuration for maximum compatibility
             ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) --verbose --locked --no-default-features --features multicore-sdr --features blst,gpu --features blst-portable
             ./scripts/package-release.sh $TARBALL_PATH
@@ -340,11 +343,11 @@ commands:
             TARBALL_PATH="/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-aarch64-standard-blst.tar.gz"
             RELEASE_NAME="${CIRCLE_PROJECT_REPONAME}-$(uname)-aarch64-standard-blst"
 
-            xcode-select --print-path
+            rustup default nightly-aarch64-apple-darwin
             # Note: the blst dependency uses the portable configuration for maximum compatibility
-            #RUSTFLAGS="-C target-cpu=aarch64-apple-darwin" ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) --verbose --locked --no-default-features --features multicore-sdr --features blst,gpu --features blst-portable
-            #./scripts/package-release.sh $TARBALL_PATH
-            #./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
+            ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) --verbose --locked --no-default-features --features multicore-sdr --features blst,gpu --features blst-portable
+            ./scripts/package-release.sh $TARBALL_PATH
+            ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
   configure_environment_variables:
     parameters:
       linux:
