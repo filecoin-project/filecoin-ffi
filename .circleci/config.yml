@@ -315,7 +315,6 @@ commands:
             TARBALL_PATH="/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-aarch64-standard-pairing.tar.gz"
             RELEASE_NAME="${CIRCLE_PROJECT_REPONAME}-$(uname)-aarch64-standard-pairing"
 
-            xcode-select --install
             xcode-select --print-path
             # Note: the blst dependency uses the portable configuration for maximum compatibility
             #RUSTFLAGS="-C target-cpu=aarch64-apple-darwin" ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) --verbose --locked --no-default-features --features multicore-sdr --features pairing,gpu --features blst-portable
@@ -341,7 +340,6 @@ commands:
             TARBALL_PATH="/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-aarch64-standard-blst.tar.gz"
             RELEASE_NAME="${CIRCLE_PROJECT_REPONAME}-$(uname)-aarch64-standard-blst"
 
-            xcode-select --install
             xcode-select --print-path
             # Note: the blst dependency uses the portable configuration for maximum compatibility
             #RUSTFLAGS="-C target-cpu=aarch64-apple-darwin" ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) --verbose --locked --no-default-features --features multicore-sdr --features blst,gpu --features blst-portable
