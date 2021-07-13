@@ -305,6 +305,7 @@ commands:
             TARBALL_PATH="/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-standard-pairing.tar.gz"
             RELEASE_NAME="${CIRCLE_PROJECT_REPONAME}-$(uname)-standard-pairing"
 
+            rustup default $(cat rust-toolchain)
             # Note: the blst dependency uses the portable configuration for maximum compatibility
             ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) --verbose --locked --no-default-features --features multicore-sdr --features pairing,gpu --features blst-portable
             ./scripts/package-release.sh $TARBALL_PATH
@@ -319,7 +320,7 @@ commands:
 
             rustup default nightly-aarch64-apple-darwin
             # Note: the blst dependency uses the portable configuration for maximum compatibility
-            ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) --verbose --locked --no-default-features --features multicore-sdr --features pairing,gpu --features blst-portable
+            ./scripts/build-release.sh filcrypto +nightly-aarch64-apple-darwin --verbose --locked --no-default-features --features multicore-sdr --features pairing,gpu --features blst-portable
             ./scripts/package-release.sh $TARBALL_PATH
             ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
       - run:
@@ -345,7 +346,7 @@ commands:
 
             rustup default nightly-aarch64-apple-darwin
             # Note: the blst dependency uses the portable configuration for maximum compatibility
-            ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) --verbose --locked --no-default-features --features multicore-sdr --features blst,gpu --features blst-portable
+            ./scripts/build-release.sh filcrypto +nightly-aarch64-apple-darwin --verbose --locked --no-default-features --features multicore-sdr --features blst,gpu --features blst-portable
             ./scripts/package-release.sh $TARBALL_PATH
             ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
   configure_environment_variables:
