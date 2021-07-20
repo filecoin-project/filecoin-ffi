@@ -15,6 +15,12 @@ main() {
         exit 1
     fi
 
+    if [[ -z "$3" ]]
+    then
+        (>&2 echo '[build-release/main] Error: script requires a build action, e.g. ./build-release.sh [build|lipo]')
+        exit 1
+    fi
+
     # temporary place for storing build output (cannot use 'local', because
     # 'trap' is not going to have access to variables scoped to this function)
     #
@@ -29,8 +35,8 @@ main() {
     local __rust_flags="--print native-static-libs ${RUSTFLAGS}"
 
     RUSTFLAGS="${__rust_flags}" \
-        cargo +$2 build \
-        --release ${@:3} 2>&1 | tee ${__build_output_log_tmp}
+        cargo +$2 $3 \
+        --release ${@:4} 2>&1 | tee ${__build_output_log_tmp}
 
     # parse build output for linker flags
     #
