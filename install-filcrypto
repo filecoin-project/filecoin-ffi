@@ -149,6 +149,14 @@ build_from_source() {
 
     cargo --version
 
+    # For building on aarch64, we try to use cargo-lipo instead of cargo build
+    x86_64_uname=$(uname -a | grep x86_64)
+    if [ -n "${x86_64_uname}" ]; then
+        build="build"
+    else
+        build="lipo"
+    fi
+
     # Default to use gpu flags, unless specified to disable
     gpu_flags=",gpu"
     if [ "${FFI_USE_GPU}" == "0" ]; then
@@ -170,9 +178,9 @@ build_from_source() {
     fi
 
     if [ -n "${__release_flags}" ]; then
-        RUSTFLAGS="-C target-feature=${__release_flags}" ./scripts/build-release.sh "${__library_name}" "$(cat rust-toolchain)" "${additional_flags}"
+        RUSTFLAGS="-C target-feature=${__release_flags}" ./scripts/build-release.sh "${__library_name}" "$(cat rust-toolchain)" ${build} "${additional_flags}"
     else
-        ./scripts/build-release.sh "${__library_name}" "$(cat rust-toolchain)" "${additional_flags}"
+        ./scripts/build-release.sh "${__library_name}" "$(cat rust-toolchain)" ${build} "${additional_flags}"
     fi
 
     popd
