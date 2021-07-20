@@ -151,7 +151,7 @@ build_from_source() {
 
     # For building on aarch64, we try to use cargo-lipo instead of cargo build
     darwin_uname=$(uname -a | grep Darwin)
-    if [ -n "${darwin_uname}" ]; then
+    if [ -z "${darwin_uname}" ]; then
         build="build"
     else
         build="lipo"
@@ -162,6 +162,7 @@ build_from_source() {
     if [ "${FFI_USE_GPU}" == "0" ]; then
         gpu_flags=""
     fi
+
     # Default to use multicore_sdr flags, unless specified to disable
     use_multicore_sdr="multicore-sdr"
     if [ "${FFI_USE_MULTICORE_SDR}" == "0" ]; then
@@ -177,6 +178,7 @@ build_from_source() {
         additional_flags="--no-default-features --features ${use_multicore_sdr},pairing${gpu_flags}"
     fi
 
+    echo "Using additional build flags: ${additional_flags}"
     if [ -n "${__release_flags}" ]; then
         RUSTFLAGS="-C target-feature=${__release_flags}" ./scripts/build-release.sh "${__library_name}" "$(cat rust-toolchain)" ${build} "${additional_flags}"
     else
