@@ -104,10 +104,10 @@ jobs:
           linux: false
           darwin: true
       - run: cd rust && rustup install $(cat rust-toolchain)
-      - run: cd rust && rustup install nightly-aarch64-apple-darwin
-      - run: cd rust && rustup target add aarch64-apple-darwin
+      - run: cd rust && rustup target add aarch64-apple-darwin --toolchain $(cat rust-toolchain)
       - run: cd rust && rustup default $(cat rust-toolchain)
       - run: cd rust && cargo fetch
+      - run: cd rust && cargo install cargo-lipo
       - publish_darwin_release
   cargo_fetch:
     executor: rust
@@ -260,7 +260,7 @@ commands:
             RELEASE_NAME="${CIRCLE_PROJECT_REPONAME}-$(uname)-standard-pairing"
 
             # Note: the blst dependency uses the portable configuration for maximum compatibility
-            ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) --verbose --locked --no-default-features --features multicore-sdr --features pairing,gpu --features blst-portable
+            ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) build --verbose --locked --no-default-features --features multicore-sdr --features pairing,gpu --features blst-portable
             ./scripts/package-release.sh $TARBALL_PATH
             ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
       - run:
@@ -272,7 +272,7 @@ commands:
             RELEASE_NAME="${CIRCLE_PROJECT_REPONAME}-$(uname)-standard-blst"
 
             # Note: the blst dependency uses the portable configuration for maximum compatibility
-            ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) --verbose --locked --no-default-features --features multicore-sdr --features blst,gpu --features blst-portable
+            ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) build --verbose --locked --no-default-features --features multicore-sdr --features blst,gpu --features blst-portable
             ./scripts/package-release.sh $TARBALL_PATH
             ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
       - run:
@@ -283,7 +283,7 @@ commands:
             TARBALL_PATH="/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-optimized.tar.gz"
             RUSTFLAGS="-C target-feature=$(cat rustc-target-features-optimized.json | jq -r '.[].rustc_target_feature' | tr '\n' ',')"
 
-            ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) --verbose --locked --no-default-features --features multicore-sdr --features pairing,gpu
+            ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) build --verbose --locked --no-default-features --features multicore-sdr --features pairing,gpu
             ./scripts/package-release.sh $TARBALL_PATH
       - run:
           name: Build the optimized release (blst)
@@ -293,7 +293,7 @@ commands:
             TARBALL_PATH="/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-optimized.tar.gz"
             RUSTFLAGS="-C target-feature=$(cat rustc-target-features-optimized.json | jq -r '.[].rustc_target_feature' | tr '\n' ',')"
 
-            ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) --verbose --locked --all
+            ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) build --verbose --locked --all
             ./scripts/package-release.sh $TARBALL_PATH
   publish_darwin_release:
     steps:
@@ -307,7 +307,7 @@ commands:
 
             rustup default $(cat rust-toolchain)
             # Note: the blst dependency uses the portable configuration for maximum compatibility
-            ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) --verbose --locked --no-default-features --features multicore-sdr --features pairing,gpu --features blst-portable
+            ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) build --verbose --locked --no-default-features --features multicore-sdr --features pairing,gpu --features blst-portable
             ./scripts/package-release.sh $TARBALL_PATH
             ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
       - run:
@@ -319,7 +319,7 @@ commands:
             RELEASE_NAME="${CIRCLE_PROJECT_REPONAME}-$(uname)-aarch64-standard-pairing"
 
             # Note: the blst dependency uses the portable configuration for maximum compatibility
-            ./scripts/build-release.sh filcrypto $(cat rust-toolchain) --target aarch64-apple-darwin --verbose --locked --no-default-features --features multicore-sdr --features pairing,gpu --features blst-portable
+            RUSTFLAGS="-C lto=on -C embed-bitcode=yes" ./scripts/build-release.sh filcrypto $(cat rust-toolchain) lipo --verbose --locked --no-default-features --features multicore-sdr --features pairing,gpu --features blst-portable
             ./scripts/package-release.sh $TARBALL_PATH
             ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
       - run:
@@ -332,7 +332,7 @@ commands:
 
             rustup default $(cat rust-toolchain)
             # Note: the blst dependency uses the portable configuration for maximum compatibility
-            ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) --verbose --locked --no-default-features --features multicore-sdr --features blst,gpu --features blst-portable
+            ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) build --verbose --locked --no-default-features --features multicore-sdr --features blst,gpu --features blst-portable
             ./scripts/package-release.sh $TARBALL_PATH
             ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
       - run:
@@ -344,7 +344,7 @@ commands:
             RELEASE_NAME="${CIRCLE_PROJECT_REPONAME}-$(uname)-aarch64-standard-blst"
 
             # Note: the blst dependency uses the portable configuration for maximum compatibility
-            ./scripts/build-release.sh filcrypto $(cat rust-toolchain) --target aarch64-apple-darwin --verbose --locked --no-default-features --features multicore-sdr --features blst,gpu --features blst-portable
+            RUSTFLAGS="-C lto=on -C embed-bitcode=yes" ./scripts/build-release.sh filcrypto $(cat rust-toolchain) lipo --verbose --locked --no-default-features --features multicore-sdr --features blst,gpu --features blst-portable
             ./scripts/package-release.sh $TARBALL_PATH
             ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
   configure_environment_variables:
