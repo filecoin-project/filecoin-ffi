@@ -150,8 +150,8 @@ build_from_source() {
     cargo --version
 
     # For building on aarch64, we try to use cargo-lipo instead of cargo build
-    x86_64_uname=$(uname -a | grep x86_64)
-    if [ -n "${x86_64_uname}" ]; then
+    darwin_uname=$(uname -a | grep Darwin)
+    if [ -n "${darwin_uname}" ]; then
         build="build"
     else
         build="lipo"
@@ -163,18 +163,18 @@ build_from_source() {
         gpu_flags=""
     fi
     # Default to use multicore_sdr flags, unless specified to disable
-    use_multicore_sdr="--features multicore-sdr"
+    use_multicore_sdr="multicore-sdr"
     if [ "${FFI_USE_MULTICORE_SDR}" == "0" ]; then
         use_multicore_sdr=""
     fi
 
     # Add feature specific rust flags as needed here.
     if [ "${FFI_USE_BLST_PORTABLE}" == "1" ]; then
-        additional_flags="--no-default-features ${use_multicore_sdr} --features blst --features blst-portable${gpu_flags}"
+        additional_flags="--no-default-features --features ${use_multicore_sdr},blst,blst-portable${gpu_flags}"
     elif [ "${FFI_USE_BLST}" == "1" ]; then
-        additional_flags="--no-default-features ${use_multicore_sdr} --features blst${gpu_flags}"
+        additional_flags="--no-default-features --features ${use_multicore_sdr},blst${gpu_flags}"
     else
-        additional_flags="--no-default-features ${use_multicore_sdr} --features pairing${gpu_flags}"
+        additional_flags="--no-default-features --features ${use_multicore_sdr},pairing${gpu_flags}"
     fi
 
     if [ -n "${__release_flags}" ]; then

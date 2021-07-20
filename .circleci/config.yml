@@ -319,7 +319,7 @@ commands:
             RELEASE_NAME="${CIRCLE_PROJECT_REPONAME}-$(uname)-aarch64-standard-pairing"
 
             # Note: the blst dependency uses the portable configuration for maximum compatibility
-            RUSTFLAGS="-C lto=on -C embed-bitcode=yes" ./scripts/build-release.sh filcrypto $(cat rust-toolchain) lipo --verbose --locked --no-default-features --features multicore-sdr --features pairing,gpu --features blst-portable
+            RUSTFLAGS="-C lto=on -C embed-bitcode=yes" ./scripts/build-release.sh filcrypto $(cat rust-toolchain) lipo --verbose --locked --no-default-features --features multicore-sdr,pairing,gpu,blst-portable
             ./scripts/package-release.sh $TARBALL_PATH
             ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
       - run:
@@ -344,7 +344,7 @@ commands:
             RELEASE_NAME="${CIRCLE_PROJECT_REPONAME}-$(uname)-aarch64-standard-blst"
 
             # Note: the blst dependency uses the portable configuration for maximum compatibility
-            RUSTFLAGS="-C lto=on -C embed-bitcode=yes" ./scripts/build-release.sh filcrypto $(cat rust-toolchain) lipo --verbose --locked --no-default-features --features multicore-sdr --features blst,gpu --features blst-portable
+            RUSTFLAGS="-C lto=on -C embed-bitcode=yes" ./scripts/build-release.sh filcrypto $(cat rust-toolchain) lipo --verbose --locked --no-default-features --features multicore-sdr,blst,gpu,blst-portable
             ./scripts/package-release.sh $TARBALL_PATH
             ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
   configure_environment_variables:
