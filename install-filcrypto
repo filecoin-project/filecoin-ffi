@@ -150,8 +150,8 @@ build_from_source() {
     cargo --version
 
     # For building on aarch64, we try to use cargo-lipo instead of cargo build
-    darwin_uname=$(uname -a | grep Darwin)
-    if [ -z "${darwin_uname}" ]; then
+    x86_64_uname=$(uname -a | grep x86_64)
+    if [ -n "${x86_64_uname}" ]; then
         build="build"
     else
         build="lipo"
