@@ -45,6 +45,11 @@ main() {
         | head -n 1 \
         | cut -d ':' -f 3)
 
+    echo "Linker Flags: ${__linker_flags}"
+    if [ $(uname -s) = "Darwin" ]; then
+        __linker_flags=$(echo ${__linker_flags} | sed 's/-lOpenCL/-framework OpenCL/g')
+        echo "Using Linker Flags: ${__linker_flags}"
+    fi
     # generate pkg-config
     #
     sed -e "s;@VERSION@;$(git rev-parse HEAD);" \
