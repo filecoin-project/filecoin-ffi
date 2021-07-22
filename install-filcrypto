@@ -57,8 +57,12 @@ main() {
 
         # copy from Rust's build directory (target) to root of filecoin-ffi
         #
+        if [ $(uname -s) = "Darwin" ]; then
+            find -L "${rust_sources_dir}/target/universal/release" -type f -name libfilcrypto.a -exec cp -- "{}" . \;
+        else
+            find -L "${rust_sources_dir}/target/release" -type f -name libfilcrypto.a -exec cp -- "{}" . \;
+        fi
         find -L "${rust_sources_dir}/target/release" -type f -name filcrypto.h -exec cp -- "{}" . \;
-        find -L "${rust_sources_dir}/target/release" -type f -name libfilcrypto.a -exec cp -- "{}" . \;
         find -L "${rust_sources_dir}" -type f -name filcrypto.pc -exec cp -- "{}" . \;
 
         check_installed_files
