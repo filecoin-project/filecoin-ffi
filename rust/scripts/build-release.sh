@@ -50,6 +50,10 @@ main() {
         __linker_flags=$(echo ${__linker_flags} | sed 's/-lOpenCL/-framework OpenCL/g')
         echo "Using Linker Flags: ${__linker_flags}"
         find . -type f -name "lib$1.a"
+        rm -f ./target/aarch64-apple-ios/release/libfilcrypto.a
+        rm -f ./target/x86_64-apple-ios/release/libfilcrypto.a
+        echo "Eliminated non-universal binary libraries"
+        find . -type f -name "lib$1.a"
     fi
     # generate pkg-config
     #
