@@ -49,6 +49,7 @@ main() {
     if [ $(uname -s) = "Darwin" ]; then
         __linker_flags=$(echo ${__linker_flags} | sed 's/-lOpenCL/-framework OpenCL/g')
         echo "Using Linker Flags: ${__linker_flags}"
+        find . -type f -name "lib$1.a"
     fi
     # generate pkg-config
     #
