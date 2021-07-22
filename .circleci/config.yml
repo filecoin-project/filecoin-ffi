@@ -305,7 +305,6 @@ commands:
             rustup default $(cat rust-toolchain)
             # Note: the blst dependency uses the portable configuration for maximum compatibility
             ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) build --verbose --locked --no-default-features --features multicore-sdr --features pairing,gpu --features blst-portable
-            ./scripts/package-release.sh $TARBALL_PATH
       - run:
           name: Build and publish the universal standard release (pairing)
           command: |
@@ -326,7 +325,6 @@ commands:
             rustup default $(cat rust-toolchain)
             # Note: the blst dependency uses the portable configuration for maximum compatibility
             ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) build --verbose --locked --no-default-features --features multicore-sdr --features blst,gpu --features blst-portable
-            ./scripts/package-release.sh $TARBALL_PATH
       - run:
           name: Build and publish the universal standard release (blst)
           command: |
