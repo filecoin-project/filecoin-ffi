@@ -760,15 +760,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "fil-filepath"
-version = "0.1.1"
-source = "git+https://github.com/cryptonemo/filepath.git#a0752ae406102103fa71f9a27e592c9740fbb79d"
-dependencies = [
- "libc",
- "winapi 0.3.9",
-]
-
-[[package]]
 name = "fil-ocl"
 version = "0.19.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -822,9 +813,9 @@ dependencies = [
  "drop_struct_macro_derive",
  "fff",
  "ffi-toolkit",
- "fil-filepath",
  "fil_logger",
  "filecoin-proofs-api",
+ "filepath",
  "groupy",
  "libc",
  "log",
@@ -909,6 +900,16 @@ dependencies = [
  "fr32",
  "serde",
  "storage-proofs-core",
+]
+
+[[package]]
+name = "filepath"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0dd50318458226958db06f173610f54f01d26f0a9ccfa3d38bd60f70bc9939ff"
+dependencies = [
+ "libc",
+ "winapi 0.3.9",
 ]
 
 [[package]]
