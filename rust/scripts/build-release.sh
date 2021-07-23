@@ -47,11 +47,15 @@ main() {
 
     echo "Linker Flags: ${__linker_flags}"
     if [ $(uname -s) = "Darwin" ]; then
+        # With lipo enabled, this replacement may not be necessary,
+        # but leaving it in doesn't hurt as it does nothing if not
+        # needed
         __linker_flags=$(echo ${__linker_flags} | sed 's/-lOpenCL/-framework OpenCL/g')
         echo "Using Linker Flags: ${__linker_flags}"
+
         find . -type f -name "lib$1.a"
-        rm -f ./target/aarch64-apple-ios/release/libfilcrypto.a
-        rm -f ./target/x86_64-apple-ios/release/libfilcrypto.a
+        rm -f ./target/aarch64-apple-darwin/release/libfilcrypto.a
+        rm -f ./target/x86_64-apple-darwin/release/libfilcrypto.a
         echo "Eliminated non-universal binary libraries"
         find . -type f -name "lib$1.a"
     fi
