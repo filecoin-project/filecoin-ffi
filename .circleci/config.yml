@@ -104,7 +104,8 @@ jobs:
           linux: false
           darwin: true
       - run: cd rust && rustup install $(cat rust-toolchain)
-      - run: cd rust && rustup target add aarch64-apple-darwin aarch64-apple-ios x86_64-apple-ios --toolchain $(cat rust-toolchain)
+      - run: cd rust && rustup target add x86_64-apple-darwin --toolchain $(cat rust-toolchain)
+      - run: cd rust && rustup target add aarch64-apple-darwin --toolchain $(cat rust-toolchain)
       - run: cd rust && rustup default $(cat rust-toolchain)
       - run: cd rust && cargo fetch
       - run: cd rust && cargo install cargo-lipo
@@ -306,7 +307,7 @@ commands:
             TARBALL_PATH="/tmp/${RELEASE_NAME}.tar.gz"
 
             # Note: the blst dependency uses the portable configuration for maximum compatibility
-            ./scripts/build-release.sh filcrypto $(cat rust-toolchain) lipo --verbose --locked --no-default-features --features multicore-sdr,pairing,gpu,blst-portable
+            ./scripts/build-release.sh filcrypto $(cat rust-toolchain) lipo --targets x86_64-apple-darwin,aarch64-apple-darwin --verbose --locked --no-default-features --features multicore-sdr,pairing,gpu,blst-portable
             ./scripts/package-release.sh $TARBALL_PATH
             ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
       - run:
@@ -318,7 +319,7 @@ commands:
             TARBALL_PATH="/tmp/${RELEASE_NAME}.tar.gz"
 
             # Note: the blst dependency uses the portable configuration for maximum compatibility
-            ./scripts/build-release.sh filcrypto $(cat rust-toolchain) lipo --verbose --locked --no-default-features --features multicore-sdr,blst,gpu,blst-portable
+            ./scripts/build-release.sh filcrypto $(cat rust-toolchain) lipo --targets x86_64-apple-darwin,aarch64-apple-darwin --verbose --locked --no-default-features --features multicore-sdr,blst,gpu,blst-portable
             ./scripts/package-release.sh $TARBALL_PATH
             ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
   configure_environment_variables:
