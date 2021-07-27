@@ -76,11 +76,11 @@ download_release_tarball() {
     local __release_tag="${__release_sha1:0:16}"
     local __release_tag_url="https://api.github.com/repos/filecoin-project/${__repo_name}/releases/tags/${__release_tag}"
 
-    # Download either the non-optimized standard or standard-blst release.
-    if [ "${FFI_USE_BLST}" == "1" ]; then
-        release_flag_name="standard-blst"
-    else
+    # Download either the non-optimized standard or standard-pairing release.
+    if [ "${FFI_USE_PAIRING}" == "1" ]; then
         release_flag_name="standard-pairing"
+    else
+        release_flag_name="standard-blst"
     fi
 
     # TODO: This function shouldn't make assumptions about how these releases'
@@ -161,12 +161,14 @@ build_from_source() {
     fi
 
     # Add feature specific rust flags as needed here.
-    if [ "${FFI_USE_BLST_PORTABLE}" == "1" ]; then
+    if [ "${FFI_USE_BLST_PORTABLE}" == "1" ] && [ "${FFI_USE_PAIRING}" == "1" ]; then
+        additional_flags="--no-default-features ${use_multicore_sdr} --features pairing --features blst-portable${gpu_flags}"
+    elif [ "${FFI_USE_BLST_PORTABLE}" == "1" ]; then
         additional_flags="--no-default-features ${use_multicore_sdr} --features blst --features blst-portable${gpu_flags}"
-    elif [ "${FFI_USE_BLST}" == "1" ]; then
-        additional_flags="--no-default-features ${use_multicore_sdr} --features blst${gpu_flags}"
-    else
+    elif [ "${FFI_USE_PAIRING}" == "1" ]; then
         additional_flags="--no-default-features ${use_multicore_sdr} --features pairing${gpu_flags}"
+    else
+        additional_flags="--no-default-features ${use_multicore_sdr} --features blst${gpu_flags}"
     fi
 
     if [ -n "${__release_flags}" ]; then

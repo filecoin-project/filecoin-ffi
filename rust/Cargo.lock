@@ -118,9 +118,9 @@ dependencies = [
 
 [[package]]
 name = "bellperson"
-version = "0.14.2"
+version = "0.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7edb7b07cab660137847825b90d1c88e82907689ee1e935eb2101579bc649e0a"
+checksum = "abb7179a6277802b4d28110758e614af736c19e0e3ab0c78f7a2db7956989b6e"
 dependencies = [
  "bincode",
  "bit-vec",
@@ -831,8 +831,7 @@ dependencies = [
 [[package]]
 name = "filecoin-hashers"
 version = "3.0.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "aa9e1f14e1259a7aa09d8c389639343e61d6659715cd01f13b190c68e8397475"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=swap-pairing-for-blst#bbb8bfba1bdbefc25dca6bdc7097a5d0ae4124f4"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -850,8 +849,7 @@ dependencies = [
 [[package]]
 name = "filecoin-proofs"
 version = "8.0.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "82cbe35e8932d2791041c299bcbbc2decfb1ea4d192e3c58ada866f0e7303049"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=swap-pairing-for-blst#bbb8bfba1bdbefc25dca6bdc7097a5d0ae4124f4"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -889,8 +887,7 @@ dependencies = [
 [[package]]
 name = "filecoin-proofs-api"
 version = "8.0.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "81509cfc2486a67d850c3583576a49f251dc4e51fdfd6fac8bc1751341e64813"
+source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=swap-pairing-for-blst#718630f1afe7ac728d7bc4d324ecd9986c30f43d"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -928,8 +925,7 @@ dependencies = [
 [[package]]
 name = "fr32"
 version = "1.0.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7abf1d4bb155e2f4222bd5a7e4a585d14d9512a7bb00139bc1d010119bb68da3"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=swap-pairing-for-blst#bbb8bfba1bdbefc25dca6bdc7097a5d0ae4124f4"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1225,8 +1221,7 @@ dependencies = [
 [[package]]
 name = "neptune"
 version = "3.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ec660e9f6f2ff666996be8d34fa70142f05bf25b4268d0ab9f325d80378bf4e5"
+source = "git+https://github.com/filecoin-project/neptune?branch=updated-bellperson#2b41d2ea18926d16d95895f7f85b34e1395638c3"
 dependencies = [
  "bellperson",
  "blake2s_simd",
@@ -1860,8 +1855,7 @@ dependencies = [
 [[package]]
 name = "sha2raw"
 version = "3.0.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "02ff2c87fa4fd886f740292b4df3bc934bb36af2ba4587bd442b7e4c584f459f"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=swap-pairing-for-blst#bbb8bfba1bdbefc25dca6bdc7097a5d0ae4124f4"
 dependencies = [
  "block-buffer 0.9.0",
  "byteorder 1.4.3",
@@ -1882,8 +1876,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 [[package]]
 name = "storage-proofs-core"
 version = "8.0.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a8fcc9130403ca28a722fcc4d449f19ade14cc84fe3ab067d5ef723e393c018b"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=swap-pairing-for-blst#bbb8bfba1bdbefc25dca6bdc7097a5d0ae4124f4"
 dependencies = [
  "aes",
  "anyhow",
@@ -1921,8 +1914,7 @@ dependencies = [
 [[package]]
 name = "storage-proofs-porep"
 version = "8.0.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7c876cfa8ec4408e8829ed7ad374164820d1df953098f92e73a36ff54002f5ae"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=swap-pairing-for-blst#bbb8bfba1bdbefc25dca6bdc7097a5d0ae4124f4"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1960,8 +1952,7 @@ dependencies = [
 [[package]]
 name = "storage-proofs-post"
 version = "8.0.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dec3c440730b1dc76c7921746bf7d40696ce63374b430d3c186b6d92b9349f58"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=swap-pairing-for-blst#bbb8bfba1bdbefc25dca6bdc7097a5d0ae4124f4"
 dependencies = [
  "anyhow",
  "bellperson",
