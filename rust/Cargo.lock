@@ -118,9 +118,9 @@ dependencies = [
 
 [[package]]
 name = "bellperson"
-version = "0.15.0"
+version = "0.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "abb7179a6277802b4d28110758e614af736c19e0e3ab0c78f7a2db7956989b6e"
+checksum = "0561197d45d807faccac88af69c841730ac881fc13c3d0c6382aa84a7ce09f9d"
 dependencies = [
  "bincode",
  "bit-vec",
@@ -142,7 +142,7 @@ dependencies = [
  "rand 0.7.3",
  "rand_core 0.5.1",
  "rayon",
- "rust-gpu-tools",
+ "rust-gpu-tools 0.4.0",
  "rustc-hash",
  "serde",
  "sha2 0.9.5",
@@ -380,6 +380,16 @@ version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e8573fa3ff8acd6c49e8e113296c54277e82376b96c6ca6307848632cce38e44"
 dependencies = [
+ "libc",
+]
+
+[[package]]
+name = "cl3"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3973b4f2789dc2b25fbcba1a0d7e4e79ee63ed57aa1e8907fa0c08f51a5e724d"
+dependencies = [
+ "cl-sys",
  "libc",
 ]
 
@@ -822,7 +832,7 @@ dependencies = [
  "rand 0.7.3",
  "rand_chacha 0.2.2",
  "rayon",
- "rust-gpu-tools",
+ "rust-gpu-tools 0.3.0",
  "serde_json",
  "storage-proofs-porep",
  "tempfile",
@@ -831,7 +841,7 @@ dependencies = [
 [[package]]
 name = "filecoin-hashers"
 version = "3.0.3"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=swap-pairing-for-blst#bbb8bfba1bdbefc25dca6bdc7097a5d0ae4124f4"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=swap-pairing-for-blst#f81494ec6c0970590f8d2c76a638088f66e225de"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -849,7 +859,7 @@ dependencies = [
 [[package]]
 name = "filecoin-proofs"
 version = "8.0.3"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=swap-pairing-for-blst#bbb8bfba1bdbefc25dca6bdc7097a5d0ae4124f4"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=swap-pairing-for-blst#f81494ec6c0970590f8d2c76a638088f66e225de"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -887,7 +897,7 @@ dependencies = [
 [[package]]
 name = "filecoin-proofs-api"
 version = "8.0.1"
-source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=swap-pairing-for-blst#718630f1afe7ac728d7bc4d324ecd9986c30f43d"
+source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=swap-pairing-for-blst#ca476e23eee66258aec6c9584fc9ba195a3499fb"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -925,7 +935,7 @@ dependencies = [
 [[package]]
 name = "fr32"
 version = "1.0.3"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=swap-pairing-for-blst#bbb8bfba1bdbefc25dca6bdc7097a5d0ae4124f4"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=swap-pairing-for-blst#f81494ec6c0970590f8d2c76a638088f66e225de"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1221,7 +1231,7 @@ dependencies = [
 [[package]]
 name = "neptune"
 version = "3.0.0"
-source = "git+https://github.com/filecoin-project/neptune?branch=updated-bellperson#2b41d2ea18926d16d95895f7f85b34e1395638c3"
+source = "git+https://github.com/filecoin-project/neptune#69814e9c0ec671566eb9ad7a497497425a535d7a"
 dependencies = [
  "bellperson",
  "blake2s_simd",
@@ -1232,7 +1242,7 @@ dependencies = [
  "itertools 0.8.2",
  "lazy_static",
  "log",
- "rust-gpu-tools",
+ "rust-gpu-tools 0.4.0",
 ]
 
 [[package]]
@@ -1395,6 +1405,16 @@ name = "opaque-debug"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "624a8340c38c1b80fd549087862da4ba43e08858af025b236e509b6649fc13d5"
+
+[[package]]
+name = "opencl3"
+version = "0.2.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f2362074823a6505fc03fe1729c2fd4bdf9668c70e0ecaf8de7d1799cd54b465"
+dependencies = [
+ "cl3",
+ "libc",
+]
 
 [[package]]
 name = "output_vt100"
@@ -1730,6 +1750,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "rust-gpu-tools"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "30c8c9bf8533e2fcd560904086abdb1214223d9522b6a887819e04b5f78e80a2"
+dependencies = [
+ "dirs",
+ "hex",
+ "lazy_static",
+ "log",
+ "opencl3",
+ "sha2 0.8.2",
+ "thiserror",
+]
+
+[[package]]
 name = "rustc-demangle"
 version = "0.1.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1855,7 +1890,7 @@ dependencies = [
 [[package]]
 name = "sha2raw"
 version = "3.0.3"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=swap-pairing-for-blst#bbb8bfba1bdbefc25dca6bdc7097a5d0ae4124f4"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=swap-pairing-for-blst#f81494ec6c0970590f8d2c76a638088f66e225de"
 dependencies = [
  "block-buffer 0.9.0",
  "byteorder 1.4.3",
@@ -1876,7 +1911,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 [[package]]
 name = "storage-proofs-core"
 version = "8.0.3"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=swap-pairing-for-blst#bbb8bfba1bdbefc25dca6bdc7097a5d0ae4124f4"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=swap-pairing-for-blst#f81494ec6c0970590f8d2c76a638088f66e225de"
 dependencies = [
  "aes",
  "anyhow",
@@ -1914,7 +1949,7 @@ dependencies = [
 [[package]]
 name = "storage-proofs-porep"
 version = "8.0.3"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=swap-pairing-for-blst#bbb8bfba1bdbefc25dca6bdc7097a5d0ae4124f4"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=swap-pairing-for-blst#f81494ec6c0970590f8d2c76a638088f66e225de"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1952,7 +1987,7 @@ dependencies = [
 [[package]]
 name = "storage-proofs-post"
 version = "8.0.3"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=swap-pairing-for-blst#bbb8bfba1bdbefc25dca6bdc7097a5d0ae4124f4"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=swap-pairing-for-blst#f81494ec6c0970590f8d2c76a638088f66e225de"
 dependencies = [
  "anyhow",
  "bellperson",
