@@ -184,7 +184,7 @@ workflows:
       - gofmt
       - go_lint
       - build_and_test_linux_cgo_bindings_pairing:
-          run_leak_detector: false
+          run_leak_detector: true
       - build_and_test_linux_cgo_bindings_pairing:
           filters:
             branches:
@@ -193,7 +193,7 @@ workflows:
           run_leak_detector: false
 
       - build_and_test_linux_cgo_bindings_blst:
-          run_leak_detector: false
+          run_leak_detector: true
       - build_and_test_linux_cgo_bindings_blst:
           filters:
             branches:
