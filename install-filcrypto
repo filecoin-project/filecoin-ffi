@@ -183,7 +183,7 @@ build_from_source() {
     elif [ "${FFI_USE_PAIRING}" == "1" ]; then
         additional_flags="--no-default-features --features ${use_multicore_sdr},pairing${gpu_flags}"
     else
-        additional_flags="--no-default-features ${use_multicore_sdr} --features blst${gpu_flags}"
+        additional_flags="--no-default-features --features ${use_multicore_sdr},blst${gpu_flags}"
     fi
 
     echo "Using additional build flags: ${additional_flags}"

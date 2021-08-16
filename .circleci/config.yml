@@ -40,7 +40,7 @@ jobs:
     parameters:
       run_leak_detector:
         type: boolean
-        default: false
+        default: true
     executor: golang
     working_directory: ~/go/src/github.com/filecoin-project/filecoin-ffi
     steps:
@@ -57,7 +57,7 @@ jobs:
     parameters:
       run_leak_detector:
         type: boolean
-        default: false
+        default: true
     executor: golang
     working_directory: ~/go/src/github.com/filecoin-project/filecoin-ffi
     steps:
