@@ -26,7 +26,7 @@ The disadvantage to downloading the pre-built binary is that it will not be opti
 
 To opt out of downloading precompiled assets, set `FFI_BUILD_FROM_SOURCE=1`:
 
-By default, the `blst` backend is used instead of `pairing`, but this can be enabled using `FFI_USE_PAIRING=1` in the environment.
+By default, the `blst` backend is used instead of `pairing`, but pairing can be enabled using `FFI_USE_PAIRING=1` in the environment.
 
 ```shell
 rm .install-filcrypto \
