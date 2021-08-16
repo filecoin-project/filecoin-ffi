@@ -83,6 +83,12 @@ jobs:
       - prepare:
           linux: false
           darwin: true
+      - run: cd rust && rustup install $(cat rust-toolchain)
+      - run: cd rust && rustup target add x86_64-apple-darwin --toolchain $(cat rust-toolchain)
+      - run: cd rust && rustup target add aarch64-apple-darwin --toolchain $(cat rust-toolchain)
+      - run: cd rust && rustup default $(cat rust-toolchain)
+      - run: cd rust && cargo fetch
+      - run: cd rust && cargo install cargo-lipo
       - build_project
       - compile_tests
       - ensure_generated_cgo_up_to_date
