@@ -66,7 +66,7 @@ main() {
         find -L "${rust_sources_dir}" -type f -name filcrypto.pc -exec cp -- "{}" . \;
 
         pwd
-        ls *filcrypto*
+        ls ./*filcrypto*
 
         check_installed_files
 
@@ -251,7 +251,7 @@ get_release_flags() {
 
 check_installed_files() {
     pwd
-    ls *filcrypto*
+    ls ./*filcrypto*
 
     if [[ ! -f "./filcrypto.h" ]]; then
         (>&2 echo "[check_installed_files] failed to install filcrypto.h")
