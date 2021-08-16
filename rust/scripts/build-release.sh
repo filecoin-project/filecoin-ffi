@@ -59,6 +59,17 @@ main() {
         echo "Eliminated non-universal binary libraries"
         find . -type f -name "lib$1.a"
     fi
+
+    # copy from Rust's build directory (target) to root of filecoin-ffi
+    #
+    if [ "$(uname -s)" = "Darwin" ]; then
+        find -L "${rust_sources_dir}/target/universal/release" -type f -name libfilcrypto.a -exec cp -- "{}" . \;
+    else
+        find -L "${rust_sources_dir}/target/release" -type f -name libfilcrypto.a -exec cp -- "{}" . \;
+    fi
+    find -L "${rust_sources_dir}/target/release" -type f -name filcrypto.h -exec cp -- "{}" . \;
+    find -L "${rust_sources_dir}" -type f -name filcrypto.pc -exec cp -- "{}" . \;
+
     # generate pkg-config
     #
     sed -e "s;@VERSION@;$(git rev-parse HEAD);" \

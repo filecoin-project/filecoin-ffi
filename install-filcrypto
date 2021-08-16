@@ -57,7 +57,6 @@ main() {
 
         # copy from Rust's build directory (target) to root of filecoin-ffi
         #
-        #if [ "$(uname -s)" = "Darwin" ] && [ "$(uname -m)" = "arm64" ]; then
         if [ "$(uname -s)" = "Darwin" ]; then
             find -L "${rust_sources_dir}/target/universal/release" -type f -name libfilcrypto.a -exec cp -- "{}" . \;
         else
@@ -217,7 +216,11 @@ get_release_flags() {
     fi
 
     # Maps cpu flag to rust flags (related to entries in rust/rustc-target-features-optimized.json)
-    feature_map=("adx:+adx" "sha_ni:+sha" "sha2:+sha2" "sse2:+sse2" "avx2:+avx2" "avx:+avx" "sse4_2:+sse4.2" "sse4_1:+sse4.1")
+    if [ "$(uname -s)" = "Darwin" ] && [ "$(uname -m)" = "x86_64" ]; then
+        feature_map=("adx:+adx" "sha_ni:+sha" "sha2:+sha2" "avx2:+avx2" "sse4_2:+sse4.2" "sse4_1:+sse4.1")
+    else
+        feature_map=("adx:+adx" "sha_ni:+sha" "sha2:+sha2" "sse2:+sse2" "avx2:+avx2" "avx:+avx" "sse4_2:+sse4.2" "sse4_1:+sse4.1")
+    fi
 
     target_features=""
     # check for the presence of each required CPU feature
