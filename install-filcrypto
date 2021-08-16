@@ -177,13 +177,13 @@ build_from_source() {
 
     # Add feature specific rust flags as needed here.
     if [ "${FFI_USE_BLST_PORTABLE}" == "1" ] && [ "${FFI_USE_PAIRING}" == "1" ]; then
-        additional_flags="--no-default-features --features ${use_multicore_sdr},pairing,blst-portable${gpu_flags}"
+        additional_flags="${additional_flags} --no-default-features --features ${use_multicore_sdr},pairing,blst-portable${gpu_flags}"
     elif [ "${FFI_USE_BLST_PORTABLE}" == "1" ]; then
-        additional_flags="--no-default-features --features ${use_multicore_sdr},blst,blst-portable${gpu_flags}"
+        additional_flags="${additional_flags} --no-default-features --features ${use_multicore_sdr},blst,blst-portable${gpu_flags}"
     elif [ "${FFI_USE_PAIRING}" == "1" ]; then
-        additional_flags="--no-default-features --features ${use_multicore_sdr},pairing${gpu_flags}"
+        additional_flags="${additional_flags} --no-default-features --features ${use_multicore_sdr},pairing${gpu_flags}"
     else
-        additional_flags="--no-default-features --features ${use_multicore_sdr},blst${gpu_flags}"
+        additional_flags="${additional_flags} --no-default-features --features ${use_multicore_sdr},blst${gpu_flags}"
     fi
 
     echo "Using additional build flags: ${additional_flags}"
