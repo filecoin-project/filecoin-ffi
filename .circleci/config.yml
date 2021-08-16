@@ -89,7 +89,7 @@ jobs:
       - run: cd rust && rustup default $(cat rust-toolchain)
       - run: cd rust && cargo fetch
       - run: cd rust && cargo install cargo-lipo
-      - build_project
+      - build_project_no_gpu
       - compile_tests
       - ensure_generated_cgo_up_to_date
   publish_linux_staticlib:
@@ -385,6 +385,30 @@ commands:
                 name: Build project (pairing)
                 command: FFI_USE_PAIRING=1 make
                 
+      - run:
+          name: Build project without CGO
+          command: env CGO_ENABLED=0 go build .
+
+  build_project_no_gpu:
+    parameters:
+      blst:
+        default: false
+        description: build with blst backend?
+        type: boolean
+    steps:
+      - when:
+          condition: << parameters.blst >>
+          steps:
+            - run:
+                name: Build project (blst)
+                command: FFI_USE_GPU=0 make
+      - unless:
+          condition: << parameters.blst >>
+          steps:
+            - run:
+                name: Build project (pairing)
+                command: FFI_USE_GPU=0 FFI_USE_PAIRING=1 make
+
       - run:
           name: Build project without CGO
           command: env CGO_ENABLED=0 go build .
