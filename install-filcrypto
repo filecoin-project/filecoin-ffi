@@ -62,7 +62,7 @@ main() {
         else
             find -L "${rust_sources_dir}/target/release" -type f -name libfilcrypto.a -exec cp -- "{}" . \;
         fi
-        find -L "${rust_sources_dir}/target/release" -type f -name filcrypto.h -exec cp -- "{}" . \;
+        find -L "${rust_sources_dir}" -type f -name filcrypto.h -exec cp -- "{}" . \;
         find -L "${rust_sources_dir}" -type f -name filcrypto.pc -exec cp -- "{}" . \;
 
         pwd
