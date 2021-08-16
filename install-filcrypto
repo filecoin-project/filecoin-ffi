@@ -65,6 +65,9 @@ main() {
         find -L "${rust_sources_dir}/target/release" -type f -name filcrypto.h -exec cp -- "{}" . \;
         find -L "${rust_sources_dir}" -type f -name filcrypto.pc -exec cp -- "{}" . \;
 
+        pwd
+        ls *filcrypto*
+
         check_installed_files
 
         (>&2 echo "[install-filcrypto/main] successfully built and installed libfilcrypto from source")
@@ -247,6 +250,9 @@ get_release_flags() {
 }
 
 check_installed_files() {
+    pwd
+    ls *filcrypto*
+
     if [[ ! -f "./filcrypto.h" ]]; then
         (>&2 echo "[check_installed_files] failed to install filcrypto.h")
         exit 1

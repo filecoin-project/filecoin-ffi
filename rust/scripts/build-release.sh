@@ -65,16 +65,6 @@ main() {
     sed -e "s;@VERSION@;$(git rev-parse HEAD);" \
         -e "s;@PRIVATE_LIBS@;${__linker_flags};" "$1.pc.template" > "$1.pc"
 
-    # copy from Rust's build directory (target) to root of filecoin-ffi
-    #
-    if [ "$(uname -s)" = "Darwin" ]; then
-        find -L . -type f -name libfilcrypto.a -exec cp -- "{}" . \;
-    else
-        find -L . -type f -name libfilcrypto.a -exec cp -- "{}" . \;
-    fi
-    find -L . -type f -name filcrypto.h -exec cp -- "{}" . \;
-    find -L . -type f -name filcrypto.pc -exec cp -- "{}" . \;
-
     # ensure header file was built
     #
     find -L . -type f -name "$1.h" | read
