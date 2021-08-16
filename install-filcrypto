@@ -57,7 +57,8 @@ main() {
 
         # copy from Rust's build directory (target) to root of filecoin-ffi
         #
-        if [ "$(uname -s)" = "Darwin" ] && [ "$(uname -m)" = "arm64" ]; then
+        #if [ "$(uname -s)" = "Darwin" ] && [ "$(uname -m)" = "arm64" ]; then
+        if [ "$(uname -s)" = "Darwin" ]; then
             find -L "${rust_sources_dir}/target/universal/release" -type f -name libfilcrypto.a -exec cp -- "{}" . \;
         else
             find -L "${rust_sources_dir}/target/release" -type f -name libfilcrypto.a -exec cp -- "{}" . \;
@@ -154,13 +155,12 @@ build_from_source() {
     cargo --version
 
     additional_flags=""
-    # For building on aarch64, we try to use cargo-lipo instead of cargo build
-    x86_64_uname=$(uname -a | grep x86_64)
-    if [ -n "${x86_64_uname}" ]; then
-        build="build"
-    else
+    # For building on Darwin, we try to use cargo-lipo instead of cargo build
+    if [ "$(uname -s)" = "Darwin" ]; then
         build="lipo"
         additional_flags="--targets x86_64-apple-darwin,aarch64-apple-darwin "
+    else
+        build="build"
     fi
 
     # Default to use gpu flags, unless specified to disable
