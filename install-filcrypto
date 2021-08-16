@@ -57,8 +57,12 @@ main() {
 
         # copy from Rust's build directory (target) to root of filecoin-ffi
         #
+        if [ "$(uname -s)" = "Darwin" ] && [ "$(uname -m)" = "arm64" ]; then
+            find -L "${rust_sources_dir}/target/universal/release" -type f -name libfilcrypto.a -exec cp -- "{}" . \;
+        else
+            find -L "${rust_sources_dir}/target/release" -type f -name libfilcrypto.a -exec cp -- "{}" . \;
+        fi
         find -L "${rust_sources_dir}/target/release" -type f -name filcrypto.h -exec cp -- "{}" . \;
-        find -L "${rust_sources_dir}/target/release" -type f -name libfilcrypto.a -exec cp -- "{}" . \;
         find -L "${rust_sources_dir}" -type f -name filcrypto.pc -exec cp -- "{}" . \;
 
         check_installed_files
@@ -149,30 +153,42 @@ build_from_source() {
 
     cargo --version
 
+    additional_flags=""
+    # For building on aarch64, we try to use cargo-lipo instead of cargo build
+    x86_64_uname=$(uname -a | grep x86_64)
+    if [ -n "${x86_64_uname}" ]; then
+        build="build"
+    else
+        build="lipo"
+        additional_flags="--targets x86_64-apple-darwin,aarch64-apple-darwin "
+    fi
+
     # Default to use gpu flags, unless specified to disable
     gpu_flags=",gpu"
     if [ "${FFI_USE_GPU}" == "0" ]; then
         gpu_flags=""
     fi
+
     # Default to use multicore_sdr flags, unless specified to disable
-    use_multicore_sdr="--features multicore-sdr"
+    use_multicore_sdr="multicore-sdr"
     if [ "${FFI_USE_MULTICORE_SDR}" == "0" ]; then
         use_multicore_sdr=""
     fi
 
     # Add feature specific rust flags as needed here.
     if [ "${FFI_USE_BLST_PORTABLE}" == "1" ]; then
-        additional_flags="--no-default-features ${use_multicore_sdr} --features blst --features blst-portable${gpu_flags}"
+        additional_flags="--no-default-features --features ${use_multicore_sdr},blst,blst-portable${gpu_flags}"
     elif [ "${FFI_USE_BLST}" == "1" ]; then
-        additional_flags="--no-default-features ${use_multicore_sdr} --features blst${gpu_flags}"
+        additional_flags="--no-default-features --features ${use_multicore_sdr},blst${gpu_flags}"
     else
-        additional_flags="--no-default-features ${use_multicore_sdr} --features pairing${gpu_flags}"
+        additional_flags="--no-default-features --features ${use_multicore_sdr},pairing${gpu_flags}"
     fi
 
+    echo "Using additional build flags: ${additional_flags}"
     if [ -n "${__release_flags}" ]; then
-        RUSTFLAGS="-C target-feature=${__release_flags}" ./scripts/build-release.sh "${__library_name}" "$(cat rust-toolchain)" "${additional_flags}"
+        RUSTFLAGS="-C target-feature=${__release_flags}" ./scripts/build-release.sh "${__library_name}" "$(cat rust-toolchain)" ${build} "${additional_flags}"
     else
-        ./scripts/build-release.sh "${__library_name}" "$(cat rust-toolchain)" "${additional_flags}"
+        ./scripts/build-release.sh "${__library_name}" "$(cat rust-toolchain)" ${build} "${additional_flags}"
     fi
 
     popd
