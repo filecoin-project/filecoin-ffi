@@ -31,7 +31,7 @@ By default, the `blst` backend is used instead of `pairing`, but pairing can be 
 ```shell
 rm .install-filcrypto \
     ; make clean \
-    ; FFI_BUILD_FROM_SOURCE=1 make
+    ; FFI_BUILD_FROM_SOURCE=1 FFI_USE_PAIRING=1 make
 ```
 
 To allow portable building of the `blst` dependency, set `FFI_USE_BLST_PORTABLE=1`:
@@ -47,7 +47,7 @@ By default, a 'gpu' option is used in the proofs library*.  This feature is also
 ```shell
 rm .install-filcrypto \
     ; make clean \
-    ; FFI_BUILD_FROM_SOURCE=1 FFI_USE_PAIRING=1 FFI_USE_GPU=0 make
+    ; FFI_BUILD_FROM_SOURCE=1 FFI_USE_GPU=0 make
 ```
 
 *Note that OS X will always disable GPU support as it's not supported on that platform (the required opencl support is unavailable).
