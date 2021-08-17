@@ -46,7 +46,7 @@ main() {
         | cut -d ':' -f 3)
 
     echo "Linker Flags: ${__linker_flags}"
-    if [ $(uname -s) = "Darwin" ]; then
+    if [ "$(uname -s)" = "Darwin" ] && [ "$(uname -m)" = "x86_64" ]; then
         # With lipo enabled, this replacement may not be necessary,
         # but leaving it in doesn't hurt as it does nothing if not
         # needed
@@ -59,6 +59,7 @@ main() {
         echo "Eliminated non-universal binary libraries"
         find . -type f -name "lib$1.a"
     fi
+
     # generate pkg-config
     #
     sed -e "s;@VERSION@;$(git rev-parse HEAD);" \
