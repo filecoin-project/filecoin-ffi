@@ -157,12 +157,13 @@ build_from_source() {
     cargo --version
 
     additional_flags=""
-    # For building on Darwin, we try to use cargo-lipo instead of cargo build
-    if [ "$(uname -s)" = "Darwin" ]; then
+    # For building on aarch64, we try to use cargo-lipo instead of cargo build
+    x86_64_uname=$(uname -a | grep x86_64)
+    if [ -n "${x86_64_uname}" ]; then
+        build="build"
+    else
         build="lipo"
         additional_flags="--targets x86_64-apple-darwin,aarch64-apple-darwin "
-    else
-        build="build"
     fi
 
     # Default to use gpu flags, unless specified to disable
