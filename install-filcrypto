@@ -57,7 +57,7 @@ main() {
 
         # copy from Rust's build directory (target) to root of filecoin-ffi
         #
-        if [ "$(uname -s)" = "Darwin" ]; then
+        if [ "$(uname -s)" = "Darwin" ] && [ "$(uname -m)" = "x86_64" ]; then
             find -L "${rust_sources_dir}/target/universal/release" -type f -name libfilcrypto.a -exec cp -- "{}" . \;
         else
             find -L "${rust_sources_dir}/target/release" -type f -name libfilcrypto.a -exec cp -- "{}" . \;
@@ -157,8 +157,10 @@ build_from_source() {
     cargo --version
 
     additional_flags=""
-    # For building on Darwin, we try to use cargo-lipo instead of cargo build
-    if [ "$(uname -s)" = "Darwin" ]; then
+    # For building on Darwin, we try to use cargo-lipo instead of cargo build.
+    # Note that the cross compile works on x86_64 for m1, but doesn't work on m1.
+    # For m1, we will build natively if building from source.
+    if [ "$(uname -s)" = "Darwin" ] && [ "$(uname -m)" = "x86_64" ]; then
         build="lipo"
         additional_flags="--targets x86_64-apple-darwin,aarch64-apple-darwin "
     else
