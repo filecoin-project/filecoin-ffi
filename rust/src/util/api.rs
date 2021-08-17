@@ -35,24 +35,26 @@ pub fn init_log_with_file(file: File) -> Option<()> {
 pub unsafe extern "C" fn fil_get_gpu_devices() -> *mut fil_GpuDeviceResponse {
     catch_panic_response(|| {
         let mut response = fil_GpuDeviceResponse::default();
-        let devices = rust_gpu_tools::opencl::Device::all();
-        let n = devices.len();
+        #[cfg(not(target_os = "macos"))]
+        {
+            let devices = rust_gpu_tools::opencl::Device::all();
+            let n = devices.len();
 
-        let devices: Vec<*const libc::c_char> = devices
-            .iter()
-            .map(|d| d.name())
-            .map(|d| {
-                CString::new(d)
-                    .unwrap_or_else(|_| CString::new("Unknown").unwrap())
-                    .into_raw() as *const libc::c_char
-            })
-            .collect();
+            let devices: Vec<*const libc::c_char> = devices
+                .iter()
+                .map(|d| d.name())
+                .map(|d| {
+                    CString::new(d)
+                        .unwrap_or_else(|_| CString::new("Unknown").unwrap())
+                        .into_raw() as *const libc::c_char
+                })
+                .collect();
 
-        let dyn_array = Box::into_raw(devices.into_boxed_slice());
+            let dyn_array = Box::into_raw(devices.into_boxed_slice());
 
-        response.devices_len = n;
-        response.devices_ptr = dyn_array as *const *const libc::c_char;
-
+            response.devices_len = n;
+            response.devices_ptr = dyn_array as *const *const libc::c_char;
+        }
         raw_ptr(response)
     })
 }
