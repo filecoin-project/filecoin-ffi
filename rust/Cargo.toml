@@ -57,4 +57,4 @@ gpu = ["filecoin-proofs-api/gpu", "bellperson/gpu", "storage-proofs-porep/gpu"]
 multicore-sdr = ["storage-proofs-porep/multicore-sdr"]
 
 [patch.crates-io]
-rust-gpu-tools = { git = "https://github.com/filecoin-project/rust-gpu-tools", branch = "opencl3-no-default-features" }
+opencl3 = { git = "https://github.com/vmx/opencl3", branch = "filecoin-ffi-v9-tmp-fix" }
