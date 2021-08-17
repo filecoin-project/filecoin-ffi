@@ -118,39 +118,6 @@ dependencies = [
 
 [[package]]
 name = "bellperson"
-version = "0.14.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7edb7b07cab660137847825b90d1c88e82907689ee1e935eb2101579bc649e0a"
-dependencies = [
- "bincode",
- "bit-vec",
- "blake2s_simd",
- "blstrs",
- "byteorder 1.4.3",
- "crossbeam-channel 0.5.1",
- "digest 0.9.0",
- "ff-cl-gen",
- "fff",
- "fs2",
- "groupy",
- "itertools 0.9.0",
- "lazy_static",
- "log",
- "memmap",
- "num_cpus",
- "paired",
- "rand 0.7.3",
- "rand_core 0.5.1",
- "rayon",
- "rust-gpu-tools 0.3.0",
- "rustc-hash",
- "serde",
- "sha2 0.9.5",
- "thiserror",
-]
-
-[[package]]
-name = "bellperson"
 version = "0.16.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cf45c8be6eb74ede124851a228809faa882cae0685f5449613817cc4a633245b"
@@ -849,7 +816,7 @@ name = "filcrypto"
 version = "0.7.5"
 dependencies = [
  "anyhow",
- "bellperson 0.14.2",
+ "bellperson",
  "bls-signatures",
  "blstrs",
  "byteorder 1.4.3",
@@ -879,7 +846,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8d0c68cd87bd5899ca5d305daac3133b77dcaa8ab90f6c780ec34deb62a15f66"
 dependencies = [
  "anyhow",
- "bellperson 0.16.1",
+ "bellperson",
  "fff",
  "generic-array 0.14.4",
  "hex",
@@ -898,7 +865,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3f3290452b555122b635efc6bb213e0ba33fbe475368c3dc4e9bfd6f40bef07e"
 dependencies = [
  "anyhow",
- "bellperson 0.16.1",
+ "bellperson",
  "bincode",
  "bitvec",
  "blake2b_simd",
@@ -937,7 +904,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1b3e43c2c1921b23f0a2d50cdd77f44c6c7f7459e9a66ba0b9f31dd56596dd09"
 dependencies = [
  "anyhow",
- "bellperson 0.16.1",
+ "bellperson",
  "bincode",
  "filecoin-hashers",
  "filecoin-proofs",
@@ -985,7 +952,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d50f88cd4bf2ecb51589b7400e1217e597bbd19a4f81f47159a3a26b33330cd2"
 dependencies = [
  "anyhow",
- "bellperson 0.16.1",
+ "bellperson",
  "byte-slice-cast",
  "byteorder 1.4.3",
  "fff",
@@ -1290,7 +1257,7 @@ version = "4.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e700fb2356a1c9cecd590b789a919b727f8885747587fc4659114e6a98e12583"
 dependencies = [
- "bellperson 0.16.1",
+ "bellperson",
  "blake2s_simd",
  "byteorder 1.4.3",
  "ff-cl-gen",
@@ -1983,7 +1950,7 @@ checksum = "beab1b4c0b9ddf29673244c4fab9988e4b22358dfcf4223a5c97f7ae7b8467b1"
 dependencies = [
  "aes",
  "anyhow",
- "bellperson 0.16.1",
+ "bellperson",
  "blake2b_simd",
  "blake2s_simd",
  "block-modes",
@@ -2021,7 +1988,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bb1bd60ee3d764e8e4774a101d13bc1e2e74d996321ac0b69cfed112bf875f99"
 dependencies = [
  "anyhow",
- "bellperson 0.16.1",
+ "bellperson",
  "bincode",
  "byte-slice-cast",
  "byteorder 1.4.3",
@@ -2061,7 +2028,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f1a14aeaee17e853608b6d8eeee65df2b188924990907d77624e89c63222e480"
 dependencies = [
  "anyhow",
- "bellperson 0.16.1",
+ "bellperson",
  "blake2b_simd",
  "blake2s_simd",
  "byteorder 1.4.3",
