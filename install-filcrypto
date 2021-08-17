@@ -57,13 +57,16 @@ main() {
 
         # copy from Rust's build directory (target) to root of filecoin-ffi
         #
-        if [ "$(uname -s)" = "Darwin" ] && [ "$(uname -m)" = "arm64" ]; then
+        if [ "$(uname -s)" = "Darwin" ]; then
             find -L "${rust_sources_dir}/target/universal/release" -type f -name libfilcrypto.a -exec cp -- "{}" . \;
         else
             find -L "${rust_sources_dir}/target/release" -type f -name libfilcrypto.a -exec cp -- "{}" . \;
         fi
-        find -L "${rust_sources_dir}/target/release" -type f -name filcrypto.h -exec cp -- "{}" . \;
+        find -L "${rust_sources_dir}" -type f -name filcrypto.h -exec cp -- "{}" . \;
         find -L "${rust_sources_dir}" -type f -name filcrypto.pc -exec cp -- "{}" . \;
+
+        pwd
+        ls ./*filcrypto*
 
         check_installed_files
 
@@ -80,11 +83,11 @@ download_release_tarball() {
     local __release_tag="${__release_sha1:0:16}"
     local __release_tag_url="https://api.github.com/repos/filecoin-project/${__repo_name}/releases/tags/${__release_tag}"
 
-    # Download either the non-optimized standard or standard-blst release.
-    if [ "${FFI_USE_BLST}" == "1" ]; then
-        release_flag_name="standard-blst"
-    else
+    # Download either the non-optimized standard or standard-pairing release.
+    if [ "${FFI_USE_PAIRING}" == "1" ]; then
         release_flag_name="standard-pairing"
+    else
+        release_flag_name="standard-blst"
     fi
 
     # TODO: This function shouldn't make assumptions about how these releases'
@@ -154,13 +157,12 @@ build_from_source() {
     cargo --version
 
     additional_flags=""
-    # For building on aarch64, we try to use cargo-lipo instead of cargo build
-    x86_64_uname=$(uname -a | grep x86_64)
-    if [ -n "${x86_64_uname}" ]; then
-        build="build"
-    else
+    # For building on Darwin, we try to use cargo-lipo instead of cargo build
+    if [ "$(uname -s)" = "Darwin" ]; then
         build="lipo"
         additional_flags="--targets x86_64-apple-darwin,aarch64-apple-darwin "
+    else
+        build="build"
     fi
 
     # Default to use gpu flags, unless specified to disable
@@ -176,12 +178,14 @@ build_from_source() {
     fi
 
     # Add feature specific rust flags as needed here.
-    if [ "${FFI_USE_BLST_PORTABLE}" == "1" ]; then
-        additional_flags="--no-default-features --features ${use_multicore_sdr},blst,blst-portable${gpu_flags}"
-    elif [ "${FFI_USE_BLST}" == "1" ]; then
-        additional_flags="--no-default-features --features ${use_multicore_sdr},blst${gpu_flags}"
+    if [ "${FFI_USE_BLST_PORTABLE}" == "1" ] && [ "${FFI_USE_PAIRING}" == "1" ]; then
+        additional_flags="${additional_flags} --no-default-features --features ${use_multicore_sdr},pairing,blst-portable${gpu_flags}"
+    elif [ "${FFI_USE_BLST_PORTABLE}" == "1" ]; then
+        additional_flags="${additional_flags} --no-default-features --features ${use_multicore_sdr},blst,blst-portable${gpu_flags}"
+    elif [ "${FFI_USE_PAIRING}" == "1" ]; then
+        additional_flags="${additional_flags} --no-default-features --features ${use_multicore_sdr},pairing${gpu_flags}"
     else
-        additional_flags="--no-default-features --features ${use_multicore_sdr},pairing${gpu_flags}"
+        additional_flags="${additional_flags} --no-default-features --features ${use_multicore_sdr},blst${gpu_flags}"
     fi
 
     echo "Using additional build flags: ${additional_flags}"
@@ -215,7 +219,11 @@ get_release_flags() {
     fi
 
     # Maps cpu flag to rust flags (related to entries in rust/rustc-target-features-optimized.json)
-    feature_map=("adx:+adx" "sha_ni:+sha" "sha2:+sha2" "sse2:+sse2" "avx2:+avx2" "avx:+avx" "sse4_2:+sse4.2" "sse4_1:+sse4.1")
+    if [ "$(uname -s)" = "Darwin" ] && [ "$(uname -m)" = "x86_64" ]; then
+        feature_map=("adx:+adx" "sha_ni:+sha" "sha2:+sha2" "avx2:+avx2" "sse4_2:+sse4.2" "sse4_1:+sse4.1")
+    else
+        feature_map=("adx:+adx" "sha_ni:+sha" "sha2:+sha2" "sse2:+sse2" "avx2:+avx2" "avx:+avx" "sse4_2:+sse4.2" "sse4_1:+sse4.1")
+    fi
 
     target_features=""
     # check for the presence of each required CPU feature
