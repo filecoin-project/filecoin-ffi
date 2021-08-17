@@ -357,8 +357,7 @@ dependencies = [
 [[package]]
 name = "cl3"
 version = "0.4.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e162e5fd0310c1060ab86ca788bf8660f916cbba7473b1c1cb1ecac8e663b9e2"
+source = "git+https://github.com/vmx/cl3?branch=filecoin-ffi-v9-tmp-fix#52d6117759a894600e526e8ea2d1f72f550bc24f"
 dependencies = [
  "cl-sys",
  "libc",
@@ -1200,8 +1199,7 @@ checksum = "624a8340c38c1b80fd549087862da4ba43e08858af025b236e509b6649fc13d5"
 [[package]]
 name = "opencl3"
 version = "0.2.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f2362074823a6505fc03fe1729c2fd4bdf9668c70e0ecaf8de7d1799cd54b465"
+source = "git+https://github.com/vmx/opencl3?branch=filecoin-ffi-v9-tmp-fix#80f4520a0274b1dbf5a6623972e0c893a136d3a3"
 dependencies = [
  "cl3",
  "libc",
