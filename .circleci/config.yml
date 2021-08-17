@@ -223,6 +223,7 @@ commands:
           steps:
             - go/install-ssh
             - go/install: {package: git}
+            - run: sudo apt update
             - run: sudo apt-get update
             - run: sudo apt-get install -y jq valgrind ocl-icd-opencl-dev clang libssl-dev libhwloc-dev
             - run: curl https://sh.rustup.rs -sSf | sh -s -- -y
