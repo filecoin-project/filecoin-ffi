@@ -308,7 +308,7 @@ commands:
             TARBALL_PATH="/tmp/${RELEASE_NAME}.tar.gz"
 
             # Note: the blst dependency uses the portable configuration for maximum compatibility
-            ./scripts/build-release.sh filcrypto $(cat rust-toolchain) lipo --targets x86_64-apple-darwin,aarch64-apple-darwin --verbose --locked --no-default-features --features multicore-sdr,pairing,gpu,blst-portable
+            ./scripts/build-release.sh filcrypto $(cat rust-toolchain) lipo --targets x86_64-apple-darwin,aarch64-apple-darwin --verbose --locked --no-default-features --features multicore-sdr,pairing,blst-portable
             ./scripts/package-release.sh $TARBALL_PATH
             ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
       - run:
@@ -320,7 +320,7 @@ commands:
             TARBALL_PATH="/tmp/${RELEASE_NAME}.tar.gz"
 
             # Note: the blst dependency uses the portable configuration for maximum compatibility
-            ./scripts/build-release.sh filcrypto $(cat rust-toolchain) lipo --targets x86_64-apple-darwin,aarch64-apple-darwin --verbose --locked --no-default-features --features multicore-sdr,blst,gpu,blst-portable
+            ./scripts/build-release.sh filcrypto $(cat rust-toolchain) lipo --targets x86_64-apple-darwin,aarch64-apple-darwin --verbose --locked --no-default-features --features multicore-sdr,blst,blst-portable
             ./scripts/package-release.sh $TARBALL_PATH
             ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
   configure_environment_variables:
