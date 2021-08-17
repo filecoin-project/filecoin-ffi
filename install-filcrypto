@@ -167,7 +167,7 @@ build_from_source() {
 
     # Default to use gpu flags, unless specified to disable
     gpu_flags=",gpu"
-    if [ "${FFI_USE_GPU}" == "0" ]; then
+    if [ "${FFI_USE_GPU}" == "0" ] || [ "$(uname -s)" = "Darwin" ]; then
         gpu_flags=""
     fi
 
