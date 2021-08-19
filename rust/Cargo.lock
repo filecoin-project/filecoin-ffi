@@ -357,7 +357,7 @@ dependencies = [
 [[package]]
 name = "cl3"
 version = "0.4.1"
-source = "git+https://github.com/vmx/cl3?branch=filecoin-ffi-v9-tmp-fix#52d6117759a894600e526e8ea2d1f72f550bc24f"
+source = "git+https://github.com/kenba/cl3?branch=develop#dd9f18bb4537a2cb8c786653ce90062ab2f614ef"
 dependencies = [
  "cl-sys",
  "libc",
@@ -1008,9 +1008,9 @@ dependencies = [
 
 [[package]]
 name = "memchr"
-version = "2.4.0"
+version = "2.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b16bd47d9e329435e309c58469fe0791c2d0d1ba96ec0954152a5ae2b04387dc"
+checksum = "308cc39be01b73d0d18f82a0e7b2a3df85245f84af96fdddc5d202d27e47b86a"
 
 [[package]]
 name = "memmap"
@@ -1198,8 +1198,8 @@ checksum = "624a8340c38c1b80fd549087862da4ba43e08858af025b236e509b6649fc13d5"
 
 [[package]]
 name = "opencl3"
-version = "0.2.4"
-source = "git+https://github.com/vmx/opencl3?branch=filecoin-ffi-v9-tmp-fix#80f4520a0274b1dbf5a6623972e0c893a136d3a3"
+version = "0.3.1"
+source = "git+https://github.com/vmx/opencl3?branch=features-standard#cc35ce8591d22a8c342a5a2fc0867d8bdf2c5022"
 dependencies = [
  "cl3",
  "libc",
@@ -1517,8 +1517,7 @@ dependencies = [
 [[package]]
 name = "rust-gpu-tools"
 version = "0.4.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4dcf264eeb8cbea81e83cd5ed838b9ee51b0879a55896c000cf2d4161d509eac"
+source = "git+https://github.com/filecoin-project/rust-gpu-tools?branch=macos-fix#929b7bcf68aba44811b21c621a0c1699ad333cef"
 dependencies = [
  "dirs",
  "hex",
