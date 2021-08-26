@@ -57,4 +57,11 @@ gpu = ["filecoin-proofs-api/gpu", "bellperson/gpu", "storage-proofs-porep/gpu"]
 multicore-sdr = ["storage-proofs-porep/multicore-sdr"]
 
 [patch.crates-io]
-opencl3 = { git = "https://github.com/vmx/opencl3", branch = "filecoin-ffi-v9-tmp-fix" }
+storage-proofs-core = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "back-to-ocl" }
+storage-proofs-porep = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "back-to-ocl" }
+storage-proofs-post = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "back-to-ocl" }
+filecoin-proofs = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "back-to-ocl" }
+filecoin-hashers = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "back-to-ocl" }
+bellperson = { git = "https://github.com/filecoin-project/bellperson", branch = "back-to-ocl" }
+rust-gpu-tools = { git = "https://github.com/filecoin-project/rust-gpu-tools", branch = "back-to-ocl" }
+neptune = { git = "https://github.com/filecoin-project/neptune", branch = "back-to-ocl" }
