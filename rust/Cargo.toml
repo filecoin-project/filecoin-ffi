@@ -32,7 +32,7 @@ rand = "0.7"
 rand_chacha = "0.2.1"
 rayon = "1.2.1"
 anyhow = "1.0.23"
-bellperson = { version = "0.16", default-features = false }
+bellperson = { version = "=0.16.0", default-features = false }
 serde_json = "1.0.46"
 rust-gpu-tools = "0.4"
 storage-proofs-porep = { version = "~9.0.1", default-features = false }
@@ -57,4 +57,11 @@ gpu = ["filecoin-proofs-api/gpu", "bellperson/gpu", "storage-proofs-porep/gpu"]
 multicore-sdr = ["storage-proofs-porep/multicore-sdr"]
 
 [patch.crates-io]
-opencl3 = { git = "https://github.com/vmx/opencl3", branch = "filecoin-ffi-v9-tmp-fix" }
+storage-proofs-core = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "revert-thread-pool" }
+storage-proofs-porep = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "revert-thread-pool" }
+storage-proofs-post = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "revert-thread-pool" }
+filecoin-proofs = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "revert-thread-pool" }
+filecoin-hashers = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "revert-thread-pool" }
+#bellperson = { git = "https://github.com/filecoin-project/bellperson", branch = "back-to-ocl" }
+#rust-gpu-tools = { git = "https://github.com/filecoin-project/rust-gpu-tools", branch = "back-to-ocl" }
+#neptune = { git = "https://github.com/filecoin-project/neptune", branch = "back-to-ocl" }
