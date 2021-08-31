@@ -39,7 +39,9 @@ storage-proofs-porep = { version = "~9.0.1", default-features = false }
 
 [dependencies.filecoin-proofs-api]
 package = "filecoin-proofs-api"
-version = "9.0"
+#version = "9.0"
+git = "https://github.com/filecoin-project/rust-filecoin-proofs-api"
+branch = "revert-deps"
 default-features = false
 
 [build-dependencies]
@@ -60,6 +62,7 @@ multicore-sdr = ["storage-proofs-porep/multicore-sdr"]
 storage-proofs-core = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "revert-deps" }
 storage-proofs-porep = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "revert-deps" }
 storage-proofs-post = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "revert-deps" }
+fr32 = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "revert-deps" }
 filecoin-proofs = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "revert-deps" }
 filecoin-hashers = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "revert-deps" }
 neptune = { git = "https://github.com/filecoin-project/neptune", branch = "revert-deps" }
