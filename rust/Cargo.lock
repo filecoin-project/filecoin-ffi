@@ -282,9 +282,9 @@ dependencies = [
 
 [[package]]
 name = "blstrs"
-version = "0.3.0"
+version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "53d8da63ee520ce742de7945be04dff884dda94486df7a39b79c2e0aaf2839c7"
+checksum = "a45b29ff562196f5b24ae9cc681a0ffc7b8ceaf42169ee8df2082d12babb2554"
 dependencies = [
  "blst",
  "fff",
@@ -336,9 +336,9 @@ dependencies = [
 
 [[package]]
 name = "cc"
-version = "1.0.69"
+version = "1.0.70"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e70cc2f62c6ce1868963827bd677764c62d07c3d9a3e1fb1177ee1a9ab199eb2"
+checksum = "d26a6ce4b6a484fa3edb70f7efa6fc430fd2b87285fe8b84304fd0936faa0dc0"
 
 [[package]]
 name = "cfg-if"
@@ -583,9 +583,9 @@ dependencies = [
 
 [[package]]
 name = "ctor"
-version = "0.1.20"
+version = "0.1.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5e98e2ad1a782e33928b96fc3948e7c355e5af34ba4de7670fe8bac2a3b2006d"
+checksum = "ccc0a48a9b826acdf4028595adc9db92caea352f7af011a3034acd172a52a0aa"
 dependencies = [
  "quote 1.0.9",
  "syn 1.0.75",
@@ -831,7 +831,7 @@ dependencies = [
 [[package]]
 name = "filecoin-hashers"
 version = "4.0.1"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=revert-deps#95cac5f9a5f2b5fc64b0b735ca7d717bf4b246ce"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?rev=filecoin-proofs-v9.0.1-revert-deps-hotfix#38484e69217a200a5556a12c006c9603bd2aba5c"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -849,7 +849,7 @@ dependencies = [
 [[package]]
 name = "filecoin-proofs"
 version = "9.0.1"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=revert-deps#95cac5f9a5f2b5fc64b0b735ca7d717bf4b246ce"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?rev=filecoin-proofs-v9.0.1-revert-deps-hotfix#38484e69217a200a5556a12c006c9603bd2aba5c"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -887,7 +887,7 @@ dependencies = [
 [[package]]
 name = "filecoin-proofs-api"
 version = "9.0.0"
-source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=revert-deps#850fba8ef5e8a44d9a677a8ad9f4372a0167df92"
+source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?rev=v9.0.0-revert-deps-hotfix#b028d150b9ea1e141c4a3b25c046e32b84959178"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -925,7 +925,7 @@ dependencies = [
 [[package]]
 name = "fr32"
 version = "2.0.1"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=revert-deps#95cac5f9a5f2b5fc64b0b735ca7d717bf4b246ce"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?rev=filecoin-proofs-v9.0.1-revert-deps-hotfix#38484e69217a200a5556a12c006c9603bd2aba5c"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1221,7 +1221,7 @@ dependencies = [
 [[package]]
 name = "neptune"
 version = "4.0.0"
-source = "git+https://github.com/filecoin-project/neptune?branch=revert-deps#0a1cff7dd256d7dfec020434844fbd16a4d8f84b"
+source = "git+https://github.com/filecoin-project/neptune?rev=v4.0.0-revert-deps-hotfix#0a1cff7dd256d7dfec020434844fbd16a4d8f84b"
 dependencies = [
  "bellperson",
  "blake2s_simd",
@@ -1855,7 +1855,7 @@ dependencies = [
 [[package]]
 name = "sha2raw"
 version = "4.0.1"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=revert-deps#95cac5f9a5f2b5fc64b0b735ca7d717bf4b246ce"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?rev=filecoin-proofs-v9.0.1-revert-deps-hotfix#38484e69217a200a5556a12c006c9603bd2aba5c"
 dependencies = [
  "block-buffer 0.9.0",
  "byteorder 1.4.3",
@@ -1876,7 +1876,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 [[package]]
 name = "storage-proofs-core"
 version = "9.0.1"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=revert-deps#95cac5f9a5f2b5fc64b0b735ca7d717bf4b246ce"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?rev=filecoin-proofs-v9.0.1-revert-deps-hotfix#38484e69217a200a5556a12c006c9603bd2aba5c"
 dependencies = [
  "aes",
  "anyhow",
@@ -1914,7 +1914,7 @@ dependencies = [
 [[package]]
 name = "storage-proofs-porep"
 version = "9.0.1"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=revert-deps#95cac5f9a5f2b5fc64b0b735ca7d717bf4b246ce"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?rev=filecoin-proofs-v9.0.1-revert-deps-hotfix#38484e69217a200a5556a12c006c9603bd2aba5c"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1953,7 +1953,7 @@ dependencies = [
 [[package]]
 name = "storage-proofs-post"
 version = "9.0.1"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=revert-deps#95cac5f9a5f2b5fc64b0b735ca7d717bf4b246ce"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?rev=filecoin-proofs-v9.0.1-revert-deps-hotfix#38484e69217a200a5556a12c006c9603bd2aba5c"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -2106,9 +2106,9 @@ dependencies = [
 
 [[package]]
 name = "typenum"
-version = "1.13.0"
+version = "1.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "879f6906492a7cd215bfa4cf595b600146ccfac0c79bcbd1f3000162af5e8b06"
+checksum = "b63708a265f51345575b27fe43f9500ad611579e764c79edbc2037b1121959ec"
 
 [[package]]
 name = "ucd-trie"

@@ -39,9 +39,8 @@ storage-proofs-porep = { version = "~9.0.1", default-features = false }
 
 [dependencies.filecoin-proofs-api]
 package = "filecoin-proofs-api"
-#version = "9.0"
 git = "https://github.com/filecoin-project/rust-filecoin-proofs-api"
-branch = "revert-deps"
+rev = "v9.0.0-revert-deps-hotfix"
 default-features = false
 
 [build-dependencies]
@@ -59,10 +58,10 @@ gpu = ["filecoin-proofs-api/gpu", "bellperson/gpu", "storage-proofs-porep/gpu"]
 multicore-sdr = ["storage-proofs-porep/multicore-sdr"]
 
 [patch.crates-io]
-storage-proofs-core = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "revert-deps" }
-storage-proofs-porep = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "revert-deps" }
-storage-proofs-post = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "revert-deps" }
-fr32 = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "revert-deps" }
-filecoin-proofs = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "revert-deps" }
-filecoin-hashers = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "revert-deps" }
-neptune = { git = "https://github.com/filecoin-project/neptune", branch = "revert-deps" }
+storage-proofs-core = { git = "https://github.com/filecoin-project/rust-fil-proofs", rev = "filecoin-proofs-v9.0.1-revert-deps-hotfix" }
+storage-proofs-porep = { git = "https://github.com/filecoin-project/rust-fil-proofs", rev = "filecoin-proofs-v9.0.1-revert-deps-hotfix" }
+storage-proofs-post = { git = "https://github.com/filecoin-project/rust-fil-proofs", rev = "filecoin-proofs-v9.0.1-revert-deps-hotfix" }
+fr32 = { git = "https://github.com/filecoin-project/rust-fil-proofs", rev = "filecoin-proofs-v9.0.1-revert-deps-hotfix" }
+filecoin-proofs = { git = "https://github.com/filecoin-project/rust-fil-proofs", rev = "filecoin-proofs-v9.0.1-revert-deps-hotfix" }
+filecoin-hashers = { git = "https://github.com/filecoin-project/rust-fil-proofs", rev = "filecoin-proofs-v9.0.1-revert-deps-hotfix" }
+neptune = { git = "https://github.com/filecoin-project/neptune", rev = "v4.0.0-revert-deps-hotfix" }
