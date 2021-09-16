@@ -53,9 +53,9 @@ dependencies = [
 
 [[package]]
 name = "anyhow"
-version = "1.0.43"
+version = "1.0.44"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "28ae2b3dec75a406790005a200b1bd89785afc02517a00ca99ecfe093ee9e6cf"
+checksum = "61604a8f862e1d5c3229fdd78f8b02c68dcf73a4c4b05fd636d12240aaa242c1"
 
 [[package]]
 name = "arrayref"
@@ -88,9 +88,9 @@ checksum = "cdb031dd78e28731d87d56cc8ffef4a8f36ca26c38fe2de700543e627f8a464a"
 
 [[package]]
 name = "bellperson"
-version = "0.16.2"
+version = "0.16.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ac018cf824515852079eb5145f8168f95e4a54c67b44ac00f320fc4ca96fdfa0"
+checksum = "d936525a63f5e7754bb104979e8664da3e82cf483d66e251df6d0d7a0b982b12"
 dependencies = [
  "bincode",
  "bit-vec",
@@ -115,7 +115,7 @@ dependencies = [
  "rust-gpu-tools",
  "rustc-hash",
  "serde",
- "sha2 0.9.6",
+ "sha2 0.9.8",
  "thiserror",
  "yastl",
 ]
@@ -692,7 +692,7 @@ dependencies = [
  "neptune",
  "rand 0.7.3",
  "serde",
- "sha2 0.9.6",
+ "sha2 0.9.8",
 ]
 
 [[package]]
@@ -727,7 +727,7 @@ dependencies = [
  "rayon",
  "serde",
  "serde_json",
- "sha2 0.9.6",
+ "sha2 0.9.8",
  "storage-proofs-core",
  "storage-proofs-porep",
  "storage-proofs-post",
@@ -975,9 +975,9 @@ dependencies = [
 
 [[package]]
 name = "libc"
-version = "0.2.101"
+version = "0.2.102"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3cb00336871be5ed2c8ed44b60ae9959dc5b9f08539422ed43f09e34ecaeba21"
+checksum = "a2a5ac8f984bfcf3a823267e5fde638acc3325f6496633a5da6bb6eb2171e103"
 
 [[package]]
 name = "lock_api"
@@ -1595,9 +1595,9 @@ dependencies = [
 
 [[package]]
 name = "serde_json"
-version = "1.0.67"
+version = "1.0.68"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a7f9e390c27c3c0ce8bc5d725f6e4d30a29d26659494aa4b17535f7522c5c950"
+checksum = "0f690853975602e1bfe1ccbf50504d67174e3bcf340f23b5ea9992e0587a52d8"
 dependencies = [
  "itoa",
  "ryu",
@@ -1618,9 +1618,9 @@ dependencies = [
 
 [[package]]
 name = "sha2"
-version = "0.9.6"
+version = "0.9.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9204c41a1597a8c5af23c82d1c921cb01ec0a4c59e07a9c7306062829a3903f3"
+checksum = "b69f9a4c9740d74c5baa3fd2e547f9525fa8088a8a958e0ca2409a514e33f5fa"
 dependencies = [
  "block-buffer 0.9.0",
  "cfg-if 1.0.0",
@@ -1703,7 +1703,7 @@ dependencies = [
  "semver",
  "serde",
  "serde_json",
- "sha2 0.9.6",
+ "sha2 0.9.8",
  "tempfile",
  "thiserror",
  "toml",
@@ -1744,7 +1744,7 @@ dependencies = [
  "rayon",
  "serde",
  "serde_json",
- "sha2 0.9.6",
+ "sha2 0.9.8",
  "sha2raw",
  "storage-proofs-core",
  "yastl",
@@ -1774,7 +1774,7 @@ dependencies = [
  "rand 0.7.3",
  "rayon",
  "serde",
- "sha2 0.9.6",
+ "sha2 0.9.8",
  "storage-proofs-core",
 ]
 
