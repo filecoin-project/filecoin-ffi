@@ -84,6 +84,7 @@ download_release_tarball() {
     local __release_tag_url="https://api.github.com/repos/filecoin-project/${__repo_name}/releases/tags/${__release_tag}"
 
     # Download the non-optimized standard release.
+    release_flag_name="standard"
 
     # TODO: This function shouldn't make assumptions about how these releases'
     # names are constructed. Marginally less-bad would be to require that this
