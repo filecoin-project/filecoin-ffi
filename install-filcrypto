@@ -182,7 +182,7 @@ build_from_source() {
     if [ "${FFI_USE_BLST_PORTABLE}" == "1" ]; then
         additional_flags="${additional_flags} --no-default-features --features ${use_multicore_sdr},blst-portable${gpu_flags}"
     else
-        additional_flags="${additional_flags} --no-default-features --features ${use_multicore_sdr},${gpu_flags}"
+        additional_flags="${additional_flags} --no-default-features --features ${use_multicore_sdr}${gpu_flags}"
     fi
 
     echo "Using additional build flags: ${additional_flags}"
