@@ -50,6 +50,14 @@ rm .install-filcrypto \
     ; FFI_BUILD_FROM_SOURCE=1 FFI_USE_GPU=0 make
 ```
 
+An experimental 'gpu' option using CUDA can be used in the proofs library.  This feature is disabled by default (opencl is the default).  To enabled building with the 'gpu' CUDA dependency, set `FFI_USE_CUDA=0` and NOT set `FFI_USE_GPU`:
+
+```shell
+rm .install-filcrypto \
+    ; make clean \
+    ; FFI_BUILD_FROM_SOURCE=1 FFI_USE_CUDA=1 make
+```
+
 By default, a 'multicore-sdr' option is used in the proofs library.  This feature is also used in FFI unless explicitly disabled.  To disable building with the 'multicore-sdr' dependency, set `FFI_USE_MULTICORE_SDR=0`:
 
 ```shell

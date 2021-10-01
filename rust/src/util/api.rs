@@ -35,7 +35,7 @@ pub fn init_log_with_file(file: File) -> Option<()> {
 pub unsafe extern "C" fn fil_get_gpu_devices() -> *mut fil_GpuDeviceResponse {
     catch_panic_response(|| {
         let mut response = fil_GpuDeviceResponse::default();
-        let devices = rust_gpu_tools::opencl::Device::all();
+        let devices = rust_gpu_tools::Device::all();
         let n = devices.len();
 
         let devices: Vec<*const libc::c_char> = devices

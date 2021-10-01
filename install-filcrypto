@@ -83,12 +83,7 @@ download_release_tarball() {
     local __release_tag="${__release_sha1:0:16}"
     local __release_tag_url="https://api.github.com/repos/filecoin-project/${__repo_name}/releases/tags/${__release_tag}"
 
-    # Download either the non-optimized standard or standard-pairing release.
-    if [ "${FFI_USE_PAIRING}" == "1" ]; then
-        release_flag_name="standard-pairing"
-    else
-        release_flag_name="standard-blst"
-    fi
+    # Download the non-optimized standard release.
 
     # TODO: This function shouldn't make assumptions about how these releases'
     # names are constructed. Marginally less-bad would be to require that this
@@ -168,7 +163,10 @@ build_from_source() {
     fi
 
     # Default to use gpu flags, unless specified to disable
-    gpu_flags=",gpu"
+    gpu_flags=",opencl"
+    if [ "${FFI_USE_CUDA}" == "1" ]; then
+        gpu_flags=",cuda"
+    fi
     if [ "${FFI_USE_GPU}" == "0" ]; then
         gpu_flags=""
     fi
@@ -180,14 +178,10 @@ build_from_source() {
     fi
 
     # Add feature specific rust flags as needed here.
-    if [ "${FFI_USE_BLST_PORTABLE}" == "1" ] && [ "${FFI_USE_PAIRING}" == "1" ]; then
-        additional_flags="${additional_flags} --no-default-features --features ${use_multicore_sdr},pairing,blst-portable${gpu_flags}"
-    elif [ "${FFI_USE_BLST_PORTABLE}" == "1" ]; then
-        additional_flags="${additional_flags} --no-default-features --features ${use_multicore_sdr},blst,blst-portable${gpu_flags}"
-    elif [ "${FFI_USE_PAIRING}" == "1" ]; then
-        additional_flags="${additional_flags} --no-default-features --features ${use_multicore_sdr},pairing${gpu_flags}"
+    if [ "${FFI_USE_BLST_PORTABLE}" == "1" ]; then
+        additional_flags="${additional_flags} --no-default-features --features ${use_multicore_sdr},blst-portable${gpu_flags}"
     else
-        additional_flags="${additional_flags} --no-default-features --features ${use_multicore_sdr},blst${gpu_flags}"
+        additional_flags="${additional_flags} --no-default-features --features ${use_multicore_sdr},${gpu_flags}"
     fi
 
     echo "Using additional build flags: ${additional_flags}"
