@@ -201,7 +201,7 @@ commands:
             - go/install: {package: git}
             - run: sudo apt update
             - run: sudo apt-get update
-            - run: sudo apt-get install -y jq valgrind ocl-icd-opencl-dev clang libssl-dev libhwloc-dev
+            - run: sudo apt-get install -y jq valgrind ocl-icd-opencl-dev clang libssl-dev libhwloc-dev nvidia-cuda-toolkit
             - run: curl https://sh.rustup.rs -sSf | sh -s -- -y
       - when:
           condition: << parameters.darwin >>
@@ -242,7 +242,7 @@ commands:
             ./scripts/package-release.sh $TARBALL_PATH
             ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
       - run:
-          name: Build the optimized release (opencl)
+          name: Build the optimized release
           command: |
             cd rust
 
@@ -250,16 +250,6 @@ commands:
             RUSTFLAGS="-C target-feature=$(cat rustc-target-features-optimized.json | jq -r '.[].rustc_target_feature' | tr '\n' ',')"
 
             ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) build --verbose --locked --no-default-features --features multicore-sdr,opencl
-            ./scripts/package-release.sh $TARBALL_PATH
-      - run:
-          name: Build the optimized release (cuda)
-          command: |
-            cd rust
-
-            TARBALL_PATH="/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-optimized.tar.gz"
-            RUSTFLAGS="-C target-feature=$(cat rustc-target-features-optimized.json | jq -r '.[].rustc_target_feature' | tr '\n' ',')"
-
-            ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) build --verbose --locked --no-default-features --features multicore-sdr,cuda
             ./scripts/package-release.sh $TARBALL_PATH
 
   publish_darwin_release:
@@ -345,6 +335,10 @@ commands:
       - run:
           name: Run the Rust tests
           command: cd rust && FIL_PROOFS_PARAMETER_CACHE="${HOME}/filecoin-proof-parameters/" RUST_LOG=info cargo test --all --release -- --test-threads 1&& cd ..
+          no_output_timeout: 90m
+      - run:
+          name: Run the Rust tests (cuda)
+          command: cd rust && FIL_PROOFS_PARAMETER_CACHE="${HOME}/filecoin-proof-parameters/" RUST_LOG=info cargo test --all --release --no-default-features --features multicore-sdr,cuda -- --test-threads 1&& cd ..
           no_output_timeout: 90m
       - run:
           name: Run the Go tests
