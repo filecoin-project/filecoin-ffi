@@ -11,7 +11,7 @@ main() {
 
     if [[ -z "$2" ]]
     then
-        (>&2 echo '[publish-release/main] Error: script requires a release name, e.g. "filecoin-ffi-Darwin-standard" or "filecoin-ffi-Linux-optimized"')
+        (>&2 echo '[publish-release/main] Error: script requires a release name, e.g. "filecoin-ffi-Darwin-standard" or "filecoin-ffi-Linux-standard"')
         exit 1
     fi
 
