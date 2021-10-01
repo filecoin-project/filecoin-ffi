@@ -72,9 +72,6 @@ pub unsafe extern "C" fn fil_hash(
     let mut raw_digest: [u8; DIGEST_BYTES] = [0; DIGEST_BYTES];
     raw_digest.copy_from_slice(digest.to_bytes().as_ref());
 
-    //let affine: G2Affine = raw_digest.to_bytes()?;
-    //let projective = affine.into();
-
     let response = types::fil_HashResponse {
         digest: fil_BLSDigest { inner: raw_digest },
     };
@@ -162,9 +159,6 @@ pub unsafe extern "C" fn fil_verify(
                 let mut digest = [0u8; DIGEST_BYTES];
                 digest.as_mut().copy_from_slice(item);
 
-                //let affine: G2Affine = digest.to_bytes()?;
-                //let projective = affine.into();
-                //Ok(projective)
                 let affine: Option<G2Affine> = Option::from(G2Affine::from_compressed(&digest));
                 affine.map(Into::into).ok_or(Error::CurveDecode)
             })
