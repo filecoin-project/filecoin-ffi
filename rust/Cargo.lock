@@ -235,8 +235,9 @@ checksum = "8d696c370c750c948ada61c69a0ee2cbbb9c50b1019ddb86d9317157a99c2cae"
 
 [[package]]
 name = "bls-signatures"
-version = "0.10.0"
-source = "git+https://github.com/filecoin-project/bls-signatures?branch=update-blstrs#969b2f72304bbb1e5aa2533d066ca758a8c0939e"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "44e018ccb27c3c3386043ff12fe621dae1e69ac322580f3ff6fa89f604f3bc12"
 dependencies = [
  "blst",
  "blstrs",

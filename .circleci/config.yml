@@ -150,7 +150,7 @@ jobs:
       - run: cd rust && cargo fetch
       - run:
           name: Run cargo clippy
-          command: cd rust && cargo +$(cat rust-toolchain) clippy --all-targets --no-default-features --features multicore-sdr,blst-portable -- -D warnings
+          command: cd rust && cargo +$(cat rust-toolchain) clippy --all-targets --no-default-features --features multicore-sdr,blst-portable,opencl -- -D warnings
 
 workflows:
   version: 2
