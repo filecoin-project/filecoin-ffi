@@ -2,10 +2,11 @@ use std::slice::from_raw_parts;
 
 use bls_signatures::{
     aggregate as aggregate_sig, hash as hash_sig, verify as verify_sig,
-    verify_messages as verify_messages_sig, PrivateKey, PublicKey, Serialize, Signature,
+    verify_messages as verify_messages_sig, Error, PrivateKey, PublicKey, Serialize, Signature,
 };
-use blstrs::{G2Affine, G2Compressed};
-use groupy::{CurveAffine, CurveProjective, EncodedPoint, GroupDecodingError};
+use blstrs::{G2Affine, G2Projective};
+use group::prime::PrimeCurveAffine;
+use group::GroupEncoding;
 
 use rand::rngs::OsRng;
 use rand::SeedableRng;
@@ -69,7 +70,7 @@ pub unsafe extern "C" fn fil_hash(
 
     // prep response
     let mut raw_digest: [u8; DIGEST_BYTES] = [0; DIGEST_BYTES];
-    raw_digest.copy_from_slice(digest.into_affine().into_compressed().as_ref());
+    raw_digest.copy_from_slice(digest.to_bytes().as_ref());
 
     let response = types::fil_HashResponse {
         digest: fil_BLSDigest { inner: raw_digest },
@@ -155,14 +156,13 @@ pub unsafe extern "C" fn fil_verify(
         raw_digests
             .par_chunks(DIGEST_BYTES)
             .map(|item: &[u8]| {
-                let mut digest = G2Compressed::empty();
+                let mut digest = [0u8; DIGEST_BYTES];
                 digest.as_mut().copy_from_slice(item);
 
-                let affine: G2Affine = digest.into_affine()?;
-                let projective = affine.into_projective();
-                Ok(projective)
+                let affine: Option<G2Affine> = Option::from(G2Affine::from_compressed(&digest));
+                affine.map(Into::into).ok_or(Error::CurveDecode)
             })
-            .collect::<Result<Vec<_>, GroupDecodingError>>(),
+            .collect::<Result<Vec<G2Projective>, Error>>(),
         0
     );
 
@@ -350,7 +350,7 @@ pub unsafe extern "C" fn fil_private_key_public_key(
 /// The return value is a pointer to a compressed signature in bytes, of length `SIGNATURE_BYTES`
 #[no_mangle]
 pub unsafe extern "C" fn fil_create_zero_signature() -> *mut types::fil_ZeroSignatureResponse {
-    let sig: Signature = G2Affine::zero().into();
+    let sig: Signature = G2Affine::identity().into();
 
     let mut raw_signature: [u8; SIGNATURE_BYTES] = [0; SIGNATURE_BYTES];
 
@@ -463,7 +463,7 @@ mod tests {
             let resp = fil_create_zero_signature();
             let sig = Signature::from_bytes(&(*resp).signature.inner).unwrap();
 
-            assert_eq!(sig, Signature::from(G2Affine::zero()));
+            assert_eq!(sig, Signature::from(G2Affine::identity()));
 
             types::fil_destroy_zero_signature_response(resp);
         }
