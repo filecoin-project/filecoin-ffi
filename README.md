@@ -26,14 +26,6 @@ The disadvantage to downloading the pre-built binary is that it will not be opti
 
 To opt out of downloading precompiled assets, set `FFI_BUILD_FROM_SOURCE=1`:
 
-By default, the `blst` backend is used instead of `pairing`, but pairing can be enabled using `FFI_USE_PAIRING=1` in the environment.
-
-```shell
-rm .install-filcrypto \
-    ; make clean \
-    ; FFI_BUILD_FROM_SOURCE=1 FFI_USE_PAIRING=1 make
-```
-
 To allow portable building of the `blst` dependency, set `FFI_USE_BLST_PORTABLE=1`:
 
 ```shell
@@ -52,7 +44,7 @@ rm .install-filcrypto \
 
 #### Experimental CUDA build support
 
-An experimental 'gpu' option using CUDA can be used in the proofs library.  This feature is disabled by default (opencl is the default).  To enable building with the 'gpu' CUDA dependency, set `FFI_USE_CUDA=0` when building from source and do NOT set `FFI_USE_GPU`:
+An experimental 'gpu' option using CUDA can be used in the proofs library.  This feature is disabled by default (opencl is the default, when `FFI_USE_GPU=1` is set.).  To enable building with the 'gpu' CUDA dependency, set `FFI_USE_CUDA=1` when building from source.
 
 ```shell
 rm .install-filcrypto \
