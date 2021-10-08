@@ -64,3 +64,15 @@ const (
 	FilRegisteredSealProofStackedDrg32GiBV11  FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg32GiBV1_1
 	FilRegisteredSealProofStackedDrg64GiBV11  FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg64GiBV1_1
 )
+
+// FilRegisteredUpdateProof as declared in filecoin-ffi/filcrypto.h:69
+type FilRegisteredUpdateProof int32
+
+// FilRegisteredUpdateProof enumeration from filecoin-ffi/filcrypto.h:69
+const (
+	FilRegisteredUpdateProofStackedDrg2KiBV1   FilRegisteredUpdateProof = C.fil_RegisteredUpdateProof_StackedDrg2KiBV1
+	FilRegisteredUpdateProofStackedDrg8MiBV1   FilRegisteredUpdateProof = C.fil_RegisteredUpdateProof_StackedDrg8MiBV1
+	FilRegisteredUpdateProofStackedDrg512MiBV1 FilRegisteredUpdateProof = C.fil_RegisteredUpdateProof_StackedDrg512MiBV1
+	FilRegisteredUpdateProofStackedDrg32GiBV1  FilRegisteredUpdateProof = C.fil_RegisteredUpdateProof_StackedDrg32GiBV1
+	FilRegisteredUpdateProofStackedDrg64GiBV1  FilRegisteredUpdateProof = C.fil_RegisteredUpdateProof_StackedDrg64GiBV1
+)
