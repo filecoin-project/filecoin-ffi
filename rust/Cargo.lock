@@ -752,7 +752,7 @@ dependencies = [
 [[package]]
 name = "filecoin-hashers"
 version = "5.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#01aa48cf4f23e6d7e64b58282606539ed77da2d3"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#040521e769359896028c1e4f5f97991d7ab4b1ba"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -771,7 +771,7 @@ dependencies = [
 [[package]]
 name = "filecoin-proofs"
 version = "10.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#01aa48cf4f23e6d7e64b58282606539ed77da2d3"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#040521e769359896028c1e4f5f97991d7ab4b1ba"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -860,7 +860,7 @@ dependencies = [
 [[package]]
 name = "fr32"
 version = "3.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#01aa48cf4f23e6d7e64b58282606539ed77da2d3"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#040521e769359896028c1e4f5f97991d7ab4b1ba"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1744,7 +1744,7 @@ dependencies = [
 [[package]]
 name = "sha2raw"
 version = "5.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#01aa48cf4f23e6d7e64b58282606539ed77da2d3"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#040521e769359896028c1e4f5f97991d7ab4b1ba"
 dependencies = [
  "block-buffer 0.9.0",
  "byteorder 1.4.3",
@@ -1774,7 +1774,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 [[package]]
 name = "storage-proofs-core"
 version = "10.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#01aa48cf4f23e6d7e64b58282606539ed77da2d3"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#040521e769359896028c1e4f5f97991d7ab4b1ba"
 dependencies = [
  "aes",
  "anyhow",
@@ -1814,7 +1814,7 @@ dependencies = [
 [[package]]
 name = "storage-proofs-porep"
 version = "10.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#01aa48cf4f23e6d7e64b58282606539ed77da2d3"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#040521e769359896028c1e4f5f97991d7ab4b1ba"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1857,7 +1857,7 @@ dependencies = [
 [[package]]
 name = "storage-proofs-post"
 version = "10.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#01aa48cf4f23e6d7e64b58282606539ed77da2d3"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#040521e769359896028c1e4f5f97991d7ab4b1ba"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1885,7 +1885,7 @@ dependencies = [
 [[package]]
 name = "storage-proofs-update"
 version = "10.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#01aa48cf4f23e6d7e64b58282606539ed77da2d3"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#040521e769359896028c1e4f5f97991d7ab4b1ba"
 dependencies = [
  "anyhow",
  "bellperson",
