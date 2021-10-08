@@ -6,8 +6,9 @@ use anyhow::Result;
 use drop_struct_macro_derive::DropStructMacro;
 use ffi_toolkit::{code_and_message_impl, free_c_str, CodeAndMessage, FCPResponseStatus};
 use filecoin_proofs_api::{
-    seal::SealCommitPhase2Output, PieceInfo, RegisteredAggregationProof, RegisteredPoStProof,
-    RegisteredSealProof, UnpaddedBytesAmount,
+    seal::SealCommitPhase2Output, PieceInfo, RegisteredAggregationProof,
+    RegisteredEmptySectorUpdateProof, RegisteredPoStProof, RegisteredSealProof,
+    UnpaddedBytesAmount,
 };
 
 #[repr(C)]
@@ -184,6 +185,60 @@ impl From<fil_RegisteredAggregationProof> for RegisteredAggregationProof {
     fn from(other: fil_RegisteredAggregationProof) -> Self {
         match other {
             fil_RegisteredAggregationProof::SnarkPackV1 => RegisteredAggregationProof::SnarkPackV1,
+        }
+    }
+}
+
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub enum fil_RegisteredEmptySectorUpdateProof {
+    SnapDeal2KiBV1,
+    SnapDeal8MiBV1,
+    SnapDeal512MiBV1,
+    SnapDeal32GiBV1,
+    SnapDeal64GiBV1,
+}
+
+impl From<RegisteredEmptySectorUpdateProof> for fil_RegisteredEmptySectorUpdateProof {
+    fn from(other: RegisteredEmptySectorUpdateProof) -> Self {
+        match other {
+            RegisteredEmptySectorUpdateProof::SnapDeal2KiBV1 => {
+                fil_RegisteredEmptySectorUpdateProof::SnapDeal2KiBV1
+            }
+            RegisteredEmptySectorUpdateProof::SnapDeal8MiBV1 => {
+                fil_RegisteredEmptySectorUpdateProof::SnapDeal8MiBV1
+            }
+            RegisteredEmptySectorUpdateProof::SnapDeal512MiBV1 => {
+                fil_RegisteredEmptySectorUpdateProof::SnapDeal512MiBV1
+            }
+            RegisteredEmptySectorUpdateProof::SnapDeal32GiBV1 => {
+                fil_RegisteredEmptySectorUpdateProof::SnapDeal32GiBV1
+            }
+            RegisteredEmptySectorUpdateProof::SnapDeal64GiBV1 => {
+                fil_RegisteredEmptySectorUpdateProof::SnapDeal64GiBV1
+            }
+        }
+    }
+}
+
+impl From<fil_RegisteredEmptySectorUpdateProof> for RegisteredEmptySectorUpdateProof {
+    fn from(other: fil_RegisteredEmptySectorUpdateProof) -> Self {
+        match other {
+            fil_RegisteredEmptySectorUpdateProof::SnapDeal2KiBV1 => {
+                RegisteredEmptySectorUpdateProof::SnapDeal2KiBV1
+            }
+            fil_RegisteredEmptySectorUpdateProof::SnapDeal8MiBV1 => {
+                RegisteredEmptySectorUpdateProof::SnapDeal8MiBV1
+            }
+            fil_RegisteredEmptySectorUpdateProof::SnapDeal512MiBV1 => {
+                RegisteredEmptySectorUpdateProof::SnapDeal512MiBV1
+            }
+            fil_RegisteredEmptySectorUpdateProof::SnapDeal32GiBV1 => {
+                RegisteredEmptySectorUpdateProof::SnapDeal32GiBV1
+            }
+            fil_RegisteredEmptySectorUpdateProof::SnapDeal64GiBV1 => {
+                RegisteredEmptySectorUpdateProof::SnapDeal64GiBV1
+            }
         }
     }
 }
@@ -798,6 +853,7 @@ impl Default for fil_AggregationInputs {
         }
     }
 }
+
 #[repr(C)]
 #[derive(DropStructMacro)]
 pub struct fil_UnsealRangeResponse {
@@ -999,3 +1055,119 @@ impl Default for fil_ClearCacheResponse {
 }
 
 code_and_message_impl!(fil_ClearCacheResponse);
+
+#[repr(C)]
+#[derive(DropStructMacro)]
+pub struct fil_EmptySectorUpdateEncodeIntoResponse {
+    pub error_msg: *const libc::c_char,
+    pub status_code: FCPResponseStatus,
+    pub comm_r_new: [u8; 32],
+    pub comm_r_last_new: [u8; 32],
+    pub comm_d_new: [u8; 32],
+}
+
+impl Default for fil_EmptySectorUpdateEncodeIntoResponse {
+    fn default() -> fil_EmptySectorUpdateEncodeIntoResponse {
+        fil_EmptySectorUpdateEncodeIntoResponse {
+            error_msg: ptr::null(),
+            status_code: FCPResponseStatus::FCPNoError,
+            comm_r_new: Default::default(),
+            comm_r_last_new: Default::default(),
+            comm_d_new: Default::default(),
+        }
+    }
+}
+
+code_and_message_impl!(fil_EmptySectorUpdateEncodeIntoResponse);
+
+#[repr(C)]
+#[derive(DropStructMacro)]
+pub struct fil_EmptySectorUpdateDecodeFromResponse {
+    pub status_code: FCPResponseStatus,
+    pub error_msg: *const libc::c_char,
+}
+
+impl Default for fil_EmptySectorUpdateDecodeFromResponse {
+    fn default() -> fil_EmptySectorUpdateDecodeFromResponse {
+        fil_EmptySectorUpdateDecodeFromResponse {
+            status_code: FCPResponseStatus::FCPNoError,
+            error_msg: ptr::null(),
+        }
+    }
+}
+
+code_and_message_impl!(fil_EmptySectorUpdateDecodeFromResponse);
+
+#[repr(C)]
+#[derive(DropStructMacro)]
+pub struct fil_EmptySectorUpdateRemoveEncodedDataResponse {
+    pub status_code: FCPResponseStatus,
+    pub error_msg: *const libc::c_char,
+}
+
+impl Default for fil_EmptySectorUpdateRemoveEncodedDataResponse {
+    fn default() -> fil_EmptySectorUpdateRemoveEncodedDataResponse {
+        fil_EmptySectorUpdateRemoveEncodedDataResponse {
+            status_code: FCPResponseStatus::FCPNoError,
+            error_msg: ptr::null(),
+        }
+    }
+}
+
+code_and_message_impl!(fil_EmptySectorUpdateRemoveEncodedDataResponse);
+
+#[repr(C)]
+pub struct fil_EmptySectorUpdateProofResponse {
+    pub status_code: FCPResponseStatus,
+    pub error_msg: *const libc::c_char,
+    pub proof_len: libc::size_t,
+    pub proof_ptr: *const u8,
+}
+
+impl Default for fil_EmptySectorUpdateProofResponse {
+    fn default() -> fil_EmptySectorUpdateProofResponse {
+        fil_EmptySectorUpdateProofResponse {
+            status_code: FCPResponseStatus::FCPNoError,
+            error_msg: ptr::null(),
+            proof_len: 0,
+            proof_ptr: ptr::null(),
+        }
+    }
+}
+
+impl Drop for fil_EmptySectorUpdateProofResponse {
+    fn drop(&mut self) {
+        unsafe {
+            // Note that this operation also does the equivalent of
+            // libc::free(self.proof_ptr as *mut libc::c_void);
+            drop(Vec::from_raw_parts(
+                self.proof_ptr as *mut u8,
+                self.proof_len,
+                self.proof_len,
+            ));
+            free_c_str(self.error_msg as *mut libc::c_char);
+        }
+    }
+}
+
+code_and_message_impl!(fil_EmptySectorUpdateProofResponse);
+
+#[repr(C)]
+#[derive(DropStructMacro)]
+pub struct fil_VerifyEmptySectorUpdateProofResponse {
+    pub status_code: FCPResponseStatus,
+    pub error_msg: *const libc::c_char,
+    pub is_valid: bool,
+}
+
+impl Default for fil_VerifyEmptySectorUpdateProofResponse {
+    fn default() -> fil_VerifyEmptySectorUpdateProofResponse {
+        fil_VerifyEmptySectorUpdateProofResponse {
+            status_code: FCPResponseStatus::FCPNoError,
+            error_msg: ptr::null(),
+            is_valid: false,
+        }
+    }
+}
+
+code_and_message_impl!(fil_VerifyEmptySectorUpdateProofResponse);
