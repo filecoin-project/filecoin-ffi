@@ -1450,7 +1450,7 @@ pub unsafe extern "C" fn fil_verify_empty_sector_update_proof(
     catch_panic_response(|| {
         init_log();
 
-        info!("fil_generate_empty_sector_update_proof: start");
+        info!("fil_verify_empty_sector_update_proof: start");
 
         let proof_bytes: Vec<u8> = std::slice::from_raw_parts(proof_ptr, proof_len).to_vec();
 
