@@ -761,8 +761,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d72dd6f214ff0b903bb4ffb84ec171b28731b8ba0230547689154fa21eb3fe52"
 =======
 version = "5.0.0"
+<<<<<<< HEAD
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#01aa48cf4f23e6d7e64b58282606539ed77da2d3"
 >>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
+=======
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#040521e769359896028c1e4f5f97991d7ab4b1ba"
+>>>>>>> ac8a03e (feat: update dependencies)
 dependencies = [
  "anyhow",
  "bellperson",
@@ -786,8 +790,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "389a217925ca62ebaee1fd9f5aff804a0e4a30eba7866019261fcc0c49fbc9af"
 =======
 version = "10.0.0"
+<<<<<<< HEAD
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#01aa48cf4f23e6d7e64b58282606539ed77da2d3"
 >>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
+=======
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#040521e769359896028c1e4f5f97991d7ab4b1ba"
+>>>>>>> ac8a03e (feat: update dependencies)
 dependencies = [
  "anyhow",
  "bellperson",
@@ -885,7 +893,7 @@ name = "fr32"
 version = "3.1.0"
 =======
 version = "3.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#01aa48cf4f23e6d7e64b58282606539ed77da2d3"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#040521e769359896028c1e4f5f97991d7ab4b1ba"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1783,8 +1791,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4aded23ca13918ff9e032f5091a6ed402af8d970c10061432c474b2f2562d5a4"
 =======
 version = "5.0.0"
+<<<<<<< HEAD
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#01aa48cf4f23e6d7e64b58282606539ed77da2d3"
 >>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
+=======
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#040521e769359896028c1e4f5f97991d7ab4b1ba"
+>>>>>>> ac8a03e (feat: update dependencies)
 dependencies = [
  "block-buffer 0.9.0",
  "byteorder 1.4.3",
@@ -1819,8 +1831,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b05bd37338fef1ace42d1922a493b33af4c7ae5f09c640e7e48c8e124e70b7f9"
 =======
 version = "10.0.0"
+<<<<<<< HEAD
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#01aa48cf4f23e6d7e64b58282606539ed77da2d3"
 >>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
+=======
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#040521e769359896028c1e4f5f97991d7ab4b1ba"
+>>>>>>> ac8a03e (feat: update dependencies)
 dependencies = [
  "aes",
  "anyhow",
@@ -1865,8 +1881,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "894c72fb6b635e76ae9e15221d45ae25304c2a673c67995df619b148916d6a23"
 =======
 version = "10.0.0"
+<<<<<<< HEAD
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#01aa48cf4f23e6d7e64b58282606539ed77da2d3"
 >>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
+=======
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#040521e769359896028c1e4f5f97991d7ab4b1ba"
+>>>>>>> ac8a03e (feat: update dependencies)
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1914,8 +1934,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "23abd53b2eef8adf23ede303d93705ca087fe82f5388428a47ee063406ed0e38"
 =======
 version = "10.0.0"
+<<<<<<< HEAD
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#01aa48cf4f23e6d7e64b58282606539ed77da2d3"
 >>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
+=======
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#040521e769359896028c1e4f5f97991d7ab4b1ba"
+>>>>>>> ac8a03e (feat: update dependencies)
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1943,7 +1967,7 @@ dependencies = [
 [[package]]
 name = "storage-proofs-update"
 version = "10.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#01aa48cf4f23e6d7e64b58282606539ed77da2d3"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#040521e769359896028c1e4f5f97991d7ab4b1ba"
 dependencies = [
  "anyhow",
  "bellperson",
