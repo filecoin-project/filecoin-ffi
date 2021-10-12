@@ -6,9 +6,8 @@ use anyhow::Result;
 use drop_struct_macro_derive::DropStructMacro;
 use ffi_toolkit::{code_and_message_impl, free_c_str, CodeAndMessage, FCPResponseStatus};
 use filecoin_proofs_api::{
-    seal::SealCommitPhase2Output, PieceInfo, RegisteredAggregationProof,
-    RegisteredEmptySectorUpdateProof, RegisteredPoStProof, RegisteredSealProof,
-    UnpaddedBytesAmount,
+    seal::SealCommitPhase2Output, PieceInfo, RegisteredAggregationProof, RegisteredPoStProof,
+    RegisteredSealProof, RegisteredUpdateProof, UnpaddedBytesAmount,
 };
 
 #[repr(C)]
@@ -191,53 +190,45 @@ impl From<fil_RegisteredAggregationProof> for RegisteredAggregationProof {
 
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
-pub enum fil_RegisteredEmptySectorUpdateProof {
-    SnapDeal2KiBV1,
-    SnapDeal8MiBV1,
-    SnapDeal512MiBV1,
-    SnapDeal32GiBV1,
-    SnapDeal64GiBV1,
+pub enum fil_RegisteredUpdateProof {
+    StackedDrg2KiBV1,
+    StackedDrg8MiBV1,
+    StackedDrg512MiBV1,
+    StackedDrg32GiBV1,
+    StackedDrg64GiBV1,
 }
 
-impl From<RegisteredEmptySectorUpdateProof> for fil_RegisteredEmptySectorUpdateProof {
-    fn from(other: RegisteredEmptySectorUpdateProof) -> Self {
+impl From<RegisteredUpdateProof> for fil_RegisteredUpdateProof {
+    fn from(other: RegisteredUpdateProof) -> Self {
         match other {
-            RegisteredEmptySectorUpdateProof::SnapDeal2KiBV1 => {
-                fil_RegisteredEmptySectorUpdateProof::SnapDeal2KiBV1
+            RegisteredUpdateProof::StackedDrg2KiBV1 => fil_RegisteredUpdateProof::StackedDrg2KiBV1,
+            RegisteredUpdateProof::StackedDrg8MiBV1 => fil_RegisteredUpdateProof::StackedDrg8MiBV1,
+            RegisteredUpdateProof::StackedDrg512MiBV1 => {
+                fil_RegisteredUpdateProof::StackedDrg512MiBV1
             }
-            RegisteredEmptySectorUpdateProof::SnapDeal8MiBV1 => {
-                fil_RegisteredEmptySectorUpdateProof::SnapDeal8MiBV1
+            RegisteredUpdateProof::StackedDrg32GiBV1 => {
+                fil_RegisteredUpdateProof::StackedDrg32GiBV1
             }
-            RegisteredEmptySectorUpdateProof::SnapDeal512MiBV1 => {
-                fil_RegisteredEmptySectorUpdateProof::SnapDeal512MiBV1
-            }
-            RegisteredEmptySectorUpdateProof::SnapDeal32GiBV1 => {
-                fil_RegisteredEmptySectorUpdateProof::SnapDeal32GiBV1
-            }
-            RegisteredEmptySectorUpdateProof::SnapDeal64GiBV1 => {
-                fil_RegisteredEmptySectorUpdateProof::SnapDeal64GiBV1
+            RegisteredUpdateProof::StackedDrg64GiBV1 => {
+                fil_RegisteredUpdateProof::StackedDrg64GiBV1
             }
         }
     }
 }
 
-impl From<fil_RegisteredEmptySectorUpdateProof> for RegisteredEmptySectorUpdateProof {
-    fn from(other: fil_RegisteredEmptySectorUpdateProof) -> Self {
+impl From<fil_RegisteredUpdateProof> for RegisteredUpdateProof {
+    fn from(other: fil_RegisteredUpdateProof) -> Self {
         match other {
-            fil_RegisteredEmptySectorUpdateProof::SnapDeal2KiBV1 => {
-                RegisteredEmptySectorUpdateProof::SnapDeal2KiBV1
+            fil_RegisteredUpdateProof::StackedDrg2KiBV1 => RegisteredUpdateProof::StackedDrg2KiBV1,
+            fil_RegisteredUpdateProof::StackedDrg8MiBV1 => RegisteredUpdateProof::StackedDrg8MiBV1,
+            fil_RegisteredUpdateProof::StackedDrg512MiBV1 => {
+                RegisteredUpdateProof::StackedDrg512MiBV1
             }
-            fil_RegisteredEmptySectorUpdateProof::SnapDeal8MiBV1 => {
-                RegisteredEmptySectorUpdateProof::SnapDeal8MiBV1
+            fil_RegisteredUpdateProof::StackedDrg32GiBV1 => {
+                RegisteredUpdateProof::StackedDrg32GiBV1
             }
-            fil_RegisteredEmptySectorUpdateProof::SnapDeal512MiBV1 => {
-                RegisteredEmptySectorUpdateProof::SnapDeal512MiBV1
-            }
-            fil_RegisteredEmptySectorUpdateProof::SnapDeal32GiBV1 => {
-                RegisteredEmptySectorUpdateProof::SnapDeal32GiBV1
-            }
-            fil_RegisteredEmptySectorUpdateProof::SnapDeal64GiBV1 => {
-                RegisteredEmptySectorUpdateProof::SnapDeal64GiBV1
+            fil_RegisteredUpdateProof::StackedDrg64GiBV1 => {
+                RegisteredUpdateProof::StackedDrg64GiBV1
             }
         }
     }

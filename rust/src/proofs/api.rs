@@ -2608,8 +2608,7 @@ pub mod tests {
                 then finally remove the data and continue onward as
                 normal.
             */
-            let registered_proof_empty_sector_update =
-                fil_RegisteredEmptySectorUpdateProof::SnapDeal2KiBV1;
+            let registered_proof_empty_sector_update = fil_RegisteredUpdateProof::StackedDrg2KiBV1;
 
             let new_cache_dir = tempfile::tempdir()?;
             let new_cache_dir_path = new_cache_dir.into_path();

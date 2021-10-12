@@ -539,9 +539,14 @@ func FilDropSignature(sig []byte) {
 // FilEmptySectorUpdateDecodeFrom function as declared in filecoin-ffi/filcrypto.h:532
 =======
 // FilEmptySectorUpdateDecodeFrom function as declared in filecoin-ffi/filcrypto.h:526
+<<<<<<< HEAD
 >>>>>>> b70e034 (fix: re-generate go bindings)
 func FilEmptySectorUpdateDecodeFrom(registeredProof FilRegisteredEmptySectorUpdateProof, outDataPath string, replicaPath string, sectorKeyPath string, sectorKeyCacheDirPath string, commDNew Fil32ByteArray) *FilEmptySectorUpdateDecodeFromResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredEmptySectorUpdateProof)(registeredProof), cgoAllocsUnknown
+=======
+func FilEmptySectorUpdateDecodeFrom(registeredProof FilRegisteredUpdateProof, outDataPath string, replicaPath string, sectorKeyPath string, sectorKeyCacheDirPath string, commDNew Fil32ByteArray) *FilEmptySectorUpdateDecodeFromResponse {
+	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredUpdateProof)(registeredProof), cgoAllocsUnknown
+>>>>>>> 25cae08 (fix: adjust new proof types to match upstream)
 	outDataPath = safeString(outDataPath)
 	coutDataPath, coutDataPathAllocMap := unpackPCharString(outDataPath)
 	replicaPath = safeString(replicaPath)
@@ -567,8 +572,8 @@ func FilEmptySectorUpdateDecodeFrom(registeredProof FilRegisteredEmptySectorUpda
 }
 
 // FilEmptySectorUpdateEncodeInto function as declared in filecoin-ffi/filcrypto.h:537
-func FilEmptySectorUpdateEncodeInto(registeredProof FilRegisteredEmptySectorUpdateProof, newReplicaPath string, newCacheDirPath string, sectorKeyPath string, sectorKeyCacheDirPath string, stagedDataPath string, piecesPtr []FilPublicPieceInfo, piecesLen uint) *FilEmptySectorUpdateEncodeIntoResponse {
-	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredEmptySectorUpdateProof)(registeredProof), cgoAllocsUnknown
+func FilEmptySectorUpdateEncodeInto(registeredProof FilRegisteredUpdateProof, newReplicaPath string, newCacheDirPath string, sectorKeyPath string, sectorKeyCacheDirPath string, stagedDataPath string, piecesPtr []FilPublicPieceInfo, piecesLen uint) *FilEmptySectorUpdateEncodeIntoResponse {
+	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredUpdateProof)(registeredProof), cgoAllocsUnknown
 	newReplicaPath = safeString(newReplicaPath)
 	cnewReplicaPath, cnewReplicaPathAllocMap := unpackPCharString(newReplicaPath)
 	newCacheDirPath = safeString(newCacheDirPath)
@@ -601,8 +606,8 @@ func FilEmptySectorUpdateEncodeInto(registeredProof FilRegisteredEmptySectorUpda
 }
 
 // FilEmptySectorUpdateRemoveEncodedData function as declared in filecoin-ffi/filcrypto.h:550
-func FilEmptySectorUpdateRemoveEncodedData(registeredProof FilRegisteredEmptySectorUpdateProof, sectorKeyPath string, sectorKeyCacheDirPath string, replicaPath string, replicaCachePath string, dataPath string, commDNew Fil32ByteArray) *FilEmptySectorUpdateRemoveEncodedDataResponse {
-	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredEmptySectorUpdateProof)(registeredProof), cgoAllocsUnknown
+func FilEmptySectorUpdateRemoveEncodedData(registeredProof FilRegisteredUpdateProof, sectorKeyPath string, sectorKeyCacheDirPath string, replicaPath string, replicaCachePath string, dataPath string, commDNew Fil32ByteArray) *FilEmptySectorUpdateRemoveEncodedDataResponse {
+	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredUpdateProof)(registeredProof), cgoAllocsUnknown
 	sectorKeyPath = safeString(sectorKeyPath)
 	csectorKeyPath, csectorKeyPathAllocMap := unpackPCharString(sectorKeyPath)
 	sectorKeyCacheDirPath = safeString(sectorKeyCacheDirPath)
@@ -707,9 +712,14 @@ func FilGenerateDataCommitment(registeredProof FilRegisteredSealProof, piecesPtr
 // FilGenerateEmptySectorUpdateProof function as declared in filecoin-ffi/filcrypto.h:583
 =======
 // FilGenerateEmptySectorUpdateProof function as declared in filecoin-ffi/filcrypto.h:577
+<<<<<<< HEAD
 >>>>>>> b70e034 (fix: re-generate go bindings)
 func FilGenerateEmptySectorUpdateProof(registeredProof FilRegisteredEmptySectorUpdateProof, commROld Fil32ByteArray, commRNew Fil32ByteArray, commDNew Fil32ByteArray, sectorKeyPath string, sectorKeyCacheDirPath string, replicaPath string, replicaCachePath string) *FilEmptySectorUpdateProofResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredEmptySectorUpdateProof)(registeredProof), cgoAllocsUnknown
+=======
+func FilGenerateEmptySectorUpdateProof(registeredProof FilRegisteredUpdateProof, commROld Fil32ByteArray, commRNew Fil32ByteArray, commDNew Fil32ByteArray, sectorKeyPath string, sectorKeyCacheDirPath string, replicaPath string, replicaCachePath string) *FilEmptySectorUpdateProofResponse {
+	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredUpdateProof)(registeredProof), cgoAllocsUnknown
+>>>>>>> 25cae08 (fix: adjust new proof types to match upstream)
 	ccommROld, ccommROldAllocMap := commROld.PassValue()
 	ccommRNew, ccommRNewAllocMap := commRNew.PassValue()
 	ccommDNew, ccommDNewAllocMap := commDNew.PassValue()
@@ -1572,9 +1582,14 @@ func FilVerifyAggregateSealProof(registeredProof FilRegisteredSealProof, registe
 // FilVerifyEmptySectorUpdateProof function as declared in filecoin-ffi/filcrypto.h:928
 =======
 // FilVerifyEmptySectorUpdateProof function as declared in filecoin-ffi/filcrypto.h:922
+<<<<<<< HEAD
 >>>>>>> b70e034 (fix: re-generate go bindings)
 func FilVerifyEmptySectorUpdateProof(registeredProof FilRegisteredEmptySectorUpdateProof, proofPtr []byte, proofLen uint, commROld Fil32ByteArray, commRNew Fil32ByteArray, commDNew Fil32ByteArray, sectorKeyCacheDirPath string) *FilVerifyEmptySectorUpdateProofResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredEmptySectorUpdateProof)(registeredProof), cgoAllocsUnknown
+=======
+func FilVerifyEmptySectorUpdateProof(registeredProof FilRegisteredUpdateProof, proofPtr []byte, proofLen uint, commROld Fil32ByteArray, commRNew Fil32ByteArray, commDNew Fil32ByteArray, sectorKeyCacheDirPath string) *FilVerifyEmptySectorUpdateProofResponse {
+	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredUpdateProof)(registeredProof), cgoAllocsUnknown
+>>>>>>> 25cae08 (fix: adjust new proof types to match upstream)
 	cproofPtr, cproofPtrAllocMap := copyPUint8TBytes((*sliceHeader)(unsafe.Pointer(&proofPtr)))
 	cproofLen, cproofLenAllocMap := (C.size_t)(proofLen), cgoAllocsUnknown
 	ccommROld, ccommROldAllocMap := commROld.PassValue()
