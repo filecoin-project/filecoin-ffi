@@ -1247,7 +1247,7 @@ pub unsafe extern "C" fn fil_verify_window_post(
 ///
 #[no_mangle]
 pub unsafe extern "C" fn fil_empty_sector_update_encode_into(
-    registered_proof: fil_RegisteredEmptySectorUpdateProof,
+    registered_proof: fil_RegisteredUpdateProof,
     new_replica_path: *const libc::c_char,
     new_cache_dir_path: *const libc::c_char,
     sector_key_path: *const libc::c_char,
@@ -1300,7 +1300,7 @@ pub unsafe extern "C" fn fil_empty_sector_update_encode_into(
 ///
 #[no_mangle]
 pub unsafe extern "C" fn fil_empty_sector_update_decode_from(
-    registered_proof: fil_RegisteredEmptySectorUpdateProof,
+    registered_proof: fil_RegisteredUpdateProof,
     out_data_path: *const libc::c_char,
     replica_path: *const libc::c_char,
     sector_key_path: *const libc::c_char,
@@ -1343,7 +1343,7 @@ pub unsafe extern "C" fn fil_empty_sector_update_decode_from(
 ///
 #[no_mangle]
 pub unsafe extern "C" fn fil_empty_sector_update_remove_encoded_data(
-    registered_proof: fil_RegisteredEmptySectorUpdateProof,
+    registered_proof: fil_RegisteredUpdateProof,
     sector_key_path: *const libc::c_char,
     sector_key_cache_dir_path: *const libc::c_char,
     replica_path: *const libc::c_char,
@@ -1388,7 +1388,7 @@ pub unsafe extern "C" fn fil_empty_sector_update_remove_encoded_data(
 ///
 #[no_mangle]
 pub unsafe extern "C" fn fil_generate_empty_sector_update_proof(
-    registered_proof: fil_RegisteredEmptySectorUpdateProof,
+    registered_proof: fil_RegisteredUpdateProof,
     comm_r_old: fil_32ByteArray,
     comm_r_new: fil_32ByteArray,
     comm_d_new: fil_32ByteArray,
@@ -1439,7 +1439,7 @@ pub unsafe extern "C" fn fil_generate_empty_sector_update_proof(
 ///
 #[no_mangle]
 pub unsafe extern "C" fn fil_verify_empty_sector_update_proof(
-    registered_proof: fil_RegisteredEmptySectorUpdateProof,
+    registered_proof: fil_RegisteredUpdateProof,
     proof_ptr: *const u8,
     proof_len: libc::size_t,
     comm_r_old: fil_32ByteArray,
@@ -2416,8 +2416,7 @@ pub mod tests {
                 then finally remove the data and continue onward as
                 normal.
             */
-            let registered_proof_empty_sector_update =
-                fil_RegisteredEmptySectorUpdateProof::SnapDeal2KiBV1;
+            let registered_proof_empty_sector_update = fil_RegisteredUpdateProof::StackedDrg2KiBV1;
 
             let new_cache_dir = tempfile::tempdir()?;
             let new_cache_dir_path = new_cache_dir.into_path();

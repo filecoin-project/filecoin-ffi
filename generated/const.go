@@ -31,22 +31,10 @@ const (
 	FilRegisteredAggregationProofSnarkPackV1 FilRegisteredAggregationProof = C.fil_RegisteredAggregationProof_SnarkPackV1
 )
 
-// FilRegisteredEmptySectorUpdateProof as declared in filecoin-ffi/filcrypto.h:43
-type FilRegisteredEmptySectorUpdateProof int32
-
-// FilRegisteredEmptySectorUpdateProof enumeration from filecoin-ffi/filcrypto.h:43
-const (
-	FilRegisteredEmptySectorUpdateProofSnapDeal2KiBV1   FilRegisteredEmptySectorUpdateProof = C.fil_RegisteredEmptySectorUpdateProof_SnapDeal2KiBV1
-	FilRegisteredEmptySectorUpdateProofSnapDeal8MiBV1   FilRegisteredEmptySectorUpdateProof = C.fil_RegisteredEmptySectorUpdateProof_SnapDeal8MiBV1
-	FilRegisteredEmptySectorUpdateProofSnapDeal512MiBV1 FilRegisteredEmptySectorUpdateProof = C.fil_RegisteredEmptySectorUpdateProof_SnapDeal512MiBV1
-	FilRegisteredEmptySectorUpdateProofSnapDeal32GiBV1  FilRegisteredEmptySectorUpdateProof = C.fil_RegisteredEmptySectorUpdateProof_SnapDeal32GiBV1
-	FilRegisteredEmptySectorUpdateProofSnapDeal64GiBV1  FilRegisteredEmptySectorUpdateProof = C.fil_RegisteredEmptySectorUpdateProof_SnapDeal64GiBV1
-)
-
-// FilRegisteredPoStProof as declared in filecoin-ffi/filcrypto.h:56
+// FilRegisteredPoStProof as declared in filecoin-ffi/filcrypto.h:48
 type FilRegisteredPoStProof int32
 
-// FilRegisteredPoStProof enumeration from filecoin-ffi/filcrypto.h:56
+// FilRegisteredPoStProof enumeration from filecoin-ffi/filcrypto.h:48
 const (
 	FilRegisteredPoStProofStackedDrgWinning2KiBV1   FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrgWinning2KiBV1
 	FilRegisteredPoStProofStackedDrgWinning8MiBV1   FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrgWinning8MiBV1
@@ -60,10 +48,10 @@ const (
 	FilRegisteredPoStProofStackedDrgWindow64GiBV1   FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrgWindow64GiBV1
 )
 
-// FilRegisteredSealProof as declared in filecoin-ffi/filcrypto.h:69
+// FilRegisteredSealProof as declared in filecoin-ffi/filcrypto.h:61
 type FilRegisteredSealProof int32
 
-// FilRegisteredSealProof enumeration from filecoin-ffi/filcrypto.h:69
+// FilRegisteredSealProof enumeration from filecoin-ffi/filcrypto.h:61
 const (
 	FilRegisteredSealProofStackedDrg2KiBV1    FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg2KiBV1
 	FilRegisteredSealProofStackedDrg8MiBV1    FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg8MiBV1
@@ -75,4 +63,16 @@ const (
 	FilRegisteredSealProofStackedDrg512MiBV11 FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg512MiBV1_1
 	FilRegisteredSealProofStackedDrg32GiBV11  FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg32GiBV1_1
 	FilRegisteredSealProofStackedDrg64GiBV11  FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg64GiBV1_1
+)
+
+// FilRegisteredUpdateProof as declared in filecoin-ffi/filcrypto.h:69
+type FilRegisteredUpdateProof int32
+
+// FilRegisteredUpdateProof enumeration from filecoin-ffi/filcrypto.h:69
+const (
+	FilRegisteredUpdateProofStackedDrg2KiBV1   FilRegisteredUpdateProof = C.fil_RegisteredUpdateProof_StackedDrg2KiBV1
+	FilRegisteredUpdateProofStackedDrg8MiBV1   FilRegisteredUpdateProof = C.fil_RegisteredUpdateProof_StackedDrg8MiBV1
+	FilRegisteredUpdateProofStackedDrg512MiBV1 FilRegisteredUpdateProof = C.fil_RegisteredUpdateProof_StackedDrg512MiBV1
+	FilRegisteredUpdateProofStackedDrg32GiBV1  FilRegisteredUpdateProof = C.fil_RegisteredUpdateProof_StackedDrg32GiBV1
+	FilRegisteredUpdateProofStackedDrg64GiBV1  FilRegisteredUpdateProof = C.fil_RegisteredUpdateProof_StackedDrg64GiBV1
 )

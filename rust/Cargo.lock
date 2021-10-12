@@ -752,7 +752,7 @@ dependencies = [
 [[package]]
 name = "filecoin-hashers"
 version = "5.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#040521e769359896028c1e4f5f97991d7ab4b1ba"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#62275e919c6790a77a9019cc6ca5c9add8f02d12"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -771,7 +771,7 @@ dependencies = [
 [[package]]
 name = "filecoin-proofs"
 version = "10.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#040521e769359896028c1e4f5f97991d7ab4b1ba"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#62275e919c6790a77a9019cc6ca5c9add8f02d12"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -811,7 +811,7 @@ dependencies = [
 [[package]]
 name = "filecoin-proofs-api"
 version = "10.0.0"
-source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=empty-sector-update#a07a7703f0e561c9396b59a5606c39ec60b24f75"
+source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=empty-sector-update#a2702cadbc088573948fcbc06ddada2c9673fdf5"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -860,7 +860,7 @@ dependencies = [
 [[package]]
 name = "fr32"
 version = "3.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#040521e769359896028c1e4f5f97991d7ab4b1ba"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#62275e919c6790a77a9019cc6ca5c9add8f02d12"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1744,7 +1744,7 @@ dependencies = [
 [[package]]
 name = "sha2raw"
 version = "5.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#040521e769359896028c1e4f5f97991d7ab4b1ba"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#62275e919c6790a77a9019cc6ca5c9add8f02d12"
 dependencies = [
  "block-buffer 0.9.0",
  "byteorder 1.4.3",
@@ -1774,7 +1774,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 [[package]]
 name = "storage-proofs-core"
 version = "10.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#040521e769359896028c1e4f5f97991d7ab4b1ba"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#62275e919c6790a77a9019cc6ca5c9add8f02d12"
 dependencies = [
  "aes",
  "anyhow",
@@ -1814,7 +1814,7 @@ dependencies = [
 [[package]]
 name = "storage-proofs-porep"
 version = "10.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#040521e769359896028c1e4f5f97991d7ab4b1ba"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#62275e919c6790a77a9019cc6ca5c9add8f02d12"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1857,7 +1857,7 @@ dependencies = [
 [[package]]
 name = "storage-proofs-post"
 version = "10.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#040521e769359896028c1e4f5f97991d7ab4b1ba"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#62275e919c6790a77a9019cc6ca5c9add8f02d12"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1885,7 +1885,7 @@ dependencies = [
 [[package]]
 name = "storage-proofs-update"
 version = "10.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#040521e769359896028c1e4f5f97991d7ab4b1ba"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=empty-sector-update#62275e919c6790a77a9019cc6ca5c9add8f02d12"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1960,9 +1960,9 @@ dependencies = [
 
 [[package]]
 name = "synstructure"
-version = "0.12.5"
+version = "0.12.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "474aaa926faa1603c40b7885a9eaea29b444d1cb2850cb7c0e37bb1a4182f4fa"
+checksum = "f36bdaa60a83aca3921b5259d5400cbf5e90fc51931376a9bd4a0eb79aa7210f"
 dependencies = [
  "proc-macro2 1.0.29",
  "quote 1.0.10",
@@ -2011,18 +2011,18 @@ dependencies = [
 
 [[package]]
 name = "thiserror"
-version = "1.0.29"
+version = "1.0.30"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "602eca064b2d83369e2b2f34b09c70b605402801927c65c11071ac911d299b88"
+checksum = "854babe52e4df1653706b98fcfc05843010039b406875930a70e4d9644e5c417"
 dependencies = [
  "thiserror-impl",
 ]
 
 [[package]]
 name = "thiserror-impl"
-version = "1.0.29"
+version = "1.0.30"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bad553cc2c78e8de258400763a647e80e6d1b31ee237275d756f6836d204494c"
+checksum = "aa32fd3f627f367fe16f893e2597ae3c05020f8bba2666a4e6ea73d377e5714b"
 dependencies = [
  "proc-macro2 1.0.29",
  "quote 1.0.10",
