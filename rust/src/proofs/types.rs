@@ -473,6 +473,26 @@ code_and_message_impl!(fil_GenerateSingleWindowPoStWithVanillaResponse);
 
 #[repr(C)]
 #[derive(DropStructMacro)]
+pub struct fil_GetNumPartitionForFallbackPoStResponse {
+    pub error_msg: *const libc::c_char,
+    pub status_code: FCPResponseStatus,
+    pub num_partition: libc::size_t,
+}
+
+impl Default for fil_GetNumPartitionForFallbackPoStResponse {
+    fn default() -> fil_GetNumPartitionForFallbackPoStResponse {
+        fil_GetNumPartitionForFallbackPoStResponse {
+            error_msg: ptr::null(),
+            num_partition: 0,
+            status_code: FCPResponseStatus::FCPNoError,
+        }
+    }
+}
+
+code_and_message_impl!(fil_GetNumPartitionForFallbackPoStResponse);
+
+#[repr(C)]
+#[derive(DropStructMacro)]
 pub struct fil_WriteWithAlignmentResponse {
     pub comm_p: [u8; 32],
     pub error_msg: *const libc::c_char,

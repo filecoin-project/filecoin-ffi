@@ -1241,6 +1241,41 @@ pub unsafe extern "C" fn fil_verify_window_post(
 /// TODO: document
 ///
 #[no_mangle]
+pub unsafe extern "C" fn fil_get_num_partition_for_fallback_post(
+    registered_proof: fil_RegisteredPoStProof,
+    num_sectors: libc::size_t,
+) -> *mut fil_GetNumPartitionForFallbackPoStResponse {
+    catch_panic_response(|| {
+        init_log();
+
+        info!("get_num_partition_for_fallback_post: start");
+        let result = filecoin_proofs_api::post::get_num_partition_for_fallback_post(
+            registered_proof.into(),
+            num_sectors,
+        );
+
+        let mut response = fil_GetNumPartitionForFallbackPoStResponse::default();
+
+        match result {
+            Ok(output) => {
+                response.status_code = FCPResponseStatus::FCPNoError;
+                response.num_partition = output;
+            }
+            Err(err) => {
+                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+            }
+        }
+
+        info!("get_num_partition_for_fallback_post: finish");
+
+        raw_ptr(response)
+    })
+}
+
+/// TODO: document
+///
+#[no_mangle]
 pub unsafe extern "C" fn fil_generate_single_window_post_with_vanilla(
     registered_proof: fil_RegisteredPoStProof,
     randomness: fil_32ByteArray,
