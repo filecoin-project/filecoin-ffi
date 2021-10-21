@@ -447,6 +447,32 @@ code_and_message_impl!(fil_GenerateWindowPoStResponse);
 
 #[repr(C)]
 #[derive(DropStructMacro)]
+pub struct fil_GenerateSingleWindowPoStWithVanillaResponse {
+    pub error_msg: *const libc::c_char,
+    pub proof_len: libc::size_t,
+    pub proof_ptr: *const u8,
+    pub faulty_sectors_len: libc::size_t,
+    pub faulty_sectors_ptr: *const u64,
+    pub status_code: FCPResponseStatus,
+}
+
+impl Default for fil_GenerateSingleWindowPoStWithVanillaResponse {
+    fn default() -> fil_GenerateSingleWindowPoStWithVanillaResponse {
+        fil_GenerateSingleWindowPoStWithVanillaResponse {
+            error_msg: ptr::null(),
+            proof_len: 0,
+            proof_ptr: ptr::null(),
+            faulty_sectors_len: 0,
+            faulty_sectors_ptr: ptr::null(),
+            status_code: FCPResponseStatus::FCPNoError,
+        }
+    }
+}
+
+code_and_message_impl!(fil_GenerateSingleWindowPoStWithVanillaResponse);
+
+#[repr(C)]
+#[derive(DropStructMacro)]
 pub struct fil_WriteWithAlignmentResponse {
     pub comm_p: [u8; 32],
     pub error_msg: *const libc::c_char,

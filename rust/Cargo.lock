@@ -280,9 +280,9 @@ dependencies = [
 
 [[package]]
 name = "byte-slice-cast"
-version = "1.1.0"
+version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ca0796d76a983651b4a0ddda16203032759f2fd9103d9181f7c65c06ee8872e6"
+checksum = "1d30c751592b77c499e7bce34d99d67c2c11bdc0574e9a488ddade14150a4698"
 
 [[package]]
 name = "byte-tools"
@@ -750,8 +750,7 @@ dependencies = [
 [[package]]
 name = "filecoin-hashers"
 version = "5.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e856c94fda96a382c5b96a7a9369acb20692579e98952c6d5a57325eb2358162"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-decouple-post-partition#8df5e597196693ba0fa645c13640df46fff3e04d"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -770,8 +769,7 @@ dependencies = [
 [[package]]
 name = "filecoin-proofs"
 version = "10.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "26b5d494aa51cd93456a00d09825af646cb512a7eff93b0a83ac2762db78aee2"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-decouple-post-partition#8df5e597196693ba0fa645c13640df46fff3e04d"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -810,8 +808,7 @@ dependencies = [
 [[package]]
 name = "filecoin-proofs-api"
 version = "10.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f5250ec0a53f2c35616a3915a498b25fe13b6bea8bef950ef1ad1ac3993feb11"
+source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=feat-decouple-post-partition#7b271f8b878d8cf30c3558d719fc5a686dfdc028"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -860,8 +857,7 @@ dependencies = [
 [[package]]
 name = "fr32"
 version = "3.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5b4d5f05c6780dbc8e9a5cb333c459df5b2e15bf71b16bdc7eb8b18b9f7e9bb4"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-decouple-post-partition#8df5e597196693ba0fa645c13640df46fff3e04d"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1047,9 +1043,9 @@ dependencies = [
 
 [[package]]
 name = "libc"
-version = "0.2.103"
+version = "0.2.104"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dd8f7255a17a627354f321ef0055d63b898c6fb27eff628af4d1b66b7331edf6"
+checksum = "7b2f96d100e1cf1929e7719b7edb3b90ab5298072638fccd77be9ce942ecdfce"
 
 [[package]]
 name = "lock_api"
@@ -1730,8 +1726,7 @@ dependencies = [
 [[package]]
 name = "sha2raw"
 version = "5.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "549ea000a530fd7bf18c4262f3213803fc5f1f1b9107aa4e4f1f07e52c646d94"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-decouple-post-partition#8df5e597196693ba0fa645c13640df46fff3e04d"
 dependencies = [
  "block-buffer 0.9.0",
  "byteorder 1.4.3",
@@ -1761,8 +1756,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 [[package]]
 name = "storage-proofs-core"
 version = "10.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8e7913befdde7997f7d1c86da57a3d36668c27e084eb593527c53b543acbaaff"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-decouple-post-partition#8df5e597196693ba0fa645c13640df46fff3e04d"
 dependencies = [
  "aes",
  "anyhow",
@@ -1802,8 +1796,7 @@ dependencies = [
 [[package]]
 name = "storage-proofs-porep"
 version = "10.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "936f45f70a135d3d37214ded0fc4999be2f43b53d38b26a85bf03ffaad76016a"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-decouple-post-partition#8df5e597196693ba0fa645c13640df46fff3e04d"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1845,8 +1838,7 @@ dependencies = [
 [[package]]
 name = "storage-proofs-post"
 version = "10.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "98f70f06deb7c030de94a87e273c8d1474e2e62d69eedfae863a996d001960d0"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=feat-decouple-post-partition#8df5e597196693ba0fa645c13640df46fff3e04d"
 dependencies = [
  "anyhow",
  "bellperson",

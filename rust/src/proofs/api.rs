@@ -9,7 +9,7 @@ use filecoin_proofs_api::seal::{
 };
 use filecoin_proofs_api::{
     PieceInfo, PrivateReplicaInfo, RegisteredPoStProof, RegisteredSealProof, SectorId,
-    StorageProofsError, UnpaddedByteIndex, UnpaddedBytesAmount,
+    StorageProofsError, UnpaddedByteIndex, UnpaddedBytesAmount, PartitionSnarkProof,
 };
 
 use blstrs::Scalar as Fr;
@@ -1234,6 +1234,77 @@ pub unsafe extern "C" fn fil_verify_window_post(
         };
 
         info!("verify_window_post: {}", "finish");
+        raw_ptr(response)
+    })
+}
+
+/// TODO: document
+///
+#[no_mangle]
+pub unsafe extern "C" fn fil_generate_single_window_post_with_vanilla(
+    registered_proof: fil_RegisteredPoStProof,
+    randomness: fil_32ByteArray,
+    prover_id: fil_32ByteArray,
+    vanilla_proofs_ptr: *const fil_VanillaProof,
+    vanilla_proofs_len: libc::size_t,
+    partition_index: libc::size_t,
+) -> *mut fil_GenerateSingleWindowPoStWithVanillaResponse {
+    catch_panic_response(|| {
+        init_log();
+
+        info!("generate_single_window_post_with_vanilla: start");
+
+        let vanilla_proofs: Vec<VanillaProof> =
+            std::slice::from_raw_parts(vanilla_proofs_ptr, vanilla_proofs_len)
+                .iter()
+                .cloned()
+                .map(|vanilla_proof| {
+                    std::slice::from_raw_parts(vanilla_proof.proof_ptr, vanilla_proof.proof_len)
+                        .to_vec()
+                })
+                .collect();
+
+        let result = filecoin_proofs_api::post::generate_single_window_post_with_vanilla(
+            registered_proof.into(),
+            &randomness.inner,
+            prover_id.inner,
+            &vanilla_proofs,
+            partition_index,
+        );
+
+        let mut response = fil_GenerateSingleWindowPoStWithVanillaResponse::default();
+
+        match result {
+            Ok(output) => {
+                let proof: PartitionSnarkProof = output.clone();
+
+                response.status_code = FCPResponseStatus::FCPNoError;
+                response.proof_ptr = proof.0.as_ptr();
+                response.proof_len = proof.0.len();
+
+                mem::forget(proof);
+            }
+            Err(err) => {
+                // If there were faulty sectors, add them to the response
+                if let Some(StorageProofsError::FaultySectors(sectors)) =
+                    err.downcast_ref::<StorageProofsError>()
+                {
+                    let sectors_u64 = sectors
+                        .iter()
+                        .map(|sector| u64::from(*sector))
+                        .collect::<Vec<u64>>();
+                    response.faulty_sectors_len = sectors_u64.len();
+                    response.faulty_sectors_ptr = sectors_u64.as_ptr();
+                    mem::forget(sectors_u64)
+                }
+
+                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+            }
+        }
+
+        info!("generate_single_window_post_with_vanilla: finish");
+
         raw_ptr(response)
     })
 }
