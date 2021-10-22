@@ -1277,7 +1277,7 @@ pub unsafe extern "C" fn fil_merge_window_post_partition_proofs(
             match result {
                 Ok(output) => {
                     let proof = fil_PoStProof {
-                        registered_proof: registered_proof.into(),
+                        registered_proof,
                         proof_ptr: output.as_ptr(),
                         proof_len: output.len(),
                     };
@@ -1374,7 +1374,7 @@ pub unsafe extern "C" fn fil_generate_single_window_post_with_vanilla(
         match result {
             Ok(output) => {
                 let partition_proof = fil_PartitionSnarkProof {
-                    registered_proof: registered_proof.into(),
+                    registered_proof,
                     proof_ptr: output.0.as_ptr(),
                     proof_len: output.0.len(),
                 };
