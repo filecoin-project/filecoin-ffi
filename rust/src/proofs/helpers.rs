@@ -7,7 +7,9 @@ use ffi_toolkit::{c_str_to_pbuf, c_str_to_rust_str};
 use filecoin_proofs_api::{PrivateReplicaInfo, PublicReplicaInfo, SectorId};
 
 use super::types::{fil_PrivateReplicaInfo, fil_PublicReplicaInfo, fil_RegisteredPoStProof};
-use crate::proofs::types::{fil_PoStProof, PoStProof};
+use crate::proofs::types::{
+    fil_PartitionSnarkProof, fil_PoStProof, PartitionSnarkProof, PoStProof,
+};
 
 #[derive(Debug, Clone)]
 struct PublicReplicaInfoTmp {
@@ -125,6 +127,26 @@ pub unsafe fn c_to_rust_post_proofs(
     let out = from_raw_parts(post_proofs_ptr, post_proofs_len)
         .iter()
         .map(|fpp| PoStProof {
+            registered_proof: fpp.registered_proof.into(),
+            proof: from_raw_parts(fpp.proof_ptr, fpp.proof_len).to_vec(),
+        })
+        .collect();
+
+    Ok(out)
+}
+
+pub unsafe fn c_to_rust_partition_proofs(
+    partition_proofs_ptr: *const fil_PartitionSnarkProof,
+    partition_proofs_len: libc::size_t,
+) -> Result<Vec<PartitionSnarkProof>> {
+    ensure!(
+        !partition_proofs_ptr.is_null(),
+        "partition_proofs_ptr must not be null"
+    );
+
+    let out = from_raw_parts(partition_proofs_ptr, partition_proofs_len)
+        .iter()
+        .map(|fpp| PartitionSnarkProof {
             registered_proof: fpp.registered_proof.into(),
             proof: from_raw_parts(fpp.proof_ptr, fpp.proof_len).to_vec(),
         })
