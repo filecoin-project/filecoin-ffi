@@ -177,12 +177,12 @@ func GenerateWindowPoStWithVanilla(
 
 type PartitionProof proof.PoStProof
 
-func GenerateSignleParitionWindowPoStWithVanilla(
+func GenerateSignlePartitionWindowPoStWithVanilla(
 	proofType abi.RegisteredPoStProof,
 	minerID abi.ActorID,
 	randomness abi.PoStRandomness,
 	proofs [][]byte,
-	paritionIndex uint,
+	partitionIndex uint,
 ) (*PartitionProof, error) {
 	pp, err := toFilRegisteredPoStProof(proofType)
 	if err != nil {
@@ -201,7 +201,7 @@ func GenerateSignleParitionWindowPoStWithVanilla(
 		to32ByteArray(randomness),
 		proverID,
 		fproofs, uint(len(proofs)),
-		paritionIndex,
+		partitionIndex,
 	)
 	resp.Deref()
 
@@ -224,16 +224,16 @@ func GenerateSignleParitionWindowPoStWithVanilla(
 	return &out, nil
 }
 
-func MergeWindowPoStParitionProofs(
+func MergeWindowPoStPartitionProofs(
 	proofType abi.RegisteredPoStProof,
-	paritionProofs []PartitionProof,
+	partitionProofs []PartitionProof,
 ) (*proof.PoStProof, error) {
 	pp, err := toFilRegisteredPoStProof(proofType)
 	if err != nil {
 		return nil, err
 	}
 
-	fproofs, discard, err := toParitionProofs(paritionProofs)
+	fproofs, discard, err := toPartitionProofs(partitionProofs)
 	defer discard()
 	if err != nil {
 		return nil, err

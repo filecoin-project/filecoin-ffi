@@ -748,7 +748,7 @@ func GetPoStVersion(proofType abi.RegisteredPoStProof) (string, error) {
 	return generated.RawString(resp.StringVal).Copy(), nil
 }
 
-func GetGetNumPartitionForFallbackPost(proofType abi.RegisteredPoStProof, numSectors uint) (uint, error) {
+func GetNumPartitionForFallbackPost(proofType abi.RegisteredPoStProof, numSectors uint) (uint, error) {
 	pp, err := toFilRegisteredPoStProof(proofType)
 	if err != nil {
 		return 0, err
@@ -1174,7 +1174,7 @@ func toVanillaProofs(src [][]byte) ([]generated.FilVanillaProof, func()) {
 	}
 }
 
-func toParitionProofs(src []PartitionProof) ([]generated.FilPartitionSnarkProof, func(), error) {
+func toPartitionProofs(src []PartitionProof) ([]generated.FilPartitionSnarkProof, func(), error) {
 	allocs := make([]AllocationManager, len(src))
 	cleanup := func() {
 		for idx := range allocs {
