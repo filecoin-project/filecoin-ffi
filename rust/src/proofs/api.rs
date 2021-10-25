@@ -2682,7 +2682,7 @@ pub mod tests {
             let mut partition_proofs: Vec<fil_PartitionSnarkProof> =
                 Vec::with_capacity((*num_partitions_resp).num_partition);
             for partition_index in 0..(*num_partitions_resp).num_partition {
-                let mut vanilla_proofs = Vec::with_capacity(private_replicas.len());
+                let mut vanilla_proofs = Vec::with_capacity(challenge_iterations);
                 for i in 0..challenge_iterations {
                     let sector_id = sector_ids[i];
                     let challenges: Vec<_> = sector_challenges
