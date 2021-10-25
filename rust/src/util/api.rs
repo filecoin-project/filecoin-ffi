@@ -85,6 +85,7 @@ mod tests {
     use crate::util::types::fil_destroy_gpu_device_response;
 
     #[test]
+    #[allow(clippy::needless_collect)]
     fn test_get_gpu_devices() {
         unsafe {
             let resp = fil_get_gpu_devices();
