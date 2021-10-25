@@ -501,7 +501,7 @@ pub unsafe extern "C" fn fil_verify_aggregate_seal_proof(
 
         let inputs: anyhow::Result<Vec<Vec<Fr>>> = commit_inputs
             .par_iter()
-            .map(|input| convert_aggregation_inputs(registered_proof, prover_id, &input))
+            .map(|input| convert_aggregation_inputs(registered_proof, prover_id, input))
             .try_reduce(Vec::new, |mut acc, current| {
                 acc.extend(current);
                 Ok(acc)
