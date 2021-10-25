@@ -8,8 +8,8 @@ use filecoin_proofs_api::seal::{
     verify_seal, write_and_preprocess, SealCommitPhase2Output, SealPreCommitPhase2Output,
 };
 use filecoin_proofs_api::{
-    PieceInfo, PrivateReplicaInfo, RegisteredPoStProof, RegisteredSealProof, SectorId,
-    StorageProofsError, UnpaddedByteIndex, UnpaddedBytesAmount,
+    PartitionSnarkProof, PieceInfo, PrivateReplicaInfo, RegisteredPoStProof, RegisteredSealProof,
+    SectorId, StorageProofsError, UnpaddedByteIndex, UnpaddedBytesAmount,
 };
 
 use blstrs::Scalar as Fr;
@@ -20,7 +20,9 @@ use std::mem;
 use std::path::PathBuf;
 use std::slice::from_raw_parts;
 
-use super::helpers::{c_to_rust_post_proofs, to_private_replica_info_map};
+use super::helpers::{
+    c_to_rust_partition_proofs, c_to_rust_post_proofs, to_private_replica_info_map,
+};
 use super::types::*;
 use crate::util::api::init_log;
 
@@ -499,7 +501,7 @@ pub unsafe extern "C" fn fil_verify_aggregate_seal_proof(
 
         let inputs: anyhow::Result<Vec<Vec<Fr>>> = commit_inputs
             .par_iter()
-            .map(|input| convert_aggregation_inputs(registered_proof, prover_id, &input))
+            .map(|input| convert_aggregation_inputs(registered_proof, prover_id, input))
             .try_reduce(Vec::new, |mut acc, current| {
                 acc.extend(current);
                 Ok(acc)
@@ -1238,6 +1240,174 @@ pub unsafe extern "C" fn fil_verify_window_post(
     })
 }
 
+/// TODO: document
+///
+#[no_mangle]
+pub unsafe extern "C" fn fil_merge_window_post_partition_proofs(
+    registered_proof: fil_RegisteredPoStProof,
+    partition_proofs_ptr: *const fil_PartitionSnarkProof,
+    partition_proofs_len: libc::size_t,
+) -> *mut fil_MergeWindowPoStPartitionProofsResponse {
+    catch_panic_response(|| {
+        init_log();
+
+        info!("merge_window_post_partition_proofs: start");
+
+        let mut response = fil_MergeWindowPoStPartitionProofsResponse::default();
+
+        let partition_proofs: Vec<PartitionSnarkProof> =
+            match c_to_rust_partition_proofs(partition_proofs_ptr, partition_proofs_len) {
+                Ok(partition_proofs) => partition_proofs
+                    .iter()
+                    .map(|pp| PartitionSnarkProof(pp.proof.clone()))
+                    .collect(),
+                Err(err) => {
+                    response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                    response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                    Vec::new()
+                }
+            };
+
+        if !partition_proofs.is_empty() {
+            let result = filecoin_proofs_api::post::merge_window_post_partition_proofs(
+                registered_proof.into(),
+                partition_proofs,
+            );
+
+            match result {
+                Ok(output) => {
+                    let proof = fil_PoStProof {
+                        registered_proof,
+                        proof_ptr: output.as_ptr(),
+                        proof_len: output.len(),
+                    };
+
+                    response.status_code = FCPResponseStatus::FCPNoError;
+                    response.proof = proof;
+
+                    mem::forget(output);
+                }
+                Err(err) => {
+                    response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                    response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                }
+            }
+        }
+
+        info!("merge_window_post_partition_proofs: finish");
+
+        raw_ptr(response)
+    })
+}
+
+/// TODO: document
+///
+#[no_mangle]
+pub unsafe extern "C" fn fil_get_num_partition_for_fallback_post(
+    registered_proof: fil_RegisteredPoStProof,
+    num_sectors: libc::size_t,
+) -> *mut fil_GetNumPartitionForFallbackPoStResponse {
+    catch_panic_response(|| {
+        init_log();
+
+        info!("get_num_partition_for_fallback_post: start");
+        let result = filecoin_proofs_api::post::get_num_partition_for_fallback_post(
+            registered_proof.into(),
+            num_sectors,
+        );
+
+        let mut response = fil_GetNumPartitionForFallbackPoStResponse::default();
+
+        match result {
+            Ok(output) => {
+                response.status_code = FCPResponseStatus::FCPNoError;
+                response.num_partition = output;
+            }
+            Err(err) => {
+                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+            }
+        }
+
+        info!("get_num_partition_for_fallback_post: finish");
+
+        raw_ptr(response)
+    })
+}
+
+/// TODO: document
+///
+#[no_mangle]
+pub unsafe extern "C" fn fil_generate_single_window_post_with_vanilla(
+    registered_proof: fil_RegisteredPoStProof,
+    randomness: fil_32ByteArray,
+    prover_id: fil_32ByteArray,
+    vanilla_proofs_ptr: *const fil_VanillaProof,
+    vanilla_proofs_len: libc::size_t,
+    partition_index: libc::size_t,
+) -> *mut fil_GenerateSingleWindowPoStWithVanillaResponse {
+    catch_panic_response(|| {
+        init_log();
+
+        info!("generate_single_window_post_with_vanilla: start");
+
+        let vanilla_proofs: Vec<VanillaProof> =
+            std::slice::from_raw_parts(vanilla_proofs_ptr, vanilla_proofs_len)
+                .iter()
+                .cloned()
+                .map(|vanilla_proof| {
+                    std::slice::from_raw_parts(vanilla_proof.proof_ptr, vanilla_proof.proof_len)
+                        .to_vec()
+                })
+                .collect();
+
+        let result = filecoin_proofs_api::post::generate_single_window_post_with_vanilla(
+            registered_proof.into(),
+            &randomness.inner,
+            prover_id.inner,
+            &vanilla_proofs,
+            partition_index,
+        );
+
+        let mut response = fil_GenerateSingleWindowPoStWithVanillaResponse::default();
+
+        match result {
+            Ok(output) => {
+                let partition_proof = fil_PartitionSnarkProof {
+                    registered_proof,
+                    proof_ptr: output.0.as_ptr(),
+                    proof_len: output.0.len(),
+                };
+                mem::forget(output);
+
+                response.status_code = FCPResponseStatus::FCPNoError;
+                response.partition_proof = partition_proof;
+            }
+            Err(err) => {
+                // If there were faulty sectors, add them to the response
+                if let Some(StorageProofsError::FaultySectors(sectors)) =
+                    err.downcast_ref::<StorageProofsError>()
+                {
+                    let sectors_u64 = sectors
+                        .iter()
+                        .map(|sector| u64::from(*sector))
+                        .collect::<Vec<u64>>();
+                    response.faulty_sectors_len = sectors_u64.len();
+                    response.faulty_sectors_ptr = sectors_u64.as_ptr();
+                    mem::forget(sectors_u64)
+                }
+
+                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+            }
+        }
+
+        info!("generate_single_window_post_with_vanilla: finish");
+
+        raw_ptr(response)
+    })
+}
+
 /// Returns the merkle root for a piece after piece padding and alignment.
 /// The caller is responsible for closing the passed in file descriptor.
 #[no_mangle]
@@ -1647,6 +1817,27 @@ pub unsafe extern "C" fn fil_destroy_generate_fallback_sector_challenges_respons
 #[no_mangle]
 pub unsafe extern "C" fn fil_destroy_generate_single_vanilla_proof_response(
     ptr: *mut fil_GenerateSingleVanillaProofResponse,
+) {
+    let _ = Box::from_raw(ptr);
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn fil_destroy_generate_single_window_post_with_vanilla_response(
+    ptr: *mut fil_GenerateSingleWindowPoStWithVanillaResponse,
+) {
+    let _ = Box::from_raw(ptr);
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn fil_destroy_get_num_partition_for_fallback_post_response(
+    ptr: *mut fil_GetNumPartitionForFallbackPoStResponse,
+) {
+    let _ = Box::from_raw(ptr);
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn fil_destroy_merge_window_post_partition_proofs_response(
+    ptr: *mut fil_MergeWindowPoStPartitionProofsResponse,
 ) {
     let _ = Box::from_raw(ptr);
 }
@@ -2467,6 +2658,115 @@ pub mod tests {
                 panic!("verify_window_post rejected the provided proof as invalid");
             }
 
+            //////////////////////////////////////////////
+            // Window PoSt using single partition API
+            //
+            // NOTE: This performs the window post all over again, just using
+            // a different API.  This is just for testing and would not normally
+            // be repeated like this in sequence.
+            //
+            //////////////////////////////////////////////
+
+            // Note: Re-using all of the sector challenges and types
+            // required from above previous distributed PoSt API run.
+
+            let num_partitions_resp = fil_get_num_partition_for_fallback_post(
+                registered_proof_window_post,
+                sectors.len(),
+            );
+            if (*num_partitions_resp).status_code != FCPResponseStatus::FCPNoError {
+                let msg = c_str_to_rust_str((*num_partitions_resp).error_msg);
+                panic!("get_num_partition_for_fallback_post failed: {:?}", msg);
+            }
+
+            let mut partition_proofs: Vec<fil_PartitionSnarkProof> =
+                Vec::with_capacity((*num_partitions_resp).num_partition);
+            for partition_index in 0..(*num_partitions_resp).num_partition {
+                let mut vanilla_proofs = Vec::with_capacity(challenge_iterations);
+                for i in 0..challenge_iterations {
+                    let sector_id = sector_ids[i];
+                    let challenges: Vec<_> = sector_challenges
+                        [i * challenges_stride..i * challenges_stride + challenges_stride]
+                        .to_vec();
+
+                    let private_replica = private_replicas
+                        .iter()
+                        .find(|&replica| replica.sector_id == sector_id)
+                        .expect("failed to find private replica info")
+                        .clone();
+
+                    let resp_vp = fil_generate_single_vanilla_proof(
+                        private_replica,
+                        challenges.as_ptr(),
+                        challenges.len(),
+                    );
+
+                    if (*resp_vp).status_code != FCPResponseStatus::FCPNoError {
+                        let msg = c_str_to_rust_str((*resp_vp).error_msg);
+                        panic!("generate_single_vanilla_proof failed: {:?}", msg);
+                    }
+
+                    vanilla_proofs.push((*resp_vp).vanilla_proof.clone());
+                    fil_destroy_generate_single_vanilla_proof_response(resp_vp);
+                }
+
+                let single_partition_proof_resp = fil_generate_single_window_post_with_vanilla(
+                    registered_proof_window_post,
+                    randomness,
+                    prover_id,
+                    vanilla_proofs.as_ptr(),
+                    vanilla_proofs.len(),
+                    partition_index,
+                );
+
+                if (*single_partition_proof_resp).status_code != FCPResponseStatus::FCPNoError {
+                    let msg = c_str_to_rust_str((*single_partition_proof_resp).error_msg);
+                    panic!("generate_single_window_post_with_vanilla failed: {:?}", msg);
+                }
+
+                partition_proofs.push((*single_partition_proof_resp).partition_proof.clone());
+                fil_destroy_generate_single_window_post_with_vanilla_response(
+                    single_partition_proof_resp,
+                );
+            }
+
+            fil_destroy_get_num_partition_for_fallback_post_response(num_partitions_resp);
+
+            let merged_proof_resp = fil_merge_window_post_partition_proofs(
+                registered_proof_window_post,
+                partition_proofs.as_ptr(),
+                partition_proofs.len(),
+            );
+
+            if (*merged_proof_resp).status_code != FCPResponseStatus::FCPNoError {
+                let msg = c_str_to_rust_str((*merged_proof_resp).error_msg);
+                panic!("merge_window_post_partition_proofs failed: {:?}", msg);
+            }
+
+            let resp_k3 = fil_verify_window_post(
+                randomness,
+                public_replicas.as_ptr(),
+                public_replicas.len(),
+                &(*merged_proof_resp).proof,
+                1, /* len is 1, as it's a single window post proof once merged */
+                prover_id,
+            );
+
+            if (*resp_k3).status_code != FCPResponseStatus::FCPNoError {
+                let msg = c_str_to_rust_str((*resp_k3).error_msg);
+                panic!("verify_window_post failed: {:?}", msg);
+            }
+
+            if !(*resp_k3).is_valid {
+                panic!("verify_window_post rejected the provided proof as invalid");
+            }
+
+            fil_destroy_merge_window_post_partition_proofs_response(merged_proof_resp);
+
+            ////////////////////
+            // Cleanup responses
+            ////////////////////
+
             fil_destroy_write_without_alignment_response(resp_a1);
             fil_destroy_write_with_alignment_response(resp_a2);
             fil_destroy_generate_data_commitment_response(resp_x);
@@ -2491,6 +2791,7 @@ pub mod tests {
             fil_destroy_generate_window_post_response(resp_wpwv2);
             fil_destroy_verify_window_post_response(resp_k);
             fil_destroy_verify_window_post_response(resp_k2);
+            fil_destroy_verify_window_post_response(resp_k3);
 
             c_str_to_rust_str(cache_dir_path_c_str);
             c_str_to_rust_str(staged_path_c_str);

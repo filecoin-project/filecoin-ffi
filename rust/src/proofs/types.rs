@@ -206,22 +206,6 @@ impl From<fil_PublicPieceInfo> for PieceInfo {
 }
 
 #[repr(C)]
-#[derive(Clone)]
-pub struct fil_PoStProof {
-    pub registered_proof: fil_RegisteredPoStProof,
-    pub proof_len: libc::size_t,
-    pub proof_ptr: *const u8,
-}
-
-impl Drop for fil_PoStProof {
-    fn drop(&mut self) {
-        let _ = unsafe {
-            Vec::from_raw_parts(self.proof_ptr as *mut u8, self.proof_len, self.proof_len)
-        };
-    }
-}
-
-#[repr(C)]
 pub struct fil_VanillaProof {
     pub proof_len: libc::size_t,
     pub proof_ptr: *const u8,
@@ -295,11 +279,77 @@ pub struct PoStProof {
     pub proof: Vec<u8>,
 }
 
+#[repr(C)]
+#[derive(Clone)]
+pub struct fil_PoStProof {
+    pub registered_proof: fil_RegisteredPoStProof,
+    pub proof_len: libc::size_t,
+    pub proof_ptr: *const u8,
+}
+
+impl Drop for fil_PoStProof {
+    fn drop(&mut self) {
+        let _ = unsafe {
+            Vec::from_raw_parts(self.proof_ptr as *mut u8, self.proof_len, self.proof_len)
+        };
+    }
+}
+
 impl From<fil_PoStProof> for PoStProof {
     fn from(other: fil_PoStProof) -> Self {
         let proof = unsafe { from_raw_parts(other.proof_ptr, other.proof_len).to_vec() };
 
         PoStProof {
+            registered_proof: other.registered_proof.into(),
+            proof,
+        }
+    }
+}
+
+#[repr(C)]
+#[derive(Clone)]
+pub struct PartitionSnarkProof {
+    pub registered_proof: RegisteredPoStProof,
+    pub proof: Vec<u8>,
+}
+
+#[repr(C)]
+pub struct fil_PartitionSnarkProof {
+    pub registered_proof: fil_RegisteredPoStProof,
+    pub proof_len: libc::size_t,
+    pub proof_ptr: *const u8,
+}
+
+impl Clone for fil_PartitionSnarkProof {
+    fn clone(&self) -> Self {
+        let slice: &[u8] = unsafe { std::slice::from_raw_parts(self.proof_ptr, self.proof_len) };
+        let cloned: Vec<u8> = slice.to_vec();
+        debug_assert_eq!(self.proof_len, cloned.len());
+
+        let proof_ptr = cloned.as_ptr();
+        std::mem::forget(cloned);
+
+        fil_PartitionSnarkProof {
+            registered_proof: self.registered_proof,
+            proof_len: self.proof_len,
+            proof_ptr,
+        }
+    }
+}
+
+impl Drop for fil_PartitionSnarkProof {
+    fn drop(&mut self) {
+        let _ = unsafe {
+            Vec::from_raw_parts(self.proof_ptr as *mut u8, self.proof_len, self.proof_len)
+        };
+    }
+}
+
+impl From<fil_PartitionSnarkProof> for PartitionSnarkProof {
+    fn from(other: fil_PartitionSnarkProof) -> Self {
+        let proof = unsafe { from_raw_parts(other.proof_ptr, other.proof_len).to_vec() };
+
+        PartitionSnarkProof {
             registered_proof: other.registered_proof.into(),
             proof,
         }
@@ -444,6 +494,78 @@ impl Default for fil_GenerateWindowPoStResponse {
 }
 
 code_and_message_impl!(fil_GenerateWindowPoStResponse);
+
+#[repr(C)]
+#[derive(DropStructMacro)]
+pub struct fil_GenerateSingleWindowPoStWithVanillaResponse {
+    pub error_msg: *const libc::c_char,
+    pub partition_proof: fil_PartitionSnarkProof,
+    pub faulty_sectors_len: libc::size_t,
+    pub faulty_sectors_ptr: *const u64,
+    pub status_code: FCPResponseStatus,
+}
+
+impl Default for fil_GenerateSingleWindowPoStWithVanillaResponse {
+    fn default() -> fil_GenerateSingleWindowPoStWithVanillaResponse {
+        fil_GenerateSingleWindowPoStWithVanillaResponse {
+            error_msg: ptr::null(),
+            partition_proof: fil_PartitionSnarkProof {
+                registered_proof: fil_RegisteredPoStProof::StackedDrgWinning2KiBV1,
+                proof_len: 0,
+                proof_ptr: ptr::null(),
+            },
+            faulty_sectors_len: 0,
+            faulty_sectors_ptr: ptr::null(),
+            status_code: FCPResponseStatus::FCPNoError,
+        }
+    }
+}
+
+code_and_message_impl!(fil_GenerateSingleWindowPoStWithVanillaResponse);
+
+#[repr(C)]
+#[derive(DropStructMacro)]
+pub struct fil_GetNumPartitionForFallbackPoStResponse {
+    pub error_msg: *const libc::c_char,
+    pub status_code: FCPResponseStatus,
+    pub num_partition: libc::size_t,
+}
+
+impl Default for fil_GetNumPartitionForFallbackPoStResponse {
+    fn default() -> fil_GetNumPartitionForFallbackPoStResponse {
+        fil_GetNumPartitionForFallbackPoStResponse {
+            error_msg: ptr::null(),
+            num_partition: 0,
+            status_code: FCPResponseStatus::FCPNoError,
+        }
+    }
+}
+
+code_and_message_impl!(fil_GetNumPartitionForFallbackPoStResponse);
+
+#[repr(C)]
+#[derive(DropStructMacro)]
+pub struct fil_MergeWindowPoStPartitionProofsResponse {
+    pub error_msg: *const libc::c_char,
+    pub proof: fil_PoStProof,
+    pub status_code: FCPResponseStatus,
+}
+
+impl Default for fil_MergeWindowPoStPartitionProofsResponse {
+    fn default() -> fil_MergeWindowPoStPartitionProofsResponse {
+        fil_MergeWindowPoStPartitionProofsResponse {
+            error_msg: ptr::null(),
+            proof: fil_PoStProof {
+                registered_proof: fil_RegisteredPoStProof::StackedDrgWinning2KiBV1,
+                proof_len: 0,
+                proof_ptr: ptr::null(),
+            },
+            status_code: FCPResponseStatus::FCPNoError,
+        }
+    }
+}
+
+code_and_message_impl!(fil_MergeWindowPoStPartitionProofsResponse);
 
 #[repr(C)]
 #[derive(DropStructMacro)]

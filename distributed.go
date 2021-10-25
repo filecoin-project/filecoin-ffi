@@ -5,7 +5,7 @@ package ffi
 import (
 	"github.com/filecoin-project/filecoin-ffi/generated"
 	"github.com/filecoin-project/go-state-types/abi"
-	"github.com/filecoin-project/specs-actors/actors/runtime/proof"
+	"github.com/filecoin-project/specs-actors/v5/actors/runtime/proof"
 	"github.com/pkg/errors"
 )
 
@@ -173,4 +173,93 @@ func GenerateWindowPoStWithVanilla(
 	}
 
 	return out, nil
+}
+
+type PartitionProof proof.PoStProof
+
+func GenerateSinglePartitionWindowPoStWithVanilla(
+	proofType abi.RegisteredPoStProof,
+	minerID abi.ActorID,
+	randomness abi.PoStRandomness,
+	proofs [][]byte,
+	partitionIndex uint,
+) (*PartitionProof, error) {
+	pp, err := toFilRegisteredPoStProof(proofType)
+	if err != nil {
+		return nil, err
+	}
+
+	proverID, err := toProverID(minerID)
+	if err != nil {
+		return nil, err
+	}
+	fproofs, discard := toVanillaProofs(proofs)
+	defer discard()
+
+	resp := generated.FilGenerateSingleWindowPostWithVanilla(
+		pp,
+		to32ByteArray(randomness),
+		proverID,
+		fproofs, uint(len(proofs)),
+		partitionIndex,
+	)
+	resp.Deref()
+
+	defer generated.FilDestroyGenerateSingleWindowPostWithVanillaResponse(resp)
+
+	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
+		return nil, errors.New(generated.RawString(resp.ErrorMsg).Copy())
+	}
+
+	dpp, err := fromFilRegisteredPoStProof(resp.PartitionProof.RegisteredProof)
+	if err != nil {
+		return nil, err
+	}
+
+	out := PartitionProof{
+		PoStProof:  dpp,
+		ProofBytes: copyBytes(resp.PartitionProof.ProofPtr, resp.PartitionProof.ProofLen),
+	}
+
+	return &out, nil
+}
+
+func MergeWindowPoStPartitionProofs(
+	proofType abi.RegisteredPoStProof,
+	partitionProofs []PartitionProof,
+) (*proof.PoStProof, error) {
+	pp, err := toFilRegisteredPoStProof(proofType)
+	if err != nil {
+		return nil, err
+	}
+
+	fproofs, discard, err := toPartitionProofs(partitionProofs)
+	defer discard()
+	if err != nil {
+		return nil, err
+	}
+
+	resp := generated.FilMergeWindowPostPartitionProofs(
+		pp,
+		fproofs, uint(len(fproofs)),
+	)
+	resp.Deref()
+
+	defer generated.FilDestroyMergeWindowPostPartitionProofsResponse(resp)
+
+	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
+		return nil, errors.New(generated.RawString(resp.ErrorMsg).Copy())
+	}
+
+	dpp, err := fromFilRegisteredPoStProof(resp.Proof.RegisteredProof)
+	if err != nil {
+		return nil, err
+	}
+
+	out := proof.PoStProof{
+		PoStProof:  dpp,
+		ProofBytes: copyBytes(resp.Proof.ProofPtr, resp.Proof.ProofLen),
+	}
+
+	return &out, nil
 }

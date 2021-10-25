@@ -748,6 +748,21 @@ func GetPoStVersion(proofType abi.RegisteredPoStProof) (string, error) {
 	return generated.RawString(resp.StringVal).Copy(), nil
 }
 
+func GetNumPartitionForFallbackPost(proofType abi.RegisteredPoStProof, numSectors uint) (uint, error) {
+	pp, err := toFilRegisteredPoStProof(proofType)
+	if err != nil {
+		return 0, err
+	}
+	resp := generated.FilGetNumPartitionForFallbackPost(pp, numSectors)
+	defer generated.FilDestroyGetNumPartitionForFallbackPostResponse(resp)
+
+	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
+		return 0, errors.New(generated.RawString(resp.ErrorMsg).Copy())
+	}
+
+	return resp.NumPartition, nil
+}
+
 // ClearCache
 func ClearCache(sectorSize uint64, cacheDirPath string) error {
 	resp := generated.FilClearCache(sectorSize, cacheDirPath)
@@ -1157,4 +1172,31 @@ func toVanillaProofs(src [][]byte) ([]generated.FilVanillaProof, func()) {
 			allocs[idx].Free()
 		}
 	}
+}
+
+func toPartitionProofs(src []PartitionProof) ([]generated.FilPartitionSnarkProof, func(), error) {
+	allocs := make([]AllocationManager, len(src))
+	cleanup := func() {
+		for idx := range allocs {
+			allocs[idx].Free()
+		}
+	}
+
+	out := make([]generated.FilPartitionSnarkProof, len(src))
+	for idx := range out {
+		rp, err := toFilRegisteredPoStProof(src[idx].PoStProof)
+		if err != nil {
+			return nil, cleanup, err
+		}
+
+		out[idx] = generated.FilPartitionSnarkProof{
+			RegisteredProof: rp,
+			ProofLen:        uint(len(src[idx].ProofBytes)),
+			ProofPtr:        src[idx].ProofBytes,
+		}
+
+		_, allocs[idx] = out[idx].PassRef()
+	}
+
+	return out, cleanup, nil
 }
