@@ -11,13 +11,14 @@ import (
 	"runtime"
 	"unsafe"
 
+	"github.com/ipfs/go-cid"
+	"github.com/pkg/errors"
+	"golang.org/x/xerrors"
+
 	"github.com/filecoin-project/go-address"
 	commcid "github.com/filecoin-project/go-fil-commcid"
 	"github.com/filecoin-project/go-state-types/abi"
 	proof5 "github.com/filecoin-project/specs-actors/v5/actors/runtime/proof"
-	"github.com/ipfs/go-cid"
-	"github.com/pkg/errors"
-	"golang.org/x/xerrors"
 
 	"github.com/filecoin-project/filecoin-ffi/generated"
 )
