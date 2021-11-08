@@ -247,7 +247,6 @@ func (_ FunctionsSectorUpdate) VerifyUpdateProof(
 		commRold,
 		commRnew,
 		commD,
-		"this should not be needed REMOVE ME",
 	)
 	resp.Deref()
 	defer generated.FilDestroyEmptySectorUpdateVerifyProofResponse(resp)

@@ -16,11 +16,7 @@ import (
 	"unsafe"
 )
 
-<<<<<<< HEAD
-// FilAggregate function as declared in filecoin-ffi/filcrypto.h:375
-=======
-// FilAggregate function as declared in filecoin-ffi/filcrypto.h:388
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
+// FilAggregate function as declared in filecoin-ffi/filcrypto.h:414
 func FilAggregate(flattenedSignaturesPtr []byte, flattenedSignaturesLen uint) *FilAggregateResponse {
 	cflattenedSignaturesPtr, cflattenedSignaturesPtrAllocMap := copyPUint8TBytes((*sliceHeader)(unsafe.Pointer(&flattenedSignaturesPtr)))
 	cflattenedSignaturesLen, cflattenedSignaturesLenAllocMap := (C.size_t)(flattenedSignaturesLen), cgoAllocsUnknown
@@ -31,11 +27,7 @@ func FilAggregate(flattenedSignaturesPtr []byte, flattenedSignaturesLen uint) *F
 	return __v
 }
 
-<<<<<<< HEAD
-// FilAggregateSealProofs function as declared in filecoin-ffi/filcrypto.h:378
-=======
-// FilAggregateSealProofs function as declared in filecoin-ffi/filcrypto.h:391
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
+// FilAggregateSealProofs function as declared in filecoin-ffi/filcrypto.h:417
 func FilAggregateSealProofs(registeredProof FilRegisteredSealProof, registeredAggregation FilRegisteredAggregationProof, commRsPtr []Fil32ByteArray, commRsLen uint, seedsPtr []Fil32ByteArray, seedsLen uint, sealCommitResponsesPtr []FilSealCommitPhase2Response, sealCommitResponsesLen uint) *FilAggregateProof {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProof)(registeredProof), cgoAllocsUnknown
 	cregisteredAggregation, cregisteredAggregationAllocMap := (C.fil_RegisteredAggregationProof)(registeredAggregation), cgoAllocsUnknown
@@ -61,11 +53,7 @@ func FilAggregateSealProofs(registeredProof FilRegisteredSealProof, registeredAg
 	return __v
 }
 
-<<<<<<< HEAD
-// FilClearCache function as declared in filecoin-ffi/filcrypto.h:387
-=======
-// FilClearCache function as declared in filecoin-ffi/filcrypto.h:400
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
+// FilClearCache function as declared in filecoin-ffi/filcrypto.h:426
 func FilClearCache(sectorSize uint64, cacheDirPath string) *FilClearCacheResponse {
 	csectorSize, csectorSizeAllocMap := (C.uint64_t)(sectorSize), cgoAllocsUnknown
 	cacheDirPath = safeString(cacheDirPath)
@@ -78,475 +66,296 @@ func FilClearCache(sectorSize uint64, cacheDirPath string) *FilClearCacheRespons
 	return __v
 }
 
-<<<<<<< HEAD
-// FilCreateZeroSignature function as declared in filecoin-ffi/filcrypto.h:394
-=======
-// FilCreateZeroSignature function as declared in filecoin-ffi/filcrypto.h:407
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
+// FilCreateZeroSignature function as declared in filecoin-ffi/filcrypto.h:433
 func FilCreateZeroSignature() *FilZeroSignatureResponse {
 	__ret := C.fil_create_zero_signature()
 	__v := NewFilZeroSignatureResponseRef(unsafe.Pointer(__ret))
 	return __v
 }
 
-<<<<<<< HEAD
-// FilDestroyAggregateProof function as declared in filecoin-ffi/filcrypto.h:400
-=======
-// FilDestroyAggregateProof function as declared in filecoin-ffi/filcrypto.h:413
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
+// FilDestroyAggregateProof function as declared in filecoin-ffi/filcrypto.h:439
 func FilDestroyAggregateProof(ptr *FilAggregateProof) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_aggregate_proof(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-<<<<<<< HEAD
-// FilDestroyAggregateResponse function as declared in filecoin-ffi/filcrypto.h:402
-=======
-// FilDestroyAggregateResponse function as declared in filecoin-ffi/filcrypto.h:415
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
+// FilDestroyAggregateResponse function as declared in filecoin-ffi/filcrypto.h:441
 func FilDestroyAggregateResponse(ptr *FilAggregateResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_aggregate_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-<<<<<<< HEAD
-// FilDestroyClearCacheResponse function as declared in filecoin-ffi/filcrypto.h:404
-=======
-// FilDestroyClearCacheResponse function as declared in filecoin-ffi/filcrypto.h:417
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
+// FilDestroyClearCacheResponse function as declared in filecoin-ffi/filcrypto.h:443
 func FilDestroyClearCacheResponse(ptr *FilClearCacheResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_clear_cache_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-<<<<<<< HEAD
-// FilDestroyFauxrepResponse function as declared in filecoin-ffi/filcrypto.h:406
-=======
-// FilDestroyEmptySectorUpdateDecodeFromResponse function as declared in filecoin-ffi/filcrypto.h:423
+// FilDestroyEmptySectorUpdateDecodeFromResponse function as declared in filecoin-ffi/filcrypto.h:449
 func FilDestroyEmptySectorUpdateDecodeFromResponse(ptr *FilEmptySectorUpdateDecodeFromResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_empty_sector_update_decode_from_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-// FilDestroyEmptySectorUpdateEncodeIntoResponse function as declared in filecoin-ffi/filcrypto.h:429
+// FilDestroyEmptySectorUpdateEncodeIntoResponse function as declared in filecoin-ffi/filcrypto.h:455
 func FilDestroyEmptySectorUpdateEncodeIntoResponse(ptr *FilEmptySectorUpdateEncodeIntoResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_empty_sector_update_encode_into_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-// FilDestroyEmptySectorUpdateGenerateProofResponse function as declared in filecoin-ffi/filcrypto.h:435
+// FilDestroyEmptySectorUpdateGenerateProofResponse function as declared in filecoin-ffi/filcrypto.h:461
 func FilDestroyEmptySectorUpdateGenerateProofResponse(ptr *FilEmptySectorUpdateProofResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_empty_sector_update_generate_proof_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-// FilDestroyEmptySectorUpdateRemoveEncodedDataResponse function as declared in filecoin-ffi/filcrypto.h:441
+// FilDestroyEmptySectorUpdateRemoveEncodedDataResponse function as declared in filecoin-ffi/filcrypto.h:467
 func FilDestroyEmptySectorUpdateRemoveEncodedDataResponse(ptr *FilEmptySectorUpdateRemoveEncodedDataResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_empty_sector_update_remove_encoded_data_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-// FilDestroyEmptySectorUpdateVerifyProofResponse function as declared in filecoin-ffi/filcrypto.h:447
+// FilDestroyEmptySectorUpdateVerifyProofResponse function as declared in filecoin-ffi/filcrypto.h:473
 func FilDestroyEmptySectorUpdateVerifyProofResponse(ptr *FilVerifyEmptySectorUpdateProofResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_empty_sector_update_verify_proof_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-// FilDestroyFauxrepResponse function as declared in filecoin-ffi/filcrypto.h:449
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
+// FilDestroyFauxrepResponse function as declared in filecoin-ffi/filcrypto.h:475
 func FilDestroyFauxrepResponse(ptr *FilFauxRepResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_fauxrep_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-<<<<<<< HEAD
-// FilDestroyFinalizeTicketResponse function as declared in filecoin-ffi/filcrypto.h:408
-=======
-// FilDestroyFinalizeTicketResponse function as declared in filecoin-ffi/filcrypto.h:451
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
+// FilDestroyFinalizeTicketResponse function as declared in filecoin-ffi/filcrypto.h:477
 func FilDestroyFinalizeTicketResponse(ptr *FilFinalizeTicketResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_finalize_ticket_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-<<<<<<< HEAD
-// FilDestroyGenerateDataCommitmentResponse function as declared in filecoin-ffi/filcrypto.h:410
-=======
-// FilDestroyGenerateDataCommitmentResponse function as declared in filecoin-ffi/filcrypto.h:453
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
+// FilDestroyGenerateDataCommitmentResponse function as declared in filecoin-ffi/filcrypto.h:479
 func FilDestroyGenerateDataCommitmentResponse(ptr *FilGenerateDataCommitmentResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_generate_data_commitment_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-<<<<<<< HEAD
-// FilDestroyGenerateFallbackSectorChallengesResponse function as declared in filecoin-ffi/filcrypto.h:412
-=======
-// FilDestroyGenerateFallbackSectorChallengesResponse function as declared in filecoin-ffi/filcrypto.h:455
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
+// FilDestroyGenerateFallbackSectorChallengesResponse function as declared in filecoin-ffi/filcrypto.h:481
 func FilDestroyGenerateFallbackSectorChallengesResponse(ptr *FilGenerateFallbackSectorChallengesResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_generate_fallback_sector_challenges_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-<<<<<<< HEAD
-// FilDestroyGeneratePieceCommitmentResponse function as declared in filecoin-ffi/filcrypto.h:414
-=======
-// FilDestroyGeneratePieceCommitmentResponse function as declared in filecoin-ffi/filcrypto.h:457
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
+// FilDestroyGeneratePieceCommitmentResponse function as declared in filecoin-ffi/filcrypto.h:483
 func FilDestroyGeneratePieceCommitmentResponse(ptr *FilGeneratePieceCommitmentResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_generate_piece_commitment_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-<<<<<<< HEAD
-// FilDestroyGenerateSingleVanillaProofResponse function as declared in filecoin-ffi/filcrypto.h:416
-=======
-// FilDestroyGenerateSingleVanillaProofResponse function as declared in filecoin-ffi/filcrypto.h:459
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
+// FilDestroyGenerateSingleVanillaProofResponse function as declared in filecoin-ffi/filcrypto.h:485
 func FilDestroyGenerateSingleVanillaProofResponse(ptr *FilGenerateSingleVanillaProofResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_generate_single_vanilla_proof_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-<<<<<<< HEAD
-// FilDestroyGenerateSingleWindowPostWithVanillaResponse function as declared in filecoin-ffi/filcrypto.h:418
+// FilDestroyGenerateSingleWindowPostWithVanillaResponse function as declared in filecoin-ffi/filcrypto.h:487
 func FilDestroyGenerateSingleWindowPostWithVanillaResponse(ptr *FilGenerateSingleWindowPoStWithVanillaResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_generate_single_window_post_with_vanilla_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-// FilDestroyGenerateWindowPostResponse function as declared in filecoin-ffi/filcrypto.h:420
-=======
-// FilDestroyGenerateWindowPostResponse function as declared in filecoin-ffi/filcrypto.h:461
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
+// FilDestroyGenerateWindowPostResponse function as declared in filecoin-ffi/filcrypto.h:489
 func FilDestroyGenerateWindowPostResponse(ptr *FilGenerateWindowPoStResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_generate_window_post_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-<<<<<<< HEAD
-// FilDestroyGenerateWinningPostResponse function as declared in filecoin-ffi/filcrypto.h:422
-=======
-// FilDestroyGenerateWinningPostResponse function as declared in filecoin-ffi/filcrypto.h:463
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
+// FilDestroyGenerateWinningPostResponse function as declared in filecoin-ffi/filcrypto.h:491
 func FilDestroyGenerateWinningPostResponse(ptr *FilGenerateWinningPoStResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_generate_winning_post_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-<<<<<<< HEAD
-// FilDestroyGenerateWinningPostSectorChallenge function as declared in filecoin-ffi/filcrypto.h:424
-=======
-// FilDestroyGenerateWinningPostSectorChallenge function as declared in filecoin-ffi/filcrypto.h:465
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
+// FilDestroyGenerateWinningPostSectorChallenge function as declared in filecoin-ffi/filcrypto.h:493
 func FilDestroyGenerateWinningPostSectorChallenge(ptr *FilGenerateWinningPoStSectorChallenge) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_generate_winning_post_sector_challenge(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-<<<<<<< HEAD
-// FilDestroyGetNumPartitionForFallbackPostResponse function as declared in filecoin-ffi/filcrypto.h:426
+// FilDestroyGetNumPartitionForFallbackPostResponse function as declared in filecoin-ffi/filcrypto.h:495
 func FilDestroyGetNumPartitionForFallbackPostResponse(ptr *FilGetNumPartitionForFallbackPoStResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_get_num_partition_for_fallback_post_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-// FilDestroyGpuDeviceResponse function as declared in filecoin-ffi/filcrypto.h:428
-=======
-// FilDestroyGpuDeviceResponse function as declared in filecoin-ffi/filcrypto.h:467
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
+// FilDestroyGpuDeviceResponse function as declared in filecoin-ffi/filcrypto.h:497
 func FilDestroyGpuDeviceResponse(ptr *FilGpuDeviceResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_gpu_device_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-<<<<<<< HEAD
-// FilDestroyHashResponse function as declared in filecoin-ffi/filcrypto.h:430
-=======
-// FilDestroyHashResponse function as declared in filecoin-ffi/filcrypto.h:469
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
+// FilDestroyHashResponse function as declared in filecoin-ffi/filcrypto.h:499
 func FilDestroyHashResponse(ptr *FilHashResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_hash_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-<<<<<<< HEAD
-// FilDestroyInitLogFdResponse function as declared in filecoin-ffi/filcrypto.h:432
-=======
-// FilDestroyInitLogFdResponse function as declared in filecoin-ffi/filcrypto.h:471
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
+// FilDestroyInitLogFdResponse function as declared in filecoin-ffi/filcrypto.h:501
 func FilDestroyInitLogFdResponse(ptr *FilInitLogFdResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_init_log_fd_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-<<<<<<< HEAD
-// FilDestroyMergeWindowPostPartitionProofsResponse function as declared in filecoin-ffi/filcrypto.h:434
+// FilDestroyMergeWindowPostPartitionProofsResponse function as declared in filecoin-ffi/filcrypto.h:503
 func FilDestroyMergeWindowPostPartitionProofsResponse(ptr *FilMergeWindowPoStPartitionProofsResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_merge_window_post_partition_proofs_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-// FilDestroyPrivateKeyGenerateResponse function as declared in filecoin-ffi/filcrypto.h:436
-=======
-// FilDestroyPrivateKeyGenerateResponse function as declared in filecoin-ffi/filcrypto.h:473
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
+// FilDestroyPrivateKeyGenerateResponse function as declared in filecoin-ffi/filcrypto.h:505
 func FilDestroyPrivateKeyGenerateResponse(ptr *FilPrivateKeyGenerateResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_private_key_generate_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-<<<<<<< HEAD
-// FilDestroyPrivateKeyPublicKeyResponse function as declared in filecoin-ffi/filcrypto.h:438
-=======
-// FilDestroyPrivateKeyPublicKeyResponse function as declared in filecoin-ffi/filcrypto.h:475
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
+// FilDestroyPrivateKeyPublicKeyResponse function as declared in filecoin-ffi/filcrypto.h:507
 func FilDestroyPrivateKeyPublicKeyResponse(ptr *FilPrivateKeyPublicKeyResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_private_key_public_key_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-<<<<<<< HEAD
-// FilDestroyPrivateKeySignResponse function as declared in filecoin-ffi/filcrypto.h:440
-=======
-// FilDestroyPrivateKeySignResponse function as declared in filecoin-ffi/filcrypto.h:477
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
+// FilDestroyPrivateKeySignResponse function as declared in filecoin-ffi/filcrypto.h:509
 func FilDestroyPrivateKeySignResponse(ptr *FilPrivateKeySignResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_private_key_sign_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-<<<<<<< HEAD
-// FilDestroySealCommitPhase1Response function as declared in filecoin-ffi/filcrypto.h:442
-=======
-// FilDestroySealCommitPhase1Response function as declared in filecoin-ffi/filcrypto.h:479
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
+// FilDestroySealCommitPhase1Response function as declared in filecoin-ffi/filcrypto.h:511
 func FilDestroySealCommitPhase1Response(ptr *FilSealCommitPhase1Response) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_seal_commit_phase1_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-<<<<<<< HEAD
-// FilDestroySealCommitPhase2Response function as declared in filecoin-ffi/filcrypto.h:444
-=======
-// FilDestroySealCommitPhase2Response function as declared in filecoin-ffi/filcrypto.h:481
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
+// FilDestroySealCommitPhase2Response function as declared in filecoin-ffi/filcrypto.h:513
 func FilDestroySealCommitPhase2Response(ptr *FilSealCommitPhase2Response) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_seal_commit_phase2_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-<<<<<<< HEAD
-// FilDestroySealPreCommitPhase1Response function as declared in filecoin-ffi/filcrypto.h:446
-=======
-// FilDestroySealPreCommitPhase1Response function as declared in filecoin-ffi/filcrypto.h:483
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
+// FilDestroySealPreCommitPhase1Response function as declared in filecoin-ffi/filcrypto.h:515
 func FilDestroySealPreCommitPhase1Response(ptr *FilSealPreCommitPhase1Response) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_seal_pre_commit_phase1_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-<<<<<<< HEAD
-// FilDestroySealPreCommitPhase2Response function as declared in filecoin-ffi/filcrypto.h:448
-=======
-// FilDestroySealPreCommitPhase2Response function as declared in filecoin-ffi/filcrypto.h:485
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
+// FilDestroySealPreCommitPhase2Response function as declared in filecoin-ffi/filcrypto.h:517
 func FilDestroySealPreCommitPhase2Response(ptr *FilSealPreCommitPhase2Response) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_seal_pre_commit_phase2_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-<<<<<<< HEAD
-// FilDestroyStringResponse function as declared in filecoin-ffi/filcrypto.h:450
-=======
-// FilDestroyStringResponse function as declared in filecoin-ffi/filcrypto.h:487
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
+// FilDestroyStringResponse function as declared in filecoin-ffi/filcrypto.h:519
 func FilDestroyStringResponse(ptr *FilStringResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_string_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-<<<<<<< HEAD
-// FilDestroyUnsealRangeResponse function as declared in filecoin-ffi/filcrypto.h:452
-=======
-// FilDestroyUnsealRangeResponse function as declared in filecoin-ffi/filcrypto.h:489
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
+// FilDestroyUnsealRangeResponse function as declared in filecoin-ffi/filcrypto.h:521
 func FilDestroyUnsealRangeResponse(ptr *FilUnsealRangeResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_unseal_range_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-<<<<<<< HEAD
-// FilDestroyVerifyAggregateSealResponse function as declared in filecoin-ffi/filcrypto.h:458
-=======
-// FilDestroyVerifyAggregateSealResponse function as declared in filecoin-ffi/filcrypto.h:495
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
+// FilDestroyVerifyAggregateSealResponse function as declared in filecoin-ffi/filcrypto.h:527
 func FilDestroyVerifyAggregateSealResponse(ptr *FilVerifyAggregateSealProofResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_verify_aggregate_seal_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilDestroyVerifySealResponse function as declared in filecoin-ffi/filcrypto.h:464
-=======
-// FilDestroyVerifyEmptyUpdateSectorResponse function as declared in filecoin-ffi/filcrypto.h:501
-func FilDestroyVerifyEmptyUpdateSectorResponse(ptr *FilVerifyEmptySectorUpdateProofResponse) {
-	cptr, cptrAllocMap := ptr.PassRef()
-	C.fil_destroy_verify_empty_update_sector_response(cptr)
-	runtime.KeepAlive(cptrAllocMap)
-}
-
-// FilDestroyVerifySealResponse function as declared in filecoin-ffi/filcrypto.h:507
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilDestroyVerifySealResponse function as declared in filecoin-ffi/filcrypto.h:501
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilDestroyVerifySealResponse function as declared in filecoin-ffi/filcrypto.h:533
 func FilDestroyVerifySealResponse(ptr *FilVerifySealResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_verify_seal_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilDestroyVerifyWindowPostResponse function as declared in filecoin-ffi/filcrypto.h:466
-=======
-// FilDestroyVerifyWindowPostResponse function as declared in filecoin-ffi/filcrypto.h:509
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilDestroyVerifyWindowPostResponse function as declared in filecoin-ffi/filcrypto.h:503
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilDestroyVerifyWindowPostResponse function as declared in filecoin-ffi/filcrypto.h:535
 func FilDestroyVerifyWindowPostResponse(ptr *FilVerifyWindowPoStResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_verify_window_post_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilDestroyVerifyWinningPostResponse function as declared in filecoin-ffi/filcrypto.h:472
-=======
-// FilDestroyVerifyWinningPostResponse function as declared in filecoin-ffi/filcrypto.h:515
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilDestroyVerifyWinningPostResponse function as declared in filecoin-ffi/filcrypto.h:509
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilDestroyVerifyWinningPostResponse function as declared in filecoin-ffi/filcrypto.h:541
 func FilDestroyVerifyWinningPostResponse(ptr *FilVerifyWinningPoStResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_verify_winning_post_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilDestroyWriteWithAlignmentResponse function as declared in filecoin-ffi/filcrypto.h:474
-=======
-// FilDestroyWriteWithAlignmentResponse function as declared in filecoin-ffi/filcrypto.h:517
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilDestroyWriteWithAlignmentResponse function as declared in filecoin-ffi/filcrypto.h:511
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilDestroyWriteWithAlignmentResponse function as declared in filecoin-ffi/filcrypto.h:543
 func FilDestroyWriteWithAlignmentResponse(ptr *FilWriteWithAlignmentResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_write_with_alignment_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilDestroyWriteWithoutAlignmentResponse function as declared in filecoin-ffi/filcrypto.h:476
-=======
-// FilDestroyWriteWithoutAlignmentResponse function as declared in filecoin-ffi/filcrypto.h:519
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilDestroyWriteWithoutAlignmentResponse function as declared in filecoin-ffi/filcrypto.h:513
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilDestroyWriteWithoutAlignmentResponse function as declared in filecoin-ffi/filcrypto.h:545
 func FilDestroyWriteWithoutAlignmentResponse(ptr *FilWriteWithoutAlignmentResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_write_without_alignment_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilDestroyZeroSignatureResponse function as declared in filecoin-ffi/filcrypto.h:478
-=======
-// FilDestroyZeroSignatureResponse function as declared in filecoin-ffi/filcrypto.h:521
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilDestroyZeroSignatureResponse function as declared in filecoin-ffi/filcrypto.h:515
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilDestroyZeroSignatureResponse function as declared in filecoin-ffi/filcrypto.h:547
 func FilDestroyZeroSignatureResponse(ptr *FilZeroSignatureResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
 	C.fil_destroy_zero_signature_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilDropSignature function as declared in filecoin-ffi/filcrypto.h:483
-=======
-// FilDropSignature function as declared in filecoin-ffi/filcrypto.h:526
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilDropSignature function as declared in filecoin-ffi/filcrypto.h:520
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilDropSignature function as declared in filecoin-ffi/filcrypto.h:552
 func FilDropSignature(sig []byte) {
 	csig, csigAllocMap := copyPUint8TBytes((*sliceHeader)(unsafe.Pointer(&sig)))
 	C.fil_drop_signature(csig)
 	runtime.KeepAlive(csigAllocMap)
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilFauxrep function as declared in filecoin-ffi/filcrypto.h:485
-=======
-// FilEmptySectorUpdateDecodeFrom function as declared in filecoin-ffi/filcrypto.h:532
-=======
-// FilEmptySectorUpdateDecodeFrom function as declared in filecoin-ffi/filcrypto.h:526
-<<<<<<< HEAD
->>>>>>> b70e034 (fix: re-generate go bindings)
-func FilEmptySectorUpdateDecodeFrom(registeredProof FilRegisteredEmptySectorUpdateProof, outDataPath string, replicaPath string, sectorKeyPath string, sectorKeyCacheDirPath string, commDNew Fil32ByteArray) *FilEmptySectorUpdateDecodeFromResponse {
-	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredEmptySectorUpdateProof)(registeredProof), cgoAllocsUnknown
-=======
+// FilEmptySectorUpdateDecodeFrom function as declared in filecoin-ffi/filcrypto.h:558
 func FilEmptySectorUpdateDecodeFrom(registeredProof FilRegisteredUpdateProof, outDataPath string, replicaPath string, sectorKeyPath string, sectorKeyCacheDirPath string, commDNew Fil32ByteArray) *FilEmptySectorUpdateDecodeFromResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredUpdateProof)(registeredProof), cgoAllocsUnknown
->>>>>>> 25cae08 (fix: adjust new proof types to match upstream)
 	outDataPath = safeString(outDataPath)
 	coutDataPath, coutDataPathAllocMap := unpackPCharString(outDataPath)
 	replicaPath = safeString(replicaPath)
@@ -571,7 +380,7 @@ func FilEmptySectorUpdateDecodeFrom(registeredProof FilRegisteredUpdateProof, ou
 	return __v
 }
 
-// FilEmptySectorUpdateEncodeInto function as declared in filecoin-ffi/filcrypto.h:537
+// FilEmptySectorUpdateEncodeInto function as declared in filecoin-ffi/filcrypto.h:569
 func FilEmptySectorUpdateEncodeInto(registeredProof FilRegisteredUpdateProof, newReplicaPath string, newCacheDirPath string, sectorKeyPath string, sectorKeyCacheDirPath string, stagedDataPath string, piecesPtr []FilPublicPieceInfo, piecesLen uint) *FilEmptySectorUpdateEncodeIntoResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredUpdateProof)(registeredProof), cgoAllocsUnknown
 	newReplicaPath = safeString(newReplicaPath)
@@ -605,7 +414,7 @@ func FilEmptySectorUpdateEncodeInto(registeredProof FilRegisteredUpdateProof, ne
 	return __v
 }
 
-// FilEmptySectorUpdateRemoveEncodedData function as declared in filecoin-ffi/filcrypto.h:550
+// FilEmptySectorUpdateRemoveEncodedData function as declared in filecoin-ffi/filcrypto.h:582
 func FilEmptySectorUpdateRemoveEncodedData(registeredProof FilRegisteredUpdateProof, sectorKeyPath string, sectorKeyCacheDirPath string, replicaPath string, replicaCachePath string, dataPath string, commDNew Fil32ByteArray) *FilEmptySectorUpdateRemoveEncodedDataResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredUpdateProof)(registeredProof), cgoAllocsUnknown
 	sectorKeyPath = safeString(sectorKeyPath)
@@ -636,12 +445,7 @@ func FilEmptySectorUpdateRemoveEncodedData(registeredProof FilRegisteredUpdatePr
 	return __v
 }
 
-<<<<<<< HEAD
-// FilFauxrep function as declared in filecoin-ffi/filcrypto.h:564
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilFauxrep function as declared in filecoin-ffi/filcrypto.h:558
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilFauxrep function as declared in filecoin-ffi/filcrypto.h:590
 func FilFauxrep(registeredProof FilRegisteredSealProof, cacheDirPath string, sealedSectorPath string) *FilFauxRepResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProof)(registeredProof), cgoAllocsUnknown
 	cacheDirPath = safeString(cacheDirPath)
@@ -658,15 +462,7 @@ func FilFauxrep(registeredProof FilRegisteredSealProof, cacheDirPath string, sea
 	return __v
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilFauxrep2 function as declared in filecoin-ffi/filcrypto.h:489
-=======
-// FilFauxrep2 function as declared in filecoin-ffi/filcrypto.h:568
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilFauxrep2 function as declared in filecoin-ffi/filcrypto.h:562
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilFauxrep2 function as declared in filecoin-ffi/filcrypto.h:594
 func FilFauxrep2(registeredProof FilRegisteredSealProof, cacheDirPath string, existingPAuxPath string) *FilFauxRepResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProof)(registeredProof), cgoAllocsUnknown
 	cacheDirPath = safeString(cacheDirPath)
@@ -683,15 +479,7 @@ func FilFauxrep2(registeredProof FilRegisteredSealProof, cacheDirPath string, ex
 	return __v
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilGenerateDataCommitment function as declared in filecoin-ffi/filcrypto.h:496
-=======
-// FilGenerateDataCommitment function as declared in filecoin-ffi/filcrypto.h:575
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilGenerateDataCommitment function as declared in filecoin-ffi/filcrypto.h:569
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilGenerateDataCommitment function as declared in filecoin-ffi/filcrypto.h:601
 func FilGenerateDataCommitment(registeredProof FilRegisteredSealProof, piecesPtr []FilPublicPieceInfo, piecesLen uint) *FilGenerateDataCommitmentResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProof)(registeredProof), cgoAllocsUnknown
 	cpiecesPtr, cpiecesPtrAllocMap := unpackArgSFilPublicPieceInfo(piecesPtr)
@@ -705,21 +493,9 @@ func FilGenerateDataCommitment(registeredProof FilRegisteredSealProof, piecesPtr
 	return __v
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilGenerateFallbackSectorChallenges function as declared in filecoin-ffi/filcrypto.h:504
-=======
-// FilGenerateEmptySectorUpdateProof function as declared in filecoin-ffi/filcrypto.h:583
-=======
-// FilGenerateEmptySectorUpdateProof function as declared in filecoin-ffi/filcrypto.h:577
-<<<<<<< HEAD
->>>>>>> b70e034 (fix: re-generate go bindings)
-func FilGenerateEmptySectorUpdateProof(registeredProof FilRegisteredEmptySectorUpdateProof, commROld Fil32ByteArray, commRNew Fil32ByteArray, commDNew Fil32ByteArray, sectorKeyPath string, sectorKeyCacheDirPath string, replicaPath string, replicaCachePath string) *FilEmptySectorUpdateProofResponse {
-	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredEmptySectorUpdateProof)(registeredProof), cgoAllocsUnknown
-=======
+// FilGenerateEmptySectorUpdateProof function as declared in filecoin-ffi/filcrypto.h:609
 func FilGenerateEmptySectorUpdateProof(registeredProof FilRegisteredUpdateProof, commROld Fil32ByteArray, commRNew Fil32ByteArray, commDNew Fil32ByteArray, sectorKeyPath string, sectorKeyCacheDirPath string, replicaPath string, replicaCachePath string) *FilEmptySectorUpdateProofResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredUpdateProof)(registeredProof), cgoAllocsUnknown
->>>>>>> 25cae08 (fix: adjust new proof types to match upstream)
 	ccommROld, ccommROldAllocMap := commROld.PassValue()
 	ccommRNew, ccommRNewAllocMap := commRNew.PassValue()
 	ccommDNew, ccommDNewAllocMap := commDNew.PassValue()
@@ -748,12 +524,7 @@ func FilGenerateEmptySectorUpdateProof(registeredProof FilRegisteredUpdateProof,
 	return __v
 }
 
-<<<<<<< HEAD
-// FilGenerateFallbackSectorChallenges function as declared in filecoin-ffi/filcrypto.h:596
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilGenerateFallbackSectorChallenges function as declared in filecoin-ffi/filcrypto.h:590
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilGenerateFallbackSectorChallenges function as declared in filecoin-ffi/filcrypto.h:622
 func FilGenerateFallbackSectorChallenges(registeredProof FilRegisteredPoStProof, randomness Fil32ByteArray, sectorIdsPtr []uint64, sectorIdsLen uint, proverId Fil32ByteArray) *FilGenerateFallbackSectorChallengesResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredPoStProof)(registeredProof), cgoAllocsUnknown
 	crandomness, crandomnessAllocMap := randomness.PassValue()
@@ -770,15 +541,7 @@ func FilGenerateFallbackSectorChallenges(registeredProof FilRegisteredPoStProof,
 	return __v
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilGeneratePieceCommitment function as declared in filecoin-ffi/filcrypto.h:514
-=======
-// FilGeneratePieceCommitment function as declared in filecoin-ffi/filcrypto.h:606
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilGeneratePieceCommitment function as declared in filecoin-ffi/filcrypto.h:600
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilGeneratePieceCommitment function as declared in filecoin-ffi/filcrypto.h:632
 func FilGeneratePieceCommitment(registeredProof FilRegisteredSealProof, pieceFdRaw int32, unpaddedPieceSize uint64) *FilGeneratePieceCommitmentResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProof)(registeredProof), cgoAllocsUnknown
 	cpieceFdRaw, cpieceFdRawAllocMap := (C.int)(pieceFdRaw), cgoAllocsUnknown
@@ -791,15 +554,7 @@ func FilGeneratePieceCommitment(registeredProof FilRegisteredSealProof, pieceFdR
 	return __v
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilGenerateSingleVanillaProof function as declared in filecoin-ffi/filcrypto.h:522
-=======
-// FilGenerateSingleVanillaProof function as declared in filecoin-ffi/filcrypto.h:614
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilGenerateSingleVanillaProof function as declared in filecoin-ffi/filcrypto.h:608
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilGenerateSingleVanillaProof function as declared in filecoin-ffi/filcrypto.h:640
 func FilGenerateSingleVanillaProof(replica FilPrivateReplicaInfo, challengesPtr []uint64, challengesLen uint) *FilGenerateSingleVanillaProofResponse {
 	creplica, creplicaAllocMap := replica.PassValue()
 	cchallengesPtr, cchallengesPtrAllocMap := copyPUint64TBytes((*sliceHeader)(unsafe.Pointer(&challengesPtr)))
@@ -812,9 +567,7 @@ func FilGenerateSingleVanillaProof(replica FilPrivateReplicaInfo, challengesPtr 
 	return __v
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilGenerateSingleWindowPostWithVanilla function as declared in filecoin-ffi/filcrypto.h:530
+// FilGenerateSingleWindowPostWithVanilla function as declared in filecoin-ffi/filcrypto.h:648
 func FilGenerateSingleWindowPostWithVanilla(registeredProof FilRegisteredPoStProof, randomness Fil32ByteArray, proverId Fil32ByteArray, vanillaProofsPtr []FilVanillaProof, vanillaProofsLen uint, partitionIndex uint) *FilGenerateSingleWindowPoStWithVanillaResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredPoStProof)(registeredProof), cgoAllocsUnknown
 	crandomness, crandomnessAllocMap := randomness.PassValue()
@@ -834,13 +587,7 @@ func FilGenerateSingleWindowPostWithVanilla(registeredProof FilRegisteredPoStPro
 	return __v
 }
 
-// FilGenerateWindowPost function as declared in filecoin-ffi/filcrypto.h:541
-=======
-// FilGenerateWindowPost function as declared in filecoin-ffi/filcrypto.h:622
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilGenerateWindowPost function as declared in filecoin-ffi/filcrypto.h:616
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilGenerateWindowPost function as declared in filecoin-ffi/filcrypto.h:659
 func FilGenerateWindowPost(randomness Fil32ByteArray, replicasPtr []FilPrivateReplicaInfo, replicasLen uint, proverId Fil32ByteArray) *FilGenerateWindowPoStResponse {
 	crandomness, crandomnessAllocMap := randomness.PassValue()
 	creplicasPtr, creplicasPtrAllocMap := unpackArgSFilPrivateReplicaInfo(replicasPtr)
@@ -856,15 +603,7 @@ func FilGenerateWindowPost(randomness Fil32ByteArray, replicasPtr []FilPrivateRe
 	return __v
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilGenerateWindowPostWithVanilla function as declared in filecoin-ffi/filcrypto.h:550
-=======
-// FilGenerateWindowPostWithVanilla function as declared in filecoin-ffi/filcrypto.h:631
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilGenerateWindowPostWithVanilla function as declared in filecoin-ffi/filcrypto.h:625
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilGenerateWindowPostWithVanilla function as declared in filecoin-ffi/filcrypto.h:668
 func FilGenerateWindowPostWithVanilla(registeredProof FilRegisteredPoStProof, randomness Fil32ByteArray, proverId Fil32ByteArray, vanillaProofsPtr []FilVanillaProof, vanillaProofsLen uint) *FilGenerateWindowPoStResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredPoStProof)(registeredProof), cgoAllocsUnknown
 	crandomness, crandomnessAllocMap := randomness.PassValue()
@@ -882,15 +621,7 @@ func FilGenerateWindowPostWithVanilla(registeredProof FilRegisteredPoStProof, ra
 	return __v
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilGenerateWinningPost function as declared in filecoin-ffi/filcrypto.h:560
-=======
-// FilGenerateWinningPost function as declared in filecoin-ffi/filcrypto.h:641
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilGenerateWinningPost function as declared in filecoin-ffi/filcrypto.h:635
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilGenerateWinningPost function as declared in filecoin-ffi/filcrypto.h:678
 func FilGenerateWinningPost(randomness Fil32ByteArray, replicasPtr []FilPrivateReplicaInfo, replicasLen uint, proverId Fil32ByteArray) *FilGenerateWinningPoStResponse {
 	crandomness, crandomnessAllocMap := randomness.PassValue()
 	creplicasPtr, creplicasPtrAllocMap := unpackArgSFilPrivateReplicaInfo(replicasPtr)
@@ -906,15 +637,7 @@ func FilGenerateWinningPost(randomness Fil32ByteArray, replicasPtr []FilPrivateR
 	return __v
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilGenerateWinningPostSectorChallenge function as declared in filecoin-ffi/filcrypto.h:569
-=======
-// FilGenerateWinningPostSectorChallenge function as declared in filecoin-ffi/filcrypto.h:650
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilGenerateWinningPostSectorChallenge function as declared in filecoin-ffi/filcrypto.h:644
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilGenerateWinningPostSectorChallenge function as declared in filecoin-ffi/filcrypto.h:687
 func FilGenerateWinningPostSectorChallenge(registeredProof FilRegisteredPoStProof, randomness Fil32ByteArray, sectorSetLen uint64, proverId Fil32ByteArray) *FilGenerateWinningPoStSectorChallenge {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredPoStProof)(registeredProof), cgoAllocsUnknown
 	crandomness, crandomnessAllocMap := randomness.PassValue()
@@ -929,15 +652,7 @@ func FilGenerateWinningPostSectorChallenge(registeredProof FilRegisteredPoStProo
 	return __v
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilGenerateWinningPostWithVanilla function as declared in filecoin-ffi/filcrypto.h:578
-=======
-// FilGenerateWinningPostWithVanilla function as declared in filecoin-ffi/filcrypto.h:659
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilGenerateWinningPostWithVanilla function as declared in filecoin-ffi/filcrypto.h:653
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilGenerateWinningPostWithVanilla function as declared in filecoin-ffi/filcrypto.h:696
 func FilGenerateWinningPostWithVanilla(registeredProof FilRegisteredPoStProof, randomness Fil32ByteArray, proverId Fil32ByteArray, vanillaProofsPtr []FilVanillaProof, vanillaProofsLen uint) *FilGenerateWinningPoStResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredPoStProof)(registeredProof), cgoAllocsUnknown
 	crandomness, crandomnessAllocMap := randomness.PassValue()
@@ -955,30 +670,14 @@ func FilGenerateWinningPostWithVanilla(registeredProof FilRegisteredPoStProof, r
 	return __v
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilGetGpuDevices function as declared in filecoin-ffi/filcrypto.h:587
-=======
-// FilGetGpuDevices function as declared in filecoin-ffi/filcrypto.h:668
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilGetGpuDevices function as declared in filecoin-ffi/filcrypto.h:662
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilGetGpuDevices function as declared in filecoin-ffi/filcrypto.h:705
 func FilGetGpuDevices() *FilGpuDeviceResponse {
 	__ret := C.fil_get_gpu_devices()
 	__v := NewFilGpuDeviceResponseRef(unsafe.Pointer(__ret))
 	return __v
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilGetMaxUserBytesPerStagedSector function as declared in filecoin-ffi/filcrypto.h:593
-=======
-// FilGetMaxUserBytesPerStagedSector function as declared in filecoin-ffi/filcrypto.h:674
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilGetMaxUserBytesPerStagedSector function as declared in filecoin-ffi/filcrypto.h:668
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilGetMaxUserBytesPerStagedSector function as declared in filecoin-ffi/filcrypto.h:711
 func FilGetMaxUserBytesPerStagedSector(registeredProof FilRegisteredSealProof) uint64 {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProof)(registeredProof), cgoAllocsUnknown
 	__ret := C.fil_get_max_user_bytes_per_staged_sector(cregisteredProof)
@@ -987,9 +686,7 @@ func FilGetMaxUserBytesPerStagedSector(registeredProof FilRegisteredSealProof) u
 	return __v
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilGetNumPartitionForFallbackPost function as declared in filecoin-ffi/filcrypto.h:599
+// FilGetNumPartitionForFallbackPost function as declared in filecoin-ffi/filcrypto.h:717
 func FilGetNumPartitionForFallbackPost(registeredProof FilRegisteredPoStProof, numSectors uint) *FilGetNumPartitionForFallbackPoStResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredPoStProof)(registeredProof), cgoAllocsUnknown
 	cnumSectors, cnumSectorsAllocMap := (C.size_t)(numSectors), cgoAllocsUnknown
@@ -1000,13 +697,7 @@ func FilGetNumPartitionForFallbackPost(registeredProof FilRegisteredPoStProof, n
 	return __v
 }
 
-// FilGetPostCircuitIdentifier function as declared in filecoin-ffi/filcrypto.h:606
-=======
-// FilGetPostCircuitIdentifier function as declared in filecoin-ffi/filcrypto.h:680
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilGetPostCircuitIdentifier function as declared in filecoin-ffi/filcrypto.h:674
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilGetPostCircuitIdentifier function as declared in filecoin-ffi/filcrypto.h:724
 func FilGetPostCircuitIdentifier(registeredProof FilRegisteredPoStProof) *FilStringResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredPoStProof)(registeredProof), cgoAllocsUnknown
 	__ret := C.fil_get_post_circuit_identifier(cregisteredProof)
@@ -1015,15 +706,7 @@ func FilGetPostCircuitIdentifier(registeredProof FilRegisteredPoStProof) *FilStr
 	return __v
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilGetPostParamsCid function as declared in filecoin-ffi/filcrypto.h:612
-=======
-// FilGetPostParamsCid function as declared in filecoin-ffi/filcrypto.h:686
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilGetPostParamsCid function as declared in filecoin-ffi/filcrypto.h:680
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilGetPostParamsCid function as declared in filecoin-ffi/filcrypto.h:730
 func FilGetPostParamsCid(registeredProof FilRegisteredPoStProof) *FilStringResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredPoStProof)(registeredProof), cgoAllocsUnknown
 	__ret := C.fil_get_post_params_cid(cregisteredProof)
@@ -1032,15 +715,7 @@ func FilGetPostParamsCid(registeredProof FilRegisteredPoStProof) *FilStringRespo
 	return __v
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilGetPostParamsPath function as declared in filecoin-ffi/filcrypto.h:619
-=======
-// FilGetPostParamsPath function as declared in filecoin-ffi/filcrypto.h:693
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilGetPostParamsPath function as declared in filecoin-ffi/filcrypto.h:687
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilGetPostParamsPath function as declared in filecoin-ffi/filcrypto.h:737
 func FilGetPostParamsPath(registeredProof FilRegisteredPoStProof) *FilStringResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredPoStProof)(registeredProof), cgoAllocsUnknown
 	__ret := C.fil_get_post_params_path(cregisteredProof)
@@ -1049,15 +724,7 @@ func FilGetPostParamsPath(registeredProof FilRegisteredPoStProof) *FilStringResp
 	return __v
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilGetPostVerifyingKeyCid function as declared in filecoin-ffi/filcrypto.h:625
-=======
-// FilGetPostVerifyingKeyCid function as declared in filecoin-ffi/filcrypto.h:699
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilGetPostVerifyingKeyCid function as declared in filecoin-ffi/filcrypto.h:693
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilGetPostVerifyingKeyCid function as declared in filecoin-ffi/filcrypto.h:743
 func FilGetPostVerifyingKeyCid(registeredProof FilRegisteredPoStProof) *FilStringResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredPoStProof)(registeredProof), cgoAllocsUnknown
 	__ret := C.fil_get_post_verifying_key_cid(cregisteredProof)
@@ -1066,15 +733,7 @@ func FilGetPostVerifyingKeyCid(registeredProof FilRegisteredPoStProof) *FilStrin
 	return __v
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilGetPostVerifyingKeyPath function as declared in filecoin-ffi/filcrypto.h:632
-=======
-// FilGetPostVerifyingKeyPath function as declared in filecoin-ffi/filcrypto.h:706
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilGetPostVerifyingKeyPath function as declared in filecoin-ffi/filcrypto.h:700
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilGetPostVerifyingKeyPath function as declared in filecoin-ffi/filcrypto.h:750
 func FilGetPostVerifyingKeyPath(registeredProof FilRegisteredPoStProof) *FilStringResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredPoStProof)(registeredProof), cgoAllocsUnknown
 	__ret := C.fil_get_post_verifying_key_path(cregisteredProof)
@@ -1083,15 +742,7 @@ func FilGetPostVerifyingKeyPath(registeredProof FilRegisteredPoStProof) *FilStri
 	return __v
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilGetPostVersion function as declared in filecoin-ffi/filcrypto.h:638
-=======
-// FilGetPostVersion function as declared in filecoin-ffi/filcrypto.h:712
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilGetPostVersion function as declared in filecoin-ffi/filcrypto.h:706
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilGetPostVersion function as declared in filecoin-ffi/filcrypto.h:756
 func FilGetPostVersion(registeredProof FilRegisteredPoStProof) *FilStringResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredPoStProof)(registeredProof), cgoAllocsUnknown
 	__ret := C.fil_get_post_version(cregisteredProof)
@@ -1100,15 +751,7 @@ func FilGetPostVersion(registeredProof FilRegisteredPoStProof) *FilStringRespons
 	return __v
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilGetSealCircuitIdentifier function as declared in filecoin-ffi/filcrypto.h:644
-=======
-// FilGetSealCircuitIdentifier function as declared in filecoin-ffi/filcrypto.h:718
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilGetSealCircuitIdentifier function as declared in filecoin-ffi/filcrypto.h:712
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilGetSealCircuitIdentifier function as declared in filecoin-ffi/filcrypto.h:762
 func FilGetSealCircuitIdentifier(registeredProof FilRegisteredSealProof) *FilStringResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProof)(registeredProof), cgoAllocsUnknown
 	__ret := C.fil_get_seal_circuit_identifier(cregisteredProof)
@@ -1117,15 +760,7 @@ func FilGetSealCircuitIdentifier(registeredProof FilRegisteredSealProof) *FilStr
 	return __v
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilGetSealParamsCid function as declared in filecoin-ffi/filcrypto.h:650
-=======
-// FilGetSealParamsCid function as declared in filecoin-ffi/filcrypto.h:724
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilGetSealParamsCid function as declared in filecoin-ffi/filcrypto.h:718
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilGetSealParamsCid function as declared in filecoin-ffi/filcrypto.h:768
 func FilGetSealParamsCid(registeredProof FilRegisteredSealProof) *FilStringResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProof)(registeredProof), cgoAllocsUnknown
 	__ret := C.fil_get_seal_params_cid(cregisteredProof)
@@ -1134,15 +769,7 @@ func FilGetSealParamsCid(registeredProof FilRegisteredSealProof) *FilStringRespo
 	return __v
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilGetSealParamsPath function as declared in filecoin-ffi/filcrypto.h:657
-=======
-// FilGetSealParamsPath function as declared in filecoin-ffi/filcrypto.h:731
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilGetSealParamsPath function as declared in filecoin-ffi/filcrypto.h:725
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilGetSealParamsPath function as declared in filecoin-ffi/filcrypto.h:775
 func FilGetSealParamsPath(registeredProof FilRegisteredSealProof) *FilStringResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProof)(registeredProof), cgoAllocsUnknown
 	__ret := C.fil_get_seal_params_path(cregisteredProof)
@@ -1151,15 +778,7 @@ func FilGetSealParamsPath(registeredProof FilRegisteredSealProof) *FilStringResp
 	return __v
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilGetSealVerifyingKeyCid function as declared in filecoin-ffi/filcrypto.h:663
-=======
-// FilGetSealVerifyingKeyCid function as declared in filecoin-ffi/filcrypto.h:737
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilGetSealVerifyingKeyCid function as declared in filecoin-ffi/filcrypto.h:731
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilGetSealVerifyingKeyCid function as declared in filecoin-ffi/filcrypto.h:781
 func FilGetSealVerifyingKeyCid(registeredProof FilRegisteredSealProof) *FilStringResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProof)(registeredProof), cgoAllocsUnknown
 	__ret := C.fil_get_seal_verifying_key_cid(cregisteredProof)
@@ -1168,15 +787,7 @@ func FilGetSealVerifyingKeyCid(registeredProof FilRegisteredSealProof) *FilStrin
 	return __v
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilGetSealVerifyingKeyPath function as declared in filecoin-ffi/filcrypto.h:670
-=======
-// FilGetSealVerifyingKeyPath function as declared in filecoin-ffi/filcrypto.h:744
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilGetSealVerifyingKeyPath function as declared in filecoin-ffi/filcrypto.h:738
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilGetSealVerifyingKeyPath function as declared in filecoin-ffi/filcrypto.h:788
 func FilGetSealVerifyingKeyPath(registeredProof FilRegisteredSealProof) *FilStringResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProof)(registeredProof), cgoAllocsUnknown
 	__ret := C.fil_get_seal_verifying_key_path(cregisteredProof)
@@ -1185,15 +796,7 @@ func FilGetSealVerifyingKeyPath(registeredProof FilRegisteredSealProof) *FilStri
 	return __v
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilGetSealVersion function as declared in filecoin-ffi/filcrypto.h:676
-=======
-// FilGetSealVersion function as declared in filecoin-ffi/filcrypto.h:750
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilGetSealVersion function as declared in filecoin-ffi/filcrypto.h:744
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilGetSealVersion function as declared in filecoin-ffi/filcrypto.h:794
 func FilGetSealVersion(registeredProof FilRegisteredSealProof) *FilStringResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProof)(registeredProof), cgoAllocsUnknown
 	__ret := C.fil_get_seal_version(cregisteredProof)
@@ -1202,15 +805,7 @@ func FilGetSealVersion(registeredProof FilRegisteredSealProof) *FilStringRespons
 	return __v
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilHash function as declared in filecoin-ffi/filcrypto.h:686
-=======
-// FilHash function as declared in filecoin-ffi/filcrypto.h:760
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilHash function as declared in filecoin-ffi/filcrypto.h:754
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilHash function as declared in filecoin-ffi/filcrypto.h:804
 func FilHash(messagePtr []byte, messageLen uint) *FilHashResponse {
 	cmessagePtr, cmessagePtrAllocMap := copyPUint8TBytes((*sliceHeader)(unsafe.Pointer(&messagePtr)))
 	cmessageLen, cmessageLenAllocMap := (C.size_t)(messageLen), cgoAllocsUnknown
@@ -1221,15 +816,7 @@ func FilHash(messagePtr []byte, messageLen uint) *FilHashResponse {
 	return __v
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilHashVerify function as declared in filecoin-ffi/filcrypto.h:700
-=======
-// FilHashVerify function as declared in filecoin-ffi/filcrypto.h:774
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilHashVerify function as declared in filecoin-ffi/filcrypto.h:768
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilHashVerify function as declared in filecoin-ffi/filcrypto.h:818
 func FilHashVerify(signaturePtr []byte, flattenedMessagesPtr []byte, flattenedMessagesLen uint, messageSizesPtr []uint, messageSizesLen uint, flattenedPublicKeysPtr []byte, flattenedPublicKeysLen uint) int32 {
 	csignaturePtr, csignaturePtrAllocMap := copyPUint8TBytes((*sliceHeader)(unsafe.Pointer(&signaturePtr)))
 	cflattenedMessagesPtr, cflattenedMessagesPtrAllocMap := copyPUint8TBytes((*sliceHeader)(unsafe.Pointer(&flattenedMessagesPtr)))
@@ -1250,15 +837,7 @@ func FilHashVerify(signaturePtr []byte, flattenedMessagesPtr []byte, flattenedMe
 	return __v
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilInitLogFd function as declared in filecoin-ffi/filcrypto.h:717
-=======
-// FilInitLogFd function as declared in filecoin-ffi/filcrypto.h:791
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilInitLogFd function as declared in filecoin-ffi/filcrypto.h:785
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilInitLogFd function as declared in filecoin-ffi/filcrypto.h:835
 func FilInitLogFd(logFd int32) *FilInitLogFdResponse {
 	clogFd, clogFdAllocMap := (C.int)(logFd), cgoAllocsUnknown
 	__ret := C.fil_init_log_fd(clogFd)
@@ -1267,9 +846,7 @@ func FilInitLogFd(logFd int32) *FilInitLogFdResponse {
 	return __v
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilMergeWindowPostPartitionProofs function as declared in filecoin-ffi/filcrypto.h:723
+// FilMergeWindowPostPartitionProofs function as declared in filecoin-ffi/filcrypto.h:841
 func FilMergeWindowPostPartitionProofs(registeredProof FilRegisteredPoStProof, partitionProofsPtr []FilPartitionSnarkProof, partitionProofsLen uint) *FilMergeWindowPoStPartitionProofsResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredPoStProof)(registeredProof), cgoAllocsUnknown
 	cpartitionProofsPtr, cpartitionProofsPtrAllocMap := unpackArgSFilPartitionSnarkProof(partitionProofsPtr)
@@ -1283,28 +860,14 @@ func FilMergeWindowPostPartitionProofs(registeredProof FilRegisteredPoStProof, p
 	return __v
 }
 
-// FilPrivateKeyGenerate function as declared in filecoin-ffi/filcrypto.h:730
-=======
-// FilPrivateKeyGenerate function as declared in filecoin-ffi/filcrypto.h:796
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilPrivateKeyGenerate function as declared in filecoin-ffi/filcrypto.h:790
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilPrivateKeyGenerate function as declared in filecoin-ffi/filcrypto.h:848
 func FilPrivateKeyGenerate() *FilPrivateKeyGenerateResponse {
 	__ret := C.fil_private_key_generate()
 	__v := NewFilPrivateKeyGenerateResponseRef(unsafe.Pointer(__ret))
 	return __v
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilPrivateKeyGenerateWithSeed function as declared in filecoin-ffi/filcrypto.h:743
-=======
-// FilPrivateKeyGenerateWithSeed function as declared in filecoin-ffi/filcrypto.h:809
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilPrivateKeyGenerateWithSeed function as declared in filecoin-ffi/filcrypto.h:803
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilPrivateKeyGenerateWithSeed function as declared in filecoin-ffi/filcrypto.h:861
 func FilPrivateKeyGenerateWithSeed(rawSeed Fil32ByteArray) *FilPrivateKeyGenerateResponse {
 	crawSeed, crawSeedAllocMap := rawSeed.PassValue()
 	__ret := C.fil_private_key_generate_with_seed(crawSeed)
@@ -1313,15 +876,7 @@ func FilPrivateKeyGenerateWithSeed(rawSeed Fil32ByteArray) *FilPrivateKeyGenerat
 	return __v
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilPrivateKeyPublicKey function as declared in filecoin-ffi/filcrypto.h:754
-=======
-// FilPrivateKeyPublicKey function as declared in filecoin-ffi/filcrypto.h:820
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilPrivateKeyPublicKey function as declared in filecoin-ffi/filcrypto.h:814
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilPrivateKeyPublicKey function as declared in filecoin-ffi/filcrypto.h:872
 func FilPrivateKeyPublicKey(rawPrivateKeyPtr []byte) *FilPrivateKeyPublicKeyResponse {
 	crawPrivateKeyPtr, crawPrivateKeyPtrAllocMap := copyPUint8TBytes((*sliceHeader)(unsafe.Pointer(&rawPrivateKeyPtr)))
 	__ret := C.fil_private_key_public_key(crawPrivateKeyPtr)
@@ -1330,15 +885,7 @@ func FilPrivateKeyPublicKey(rawPrivateKeyPtr []byte) *FilPrivateKeyPublicKeyResp
 	return __v
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilPrivateKeySign function as declared in filecoin-ffi/filcrypto.h:767
-=======
-// FilPrivateKeySign function as declared in filecoin-ffi/filcrypto.h:833
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilPrivateKeySign function as declared in filecoin-ffi/filcrypto.h:827
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilPrivateKeySign function as declared in filecoin-ffi/filcrypto.h:885
 func FilPrivateKeySign(rawPrivateKeyPtr []byte, messagePtr []byte, messageLen uint) *FilPrivateKeySignResponse {
 	crawPrivateKeyPtr, crawPrivateKeyPtrAllocMap := copyPUint8TBytes((*sliceHeader)(unsafe.Pointer(&rawPrivateKeyPtr)))
 	cmessagePtr, cmessagePtrAllocMap := copyPUint8TBytes((*sliceHeader)(unsafe.Pointer(&messagePtr)))
@@ -1351,15 +898,7 @@ func FilPrivateKeySign(rawPrivateKeyPtr []byte, messagePtr []byte, messageLen ui
 	return __v
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilSealCommitPhase1 function as declared in filecoin-ffi/filcrypto.h:775
-=======
-// FilSealCommitPhase1 function as declared in filecoin-ffi/filcrypto.h:841
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilSealCommitPhase1 function as declared in filecoin-ffi/filcrypto.h:835
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilSealCommitPhase1 function as declared in filecoin-ffi/filcrypto.h:893
 func FilSealCommitPhase1(registeredProof FilRegisteredSealProof, commR Fil32ByteArray, commD Fil32ByteArray, cacheDirPath string, replicaPath string, sectorId uint64, proverId Fil32ByteArray, ticket Fil32ByteArray, seed Fil32ByteArray, piecesPtr []FilPublicPieceInfo, piecesLen uint) *FilSealCommitPhase1Response {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProof)(registeredProof), cgoAllocsUnknown
 	ccommR, ccommRAllocMap := commR.PassValue()
@@ -1393,15 +932,7 @@ func FilSealCommitPhase1(registeredProof FilRegisteredSealProof, commR Fil32Byte
 	return __v
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilSealCommitPhase2 function as declared in filecoin-ffi/filcrypto.h:787
-=======
-// FilSealCommitPhase2 function as declared in filecoin-ffi/filcrypto.h:853
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilSealCommitPhase2 function as declared in filecoin-ffi/filcrypto.h:847
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilSealCommitPhase2 function as declared in filecoin-ffi/filcrypto.h:905
 func FilSealCommitPhase2(sealCommitPhase1OutputPtr []byte, sealCommitPhase1OutputLen uint, sectorId uint64, proverId Fil32ByteArray) *FilSealCommitPhase2Response {
 	csealCommitPhase1OutputPtr, csealCommitPhase1OutputPtrAllocMap := copyPUint8TBytes((*sliceHeader)(unsafe.Pointer(&sealCommitPhase1OutputPtr)))
 	csealCommitPhase1OutputLen, csealCommitPhase1OutputLenAllocMap := (C.size_t)(sealCommitPhase1OutputLen), cgoAllocsUnknown
@@ -1416,15 +947,7 @@ func FilSealCommitPhase2(sealCommitPhase1OutputPtr []byte, sealCommitPhase1Outpu
 	return __v
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilSealPreCommitPhase1 function as declared in filecoin-ffi/filcrypto.h:796
-=======
-// FilSealPreCommitPhase1 function as declared in filecoin-ffi/filcrypto.h:862
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilSealPreCommitPhase1 function as declared in filecoin-ffi/filcrypto.h:856
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilSealPreCommitPhase1 function as declared in filecoin-ffi/filcrypto.h:914
 func FilSealPreCommitPhase1(registeredProof FilRegisteredSealProof, cacheDirPath string, stagedSectorPath string, sealedSectorPath string, sectorId uint64, proverId Fil32ByteArray, ticket Fil32ByteArray, piecesPtr []FilPublicPieceInfo, piecesLen uint) *FilSealPreCommitPhase1Response {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProof)(registeredProof), cgoAllocsUnknown
 	cacheDirPath = safeString(cacheDirPath)
@@ -1456,15 +979,7 @@ func FilSealPreCommitPhase1(registeredProof FilRegisteredSealProof, cacheDirPath
 	return __v
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilSealPreCommitPhase2 function as declared in filecoin-ffi/filcrypto.h:810
-=======
-// FilSealPreCommitPhase2 function as declared in filecoin-ffi/filcrypto.h:876
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilSealPreCommitPhase2 function as declared in filecoin-ffi/filcrypto.h:870
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilSealPreCommitPhase2 function as declared in filecoin-ffi/filcrypto.h:928
 func FilSealPreCommitPhase2(sealPreCommitPhase1OutputPtr []byte, sealPreCommitPhase1OutputLen uint, cacheDirPath string, sealedSectorPath string) *FilSealPreCommitPhase2Response {
 	csealPreCommitPhase1OutputPtr, csealPreCommitPhase1OutputPtrAllocMap := copyPUint8TBytes((*sliceHeader)(unsafe.Pointer(&sealPreCommitPhase1OutputPtr)))
 	csealPreCommitPhase1OutputLen, csealPreCommitPhase1OutputLenAllocMap := (C.size_t)(sealPreCommitPhase1OutputLen), cgoAllocsUnknown
@@ -1483,15 +998,7 @@ func FilSealPreCommitPhase2(sealPreCommitPhase1OutputPtr []byte, sealPreCommitPh
 	return __v
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilUnsealRange function as declared in filecoin-ffi/filcrypto.h:818
-=======
-// FilUnsealRange function as declared in filecoin-ffi/filcrypto.h:884
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilUnsealRange function as declared in filecoin-ffi/filcrypto.h:878
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilUnsealRange function as declared in filecoin-ffi/filcrypto.h:936
 func FilUnsealRange(registeredProof FilRegisteredSealProof, cacheDirPath string, sealedSectorFdRaw int32, unsealOutputFdRaw int32, sectorId uint64, proverId Fil32ByteArray, ticket Fil32ByteArray, commD Fil32ByteArray, unpaddedByteIndex uint64, unpaddedBytesAmount uint64) *FilUnsealRangeResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProof)(registeredProof), cgoAllocsUnknown
 	cacheDirPath = safeString(cacheDirPath)
@@ -1520,15 +1027,7 @@ func FilUnsealRange(registeredProof FilRegisteredSealProof, cacheDirPath string,
 	return __v
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilVerify function as declared in filecoin-ffi/filcrypto.h:840
-=======
-// FilVerify function as declared in filecoin-ffi/filcrypto.h:906
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilVerify function as declared in filecoin-ffi/filcrypto.h:900
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilVerify function as declared in filecoin-ffi/filcrypto.h:958
 func FilVerify(signaturePtr []byte, flattenedDigestsPtr []byte, flattenedDigestsLen uint, flattenedPublicKeysPtr []byte, flattenedPublicKeysLen uint) int32 {
 	csignaturePtr, csignaturePtrAllocMap := copyPUint8TBytes((*sliceHeader)(unsafe.Pointer(&signaturePtr)))
 	cflattenedDigestsPtr, cflattenedDigestsPtrAllocMap := copyPUint8TBytes((*sliceHeader)(unsafe.Pointer(&flattenedDigestsPtr)))
@@ -1545,15 +1044,7 @@ func FilVerify(signaturePtr []byte, flattenedDigestsPtr []byte, flattenedDigests
 	return __v
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilVerifyAggregateSealProof function as declared in filecoin-ffi/filcrypto.h:850
-=======
-// FilVerifyAggregateSealProof function as declared in filecoin-ffi/filcrypto.h:916
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilVerifyAggregateSealProof function as declared in filecoin-ffi/filcrypto.h:910
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilVerifyAggregateSealProof function as declared in filecoin-ffi/filcrypto.h:968
 func FilVerifyAggregateSealProof(registeredProof FilRegisteredSealProof, registeredAggregation FilRegisteredAggregationProof, proverId Fil32ByteArray, proofPtr []byte, proofLen uint, commitInputsPtr []FilAggregationInputs, commitInputsLen uint) *FilVerifyAggregateSealProofResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProof)(registeredProof), cgoAllocsUnknown
 	cregisteredAggregation, cregisteredAggregationAllocMap := (C.fil_RegisteredAggregationProof)(registeredAggregation), cgoAllocsUnknown
@@ -1575,31 +1066,15 @@ func FilVerifyAggregateSealProof(registeredProof FilRegisteredSealProof, registe
 	return __v
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilVerifySeal function as declared in filecoin-ffi/filcrypto.h:862
-=======
-// FilVerifyEmptySectorUpdateProof function as declared in filecoin-ffi/filcrypto.h:928
-=======
-// FilVerifyEmptySectorUpdateProof function as declared in filecoin-ffi/filcrypto.h:922
-<<<<<<< HEAD
->>>>>>> b70e034 (fix: re-generate go bindings)
-func FilVerifyEmptySectorUpdateProof(registeredProof FilRegisteredEmptySectorUpdateProof, proofPtr []byte, proofLen uint, commROld Fil32ByteArray, commRNew Fil32ByteArray, commDNew Fil32ByteArray, sectorKeyCacheDirPath string) *FilVerifyEmptySectorUpdateProofResponse {
-	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredEmptySectorUpdateProof)(registeredProof), cgoAllocsUnknown
-=======
-func FilVerifyEmptySectorUpdateProof(registeredProof FilRegisteredUpdateProof, proofPtr []byte, proofLen uint, commROld Fil32ByteArray, commRNew Fil32ByteArray, commDNew Fil32ByteArray, sectorKeyCacheDirPath string) *FilVerifyEmptySectorUpdateProofResponse {
+// FilVerifyEmptySectorUpdateProof function as declared in filecoin-ffi/filcrypto.h:980
+func FilVerifyEmptySectorUpdateProof(registeredProof FilRegisteredUpdateProof, proofPtr []byte, proofLen uint, commROld Fil32ByteArray, commRNew Fil32ByteArray, commDNew Fil32ByteArray) *FilVerifyEmptySectorUpdateProofResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredUpdateProof)(registeredProof), cgoAllocsUnknown
->>>>>>> 25cae08 (fix: adjust new proof types to match upstream)
 	cproofPtr, cproofPtrAllocMap := copyPUint8TBytes((*sliceHeader)(unsafe.Pointer(&proofPtr)))
 	cproofLen, cproofLenAllocMap := (C.size_t)(proofLen), cgoAllocsUnknown
 	ccommROld, ccommROldAllocMap := commROld.PassValue()
 	ccommRNew, ccommRNewAllocMap := commRNew.PassValue()
 	ccommDNew, ccommDNewAllocMap := commDNew.PassValue()
-	sectorKeyCacheDirPath = safeString(sectorKeyCacheDirPath)
-	csectorKeyCacheDirPath, csectorKeyCacheDirPathAllocMap := unpackPCharString(sectorKeyCacheDirPath)
-	__ret := C.fil_verify_empty_sector_update_proof(cregisteredProof, cproofPtr, cproofLen, ccommROld, ccommRNew, ccommDNew, csectorKeyCacheDirPath)
-	runtime.KeepAlive(sectorKeyCacheDirPath)
-	runtime.KeepAlive(csectorKeyCacheDirPathAllocMap)
+	__ret := C.fil_verify_empty_sector_update_proof(cregisteredProof, cproofPtr, cproofLen, ccommROld, ccommRNew, ccommDNew)
 	runtime.KeepAlive(ccommDNewAllocMap)
 	runtime.KeepAlive(ccommRNewAllocMap)
 	runtime.KeepAlive(ccommROldAllocMap)
@@ -1610,12 +1085,7 @@ func FilVerifyEmptySectorUpdateProof(registeredProof FilRegisteredUpdateProof, p
 	return __v
 }
 
-<<<<<<< HEAD
-// FilVerifySeal function as declared in filecoin-ffi/filcrypto.h:940
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilVerifySeal function as declared in filecoin-ffi/filcrypto.h:934
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilVerifySeal function as declared in filecoin-ffi/filcrypto.h:991
 func FilVerifySeal(registeredProof FilRegisteredSealProof, commR Fil32ByteArray, commD Fil32ByteArray, proverId Fil32ByteArray, ticket Fil32ByteArray, seed Fil32ByteArray, sectorId uint64, proofPtr []byte, proofLen uint) *FilVerifySealResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProof)(registeredProof), cgoAllocsUnknown
 	ccommR, ccommRAllocMap := commR.PassValue()
@@ -1640,15 +1110,7 @@ func FilVerifySeal(registeredProof FilRegisteredSealProof, commR Fil32ByteArray,
 	return __v
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilVerifyWindowPost function as declared in filecoin-ffi/filcrypto.h:875
-=======
-// FilVerifyWindowPost function as declared in filecoin-ffi/filcrypto.h:953
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilVerifyWindowPost function as declared in filecoin-ffi/filcrypto.h:947
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilVerifyWindowPost function as declared in filecoin-ffi/filcrypto.h:1004
 func FilVerifyWindowPost(randomness Fil32ByteArray, replicasPtr []FilPublicReplicaInfo, replicasLen uint, proofsPtr []FilPoStProof, proofsLen uint, proverId Fil32ByteArray) *FilVerifyWindowPoStResponse {
 	crandomness, crandomnessAllocMap := randomness.PassValue()
 	creplicasPtr, creplicasPtrAllocMap := unpackArgSFilPublicReplicaInfo(replicasPtr)
@@ -1669,15 +1131,7 @@ func FilVerifyWindowPost(randomness Fil32ByteArray, replicasPtr []FilPublicRepli
 	return __v
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilVerifyWinningPost function as declared in filecoin-ffi/filcrypto.h:885
-=======
-// FilVerifyWinningPost function as declared in filecoin-ffi/filcrypto.h:963
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilVerifyWinningPost function as declared in filecoin-ffi/filcrypto.h:957
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilVerifyWinningPost function as declared in filecoin-ffi/filcrypto.h:1014
 func FilVerifyWinningPost(randomness Fil32ByteArray, replicasPtr []FilPublicReplicaInfo, replicasLen uint, proofsPtr []FilPoStProof, proofsLen uint, proverId Fil32ByteArray) *FilVerifyWinningPoStResponse {
 	crandomness, crandomnessAllocMap := randomness.PassValue()
 	creplicasPtr, creplicasPtrAllocMap := unpackArgSFilPublicReplicaInfo(replicasPtr)
@@ -1698,15 +1152,7 @@ func FilVerifyWinningPost(randomness Fil32ByteArray, replicasPtr []FilPublicRepl
 	return __v
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilWriteWithAlignment function as declared in filecoin-ffi/filcrypto.h:896
-=======
-// FilWriteWithAlignment function as declared in filecoin-ffi/filcrypto.h:974
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilWriteWithAlignment function as declared in filecoin-ffi/filcrypto.h:968
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilWriteWithAlignment function as declared in filecoin-ffi/filcrypto.h:1025
 func FilWriteWithAlignment(registeredProof FilRegisteredSealProof, srcFd int32, srcSize uint64, dstFd int32, existingPieceSizesPtr []uint64, existingPieceSizesLen uint) *FilWriteWithAlignmentResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProof)(registeredProof), cgoAllocsUnknown
 	csrcFd, csrcFdAllocMap := (C.int)(srcFd), cgoAllocsUnknown
@@ -1725,15 +1171,7 @@ func FilWriteWithAlignment(registeredProof FilRegisteredSealProof, srcFd int32, 
 	return __v
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// FilWriteWithoutAlignment function as declared in filecoin-ffi/filcrypto.h:907
-=======
-// FilWriteWithoutAlignment function as declared in filecoin-ffi/filcrypto.h:985
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
-=======
-// FilWriteWithoutAlignment function as declared in filecoin-ffi/filcrypto.h:979
->>>>>>> b70e034 (fix: re-generate go bindings)
+// FilWriteWithoutAlignment function as declared in filecoin-ffi/filcrypto.h:1036
 func FilWriteWithoutAlignment(registeredProof FilRegisteredSealProof, srcFd int32, srcSize uint64, dstFd int32) *FilWriteWithoutAlignmentResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredSealProof)(registeredProof), cgoAllocsUnknown
 	csrcFd, csrcFdAllocMap := (C.int)(srcFd), cgoAllocsUnknown
