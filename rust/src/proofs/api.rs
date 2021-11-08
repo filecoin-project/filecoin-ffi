@@ -2805,8 +2805,6 @@ pub mod tests {
             // When the data is removed, it MUST match the original sealed data.
             compare_elements(&removed_data_path, &sealed_path)?;
 
-            // FIXME: ADD DESTROY METHODS FOR ALL TYPES USED
-            // FIXME: ADD DESTROY METHODS FOR ALL TYPES USED
             fil_destroy_write_without_alignment_response(resp_new_a1);
             fil_destroy_write_with_alignment_response(resp_new_a2);
             fil_destroy_generate_data_commitment_response(resp_new_x);
