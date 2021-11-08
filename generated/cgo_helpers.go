@@ -2167,10 +2167,10 @@ func (x *FilPartitionSnarkProof) Deref() {
 	}
 	x.RegisteredProof = (FilRegisteredPoStProof)(x.ref4de03739.registered_proof)
 	x.ProofLen = (uint)(x.ref4de03739.proof_len)
-	hxfa3f05c := (*sliceHeader)(unsafe.Pointer(&x.ProofPtr))
-	hxfa3f05c.Data = unsafe.Pointer(x.ref4de03739.proof_ptr)
-	hxfa3f05c.Cap = 0x7fffffff
-	// hxfa3f05c.Len = ?
+	hxf0d18b7 := (*sliceHeader)(unsafe.Pointer(&x.ProofPtr))
+	hxf0d18b7.Data = unsafe.Pointer(x.ref4de03739.proof_ptr)
+	hxf0d18b7.Cap = 0x7fffffff
+	// hxf0d18b7.Len = ?
 
 }
 
@@ -2271,10 +2271,10 @@ func (x *FilGenerateSingleWindowPoStWithVanillaResponse) Deref() {
 	x.ErrorMsg = packPCharString(x.ref96c012c3.error_msg)
 	x.PartitionProof = *NewFilPartitionSnarkProofRef(unsafe.Pointer(&x.ref96c012c3.partition_proof))
 	x.FaultySectorsLen = (uint)(x.ref96c012c3.faulty_sectors_len)
-	hxf0d18b7 := (*sliceHeader)(unsafe.Pointer(&x.FaultySectorsPtr))
-	hxf0d18b7.Data = unsafe.Pointer(x.ref96c012c3.faulty_sectors_ptr)
-	hxf0d18b7.Cap = 0x7fffffff
-	// hxf0d18b7.Len = ?
+	hxf2fab0d := (*sliceHeader)(unsafe.Pointer(&x.FaultySectorsPtr))
+	hxf2fab0d.Data = unsafe.Pointer(x.ref96c012c3.faulty_sectors_ptr)
+	hxf2fab0d.Cap = 0x7fffffff
+	// hxf2fab0d.Len = ?
 
 	x.StatusCode = (FCPResponseStatus)(x.ref96c012c3.status_code)
 }
@@ -2367,17 +2367,10 @@ func (x *FilPoStProof) Deref() {
 	}
 	x.RegisteredProof = (FilRegisteredPoStProof)(x.ref3451bfa.registered_proof)
 	x.ProofLen = (uint)(x.ref3451bfa.proof_len)
-<<<<<<< HEAD
-	hxf2fab0d := (*sliceHeader)(unsafe.Pointer(&x.ProofPtr))
-	hxf2fab0d.Data = unsafe.Pointer(x.ref3451bfa.proof_ptr)
-	hxf2fab0d.Cap = 0x7fffffff
-	// hxf2fab0d.Len = ?
-=======
-	hxf0d18b7 := (*sliceHeader)(unsafe.Pointer(&x.ProofPtr))
-	hxf0d18b7.Data = unsafe.Pointer(x.ref3451bfa.proof_ptr)
-	hxf0d18b7.Cap = 0x7fffffff
-	// hxf0d18b7.Len = ?
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
+	hxf69fe70 := (*sliceHeader)(unsafe.Pointer(&x.ProofPtr))
+	hxf69fe70.Data = unsafe.Pointer(x.ref3451bfa.proof_ptr)
+	hxf69fe70.Cap = 0x7fffffff
+	// hxf69fe70.Len = ?
 
 }
 
@@ -2521,17 +2514,10 @@ func (x *FilGenerateWindowPoStResponse) Deref() {
 	x.ProofsLen = (uint)(x.ref2a5f3ba8.proofs_len)
 	packSFilPoStProof(x.ProofsPtr, x.ref2a5f3ba8.proofs_ptr)
 	x.FaultySectorsLen = (uint)(x.ref2a5f3ba8.faulty_sectors_len)
-<<<<<<< HEAD
-	hxf69fe70 := (*sliceHeader)(unsafe.Pointer(&x.FaultySectorsPtr))
-	hxf69fe70.Data = unsafe.Pointer(x.ref2a5f3ba8.faulty_sectors_ptr)
-	hxf69fe70.Cap = 0x7fffffff
-	// hxf69fe70.Len = ?
-=======
-	hxf2fab0d := (*sliceHeader)(unsafe.Pointer(&x.FaultySectorsPtr))
-	hxf2fab0d.Data = unsafe.Pointer(x.ref2a5f3ba8.faulty_sectors_ptr)
-	hxf2fab0d.Cap = 0x7fffffff
-	// hxf2fab0d.Len = ?
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
+	hxf65bf54 := (*sliceHeader)(unsafe.Pointer(&x.FaultySectorsPtr))
+	hxf65bf54.Data = unsafe.Pointer(x.ref2a5f3ba8.faulty_sectors_ptr)
+	hxf65bf54.Cap = 0x7fffffff
+	// hxf65bf54.Len = ?
 
 	x.StatusCode = (FCPResponseStatus)(x.ref2a5f3ba8.status_code)
 }
@@ -2724,17 +2710,10 @@ func (x *FilGenerateWinningPoStSectorChallenge) Deref() {
 	}
 	x.ErrorMsg = packPCharString(x.ref69d2a405.error_msg)
 	x.StatusCode = (FCPResponseStatus)(x.ref69d2a405.status_code)
-<<<<<<< HEAD
-	hxf65bf54 := (*sliceHeader)(unsafe.Pointer(&x.IdsPtr))
-	hxf65bf54.Data = unsafe.Pointer(x.ref69d2a405.ids_ptr)
-	hxf65bf54.Cap = 0x7fffffff
-	// hxf65bf54.Len = ?
-=======
-	hxf69fe70 := (*sliceHeader)(unsafe.Pointer(&x.IdsPtr))
-	hxf69fe70.Data = unsafe.Pointer(x.ref69d2a405.ids_ptr)
-	hxf69fe70.Cap = 0x7fffffff
-	// hxf69fe70.Len = ?
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
+	hxf3b8dbd := (*sliceHeader)(unsafe.Pointer(&x.IdsPtr))
+	hxf3b8dbd.Data = unsafe.Pointer(x.ref69d2a405.ids_ptr)
+	hxf3b8dbd.Cap = 0x7fffffff
+	// hxf3b8dbd.Len = ?
 
 	x.IdsLen = (uint)(x.ref69d2a405.ids_len)
 }
@@ -3810,17 +3789,10 @@ func (x *FilSealCommitPhase1Response) Deref() {
 	}
 	x.StatusCode = (FCPResponseStatus)(x.ref61ed8561.status_code)
 	x.ErrorMsg = packPCharString(x.ref61ed8561.error_msg)
-<<<<<<< HEAD
-	hxf3b8dbd := (*sliceHeader)(unsafe.Pointer(&x.SealCommitPhase1OutputPtr))
-	hxf3b8dbd.Data = unsafe.Pointer(x.ref61ed8561.seal_commit_phase1_output_ptr)
-	hxf3b8dbd.Cap = 0x7fffffff
-	// hxf3b8dbd.Len = ?
-=======
-	hxf65bf54 := (*sliceHeader)(unsafe.Pointer(&x.SealCommitPhase1OutputPtr))
-	hxf65bf54.Data = unsafe.Pointer(x.ref61ed8561.seal_commit_phase1_output_ptr)
-	hxf65bf54.Cap = 0x7fffffff
-	// hxf65bf54.Len = ?
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
+	hxf7a6dff := (*sliceHeader)(unsafe.Pointer(&x.SealCommitPhase1OutputPtr))
+	hxf7a6dff.Data = unsafe.Pointer(x.ref61ed8561.seal_commit_phase1_output_ptr)
+	hxf7a6dff.Cap = 0x7fffffff
+	// hxf7a6dff.Len = ?
 
 	x.SealCommitPhase1OutputLen = (uint)(x.ref61ed8561.seal_commit_phase1_output_len)
 }
@@ -3917,17 +3889,10 @@ func (x *FilSealPreCommitPhase1Response) Deref() {
 	}
 	x.ErrorMsg = packPCharString(x.ref132bbfd8.error_msg)
 	x.StatusCode = (FCPResponseStatus)(x.ref132bbfd8.status_code)
-<<<<<<< HEAD
-	hxf7a6dff := (*sliceHeader)(unsafe.Pointer(&x.SealPreCommitPhase1OutputPtr))
-	hxf7a6dff.Data = unsafe.Pointer(x.ref132bbfd8.seal_pre_commit_phase1_output_ptr)
-	hxf7a6dff.Cap = 0x7fffffff
-	// hxf7a6dff.Len = ?
-=======
-	hxf3b8dbd := (*sliceHeader)(unsafe.Pointer(&x.SealPreCommitPhase1OutputPtr))
-	hxf3b8dbd.Data = unsafe.Pointer(x.ref132bbfd8.seal_pre_commit_phase1_output_ptr)
-	hxf3b8dbd.Cap = 0x7fffffff
-	// hxf3b8dbd.Len = ?
->>>>>>> 2105295 (feat: add API and tests for Empty Sector Update support)
+	hxfe48d67 := (*sliceHeader)(unsafe.Pointer(&x.SealPreCommitPhase1OutputPtr))
+	hxfe48d67.Data = unsafe.Pointer(x.ref132bbfd8.seal_pre_commit_phase1_output_ptr)
+	hxfe48d67.Cap = 0x7fffffff
+	// hxfe48d67.Len = ?
 
 	x.SealPreCommitPhase1OutputLen = (uint)(x.ref132bbfd8.seal_pre_commit_phase1_output_len)
 }

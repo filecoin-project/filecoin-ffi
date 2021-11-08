@@ -1450,9 +1450,9 @@ pub unsafe extern "C" fn fil_empty_sector_update_encode_into(
         match result {
             Ok(output) => {
                 response.status_code = FCPResponseStatus::FCPNoError;
-                response.comm_r_new = output.0;
-                response.comm_r_last_new = output.1;
-                response.comm_d_new = output.2;
+                response.comm_r_new = output.comm_r_new;
+                response.comm_r_last_new = output.comm_r_last_new;
+                response.comm_d_new = output.comm_d_new;
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
@@ -1588,8 +1588,8 @@ pub unsafe extern "C" fn fil_generate_empty_sector_update_proof(
         match result {
             Ok(output) => {
                 response.status_code = FCPResponseStatus::FCPNoError;
-                response.proof_ptr = output.as_ptr();
-                response.proof_len = output.len();
+                response.proof_ptr = output.0.as_ptr();
+                response.proof_len = output.0.len();
 
                 mem::forget(output);
             }
@@ -1615,7 +1615,6 @@ pub unsafe extern "C" fn fil_verify_empty_sector_update_proof(
     comm_r_old: fil_32ByteArray,
     comm_r_new: fil_32ByteArray,
     comm_d_new: fil_32ByteArray,
-    sector_key_cache_dir_path: *const libc::c_char,
 ) -> *mut fil_VerifyEmptySectorUpdateProofResponse {
     catch_panic_response(|| {
         init_log();
@@ -1632,7 +1631,6 @@ pub unsafe extern "C" fn fil_verify_empty_sector_update_proof(
             comm_r_old.inner,
             comm_r_new.inner,
             comm_d_new.inner,
-            c_str_to_pbuf(sector_key_cache_dir_path),
         );
 
         match result {
@@ -1657,7 +1655,6 @@ pub unsafe extern "C" fn fil_verify_empty_sector_update_proof(
     })
 }
 
-        
 /// Returns the merkle root for a piece after piece padding and alignment.
 /// The caller is responsible for closing the passed in file descriptor.
 #[no_mangle]
@@ -2746,7 +2743,6 @@ pub mod tests {
                 wrap((*resp_b2).comm_r),
                 wrap((*resp_encode).comm_r_new),
                 wrap((*resp_encode).comm_d_new),
-                cache_dir_path_c_str,
             );
 
             if (*resp_verify_empty_sector_update).status_code != FCPResponseStatus::FCPNoError {
@@ -2809,8 +2805,6 @@ pub mod tests {
             // When the data is removed, it MUST match the original sealed data.
             compare_elements(&removed_data_path, &sealed_path)?;
 
-            // FIXME: ADD DESTROY METHODS FOR ALL TYPES USED
-            // FIXME: ADD DESTROY METHODS FOR ALL TYPES USED
             fil_destroy_write_without_alignment_response(resp_new_a1);
             fil_destroy_write_with_alignment_response(resp_new_a2);
             fil_destroy_generate_data_commitment_response(resp_new_x);
