@@ -28,7 +28,7 @@ func toFilRegisteredUpdateProof(p abi.RegisteredUpdateProof) (generated.FilRegis
 	}
 }
 
-//nolint:deadcode
+//nolint:deadcode,unused
 func fromFilRegisteredUpdateProof(p generated.FilRegisteredUpdateProof) (abi.RegisteredUpdateProof, error) {
 	switch p {
 	case generated.FilRegisteredUpdateProofStackedDrg2KiBV1:
