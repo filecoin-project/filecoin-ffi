@@ -28,6 +28,7 @@ func toFilRegisteredUpdateProof(p abi.RegisteredUpdateProof) (generated.FilRegis
 	}
 }
 
+//nolint:deadcode
 func fromFilRegisteredUpdateProof(p generated.FilRegisteredUpdateProof) (abi.RegisteredUpdateProof, error) {
 	switch p {
 	case generated.FilRegisteredUpdateProofStackedDrg2KiBV1:
@@ -49,7 +50,7 @@ type FunctionsSectorUpdate struct{}
 
 var SectorUpdate = FunctionsSectorUpdate{}
 
-func (_ FunctionsSectorUpdate) EncodeInto(
+func (FunctionsSectorUpdate) EncodeInto(
 	proofType abi.RegisteredUpdateProof,
 	newReplicaPath string,
 	newReplicaCachePath string,
@@ -96,7 +97,7 @@ func (_ FunctionsSectorUpdate) EncodeInto(
 	return commR, commD, nil
 }
 
-func (_ FunctionsSectorUpdate) DecodeFrom(
+func (FunctionsSectorUpdate) DecodeFrom(
 	proofType abi.RegisteredUpdateProof,
 	outDataPath string,
 	replicaPath string,
@@ -132,7 +133,7 @@ func (_ FunctionsSectorUpdate) DecodeFrom(
 	return nil
 }
 
-func (_ FunctionsSectorUpdate) RemoveData(
+func (FunctionsSectorUpdate) RemoveData(
 	proofType abi.RegisteredUpdateProof,
 	sectorKePath string,
 	sectorKeyCachePath string,
@@ -170,7 +171,7 @@ func (_ FunctionsSectorUpdate) RemoveData(
 	return nil
 }
 
-func (_ FunctionsSectorUpdate) GenerateUpdateProof(
+func (FunctionsSectorUpdate) GenerateUpdateProof(
 	proofType abi.RegisteredUpdateProof,
 	oldSealedCID cid.Cid,
 	newSealedCID cid.Cid,
@@ -217,7 +218,7 @@ func (_ FunctionsSectorUpdate) GenerateUpdateProof(
 	return copyBytes(resp.ProofPtr, resp.ProofLen), nil
 }
 
-func (_ FunctionsSectorUpdate) VerifyUpdateProof(
+func (FunctionsSectorUpdate) VerifyUpdateProof(
 	proofType abi.RegisteredUpdateProof,
 	proof []byte,
 	oldSealedCID cid.Cid,
