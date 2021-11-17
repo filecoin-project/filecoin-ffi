@@ -5,9 +5,10 @@ go 1.13
 require (
 	github.com/filecoin-project/go-address v0.0.5
 	github.com/filecoin-project/go-fil-commcid v0.0.0-20200716160307-8f644712406f
-	github.com/filecoin-project/go-state-types v0.1.1-0.20211102152656-6027e22b77fd
+	github.com/filecoin-project/go-state-types v0.1.1
 	github.com/filecoin-project/specs-actors v0.9.13
-	github.com/filecoin-project/specs-actors/v5 v5.0.0-20210512015452-4fe3889fff57
+	github.com/filecoin-project/specs-actors/v5 v5.0.4
+	github.com/filecoin-project/specs-actors/v7 v7.0.0-20211117170924-fd07a4c7dff9
 	github.com/ipfs/go-cid v0.0.7
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.7.0
