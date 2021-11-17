@@ -6,6 +6,7 @@ import (
 	"github.com/filecoin-project/filecoin-ffi/generated"
 	commcid "github.com/filecoin-project/go-fil-commcid"
 	"github.com/filecoin-project/go-state-types/abi"
+	"github.com/filecoin-project/specs-actors/v7/actors/runtime/proof"
 	"github.com/ipfs/go-cid"
 	"github.com/pkg/errors"
 	"golang.org/x/xerrors"
@@ -218,35 +219,29 @@ func (FunctionsSectorUpdate) GenerateUpdateProof(
 	return copyBytes(resp.ProofPtr, resp.ProofLen), nil
 }
 
-func (FunctionsSectorUpdate) VerifyUpdateProof(
-	proofType abi.RegisteredUpdateProof,
-	proof []byte,
-	oldSealedCID cid.Cid,
-	newSealedCID cid.Cid,
-	unsealedCID cid.Cid,
-) (bool, error) {
-	up, err := toFilRegisteredUpdateProof(proofType)
+func (FunctionsSectorUpdate) VerifyUpdateProof(info proof.ReplicaUpdateInfo) (bool, error) {
+	up, err := toFilRegisteredUpdateProof(info.UpdateProofType)
 	if err != nil {
 		return false, err
 	}
 
-	commRold, err := to32ByteCommR(oldSealedCID)
+	commRold, err := to32ByteCommR(info.OldSealedSectorCID)
 	if err != nil {
-		return false, xerrors.Errorf("transorming old CommR: %w", err)
+		return false, xerrors.Errorf("transforming old CommR: %w", err)
 	}
-	commRnew, err := to32ByteCommR(newSealedCID)
+	commRnew, err := to32ByteCommR(info.NewSealedSectorCID)
 	if err != nil {
-		return false, xerrors.Errorf("transorming new CommR: %w", err)
+		return false, xerrors.Errorf("tranfsorming new CommR: %w", err)
 	}
-	commD, err := to32ByteCommD(unsealedCID)
+	commD, err := to32ByteCommD(info.NewUnsealedSectorCID)
 	if err != nil {
-		return false, xerrors.Errorf("transorming new CommD: %w", err)
+		return false, xerrors.Errorf("transforming new CommD: %w", err)
 	}
 
 	resp := generated.FilVerifyEmptySectorUpdateProof(
 		up,
-		proof,
-		uint(len(proof)),
+		info.Proof,
+		uint(len(info.Proof)),
 		commRold,
 		commRnew,
 		commD,
