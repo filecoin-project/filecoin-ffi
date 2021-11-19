@@ -229,6 +229,51 @@ func (FunctionsSectorUpdate) GenerateUpdateVanillaProofs(
 	return proofs, nil
 }
 
+func (FunctionsSectorUpdate) VerifyVanillaProofs(
+	proofType abi.RegisteredUpdateProof,
+	oldSealedCID cid.Cid,
+	newSealedCID cid.Cid,
+	unsealedCID cid.Cid,
+	vanillaProofs [][]byte,
+) (bool, error) {
+	up, err := toFilRegisteredUpdateProof(proofType)
+	if err != nil {
+		return false, err
+	}
+
+	commRold, err := to32ByteCommR(oldSealedCID)
+	if err != nil {
+		return false, xerrors.Errorf("transorming old CommR: %w", err)
+	}
+	commRnew, err := to32ByteCommR(newSealedCID)
+	if err != nil {
+		return false, xerrors.Errorf("transorming new CommR: %w", err)
+	}
+	commD, err := to32ByteCommD(unsealedCID)
+	if err != nil {
+		return false, xerrors.Errorf("transorming new CommD: %w", err)
+	}
+
+	proofs, cleanup := toUpdateVanillaProofs(vanillaProofs)
+	defer cleanup()
+
+	resp := generated.FilVerifyPartitionProofs(
+		up,
+		uint(len(proofs)),
+		proofs, // swapped, gotcha
+		commRold,
+		commRnew,
+		commD,
+	)
+	resp.Deref()
+	defer generated.FilDestroyVerifyPartitionProofResponse(resp)
+
+	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
+		return false, errors.New(generated.RawString(resp.ErrorMsg).Copy())
+	}
+	return resp.IsValid, nil
+}
+
 func (FunctionsSectorUpdate) GenerateUpdateProofWithVanilla(
 	proofType abi.RegisteredUpdateProof,
 	oldSealedCID cid.Cid,
