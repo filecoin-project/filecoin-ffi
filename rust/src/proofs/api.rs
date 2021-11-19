@@ -10,11 +10,12 @@ use filecoin_proofs_api::seal::{
 use filecoin_proofs_api::update::{
     empty_sector_update_decode_from, empty_sector_update_encode_into,
     empty_sector_update_remove_encoded_data, generate_empty_sector_update_proof,
-    verify_empty_sector_update_proof,
+    generate_empty_sector_update_proof_with_vanilla, generate_partition_proofs,
+    verify_empty_sector_update_proof, verify_partition_proofs,
 };
 use filecoin_proofs_api::{
-    PartitionSnarkProof, PieceInfo, PrivateReplicaInfo, RegisteredPoStProof, RegisteredSealProof,
-    SectorId, StorageProofsError, UnpaddedByteIndex, UnpaddedBytesAmount,
+    PartitionProofBytes, PartitionSnarkProof, PieceInfo, PrivateReplicaInfo, RegisteredPoStProof,
+    RegisteredSealProof, SectorId, StorageProofsError, UnpaddedByteIndex, UnpaddedBytesAmount,
 };
 
 use blstrs::Scalar as Fr;
@@ -26,7 +27,8 @@ use std::path::PathBuf;
 use std::slice::from_raw_parts;
 
 use super::helpers::{
-    c_to_rust_partition_proofs, c_to_rust_post_proofs, to_private_replica_info_map,
+    c_to_rust_partition_proofs, c_to_rust_post_proofs, c_to_rust_vanilla_partition_proofs,
+    to_private_replica_info_map,
 };
 use super::types::*;
 use crate::util::api::init_log;
@@ -1557,6 +1559,190 @@ pub unsafe extern "C" fn fil_empty_sector_update_remove_encoded_data(
 /// TODO: document
 ///
 #[no_mangle]
+pub unsafe extern "C" fn fil_generate_partition_proofs(
+    registered_proof: fil_RegisteredUpdateProof,
+    comm_r_old: fil_32ByteArray,
+    comm_r_new: fil_32ByteArray,
+    comm_d_new: fil_32ByteArray,
+    sector_key_path: *const libc::c_char,
+    sector_key_cache_dir_path: *const libc::c_char,
+    replica_path: *const libc::c_char,
+    replica_cache_path: *const libc::c_char,
+) -> *mut fil_PartitionProofResponse {
+    catch_panic_response(|| {
+        init_log();
+
+        info!("fil_generate_partition_proofs: start");
+
+        let mut response: fil_PartitionProofResponse = Default::default();
+
+        let result = generate_partition_proofs(
+            registered_proof.into(),
+            comm_r_old.inner,
+            comm_r_new.inner,
+            comm_d_new.inner,
+            c_str_to_pbuf(sector_key_path),
+            c_str_to_pbuf(sector_key_cache_dir_path),
+            c_str_to_pbuf(replica_path),
+            c_str_to_pbuf(replica_cache_path),
+        );
+
+        match result {
+            Ok(output) => {
+                let mapped: Vec<fil_PartitionProof> = output
+                    .iter()
+                    .cloned()
+                    .map(|proof| {
+                        let out = fil_PartitionProof {
+                            proof_ptr: proof.0.as_ptr(),
+                            proof_len: proof.0.len(),
+                        };
+
+                        mem::forget(proof);
+
+                        out
+                    })
+                    .collect();
+
+                response.status_code = FCPResponseStatus::FCPNoError;
+                response.proofs_ptr = mapped.as_ptr();
+                response.proofs_len = mapped.len();
+
+                mem::forget(mapped);
+            }
+            Err(err) => {
+                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+            }
+        }
+
+        info!("fil_generate_partition_proofs: finish");
+
+        raw_ptr(response)
+    })
+}
+
+/// TODO: document
+///
+#[no_mangle]
+pub unsafe extern "C" fn fil_verify_partition_proofs(
+    registered_proof: fil_RegisteredUpdateProof,
+    proofs_len: libc::size_t,
+    proofs_ptr: *const fil_PartitionProof,
+    comm_r_old: fil_32ByteArray,
+    comm_r_new: fil_32ByteArray,
+    comm_d_new: fil_32ByteArray,
+) -> *mut fil_VerifyPartitionProofResponse {
+    catch_panic_response(|| {
+        init_log();
+
+        info!("fil_verify_partition_proofs: start");
+
+        let mut response: fil_VerifyPartitionProofResponse = Default::default();
+
+        match c_to_rust_vanilla_partition_proofs(proofs_ptr, proofs_len) {
+            Ok(partition_proofs) => {
+                let proofs: Vec<PartitionProofBytes> = partition_proofs
+                    .iter()
+                    .map(|pp| PartitionProofBytes(pp.clone().proof))
+                    .collect();
+
+                let result = verify_partition_proofs(
+                    registered_proof.into(),
+                    &proofs,
+                    comm_r_old.inner,
+                    comm_r_new.inner,
+                    comm_d_new.inner,
+                );
+
+                match result {
+                    Ok(is_valid) => {
+                        response.status_code = FCPResponseStatus::FCPNoError;
+                        response.is_valid = is_valid;
+                    }
+                    Err(err) => {
+                        response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                        response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                    }
+                }
+            }
+            Err(err) => {
+                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+            }
+        };
+
+        info!("fil_verify_partition_proofs: finish");
+
+        raw_ptr(response)
+    })
+}
+
+/// TODO: document
+///
+#[no_mangle]
+pub unsafe extern "C" fn fil_generate_empty_sector_update_proof_with_vanilla(
+    registered_proof: fil_RegisteredUpdateProof,
+    vanilla_proofs_ptr: *const fil_PartitionProof,
+    vanilla_proofs_len: libc::size_t,
+    comm_r_old: fil_32ByteArray,
+    comm_r_new: fil_32ByteArray,
+    comm_d_new: fil_32ByteArray,
+) -> *mut fil_EmptySectorUpdateProofResponse {
+    catch_panic_response(|| {
+        init_log();
+
+        info!("fil_generate_empty_sector_update_proof_with_vanilla: start");
+
+        let mut response: fil_EmptySectorUpdateProofResponse = Default::default();
+
+        let proofs: &[fil_PartitionProof] =
+            std::slice::from_raw_parts(vanilla_proofs_ptr, vanilla_proofs_len);
+        let partition_proofs: Vec<PartitionProofBytes> = proofs
+            .iter()
+            .cloned()
+            .map(|partition_proof| {
+                PartitionProofBytes(
+                    std::slice::from_raw_parts(
+                        partition_proof.proof_ptr,
+                        partition_proof.proof_len,
+                    )
+                    .to_vec(),
+                )
+            })
+            .collect();
+
+        let result = generate_empty_sector_update_proof_with_vanilla(
+            registered_proof.into(),
+            partition_proofs,
+            comm_r_old.inner,
+            comm_r_new.inner,
+            comm_d_new.inner,
+        );
+
+        match result {
+            Ok(output) => {
+                response.status_code = FCPResponseStatus::FCPNoError;
+                response.proof_ptr = output.0.as_ptr();
+                response.proof_len = output.0.len();
+
+                mem::forget(output);
+            }
+            Err(err) => {
+                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+            }
+        }
+
+        info!("fil_generate_empty_sector_update_proof_with_vanilla: finish");
+
+        raw_ptr(response)
+    })
+}
+
+/// TODO: document
+///
+#[no_mangle]
 pub unsafe extern "C" fn fil_generate_empty_sector_update_proof(
     registered_proof: fil_RegisteredUpdateProof,
     comm_r_old: fil_32ByteArray,
@@ -2136,6 +2322,24 @@ pub unsafe extern "C" fn fil_destroy_empty_sector_update_generate_proof_response
 #[no_mangle]
 pub unsafe extern "C" fn fil_destroy_empty_sector_update_verify_proof_response(
     ptr: *mut fil_VerifyEmptySectorUpdateProofResponse,
+) {
+    let _ = Box::from_raw(ptr);
+}
+
+/// Deallocates a PartitionProofResponse
+///
+#[no_mangle]
+pub unsafe extern "C" fn fil_destroy_generate_partition_proof_response(
+    ptr: *mut fil_PartitionProofResponse,
+) {
+    let _ = Box::from_raw(ptr);
+}
+
+/// Deallocates a VerifyEmptySectorUpdateProofResponse
+///
+#[no_mangle]
+pub unsafe extern "C" fn fil_destroy_verify_partition_proof_response(
+    ptr: *mut fil_VerifyPartitionProofResponse,
 ) {
     let _ = Box::from_raw(ptr);
 }
@@ -2720,7 +2924,8 @@ pub mod tests {
                 panic!("empty_sector_update_encode_into failed: {:?}", msg);
             }
 
-            let resp_empty_sector_update = fil_generate_empty_sector_update_proof(
+            // First generate all vanilla partition proofs
+            let resp_partition_proofs = fil_generate_partition_proofs(
                 registered_proof_empty_sector_update,
                 wrap((*resp_b2).comm_r),
                 wrap((*resp_encode).comm_r_new),
@@ -2731,9 +2936,41 @@ pub mod tests {
                 new_cache_dir_path_c_str,
             );
 
+            if (*resp_partition_proofs).status_code != FCPResponseStatus::FCPNoError {
+                let msg = c_str_to_rust_str((*resp_partition_proofs).error_msg);
+                panic!("generate_partition_proofs failed: {:?}", msg);
+            }
+
+            // Convert response to Vec partition proofs
+            let resp_verify_partition_proofs = fil_verify_partition_proofs(
+                registered_proof_empty_sector_update,
+                (*resp_partition_proofs).proofs_len,
+                (*resp_partition_proofs).proofs_ptr,
+                wrap((*resp_b2).comm_r),
+                wrap((*resp_encode).comm_r_new),
+                wrap((*resp_encode).comm_d_new),
+            );
+
+            if (*resp_verify_partition_proofs).status_code != FCPResponseStatus::FCPNoError {
+                let msg = c_str_to_rust_str((*resp_verify_partition_proofs).error_msg);
+                panic!("verify_partition_proofs failed: {:?}", msg);
+            }
+
+            let resp_empty_sector_update = fil_generate_empty_sector_update_proof_with_vanilla(
+                registered_proof_empty_sector_update,
+                (*resp_partition_proofs).proofs_ptr,
+                (*resp_partition_proofs).proofs_len,
+                wrap((*resp_b2).comm_r),
+                wrap((*resp_encode).comm_r_new),
+                wrap((*resp_encode).comm_d_new),
+            );
+
             if (*resp_empty_sector_update).status_code != FCPResponseStatus::FCPNoError {
                 let msg = c_str_to_rust_str((*resp_empty_sector_update).error_msg);
-                panic!("generate_empty_sector_update_proof failed: {:?}", msg);
+                panic!(
+                    "generate_empty_sector_update_proof_with_vanilla failed: {:?}",
+                    msg
+                );
             }
 
             let resp_verify_empty_sector_update = fil_verify_empty_sector_update_proof(
@@ -2747,6 +2984,37 @@ pub mod tests {
 
             if (*resp_verify_empty_sector_update).status_code != FCPResponseStatus::FCPNoError {
                 let msg = c_str_to_rust_str((*resp_verify_empty_sector_update).error_msg);
+                panic!("verify_empty_sector_update_proof failed: {:?}", msg);
+            }
+
+            // Now re-generate the empty sector update monolithically
+            let resp_empty_sector_update2 = fil_generate_empty_sector_update_proof(
+                registered_proof_empty_sector_update,
+                wrap((*resp_b2).comm_r),
+                wrap((*resp_encode).comm_r_new),
+                wrap((*resp_encode).comm_d_new),
+                replica_path_c_str,
+                cache_dir_path_c_str,
+                new_sealed_path_c_str,
+                new_cache_dir_path_c_str,
+            );
+
+            if (*resp_empty_sector_update2).status_code != FCPResponseStatus::FCPNoError {
+                let msg = c_str_to_rust_str((*resp_empty_sector_update2).error_msg);
+                panic!("generate_empty_sector_update_proof failed: {:?}", msg);
+            }
+
+            let resp_verify_empty_sector_update2 = fil_verify_empty_sector_update_proof(
+                registered_proof_empty_sector_update,
+                (*resp_empty_sector_update2).proof_ptr,
+                (*resp_empty_sector_update2).proof_len,
+                wrap((*resp_b2).comm_r),
+                wrap((*resp_encode).comm_r_new),
+                wrap((*resp_encode).comm_d_new),
+            );
+
+            if (*resp_verify_empty_sector_update2).status_code != FCPResponseStatus::FCPNoError {
+                let msg = c_str_to_rust_str((*resp_verify_empty_sector_update2).error_msg);
                 panic!("verify_empty_sector_update_proof failed: {:?}", msg);
             }
 
@@ -2813,8 +3081,13 @@ pub mod tests {
             fil_destroy_empty_sector_update_decode_from_response(resp_decode);
             fil_destroy_empty_sector_update_remove_encoded_data_response(resp_removed);
 
+            fil_destroy_generate_partition_proof_response(resp_partition_proofs);
+            fil_destroy_verify_partition_proof_response(resp_verify_partition_proofs);
+
             fil_destroy_empty_sector_update_generate_proof_response(resp_empty_sector_update);
+            fil_destroy_empty_sector_update_generate_proof_response(resp_empty_sector_update2);
             fil_destroy_empty_sector_update_verify_proof_response(resp_verify_empty_sector_update);
+            fil_destroy_empty_sector_update_verify_proof_response(resp_verify_empty_sector_update2);
 
             ensure!(
                 remove_file(&new_staged_path).is_ok(),

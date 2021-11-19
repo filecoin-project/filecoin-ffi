@@ -404,6 +404,44 @@ impl From<fil_PartitionSnarkProof> for PartitionSnarkProof {
 
 #[repr(C)]
 #[derive(Clone)]
+pub struct PartitionProof {
+    pub proof: Vec<u8>,
+}
+
+#[repr(C)]
+pub struct fil_PartitionProof {
+    pub proof_len: libc::size_t,
+    pub proof_ptr: *const u8,
+}
+
+impl Clone for fil_PartitionProof {
+    fn clone(&self) -> Self {
+        let slice: &[u8] = unsafe { std::slice::from_raw_parts(self.proof_ptr, self.proof_len) };
+        let cloned: Vec<u8> = slice.to_vec();
+        debug_assert_eq!(self.proof_len, cloned.len());
+
+        let proof_ptr = cloned.as_ptr();
+        std::mem::forget(cloned);
+
+        fil_PartitionProof {
+            proof_len: self.proof_len,
+            proof_ptr,
+        }
+    }
+}
+
+impl Drop for fil_PartitionProof {
+    fn drop(&mut self) {
+        // Note that this operation also does the equivalent of
+        // libc::free(self.proof_ptr as *mut libc::c_void);
+        let _ = unsafe {
+            Vec::from_raw_parts(self.proof_ptr as *mut u8, self.proof_len, self.proof_len)
+        };
+    }
+}
+
+#[repr(C)]
+#[derive(Clone)]
 pub struct fil_PrivateReplicaInfo {
     pub registered_proof: fil_RegisteredPoStProof,
     pub cache_dir_path: *const libc::c_char,
@@ -1142,6 +1180,48 @@ impl Drop for fil_EmptySectorUpdateProofResponse {
 }
 
 code_and_message_impl!(fil_EmptySectorUpdateProofResponse);
+
+#[repr(C)]
+#[derive(DropStructMacro)]
+pub struct fil_PartitionProofResponse {
+    pub status_code: FCPResponseStatus,
+    pub error_msg: *const libc::c_char,
+    pub proofs_len: libc::size_t,
+    pub proofs_ptr: *const fil_PartitionProof,
+}
+
+impl Default for fil_PartitionProofResponse {
+    fn default() -> fil_PartitionProofResponse {
+        fil_PartitionProofResponse {
+            status_code: FCPResponseStatus::FCPNoError,
+            error_msg: ptr::null(),
+            proofs_len: 0,
+            proofs_ptr: ptr::null(),
+        }
+    }
+}
+
+code_and_message_impl!(fil_PartitionProofResponse);
+
+#[repr(C)]
+#[derive(DropStructMacro)]
+pub struct fil_VerifyPartitionProofResponse {
+    pub status_code: FCPResponseStatus,
+    pub error_msg: *const libc::c_char,
+    pub is_valid: bool,
+}
+
+impl Default for fil_VerifyPartitionProofResponse {
+    fn default() -> fil_VerifyPartitionProofResponse {
+        fil_VerifyPartitionProofResponse {
+            status_code: FCPResponseStatus::FCPNoError,
+            error_msg: ptr::null(),
+            is_valid: false,
+        }
+    }
+}
+
+code_and_message_impl!(fil_VerifyPartitionProofResponse);
 
 #[repr(C)]
 #[derive(DropStructMacro)]
