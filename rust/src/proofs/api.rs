@@ -1559,7 +1559,7 @@ pub unsafe extern "C" fn fil_empty_sector_update_remove_encoded_data(
 /// TODO: document
 ///
 #[no_mangle]
-pub unsafe extern "C" fn fil_generate_partition_proofs(
+pub unsafe extern "C" fn fil_generate_empty_sector_update_partition_proofs(
     registered_proof: fil_RegisteredUpdateProof,
     comm_r_old: fil_32ByteArray,
     comm_r_new: fil_32ByteArray,
@@ -1572,7 +1572,7 @@ pub unsafe extern "C" fn fil_generate_partition_proofs(
     catch_panic_response(|| {
         init_log();
 
-        info!("fil_generate_partition_proofs: start");
+        info!("fil_generate_empty_sector_update_partition_proofs: start");
 
         let mut response: fil_PartitionProofResponse = Default::default();
 
@@ -1616,7 +1616,7 @@ pub unsafe extern "C" fn fil_generate_partition_proofs(
             }
         }
 
-        info!("fil_generate_partition_proofs: finish");
+        info!("fil_generate_empty_sector_update_partition_proofs: finish");
 
         raw_ptr(response)
     })
@@ -1625,7 +1625,7 @@ pub unsafe extern "C" fn fil_generate_partition_proofs(
 /// TODO: document
 ///
 #[no_mangle]
-pub unsafe extern "C" fn fil_verify_partition_proofs(
+pub unsafe extern "C" fn fil_verify_empty_sector_update_partition_proofs(
     registered_proof: fil_RegisteredUpdateProof,
     proofs_len: libc::size_t,
     proofs_ptr: *const fil_PartitionProof,
@@ -1636,7 +1636,7 @@ pub unsafe extern "C" fn fil_verify_partition_proofs(
     catch_panic_response(|| {
         init_log();
 
-        info!("fil_verify_partition_proofs: start");
+        info!("fil_verify_empty_sector_update_partition_proofs: start");
 
         let mut response: fil_VerifyPartitionProofResponse = Default::default();
 
@@ -1672,7 +1672,7 @@ pub unsafe extern "C" fn fil_verify_partition_proofs(
             }
         };
 
-        info!("fil_verify_partition_proofs: finish");
+        info!("fil_verify_empty_sector_update_partition_proofs: finish");
 
         raw_ptr(response)
     })
@@ -2329,7 +2329,7 @@ pub unsafe extern "C" fn fil_destroy_empty_sector_update_verify_proof_response(
 /// Deallocates a PartitionProofResponse
 ///
 #[no_mangle]
-pub unsafe extern "C" fn fil_destroy_generate_partition_proof_response(
+pub unsafe extern "C" fn fil_destroy_generate_empty_sector_update_partition_proof_response(
     ptr: *mut fil_PartitionProofResponse,
 ) {
     let _ = Box::from_raw(ptr);
@@ -2338,7 +2338,7 @@ pub unsafe extern "C" fn fil_destroy_generate_partition_proof_response(
 /// Deallocates a VerifyEmptySectorUpdateProofResponse
 ///
 #[no_mangle]
-pub unsafe extern "C" fn fil_destroy_verify_partition_proof_response(
+pub unsafe extern "C" fn fil_destroy_verify_empty_sector_update_partition_proof_response(
     ptr: *mut fil_VerifyPartitionProofResponse,
 ) {
     let _ = Box::from_raw(ptr);
@@ -2925,7 +2925,7 @@ pub mod tests {
             }
 
             // First generate all vanilla partition proofs
-            let resp_partition_proofs = fil_generate_partition_proofs(
+            let resp_partition_proofs = fil_generate_empty_sector_update_partition_proofs(
                 registered_proof_empty_sector_update,
                 wrap((*resp_b2).comm_r),
                 wrap((*resp_encode).comm_r_new),
@@ -2942,7 +2942,7 @@ pub mod tests {
             }
 
             // Verify vanilla partition proofs
-            let resp_verify_partition_proofs = fil_verify_partition_proofs(
+            let resp_verify_partition_proofs = fil_verify_empty_sector_update_partition_proofs(
                 registered_proof_empty_sector_update,
                 (*resp_partition_proofs).proofs_len,
                 (*resp_partition_proofs).proofs_ptr,
@@ -3083,8 +3083,12 @@ pub mod tests {
             fil_destroy_empty_sector_update_decode_from_response(resp_decode);
             fil_destroy_empty_sector_update_remove_encoded_data_response(resp_removed);
 
-            fil_destroy_generate_partition_proof_response(resp_partition_proofs);
-            fil_destroy_verify_partition_proof_response(resp_verify_partition_proofs);
+            fil_destroy_generate_empty_sector_update_partition_proof_response(
+                resp_partition_proofs,
+            );
+            fil_destroy_verify_empty_sector_update_partition_proof_response(
+                resp_verify_partition_proofs,
+            );
 
             fil_destroy_empty_sector_update_generate_proof_response(resp_empty_sector_update);
             fil_destroy_empty_sector_update_generate_proof_response(resp_empty_sector_update2);

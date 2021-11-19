@@ -154,7 +154,25 @@ type FilGenerateDataCommitmentResponse struct {
 	allocs87da7dd9 interface{}
 }
 
-// FilGenerateFallbackSectorChallengesResponse as declared in filecoin-ffi/filcrypto.h:179
+// FilPartitionProof as declared in filecoin-ffi/filcrypto.h:174
+type FilPartitionProof struct {
+	ProofLen       uint
+	ProofPtr       []byte
+	ref566a2be6    *C.fil_PartitionProof
+	allocs566a2be6 interface{}
+}
+
+// FilPartitionProofResponse as declared in filecoin-ffi/filcrypto.h:181
+type FilPartitionProofResponse struct {
+	StatusCode     FCPResponseStatus
+	ErrorMsg       string
+	ProofsLen      uint
+	ProofsPtr      []FilPartitionProof
+	ref51343e7a    *C.fil_PartitionProofResponse
+	allocs51343e7a interface{}
+}
+
+// FilGenerateFallbackSectorChallengesResponse as declared in filecoin-ffi/filcrypto.h:191
 type FilGenerateFallbackSectorChallengesResponse struct {
 	ErrorMsg         string
 	StatusCode       FCPResponseStatus
@@ -165,24 +183,6 @@ type FilGenerateFallbackSectorChallengesResponse struct {
 	ChallengesStride uint
 	ref7047a3fa      *C.fil_GenerateFallbackSectorChallengesResponse
 	allocs7047a3fa   interface{}
-}
-
-// FilPartitionProof as declared in filecoin-ffi/filcrypto.h:184
-type FilPartitionProof struct {
-	ProofLen       uint
-	ProofPtr       []byte
-	ref566a2be6    *C.fil_PartitionProof
-	allocs566a2be6 interface{}
-}
-
-// FilPartitionProofResponse as declared in filecoin-ffi/filcrypto.h:191
-type FilPartitionProofResponse struct {
-	StatusCode     FCPResponseStatus
-	ErrorMsg       string
-	ProofsLen      uint
-	ProofsPtr      []FilPartitionProof
-	ref51343e7a    *C.fil_PartitionProofResponse
-	allocs51343e7a interface{}
 }
 
 // FilGeneratePieceCommitmentResponse as declared in filecoin-ffi/filcrypto.h:202

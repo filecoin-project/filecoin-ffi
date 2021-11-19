@@ -150,17 +150,17 @@ func FilDestroyGenerateDataCommitmentResponse(ptr *FilGenerateDataCommitmentResp
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-// FilDestroyGenerateFallbackSectorChallengesResponse function as declared in filecoin-ffi/filcrypto.h:499
-func FilDestroyGenerateFallbackSectorChallengesResponse(ptr *FilGenerateFallbackSectorChallengesResponse) {
+// FilDestroyGenerateEmptySectorUpdatePartitionProofResponse function as declared in filecoin-ffi/filcrypto.h:503
+func FilDestroyGenerateEmptySectorUpdatePartitionProofResponse(ptr *FilPartitionProofResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
-	C.fil_destroy_generate_fallback_sector_challenges_response(cptr)
+	C.fil_destroy_generate_empty_sector_update_partition_proof_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-// FilDestroyGeneratePartitionProofResponse function as declared in filecoin-ffi/filcrypto.h:505
-func FilDestroyGeneratePartitionProofResponse(ptr *FilPartitionProofResponse) {
+// FilDestroyGenerateFallbackSectorChallengesResponse function as declared in filecoin-ffi/filcrypto.h:505
+func FilDestroyGenerateFallbackSectorChallengesResponse(ptr *FilGenerateFallbackSectorChallengesResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
-	C.fil_destroy_generate_partition_proof_response(cptr)
+	C.fil_destroy_generate_fallback_sector_challenges_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
@@ -311,10 +311,10 @@ func FilDestroyVerifyAggregateSealResponse(ptr *FilVerifyAggregateSealProofRespo
 	runtime.KeepAlive(cptrAllocMap)
 }
 
-// FilDestroyVerifyPartitionProofResponse function as declared in filecoin-ffi/filcrypto.h:557
-func FilDestroyVerifyPartitionProofResponse(ptr *FilVerifyPartitionProofResponse) {
+// FilDestroyVerifyEmptySectorUpdatePartitionProofResponse function as declared in filecoin-ffi/filcrypto.h:557
+func FilDestroyVerifyEmptySectorUpdatePartitionProofResponse(ptr *FilVerifyPartitionProofResponse) {
 	cptr, cptrAllocMap := ptr.PassRef()
-	C.fil_destroy_verify_partition_proof_response(cptr)
+	C.fil_destroy_verify_empty_sector_update_partition_proof_response(cptr)
 	runtime.KeepAlive(cptrAllocMap)
 }
 
@@ -507,7 +507,38 @@ func FilGenerateDataCommitment(registeredProof FilRegisteredSealProof, piecesPtr
 	return __v
 }
 
-// FilGenerateEmptySectorUpdateProof function as declared in filecoin-ffi/filcrypto.h:639
+// FilGenerateEmptySectorUpdatePartitionProofs function as declared in filecoin-ffi/filcrypto.h:639
+func FilGenerateEmptySectorUpdatePartitionProofs(registeredProof FilRegisteredUpdateProof, commROld Fil32ByteArray, commRNew Fil32ByteArray, commDNew Fil32ByteArray, sectorKeyPath string, sectorKeyCacheDirPath string, replicaPath string, replicaCachePath string) *FilPartitionProofResponse {
+	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredUpdateProof)(registeredProof), cgoAllocsUnknown
+	ccommROld, ccommROldAllocMap := commROld.PassValue()
+	ccommRNew, ccommRNewAllocMap := commRNew.PassValue()
+	ccommDNew, ccommDNewAllocMap := commDNew.PassValue()
+	sectorKeyPath = safeString(sectorKeyPath)
+	csectorKeyPath, csectorKeyPathAllocMap := unpackPCharString(sectorKeyPath)
+	sectorKeyCacheDirPath = safeString(sectorKeyCacheDirPath)
+	csectorKeyCacheDirPath, csectorKeyCacheDirPathAllocMap := unpackPCharString(sectorKeyCacheDirPath)
+	replicaPath = safeString(replicaPath)
+	creplicaPath, creplicaPathAllocMap := unpackPCharString(replicaPath)
+	replicaCachePath = safeString(replicaCachePath)
+	creplicaCachePath, creplicaCachePathAllocMap := unpackPCharString(replicaCachePath)
+	__ret := C.fil_generate_empty_sector_update_partition_proofs(cregisteredProof, ccommROld, ccommRNew, ccommDNew, csectorKeyPath, csectorKeyCacheDirPath, creplicaPath, creplicaCachePath)
+	runtime.KeepAlive(replicaCachePath)
+	runtime.KeepAlive(creplicaCachePathAllocMap)
+	runtime.KeepAlive(replicaPath)
+	runtime.KeepAlive(creplicaPathAllocMap)
+	runtime.KeepAlive(sectorKeyCacheDirPath)
+	runtime.KeepAlive(csectorKeyCacheDirPathAllocMap)
+	runtime.KeepAlive(sectorKeyPath)
+	runtime.KeepAlive(csectorKeyPathAllocMap)
+	runtime.KeepAlive(ccommDNewAllocMap)
+	runtime.KeepAlive(ccommRNewAllocMap)
+	runtime.KeepAlive(ccommROldAllocMap)
+	runtime.KeepAlive(cregisteredProofAllocMap)
+	__v := NewFilPartitionProofResponseRef(unsafe.Pointer(__ret))
+	return __v
+}
+
+// FilGenerateEmptySectorUpdateProof function as declared in filecoin-ffi/filcrypto.h:652
 func FilGenerateEmptySectorUpdateProof(registeredProof FilRegisteredUpdateProof, commROld Fil32ByteArray, commRNew Fil32ByteArray, commDNew Fil32ByteArray, sectorKeyPath string, sectorKeyCacheDirPath string, replicaPath string, replicaCachePath string) *FilEmptySectorUpdateProofResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredUpdateProof)(registeredProof), cgoAllocsUnknown
 	ccommROld, ccommROldAllocMap := commROld.PassValue()
@@ -538,7 +569,7 @@ func FilGenerateEmptySectorUpdateProof(registeredProof FilRegisteredUpdateProof,
 	return __v
 }
 
-// FilGenerateEmptySectorUpdateProofWithVanilla function as declared in filecoin-ffi/filcrypto.h:652
+// FilGenerateEmptySectorUpdateProofWithVanilla function as declared in filecoin-ffi/filcrypto.h:665
 func FilGenerateEmptySectorUpdateProofWithVanilla(registeredProof FilRegisteredUpdateProof, vanillaProofsPtr []FilPartitionProof, vanillaProofsLen uint, commROld Fil32ByteArray, commRNew Fil32ByteArray, commDNew Fil32ByteArray) *FilEmptySectorUpdateProofResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredUpdateProof)(registeredProof), cgoAllocsUnknown
 	cvanillaProofsPtr, cvanillaProofsPtrAllocMap := unpackArgSFilPartitionProof(vanillaProofsPtr)
@@ -558,7 +589,7 @@ func FilGenerateEmptySectorUpdateProofWithVanilla(registeredProof FilRegisteredU
 	return __v
 }
 
-// FilGenerateFallbackSectorChallenges function as declared in filecoin-ffi/filcrypto.h:663
+// FilGenerateFallbackSectorChallenges function as declared in filecoin-ffi/filcrypto.h:676
 func FilGenerateFallbackSectorChallenges(registeredProof FilRegisteredPoStProof, randomness Fil32ByteArray, sectorIdsPtr []uint64, sectorIdsLen uint, proverId Fil32ByteArray) *FilGenerateFallbackSectorChallengesResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredPoStProof)(registeredProof), cgoAllocsUnknown
 	crandomness, crandomnessAllocMap := randomness.PassValue()
@@ -572,37 +603,6 @@ func FilGenerateFallbackSectorChallenges(registeredProof FilRegisteredPoStProof,
 	runtime.KeepAlive(crandomnessAllocMap)
 	runtime.KeepAlive(cregisteredProofAllocMap)
 	__v := NewFilGenerateFallbackSectorChallengesResponseRef(unsafe.Pointer(__ret))
-	return __v
-}
-
-// FilGeneratePartitionProofs function as declared in filecoin-ffi/filcrypto.h:673
-func FilGeneratePartitionProofs(registeredProof FilRegisteredUpdateProof, commROld Fil32ByteArray, commRNew Fil32ByteArray, commDNew Fil32ByteArray, sectorKeyPath string, sectorKeyCacheDirPath string, replicaPath string, replicaCachePath string) *FilPartitionProofResponse {
-	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredUpdateProof)(registeredProof), cgoAllocsUnknown
-	ccommROld, ccommROldAllocMap := commROld.PassValue()
-	ccommRNew, ccommRNewAllocMap := commRNew.PassValue()
-	ccommDNew, ccommDNewAllocMap := commDNew.PassValue()
-	sectorKeyPath = safeString(sectorKeyPath)
-	csectorKeyPath, csectorKeyPathAllocMap := unpackPCharString(sectorKeyPath)
-	sectorKeyCacheDirPath = safeString(sectorKeyCacheDirPath)
-	csectorKeyCacheDirPath, csectorKeyCacheDirPathAllocMap := unpackPCharString(sectorKeyCacheDirPath)
-	replicaPath = safeString(replicaPath)
-	creplicaPath, creplicaPathAllocMap := unpackPCharString(replicaPath)
-	replicaCachePath = safeString(replicaCachePath)
-	creplicaCachePath, creplicaCachePathAllocMap := unpackPCharString(replicaCachePath)
-	__ret := C.fil_generate_partition_proofs(cregisteredProof, ccommROld, ccommRNew, ccommDNew, csectorKeyPath, csectorKeyCacheDirPath, creplicaPath, creplicaCachePath)
-	runtime.KeepAlive(replicaCachePath)
-	runtime.KeepAlive(creplicaCachePathAllocMap)
-	runtime.KeepAlive(replicaPath)
-	runtime.KeepAlive(creplicaPathAllocMap)
-	runtime.KeepAlive(sectorKeyCacheDirPath)
-	runtime.KeepAlive(csectorKeyCacheDirPathAllocMap)
-	runtime.KeepAlive(sectorKeyPath)
-	runtime.KeepAlive(csectorKeyPathAllocMap)
-	runtime.KeepAlive(ccommDNewAllocMap)
-	runtime.KeepAlive(ccommRNewAllocMap)
-	runtime.KeepAlive(ccommROldAllocMap)
-	runtime.KeepAlive(cregisteredProofAllocMap)
-	__v := NewFilPartitionProofResponseRef(unsafe.Pointer(__ret))
 	return __v
 }
 
@@ -1131,7 +1131,27 @@ func FilVerifyAggregateSealProof(registeredProof FilRegisteredSealProof, registe
 	return __v
 }
 
-// FilVerifyEmptySectorUpdateProof function as declared in filecoin-ffi/filcrypto.h:1034
+// FilVerifyEmptySectorUpdatePartitionProofs function as declared in filecoin-ffi/filcrypto.h:1034
+func FilVerifyEmptySectorUpdatePartitionProofs(registeredProof FilRegisteredUpdateProof, proofsLen uint, proofsPtr []FilPartitionProof, commROld Fil32ByteArray, commRNew Fil32ByteArray, commDNew Fil32ByteArray) *FilVerifyPartitionProofResponse {
+	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredUpdateProof)(registeredProof), cgoAllocsUnknown
+	cproofsLen, cproofsLenAllocMap := (C.size_t)(proofsLen), cgoAllocsUnknown
+	cproofsPtr, cproofsPtrAllocMap := unpackArgSFilPartitionProof(proofsPtr)
+	ccommROld, ccommROldAllocMap := commROld.PassValue()
+	ccommRNew, ccommRNewAllocMap := commRNew.PassValue()
+	ccommDNew, ccommDNewAllocMap := commDNew.PassValue()
+	__ret := C.fil_verify_empty_sector_update_partition_proofs(cregisteredProof, cproofsLen, cproofsPtr, ccommROld, ccommRNew, ccommDNew)
+	runtime.KeepAlive(ccommDNewAllocMap)
+	runtime.KeepAlive(ccommRNewAllocMap)
+	runtime.KeepAlive(ccommROldAllocMap)
+	packSFilPartitionProof(proofsPtr, cproofsPtr)
+	runtime.KeepAlive(cproofsPtrAllocMap)
+	runtime.KeepAlive(cproofsLenAllocMap)
+	runtime.KeepAlive(cregisteredProofAllocMap)
+	__v := NewFilVerifyPartitionProofResponseRef(unsafe.Pointer(__ret))
+	return __v
+}
+
+// FilVerifyEmptySectorUpdateProof function as declared in filecoin-ffi/filcrypto.h:1045
 func FilVerifyEmptySectorUpdateProof(registeredProof FilRegisteredUpdateProof, proofPtr []byte, proofLen uint, commROld Fil32ByteArray, commRNew Fil32ByteArray, commDNew Fil32ByteArray) *FilVerifyEmptySectorUpdateProofResponse {
 	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredUpdateProof)(registeredProof), cgoAllocsUnknown
 	cproofPtr, cproofPtrAllocMap := copyPUint8TBytes((*sliceHeader)(unsafe.Pointer(&proofPtr)))
@@ -1147,26 +1167,6 @@ func FilVerifyEmptySectorUpdateProof(registeredProof FilRegisteredUpdateProof, p
 	runtime.KeepAlive(cproofPtrAllocMap)
 	runtime.KeepAlive(cregisteredProofAllocMap)
 	__v := NewFilVerifyEmptySectorUpdateProofResponseRef(unsafe.Pointer(__ret))
-	return __v
-}
-
-// FilVerifyPartitionProofs function as declared in filecoin-ffi/filcrypto.h:1045
-func FilVerifyPartitionProofs(registeredProof FilRegisteredUpdateProof, proofsLen uint, proofsPtr []FilPartitionProof, commROld Fil32ByteArray, commRNew Fil32ByteArray, commDNew Fil32ByteArray) *FilVerifyPartitionProofResponse {
-	cregisteredProof, cregisteredProofAllocMap := (C.fil_RegisteredUpdateProof)(registeredProof), cgoAllocsUnknown
-	cproofsLen, cproofsLenAllocMap := (C.size_t)(proofsLen), cgoAllocsUnknown
-	cproofsPtr, cproofsPtrAllocMap := unpackArgSFilPartitionProof(proofsPtr)
-	ccommROld, ccommROldAllocMap := commROld.PassValue()
-	ccommRNew, ccommRNewAllocMap := commRNew.PassValue()
-	ccommDNew, ccommDNewAllocMap := commDNew.PassValue()
-	__ret := C.fil_verify_partition_proofs(cregisteredProof, cproofsLen, cproofsPtr, ccommROld, ccommRNew, ccommDNew)
-	runtime.KeepAlive(ccommDNewAllocMap)
-	runtime.KeepAlive(ccommRNewAllocMap)
-	runtime.KeepAlive(ccommROldAllocMap)
-	packSFilPartitionProof(proofsPtr, cproofsPtr)
-	runtime.KeepAlive(cproofsPtrAllocMap)
-	runtime.KeepAlive(cproofsLenAllocMap)
-	runtime.KeepAlive(cregisteredProofAllocMap)
-	__v := NewFilVerifyPartitionProofResponseRef(unsafe.Pointer(__ret))
 	return __v
 }
 
