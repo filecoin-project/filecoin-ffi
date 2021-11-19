@@ -172,6 +172,128 @@ func (FunctionsSectorUpdate) RemoveData(
 	return nil
 }
 
+func (FunctionsSectorUpdate) GenerateUpdateVanillaProofs(
+	proofType abi.RegisteredUpdateProof,
+	oldSealedCID cid.Cid,
+	newSealedCID cid.Cid,
+	unsealedCID cid.Cid,
+	newReplicaPath string,
+	newReplicaCachePath string,
+	sectorKePath string,
+	sectorKeyCachePath string,
+) ([][]byte, error) {
+	up, err := toFilRegisteredUpdateProof(proofType)
+	if err != nil {
+		return nil, err
+	}
+
+	commRold, err := to32ByteCommR(oldSealedCID)
+	if err != nil {
+		return nil, xerrors.Errorf("transorming old CommR: %w", err)
+	}
+	commRnew, err := to32ByteCommR(newSealedCID)
+	if err != nil {
+		return nil, xerrors.Errorf("transorming new CommR: %w", err)
+	}
+	commD, err := to32ByteCommD(unsealedCID)
+	if err != nil {
+		return nil, xerrors.Errorf("transorming new CommD: %w", err)
+	}
+
+	resp := generated.FilGeneratePartitionProofs(
+		up,
+		commRold,
+		commRnew,
+		commD,
+		sectorKePath,
+		sectorKeyCachePath,
+		newReplicaPath,
+		newReplicaCachePath,
+	)
+	resp.Deref()
+	defer generated.FilDestroyGeneratePartitionProofResponse(resp)
+
+	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
+		return nil, errors.New(generated.RawString(resp.ErrorMsg).Copy())
+	}
+	resp.ProofsPtr = make([]generated.FilPartitionProof, resp.ProofsLen)
+	resp.Deref() // deref again after initializing length
+
+	proofs := make([][]byte, resp.ProofsLen)
+	for i, v := range resp.ProofsPtr {
+		v.Deref()
+
+		proofs[i] = copyBytes(v.ProofPtr, v.ProofLen)
+	}
+
+	return proofs, nil
+}
+
+func (FunctionsSectorUpdate) GenerateUpdateProofWithVanilla(
+	proofType abi.RegisteredUpdateProof,
+	oldSealedCID cid.Cid,
+	newSealedCID cid.Cid,
+	unsealedCID cid.Cid,
+	vanillaProofs [][]byte,
+) ([]byte, error) {
+	up, err := toFilRegisteredUpdateProof(proofType)
+	if err != nil {
+		return nil, err
+	}
+
+	commRold, err := to32ByteCommR(oldSealedCID)
+	if err != nil {
+		return nil, xerrors.Errorf("transorming old CommR: %w", err)
+	}
+	commRnew, err := to32ByteCommR(newSealedCID)
+	if err != nil {
+		return nil, xerrors.Errorf("transorming new CommR: %w", err)
+	}
+	commD, err := to32ByteCommD(unsealedCID)
+	if err != nil {
+		return nil, xerrors.Errorf("transorming new CommD: %w", err)
+	}
+
+	proofs, cleanup := toUpdateVanillaProofs(vanillaProofs)
+	defer cleanup()
+
+	resp := generated.FilGenerateEmptySectorUpdateProofWithVanilla(
+		up,
+		proofs,
+		uint(len(proofs)),
+		commRold,
+		commRnew,
+		commD,
+	)
+	resp.Deref()
+	defer generated.FilDestroyEmptySectorUpdateGenerateProofResponse(resp)
+
+	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
+		return nil, errors.New(generated.RawString(resp.ErrorMsg).Copy())
+	}
+	return copyBytes(resp.ProofPtr, resp.ProofLen), nil
+}
+
+func toUpdateVanillaProofs(src [][]byte) ([]generated.FilPartitionProof, func()) {
+	allocs := make([]AllocationManager, len(src))
+
+	out := make([]generated.FilPartitionProof, len(src))
+	for idx := range out {
+		out[idx] = generated.FilPartitionProof{
+			ProofLen: uint(len(src[idx])),
+			ProofPtr: src[idx],
+		}
+
+		_, allocs[idx] = out[idx].PassRef()
+	}
+
+	return out, func() {
+		for idx := range allocs {
+			allocs[idx].Free()
+		}
+	}
+}
+
 func (FunctionsSectorUpdate) GenerateUpdateProof(
 	proofType abi.RegisteredUpdateProof,
 	oldSealedCID cid.Cid,
