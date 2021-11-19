@@ -2941,7 +2941,7 @@ pub mod tests {
                 panic!("generate_partition_proofs failed: {:?}", msg);
             }
 
-            // Convert response to Vec partition proofs
+            // Verify vanilla partition proofs
             let resp_verify_partition_proofs = fil_verify_partition_proofs(
                 registered_proof_empty_sector_update,
                 (*resp_partition_proofs).proofs_len,
@@ -2956,6 +2956,7 @@ pub mod tests {
                 panic!("verify_partition_proofs failed: {:?}", msg);
             }
 
+            // Then generate the sector update proof with the vanilla proofs
             let resp_empty_sector_update = fil_generate_empty_sector_update_proof_with_vanilla(
                 registered_proof_empty_sector_update,
                 (*resp_partition_proofs).proofs_ptr,
@@ -2973,6 +2974,7 @@ pub mod tests {
                 );
             }
 
+            // And verify that sector update proof
             let resp_verify_empty_sector_update = fil_verify_empty_sector_update_proof(
                 registered_proof_empty_sector_update,
                 (*resp_empty_sector_update).proof_ptr,
@@ -2987,7 +2989,7 @@ pub mod tests {
                 panic!("verify_empty_sector_update_proof failed: {:?}", msg);
             }
 
-            // Now re-generate the empty sector update monolithically
+            // Now re-generate the empty sector update monolithically (the vanilla proofs are generated internally)
             let resp_empty_sector_update2 = fil_generate_empty_sector_update_proof(
                 registered_proof_empty_sector_update,
                 wrap((*resp_b2).comm_r),
