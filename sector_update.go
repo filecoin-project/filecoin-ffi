@@ -200,7 +200,7 @@ func (FunctionsSectorUpdate) GenerateUpdateVanillaProofs(
 		return nil, xerrors.Errorf("transorming new CommD: %w", err)
 	}
 
-	resp := generated.FilGeneratePartitionProofs(
+	resp := generated.FilGenerateEmptySectorUpdatePartitionProofs(
 		up,
 		commRold,
 		commRnew,
@@ -211,7 +211,7 @@ func (FunctionsSectorUpdate) GenerateUpdateVanillaProofs(
 		newReplicaCachePath,
 	)
 	resp.Deref()
-	defer generated.FilDestroyGeneratePartitionProofResponse(resp)
+	defer generated.FilDestroyGenerateEmptySectorUpdatePartitionProofResponse(resp)
 
 	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
 		return nil, errors.New(generated.RawString(resp.ErrorMsg).Copy())
@@ -257,7 +257,7 @@ func (FunctionsSectorUpdate) VerifyVanillaProofs(
 	proofs, cleanup := toUpdateVanillaProofs(vanillaProofs)
 	defer cleanup()
 
-	resp := generated.FilVerifyPartitionProofs(
+	resp := generated.FilVerifyEmptySectorUpdatePartitionProofs(
 		up,
 		uint(len(proofs)),
 		proofs, // swapped, gotcha
@@ -266,7 +266,7 @@ func (FunctionsSectorUpdate) VerifyVanillaProofs(
 		commD,
 	)
 	resp.Deref()
-	defer generated.FilDestroyVerifyPartitionProofResponse(resp)
+	defer generated.FilDestroyVerifyEmptySectorUpdatePartitionProofResponse(resp)
 
 	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
 		return false, errors.New(generated.RawString(resp.ErrorMsg).Copy())
