@@ -8,7 +8,8 @@ use filecoin_proofs_api::{PrivateReplicaInfo, PublicReplicaInfo, SectorId};
 
 use super::types::{fil_PrivateReplicaInfo, fil_PublicReplicaInfo, fil_RegisteredPoStProof};
 use crate::proofs::types::{
-    fil_PartitionSnarkProof, fil_PoStProof, PartitionSnarkProof, PoStProof,
+    fil_PartitionProof, fil_PartitionSnarkProof, fil_PoStProof, PartitionProof,
+    PartitionSnarkProof, PoStProof,
 };
 
 #[derive(Debug, Clone)]
@@ -128,6 +129,25 @@ pub unsafe fn c_to_rust_post_proofs(
         .iter()
         .map(|fpp| PoStProof {
             registered_proof: fpp.registered_proof.into(),
+            proof: from_raw_parts(fpp.proof_ptr, fpp.proof_len).to_vec(),
+        })
+        .collect();
+
+    Ok(out)
+}
+
+pub unsafe fn c_to_rust_vanilla_partition_proofs(
+    partition_proofs_ptr: *const fil_PartitionProof,
+    partition_proofs_len: libc::size_t,
+) -> Result<Vec<PartitionProof>> {
+    ensure!(
+        !partition_proofs_ptr.is_null(),
+        "partition_proofs_ptr must not be null"
+    );
+
+    let out = from_raw_parts(partition_proofs_ptr, partition_proofs_len)
+        .iter()
+        .map(|fpp| PartitionProof {
             proof: from_raw_parts(fpp.proof_ptr, fpp.proof_len).to_vec(),
         })
         .collect();
