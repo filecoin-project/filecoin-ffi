@@ -44,7 +44,6 @@ fr32 = { version = "~3.1.0", default-features = false }
 package = "filecoin-proofs-api"
 #version = "10.1"
 git = "https://github.com/filecoin-project/rust-filecoin-proofs-api"
-branch = "empty-sector-update"
 default-features = false
 
 [build-dependencies]
@@ -63,6 +62,6 @@ multicore-sdr = ["storage-proofs-porep/multicore-sdr"]
 # FIXME: remove before merging
 # Patched in
 [patch.crates-io]
-storage-proofs-porep = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "empty-sector-update", default-features = false }
-filecoin-proofs = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "empty-sector-update", default-features = false }
-sha2raw = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "empty-sector-update", default-features = false }
+storage-proofs-porep = { git = "https://github.com/filecoin-project/rust-fil-proofs", default-features = false }
+filecoin-proofs = { git = "https://github.com/filecoin-project/rust-fil-proofs", default-features = false }
+sha2raw = { git = "https://github.com/filecoin-project/rust-fil-proofs", default-features = false }
