@@ -204,6 +204,7 @@ func GenerateSinglePartitionWindowPoStWithVanilla(
 		partitionIndex,
 	)
 	resp.Deref()
+	resp.PartitionProof.Deref()
 
 	defer generated.FilDestroyGenerateSingleWindowPostWithVanillaResponse(resp)
 
@@ -244,6 +245,7 @@ func MergeWindowPoStPartitionProofs(
 		fproofs, uint(len(fproofs)),
 	)
 	resp.Deref()
+	resp.Proof.Deref()
 
 	defer generated.FilDestroyMergeWindowPostPartitionProofsResponse(resp)
 
