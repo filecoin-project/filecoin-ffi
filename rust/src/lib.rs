@@ -3,5 +3,6 @@
 #![allow(clippy::upper_case_acronyms)]
 
 pub mod bls;
+pub mod fvm;
 pub mod proofs;
 pub mod util;
