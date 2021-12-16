@@ -5,7 +5,6 @@ version = 3
 [[package]]
 name = "actors-runtime"
 version = "4.0.0"
-source = "git+ssh://git@github.com/filecoin-project/fvm?branch=nemo-ffi#add6a19fce93be8fe885897f38b4eb4cddab0f4d"
 dependencies = [
  "ahash 0.7.6",
  "base64",
@@ -411,7 +410,6 @@ checksum = "8d696c370c750c948ada61c69a0ee2cbbb9c50b1019ddb86d9317157a99c2cae"
 [[package]]
 name = "blockstore"
 version = "0.1.0"
-source = "git+ssh://git@github.com/filecoin-project/fvm?branch=nemo-ffi#add6a19fce93be8fe885897f38b4eb4cddab0f4d"
 dependencies = [
  "cid 0.7.0",
  "core2",
@@ -1651,7 +1649,6 @@ checksum = "1847abb9cb65d566acd5942e94aea9c8f547ad02c98e1649326fc0e8910b8b1e"
 [[package]]
 name = "fvm"
 version = "0.1.0"
-source = "git+ssh://git@github.com/filecoin-project/fvm?branch=nemo-ffi#add6a19fce93be8fe885897f38b4eb4cddab0f4d"
 dependencies = [
  "actors-runtime",
  "ahash 0.7.6",
@@ -1690,7 +1687,6 @@ dependencies = [
 [[package]]
 name = "fvm_actor_account"
 version = "1.0.0"
-source = "git+ssh://git@github.com/filecoin-project/fvm?branch=nemo-ffi#add6a19fce93be8fe885897f38b4eb4cddab0f4d"
 dependencies = [
  "actors-runtime",
  "blockstore",
@@ -1704,7 +1700,6 @@ dependencies = [
 [[package]]
 name = "fvm_actor_cron"
 version = "1.0.0"
-source = "git+ssh://git@github.com/filecoin-project/fvm?branch=nemo-ffi#add6a19fce93be8fe885897f38b4eb4cddab0f4d"
 dependencies = [
  "actors-runtime",
  "blockstore",
@@ -1718,7 +1713,6 @@ dependencies = [
 [[package]]
 name = "fvm_actor_init"
 version = "1.0.0"
-source = "git+ssh://git@github.com/filecoin-project/fvm?branch=nemo-ffi#add6a19fce93be8fe885897f38b4eb4cddab0f4d"
 dependencies = [
  "actors-runtime",
  "blockstore",
@@ -1734,7 +1728,6 @@ dependencies = [
 [[package]]
 name = "fvm_actor_market"
 version = "1.0.0"
-source = "git+ssh://git@github.com/filecoin-project/fvm?branch=nemo-ffi#add6a19fce93be8fe885897f38b4eb4cddab0f4d"
 dependencies = [
  "actors-runtime",
  "ahash 0.7.6",
@@ -1751,7 +1744,6 @@ dependencies = [
 [[package]]
 name = "fvm_actor_miner"
 version = "1.0.0"
-source = "git+ssh://git@github.com/filecoin-project/fvm?branch=nemo-ffi#add6a19fce93be8fe885897f38b4eb4cddab0f4d"
 dependencies = [
  "actors-runtime",
  "ahash 0.7.6",
@@ -1773,7 +1765,6 @@ dependencies = [
 [[package]]
 name = "fvm_actor_multisig"
 version = "1.0.0"
-source = "git+ssh://git@github.com/filecoin-project/fvm?branch=nemo-ffi#add6a19fce93be8fe885897f38b4eb4cddab0f4d"
 dependencies = [
  "actors-runtime",
  "blockstore",
@@ -1791,7 +1782,6 @@ dependencies = [
 [[package]]
 name = "fvm_actor_paych"
 version = "1.0.0"
-source = "git+ssh://git@github.com/filecoin-project/fvm?branch=nemo-ffi#add6a19fce93be8fe885897f38b4eb4cddab0f4d"
 dependencies = [
  "actors-runtime",
  "blockstore",
@@ -1806,7 +1796,6 @@ dependencies = [
 [[package]]
 name = "fvm_actor_power"
 version = "1.0.0"
-source = "git+ssh://git@github.com/filecoin-project/fvm?branch=nemo-ffi#add6a19fce93be8fe885897f38b4eb4cddab0f4d"
 dependencies = [
  "actors-runtime",
  "ahash 0.7.6",
@@ -1827,7 +1816,6 @@ dependencies = [
 [[package]]
 name = "fvm_actor_reward"
 version = "1.0.0"
-source = "git+ssh://git@github.com/filecoin-project/fvm?branch=nemo-ffi#add6a19fce93be8fe885897f38b4eb4cddab0f4d"
 dependencies = [
  "actors-runtime",
  "blockstore",
@@ -1843,7 +1831,6 @@ dependencies = [
 [[package]]
 name = "fvm_actor_system"
 version = "1.0.0"
-source = "git+ssh://git@github.com/filecoin-project/fvm?branch=nemo-ffi#add6a19fce93be8fe885897f38b4eb4cddab0f4d"
 dependencies = [
  "actors-runtime",
  "blockstore",
@@ -1857,7 +1844,6 @@ dependencies = [
 [[package]]
 name = "fvm_actor_verifreg"
 version = "1.0.0"
-source = "git+ssh://git@github.com/filecoin-project/fvm?branch=nemo-ffi#add6a19fce93be8fe885897f38b4eb4cddab0f4d"
 dependencies = [
  "actors-runtime",
  "blockstore",
@@ -1873,7 +1859,6 @@ dependencies = [
 [[package]]
 name = "fvm_shared"
 version = "0.1.0"
-source = "git+ssh://git@github.com/filecoin-project/fvm?branch=nemo-ffi#add6a19fce93be8fe885897f38b4eb4cddab0f4d"
 dependencies = [
  "blake2b_simd 1.0.0",
  "blockstore",
@@ -2105,7 +2090,6 @@ dependencies = [
 [[package]]
 name = "ipld_amt"
 version = "1.0.0"
-source = "git+ssh://git@github.com/filecoin-project/fvm?branch=nemo-ffi#add6a19fce93be8fe885897f38b4eb4cddab0f4d"
 dependencies = [
  "ahash 0.7.6",
  "blockstore",
@@ -2120,7 +2104,6 @@ dependencies = [
 [[package]]
 name = "ipld_hamt"
 version = "2.0.0"
-source = "git+ssh://git@github.com/filecoin-project/fvm?branch=nemo-ffi#add6a19fce93be8fe885897f38b4eb4cddab0f4d"
 dependencies = [
  "blockstore",
  "byteorder 1.4.3",
@@ -3341,18 +3324,30 @@ dependencies = [
 
 [[package]]
 name = "serde"
+<<<<<<< HEAD
 version = "1.0.133"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "97565067517b60e2d1ea8b268e59ce036de907ac523ad83a0475da04e818989a"
+=======
+version = "1.0.132"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8b9875c23cf305cd1fd7eb77234cbb705f21ea6a72c637a5c6db5fe4b8e7f008"
+>>>>>>> feat: add execute_message API and some more code
 dependencies = [
  "serde_derive",
 ]
 
 [[package]]
 name = "serde_derive"
+<<<<<<< HEAD
 version = "1.0.133"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ed201699328568d8d08208fdd080e3ff594e6c422e438b6705905da01005d537"
+=======
+version = "1.0.132"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ecc0db5cb2556c0e558887d9bbdcf6ac4471e83ff66cf696e5419024d1606276"
+>>>>>>> feat: add execute_message API and some more code
 dependencies = [
 <<<<<<< HEAD
  "proc-macro2 1.0.36",

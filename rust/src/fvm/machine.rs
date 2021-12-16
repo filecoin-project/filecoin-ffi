@@ -4,29 +4,31 @@ use std::mem;
 use std::ptr;
 use std::sync::{atomic::AtomicU64, Mutex};
 
-use cid::Cid;
-use drop_struct_macro_derive::DropStructMacro;
-// `CodeAndMessage` is the trait implemented by `code_and_message_impl
 use anyhow::Error;
 use blockstore::cgo::CgoBlockstore;
 use blockstore::{Block, Blockstore, MemoryBlockstore};
+use cid::Cid;
+use drop_struct_macro_derive::DropStructMacro;
 use ffi_toolkit::{
     c_str_to_pbuf, catch_panic_response, raw_ptr, rust_str_to_c_str, FCPResponseStatus,
 };
 use fvm::externs::cgo::CgoExterns;
 use fvm::externs::Externs;
-use fvm::machine::Machine;
+use fvm::machine::{ApplyKind, ApplyRet, Machine};
+use fvm::message::Message;
 use fvm::Config;
+use fvm_shared::address::Address;
 use fvm_shared::clock::ChainEpoch;
 use fvm_shared::econ::TokenAmount;
+use fvm_shared::encoding::RawBytes;
 use fvm_shared::version::NetworkVersion;
+use fvm_shared::MethodNum;
 use log::{error, info};
 use num_traits::FromPrimitive;
+use once_cell::sync::Lazy;
 
 use super::types::*;
 use crate::util::api::init_log;
-
-use once_cell::sync::Lazy;
 
 type CgoMachine = Machine<CgoBlockstore, CgoExterns>;
 
@@ -50,7 +52,6 @@ fn get_default_config() -> fvm::Config {
     }
 }
 
-/// TODO: document
 /// Note: the incoming args as u64 and odd conversions to i32/i64
 /// for some types is due to the generated bindings not liking the
 /// 32bit types as incoming args
@@ -117,6 +118,7 @@ pub unsafe extern "C" fn fil_create_fvm_machine(
         );
         match machine {
             Ok(machine) => {
+                response.status_code = FCPResponseStatus::FCPNoError;
                 response.machine_id = add_fvm_machine(machine);
             }
             Err(err) => {
@@ -133,53 +135,86 @@ pub unsafe extern "C" fn fil_create_fvm_machine(
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn fil_drop_fvm_machine(
-    machine_id: u64,
-    // TODO: actual message
-) {
-    // catch_panic_response(|| {
-    init_log();
+pub unsafe extern "C" fn fil_drop_fvm_machine(machine_id: u64) -> *mut fil_DropFvmMachineResponse {
+    catch_panic_response(|| {
+        init_log();
 
-    info!("fil_drop_fvm_machine: start");
+        info!("fil_drop_fvm_machine: start");
 
-    let mut machines = FVM_MAP.lock().unwrap();
-    let machine = machines.remove(&machine_id);
-    match machine {
-        Some(machine) => {
-            todo!("success")
+        let mut response = fil_DropFvmMachineResponse::default();
+
+        let mut machines = FVM_MAP.lock().unwrap();
+        let machine = machines.remove(&machine_id);
+        match machine {
+            Some(machine) => {
+                response.status_code = FCPResponseStatus::FCPNoError;
+            }
+            None => {
+                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                response.error_msg = rust_str_to_c_str(format!("invalid machine id"));
+            }
         }
-        None => {
-            todo!("invalid machine id")
-        }
-    }
 
-    info!("fil_drop_fvm_machine: end");
-    // })
+        info!("fil_drop_fvm_machine: end");
+
+        raw_ptr(response)
+    })
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn fil_fvm_machine_execute_message(
     machine_id: u64,
-    // TODO: actual message
-) {
-    // catch_panic_response(|| {
-    init_log();
+    message: fil_Message,
+    apply_kind: u64, /* 0: Explicit, _: Implicit */
+) -> *mut fil_FvmMachineExecuteResponse {
+    catch_panic_response(|| {
+        init_log();
 
-    info!("fil_fvm_machine_execute_message: start");
+        info!("fil_fvm_machine_execute_message: start");
 
-    let machines = FVM_MAP.lock().unwrap();
-    let machine = machines.get(&machine_id);
-    match machine {
-        Some(machine) => {
-            todo!("execute message")
+        let mut response = fil_FvmMachineExecuteResponse::default();
+
+        let apply_kind = if apply_kind == 0 {
+            ApplyKind::Explicit
+        } else {
+            ApplyKind::Implicit
+        };
+
+        let message = match convert_fil_message_to_message(message) {
+            Ok(x) => x,
+            Err(err) => {
+                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                return raw_ptr(response);
+            }
+        };
+
+        let mut machines = FVM_MAP.lock().unwrap();
+        let mut machine = machines.get_mut(&machine_id);
+        match machine {
+            Some(machine) => {
+                let apply_ret = match machine.execute_message(message, apply_kind) {
+                    Ok(x) => x,
+                    Err(err) => {
+                        response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                        response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                        return raw_ptr(response);
+                    }
+                };
+
+                response.status_code = FCPResponseStatus::FCPNoError;
+                // FIXME: Return relevant fields of ApplyRet
+            }
+            None => {
+                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                response.error_msg = rust_str_to_c_str(format!("invalid machine id"));
+            }
         }
-        None => {
-            todo!("invalid machine id")
-        }
-    }
 
-    info!("fil_fvm_machine_execute_message: end");
-    // })
+        info!("fil_fvm_machine_execute_message: end");
+
+        raw_ptr(response)
+    })
 }
 
 #[no_mangle]
@@ -205,4 +240,25 @@ pub unsafe extern "C" fn fil_fvm_machine_finish_message(
 
     info!("fil_fvm_machine_flush_message: end");
     // })
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn fil_destroy_create_fvm_machine_response(
+    ptr: *mut fil_CreateFvmMachineResponse,
+) {
+    let _ = Box::from_raw(ptr);
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn fil_destroy_drop_fvm_machine_response(
+    ptr: *mut fil_DropFvmMachineResponse,
+) {
+    let _ = Box::from_raw(ptr);
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn fil_destroy_fvm_machine_execute_response(
+    ptr: *mut fil_FvmMachineExecuteResponse,
+) {
+    let _ = Box::from_raw(ptr);
 }
