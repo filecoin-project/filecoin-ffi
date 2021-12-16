@@ -1,8 +1,123 @@
+use std::collections::HashMap;
+use std::convert::TryFrom;
+use std::mem;
 use std::ptr;
 
-
+use cid::Cid;
 use drop_struct_macro_derive::DropStructMacro;
 // `CodeAndMessage` is the trait implemented by `code_and_message_impl
-use ffi_toolkit::{code_and_message_impl, free_c_str, CodeAndMessage, FCPResponseStatus};
-
+use anyhow::Error;
+use blockstore::cgo::CgoBlockstore;
+use blockstore::{Block, Blockstore, MemoryBlockstore};
+use ffi_toolkit::{
+    c_str_to_pbuf, catch_panic_response, raw_ptr, rust_str_to_c_str, FCPResponseStatus,
+};
+use fvm::externs::cgo::CgoExterns;
+use fvm::externs::Externs;
 use fvm::machine::Machine;
+use fvm::Config;
+use fvm_shared::clock::ChainEpoch;
+use fvm_shared::econ::TokenAmount;
+use fvm_shared::version::NetworkVersion;
+use log::{error, info};
+use num_traits::FromPrimitive;
+
+use super::types::*;
+use crate::util::api::init_log;
+
+/* // FIXME: How best to store the machine internally -- threadsafe singleton static, or do we store id -> machine mappings?
+use lazy_static::lazy_static;
+use std::sync::Mutex;
+
+lazy_static! {
+    static ref FVM_MAP: Mutex<HashMap<usize, Machine<Blockstore<Error = anyhow::Error>, Externs<Error = anyhow::Error>>>> = Mutex::new(HashMap::new());
+}
+
+// FIXME: needed?
+fn add_fvm_machine<B, E>(
+    machine: Machine<B, E>,
+) -> u64
+{
+    0
+}
+*/
+
+fn get_default_config() -> fvm::Config {
+    Config {
+        initial_pages: 1024, //FIXME
+        max_pages: 32768,    // FIXME
+        engine: wasmtime::Config::new(),
+    }
+}
+
+/// TODO: document
+/// Note: the incoming args as u64 and odd conversions to i32/i64
+/// for some types is due to the generated bindings not liking the
+/// 32bit types as incoming args
+///
+#[no_mangle]
+#[cfg(not(target_os = "windows"))]
+pub unsafe extern "C" fn fil_create_fvm_machine(
+    fvm_version: fil_FvmRegisteredVersion,
+    chain_epoch: u64,
+    token_amount: u64,
+    network_version: u64,
+    state_root_ptr: *const u8,
+    state_root_len: libc::size_t,
+    blockstore_id: u64,
+    externs_id: u64,
+) -> *mut fil_CreateFvmMachineResponse {
+    catch_panic_response(|| {
+        init_log();
+
+        info!("fil_create_fvm_machine: start");
+
+        let mut response = fil_CreateFvmMachineResponse::default();
+
+        let config = get_default_config();
+        let chain_epoch = chain_epoch as ChainEpoch;
+        let token_amount = TokenAmount::from_u64(token_amount);
+        let token_amount = if token_amount.is_some() {
+            token_amount.unwrap()
+        } else {
+            response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+            response.error_msg = rust_str_to_c_str(format!("token amount conversion failure"));
+            return raw_ptr(response);
+        };
+        let network_version = match NetworkVersion::try_from(network_version as u32) {
+            Ok(x) => x,
+            Err(err) => {
+                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                return raw_ptr(response);
+            }
+        };
+        let state_root_bytes: Vec<u8> =
+            std::slice::from_raw_parts(state_root_ptr, state_root_len).to_vec();
+        let state_root = match Cid::try_from(state_root_bytes) {
+            Ok(x) => x,
+            Err(err) => {
+                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                return raw_ptr(response);
+            }
+        };
+
+        //let blockstore = MemoryBlockstore::new();
+        let blockstore = CgoBlockstore::new(blockstore_id as i32);
+        let externs = CgoExterns::new(externs_id as i32);
+        let machine = fvm::machine::Machine::new(
+            config,
+            chain_epoch,
+            token_amount,
+            network_version,
+            state_root,
+            blockstore,
+            externs,
+        );
+
+        info!("fil_create_fvm_machine: finish");
+
+        raw_ptr(response)
+    })
+}

@@ -836,6 +836,97 @@ func (x *FilClearCacheResponse) Deref() {
 	x.StatusCode = (FCPResponseStatus)(x.refa9a80400.status_code)
 }
 
+// allocFilCreateFvmMachineResponseMemory allocates memory for type C.fil_CreateFvmMachineResponse in C.
+// The caller is responsible for freeing the this memory via C.free.
+func allocFilCreateFvmMachineResponseMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilCreateFvmMachineResponseValue))
+	if mem == nil {
+		panic(fmt.Sprintln("memory alloc error: ", err))
+	}
+	return mem
+}
+
+const sizeOfFilCreateFvmMachineResponseValue = unsafe.Sizeof([1]C.fil_CreateFvmMachineResponse{})
+
+// Ref returns the underlying reference to C object or nil if struct is nil.
+func (x *FilCreateFvmMachineResponse) Ref() *C.fil_CreateFvmMachineResponse {
+	if x == nil {
+		return nil
+	}
+	return x.ref40465416
+}
+
+// Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
+// Does nothing if struct is nil or has no allocation map.
+func (x *FilCreateFvmMachineResponse) Free() {
+	if x != nil && x.allocs40465416 != nil {
+		x.allocs40465416.(*cgoAllocMap).Free()
+		x.ref40465416 = nil
+	}
+}
+
+// NewFilCreateFvmMachineResponseRef creates a new wrapper struct with underlying reference set to the original C object.
+// Returns nil if the provided pointer to C object is nil too.
+func NewFilCreateFvmMachineResponseRef(ref unsafe.Pointer) *FilCreateFvmMachineResponse {
+	if ref == nil {
+		return nil
+	}
+	obj := new(FilCreateFvmMachineResponse)
+	obj.ref40465416 = (*C.fil_CreateFvmMachineResponse)(unsafe.Pointer(ref))
+	return obj
+}
+
+// PassRef returns the underlying C object, otherwise it will allocate one and set its values
+// from this wrapping struct, counting allocations into an allocation map.
+func (x *FilCreateFvmMachineResponse) PassRef() (*C.fil_CreateFvmMachineResponse, *cgoAllocMap) {
+	if x == nil {
+		return nil, nil
+	} else if x.ref40465416 != nil {
+		return x.ref40465416, nil
+	}
+	mem40465416 := allocFilCreateFvmMachineResponseMemory(1)
+	ref40465416 := (*C.fil_CreateFvmMachineResponse)(mem40465416)
+	allocs40465416 := new(cgoAllocMap)
+	allocs40465416.Add(mem40465416)
+
+	var cerror_msg_allocs *cgoAllocMap
+	ref40465416.error_msg, cerror_msg_allocs = unpackPCharString(x.ErrorMsg)
+	allocs40465416.Borrow(cerror_msg_allocs)
+
+	var cstatus_code_allocs *cgoAllocMap
+	ref40465416.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	allocs40465416.Borrow(cstatus_code_allocs)
+
+	var cmachine_id_allocs *cgoAllocMap
+	ref40465416.machine_id, cmachine_id_allocs = (C.uint64_t)(x.MachineId), cgoAllocsUnknown
+	allocs40465416.Borrow(cmachine_id_allocs)
+
+	x.ref40465416 = ref40465416
+	x.allocs40465416 = allocs40465416
+	return ref40465416, allocs40465416
+
+}
+
+// PassValue does the same as PassRef except that it will try to dereference the returned pointer.
+func (x FilCreateFvmMachineResponse) PassValue() (C.fil_CreateFvmMachineResponse, *cgoAllocMap) {
+	if x.ref40465416 != nil {
+		return *x.ref40465416, nil
+	}
+	ref, allocs := x.PassRef()
+	return *ref, allocs
+}
+
+// Deref uses the underlying reference to C object and fills the wrapping struct with values.
+// Do not forget to call this method whether you get a struct for C object and want to read its values.
+func (x *FilCreateFvmMachineResponse) Deref() {
+	if x.ref40465416 == nil {
+		return
+	}
+	x.ErrorMsg = packPCharString(x.ref40465416.error_msg)
+	x.StatusCode = (FCPResponseStatus)(x.ref40465416.status_code)
+	x.MachineId = (uint64)(x.ref40465416.machine_id)
+}
+
 // allocFilZeroSignatureResponseMemory allocates memory for type C.fil_ZeroSignatureResponse in C.
 // The caller is responsible for freeing the this memory via C.free.
 func allocFilZeroSignatureResponseMemory(n int) unsafe.Pointer {
