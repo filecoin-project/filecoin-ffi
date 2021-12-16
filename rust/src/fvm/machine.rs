@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::mem;
 use std::ptr;
+use std::sync::{atomic::AtomicU64, Mutex};
 
 use cid::Cid;
 use drop_struct_macro_derive::DropStructMacro;
@@ -25,22 +26,21 @@ use num_traits::FromPrimitive;
 use super::types::*;
 use crate::util::api::init_log;
 
-/* // FIXME: How best to store the machine internally -- threadsafe singleton static, or do we store id -> machine mappings?
-use lazy_static::lazy_static;
-use std::sync::Mutex;
+use once_cell::sync::Lazy;
 
-lazy_static! {
-    static ref FVM_MAP: Mutex<HashMap<usize, Machine<Blockstore<Error = anyhow::Error>, Externs<Error = anyhow::Error>>>> = Mutex::new(HashMap::new());
-}
+type CgoMachine = Machine<CgoBlockstore, CgoExterns>;
 
-// FIXME: needed?
-fn add_fvm_machine<B, E>(
-    machine: Machine<B, E>,
-) -> u64
-{
-    0
+static FVM_MAP: Lazy<Mutex<HashMap<u64, CgoMachine>>> =
+    Lazy::new(|| Mutex::new(HashMap::with_capacity(1)));
+
+const NEXT_ID: AtomicU64 = AtomicU64::new(0);
+
+fn add_fvm_machine(machine: CgoMachine) -> u64 {
+    let next_id = NEXT_ID.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+    let mut machines = FVM_MAP.lock().unwrap();
+    machines.insert(next_id, machine);
+    next_id
 }
-*/
 
 fn get_default_config() -> fvm::Config {
     Config {
@@ -115,9 +115,94 @@ pub unsafe extern "C" fn fil_create_fvm_machine(
             blockstore,
             externs,
         );
+        match machine {
+            Ok(machine) => {
+                response.machine_id = add_fvm_machine(machine);
+            }
+            Err(err) => {
+                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                return raw_ptr(response);
+            }
+        }
 
         info!("fil_create_fvm_machine: finish");
 
         raw_ptr(response)
+    })
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn fil_drop_fvm_machine(
+    machine_id: u64,
+    // TODO: actual message
+) {
+    catch_panic_response(|| {
+        init_log();
+
+        info!("fil_drop_fvm_machine: start");
+
+        let mut machines = FVM_MAP.lock().unwrap();
+        let machine = machines.remove(&machine_id);
+        match machine {
+            Some(machine) => {
+                todo!("success")
+            }
+            None => {
+                todo!("invalid machine id")
+            }
+        }
+
+        info!("fil_drop_fvm_machine: end");
+    })
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn fil_fvm_machine_execute_message(
+    machine_id: u64,
+    // TODO: actual message
+) {
+    catch_panic_response(|| {
+        init_log();
+
+        info!("fil_fvm_machine_execute_message: start");
+
+        let machines = FVM_MAP.lock().unwrap();
+        let machine = machines.get(&machine_id);
+        match machine {
+            Some(machine) => {
+                todo!("execute message")
+            }
+            None => {
+                todo!("invalid machine id")
+            }
+        }
+
+        info!("fil_fvm_machine_execute_message: end");
+    })
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn fil_fvm_machine_finish_message(
+    machine_id: u64,
+    // TODO: actual message
+) {
+    catch_panic_response(|| {
+        init_log();
+
+        info!("fil_fvm_machine_flush_message: start");
+
+        let machines = FVM_MAP.lock().unwrap();
+        let machine = machines.get(&machine_id);
+        match machine {
+            Some(machine) => {
+                todo!("execute message")
+            }
+            None => {
+                todo!("invalid machine id")
+            }
+        }
+
+        info!("fil_fvm_machine_flush_message: end");
     })
 }
