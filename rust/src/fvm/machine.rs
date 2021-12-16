@@ -137,24 +137,24 @@ pub unsafe extern "C" fn fil_drop_fvm_machine(
     machine_id: u64,
     // TODO: actual message
 ) {
-    catch_panic_response(|| {
-        init_log();
+    // catch_panic_response(|| {
+    init_log();
 
-        info!("fil_drop_fvm_machine: start");
+    info!("fil_drop_fvm_machine: start");
 
-        let mut machines = FVM_MAP.lock().unwrap();
-        let machine = machines.remove(&machine_id);
-        match machine {
-            Some(machine) => {
-                todo!("success")
-            }
-            None => {
-                todo!("invalid machine id")
-            }
+    let mut machines = FVM_MAP.lock().unwrap();
+    let machine = machines.remove(&machine_id);
+    match machine {
+        Some(machine) => {
+            todo!("success")
         }
+        None => {
+            todo!("invalid machine id")
+        }
+    }
 
-        info!("fil_drop_fvm_machine: end");
-    })
+    info!("fil_drop_fvm_machine: end");
+    // })
 }
 
 #[no_mangle]
@@ -162,24 +162,24 @@ pub unsafe extern "C" fn fil_fvm_machine_execute_message(
     machine_id: u64,
     // TODO: actual message
 ) {
-    catch_panic_response(|| {
-        init_log();
+    // catch_panic_response(|| {
+    init_log();
 
-        info!("fil_fvm_machine_execute_message: start");
+    info!("fil_fvm_machine_execute_message: start");
 
-        let machines = FVM_MAP.lock().unwrap();
-        let machine = machines.get(&machine_id);
-        match machine {
-            Some(machine) => {
-                todo!("execute message")
-            }
-            None => {
-                todo!("invalid machine id")
-            }
+    let machines = FVM_MAP.lock().unwrap();
+    let machine = machines.get(&machine_id);
+    match machine {
+        Some(machine) => {
+            todo!("execute message")
         }
+        None => {
+            todo!("invalid machine id")
+        }
+    }
 
-        info!("fil_fvm_machine_execute_message: end");
-    })
+    info!("fil_fvm_machine_execute_message: end");
+    // })
 }
 
 #[no_mangle]
@@ -187,22 +187,22 @@ pub unsafe extern "C" fn fil_fvm_machine_finish_message(
     machine_id: u64,
     // TODO: actual message
 ) {
-    catch_panic_response(|| {
-        init_log();
+    // catch_panic_response(|| {
+    init_log();
 
-        info!("fil_fvm_machine_flush_message: start");
+    info!("fil_fvm_machine_flush_message: start");
 
-        let machines = FVM_MAP.lock().unwrap();
-        let machine = machines.get(&machine_id);
-        match machine {
-            Some(machine) => {
-                todo!("execute message")
-            }
-            None => {
-                todo!("invalid machine id")
-            }
+    let machines = FVM_MAP.lock().unwrap();
+    let machine = machines.get(&machine_id);
+    match machine {
+        Some(machine) => {
+            todo!("execute message")
         }
+        None => {
+            todo!("invalid machine id")
+        }
+    }
 
-        info!("fil_fvm_machine_flush_message: end");
-    })
+    info!("fil_fvm_machine_flush_message: end");
+    // })
 }
