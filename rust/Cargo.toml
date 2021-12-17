@@ -41,9 +41,10 @@ fr32 = { version = "~4.0", default-features = false }
 fvm = { path = "/home/nemo/pl/fvm/fvm", default-features = false }
 blockstore = { path = "/home/nemo/pl/fvm/lib/blockstore", default-features = false, features = ["cgo"] }
 fvm_shared = { path = "/home/nemo/pl/fvm/shared", default-features = false }
-#blockstore = { git = "https://github.com/filecoin-project/fvm", branch = "nemo-ffi", default-features = false, features = ["cgo"] }
-#fvm_shared = { git = "https://github.com/filecoin-project/fvm", branch = "nemo-ffi", default-features = false }
-wasmtime = "0.31.0"
+#fvm = { git = "ssh://git@github.com/filecoin-project/fvm", branch = "nemo-ffi", default-features = false }
+#blockstore = { git = "ssh://git@github.com/filecoin-project/fvm", branch = "nemo-ffi", default-features = false, features = ["cgo"] }
+#fvm_shared = { git = "ssh://git@github.com/filecoin-project/fvm", branch = "nemo-ffi", default-features = false }
+wasmtime = "0.32.0"
 num-traits = "0.2"
 num-bigint = "0.4"
 cid = { version = "0.7", features = ["serde-codec"] }
@@ -77,5 +78,6 @@ multicore-sdr = ["storage-proofs-porep/multicore-sdr"]
 #sha2raw = { git = "https://github.com/filecoin-project/rust-fil-proofs" }
 #fr32 = { git = "https://github.com/filecoin-project/rust-fil-proofs" }
 multihash = { git = "https://github.com/multiformats/rust-multihash", branch = "next" }
-cid = { git = "https://github.com/multiformats/rust-cid", branch = "steb/cbor-hack" }
+#cid = { git = "https://github.com/multiformats/rust-cid", branch = "steb/cbor-hack" }
+cid = { git = "https://github.com/multiformats/rust-cid", branch = "next" }
 libipld = { git = "https://github.com/ipfs-rust/libipld", branch = "steb/next" }
