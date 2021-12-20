@@ -12,18 +12,25 @@ use drop_struct_macro_derive::DropStructMacro;
 use ffi_toolkit::{
     c_str_to_pbuf, catch_panic_response, raw_ptr, rust_str_to_c_str, FCPResponseStatus,
 };
-use fvm::externs::cgo::CgoExterns;
-use fvm::externs::Externs;
+use fvm::Config;
+use fvm::externs::{Externs, cgo::CgoExterns};
 use fvm::machine::{ApplyKind, ApplyRet, Machine};
 use fvm::message::Message;
-use fvm::Config;
-use fvm_shared::address::Address;
-use fvm_shared::clock::ChainEpoch;
-use fvm_shared::econ::TokenAmount;
-use fvm_shared::encoding::RawBytes;
-use fvm_shared::version::NetworkVersion;
-use fvm_shared::MethodNum;
+use fvm_shared::{
+    address::Address,
+    bigint::bigint_ser::{BigIntSer, BigIntDe},
+    clock::ChainEpoch,
+    econ::TokenAmount,
+    encoding::{
+        RawBytes, BytesDe,
+        de::{Deserialize, Deserializer},
+        ser::{Serialize, Serializer},
+    },
+    version::NetworkVersion,
+    MethodNum,
+};
 use log::{error, info};
+use num_bigint::BigInt;
 use num_traits::FromPrimitive;
 use once_cell::sync::Lazy;
 
@@ -61,7 +68,8 @@ fn get_default_config() -> fvm::Config {
 pub unsafe extern "C" fn fil_create_fvm_machine(
     fvm_version: fil_FvmRegisteredVersion,
     chain_epoch: u64,
-    token_amount: u64,
+    token_amount_hi: u64,
+    token_amount_lo: u64,
     network_version: u64,
     state_root_ptr: *const u8,
     state_root_len: libc::size_t,
@@ -77,14 +85,8 @@ pub unsafe extern "C" fn fil_create_fvm_machine(
 
         let config = get_default_config();
         let chain_epoch = chain_epoch as ChainEpoch;
-        let token_amount = TokenAmount::from_u64(token_amount);
-        let token_amount = if token_amount.is_some() {
-            token_amount.unwrap()
-        } else {
-            response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-            response.error_msg = rust_str_to_c_str(format!("token amount conversion failure"));
-            return raw_ptr(response);
-        };
+
+        let token_amount = TokenAmount::from(token_amount_hi) << 64 as u64 | TokenAmount::from(token_amount_lo);
         let network_version = match NetworkVersion::try_from(network_version as u32) {
             Ok(x) => x,
             Err(err) => {
@@ -104,7 +106,6 @@ pub unsafe extern "C" fn fil_create_fvm_machine(
             }
         };
 
-        //let blockstore = MemoryBlockstore::new();
         let blockstore = CgoBlockstore::new(blockstore_id as i32);
         let externs = CgoExterns::new(externs_id as i32);
         let machine = fvm::machine::Machine::new(
@@ -164,7 +165,8 @@ pub unsafe extern "C" fn fil_drop_fvm_machine(machine_id: u64) -> *mut fil_DropF
 #[no_mangle]
 pub unsafe extern "C" fn fil_fvm_machine_execute_message(
     machine_id: u64,
-    message: fil_Message,
+    message_ptr: *const u8,
+    message_len: libc::size_t,
     apply_kind: u64, /* 0: Explicit, _: Implicit */
 ) -> *mut fil_FvmMachineExecuteResponse {
     catch_panic_response(|| {
@@ -180,7 +182,8 @@ pub unsafe extern "C" fn fil_fvm_machine_execute_message(
             ApplyKind::Implicit
         };
 
-        let message = match convert_fil_message_to_message(message) {
+        let message_bytes = std::slice::from_raw_parts(message_ptr, message_len);
+        let message: Message = match fvm_shared::encoding::from_slice(&message_bytes) {
             Ok(x) => x,
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;

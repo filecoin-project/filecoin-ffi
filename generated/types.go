@@ -505,26 +505,7 @@ type FilPublicPieceInfo struct {
 	allocsd00025ac interface{}
 }
 
-// FilMessage as declared in filecoin-ffi/filcrypto.h:442
-type FilMessage struct {
-	Version        uint64
-	FromBytes      []byte
-	FromLen        uint
-	ToBytes        []byte
-	ToLen          uint
-	Sequence       uint64
-	Value          uint64
-	MethodNum      uint64
-	ParamsBytes    []byte
-	ParamsLen      uint
-	GasLimit       uint64
-	GasFeeCap      uint64
-	GasPremium     uint64
-	ref2c29876a    *C.fil_Message
-	allocs2c29876a interface{}
-}
-
-// FilPrivateReplicaInfo as declared in filecoin-ffi/filcrypto.h:450
+// FilPrivateReplicaInfo as declared in filecoin-ffi/filcrypto.h:434
 type FilPrivateReplicaInfo struct {
 	RegisteredProof FilRegisteredPoStProof
 	CacheDirPath    string
@@ -535,7 +516,7 @@ type FilPrivateReplicaInfo struct {
 	allocs81a31e9b  interface{}
 }
 
-// FilPublicReplicaInfo as declared in filecoin-ffi/filcrypto.h:456
+// FilPublicReplicaInfo as declared in filecoin-ffi/filcrypto.h:440
 type FilPublicReplicaInfo struct {
 	RegisteredProof FilRegisteredPoStProof
 	CommR           [32]byte

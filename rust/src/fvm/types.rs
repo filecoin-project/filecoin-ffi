@@ -46,39 +46,6 @@ fn get_params_from_bytes(params_ptr: *const u8, params_len: libc::size_t) -> Raw
 }
 
 #[repr(C)]
-#[derive(Debug, Clone, Copy)]
-pub struct fil_Message {
-    pub version: u64,
-    pub from_bytes: *const u8,
-    pub from_len: libc::size_t,
-    pub to_bytes: *const u8,
-    pub to_len: libc::size_t,
-    pub sequence: u64,
-    pub value: u64,
-    pub method_num: u64,
-    pub params_bytes: *const u8,
-    pub params_len: libc::size_t,
-    pub gas_limit: u64,
-    pub gas_fee_cap: u64,
-    pub gas_premium: u64,
-}
-
-pub fn convert_fil_message_to_message(msg: fil_Message) -> Result<Message> {
-    Ok(Message {
-        version: msg.version as i64,
-        from: get_address_from_bytes(msg.from_bytes, msg.from_len)?,
-        to: get_address_from_bytes(msg.to_bytes, msg.to_len)?,
-        sequence: msg.sequence,
-        value: TokenAmount::from_u64(msg.value).unwrap(),
-        method_num: msg.method_num as MethodNum,
-        params: get_params_from_bytes(msg.params_bytes, msg.params_len),
-        gas_limit: msg.gas_limit as i64,
-        gas_fee_cap: TokenAmount::from_u64(msg.gas_fee_cap).unwrap(),
-        gas_premium: TokenAmount::from_u64(msg.gas_premium).unwrap(),
-    })
-}
-
-#[repr(C)]
 #[derive(DropStructMacro)]
 pub struct fil_CreateFvmMachineResponse {
     pub error_msg: *const libc::c_char,

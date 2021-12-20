@@ -7,6 +7,7 @@ name = "actors-runtime"
 version = "4.0.0"
 dependencies = [
  "ahash 0.7.6",
+ "anyhow",
  "base64",
  "blockstore",
  "byteorder 1.4.3",
@@ -1380,7 +1381,10 @@ dependencies = [
  "rand_chacha 0.3.1",
  "rayon",
  "rust-gpu-tools",
+ "serde",
+ "serde_bytes",
  "serde_json",
+ "serde_tuple",
  "storage-proofs-porep",
  "tempfile",
  "wasmtime",
@@ -1615,10 +1619,10 @@ checksum = "1847abb9cb65d566acd5942e94aea9c8f547ad02c98e1649326fc0e8910b8b1e"
 name = "fvm"
 version = "0.1.0"
 dependencies = [
- "actors-runtime",
  "ahash 0.7.6",
  "anyhow",
  "blockstore",
+ "byteorder 1.4.3",
  "cid 0.7.0",
  "derive-getters",
  "derive_builder",
@@ -1684,6 +1688,7 @@ name = "fvm_actor_init"
 version = "1.0.0"
 dependencies = [
  "actors-runtime",
+ "anyhow",
  "blockstore",
  "cid 0.7.0",
  "fvm_shared",
@@ -1700,6 +1705,7 @@ version = "1.0.0"
 dependencies = [
  "actors-runtime",
  "ahash 0.7.6",
+ "anyhow",
  "blockstore",
  "cid 0.7.0",
  "fvm_shared",
@@ -1716,6 +1722,7 @@ version = "1.0.0"
 dependencies = [
  "actors-runtime",
  "ahash 0.7.6",
+ "anyhow",
  "blockstore",
  "byteorder 1.4.3",
  "cid 0.7.0",
@@ -1736,6 +1743,7 @@ name = "fvm_actor_multisig"
 version = "1.0.0"
 dependencies = [
  "actors-runtime",
+ "anyhow",
  "blockstore",
  "cid 0.7.0",
  "fvm_shared",
@@ -1753,6 +1761,7 @@ name = "fvm_actor_paych"
 version = "1.0.0"
 dependencies = [
  "actors-runtime",
+ "anyhow",
  "blockstore",
  "cid 0.7.0",
  "fvm_shared",
@@ -1768,6 +1777,7 @@ version = "1.0.0"
 dependencies = [
  "actors-runtime",
  "ahash 0.7.6",
+ "anyhow",
  "blockstore",
  "cid 0.7.0",
  "fvm_shared",
@@ -1815,6 +1825,7 @@ name = "fvm_actor_verifreg"
 version = "1.0.0"
 dependencies = [
  "actors-runtime",
+ "anyhow",
  "blockstore",
  "cid 0.7.0",
  "fvm_shared",
@@ -1829,6 +1840,7 @@ dependencies = [
 name = "fvm_shared"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "blake2b_simd 1.0.0",
  "blockstore",
  "bls-signatures",
@@ -2071,6 +2083,7 @@ name = "ipld_amt"
 version = "1.0.0"
 dependencies = [
  "ahash 0.7.6",
+ "anyhow",
  "blockstore",
  "cid 0.7.0",
  "fvm_shared",
@@ -2084,6 +2097,7 @@ dependencies = [
 name = "ipld_hamt"
 version = "2.0.0"
 dependencies = [
+ "anyhow",
  "blockstore",
  "byteorder 1.4.3",
  "cid 0.7.0",
@@ -3270,6 +3284,15 @@ checksum = "18b20e7752957bbe9661cff4e0bb04d183d0948cdab2ea58cdb9df36a61dfe62"
 dependencies = [
  "serde",
  "serde_derive",
+]
+
+[[package]]
+name = "serde_bytes"
+version = "0.11.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "16ae07dd2f88a366f15bd0632ba725227018c69a1c8550a927324f8eb8368bb9"
+dependencies = [
+ "serde",
 ]
 
 [[package]]
