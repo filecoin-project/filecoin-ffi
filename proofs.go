@@ -755,6 +755,7 @@ func GetNumPartitionForFallbackPost(proofType abi.RegisteredPoStProof, numSector
 		return 0, err
 	}
 	resp := generated.FilGetNumPartitionForFallbackPost(pp, numSectors)
+	resp.Deref()
 	defer generated.FilDestroyGetNumPartitionForFallbackPostResponse(resp)
 
 	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {

@@ -2,6 +2,7 @@ package ffi
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"sort"
 
@@ -89,14 +90,20 @@ func (s *SortedPublicSectorInfo) UnmarshalJSON(b []byte) error {
 
 // NewSortedPrivateSectorInfo returns a SortedPrivateSectorInfo
 func NewSortedPrivateSectorInfo(sectorInfo ...PrivateSectorInfo) SortedPrivateSectorInfo {
-	fn := func(i, j int) bool {
-		return bytes.Compare(sectorInfo[i].SealedCID.Bytes(), sectorInfo[j].SealedCID.Bytes()) == -1
+	result := make([]PrivateSectorInfo, 0)
+	seen := map[abi.SectorNumber]struct{}{}
+	for i := range sectorInfo {
+		if _, found := seen[sectorInfo[i].SectorNumber]; !found {
+			seen[sectorInfo[i].SectorNumber] = struct{}{}
+			result = append(result, sectorInfo[i])
+		}
 	}
-
-	sort.Slice(sectorInfo[:], fn)
+	sort.Slice(result, func(i, j int) bool {
+		return result[i].SectorNumber < result[j].SectorNumber
+	})
 
 	return SortedPrivateSectorInfo{
-		f: sectorInfo,
+		f: result,
 	}
 }
 
@@ -130,4 +137,12 @@ type PrivateSectorInfo struct {
 // AllocationManager is an interface that provides Free() capability.
 type AllocationManager interface {
 	Free()
+}
+
+func SplitSortedPrivateSectorInfo(ctx context.Context, sortPrivSectors SortedPrivateSectorInfo, start int, end int) (SortedPrivateSectorInfo, error) {
+	var newSortPrivSectors SortedPrivateSectorInfo
+	newSortPrivSectors.f = make([]PrivateSectorInfo, 0)
+	newSortPrivSectors.f = append(newSortPrivSectors.f, sortPrivSectors.f[start:end]...)
+
+	return newSortPrivSectors, nil
 }
