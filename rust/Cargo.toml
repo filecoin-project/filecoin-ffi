@@ -39,7 +39,7 @@ rust-gpu-tools = { version = "0.5", default-features = false }
 storage-proofs-porep = { version = "~11.0", default-features = false }
 fr32 = { version = "~4.0", default-features = false }
 fvm = { path = "/home/nemo/pl/fvm/fvm", default-features = false }
-blockstore = { path = "/home/nemo/pl/fvm/lib/blockstore", default-features = false, features = ["cgo"] }
+#blockstore = { path = "/home/nemo/pl/fvm/fvm/src/blockstore", default-features = false, features = ["cgo"] }
 fvm_shared = { path = "/home/nemo/pl/fvm/shared", default-features = false }
 #fvm = { git = "ssh://git@github.com/filecoin-project/fvm", branch = "nemo-ffi", default-features = false }
 #blockstore = { git = "ssh://git@github.com/filecoin-project/fvm", branch = "nemo-ffi", default-features = false, features = ["cgo"] }
