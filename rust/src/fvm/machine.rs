@@ -1,3 +1,4 @@
+use fvm_cgo::blockstore::CgoBlockstore;
 use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::mem;
@@ -5,31 +6,32 @@ use std::ptr;
 use std::sync::{atomic::AtomicU64, Mutex};
 
 use anyhow::Error;
-use blockstore::cgo::CgoBlockstore;
-use blockstore::{Block, Blockstore, MemoryBlockstore};
 use cid::Cid;
 use drop_struct_macro_derive::DropStructMacro;
 use ffi_toolkit::{
     c_str_to_pbuf, catch_panic_response, raw_ptr, rust_str_to_c_str, FCPResponseStatus,
 };
-use fvm::Config;
-use fvm::externs::{Externs, cgo::CgoExterns};
-use fvm::machine::{ApplyKind, ApplyRet, Machine};
-use fvm::message::Message;
+use fvm::call_manager::DefaultCallManager;
+use fvm::executor::{ApplyKind, DefaultExecutor, Executor};
+use fvm::externs::{cgo::CgoExterns, Externs};
+use fvm::machine::DefaultMachine;
+use fvm::{Config, DefaultKernel};
 use fvm_shared::{
     address::Address,
-    bigint::bigint_ser::{BigIntSer, BigIntDe},
+    bigint::bigint_ser::{BigIntDe, BigIntSer},
+    blockstore::{Block, Blockstore, MemoryBlockstore},
     clock::ChainEpoch,
     econ::TokenAmount,
     encoding::{
-        RawBytes, BytesDe,
         de::{Deserialize, Deserializer},
         ser::{Serialize, Serializer},
+        BytesDe, RawBytes,
     },
+    message::Message,
     version::NetworkVersion,
     MethodNum,
 };
-use log::{error, info};
+use log::info;
 use num_bigint::BigInt;
 use num_traits::FromPrimitive;
 use once_cell::sync::Lazy;
@@ -37,14 +39,15 @@ use once_cell::sync::Lazy;
 use super::types::*;
 use crate::util::api::init_log;
 
-type CgoMachine = Machine<CgoBlockstore, CgoExterns>;
+type CgoExecutor =
+    DefaultExecutor<DefaultKernel<DefaultCallManager<DefaultMachine<CgoBlockstore, CgoExterns>>>>;
 
-static FVM_MAP: Lazy<Mutex<HashMap<u64, CgoMachine>>> =
+static FVM_MAP: Lazy<Mutex<HashMap<u64, CgoExecutor>>> =
     Lazy::new(|| Mutex::new(HashMap::with_capacity(1)));
 
 const NEXT_ID: AtomicU64 = AtomicU64::new(0);
 
-fn add_fvm_machine(machine: CgoMachine) -> u64 {
+fn add_fvm_machine(machine: CgoExecutor) -> u64 {
     let next_id = NEXT_ID.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
     let mut machines = FVM_MAP.lock().unwrap();
     machines.insert(next_id, machine);
@@ -53,9 +56,11 @@ fn add_fvm_machine(machine: CgoMachine) -> u64 {
 
 fn get_default_config() -> fvm::Config {
     Config {
-        initial_pages: 1024, //FIXME
-        max_pages: 32768,    // FIXME
+        max_call_depth: 4096, // FIXME
+        initial_pages: 1024,  // FIXME
+        max_pages: 32768,     // FIXME
         engine: wasmtime::Config::new(),
+        debug: false,
     }
 }
 
@@ -70,6 +75,8 @@ pub unsafe extern "C" fn fil_create_fvm_machine(
     chain_epoch: u64,
     token_amount_hi: u64,
     token_amount_lo: u64,
+    base_circ_supply_hi: u64,
+    base_circ_supply_lo: u64,
     network_version: u64,
     state_root_ptr: *const u8,
     state_root_len: libc::size_t,
@@ -86,7 +93,10 @@ pub unsafe extern "C" fn fil_create_fvm_machine(
         let config = get_default_config();
         let chain_epoch = chain_epoch as ChainEpoch;
 
-        let token_amount = TokenAmount::from(token_amount_hi) << 64 as u64 | TokenAmount::from(token_amount_lo);
+        let token_amount =
+            TokenAmount::from(token_amount_hi) << 64 as u64 | TokenAmount::from(token_amount_lo);
+        let base_circ_supply = TokenAmount::from(base_circ_supply_hi) << 64 as u64
+            | TokenAmount::from(base_circ_supply_lo);
         let network_version = match NetworkVersion::try_from(network_version as u32) {
             Ok(x) => x,
             Err(err) => {
@@ -108,10 +118,11 @@ pub unsafe extern "C" fn fil_create_fvm_machine(
 
         let blockstore = CgoBlockstore::new(blockstore_id as i32);
         let externs = CgoExterns::new(externs_id as i32);
-        let machine = fvm::machine::Machine::new(
+        let machine = fvm::machine::DefaultMachine::new(
             config,
             chain_epoch,
             token_amount,
+            base_circ_supply,
             network_version,
             state_root,
             blockstore,
@@ -120,7 +131,7 @@ pub unsafe extern "C" fn fil_create_fvm_machine(
         match machine {
             Ok(machine) => {
                 response.status_code = FCPResponseStatus::FCPNoError;
-                response.machine_id = add_fvm_machine(machine);
+                response.machine_id = add_fvm_machine(DefaultExecutor::new(machine));
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
@@ -192,11 +203,11 @@ pub unsafe extern "C" fn fil_fvm_machine_execute_message(
             }
         };
 
-        let mut machines = FVM_MAP.lock().unwrap();
-        let mut machine = machines.get_mut(&machine_id);
-        match machine {
-            Some(machine) => {
-                let apply_ret = match machine.execute_message(message, apply_kind) {
+        let mut executors = FVM_MAP.lock().unwrap();
+        let mut executor = executors.get_mut(&machine_id);
+        match executor {
+            Some(executor) => {
+                let apply_ret = match executor.execute_message(message, apply_kind, message_len) {
                     Ok(x) => x,
                     Err(err) => {
                         response.status_code = FCPResponseStatus::FCPUnclassifiedError;

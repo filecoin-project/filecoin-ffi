@@ -6,11 +6,11 @@ use anyhow::Result;
 use drop_struct_macro_derive::DropStructMacro;
 use ffi_toolkit::{code_and_message_impl, free_c_str, CodeAndMessage, FCPResponseStatus};
 
-use fvm::message::Message;
 use fvm_shared::address::Address;
 use fvm_shared::clock::ChainEpoch;
 use fvm_shared::econ::TokenAmount;
 use fvm_shared::encoding::RawBytes;
+use fvm_shared::message::Message;
 use fvm_shared::version::NetworkVersion;
 use fvm_shared::MethodNum;
 

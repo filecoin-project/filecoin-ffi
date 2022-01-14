@@ -38,13 +38,14 @@ memmap = "0.7"
 rust-gpu-tools = { version = "0.5", default-features = false }
 storage-proofs-porep = { version = "~11.0", default-features = false }
 fr32 = { version = "~4.0", default-features = false }
-fvm = { path = "/home/nemo/pl/fvm/fvm", default-features = false }
+fvm = { path = "/home/aayush/fvm/fvm", default-features = false }
 #blockstore = { path = "/home/nemo/pl/fvm/fvm/src/blockstore", default-features = false, features = ["cgo"] }
-fvm_shared = { path = "/home/nemo/pl/fvm/shared", default-features = false }
+fvm_shared = { path = "/home/aayush/fvm/shared", default-features = false }
+fvm_cgo = { path = "/home/aayush/fvm/cgo/rust", default-features = false }
 #fvm = { git = "ssh://git@github.com/filecoin-project/fvm", branch = "nemo-ffi", default-features = false }
 #blockstore = { git = "ssh://git@github.com/filecoin-project/fvm", branch = "nemo-ffi", default-features = false, features = ["cgo"] }
 #fvm_shared = { git = "ssh://git@github.com/filecoin-project/fvm", branch = "nemo-ffi", default-features = false }
-wasmtime = "0.32.0"
+wasmtime = "0.33.0"
 num-traits = "0.2"
 num-bigint = "0.4"
 cid = { version = "0.7", features = ["serde-codec"] }
