@@ -1801,6 +1801,38 @@ func (x *FilFvmMachineExecuteResponse) PassRef() (*C.fil_FvmMachineExecuteRespon
 	ref88f63595.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
 	allocs88f63595.Borrow(cstatus_code_allocs)
 
+	var cexit_code_allocs *cgoAllocMap
+	ref88f63595.exit_code, cexit_code_allocs = (C.uint64_t)(x.ExitCode), cgoAllocsUnknown
+	allocs88f63595.Borrow(cexit_code_allocs)
+
+	var creturn_ptr_allocs *cgoAllocMap
+	ref88f63595.return_ptr, creturn_ptr_allocs = copyPUint8TBytes((*sliceHeader)(unsafe.Pointer(&x.ReturnPtr)))
+	allocs88f63595.Borrow(creturn_ptr_allocs)
+
+	var creturn_len_allocs *cgoAllocMap
+	ref88f63595.return_len, creturn_len_allocs = (C.size_t)(x.ReturnLen), cgoAllocsUnknown
+	allocs88f63595.Borrow(creturn_len_allocs)
+
+	var cgas_used_allocs *cgoAllocMap
+	ref88f63595.gas_used, cgas_used_allocs = (C.uint64_t)(x.GasUsed), cgoAllocsUnknown
+	allocs88f63595.Borrow(cgas_used_allocs)
+
+	var cpenalty_hi_allocs *cgoAllocMap
+	ref88f63595.penalty_hi, cpenalty_hi_allocs = (C.uint64_t)(x.PenaltyHi), cgoAllocsUnknown
+	allocs88f63595.Borrow(cpenalty_hi_allocs)
+
+	var cpenalty_lo_allocs *cgoAllocMap
+	ref88f63595.penalty_lo, cpenalty_lo_allocs = (C.uint64_t)(x.PenaltyLo), cgoAllocsUnknown
+	allocs88f63595.Borrow(cpenalty_lo_allocs)
+
+	var cminer_tip_hi_allocs *cgoAllocMap
+	ref88f63595.miner_tip_hi, cminer_tip_hi_allocs = (C.uint64_t)(x.MinerTipHi), cgoAllocsUnknown
+	allocs88f63595.Borrow(cminer_tip_hi_allocs)
+
+	var cminer_tip_lo_allocs *cgoAllocMap
+	ref88f63595.miner_tip_lo, cminer_tip_lo_allocs = (C.uint64_t)(x.MinerTipLo), cgoAllocsUnknown
+	allocs88f63595.Borrow(cminer_tip_lo_allocs)
+
 	x.ref88f63595 = ref88f63595
 	x.allocs88f63595 = allocs88f63595
 	return ref88f63595, allocs88f63595
@@ -1824,6 +1856,18 @@ func (x *FilFvmMachineExecuteResponse) Deref() {
 	}
 	x.ErrorMsg = packPCharString(x.ref88f63595.error_msg)
 	x.StatusCode = (FCPResponseStatus)(x.ref88f63595.status_code)
+	x.ExitCode = (uint64)(x.ref88f63595.exit_code)
+	hxff73280 := (*sliceHeader)(unsafe.Pointer(&x.ReturnPtr))
+	hxff73280.Data = unsafe.Pointer(x.ref88f63595.return_ptr)
+	hxff73280.Cap = 0x7fffffff
+	// hxff73280.Len = ?
+
+	x.ReturnLen = (uint)(x.ref88f63595.return_len)
+	x.GasUsed = (uint64)(x.ref88f63595.gas_used)
+	x.PenaltyHi = (uint64)(x.ref88f63595.penalty_hi)
+	x.PenaltyLo = (uint64)(x.ref88f63595.penalty_lo)
+	x.MinerTipHi = (uint64)(x.ref88f63595.miner_tip_hi)
+	x.MinerTipLo = (uint64)(x.ref88f63595.miner_tip_lo)
 }
 
 // allocFilGenerateDataCommitmentResponseMemory allocates memory for type C.fil_GenerateDataCommitmentResponse in C.
@@ -2000,10 +2044,10 @@ func (x *FilPartitionProof) Deref() {
 		return
 	}
 	x.ProofLen = (uint)(x.ref566a2be6.proof_len)
-	hxff73280 := (*sliceHeader)(unsafe.Pointer(&x.ProofPtr))
-	hxff73280.Data = unsafe.Pointer(x.ref566a2be6.proof_ptr)
-	hxff73280.Cap = 0x7fffffff
-	// hxff73280.Len = ?
+	hxfa9955c := (*sliceHeader)(unsafe.Pointer(&x.ProofPtr))
+	hxfa9955c.Data = unsafe.Pointer(x.ref566a2be6.proof_ptr)
+	hxfa9955c.Cap = 0x7fffffff
+	// hxfa9955c.Len = ?
 
 }
 
@@ -2274,16 +2318,16 @@ func (x *FilGenerateFallbackSectorChallengesResponse) Deref() {
 	}
 	x.ErrorMsg = packPCharString(x.ref7047a3fa.error_msg)
 	x.StatusCode = (FCPResponseStatus)(x.ref7047a3fa.status_code)
-	hxfa9955c := (*sliceHeader)(unsafe.Pointer(&x.IdsPtr))
-	hxfa9955c.Data = unsafe.Pointer(x.ref7047a3fa.ids_ptr)
-	hxfa9955c.Cap = 0x7fffffff
-	// hxfa9955c.Len = ?
-
-	x.IdsLen = (uint)(x.ref7047a3fa.ids_len)
-	hxfa3f05c := (*sliceHeader)(unsafe.Pointer(&x.ChallengesPtr))
-	hxfa3f05c.Data = unsafe.Pointer(x.ref7047a3fa.challenges_ptr)
+	hxfa3f05c := (*sliceHeader)(unsafe.Pointer(&x.IdsPtr))
+	hxfa3f05c.Data = unsafe.Pointer(x.ref7047a3fa.ids_ptr)
 	hxfa3f05c.Cap = 0x7fffffff
 	// hxfa3f05c.Len = ?
+
+	x.IdsLen = (uint)(x.ref7047a3fa.ids_len)
+	hxf0d18b7 := (*sliceHeader)(unsafe.Pointer(&x.ChallengesPtr))
+	hxf0d18b7.Data = unsafe.Pointer(x.ref7047a3fa.challenges_ptr)
+	hxf0d18b7.Cap = 0x7fffffff
+	// hxf0d18b7.Len = ?
 
 	x.ChallengesLen = (uint)(x.ref7047a3fa.challenges_len)
 	x.ChallengesStride = (uint)(x.ref7047a3fa.challenges_stride)
@@ -2468,10 +2512,10 @@ func (x *FilVanillaProof) Deref() {
 		return
 	}
 	x.ProofLen = (uint)(x.refb3e7638c.proof_len)
-	hxf0d18b7 := (*sliceHeader)(unsafe.Pointer(&x.ProofPtr))
-	hxf0d18b7.Data = unsafe.Pointer(x.refb3e7638c.proof_ptr)
-	hxf0d18b7.Cap = 0x7fffffff
-	// hxf0d18b7.Len = ?
+	hxf2fab0d := (*sliceHeader)(unsafe.Pointer(&x.ProofPtr))
+	hxf2fab0d.Data = unsafe.Pointer(x.refb3e7638c.proof_ptr)
+	hxf2fab0d.Cap = 0x7fffffff
+	// hxf2fab0d.Len = ?
 
 }
 
@@ -2654,10 +2698,10 @@ func (x *FilPartitionSnarkProof) Deref() {
 	}
 	x.RegisteredProof = (FilRegisteredPoStProof)(x.ref4de03739.registered_proof)
 	x.ProofLen = (uint)(x.ref4de03739.proof_len)
-	hxf2fab0d := (*sliceHeader)(unsafe.Pointer(&x.ProofPtr))
-	hxf2fab0d.Data = unsafe.Pointer(x.ref4de03739.proof_ptr)
-	hxf2fab0d.Cap = 0x7fffffff
-	// hxf2fab0d.Len = ?
+	hxf69fe70 := (*sliceHeader)(unsafe.Pointer(&x.ProofPtr))
+	hxf69fe70.Data = unsafe.Pointer(x.ref4de03739.proof_ptr)
+	hxf69fe70.Cap = 0x7fffffff
+	// hxf69fe70.Len = ?
 
 }
 
@@ -2758,10 +2802,10 @@ func (x *FilGenerateSingleWindowPoStWithVanillaResponse) Deref() {
 	x.ErrorMsg = packPCharString(x.ref96c012c3.error_msg)
 	x.PartitionProof = *NewFilPartitionSnarkProofRef(unsafe.Pointer(&x.ref96c012c3.partition_proof))
 	x.FaultySectorsLen = (uint)(x.ref96c012c3.faulty_sectors_len)
-	hxf69fe70 := (*sliceHeader)(unsafe.Pointer(&x.FaultySectorsPtr))
-	hxf69fe70.Data = unsafe.Pointer(x.ref96c012c3.faulty_sectors_ptr)
-	hxf69fe70.Cap = 0x7fffffff
-	// hxf69fe70.Len = ?
+	hxf65bf54 := (*sliceHeader)(unsafe.Pointer(&x.FaultySectorsPtr))
+	hxf65bf54.Data = unsafe.Pointer(x.ref96c012c3.faulty_sectors_ptr)
+	hxf65bf54.Cap = 0x7fffffff
+	// hxf65bf54.Len = ?
 
 	x.StatusCode = (FCPResponseStatus)(x.ref96c012c3.status_code)
 }
@@ -2854,10 +2898,10 @@ func (x *FilPoStProof) Deref() {
 	}
 	x.RegisteredProof = (FilRegisteredPoStProof)(x.ref3451bfa.registered_proof)
 	x.ProofLen = (uint)(x.ref3451bfa.proof_len)
-	hxf65bf54 := (*sliceHeader)(unsafe.Pointer(&x.ProofPtr))
-	hxf65bf54.Data = unsafe.Pointer(x.ref3451bfa.proof_ptr)
-	hxf65bf54.Cap = 0x7fffffff
-	// hxf65bf54.Len = ?
+	hxf3b8dbd := (*sliceHeader)(unsafe.Pointer(&x.ProofPtr))
+	hxf3b8dbd.Data = unsafe.Pointer(x.ref3451bfa.proof_ptr)
+	hxf3b8dbd.Cap = 0x7fffffff
+	// hxf3b8dbd.Len = ?
 
 }
 
@@ -3001,10 +3045,10 @@ func (x *FilGenerateWindowPoStResponse) Deref() {
 	x.ProofsLen = (uint)(x.ref2a5f3ba8.proofs_len)
 	packSFilPoStProof(x.ProofsPtr, x.ref2a5f3ba8.proofs_ptr)
 	x.FaultySectorsLen = (uint)(x.ref2a5f3ba8.faulty_sectors_len)
-	hxf3b8dbd := (*sliceHeader)(unsafe.Pointer(&x.FaultySectorsPtr))
-	hxf3b8dbd.Data = unsafe.Pointer(x.ref2a5f3ba8.faulty_sectors_ptr)
-	hxf3b8dbd.Cap = 0x7fffffff
-	// hxf3b8dbd.Len = ?
+	hxf7a6dff := (*sliceHeader)(unsafe.Pointer(&x.FaultySectorsPtr))
+	hxf7a6dff.Data = unsafe.Pointer(x.ref2a5f3ba8.faulty_sectors_ptr)
+	hxf7a6dff.Cap = 0x7fffffff
+	// hxf7a6dff.Len = ?
 
 	x.StatusCode = (FCPResponseStatus)(x.ref2a5f3ba8.status_code)
 }
@@ -3197,10 +3241,10 @@ func (x *FilGenerateWinningPoStSectorChallenge) Deref() {
 	}
 	x.ErrorMsg = packPCharString(x.ref69d2a405.error_msg)
 	x.StatusCode = (FCPResponseStatus)(x.ref69d2a405.status_code)
-	hxf7a6dff := (*sliceHeader)(unsafe.Pointer(&x.IdsPtr))
-	hxf7a6dff.Data = unsafe.Pointer(x.ref69d2a405.ids_ptr)
-	hxf7a6dff.Cap = 0x7fffffff
-	// hxf7a6dff.Len = ?
+	hxfe48d67 := (*sliceHeader)(unsafe.Pointer(&x.IdsPtr))
+	hxfe48d67.Data = unsafe.Pointer(x.ref69d2a405.ids_ptr)
+	hxfe48d67.Cap = 0x7fffffff
+	// hxfe48d67.Len = ?
 
 	x.IdsLen = (uint)(x.ref69d2a405.ids_len)
 }
@@ -4276,10 +4320,10 @@ func (x *FilSealCommitPhase1Response) Deref() {
 	}
 	x.StatusCode = (FCPResponseStatus)(x.ref61ed8561.status_code)
 	x.ErrorMsg = packPCharString(x.ref61ed8561.error_msg)
-	hxfe48d67 := (*sliceHeader)(unsafe.Pointer(&x.SealCommitPhase1OutputPtr))
-	hxfe48d67.Data = unsafe.Pointer(x.ref61ed8561.seal_commit_phase1_output_ptr)
-	hxfe48d67.Cap = 0x7fffffff
-	// hxfe48d67.Len = ?
+	hxf4171bf := (*sliceHeader)(unsafe.Pointer(&x.SealCommitPhase1OutputPtr))
+	hxf4171bf.Data = unsafe.Pointer(x.ref61ed8561.seal_commit_phase1_output_ptr)
+	hxf4171bf.Cap = 0x7fffffff
+	// hxf4171bf.Len = ?
 
 	x.SealCommitPhase1OutputLen = (uint)(x.ref61ed8561.seal_commit_phase1_output_len)
 }
@@ -4376,10 +4420,10 @@ func (x *FilSealPreCommitPhase1Response) Deref() {
 	}
 	x.ErrorMsg = packPCharString(x.ref132bbfd8.error_msg)
 	x.StatusCode = (FCPResponseStatus)(x.ref132bbfd8.status_code)
-	hxf4171bf := (*sliceHeader)(unsafe.Pointer(&x.SealPreCommitPhase1OutputPtr))
-	hxf4171bf.Data = unsafe.Pointer(x.ref132bbfd8.seal_pre_commit_phase1_output_ptr)
-	hxf4171bf.Cap = 0x7fffffff
-	// hxf4171bf.Len = ?
+	hxf058b18 := (*sliceHeader)(unsafe.Pointer(&x.SealPreCommitPhase1OutputPtr))
+	hxf058b18.Data = unsafe.Pointer(x.ref132bbfd8.seal_pre_commit_phase1_output_ptr)
+	hxf058b18.Cap = 0x7fffffff
+	// hxf058b18.Len = ?
 
 	x.SealPreCommitPhase1OutputLen = (uint)(x.ref132bbfd8.seal_pre_commit_phase1_output_len)
 }

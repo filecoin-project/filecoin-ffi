@@ -34,9 +34,9 @@ fn add_fvm_machine(machine: CgoExecutor) -> u64 {
 
 fn get_default_config() -> fvm::Config {
     Config {
-        max_call_depth: 4096, // FIXME
-        initial_pages: 1024,  // FIXME
-        max_pages: 32768,     // FIXME
+        max_call_depth: 4096,
+        initial_pages: 128, // FIXME https://github.com/filecoin-project/filecoin-ffi/issues/223
+        max_pages: 32768,   // FIXME
         engine: wasmtime::Config::new(),
         debug: false,
     }
@@ -48,11 +48,12 @@ fn get_default_config() -> fvm::Config {
 ///
 #[no_mangle]
 #[cfg(not(target_os = "windows"))]
+// FIXME: is u64 the right type for network_version?
 pub unsafe extern "C" fn fil_create_fvm_machine(
     fvm_version: fil_FvmRegisteredVersion,
     chain_epoch: u64,
-    token_amount_hi: u64,
-    token_amount_lo: u64,
+    base_fee_hi: u64,
+    base_fee_lo: u64,
     base_circ_supply_hi: u64,
     base_circ_supply_lo: u64,
     network_version: u64,
@@ -79,6 +80,8 @@ pub unsafe extern "C" fn fil_create_fvm_machine(
             TokenAmount::from(token_amount_hi) << 64_u64 | TokenAmount::from(token_amount_lo);
         let base_circ_supply = TokenAmount::from(base_circ_supply_hi) << 64_u64
             | TokenAmount::from(base_circ_supply_lo);
+        let base_fee = TokenAmount::from(base_fee_hi) << 64_u64 | TokenAmount::from(base_fee_lo);
+
         let network_version = match NetworkVersion::try_from(network_version as u32) {
             Ok(x) => x,
             Err(err) => {
@@ -103,7 +106,7 @@ pub unsafe extern "C" fn fil_create_fvm_machine(
         let machine = fvm::machine::DefaultMachine::new(
             config,
             chain_epoch,
-            token_amount,
+            base_fee,
             base_circ_supply,
             network_version,
             state_root,
@@ -198,8 +201,18 @@ pub unsafe extern "C" fn fil_fvm_machine_execute_message(
                     }
                 };
 
-                response.status_code = FCPResponseStatus::FCPNoError;
+                let return_bytes = apply_ret.msg_receipt.return_data.bytes();
+
                 // FIXME: Return serialized ApplyRet type
+                response.status_code = FCPResponseStatus::FCPNoError;
+                response.exit_code = apply_ret.msg_receipt.exit_code as u64;
+                response.return_ptr = apply_ret.msg_receipt.return_data.bytes().as_ptr();
+                response.return_len = apply_ret.msg_receipt.return_data.bytes().len();
+                response.gas_used = apply_ret.msg_receipt.gas_used as u64;
+                response.penalty_hi = apply_ret.penalty.hi;
+                response.penalty_lo = apply_ret.penalty.lo;
+                response.miner_tip_hi = apply_ret.miner_tip.hi;
+                response.miner_tip_lo = apply_ret.miner_tip.lo;
             }
             None => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
