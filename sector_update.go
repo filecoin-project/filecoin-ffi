@@ -3,6 +3,9 @@
 package ffi
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/filecoin-project/filecoin-ffi/generated"
 	commcid "github.com/filecoin-project/go-fil-commcid"
 	"github.com/filecoin-project/go-state-types/abi"
@@ -55,7 +58,7 @@ func (FunctionsSectorUpdate) EncodeInto(
 	proofType abi.RegisteredUpdateProof,
 	newReplicaPath string,
 	newReplicaCachePath string,
-	sectorKePath string,
+	sectorKeyPath string,
 	sectorKeyCachePath string,
 	stagedDataPath string,
 	pieces []abi.PieceInfo,
@@ -74,7 +77,7 @@ func (FunctionsSectorUpdate) EncodeInto(
 		up,
 		newReplicaPath,
 		newReplicaCachePath,
-		sectorKePath,
+		sectorKeyPath,
 		sectorKeyCachePath,
 		stagedDataPath,
 		filPublicPieceInfos, filPublicPieceInfosLen,
@@ -102,7 +105,7 @@ func (FunctionsSectorUpdate) DecodeFrom(
 	proofType abi.RegisteredUpdateProof,
 	outDataPath string,
 	replicaPath string,
-	sectorKePath string,
+	sectorKeyPath string,
 	sectorKeyCachePath string,
 	unsealedCID cid.Cid,
 ) error {
@@ -120,7 +123,7 @@ func (FunctionsSectorUpdate) DecodeFrom(
 		up,
 		outDataPath,
 		replicaPath,
-		sectorKePath,
+		sectorKeyPath,
 		sectorKeyCachePath,
 		commD,
 	)
@@ -136,7 +139,7 @@ func (FunctionsSectorUpdate) DecodeFrom(
 
 func (FunctionsSectorUpdate) RemoveData(
 	proofType abi.RegisteredUpdateProof,
-	sectorKePath string,
+	sectorKeyPath string,
 	sectorKeyCachePath string,
 	replicaPath string,
 	replicaCachePath string,
@@ -155,7 +158,7 @@ func (FunctionsSectorUpdate) RemoveData(
 
 	resp := generated.FilEmptySectorUpdateRemoveEncodedData(
 		up,
-		sectorKePath,
+		sectorKeyPath,
 		sectorKeyCachePath,
 		replicaPath,
 		replicaCachePath,
@@ -179,7 +182,7 @@ func (FunctionsSectorUpdate) GenerateUpdateVanillaProofs(
 	unsealedCID cid.Cid,
 	newReplicaPath string,
 	newReplicaCachePath string,
-	sectorKePath string,
+	sectorKeyPath string,
 	sectorKeyCachePath string,
 ) ([][]byte, error) {
 	up, err := toFilRegisteredUpdateProof(proofType)
@@ -189,15 +192,15 @@ func (FunctionsSectorUpdate) GenerateUpdateVanillaProofs(
 
 	commRold, err := to32ByteCommR(oldSealedCID)
 	if err != nil {
-		return nil, xerrors.Errorf("transorming old CommR: %w", err)
+		return nil, xerrors.Errorf("transforming old CommR: %w", err)
 	}
 	commRnew, err := to32ByteCommR(newSealedCID)
 	if err != nil {
-		return nil, xerrors.Errorf("transorming new CommR: %w", err)
+		return nil, xerrors.Errorf("transforming new CommR: %w", err)
 	}
 	commD, err := to32ByteCommD(unsealedCID)
 	if err != nil {
-		return nil, xerrors.Errorf("transorming new CommD: %w", err)
+		return nil, xerrors.Errorf("transforming new CommD: %w", err)
 	}
 
 	resp := generated.FilGenerateEmptySectorUpdatePartitionProofs(
@@ -205,7 +208,7 @@ func (FunctionsSectorUpdate) GenerateUpdateVanillaProofs(
 		commRold,
 		commRnew,
 		commD,
-		sectorKePath,
+		sectorKeyPath,
 		sectorKeyCachePath,
 		newReplicaPath,
 		newReplicaCachePath,
@@ -346,7 +349,7 @@ func (FunctionsSectorUpdate) GenerateUpdateProof(
 	unsealedCID cid.Cid,
 	newReplicaPath string,
 	newReplicaCachePath string,
-	sectorKePath string,
+	sectorKeyPath string,
 	sectorKeyCachePath string,
 ) ([]byte, error) {
 	up, err := toFilRegisteredUpdateProof(proofType)
@@ -372,7 +375,7 @@ func (FunctionsSectorUpdate) GenerateUpdateProof(
 		commRold,
 		commRnew,
 		commD,
-		sectorKePath,
+		sectorKeyPath,
 		sectorKeyCachePath,
 		newReplicaPath,
 		newReplicaCachePath,
@@ -387,6 +390,8 @@ func (FunctionsSectorUpdate) GenerateUpdateProof(
 }
 
 func (FunctionsSectorUpdate) VerifyUpdateProof(info proof.ReplicaUpdateInfo) (bool, error) {
+	fmt.Println("verifying a proof")
+	os.Exit(1)
 	up, err := toFilRegisteredUpdateProof(info.UpdateProofType)
 	if err != nil {
 		return false, err
