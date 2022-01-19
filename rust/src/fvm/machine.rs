@@ -4,20 +4,13 @@ use std::convert::TryFrom;
 use std::sync::{atomic::AtomicU64, Mutex};
 
 use cid::Cid;
-use ffi_toolkit::{
-    catch_panic_response, raw_ptr, rust_str_to_c_str, FCPResponseStatus,
-};
+use ffi_toolkit::{catch_panic_response, raw_ptr, rust_str_to_c_str, FCPResponseStatus};
 use fvm::call_manager::DefaultCallManager;
 use fvm::executor::{ApplyKind, DefaultExecutor, Executor};
 use fvm::externs::cgo::CgoExterns;
 use fvm::machine::DefaultMachine;
 use fvm::{Config, DefaultKernel};
-use fvm_shared::{
-    clock::ChainEpoch,
-    econ::TokenAmount,
-    message::Message,
-    version::NetworkVersion,
-};
+use fvm_shared::{clock::ChainEpoch, econ::TokenAmount, message::Message, version::NetworkVersion};
 use log::info;
 use once_cell::sync::Lazy;
 

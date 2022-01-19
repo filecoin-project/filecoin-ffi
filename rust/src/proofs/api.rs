@@ -823,8 +823,8 @@ pub unsafe extern "C" fn fil_generate_single_vanilla_proof(
 
         info!("generate_single_vanilla_proof: start");
 
-        let challenges: Vec<u64> = std::slice::from_raw_parts(challenges_ptr, challenges_len)
-            .to_vec();
+        let challenges: Vec<u64> =
+            std::slice::from_raw_parts(challenges_ptr, challenges_len).to_vec();
 
         let sector_id = SectorId::from(replica.sector_id);
         let cache_dir_path = c_str_to_pbuf(replica.cache_dir_path);
