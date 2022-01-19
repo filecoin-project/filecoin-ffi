@@ -1456,7 +1456,7 @@ checksum = "1847abb9cb65d566acd5942e94aea9c8f547ad02c98e1649326fc0e8910b8b1e"
 [[package]]
 name = "fvm"
 version = "0.1.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=update-proofs#e6dbadd3ae1f7db94f283dd194c83c732f8f1f47"
+source = "git+https://github.com/filecoin-project/ref-fvm#5b066eb34b9bb6472b2735c774b0e31512faef49"
 dependencies = [
  "ahash",
  "anyhow",
@@ -1487,7 +1487,7 @@ dependencies = [
 [[package]]
 name = "fvm_cgo"
 version = "0.1.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=update-proofs#e6dbadd3ae1f7db94f283dd194c83c732f8f1f47"
+source = "git+https://github.com/filecoin-project/ref-fvm#5b066eb34b9bb6472b2735c774b0e31512faef49"
 dependencies = [
  "anyhow",
  "cid",
@@ -1497,7 +1497,7 @@ dependencies = [
 [[package]]
 name = "fvm_shared"
 version = "0.1.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=update-proofs#e6dbadd3ae1f7db94f283dd194c83c732f8f1f47"
+source = "git+https://github.com/filecoin-project/ref-fvm#5b066eb34b9bb6472b2735c774b0e31512faef49"
 dependencies = [
  "anyhow",
  "blake2b_simd 1.0.0",
@@ -1705,7 +1705,7 @@ dependencies = [
 [[package]]
 name = "ipld_amt"
 version = "1.0.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=update-proofs#e6dbadd3ae1f7db94f283dd194c83c732f8f1f47"
+source = "git+https://github.com/filecoin-project/ref-fvm#5b066eb34b9bb6472b2735c774b0e31512faef49"
 dependencies = [
  "anyhow",
  "cid",
@@ -1719,7 +1719,7 @@ dependencies = [
 [[package]]
 name = "ipld_hamt"
 version = "2.0.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=update-proofs#e6dbadd3ae1f7db94f283dd194c83c732f8f1f47"
+source = "git+https://github.com/filecoin-project/ref-fvm#5b066eb34b9bb6472b2735c774b0e31512faef49"
 dependencies = [
  "anyhow",
  "byteorder 1.4.3",
