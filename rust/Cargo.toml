@@ -38,13 +38,9 @@ memmap = "0.7"
 rust-gpu-tools = { version = "0.5", default-features = false }
 storage-proofs-porep = { version = "~11.0", default-features = false }
 fr32 = { version = "~4.0", default-features = false }
-fvm = { path = "/home/aayush/fvm/fvm", default-features = false }
-#blockstore = { path = "/home/nemo/pl/fvm/fvm/src/blockstore", default-features = false, features = ["cgo"] }
-fvm_shared = { path = "/home/aayush/fvm/shared", default-features = false }
-fvm_cgo = { path = "/home/aayush/fvm/cgo/rust", default-features = false }
-#fvm = { git = "ssh://git@github.com/filecoin-project/fvm", branch = "nemo-ffi", default-features = false }
-#blockstore = { git = "ssh://git@github.com/filecoin-project/fvm", branch = "nemo-ffi", default-features = false, features = ["cgo"] }
-#fvm_shared = { git = "ssh://git@github.com/filecoin-project/fvm", branch = "nemo-ffi", default-features = false }
+fvm = { git = "https://github.com/filecoin-project/ref-fvm", branch = "update-proofs", default-features = false }
+fvm_cgo = { git = "https://github.com/filecoin-project/ref-fvm", branch = "update-proofs", default-features = false }
+fvm_shared = { git = "https://github.com/filecoin-project/ref-fvm", branch = "update-proofs", default-features = false }
 wasmtime = "0.33.0"
 num-traits = "0.2"
 num-bigint = "0.4"
@@ -77,11 +73,6 @@ multicore-sdr = ["storage-proofs-porep/multicore-sdr"]
 # FIXME: remove before merging
 # Patched in
 [patch.crates-io]
-#filecoin-proofs = { git = "https://github.com/filecoin-project/rust-fil-proofs", default-features = false }
-#storage-proofs-porep = { git = "https://github.com/filecoin-project/rust-fil-proofs" }
-#sha2raw = { git = "https://github.com/filecoin-project/rust-fil-proofs" }
-#fr32 = { git = "https://github.com/filecoin-project/rust-fil-proofs" }
 multihash = { git = "https://github.com/multiformats/rust-multihash", branch = "next" }
-#cid = { git = "https://github.com/multiformats/rust-cid", branch = "steb/cbor-hack" }
 cid = { git = "https://github.com/multiformats/rust-cid", branch = "next" }
-libipld = { git = "https://github.com/ipfs-rust/libipld", branch = "steb/next" }
+#libipld = { git = "https://github.com/ipfs-rust/libipld", branch = "steb/next" }
