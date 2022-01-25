@@ -57,3 +57,13 @@ blst-portable = ["bls-signatures/blst-portable", "blstrs/portable"]
 opencl = ["filecoin-proofs-api/opencl", "bellperson/opencl", "storage-proofs-porep/opencl", "rust-gpu-tools/opencl"]
 cuda = ["filecoin-proofs-api/cuda", "bellperson/cuda", "storage-proofs-porep/cuda", "rust-gpu-tools/cuda"]
 multicore-sdr = ["storage-proofs-porep/multicore-sdr"]
+
+
+[patch.crates-io]
+filecoin-hashers = { git = "https://github.com/filecoin-project/rust-fil-proofs" }
+storage-proofs-core = { git = "https://github.com/filecoin-project/rust-fil-proofs" }
+storage-proofs-porep = { git = "https://github.com/filecoin-project/rust-fil-proofs" }
+storage-proofs-post = { git = "https://github.com/filecoin-project/rust-fil-proofs" }
+storage-proofs-update = { git = "https://github.com/filecoin-project/rust-fil-proofs" }
+fr32 = { git = "https://github.com/filecoin-project/rust-fil-proofs" }
+sha2raw = { git = "https://github.com/filecoin-project/rust-fil-proofs" }
