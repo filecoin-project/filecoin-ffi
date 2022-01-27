@@ -60,6 +60,7 @@ multicore-sdr = ["storage-proofs-porep/multicore-sdr"]
 
 
 [patch.crates-io]
+filecoin-proofs = { git = "https://github.com/filecoin-project/rust-fil-proofs" }
 filecoin-hashers = { git = "https://github.com/filecoin-project/rust-fil-proofs" }
 storage-proofs-core = { git = "https://github.com/filecoin-project/rust-fil-proofs" }
 storage-proofs-porep = { git = "https://github.com/filecoin-project/rust-fil-proofs" }
