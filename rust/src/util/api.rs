@@ -5,7 +5,7 @@ use std::sync::Once;
 
 use ffi_toolkit::{catch_panic_response, raw_ptr, rust_str_to_c_str, FCPResponseStatus};
 
-use super::types::{fil_GpuDeviceResponse, fil_InitLogFdResponse};
+use super::types::{fil_Bytes, fil_GpuDeviceResponse, fil_InitLogFdResponse};
 
 /// Protects the init off the logger.
 static LOG_INIT: Once = Once::new();
@@ -38,20 +38,8 @@ pub unsafe extern "C" fn fil_get_gpu_devices() -> *mut fil_GpuDeviceResponse {
         let devices = rust_gpu_tools::Device::all();
         let n = devices.len();
 
-        let devices: Vec<*const libc::c_char> = devices
-            .iter()
-            .map(|d| d.name())
-            .map(|d| {
-                CString::new(d)
-                    .unwrap_or_else(|_| CString::new("Unknown").unwrap())
-                    .into_raw() as *const libc::c_char
-            })
-            .collect();
-
-        let dyn_array = Box::into_raw(devices.into_boxed_slice());
-
-        response.devices_len = n;
-        response.devices_ptr = dyn_array as *const *const libc::c_char;
+        let devices: Vec<fil_Bytes> = devices.iter().map(|d| d.name().into()).collect();
+        response.devices = devices.into();
 
         raw_ptr(response)
     })
