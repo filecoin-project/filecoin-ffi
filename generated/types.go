@@ -506,7 +506,17 @@ type FilPublicPieceInfo struct {
 	allocsd00025ac interface{}
 }
 
-// FilPrivateReplicaInfo as declared in filecoin-ffi/filcrypto.h:437
+// FilFvmMachineFlushResponse as declared in filecoin-ffi/filcrypto.h:436
+type FilFvmMachineFlushResponse struct {
+	ErrorMsg       string
+	StatusCode     FCPResponseStatus
+	StateRootPtr   []byte
+	StateRootLen   uint
+	ref9eb3b4f4    *C.fil_FvmMachineFlushResponse
+	allocs9eb3b4f4 interface{}
+}
+
+// FilPrivateReplicaInfo as declared in filecoin-ffi/filcrypto.h:444
 type FilPrivateReplicaInfo struct {
 	RegisteredProof FilRegisteredPoStProof
 	CacheDirPath    string
@@ -517,7 +527,7 @@ type FilPrivateReplicaInfo struct {
 	allocs81a31e9b  interface{}
 }
 
-// FilPublicReplicaInfo as declared in filecoin-ffi/filcrypto.h:443
+// FilPublicReplicaInfo as declared in filecoin-ffi/filcrypto.h:450
 type FilPublicReplicaInfo struct {
 	RegisteredProof FilRegisteredPoStProof
 	CommR           [32]byte
