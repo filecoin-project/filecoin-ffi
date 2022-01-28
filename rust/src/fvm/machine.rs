@@ -165,11 +165,11 @@ pub unsafe extern "C" fn fil_fvm_machine_execute_message(
             }
         };
 
-        let return_bytes = apply_ret.msg_receipt.return_data.bytes();
-
         // TODO: use the non-bigint token amount everywhere in the FVM
         let penalty: u128 = apply_ret.penalty.try_into().unwrap();
         let miner_tip: u128 = apply_ret.miner_tip.try_into().unwrap();
+
+        let return_bytes = Vec::from(apply_ret.msg_receipt.return_data).into_boxed_slice();
 
         // FIXME: Return serialized ApplyRet type
         response.status_code = FCPResponseStatus::FCPNoError;
@@ -181,6 +181,8 @@ pub unsafe extern "C" fn fil_fvm_machine_execute_message(
         response.penalty_lo = penalty as u64;
         response.miner_tip_hi = (miner_tip >> u64::BITS) as u64;
         response.miner_tip_lo = miner_tip as u64;
+
+        Box::leak(return_bytes);
 
         info!("fil_fvm_machine_execute_message: end");
 
