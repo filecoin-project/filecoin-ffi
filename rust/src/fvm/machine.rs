@@ -1,6 +1,6 @@
 use fvm_cgo::blockstore::CgoBlockstore;
 use std::collections::HashMap;
-use std::convert::TryFrom;
+use std::convert::{TryFrom, TryInto};
 use std::sync::{atomic::AtomicU64, Mutex};
 
 use cid::Cid;
@@ -76,11 +76,11 @@ pub unsafe extern "C" fn fil_create_fvm_machine(
         let config = get_default_config();
         let chain_epoch = chain_epoch as ChainEpoch;
 
-        let token_amount =
-            TokenAmount::from(token_amount_hi) << 64_u64 | TokenAmount::from(token_amount_lo);
-        let base_circ_supply = TokenAmount::from(base_circ_supply_hi) << 64_u64
-            | TokenAmount::from(base_circ_supply_lo);
-        let base_fee = TokenAmount::from(base_fee_hi) << 64_u64 | TokenAmount::from(base_fee_lo);
+        let base_circ_supply = TokenAmount::from(
+            ((base_circ_supply_hi as u128) << u64::BITS) | base_circ_supply_lo as u128,
+        );
+        let base_fee =
+            TokenAmount::from(((base_fee_hi as u128) << u64::BITS) | base_fee_lo as u128);
 
         let network_version = match NetworkVersion::try_from(network_version as u32) {
             Ok(x) => x,
@@ -192,7 +192,7 @@ pub unsafe extern "C" fn fil_fvm_machine_execute_message(
         let executor = executors.get_mut(&machine_id);
         match executor {
             Some(executor) => {
-                let _apply_ret = match executor.execute_message(message, apply_kind, message_len) {
+                let apply_ret = match executor.execute_message(message, apply_kind, message_len) {
                     Ok(x) => x,
                     Err(err) => {
                         response.status_code = FCPResponseStatus::FCPUnclassifiedError;
@@ -203,16 +203,20 @@ pub unsafe extern "C" fn fil_fvm_machine_execute_message(
 
                 let return_bytes = apply_ret.msg_receipt.return_data.bytes();
 
+                // TODO: use the non-bigint token amount everywhere in the FVM
+                let penalty: u128 = apply_ret.penalty.try_into().unwrap();
+                let miner_tip: u128 = apply_ret.miner_tip.try_into().unwrap();
+
                 // FIXME: Return serialized ApplyRet type
                 response.status_code = FCPResponseStatus::FCPNoError;
                 response.exit_code = apply_ret.msg_receipt.exit_code as u64;
-                response.return_ptr = apply_ret.msg_receipt.return_data.bytes().as_ptr();
-                response.return_len = apply_ret.msg_receipt.return_data.bytes().len();
+                response.return_ptr = return_bytes.as_ptr();
+                response.return_len = return_bytes.len();
                 response.gas_used = apply_ret.msg_receipt.gas_used as u64;
-                response.penalty_hi = apply_ret.penalty.hi;
-                response.penalty_lo = apply_ret.penalty.lo;
-                response.miner_tip_hi = apply_ret.miner_tip.hi;
-                response.miner_tip_lo = apply_ret.miner_tip.lo;
+                response.penalty_hi = (penalty >> u64::BITS) as u64;
+                response.penalty_lo = penalty as u64;
+                response.miner_tip_hi = (miner_tip >> u64::BITS) as u64;
+                response.miner_tip_lo = miner_tip as u64;
             }
             None => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
