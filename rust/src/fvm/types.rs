@@ -78,3 +78,25 @@ impl Default for fil_FvmMachineExecuteResponse {
 }
 
 code_and_message_impl!(fil_FvmMachineExecuteResponse);
+
+#[repr(C)]
+#[derive(DropStructMacro)]
+pub struct fil_FvmMachineFlushResponse {
+    pub error_msg: *const libc::c_char,
+    pub status_code: FCPResponseStatus,
+    pub state_root_ptr: *const u8,
+    pub state_root_len: libc::size_t,
+}
+
+impl Default for fil_FvmMachineFlushResponse {
+    fn default() -> fil_FvmMachineFlushResponse {
+        fil_FvmMachineFlushResponse {
+            error_msg: ptr::null(),
+            status_code: FCPResponseStatus::FCPNoError,
+            state_root_ptr: ptr::null(),
+            state_root_len: 0,
+        }
+    }
+}
+
+code_and_message_impl!(fil_FvmMachineFlushResponse);

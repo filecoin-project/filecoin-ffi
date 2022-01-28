@@ -191,13 +191,34 @@ pub unsafe extern "C" fn fil_fvm_machine_execute_message(
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn fil_fvm_machine_finish_message(
+pub unsafe extern "C" fn fil_fvm_machine_flush(
     executor: *mut libc::c_void,
-    // TODO: actual message
-) {
-    init_log();
+) -> *const fil_FvmMachineFlushResponse {
+    catch_panic_response(|| {
+        init_log();
 
-    info!("fil_fvm_machine_flush_message: start");
+        info!("fil_fvm_machine_flush: start");
+
+        let mut executor = unsafe { &mut *(executor as *mut Mutex<CgoExecutor>) }
+            .lock()
+            .unwrap();
+        let mut response = fil_FvmMachineFlushResponse::default();
+        match executor.flush() {
+            Ok(cid) => {
+                let bytes = cid.to_bytes().into_boxed_slice();
+                response.state_root_ptr = bytes.as_ptr();
+                response.state_root_len = bytes.len();
+                Box::leak(bytes);
+            }
+            Err(e) => {
+                response.status_code = FCPResponseStatus::FCPReceiverError;
+                response.error_msg = rust_str_to_c_str(e.to_string());
+            }
+        }
+        info!("fil_fvm_machine_flush: end");
+
+        raw_ptr(response)
+    })
 }
 
 #[no_mangle]
@@ -210,6 +231,13 @@ pub unsafe extern "C" fn fil_destroy_create_fvm_machine_response(
 #[no_mangle]
 pub unsafe extern "C" fn fil_destroy_fvm_machine_execute_response(
     ptr: *mut fil_FvmMachineExecuteResponse,
+) {
+    let _ = Box::from_raw(ptr);
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn fil_destroy_fvm_machine_flush_response(
+    ptr: *mut fil_FvmMachineFlushResponse,
 ) {
     let _ = Box::from_raw(ptr);
 }

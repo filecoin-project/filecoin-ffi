@@ -171,7 +171,17 @@ type FilFvmMachineExecuteResponse struct {
 	allocs88f63595 interface{}
 }
 
-// FilGenerateDataCommitmentResponse as declared in filecoin-ffi/filcrypto.h:192
+// FilFvmMachineFlushResponse as declared in filecoin-ffi/filcrypto.h:193
+type FilFvmMachineFlushResponse struct {
+	ErrorMsg       string
+	StatusCode     FCPResponseStatus
+	StateRootPtr   []byte
+	StateRootLen   uint
+	ref9eb3b4f4    *C.fil_FvmMachineFlushResponse
+	allocs9eb3b4f4 interface{}
+}
+
+// FilGenerateDataCommitmentResponse as declared in filecoin-ffi/filcrypto.h:199
 type FilGenerateDataCommitmentResponse struct {
 	StatusCode     FCPResponseStatus
 	ErrorMsg       string
@@ -180,7 +190,7 @@ type FilGenerateDataCommitmentResponse struct {
 	allocs87da7dd9 interface{}
 }
 
-// FilPartitionProof as declared in filecoin-ffi/filcrypto.h:197
+// FilPartitionProof as declared in filecoin-ffi/filcrypto.h:204
 type FilPartitionProof struct {
 	ProofLen       uint
 	ProofPtr       []byte
@@ -188,7 +198,7 @@ type FilPartitionProof struct {
 	allocs566a2be6 interface{}
 }
 
-// FilPartitionProofResponse as declared in filecoin-ffi/filcrypto.h:204
+// FilPartitionProofResponse as declared in filecoin-ffi/filcrypto.h:211
 type FilPartitionProofResponse struct {
 	StatusCode     FCPResponseStatus
 	ErrorMsg       string
@@ -198,7 +208,7 @@ type FilPartitionProofResponse struct {
 	allocs51343e7a interface{}
 }
 
-// FilGenerateFallbackSectorChallengesResponse as declared in filecoin-ffi/filcrypto.h:214
+// FilGenerateFallbackSectorChallengesResponse as declared in filecoin-ffi/filcrypto.h:221
 type FilGenerateFallbackSectorChallengesResponse struct {
 	ErrorMsg         string
 	StatusCode       FCPResponseStatus
@@ -211,7 +221,7 @@ type FilGenerateFallbackSectorChallengesResponse struct {
 	allocs7047a3fa   interface{}
 }
 
-// FilGeneratePieceCommitmentResponse as declared in filecoin-ffi/filcrypto.h:225
+// FilGeneratePieceCommitmentResponse as declared in filecoin-ffi/filcrypto.h:232
 type FilGeneratePieceCommitmentResponse struct {
 	StatusCode      FCPResponseStatus
 	ErrorMsg        string
@@ -221,7 +231,7 @@ type FilGeneratePieceCommitmentResponse struct {
 	allocs4b00fda4  interface{}
 }
 
-// FilVanillaProof as declared in filecoin-ffi/filcrypto.h:230
+// FilVanillaProof as declared in filecoin-ffi/filcrypto.h:237
 type FilVanillaProof struct {
 	ProofLen       uint
 	ProofPtr       []byte
@@ -229,7 +239,7 @@ type FilVanillaProof struct {
 	allocsb3e7638c interface{}
 }
 
-// FilGenerateSingleVanillaProofResponse as declared in filecoin-ffi/filcrypto.h:236
+// FilGenerateSingleVanillaProofResponse as declared in filecoin-ffi/filcrypto.h:243
 type FilGenerateSingleVanillaProofResponse struct {
 	ErrorMsg       string
 	VanillaProof   FilVanillaProof
@@ -238,7 +248,7 @@ type FilGenerateSingleVanillaProofResponse struct {
 	allocsf9d21b04 interface{}
 }
 
-// FilPartitionSnarkProof as declared in filecoin-ffi/filcrypto.h:242
+// FilPartitionSnarkProof as declared in filecoin-ffi/filcrypto.h:249
 type FilPartitionSnarkProof struct {
 	RegisteredProof FilRegisteredPoStProof
 	ProofLen        uint
@@ -247,7 +257,7 @@ type FilPartitionSnarkProof struct {
 	allocs4de03739  interface{}
 }
 
-// FilGenerateSingleWindowPoStWithVanillaResponse as declared in filecoin-ffi/filcrypto.h:250
+// FilGenerateSingleWindowPoStWithVanillaResponse as declared in filecoin-ffi/filcrypto.h:257
 type FilGenerateSingleWindowPoStWithVanillaResponse struct {
 	ErrorMsg         string
 	PartitionProof   FilPartitionSnarkProof
@@ -258,7 +268,7 @@ type FilGenerateSingleWindowPoStWithVanillaResponse struct {
 	allocs96c012c3   interface{}
 }
 
-// FilPoStProof as declared in filecoin-ffi/filcrypto.h:256
+// FilPoStProof as declared in filecoin-ffi/filcrypto.h:263
 type FilPoStProof struct {
 	RegisteredProof FilRegisteredPoStProof
 	ProofLen        uint
@@ -267,7 +277,7 @@ type FilPoStProof struct {
 	allocs3451bfa   interface{}
 }
 
-// FilGenerateWindowPoStResponse as declared in filecoin-ffi/filcrypto.h:265
+// FilGenerateWindowPoStResponse as declared in filecoin-ffi/filcrypto.h:272
 type FilGenerateWindowPoStResponse struct {
 	ErrorMsg         string
 	ProofsLen        uint
@@ -279,7 +289,7 @@ type FilGenerateWindowPoStResponse struct {
 	allocs2a5f3ba8   interface{}
 }
 
-// FilGenerateWinningPoStResponse as declared in filecoin-ffi/filcrypto.h:272
+// FilGenerateWinningPoStResponse as declared in filecoin-ffi/filcrypto.h:279
 type FilGenerateWinningPoStResponse struct {
 	ErrorMsg       string
 	ProofsLen      uint
@@ -289,7 +299,7 @@ type FilGenerateWinningPoStResponse struct {
 	allocs1405b8ec interface{}
 }
 
-// FilGenerateWinningPoStSectorChallenge as declared in filecoin-ffi/filcrypto.h:279
+// FilGenerateWinningPoStSectorChallenge as declared in filecoin-ffi/filcrypto.h:286
 type FilGenerateWinningPoStSectorChallenge struct {
 	ErrorMsg       string
 	StatusCode     FCPResponseStatus
@@ -299,7 +309,7 @@ type FilGenerateWinningPoStSectorChallenge struct {
 	allocs69d2a405 interface{}
 }
 
-// FilGetNumPartitionForFallbackPoStResponse as declared in filecoin-ffi/filcrypto.h:285
+// FilGetNumPartitionForFallbackPoStResponse as declared in filecoin-ffi/filcrypto.h:292
 type FilGetNumPartitionForFallbackPoStResponse struct {
 	ErrorMsg       string
 	StatusCode     FCPResponseStatus
@@ -308,7 +318,7 @@ type FilGetNumPartitionForFallbackPoStResponse struct {
 	allocsc0084478 interface{}
 }
 
-// FilGpuDeviceResponse as declared in filecoin-ffi/filcrypto.h:292
+// FilGpuDeviceResponse as declared in filecoin-ffi/filcrypto.h:299
 type FilGpuDeviceResponse struct {
 	StatusCode     FCPResponseStatus
 	ErrorMsg       string
@@ -318,21 +328,21 @@ type FilGpuDeviceResponse struct {
 	allocs58f92915 interface{}
 }
 
-// FilBLSDigest as declared in filecoin-ffi/filcrypto.h:296
+// FilBLSDigest as declared in filecoin-ffi/filcrypto.h:303
 type FilBLSDigest struct {
 	Inner          [96]byte
 	ref215fc78c    *C.fil_BLSDigest
 	allocs215fc78c interface{}
 }
 
-// FilHashResponse as declared in filecoin-ffi/filcrypto.h:303
+// FilHashResponse as declared in filecoin-ffi/filcrypto.h:310
 type FilHashResponse struct {
 	Digest         FilBLSDigest
 	refc52a22ef    *C.fil_HashResponse
 	allocsc52a22ef interface{}
 }
 
-// FilInitLogFdResponse as declared in filecoin-ffi/filcrypto.h:308
+// FilInitLogFdResponse as declared in filecoin-ffi/filcrypto.h:315
 type FilInitLogFdResponse struct {
 	StatusCode     FCPResponseStatus
 	ErrorMsg       string
@@ -340,7 +350,7 @@ type FilInitLogFdResponse struct {
 	allocs3c1a0a08 interface{}
 }
 
-// FilMergeWindowPoStPartitionProofsResponse as declared in filecoin-ffi/filcrypto.h:314
+// FilMergeWindowPoStPartitionProofsResponse as declared in filecoin-ffi/filcrypto.h:321
 type FilMergeWindowPoStPartitionProofsResponse struct {
 	ErrorMsg       string
 	Proof          FilPoStProof
@@ -349,42 +359,42 @@ type FilMergeWindowPoStPartitionProofsResponse struct {
 	allocs3369154e interface{}
 }
 
-// FilBLSPrivateKey as declared in filecoin-ffi/filcrypto.h:318
+// FilBLSPrivateKey as declared in filecoin-ffi/filcrypto.h:325
 type FilBLSPrivateKey struct {
 	Inner          [32]byte
 	ref2f77fe3a    *C.fil_BLSPrivateKey
 	allocs2f77fe3a interface{}
 }
 
-// FilPrivateKeyGenerateResponse as declared in filecoin-ffi/filcrypto.h:325
+// FilPrivateKeyGenerateResponse as declared in filecoin-ffi/filcrypto.h:332
 type FilPrivateKeyGenerateResponse struct {
 	PrivateKey    FilBLSPrivateKey
 	ref2dba09f    *C.fil_PrivateKeyGenerateResponse
 	allocs2dba09f interface{}
 }
 
-// FilBLSPublicKey as declared in filecoin-ffi/filcrypto.h:329
+// FilBLSPublicKey as declared in filecoin-ffi/filcrypto.h:336
 type FilBLSPublicKey struct {
 	Inner          [48]byte
 	ref6d0cab13    *C.fil_BLSPublicKey
 	allocs6d0cab13 interface{}
 }
 
-// FilPrivateKeyPublicKeyResponse as declared in filecoin-ffi/filcrypto.h:336
+// FilPrivateKeyPublicKeyResponse as declared in filecoin-ffi/filcrypto.h:343
 type FilPrivateKeyPublicKeyResponse struct {
 	PublicKey      FilBLSPublicKey
 	refee14e59d    *C.fil_PrivateKeyPublicKeyResponse
 	allocsee14e59d interface{}
 }
 
-// FilPrivateKeySignResponse as declared in filecoin-ffi/filcrypto.h:343
+// FilPrivateKeySignResponse as declared in filecoin-ffi/filcrypto.h:350
 type FilPrivateKeySignResponse struct {
 	Signature      FilBLSSignature
 	refcdf97b28    *C.fil_PrivateKeySignResponse
 	allocscdf97b28 interface{}
 }
 
-// FilSealCommitPhase1Response as declared in filecoin-ffi/filcrypto.h:350
+// FilSealCommitPhase1Response as declared in filecoin-ffi/filcrypto.h:357
 type FilSealCommitPhase1Response struct {
 	StatusCode                FCPResponseStatus
 	ErrorMsg                  string
@@ -394,7 +404,7 @@ type FilSealCommitPhase1Response struct {
 	allocs61ed8561            interface{}
 }
 
-// FilSealPreCommitPhase1Response as declared in filecoin-ffi/filcrypto.h:357
+// FilSealPreCommitPhase1Response as declared in filecoin-ffi/filcrypto.h:364
 type FilSealPreCommitPhase1Response struct {
 	ErrorMsg                     string
 	StatusCode                   FCPResponseStatus
@@ -404,7 +414,7 @@ type FilSealPreCommitPhase1Response struct {
 	allocs132bbfd8               interface{}
 }
 
-// FilSealPreCommitPhase2Response as declared in filecoin-ffi/filcrypto.h:365
+// FilSealPreCommitPhase2Response as declared in filecoin-ffi/filcrypto.h:372
 type FilSealPreCommitPhase2Response struct {
 	ErrorMsg        string
 	StatusCode      FCPResponseStatus
@@ -415,7 +425,7 @@ type FilSealPreCommitPhase2Response struct {
 	allocs2aa6831d  interface{}
 }
 
-// FilStringResponse as declared in filecoin-ffi/filcrypto.h:374
+// FilStringResponse as declared in filecoin-ffi/filcrypto.h:381
 type FilStringResponse struct {
 	StatusCode     FCPResponseStatus
 	ErrorMsg       string
@@ -424,7 +434,7 @@ type FilStringResponse struct {
 	allocs4f413043 interface{}
 }
 
-// FilUnsealRangeResponse as declared in filecoin-ffi/filcrypto.h:379
+// FilUnsealRangeResponse as declared in filecoin-ffi/filcrypto.h:386
 type FilUnsealRangeResponse struct {
 	StatusCode     FCPResponseStatus
 	ErrorMsg       string
@@ -432,7 +442,7 @@ type FilUnsealRangeResponse struct {
 	allocs61e219c9 interface{}
 }
 
-// FilVerifyAggregateSealProofResponse as declared in filecoin-ffi/filcrypto.h:385
+// FilVerifyAggregateSealProofResponse as declared in filecoin-ffi/filcrypto.h:392
 type FilVerifyAggregateSealProofResponse struct {
 	StatusCode    FCPResponseStatus
 	ErrorMsg      string
@@ -441,7 +451,7 @@ type FilVerifyAggregateSealProofResponse struct {
 	allocs66180e0 interface{}
 }
 
-// FilVerifyPartitionProofResponse as declared in filecoin-ffi/filcrypto.h:391
+// FilVerifyPartitionProofResponse as declared in filecoin-ffi/filcrypto.h:398
 type FilVerifyPartitionProofResponse struct {
 	StatusCode    FCPResponseStatus
 	ErrorMsg      string
@@ -450,7 +460,7 @@ type FilVerifyPartitionProofResponse struct {
 	allocsaed1b67 interface{}
 }
 
-// FilVerifySealResponse as declared in filecoin-ffi/filcrypto.h:397
+// FilVerifySealResponse as declared in filecoin-ffi/filcrypto.h:404
 type FilVerifySealResponse struct {
 	StatusCode     FCPResponseStatus
 	ErrorMsg       string
@@ -459,7 +469,7 @@ type FilVerifySealResponse struct {
 	allocsd4397079 interface{}
 }
 
-// FilVerifyWindowPoStResponse as declared in filecoin-ffi/filcrypto.h:403
+// FilVerifyWindowPoStResponse as declared in filecoin-ffi/filcrypto.h:410
 type FilVerifyWindowPoStResponse struct {
 	StatusCode     FCPResponseStatus
 	ErrorMsg       string
@@ -468,7 +478,7 @@ type FilVerifyWindowPoStResponse struct {
 	allocs34c4d49f interface{}
 }
 
-// FilVerifyWinningPoStResponse as declared in filecoin-ffi/filcrypto.h:409
+// FilVerifyWinningPoStResponse as declared in filecoin-ffi/filcrypto.h:416
 type FilVerifyWinningPoStResponse struct {
 	StatusCode     FCPResponseStatus
 	ErrorMsg       string
@@ -477,7 +487,7 @@ type FilVerifyWinningPoStResponse struct {
 	allocsaca6860c interface{}
 }
 
-// FilWriteWithAlignmentResponse as declared in filecoin-ffi/filcrypto.h:417
+// FilWriteWithAlignmentResponse as declared in filecoin-ffi/filcrypto.h:424
 type FilWriteWithAlignmentResponse struct {
 	CommP                 [32]byte
 	ErrorMsg              string
@@ -488,7 +498,7 @@ type FilWriteWithAlignmentResponse struct {
 	allocsa330e79         interface{}
 }
 
-// FilWriteWithoutAlignmentResponse as declared in filecoin-ffi/filcrypto.h:424
+// FilWriteWithoutAlignmentResponse as declared in filecoin-ffi/filcrypto.h:431
 type FilWriteWithoutAlignmentResponse struct {
 	CommP              [32]byte
 	ErrorMsg           string
@@ -498,7 +508,7 @@ type FilWriteWithoutAlignmentResponse struct {
 	allocsc8e1ed8      interface{}
 }
 
-// FilPublicPieceInfo as declared in filecoin-ffi/filcrypto.h:429
+// FilPublicPieceInfo as declared in filecoin-ffi/filcrypto.h:436
 type FilPublicPieceInfo struct {
 	NumBytes       uint64
 	CommP          [32]byte
@@ -506,7 +516,7 @@ type FilPublicPieceInfo struct {
 	allocsd00025ac interface{}
 }
 
-// FilPrivateReplicaInfo as declared in filecoin-ffi/filcrypto.h:437
+// FilPrivateReplicaInfo as declared in filecoin-ffi/filcrypto.h:444
 type FilPrivateReplicaInfo struct {
 	RegisteredProof FilRegisteredPoStProof
 	CacheDirPath    string
@@ -517,7 +527,7 @@ type FilPrivateReplicaInfo struct {
 	allocs81a31e9b  interface{}
 }
 
-// FilPublicReplicaInfo as declared in filecoin-ffi/filcrypto.h:443
+// FilPublicReplicaInfo as declared in filecoin-ffi/filcrypto.h:450
 type FilPublicReplicaInfo struct {
 	RegisteredProof FilRegisteredPoStProof
 	CommR           [32]byte

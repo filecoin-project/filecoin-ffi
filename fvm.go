@@ -116,6 +116,19 @@ func (f *FVM) ApplyImplicitMessage(msgBytes []byte) (*ApplyRet, error) {
 	}, nil
 }
 
+func (f *FVM) Flush() (cid.Cid, error) {
+	resp := generated.FilFvmMachineFlush(f.executor)
+	resp.Deref()
+
+	defer generated.FilDestroyFvmMachineFlushResponse(resp)
+
+	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
+		return cid.Undef, xerrors.New(generated.RawString(resp.ErrorMsg).Copy())
+	}
+
+	return cid.Cast(resp.StateRootPtr)
+}
+
 type ApplyRet struct {
 	Return       []byte
 	ExitCode     uint64

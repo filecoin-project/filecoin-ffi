@@ -1784,6 +1784,106 @@ func (x *FilFvmMachineExecuteResponse) Deref() {
 	x.MinerTipLo = (uint64)(x.ref88f63595.miner_tip_lo)
 }
 
+// allocFilFvmMachineFlushResponseMemory allocates memory for type C.fil_FvmMachineFlushResponse in C.
+// The caller is responsible for freeing the this memory via C.free.
+func allocFilFvmMachineFlushResponseMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilFvmMachineFlushResponseValue))
+	if mem == nil {
+		panic(fmt.Sprintln("memory alloc error: ", err))
+	}
+	return mem
+}
+
+const sizeOfFilFvmMachineFlushResponseValue = unsafe.Sizeof([1]C.fil_FvmMachineFlushResponse{})
+
+// Ref returns the underlying reference to C object or nil if struct is nil.
+func (x *FilFvmMachineFlushResponse) Ref() *C.fil_FvmMachineFlushResponse {
+	if x == nil {
+		return nil
+	}
+	return x.ref9eb3b4f4
+}
+
+// Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
+// Does nothing if struct is nil or has no allocation map.
+func (x *FilFvmMachineFlushResponse) Free() {
+	if x != nil && x.allocs9eb3b4f4 != nil {
+		x.allocs9eb3b4f4.(*cgoAllocMap).Free()
+		x.ref9eb3b4f4 = nil
+	}
+}
+
+// NewFilFvmMachineFlushResponseRef creates a new wrapper struct with underlying reference set to the original C object.
+// Returns nil if the provided pointer to C object is nil too.
+func NewFilFvmMachineFlushResponseRef(ref unsafe.Pointer) *FilFvmMachineFlushResponse {
+	if ref == nil {
+		return nil
+	}
+	obj := new(FilFvmMachineFlushResponse)
+	obj.ref9eb3b4f4 = (*C.fil_FvmMachineFlushResponse)(unsafe.Pointer(ref))
+	return obj
+}
+
+// PassRef returns the underlying C object, otherwise it will allocate one and set its values
+// from this wrapping struct, counting allocations into an allocation map.
+func (x *FilFvmMachineFlushResponse) PassRef() (*C.fil_FvmMachineFlushResponse, *cgoAllocMap) {
+	if x == nil {
+		return nil, nil
+	} else if x.ref9eb3b4f4 != nil {
+		return x.ref9eb3b4f4, nil
+	}
+	mem9eb3b4f4 := allocFilFvmMachineFlushResponseMemory(1)
+	ref9eb3b4f4 := (*C.fil_FvmMachineFlushResponse)(mem9eb3b4f4)
+	allocs9eb3b4f4 := new(cgoAllocMap)
+	allocs9eb3b4f4.Add(mem9eb3b4f4)
+
+	var cerror_msg_allocs *cgoAllocMap
+	ref9eb3b4f4.error_msg, cerror_msg_allocs = unpackPCharString(x.ErrorMsg)
+	allocs9eb3b4f4.Borrow(cerror_msg_allocs)
+
+	var cstatus_code_allocs *cgoAllocMap
+	ref9eb3b4f4.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	allocs9eb3b4f4.Borrow(cstatus_code_allocs)
+
+	var cstate_root_ptr_allocs *cgoAllocMap
+	ref9eb3b4f4.state_root_ptr, cstate_root_ptr_allocs = copyPUint8TBytes((*sliceHeader)(unsafe.Pointer(&x.StateRootPtr)))
+	allocs9eb3b4f4.Borrow(cstate_root_ptr_allocs)
+
+	var cstate_root_len_allocs *cgoAllocMap
+	ref9eb3b4f4.state_root_len, cstate_root_len_allocs = (C.size_t)(x.StateRootLen), cgoAllocsUnknown
+	allocs9eb3b4f4.Borrow(cstate_root_len_allocs)
+
+	x.ref9eb3b4f4 = ref9eb3b4f4
+	x.allocs9eb3b4f4 = allocs9eb3b4f4
+	return ref9eb3b4f4, allocs9eb3b4f4
+
+}
+
+// PassValue does the same as PassRef except that it will try to dereference the returned pointer.
+func (x FilFvmMachineFlushResponse) PassValue() (C.fil_FvmMachineFlushResponse, *cgoAllocMap) {
+	if x.ref9eb3b4f4 != nil {
+		return *x.ref9eb3b4f4, nil
+	}
+	ref, allocs := x.PassRef()
+	return *ref, allocs
+}
+
+// Deref uses the underlying reference to C object and fills the wrapping struct with values.
+// Do not forget to call this method whether you get a struct for C object and want to read its values.
+func (x *FilFvmMachineFlushResponse) Deref() {
+	if x.ref9eb3b4f4 == nil {
+		return
+	}
+	x.ErrorMsg = packPCharString(x.ref9eb3b4f4.error_msg)
+	x.StatusCode = (FCPResponseStatus)(x.ref9eb3b4f4.status_code)
+	hxfa9955c := (*sliceHeader)(unsafe.Pointer(&x.StateRootPtr))
+	hxfa9955c.Data = unsafe.Pointer(x.ref9eb3b4f4.state_root_ptr)
+	hxfa9955c.Cap = 0x7fffffff
+	// hxfa9955c.Len = ?
+
+	x.StateRootLen = (uint)(x.ref9eb3b4f4.state_root_len)
+}
+
 // allocFilGenerateDataCommitmentResponseMemory allocates memory for type C.fil_GenerateDataCommitmentResponse in C.
 // The caller is responsible for freeing the this memory via C.free.
 func allocFilGenerateDataCommitmentResponseMemory(n int) unsafe.Pointer {
@@ -1958,10 +2058,10 @@ func (x *FilPartitionProof) Deref() {
 		return
 	}
 	x.ProofLen = (uint)(x.ref566a2be6.proof_len)
-	hxfa9955c := (*sliceHeader)(unsafe.Pointer(&x.ProofPtr))
-	hxfa9955c.Data = unsafe.Pointer(x.ref566a2be6.proof_ptr)
-	hxfa9955c.Cap = 0x7fffffff
-	// hxfa9955c.Len = ?
+	hxfa3f05c := (*sliceHeader)(unsafe.Pointer(&x.ProofPtr))
+	hxfa3f05c.Data = unsafe.Pointer(x.ref566a2be6.proof_ptr)
+	hxfa3f05c.Cap = 0x7fffffff
+	// hxfa3f05c.Len = ?
 
 }
 
@@ -2232,16 +2332,16 @@ func (x *FilGenerateFallbackSectorChallengesResponse) Deref() {
 	}
 	x.ErrorMsg = packPCharString(x.ref7047a3fa.error_msg)
 	x.StatusCode = (FCPResponseStatus)(x.ref7047a3fa.status_code)
-	hxfa3f05c := (*sliceHeader)(unsafe.Pointer(&x.IdsPtr))
-	hxfa3f05c.Data = unsafe.Pointer(x.ref7047a3fa.ids_ptr)
-	hxfa3f05c.Cap = 0x7fffffff
-	// hxfa3f05c.Len = ?
-
-	x.IdsLen = (uint)(x.ref7047a3fa.ids_len)
-	hxf0d18b7 := (*sliceHeader)(unsafe.Pointer(&x.ChallengesPtr))
-	hxf0d18b7.Data = unsafe.Pointer(x.ref7047a3fa.challenges_ptr)
+	hxf0d18b7 := (*sliceHeader)(unsafe.Pointer(&x.IdsPtr))
+	hxf0d18b7.Data = unsafe.Pointer(x.ref7047a3fa.ids_ptr)
 	hxf0d18b7.Cap = 0x7fffffff
 	// hxf0d18b7.Len = ?
+
+	x.IdsLen = (uint)(x.ref7047a3fa.ids_len)
+	hxf2fab0d := (*sliceHeader)(unsafe.Pointer(&x.ChallengesPtr))
+	hxf2fab0d.Data = unsafe.Pointer(x.ref7047a3fa.challenges_ptr)
+	hxf2fab0d.Cap = 0x7fffffff
+	// hxf2fab0d.Len = ?
 
 	x.ChallengesLen = (uint)(x.ref7047a3fa.challenges_len)
 	x.ChallengesStride = (uint)(x.ref7047a3fa.challenges_stride)
@@ -2426,10 +2526,10 @@ func (x *FilVanillaProof) Deref() {
 		return
 	}
 	x.ProofLen = (uint)(x.refb3e7638c.proof_len)
-	hxf2fab0d := (*sliceHeader)(unsafe.Pointer(&x.ProofPtr))
-	hxf2fab0d.Data = unsafe.Pointer(x.refb3e7638c.proof_ptr)
-	hxf2fab0d.Cap = 0x7fffffff
-	// hxf2fab0d.Len = ?
+	hxf69fe70 := (*sliceHeader)(unsafe.Pointer(&x.ProofPtr))
+	hxf69fe70.Data = unsafe.Pointer(x.refb3e7638c.proof_ptr)
+	hxf69fe70.Cap = 0x7fffffff
+	// hxf69fe70.Len = ?
 
 }
 
@@ -2612,10 +2712,10 @@ func (x *FilPartitionSnarkProof) Deref() {
 	}
 	x.RegisteredProof = (FilRegisteredPoStProof)(x.ref4de03739.registered_proof)
 	x.ProofLen = (uint)(x.ref4de03739.proof_len)
-	hxf69fe70 := (*sliceHeader)(unsafe.Pointer(&x.ProofPtr))
-	hxf69fe70.Data = unsafe.Pointer(x.ref4de03739.proof_ptr)
-	hxf69fe70.Cap = 0x7fffffff
-	// hxf69fe70.Len = ?
+	hxf65bf54 := (*sliceHeader)(unsafe.Pointer(&x.ProofPtr))
+	hxf65bf54.Data = unsafe.Pointer(x.ref4de03739.proof_ptr)
+	hxf65bf54.Cap = 0x7fffffff
+	// hxf65bf54.Len = ?
 
 }
 
@@ -2716,10 +2816,10 @@ func (x *FilGenerateSingleWindowPoStWithVanillaResponse) Deref() {
 	x.ErrorMsg = packPCharString(x.ref96c012c3.error_msg)
 	x.PartitionProof = *NewFilPartitionSnarkProofRef(unsafe.Pointer(&x.ref96c012c3.partition_proof))
 	x.FaultySectorsLen = (uint)(x.ref96c012c3.faulty_sectors_len)
-	hxf65bf54 := (*sliceHeader)(unsafe.Pointer(&x.FaultySectorsPtr))
-	hxf65bf54.Data = unsafe.Pointer(x.ref96c012c3.faulty_sectors_ptr)
-	hxf65bf54.Cap = 0x7fffffff
-	// hxf65bf54.Len = ?
+	hxf3b8dbd := (*sliceHeader)(unsafe.Pointer(&x.FaultySectorsPtr))
+	hxf3b8dbd.Data = unsafe.Pointer(x.ref96c012c3.faulty_sectors_ptr)
+	hxf3b8dbd.Cap = 0x7fffffff
+	// hxf3b8dbd.Len = ?
 
 	x.StatusCode = (FCPResponseStatus)(x.ref96c012c3.status_code)
 }
@@ -2812,10 +2912,10 @@ func (x *FilPoStProof) Deref() {
 	}
 	x.RegisteredProof = (FilRegisteredPoStProof)(x.ref3451bfa.registered_proof)
 	x.ProofLen = (uint)(x.ref3451bfa.proof_len)
-	hxf3b8dbd := (*sliceHeader)(unsafe.Pointer(&x.ProofPtr))
-	hxf3b8dbd.Data = unsafe.Pointer(x.ref3451bfa.proof_ptr)
-	hxf3b8dbd.Cap = 0x7fffffff
-	// hxf3b8dbd.Len = ?
+	hxf7a6dff := (*sliceHeader)(unsafe.Pointer(&x.ProofPtr))
+	hxf7a6dff.Data = unsafe.Pointer(x.ref3451bfa.proof_ptr)
+	hxf7a6dff.Cap = 0x7fffffff
+	// hxf7a6dff.Len = ?
 
 }
 
@@ -2959,10 +3059,10 @@ func (x *FilGenerateWindowPoStResponse) Deref() {
 	x.ProofsLen = (uint)(x.ref2a5f3ba8.proofs_len)
 	packSFilPoStProof(x.ProofsPtr, x.ref2a5f3ba8.proofs_ptr)
 	x.FaultySectorsLen = (uint)(x.ref2a5f3ba8.faulty_sectors_len)
-	hxf7a6dff := (*sliceHeader)(unsafe.Pointer(&x.FaultySectorsPtr))
-	hxf7a6dff.Data = unsafe.Pointer(x.ref2a5f3ba8.faulty_sectors_ptr)
-	hxf7a6dff.Cap = 0x7fffffff
-	// hxf7a6dff.Len = ?
+	hxfe48d67 := (*sliceHeader)(unsafe.Pointer(&x.FaultySectorsPtr))
+	hxfe48d67.Data = unsafe.Pointer(x.ref2a5f3ba8.faulty_sectors_ptr)
+	hxfe48d67.Cap = 0x7fffffff
+	// hxfe48d67.Len = ?
 
 	x.StatusCode = (FCPResponseStatus)(x.ref2a5f3ba8.status_code)
 }
@@ -3155,10 +3255,10 @@ func (x *FilGenerateWinningPoStSectorChallenge) Deref() {
 	}
 	x.ErrorMsg = packPCharString(x.ref69d2a405.error_msg)
 	x.StatusCode = (FCPResponseStatus)(x.ref69d2a405.status_code)
-	hxfe48d67 := (*sliceHeader)(unsafe.Pointer(&x.IdsPtr))
-	hxfe48d67.Data = unsafe.Pointer(x.ref69d2a405.ids_ptr)
-	hxfe48d67.Cap = 0x7fffffff
-	// hxfe48d67.Len = ?
+	hxf4171bf := (*sliceHeader)(unsafe.Pointer(&x.IdsPtr))
+	hxf4171bf.Data = unsafe.Pointer(x.ref69d2a405.ids_ptr)
+	hxf4171bf.Cap = 0x7fffffff
+	// hxf4171bf.Len = ?
 
 	x.IdsLen = (uint)(x.ref69d2a405.ids_len)
 }
@@ -4234,10 +4334,10 @@ func (x *FilSealCommitPhase1Response) Deref() {
 	}
 	x.StatusCode = (FCPResponseStatus)(x.ref61ed8561.status_code)
 	x.ErrorMsg = packPCharString(x.ref61ed8561.error_msg)
-	hxf4171bf := (*sliceHeader)(unsafe.Pointer(&x.SealCommitPhase1OutputPtr))
-	hxf4171bf.Data = unsafe.Pointer(x.ref61ed8561.seal_commit_phase1_output_ptr)
-	hxf4171bf.Cap = 0x7fffffff
-	// hxf4171bf.Len = ?
+	hxf058b18 := (*sliceHeader)(unsafe.Pointer(&x.SealCommitPhase1OutputPtr))
+	hxf058b18.Data = unsafe.Pointer(x.ref61ed8561.seal_commit_phase1_output_ptr)
+	hxf058b18.Cap = 0x7fffffff
+	// hxf058b18.Len = ?
 
 	x.SealCommitPhase1OutputLen = (uint)(x.ref61ed8561.seal_commit_phase1_output_len)
 }
@@ -4334,10 +4434,10 @@ func (x *FilSealPreCommitPhase1Response) Deref() {
 	}
 	x.ErrorMsg = packPCharString(x.ref132bbfd8.error_msg)
 	x.StatusCode = (FCPResponseStatus)(x.ref132bbfd8.status_code)
-	hxf058b18 := (*sliceHeader)(unsafe.Pointer(&x.SealPreCommitPhase1OutputPtr))
-	hxf058b18.Data = unsafe.Pointer(x.ref132bbfd8.seal_pre_commit_phase1_output_ptr)
-	hxf058b18.Cap = 0x7fffffff
-	// hxf058b18.Len = ?
+	hxff6bc57 := (*sliceHeader)(unsafe.Pointer(&x.SealPreCommitPhase1OutputPtr))
+	hxff6bc57.Data = unsafe.Pointer(x.ref132bbfd8.seal_pre_commit_phase1_output_ptr)
+	hxff6bc57.Cap = 0x7fffffff
+	// hxff6bc57.Len = ?
 
 	x.SealPreCommitPhase1OutputLen = (uint)(x.ref132bbfd8.seal_pre_commit_phase1_output_len)
 }
