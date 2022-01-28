@@ -5358,6 +5358,106 @@ func (x *FilPublicPieceInfo) Deref() {
 	x.CommP = *(*[32]byte)(unsafe.Pointer(&x.refd00025ac.comm_p))
 }
 
+// allocFilFvmMachineFlushResponseMemory allocates memory for type C.fil_FvmMachineFlushResponse in C.
+// The caller is responsible for freeing the this memory via C.free.
+func allocFilFvmMachineFlushResponseMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilFvmMachineFlushResponseValue))
+	if mem == nil {
+		panic(fmt.Sprintln("memory alloc error: ", err))
+	}
+	return mem
+}
+
+const sizeOfFilFvmMachineFlushResponseValue = unsafe.Sizeof([1]C.fil_FvmMachineFlushResponse{})
+
+// Ref returns the underlying reference to C object or nil if struct is nil.
+func (x *FilFvmMachineFlushResponse) Ref() *C.fil_FvmMachineFlushResponse {
+	if x == nil {
+		return nil
+	}
+	return x.ref9eb3b4f4
+}
+
+// Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
+// Does nothing if struct is nil or has no allocation map.
+func (x *FilFvmMachineFlushResponse) Free() {
+	if x != nil && x.allocs9eb3b4f4 != nil {
+		x.allocs9eb3b4f4.(*cgoAllocMap).Free()
+		x.ref9eb3b4f4 = nil
+	}
+}
+
+// NewFilFvmMachineFlushResponseRef creates a new wrapper struct with underlying reference set to the original C object.
+// Returns nil if the provided pointer to C object is nil too.
+func NewFilFvmMachineFlushResponseRef(ref unsafe.Pointer) *FilFvmMachineFlushResponse {
+	if ref == nil {
+		return nil
+	}
+	obj := new(FilFvmMachineFlushResponse)
+	obj.ref9eb3b4f4 = (*C.fil_FvmMachineFlushResponse)(unsafe.Pointer(ref))
+	return obj
+}
+
+// PassRef returns the underlying C object, otherwise it will allocate one and set its values
+// from this wrapping struct, counting allocations into an allocation map.
+func (x *FilFvmMachineFlushResponse) PassRef() (*C.fil_FvmMachineFlushResponse, *cgoAllocMap) {
+	if x == nil {
+		return nil, nil
+	} else if x.ref9eb3b4f4 != nil {
+		return x.ref9eb3b4f4, nil
+	}
+	mem9eb3b4f4 := allocFilFvmMachineFlushResponseMemory(1)
+	ref9eb3b4f4 := (*C.fil_FvmMachineFlushResponse)(mem9eb3b4f4)
+	allocs9eb3b4f4 := new(cgoAllocMap)
+	allocs9eb3b4f4.Add(mem9eb3b4f4)
+
+	var cerror_msg_allocs *cgoAllocMap
+	ref9eb3b4f4.error_msg, cerror_msg_allocs = unpackPCharString(x.ErrorMsg)
+	allocs9eb3b4f4.Borrow(cerror_msg_allocs)
+
+	var cstatus_code_allocs *cgoAllocMap
+	ref9eb3b4f4.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	allocs9eb3b4f4.Borrow(cstatus_code_allocs)
+
+	var cstate_root_ptr_allocs *cgoAllocMap
+	ref9eb3b4f4.state_root_ptr, cstate_root_ptr_allocs = copyPUint8TBytes((*sliceHeader)(unsafe.Pointer(&x.StateRootPtr)))
+	allocs9eb3b4f4.Borrow(cstate_root_ptr_allocs)
+
+	var cstate_root_len_allocs *cgoAllocMap
+	ref9eb3b4f4.state_root_len, cstate_root_len_allocs = (C.size_t)(x.StateRootLen), cgoAllocsUnknown
+	allocs9eb3b4f4.Borrow(cstate_root_len_allocs)
+
+	x.ref9eb3b4f4 = ref9eb3b4f4
+	x.allocs9eb3b4f4 = allocs9eb3b4f4
+	return ref9eb3b4f4, allocs9eb3b4f4
+
+}
+
+// PassValue does the same as PassRef except that it will try to dereference the returned pointer.
+func (x FilFvmMachineFlushResponse) PassValue() (C.fil_FvmMachineFlushResponse, *cgoAllocMap) {
+	if x.ref9eb3b4f4 != nil {
+		return *x.ref9eb3b4f4, nil
+	}
+	ref, allocs := x.PassRef()
+	return *ref, allocs
+}
+
+// Deref uses the underlying reference to C object and fills the wrapping struct with values.
+// Do not forget to call this method whether you get a struct for C object and want to read its values.
+func (x *FilFvmMachineFlushResponse) Deref() {
+	if x.ref9eb3b4f4 == nil {
+		return
+	}
+	x.ErrorMsg = packPCharString(x.ref9eb3b4f4.error_msg)
+	x.StatusCode = (FCPResponseStatus)(x.ref9eb3b4f4.status_code)
+	hxff6bc57 := (*sliceHeader)(unsafe.Pointer(&x.StateRootPtr))
+	hxff6bc57.Data = unsafe.Pointer(x.ref9eb3b4f4.state_root_ptr)
+	hxff6bc57.Cap = 0x7fffffff
+	// hxff6bc57.Len = ?
+
+	x.StateRootLen = (uint)(x.ref9eb3b4f4.state_root_len)
+}
+
 // allocFilPrivateReplicaInfoMemory allocates memory for type C.fil_PrivateReplicaInfo in C.
 // The caller is responsible for freeing the this memory via C.free.
 func allocFilPrivateReplicaInfoMemory(n int) unsafe.Pointer {
