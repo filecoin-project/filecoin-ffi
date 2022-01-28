@@ -1,19 +1,11 @@
-
-use std::ptr;
+use std::{ptr, sync::Mutex};
 
 use drop_struct_macro_derive::DropStructMacro;
 use ffi_toolkit::{code_and_message_impl, free_c_str, CodeAndMessage, FCPResponseStatus};
 
-
-
-
 use fvm_shared::error::ExitCode;
 
-
-
-
-
-
+use super::machine::CgoExecutor;
 
 #[repr(C)]
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -26,7 +18,8 @@ pub enum fil_FvmRegisteredVersion {
 pub struct fil_CreateFvmMachineResponse {
     pub error_msg: *const libc::c_char,
     pub status_code: FCPResponseStatus,
-    pub machine_id: u64,
+    // Guaranteed to have the layout `*mut Mutex<CgoExecutor>`.
+    pub executor: Option<Box<Mutex<CgoExecutor>>>,
 }
 
 impl Default for fil_CreateFvmMachineResponse {
@@ -34,30 +27,12 @@ impl Default for fil_CreateFvmMachineResponse {
         fil_CreateFvmMachineResponse {
             error_msg: ptr::null(),
             status_code: FCPResponseStatus::FCPNoError,
-            machine_id: 0,
+            executor: None,
         }
     }
 }
 
 code_and_message_impl!(fil_CreateFvmMachineResponse);
-
-#[repr(C)]
-#[derive(DropStructMacro)]
-pub struct fil_DropFvmMachineResponse {
-    pub error_msg: *const libc::c_char,
-    pub status_code: FCPResponseStatus,
-}
-
-impl Default for fil_DropFvmMachineResponse {
-    fn default() -> fil_DropFvmMachineResponse {
-        fil_DropFvmMachineResponse {
-            error_msg: ptr::null(),
-            status_code: FCPResponseStatus::FCPNoError,
-        }
-    }
-}
-
-code_and_message_impl!(fil_DropFvmMachineResponse);
 
 #[repr(C)]
 #[derive(DropStructMacro)]

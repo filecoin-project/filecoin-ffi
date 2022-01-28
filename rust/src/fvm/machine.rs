@@ -1,7 +1,6 @@
 use fvm_cgo::blockstore::CgoBlockstore;
-use std::collections::HashMap;
 use std::convert::{TryFrom, TryInto};
-use std::sync::{atomic::AtomicU64, Mutex};
+use std::sync::Mutex;
 
 use cid::Cid;
 use ffi_toolkit::{catch_panic_response, raw_ptr, rust_str_to_c_str, FCPResponseStatus};
@@ -12,25 +11,12 @@ use fvm::machine::DefaultMachine;
 use fvm::{Config, DefaultKernel};
 use fvm_shared::{clock::ChainEpoch, econ::TokenAmount, message::Message, version::NetworkVersion};
 use log::info;
-use once_cell::sync::Lazy;
 
 use super::types::*;
 use crate::util::api::init_log;
 
-type CgoExecutor =
+pub type CgoExecutor =
     DefaultExecutor<DefaultKernel<DefaultCallManager<DefaultMachine<CgoBlockstore, CgoExterns>>>>;
-
-static FVM_MAP: Lazy<Mutex<HashMap<u64, CgoExecutor>>> =
-    Lazy::new(|| Mutex::new(HashMap::with_capacity(1)));
-
-static NEXT_ID: AtomicU64 = AtomicU64::new(0);
-
-fn add_fvm_machine(machine: CgoExecutor) -> u64 {
-    let next_id = NEXT_ID.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
-    let mut machines = FVM_MAP.lock().unwrap();
-    machines.insert(next_id, machine);
-    next_id
-}
 
 fn get_default_config() -> fvm::Config {
     Config {
@@ -116,7 +102,7 @@ pub unsafe extern "C" fn fil_create_fvm_machine(
         match machine {
             Ok(machine) => {
                 response.status_code = FCPResponseStatus::FCPNoError;
-                response.machine_id = add_fvm_machine(DefaultExecutor::new(machine));
+                response.executor = Some(Box::new(Mutex::new(DefaultExecutor::new(machine))));
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
@@ -132,35 +118,13 @@ pub unsafe extern "C" fn fil_create_fvm_machine(
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn fil_drop_fvm_machine(machine_id: u64) -> *mut fil_DropFvmMachineResponse {
-    catch_panic_response(|| {
-        init_log();
-
-        info!("fil_drop_fvm_machine: start");
-
-        let mut response = fil_DropFvmMachineResponse::default();
-
-        let mut machines = FVM_MAP.lock().unwrap();
-        let machine = machines.remove(&machine_id);
-        match machine {
-            Some(_machine) => {
-                response.status_code = FCPResponseStatus::FCPNoError;
-            }
-            None => {
-                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str("invalid machine id".to_string());
-            }
-        }
-
-        info!("fil_drop_fvm_machine: end");
-
-        raw_ptr(response)
-    })
+pub unsafe extern "C" fn fil_drop_fvm_machine(executor: *mut Mutex<CgoExecutor>) {
+    let _ = Box::from_raw(executor);
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn fil_fvm_machine_execute_message(
-    machine_id: u64,
+    executor: *mut Mutex<CgoExecutor>,
     message_ptr: *const u8,
     message_len: libc::size_t,
     apply_kind: u64, /* 0: Explicit, _: Implicit */
@@ -188,41 +152,32 @@ pub unsafe extern "C" fn fil_fvm_machine_execute_message(
             }
         };
 
-        let mut executors = FVM_MAP.lock().unwrap();
-        let executor = executors.get_mut(&machine_id);
-        match executor {
-            Some(executor) => {
-                let apply_ret = match executor.execute_message(message, apply_kind, message_len) {
-                    Ok(x) => x,
-                    Err(err) => {
-                        response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                        response.error_msg = rust_str_to_c_str(format!("{:?}", err));
-                        return raw_ptr(response);
-                    }
-                };
-
-                let return_bytes = apply_ret.msg_receipt.return_data.bytes();
-
-                // TODO: use the non-bigint token amount everywhere in the FVM
-                let penalty: u128 = apply_ret.penalty.try_into().unwrap();
-                let miner_tip: u128 = apply_ret.miner_tip.try_into().unwrap();
-
-                // FIXME: Return serialized ApplyRet type
-                response.status_code = FCPResponseStatus::FCPNoError;
-                response.exit_code = apply_ret.msg_receipt.exit_code as u64;
-                response.return_ptr = return_bytes.as_ptr();
-                response.return_len = return_bytes.len();
-                response.gas_used = apply_ret.msg_receipt.gas_used as u64;
-                response.penalty_hi = (penalty >> u64::BITS) as u64;
-                response.penalty_lo = penalty as u64;
-                response.miner_tip_hi = (miner_tip >> u64::BITS) as u64;
-                response.miner_tip_lo = miner_tip as u64;
-            }
-            None => {
+        let mut executor = unsafe { &mut *executor }.lock().unwrap();
+        let apply_ret = match executor.execute_message(message, apply_kind, message_len) {
+            Ok(x) => x,
+            Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str("invalid machine id".to_string());
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                return raw_ptr(response);
             }
-        }
+        };
+
+        let return_bytes = apply_ret.msg_receipt.return_data.bytes();
+
+        // TODO: use the non-bigint token amount everywhere in the FVM
+        let penalty: u128 = apply_ret.penalty.try_into().unwrap();
+        let miner_tip: u128 = apply_ret.miner_tip.try_into().unwrap();
+
+        // FIXME: Return serialized ApplyRet type
+        response.status_code = FCPResponseStatus::FCPNoError;
+        response.exit_code = apply_ret.msg_receipt.exit_code as u64;
+        response.return_ptr = return_bytes.as_ptr();
+        response.return_len = return_bytes.len();
+        response.gas_used = apply_ret.msg_receipt.gas_used as u64;
+        response.penalty_hi = (penalty >> u64::BITS) as u64;
+        response.penalty_lo = penalty as u64;
+        response.miner_tip_hi = (miner_tip >> u64::BITS) as u64;
+        response.miner_tip_lo = miner_tip as u64;
 
         info!("fil_fvm_machine_execute_message: end");
 
@@ -232,7 +187,7 @@ pub unsafe extern "C" fn fil_fvm_machine_execute_message(
 
 #[no_mangle]
 pub unsafe extern "C" fn fil_fvm_machine_finish_message(
-    machine_id: u64,
+    executor: *mut Mutex<CgoExecutor>,
     // TODO: actual message
 ) {
     // catch_panic_response(|| {
@@ -240,16 +195,11 @@ pub unsafe extern "C" fn fil_fvm_machine_finish_message(
 
     info!("fil_fvm_machine_flush_message: start");
 
-    let machines = FVM_MAP.lock().unwrap();
-    let machine = machines.get(&machine_id);
-    match machine {
-        Some(_machine) => {
-            todo!("execute message")
-        }
-        None => {
-            todo!("invalid machine id")
-        }
-    }
+    /*
+    catch_panic_response(|| {
+        let mut executor = unsafe { &mut *executor }.lock().unwrap();
+    })
+    */
 
     //info!("fil_fvm_machine_flush_message: end");
     // })
@@ -258,13 +208,6 @@ pub unsafe extern "C" fn fil_fvm_machine_finish_message(
 #[no_mangle]
 pub unsafe extern "C" fn fil_destroy_create_fvm_machine_response(
     ptr: *mut fil_CreateFvmMachineResponse,
-) {
-    let _ = Box::from_raw(ptr);
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn fil_destroy_drop_fvm_machine_response(
-    ptr: *mut fil_DropFvmMachineResponse,
 ) {
     let _ = Box::from_raw(ptr);
 }
