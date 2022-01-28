@@ -8,6 +8,9 @@ package ffi
 // #include "./filcrypto.h"
 import "C"
 import (
+	"runtime"
+	"unsafe"
+
 	"github.com/filecoin-project/filecoin-ffi/generated"
 	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/filecoin-project/go-state-types/big"
@@ -16,8 +19,12 @@ import (
 	"golang.org/x/xerrors"
 )
 
+type FVM struct {
+	executor unsafe.Pointer
+}
+
 // CreateFVM
-func CreateFVM(fvmVersion uint64, epoch abi.ChainEpoch, baseFee abi.TokenAmount, baseCircSupply abi.TokenAmount, nv network.Version, stateBase cid.Cid) (uint64, error) {
+func CreateFVM(fvmVersion uint64, epoch abi.ChainEpoch, baseFee abi.TokenAmount, baseCircSupply abi.TokenAmount, nv network.Version, stateBase cid.Cid) (*FVM, error) {
 	baseFeeHi, baseFeeLo := splitBigInt(baseFee)
 	baseCircSupplyHi, baseCircSupplyLo := splitBigInt(baseCircSupply)
 
@@ -39,14 +46,28 @@ func CreateFVM(fvmVersion uint64, epoch abi.ChainEpoch, baseFee abi.TokenAmount,
 	defer generated.FilDestroyCreateFvmMachineResponse(resp)
 
 	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-		return 0, xerrors.New(generated.RawString(resp.ErrorMsg).Copy())
+		return nil, xerrors.New(generated.RawString(resp.ErrorMsg).Copy())
 	}
 
-	return resp.MachineId, nil
+	fvm := &FVM{
+		executor: resp.Executor,
+	}
+	runtime.SetFinalizer(fvm, func(f *FVM) {
+		// Just to be extra safe
+		if f.executor == nil {
+			return
+		}
+
+		executor := f.executor
+		f.executor = nil
+		generated.FilDropFvmMachine(executor)
+	})
+
+	return fvm, nil
 }
 
-func ApplyMessage(machineId uint64, msgBytes []byte) (*ApplyRet, error) {
-	resp := generated.FilFvmMachineExecuteMessage(machineId,
+func (f *FVM) ApplyMessage(msgBytes []byte) (*ApplyRet, error) {
+	resp := generated.FilFvmMachineExecuteMessage(f.executor,
 		msgBytes,
 		uint(len(msgBytes)),
 		// TODO: make this a type somewhere
@@ -70,8 +91,8 @@ func ApplyMessage(machineId uint64, msgBytes []byte) (*ApplyRet, error) {
 	}, nil
 }
 
-func ApplyImplicitMessage(machineId uint64, msgBytes []byte) (*ApplyRet, error) {
-	resp := generated.FilFvmMachineExecuteMessage(machineId,
+func (f *FVM) ApplyImplicitMessage(msgBytes []byte) (*ApplyRet, error) {
+	resp := generated.FilFvmMachineExecuteMessage(f.executor,
 		msgBytes,
 		uint(len(msgBytes)),
 		// TODO: make this a type somewhere
