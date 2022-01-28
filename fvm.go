@@ -8,6 +8,10 @@ package ffi
 // #include "./filcrypto.h"
 import "C"
 import (
+	"math"
+	gobig "math/big"
+	"math/bits"
+
 	"github.com/filecoin-project/filecoin-ffi/generated"
 	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/filecoin-project/go-state-types/big"
@@ -18,8 +22,14 @@ import (
 
 // CreateFVM
 func CreateFVM(fvmVersion uint64, epoch abi.ChainEpoch, baseFee abi.TokenAmount, baseCircSupply abi.TokenAmount, nv network.Version, stateBase cid.Cid) (uint64, error) {
-	baseFeeHi, baseFeeLo := splitBigInt(baseFee)
-	baseCircSupplyHi, baseCircSupplyLo := splitBigInt(baseCircSupply)
+	baseFeeHi, baseFeeLo, err := splitBigInt(baseFee)
+	if err != nil {
+		return 0, xerrors.Errorf("invalid basefee: %w", err)
+	}
+	baseCircSupplyHi, baseCircSupplyLo, err := splitBigInt(baseCircSupply)
+	if err != nil {
+		return 0, xerrors.Errorf("invalid circ supply: %w", err)
+	}
 
 	resp := generated.FilCreateFvmMachine(generated.FilFvmRegisteredVersion(fvmVersion),
 		uint64(epoch),
@@ -104,16 +114,85 @@ type ApplyRet struct {
 }
 
 // returns hi, lo
-func splitBigInt(i big.Int) (uint64, uint64) {
-	// todo: make 64 a const
-	hi := big.Rsh(i, 64)
-	// TODO: this is horrible, but big.Int doesn't have a nice way to just get the lower 64 bytes?
-	// Result of Uint64() is undefined if int is bigger than 64 bytes. Hopefully I'm missing something.
-	return hi.Uint64(), big.Sub(i, big.Lsh(hi, 64)).Uint64()
+func splitBigInt(i big.Int) (hi uint64, lo uint64, err error) {
+	if i.Sign() < 0 {
+		return 0, 0, xerrors.Errorf("negative number: %s", i)
+	}
+	words := i.Bits()
+	switch bits.UintSize {
+	case 32:
+		switch len(words) {
+		case 4:
+			hi = uint64(words[3]) << bits.UintSize
+			fallthrough
+		case 3:
+			hi |= uint64(words[2])
+			fallthrough
+		case 2:
+			lo = uint64(words[1]) << bits.UintSize
+			fallthrough
+		case 1:
+			lo |= uint64(words[0])
+		case 0:
+		default:
+			return 0, 0, xerrors.Errorf("exceeds max bigint size: %s", i)
+		}
+	case 64:
+		switch len(words) {
+		case 2:
+			hi = uint64(words[1])
+		case 1:
+			lo = uint64(words[0])
+		case 0:
+		default:
+			return 0, 0, xerrors.Errorf("exceeds max bigint size: %s", i)
+		}
+	default:
+		panic("unsupported word size")
+	}
+	return hi, lo, nil
 }
 
 func reformBigInt(hi, lo uint64) big.Int {
-	ret := big.NewInt(int64(hi))
-	ret = big.Lsh(ret, 64)
-	return big.Add(ret, big.NewInt(int64(lo)))
+	var words []gobig.Word
+	switch bits.UintSize {
+	case 32:
+		if hi > math.MaxUint {
+			words = make([]gobig.Word, 4)
+		} else if hi > 0 {
+			words = make([]gobig.Word, 3)
+		} else if lo > math.MaxUint {
+			words = make([]gobig.Word, 2)
+		} else if lo > 0 {
+			words = make([]gobig.Word, 1)
+		} else {
+			return big.Zero()
+		}
+		switch len(words) {
+		case 4:
+			words[3] = gobig.Word(hi >> bits.UintSize)
+			fallthrough
+		case 3:
+			words[2] = gobig.Word(hi)
+			fallthrough
+		case 2:
+			words[1] = gobig.Word(lo >> bits.UintSize)
+			fallthrough
+		case 1:
+			words[0] = gobig.Word(lo)
+		}
+	case 64:
+		if hi > 0 {
+			words = []gobig.Word{gobig.Word(lo), gobig.Word(hi)}
+		} else if lo > 0 {
+			words = []gobig.Word{gobig.Word(lo)}
+		} else {
+			return big.Zero()
+		}
+	default:
+		panic("unsupported word size")
+	}
+	int := new(gobig.Int)
+	int.SetBits(words)
+	return big.NewFromGo(int)
 }
