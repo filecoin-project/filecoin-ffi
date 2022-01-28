@@ -897,9 +897,9 @@ func (x *FilCreateFvmMachineResponse) PassRef() (*C.fil_CreateFvmMachineResponse
 	ref40465416.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
 	allocs40465416.Borrow(cstatus_code_allocs)
 
-	var cmachine_id_allocs *cgoAllocMap
-	ref40465416.machine_id, cmachine_id_allocs = (C.uint64_t)(x.MachineId), cgoAllocsUnknown
-	allocs40465416.Borrow(cmachine_id_allocs)
+	var cexecutor_allocs *cgoAllocMap
+	ref40465416.executor, cexecutor_allocs = *(*unsafe.Pointer)(unsafe.Pointer(&x.Executor)), cgoAllocsUnknown
+	allocs40465416.Borrow(cexecutor_allocs)
 
 	x.ref40465416 = ref40465416
 	x.allocs40465416 = allocs40465416
@@ -924,7 +924,7 @@ func (x *FilCreateFvmMachineResponse) Deref() {
 	}
 	x.ErrorMsg = packPCharString(x.ref40465416.error_msg)
 	x.StatusCode = (FCPResponseStatus)(x.ref40465416.status_code)
-	x.MachineId = (uint64)(x.ref40465416.machine_id)
+	x.Executor = (unsafe.Pointer)(unsafe.Pointer(x.ref40465416.executor))
 }
 
 // allocFilZeroSignatureResponseMemory allocates memory for type C.fil_ZeroSignatureResponse in C.
@@ -1006,92 +1006,6 @@ func (x *FilZeroSignatureResponse) Deref() {
 		return
 	}
 	x.Signature = *NewFilBLSSignatureRef(unsafe.Pointer(&x.ref835a0405.signature))
-}
-
-// allocFilDropFvmMachineResponseMemory allocates memory for type C.fil_DropFvmMachineResponse in C.
-// The caller is responsible for freeing the this memory via C.free.
-func allocFilDropFvmMachineResponseMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilDropFvmMachineResponseValue))
-	if mem == nil {
-		panic(fmt.Sprintln("memory alloc error: ", err))
-	}
-	return mem
-}
-
-const sizeOfFilDropFvmMachineResponseValue = unsafe.Sizeof([1]C.fil_DropFvmMachineResponse{})
-
-// Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *FilDropFvmMachineResponse) Ref() *C.fil_DropFvmMachineResponse {
-	if x == nil {
-		return nil
-	}
-	return x.ref94e2357b
-}
-
-// Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
-// Does nothing if struct is nil or has no allocation map.
-func (x *FilDropFvmMachineResponse) Free() {
-	if x != nil && x.allocs94e2357b != nil {
-		x.allocs94e2357b.(*cgoAllocMap).Free()
-		x.ref94e2357b = nil
-	}
-}
-
-// NewFilDropFvmMachineResponseRef creates a new wrapper struct with underlying reference set to the original C object.
-// Returns nil if the provided pointer to C object is nil too.
-func NewFilDropFvmMachineResponseRef(ref unsafe.Pointer) *FilDropFvmMachineResponse {
-	if ref == nil {
-		return nil
-	}
-	obj := new(FilDropFvmMachineResponse)
-	obj.ref94e2357b = (*C.fil_DropFvmMachineResponse)(unsafe.Pointer(ref))
-	return obj
-}
-
-// PassRef returns the underlying C object, otherwise it will allocate one and set its values
-// from this wrapping struct, counting allocations into an allocation map.
-func (x *FilDropFvmMachineResponse) PassRef() (*C.fil_DropFvmMachineResponse, *cgoAllocMap) {
-	if x == nil {
-		return nil, nil
-	} else if x.ref94e2357b != nil {
-		return x.ref94e2357b, nil
-	}
-	mem94e2357b := allocFilDropFvmMachineResponseMemory(1)
-	ref94e2357b := (*C.fil_DropFvmMachineResponse)(mem94e2357b)
-	allocs94e2357b := new(cgoAllocMap)
-	allocs94e2357b.Add(mem94e2357b)
-
-	var cerror_msg_allocs *cgoAllocMap
-	ref94e2357b.error_msg, cerror_msg_allocs = unpackPCharString(x.ErrorMsg)
-	allocs94e2357b.Borrow(cerror_msg_allocs)
-
-	var cstatus_code_allocs *cgoAllocMap
-	ref94e2357b.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
-	allocs94e2357b.Borrow(cstatus_code_allocs)
-
-	x.ref94e2357b = ref94e2357b
-	x.allocs94e2357b = allocs94e2357b
-	return ref94e2357b, allocs94e2357b
-
-}
-
-// PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x FilDropFvmMachineResponse) PassValue() (C.fil_DropFvmMachineResponse, *cgoAllocMap) {
-	if x.ref94e2357b != nil {
-		return *x.ref94e2357b, nil
-	}
-	ref, allocs := x.PassRef()
-	return *ref, allocs
-}
-
-// Deref uses the underlying reference to C object and fills the wrapping struct with values.
-// Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *FilDropFvmMachineResponse) Deref() {
-	if x.ref94e2357b == nil {
-		return
-	}
-	x.ErrorMsg = packPCharString(x.ref94e2357b.error_msg)
-	x.StatusCode = (FCPResponseStatus)(x.ref94e2357b.status_code)
 }
 
 // allocFilEmptySectorUpdateDecodeFromResponseMemory allocates memory for type C.fil_EmptySectorUpdateDecodeFromResponse in C.
