@@ -14,6 +14,9 @@ var (
 func Register(bs Externs) uint64 {
 	mu.Lock()
 	defer mu.Unlock()
+	if registry == nil {
+		registry = make(map[uint64]Externs)
+	}
 	id := nextId
 	nextId += 1
 	registry[id] = bs
