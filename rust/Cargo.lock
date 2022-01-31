@@ -1457,7 +1457,7 @@ checksum = "1847abb9cb65d566acd5942e94aea9c8f547ad02c98e1649326fc0e8910b8b1e"
 [[package]]
 name = "fvm"
 version = "0.1.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/extern#54d5d100fd493f3a32cd0902bb9813451f8ff2b9"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/extern#104a0087202141cf4860c6303dbae0579ca6c6bd"
 dependencies = [
  "ahash",
  "anyhow",
@@ -1488,7 +1488,7 @@ dependencies = [
 [[package]]
 name = "fvm_shared"
 version = "0.1.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/extern#54d5d100fd493f3a32cd0902bb9813451f8ff2b9"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/extern#104a0087202141cf4860c6303dbae0579ca6c6bd"
 dependencies = [
  "anyhow",
  "blake2b_simd 1.0.0",
@@ -1705,7 +1705,7 @@ dependencies = [
 [[package]]
 name = "ipld_amt"
 version = "1.0.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/extern#54d5d100fd493f3a32cd0902bb9813451f8ff2b9"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/extern#104a0087202141cf4860c6303dbae0579ca6c6bd"
 dependencies = [
  "anyhow",
  "cid",
@@ -1719,7 +1719,7 @@ dependencies = [
 [[package]]
 name = "ipld_hamt"
 version = "2.0.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/extern#54d5d100fd493f3a32cd0902bb9813451f8ff2b9"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/extern#104a0087202141cf4860c6303dbae0579ca6c6bd"
 dependencies = [
  "anyhow",
  "byteorder 1.4.3",
@@ -3532,9 +3532,9 @@ dependencies = [
 
 [[package]]
 name = "zeroize"
-version = "1.5.1"
+version = "1.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4062c749be08d90be727e9c5895371c3a0e49b90ba2b9592dc7afda95cc2b719"
+checksum = "7c88870063c39ee00ec285a2f8d6a966e5b6fb2becc4e8dac77ed0d370ed6006"
 dependencies = [
  "zeroize_derive",
 ]
