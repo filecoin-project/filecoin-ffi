@@ -10,7 +10,9 @@ require (
 	github.com/filecoin-project/specs-actors v0.9.14
 	github.com/filecoin-project/specs-actors/v5 v5.0.4
 	github.com/filecoin-project/specs-actors/v7 v7.0.0-rc1.0.20220118005651-2470cb39827e
+	github.com/ipfs/go-block-format v0.0.3
 	github.com/ipfs/go-cid v0.1.0
+	github.com/ipfs/go-ipfs-blockstore v1.1.2
 	github.com/ipfs/go-ipld-format v0.2.0 // indirect
 	github.com/kr/pretty v0.3.0 // indirect
 	github.com/multiformats/go-base32 v0.0.4 // indirect

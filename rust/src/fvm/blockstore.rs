@@ -4,30 +4,18 @@ use anyhow::{anyhow, Result};
 use cid::Cid;
 use fvm_shared::blockstore::Blockstore;
 
+use super::cgo::*;
+
 const ERR_NO_STORE: i32 = -1;
 const ERR_NOT_FOUND: i32 = -2;
 
-extern "C" {
-    pub fn cgobs_get(
-        store: i32,
-        k: *const u8,
-        k_len: i32,
-        block: *mut *mut u8,
-        size: *mut i32,
-    ) -> i32;
-    pub fn cgobs_put(store: i32, k: *const u8, k_len: i32, block: *const u8, block_len: i32)
-        -> i32;
-    pub fn cgobs_delete(store: i32, k: *const u8, k_len: i32) -> i32;
-    pub fn cgobs_has(store: i32, k: *const u8, k_len: i32) -> i32;
-}
-
 pub struct CgoBlockstore {
-    handle: i32,
+    handle: u64,
 }
 
 impl CgoBlockstore {
     /// Construct a new blockstore from a handle.
-    pub fn new(handle: i32) -> CgoBlockstore {
+    pub fn new(handle: u64) -> CgoBlockstore {
         CgoBlockstore { handle }
     }
 }
@@ -38,7 +26,7 @@ impl Blockstore for CgoBlockstore {
     fn has(&self, k: &Cid) -> Result<bool> {
         let k_bytes = k.to_bytes();
         unsafe {
-            match cgobs_has(self.handle, k_bytes.as_ptr(), k_bytes.len() as i32) {
+            match cgo_blockstore_has(self.handle, k_bytes.as_ptr(), k_bytes.len() as i32) {
                 // We shouldn't get an "error not found" here, but there's no reason to be strict
                 // about it.
                 0 | ERR_NOT_FOUND => Ok(false),
@@ -59,7 +47,7 @@ impl Blockstore for CgoBlockstore {
         unsafe {
             let mut buf: *mut u8 = ptr::null_mut();
             let mut size: i32 = 0;
-            match cgobs_get(
+            match cgo_blockstore_get(
                 self.handle,
                 k_bytes.as_ptr(),
                 k_bytes.len() as i32,
@@ -78,7 +66,7 @@ impl Blockstore for CgoBlockstore {
     fn put_keyed(&self, k: &Cid, block: &[u8]) -> Result<()> {
         let k_bytes = k.to_bytes();
         unsafe {
-            match cgobs_put(
+            match cgo_blockstore_put(
                 self.handle,
                 k_bytes.as_ptr(),
                 k_bytes.len() as i32,

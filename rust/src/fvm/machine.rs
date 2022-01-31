@@ -87,8 +87,8 @@ pub unsafe extern "C" fn fil_create_fvm_machine(
             }
         };
 
-        let blockstore = CgoBlockstore::new(blockstore_id as i32);
-        let externs = CgoExterns::new(externs_id as i32);
+        let blockstore = CgoBlockstore::new(blockstore_id);
+        let externs = CgoExterns::new(externs_id);
         let machine = fvm::machine::DefaultMachine::new(
             config,
             chain_epoch,

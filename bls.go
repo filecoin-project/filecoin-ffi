@@ -1,8 +1,9 @@
-//+build cgo
+//go:build cgo
+// +build cgo
 
 package ffi
 
-// #cgo LDFLAGS: ${SRCDIR}/libfilcrypto.a
+// #cgo LDFLAGS: ${SRCDIR}/libfilcrypto.a -Wl,-unresolved-symbols=ignore-all
 // #cgo pkg-config: ${SRCDIR}/filcrypto.pc
 // #include "./filcrypto.h"
 import "C"

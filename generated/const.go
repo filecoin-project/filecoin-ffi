@@ -4,7 +4,7 @@
 package generated
 
 /*
-#cgo LDFLAGS: -L${SRCDIR}/..
+#cgo LDFLAGS: -L${SRCDIR}/.. -Wl,-unresolved-symbols=ignore-all
 #cgo pkg-config: ${SRCDIR}/../filcrypto.pc
 #include "../filcrypto.h"
 #include <stdlib.h>

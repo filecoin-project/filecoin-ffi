@@ -8,7 +8,7 @@ GENERATOR:
   Includes:
     - ../filcrypto.h
   FlagGroups:
-    - {name: LDFLAGS, flags: ["-L${SRCDIR}/.."]}
+    - {name: LDFLAGS, flags: ["-L${SRCDIR}/..", "-Wl,-unresolved-symbols=ignore-all"]}
     - {name: pkg-config, flags: ["${SRCDIR}/../filcrypto.pc"]}
 
 PARSER:

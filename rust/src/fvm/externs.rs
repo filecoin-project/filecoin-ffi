@@ -1,5 +1,3 @@
-use std::ptr;
-
 use anyhow::{anyhow, Context};
 use fvm::externs::{Consensus, Externs, Rand};
 use fvm_shared::address::Address;
@@ -8,49 +6,17 @@ use fvm_shared::consensus::ConsensusFault;
 use fvm_shared::crypto::randomness::DomainSeparationTag;
 use num_traits::FromPrimitive;
 
+use super::cgo::*;
+
 const ERR_NO_EXTERN: i32 = -1;
 
-extern "C" {
-    pub fn cgo_extern_get_chain_randomness(
-        handle: i32,
-        pers: i64,
-        round: i64,
-        entropy: *const u8,
-        entropy_len: i32,
-        randomness: *mut [u8; 32],
-    ) -> i32;
-
-    pub fn cgo_extern_get_beacon_randomness(
-        handle: i32,
-        pers: i64,
-        round: i64,
-        entropy: *const u8,
-        entropy_len: i32,
-        randomness: *mut [u8; 32],
-    ) -> i32;
-
-    fn cgo_extern_verify_consensus_fault(
-        handle: i32,
-        h1: *const u8,
-        h1_len: i32,
-        h2: *const u8,
-        h2_len: i32,
-        extra: *const u8,
-        extra_len: i32,
-        addr_buf: *mut *mut u8,
-        addr_size: *mut i32,
-        epoch: *mut i64,
-        fault: *mut u8,
-    ) -> i32;
-}
-
 pub struct CgoExterns {
-    handle: i32,
+    handle: u64,
 }
 
 impl CgoExterns {
     /// Construct a new externs from a handle.
-    pub fn new(handle: i32) -> CgoExterns {
+    pub fn new(handle: u64) -> CgoExterns {
         CgoExterns { handle }
     }
 }
@@ -119,11 +85,9 @@ impl Consensus for CgoExterns {
         extra: &[u8],
     ) -> anyhow::Result<Option<ConsensusFault>> {
         unsafe {
-            // TODO: consider using a struct for all the out params.
-            let mut addr_buf: *mut u8 = ptr::null_mut();
-            let mut addr_size: i32 = 0;
+            let mut miner_id: u64 = 0;
             let mut epoch: i64 = 0;
-            let mut fault_type: u8 = 0;
+            let mut fault_type: i64 = 0;
             match cgo_extern_verify_consensus_fault(
                 self.handle,
                 h1.as_ptr(),
@@ -132,19 +96,15 @@ impl Consensus for CgoExterns {
                 h2.len() as i32,
                 extra.as_ptr(),
                 extra.len() as i32,
-                &mut addr_buf,
-                &mut addr_size,
+                &mut miner_id,
                 &mut epoch,
                 &mut fault_type,
             ) {
                 0 => Ok(Some(ConsensusFault {
-                    target: Address::from_bytes(&Vec::from_raw_parts(
-                        addr_buf,
-                        addr_size as usize,
-                        addr_size as usize,
-                    ))?,
+                    target: Address::new_id(miner_id),
                     epoch,
-                    fault_type: FromPrimitive::from_u8(fault_type).context("invalid fault type")?,
+                    fault_type: FromPrimitive::from_i64(fault_type)
+                        .context("invalid fault type")?,
                 })),
                 r @ 1.. => panic!("invalid return value from has: {}", r),
                 ERR_NO_EXTERN => panic!("extern {} not registered", self.handle),

@@ -3,7 +3,7 @@
 
 package ffi
 
-// #cgo LDFLAGS: ${SRCDIR}/libfilcrypto.a
+// #cgo LDFLAGS: ${SRCDIR}/libfilcrypto.a -Wl,-unresolved-symbols=ignore-all
 // #cgo pkg-config: ${SRCDIR}/filcrypto.pc
 // #include "./filcrypto.h"
 import "C"
@@ -14,6 +14,7 @@ import (
 	"runtime"
 	"unsafe"
 
+	"github.com/filecoin-project/filecoin-ffi/fvm/cgo"
 	"github.com/filecoin-project/filecoin-ffi/generated"
 	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/filecoin-project/go-state-types/big"
@@ -27,7 +28,7 @@ type FVM struct {
 }
 
 // CreateFVM
-func CreateFVM(fvmVersion uint64, epoch abi.ChainEpoch, baseFee abi.TokenAmount, baseCircSupply abi.TokenAmount, nv network.Version, stateBase cid.Cid) (*FVM, error) {
+func CreateFVM(fvmVersion uint64, externs cgo.Externs, epoch abi.ChainEpoch, baseFee abi.TokenAmount, baseCircSupply abi.TokenAmount, nv network.Version, stateBase cid.Cid) (*FVM, error) {
 	baseFeeHi, baseFeeLo, err := splitBigInt(baseFee)
 	if err != nil {
 		return nil, xerrors.Errorf("invalid basefee: %w", err)
@@ -37,6 +38,7 @@ func CreateFVM(fvmVersion uint64, epoch abi.ChainEpoch, baseFee abi.TokenAmount,
 		return nil, xerrors.Errorf("invalid circ supply: %w", err)
 	}
 
+	exHandle := cgo.Register(externs)
 	resp := generated.FilCreateFvmMachine(generated.FilFvmRegisteredVersion(fvmVersion),
 		uint64(epoch),
 		baseFeeHi,
@@ -46,9 +48,7 @@ func CreateFVM(fvmVersion uint64, epoch abi.ChainEpoch, baseFee abi.TokenAmount,
 		uint64(nv),
 		stateBase.Bytes(),
 		uint(stateBase.ByteLen()),
-		// TODO: what do these?
-		0,
-		0,
+		exHandle, exHandle,
 	)
 	resp.Deref()
 
@@ -70,6 +70,7 @@ func CreateFVM(fvmVersion uint64, epoch abi.ChainEpoch, baseFee abi.TokenAmount,
 		executor := f.executor
 		f.executor = nil
 		generated.FilDropFvmMachine(executor)
+		cgo.Unregister(exHandle)
 	})
 
 	return fvm, nil
