@@ -14,7 +14,7 @@ import (
 	"runtime"
 	"unsafe"
 
-	"github.com/filecoin-project/filecoin-ffi/fvm/cgo"
+	"github.com/filecoin-project/filecoin-ffi/cgo"
 	"github.com/filecoin-project/filecoin-ffi/generated"
 	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/filecoin-project/go-state-types/big"
