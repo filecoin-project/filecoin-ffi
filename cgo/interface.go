@@ -28,8 +28,8 @@ const (
 )
 
 type Externs interface {
-	GetChainRandomness(ctx context.Context, personalization crypto.DomainSeparationTag, epoch abi.ChainEpoch, entropy []byte) (abi.Randomness, error)
-	GetBeaconRandomness(ctx context.Context, personalization crypto.DomainSeparationTag, epoch abi.ChainEpoch, entropy []byte) (abi.Randomness, error)
+	GetChainRandomness(ctx context.Context, personalization crypto.DomainSeparationTag, epoch abi.ChainEpoch, entropy []byte) ([]byte, error)
+	GetBeaconRandomness(ctx context.Context, personalization crypto.DomainSeparationTag, epoch abi.ChainEpoch, entropy []byte) ([]byte, error)
 	VerifyConsensusFault(ctx context.Context, h1, h2, extra []byte) (*ConsensusFault, error)
 
 	blockstore.Blockstore
