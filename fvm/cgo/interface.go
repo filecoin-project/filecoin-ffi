@@ -1,6 +1,8 @@
 package cgo
 
 import (
+	"context"
+
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/filecoin-project/go-state-types/crypto"
@@ -26,9 +28,9 @@ const (
 )
 
 type Externs interface {
-	GetChainRandomness(personalization crypto.DomainSeparationTag, epoch abi.ChainEpoch, entropy []byte) (abi.Randomness, error)
-	GetBeaconRandomness(personalization crypto.DomainSeparationTag, epoch abi.ChainEpoch, entropy []byte) (abi.Randomness, error)
-	VerifyConsensusFault(h1, h2, extra []byte) (*ConsensusFault, error)
+	GetChainRandomness(ctx context.Context, personalization crypto.DomainSeparationTag, epoch abi.ChainEpoch, entropy []byte) (abi.Randomness, error)
+	GetBeaconRandomness(ctx context.Context, personalization crypto.DomainSeparationTag, epoch abi.ChainEpoch, entropy []byte) (abi.Randomness, error)
+	VerifyConsensusFault(ctx context.Context, h1, h2, extra []byte) (*ConsensusFault, error)
 
 	blockstore.Blockstore
 	blockstore.Viewer
