@@ -38,9 +38,8 @@ memmap = "0.7"
 rust-gpu-tools = { version = "0.5", default-features = false }
 storage-proofs-porep = { version = "~11.0", default-features = false }
 fr32 = { version = "~4.0", default-features = false }
-fvm = { git = "https://github.com/filecoin-project/ref-fvm", default-features = false }
-fvm_cgo = { git = "https://github.com/filecoin-project/ref-fvm", default-features = false }
-fvm_shared = { git = "https://github.com/filecoin-project/ref-fvm", default-features = false }
+fvm = { git = "https://github.com/filecoin-project/ref-fvm", default-features = false, branch = "steb/extern" }
+fvm_shared = { git = "https://github.com/filecoin-project/ref-fvm", default-features = false, branch = "steb/extern" }
 wasmtime = "0.33.0"
 num-traits = "0.2"
 num-bigint = "0.4"

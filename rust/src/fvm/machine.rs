@@ -1,4 +1,3 @@
-use fvm_cgo::blockstore::CgoBlockstore;
 use std::convert::{TryFrom, TryInto};
 use std::sync::Mutex;
 
@@ -6,12 +5,13 @@ use cid::Cid;
 use ffi_toolkit::{catch_panic_response, raw_ptr, rust_str_to_c_str, FCPResponseStatus};
 use fvm::call_manager::DefaultCallManager;
 use fvm::executor::{ApplyKind, DefaultExecutor, Executor};
-use fvm::externs::cgo::CgoExterns;
 use fvm::machine::DefaultMachine;
 use fvm::{Config, DefaultKernel};
 use fvm_shared::{clock::ChainEpoch, econ::TokenAmount, message::Message, version::NetworkVersion};
 use log::info;
 
+use super::blockstore::CgoBlockstore;
+use super::externs::CgoExterns;
 use super::types::*;
 use crate::util::api::init_log;
 
