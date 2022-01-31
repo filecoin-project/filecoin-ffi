@@ -22,13 +22,9 @@ pub struct fil_CreateFvmMachineResponse {
 
 impl Drop for fil_CreateFvmMachineResponse {
     fn drop(&mut self) {
-        // TODO: We could fix DropStructMacro to handle this, or implement
-        // https://github.com/filecoin-project/filecoin-ffi/pull/229.
+        // We implement this manually because we don't want to drop the executor here.
         unsafe {
             free_c_str(self.error_msg as *mut libc::c_char);
-            if !self.executor.is_null() {
-                let _ = Box::from(self.executor as *mut Mutex<CgoExecutor>);
-            }
         }
     }
 }
