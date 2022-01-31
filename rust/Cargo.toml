@@ -41,7 +41,7 @@ fr32 = { version = "~4.0", default-features = false }
 fvm = { git = "https://github.com/filecoin-project/ref-fvm", default-features = false, branch = "steb/extern" }
 fvm_shared = { git = "https://github.com/filecoin-project/ref-fvm", default-features = false, branch = "steb/extern" }
 wasmtime = "0.33.0"
-num-traits = "0.2"
+num-traits = "0.2.14"
 num-bigint = "0.4"
 cid = { version = "0.7", features = ["serde-codec"] }
 lazy_static = "1.4.0"

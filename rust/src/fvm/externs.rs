@@ -1,12 +1,12 @@
-use std::{ptr, slice};
+use std::ptr;
 
-// TODO: remove this when we implement these
-use anyhow::anyhow;
+use anyhow::{anyhow, Context};
 use fvm::externs::{Consensus, Externs, Rand};
 use fvm_shared::address::Address;
 use fvm_shared::clock::ChainEpoch;
 use fvm_shared::consensus::ConsensusFault;
 use fvm_shared::crypto::randomness::DomainSeparationTag;
+use num_traits::FromPrimitive;
 
 const ERR_NO_EXTERN: i32 = -1;
 
@@ -17,7 +17,7 @@ extern "C" {
         round: i64,
         entropy: *const u8,
         entropy_len: i32,
-        randomness: *mut *mut u8,
+        randomness: *mut [u8; 32],
     ) -> i32;
 
     pub fn cgo_extern_get_beacon_randomness(
@@ -26,7 +26,7 @@ extern "C" {
         round: i64,
         entropy: *const u8,
         entropy_len: i32,
-        randomness: *mut *mut u8,
+        randomness: *mut [u8; 32],
     ) -> i32;
 
     fn cgo_extern_verify_consensus_fault(
@@ -63,7 +63,7 @@ impl Rand for CgoExterns {
         entropy: &[u8],
     ) -> anyhow::Result<[u8; 32]> {
         unsafe {
-            let mut buf: *mut u8 = ptr::null_mut();
+            let mut buf = [0u8; 32];
             match cgo_extern_get_chain_randomness(
                 self.handle,
                 pers as i64,
@@ -72,7 +72,7 @@ impl Rand for CgoExterns {
                 entropy.len() as i32,
                 &mut buf,
             ) {
-                0 => Ok(<[u8; 32]>::try_from(slice::from_raw_parts(buf, 32))?),
+                0 => Ok(buf),
                 r @ 1.. => panic!("invalid return value from has: {}", r),
                 ERR_NO_EXTERN => panic!("extern {} not registered", self.handle),
                 e => Err(anyhow!(
@@ -90,7 +90,7 @@ impl Rand for CgoExterns {
         entropy: &[u8],
     ) -> anyhow::Result<[u8; 32]> {
         unsafe {
-            let mut buf: *mut u8 = ptr::null_mut();
+            let mut buf = [0u8; 32];
             match cgo_extern_get_beacon_randomness(
                 self.handle,
                 pers as i64,
@@ -99,7 +99,7 @@ impl Rand for CgoExterns {
                 entropy.len() as i32,
                 &mut buf,
             ) {
-                0 => Ok(<[u8; 32]>::try_from(slice::from_raw_parts(buf, 32))?),
+                0 => Ok(buf),
                 r @ 1.. => panic!("invalid return value from has: {}", r),
                 ERR_NO_EXTERN => panic!("extern {} not registered", self.handle),
                 e => Err(anyhow!(
@@ -119,6 +119,7 @@ impl Consensus for CgoExterns {
         extra: &[u8],
     ) -> anyhow::Result<Option<ConsensusFault>> {
         unsafe {
+            // TODO: consider using a struct for all the out params.
             let mut addr_buf: *mut u8 = ptr::null_mut();
             let mut addr_size: i32 = 0;
             let mut epoch: i64 = 0;
@@ -137,14 +138,13 @@ impl Consensus for CgoExterns {
                 &mut fault_type,
             ) {
                 0 => Ok(Some(ConsensusFault {
-                    target: Address::from_bytes(slice::from_raw_parts(
+                    target: Address::from_bytes(&Vec::from_raw_parts(
                         addr_buf,
+                        addr_size as usize,
                         addr_size as usize,
                     ))?,
                     epoch,
-                    fault_type: fault_type
-                        .try_into()
-                        .map_err(|_| anyhow!("invalid fault type"))?,
+                    fault_type: FromPrimitive::from_u8(fault_type).context("invalid fault type")?,
                 })),
                 r @ 1.. => panic!("invalid return value from has: {}", r),
                 ERR_NO_EXTERN => panic!("extern {} not registered", self.handle),
