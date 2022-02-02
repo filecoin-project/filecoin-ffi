@@ -70,9 +70,10 @@ pub unsafe extern "C" fn fil_create_fvm_machine(
 
         let network_version = match NetworkVersion::try_from(network_version as u32) {
             Ok(x) => x,
-            Err(err) => {
+            Err(_) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                response.error_msg =
+                    rust_str_to_c_str(format!("unsupported network version: {}", network_version));
                 return raw_ptr(response);
             }
         };
@@ -82,7 +83,7 @@ pub unsafe extern "C" fn fil_create_fvm_machine(
             Ok(x) => x,
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                response.error_msg = rust_str_to_c_str(format!("invalid state root: {}", err));
                 return raw_ptr(response);
             }
         };
@@ -107,7 +108,8 @@ pub unsafe extern "C" fn fil_create_fvm_machine(
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                response.error_msg =
+                    rust_str_to_c_str(format!("failed to create machine: {}", err));
                 return raw_ptr(response);
             }
         }
