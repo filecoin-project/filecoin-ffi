@@ -130,6 +130,7 @@ pub unsafe extern "C" fn fil_fvm_machine_execute_message(
     executor: *mut libc::c_void,
     message_ptr: *const u8,
     message_len: libc::size_t,
+    chain_len: u64,
     apply_kind: u64, /* 0: Explicit, _: Implicit */
 ) -> *mut fil_FvmMachineExecuteResponse {
     catch_panic_response(|| {
@@ -158,7 +159,7 @@ pub unsafe extern "C" fn fil_fvm_machine_execute_message(
         let mut executor = unsafe { &mut *(executor as *mut Mutex<CgoExecutor>) }
             .lock()
             .unwrap();
-        let apply_ret = match executor.execute_message(message, apply_kind, message_len) {
+        let apply_ret = match executor.execute_message(message, apply_kind, chain_len as usize) {
             Ok(x) => x,
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;

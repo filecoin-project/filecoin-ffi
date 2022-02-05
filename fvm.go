@@ -76,10 +76,11 @@ func CreateFVM(fvmVersion uint64, externs cgo.Externs, epoch abi.ChainEpoch, bas
 	return fvm, nil
 }
 
-func (f *FVM) ApplyMessage(msgBytes []byte) (*ApplyRet, error) {
+func (f *FVM) ApplyMessage(msgBytes []byte, chainLen uint) (*ApplyRet, error) {
 	resp := generated.FilFvmMachineExecuteMessage(f.executor,
 		msgBytes,
 		uint(len(msgBytes)),
+		uint64(chainLen),
 		// TODO: make this a type somewhere
 		0,
 	)
@@ -105,6 +106,7 @@ func (f *FVM) ApplyImplicitMessage(msgBytes []byte) (*ApplyRet, error) {
 	resp := generated.FilFvmMachineExecuteMessage(f.executor,
 		msgBytes,
 		uint(len(msgBytes)),
+		0,
 		// TODO: make this a type somewhere
 		1,
 	)
