@@ -8,6 +8,7 @@ use fvm::executor::{ApplyKind, DefaultExecutor, Executor};
 use fvm::machine::DefaultMachine;
 use fvm::{Config, DefaultKernel};
 use fvm_shared::{clock::ChainEpoch, econ::TokenAmount, message::Message, version::NetworkVersion};
+use lazy_static::lazy_static;
 use log::info;
 
 use super::blockstore::CgoBlockstore;
@@ -18,12 +19,15 @@ use crate::util::api::init_log;
 pub type CgoExecutor =
     DefaultExecutor<DefaultKernel<DefaultCallManager<DefaultMachine<CgoBlockstore, CgoExterns>>>>;
 
+lazy_static! {
+    static ref ENGINE: fvm::machine::Engine = fvm::machine::Engine::default();
+}
+
 fn get_default_config() -> fvm::Config {
     Config {
         max_call_depth: 4096,
         initial_pages: 128, // FIXME https://github.com/filecoin-project/filecoin-ffi/issues/223
         max_pages: 32768,   // FIXME
-        engine: wasmtime::Config::new(),
         debug: false,
     }
 }
@@ -92,6 +96,7 @@ pub unsafe extern "C" fn fil_create_fvm_machine(
         let externs = CgoExterns::new(externs_id);
         let machine = fvm::machine::DefaultMachine::new(
             config,
+            ENGINE.clone(),
             chain_epoch,
             base_fee,
             base_circ_supply,
