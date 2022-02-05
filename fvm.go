@@ -138,7 +138,8 @@ func (f *FVM) Flush() (cid.Cid, error) {
 		return cid.Undef, xerrors.New(generated.RawString(resp.ErrorMsg).Copy())
 	}
 
-	return cid.Cast(resp.StateRootPtr)
+	// cast will copy internally.
+	return cid.Cast(resp.StateRootPtr[:resp.StateRootLen])
 }
 
 type ApplyRet struct {
