@@ -77,6 +77,7 @@ func CreateFVM(fvmVersion uint64, externs cgo.Externs, epoch abi.ChainEpoch, bas
 }
 
 func (f *FVM) ApplyMessage(msgBytes []byte, chainLen uint) (*ApplyRet, error) {
+	defer runtime.KeepAlive(f)
 	resp := generated.FilFvmMachineExecuteMessage(f.executor,
 		msgBytes,
 		uint(len(msgBytes)),
@@ -103,6 +104,7 @@ func (f *FVM) ApplyMessage(msgBytes []byte, chainLen uint) (*ApplyRet, error) {
 }
 
 func (f *FVM) ApplyImplicitMessage(msgBytes []byte) (*ApplyRet, error) {
+	defer runtime.KeepAlive(f)
 	resp := generated.FilFvmMachineExecuteMessage(f.executor,
 		msgBytes,
 		uint(len(msgBytes)),
@@ -129,6 +131,7 @@ func (f *FVM) ApplyImplicitMessage(msgBytes []byte) (*ApplyRet, error) {
 }
 
 func (f *FVM) Flush() (cid.Cid, error) {
+	defer runtime.KeepAlive(f)
 	resp := generated.FilFvmMachineFlush(f.executor)
 	resp.Deref()
 
