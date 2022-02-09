@@ -178,6 +178,7 @@ func splitBigInt(i big.Int) (hi uint64, lo uint64, err error) {
 		switch len(words) {
 		case 2:
 			hi = uint64(words[1])
+			fallthrough
 		case 1:
 			lo = uint64(words[0])
 		case 0:
