@@ -28,12 +28,12 @@ type FVM struct {
 }
 
 // CreateFVM
-func CreateFVM(fvmVersion uint64, externs cgo.Externs, epoch abi.ChainEpoch, baseFee abi.TokenAmount, baseCircSupply abi.TokenAmount, nv network.Version, stateBase cid.Cid) (*FVM, error) {
+func CreateFVM(fvmVersion uint64, externs cgo.Externs, epoch abi.ChainEpoch, baseFee abi.TokenAmount, filVested abi.TokenAmount, nv network.Version, stateBase cid.Cid) (*FVM, error) {
 	baseFeeHi, baseFeeLo, err := splitBigInt(baseFee)
 	if err != nil {
 		return nil, xerrors.Errorf("invalid basefee: %w", err)
 	}
-	baseCircSupplyHi, baseCircSupplyLo, err := splitBigInt(baseCircSupply)
+	filVestedHi, filVestedLo, err := splitBigInt(filVested)
 	if err != nil {
 		return nil, xerrors.Errorf("invalid circ supply: %w", err)
 	}
@@ -43,8 +43,8 @@ func CreateFVM(fvmVersion uint64, externs cgo.Externs, epoch abi.ChainEpoch, bas
 		uint64(epoch),
 		baseFeeHi,
 		baseFeeLo,
-		baseCircSupplyHi,
-		baseCircSupplyLo,
+		filVestedHi,
+		filVestedLo,
 		uint64(nv),
 		stateBase.Bytes(),
 		uint(stateBase.ByteLen()),

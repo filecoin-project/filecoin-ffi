@@ -1,11 +1,9 @@
-use std::{ptr, sync::Mutex};
+use std::ptr;
 
 use drop_struct_macro_derive::DropStructMacro;
 use ffi_toolkit::{code_and_message_impl, free_c_str, CodeAndMessage, FCPResponseStatus};
 
 use fvm_shared::error::ExitCode;
-
-use super::machine::CgoExecutor;
 
 #[repr(C)]
 #[derive(Debug, Clone, Copy, PartialEq)]

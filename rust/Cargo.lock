@@ -5,7 +5,7 @@ version = 3
 [[package]]
 name = "actors-runtime"
 version = "4.0.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/extern#6277583c1a87cba043ad8e0c6f9845d3b52c01b6"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/extern#6e314d2ccdddd7e079bf6a017defe554303d003e"
 dependencies = [
  "ahash",
  "anyhow",
@@ -150,9 +150,9 @@ dependencies = [
 
 [[package]]
 name = "autocfg"
-version = "1.0.1"
+version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cdb031dd78e28731d87d56cc8ffef4a8f36ca26c38fe2de700543e627f8a464a"
+checksum = "d468802bab17cbc0cc575e9b053f41e72aa36bfa6b7f55e3529ffa43161b97fa"
 
 [[package]]
 name = "backtrace"
@@ -340,9 +340,9 @@ dependencies = [
 
 [[package]]
 name = "block-buffer"
-version = "0.10.1"
+version = "0.10.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "03588e54c62ae6d763e2a80090d50353b785795361b4ff5b3bf0a5097fc31c0b"
+checksum = "0bf7fe51849ea569fd452f37822f606a5cabb684dc918707a0193fd4664ff324"
 dependencies = [
  "generic-array 0.14.5",
 ]
@@ -734,9 +734,9 @@ dependencies = [
 
 [[package]]
 name = "crc32fast"
-version = "1.3.1"
+version = "1.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a2209c310e29876f7f0b2721e7e26b84aff178aa3da5d091f9bfbf47669e60e3"
+checksum = "b540bd8bc810d3885c6ea91e2018302f68baba2129ab3e88f32389ee9370880d"
 dependencies = [
  "cfg-if 1.0.0",
 ]
@@ -1027,7 +1027,7 @@ version = "0.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b697d66081d42af4fba142d56918a3cb21dc8eb63372c6b85d14f44fb9c5979b"
 dependencies = [
- "block-buffer 0.10.1",
+ "block-buffer 0.10.2",
  "crypto-common",
  "generic-array 0.14.5",
 ]
@@ -1419,7 +1419,7 @@ checksum = "3f9eec918d3f24069decb9af1554cad7c880e2da24a9afd88aca000531ab82c1"
 [[package]]
 name = "forest_bitfield"
 version = "0.1.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/extern#6277583c1a87cba043ad8e0c6f9845d3b52c01b6"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/extern#6e314d2ccdddd7e079bf6a017defe554303d003e"
 dependencies = [
  "ahash",
  "cs_serde_bytes",
@@ -1478,7 +1478,7 @@ checksum = "1847abb9cb65d566acd5942e94aea9c8f547ad02c98e1649326fc0e8910b8b1e"
 [[package]]
 name = "fvm"
 version = "0.1.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/extern#6277583c1a87cba043ad8e0c6f9845d3b52c01b6"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/extern#6e314d2ccdddd7e079bf6a017defe554303d003e"
 dependencies = [
  "ahash",
  "anyhow",
@@ -1520,7 +1520,7 @@ dependencies = [
 [[package]]
 name = "fvm_actor_account"
 version = "1.0.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/extern#6277583c1a87cba043ad8e0c6f9845d3b52c01b6"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/extern#6e314d2ccdddd7e079bf6a017defe554303d003e"
 dependencies = [
  "actors-runtime",
  "fvm_shared",
@@ -1533,7 +1533,7 @@ dependencies = [
 [[package]]
 name = "fvm_actor_cron"
 version = "1.0.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/extern#6277583c1a87cba043ad8e0c6f9845d3b52c01b6"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/extern#6e314d2ccdddd7e079bf6a017defe554303d003e"
 dependencies = [
  "actors-runtime",
  "fvm_shared",
@@ -1547,7 +1547,7 @@ dependencies = [
 [[package]]
 name = "fvm_actor_init"
 version = "1.0.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/extern#6277583c1a87cba043ad8e0c6f9845d3b52c01b6"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/extern#6e314d2ccdddd7e079bf6a017defe554303d003e"
 dependencies = [
  "actors-runtime",
  "anyhow",
@@ -1564,7 +1564,7 @@ dependencies = [
 [[package]]
 name = "fvm_actor_market"
 version = "1.0.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/extern#6277583c1a87cba043ad8e0c6f9845d3b52c01b6"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/extern#6e314d2ccdddd7e079bf6a017defe554303d003e"
 dependencies = [
  "actors-runtime",
  "ahash",
@@ -1582,7 +1582,7 @@ dependencies = [
 [[package]]
 name = "fvm_actor_miner"
 version = "1.0.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/extern#6277583c1a87cba043ad8e0c6f9845d3b52c01b6"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/extern#6e314d2ccdddd7e079bf6a017defe554303d003e"
 dependencies = [
  "actors-runtime",
  "ahash",
@@ -1604,7 +1604,7 @@ dependencies = [
 [[package]]
 name = "fvm_actor_multisig"
 version = "1.0.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/extern#6277583c1a87cba043ad8e0c6f9845d3b52c01b6"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/extern#6e314d2ccdddd7e079bf6a017defe554303d003e"
 dependencies = [
  "actors-runtime",
  "anyhow",
@@ -1622,7 +1622,7 @@ dependencies = [
 [[package]]
 name = "fvm_actor_paych"
 version = "1.0.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/extern#6277583c1a87cba043ad8e0c6f9845d3b52c01b6"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/extern#6e314d2ccdddd7e079bf6a017defe554303d003e"
 dependencies = [
  "actors-runtime",
  "anyhow",
@@ -1637,7 +1637,7 @@ dependencies = [
 [[package]]
 name = "fvm_actor_power"
 version = "1.0.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/extern#6277583c1a87cba043ad8e0c6f9845d3b52c01b6"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/extern#6e314d2ccdddd7e079bf6a017defe554303d003e"
 dependencies = [
  "actors-runtime",
  "ahash",
@@ -1658,7 +1658,7 @@ dependencies = [
 [[package]]
 name = "fvm_actor_reward"
 version = "1.0.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/extern#6277583c1a87cba043ad8e0c6f9845d3b52c01b6"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/extern#6e314d2ccdddd7e079bf6a017defe554303d003e"
 dependencies = [
  "actors-runtime",
  "fvm_shared",
@@ -1673,7 +1673,7 @@ dependencies = [
 [[package]]
 name = "fvm_actor_system"
 version = "1.0.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/extern#6277583c1a87cba043ad8e0c6f9845d3b52c01b6"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/extern#6e314d2ccdddd7e079bf6a017defe554303d003e"
 dependencies = [
  "actors-runtime",
  "fvm_shared",
@@ -1686,7 +1686,7 @@ dependencies = [
 [[package]]
 name = "fvm_actor_verifreg"
 version = "1.0.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/extern#6277583c1a87cba043ad8e0c6f9845d3b52c01b6"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/extern#6e314d2ccdddd7e079bf6a017defe554303d003e"
 dependencies = [
  "actors-runtime",
  "anyhow",
@@ -1702,7 +1702,7 @@ dependencies = [
 [[package]]
 name = "fvm_shared"
 version = "0.1.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/extern#6277583c1a87cba043ad8e0c6f9845d3b52c01b6"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/extern#6e314d2ccdddd7e079bf6a017defe554303d003e"
 dependencies = [
  "anyhow",
  "blake2b_simd 1.0.0",
@@ -1918,7 +1918,7 @@ dependencies = [
 [[package]]
 name = "ipld_amt"
 version = "1.0.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/extern#6277583c1a87cba043ad8e0c6f9845d3b52c01b6"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/extern#6e314d2ccdddd7e079bf6a017defe554303d003e"
 dependencies = [
  "ahash",
  "anyhow",
@@ -1933,7 +1933,7 @@ dependencies = [
 [[package]]
 name = "ipld_hamt"
 version = "2.0.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/extern#6277583c1a87cba043ad8e0c6f9845d3b52c01b6"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/extern#6e314d2ccdddd7e079bf6a017defe554303d003e"
 dependencies = [
  "anyhow",
  "byteorder 1.4.3",

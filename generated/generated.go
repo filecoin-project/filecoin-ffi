@@ -171,26 +171,26 @@ func FilDestroyZeroSignatureResponse(ptr *FilZeroSignatureResponse) {
 }
 
 // FilCreateFvmMachine function as declared in filecoin-ffi/filcrypto.h:586
-func FilCreateFvmMachine(fvmVersion FilFvmRegisteredVersion, chainEpoch uint64, baseFeeHi uint64, baseFeeLo uint64, baseCircSupplyHi uint64, baseCircSupplyLo uint64, networkVersion uint64, stateRootPtr []byte, stateRootLen uint, blockstoreId uint64, externsId uint64) *FilCreateFvmMachineResponse {
+func FilCreateFvmMachine(fvmVersion FilFvmRegisteredVersion, chainEpoch uint64, baseFeeHi uint64, baseFeeLo uint64, filVestedHi uint64, filVestedLo uint64, networkVersion uint64, stateRootPtr []byte, stateRootLen uint, blockstoreId uint64, externsId uint64) *FilCreateFvmMachineResponse {
 	cfvmVersion, cfvmVersionAllocMap := (C.enum_fil_FvmRegisteredVersion)(fvmVersion), cgoAllocsUnknown
 	cchainEpoch, cchainEpochAllocMap := (C.uint64_t)(chainEpoch), cgoAllocsUnknown
 	cbaseFeeHi, cbaseFeeHiAllocMap := (C.uint64_t)(baseFeeHi), cgoAllocsUnknown
 	cbaseFeeLo, cbaseFeeLoAllocMap := (C.uint64_t)(baseFeeLo), cgoAllocsUnknown
-	cbaseCircSupplyHi, cbaseCircSupplyHiAllocMap := (C.uint64_t)(baseCircSupplyHi), cgoAllocsUnknown
-	cbaseCircSupplyLo, cbaseCircSupplyLoAllocMap := (C.uint64_t)(baseCircSupplyLo), cgoAllocsUnknown
+	cfilVestedHi, cfilVestedHiAllocMap := (C.uint64_t)(filVestedHi), cgoAllocsUnknown
+	cfilVestedLo, cfilVestedLoAllocMap := (C.uint64_t)(filVestedLo), cgoAllocsUnknown
 	cnetworkVersion, cnetworkVersionAllocMap := (C.uint64_t)(networkVersion), cgoAllocsUnknown
 	cstateRootPtr, cstateRootPtrAllocMap := copyPUint8TBytes((*sliceHeader)(unsafe.Pointer(&stateRootPtr)))
 	cstateRootLen, cstateRootLenAllocMap := (C.size_t)(stateRootLen), cgoAllocsUnknown
 	cblockstoreId, cblockstoreIdAllocMap := (C.uint64_t)(blockstoreId), cgoAllocsUnknown
 	cexternsId, cexternsIdAllocMap := (C.uint64_t)(externsId), cgoAllocsUnknown
-	__ret := C.fil_create_fvm_machine(cfvmVersion, cchainEpoch, cbaseFeeHi, cbaseFeeLo, cbaseCircSupplyHi, cbaseCircSupplyLo, cnetworkVersion, cstateRootPtr, cstateRootLen, cblockstoreId, cexternsId)
+	__ret := C.fil_create_fvm_machine(cfvmVersion, cchainEpoch, cbaseFeeHi, cbaseFeeLo, cfilVestedHi, cfilVestedLo, cnetworkVersion, cstateRootPtr, cstateRootLen, cblockstoreId, cexternsId)
 	runtime.KeepAlive(cexternsIdAllocMap)
 	runtime.KeepAlive(cblockstoreIdAllocMap)
 	runtime.KeepAlive(cstateRootLenAllocMap)
 	runtime.KeepAlive(cstateRootPtrAllocMap)
 	runtime.KeepAlive(cnetworkVersionAllocMap)
-	runtime.KeepAlive(cbaseCircSupplyLoAllocMap)
-	runtime.KeepAlive(cbaseCircSupplyHiAllocMap)
+	runtime.KeepAlive(cfilVestedLoAllocMap)
+	runtime.KeepAlive(cfilVestedHiAllocMap)
 	runtime.KeepAlive(cbaseFeeLoAllocMap)
 	runtime.KeepAlive(cbaseFeeHiAllocMap)
 	runtime.KeepAlive(cchainEpochAllocMap)
