@@ -54,6 +54,7 @@ extern "C" {
         miner_id: *mut u64,
         epoch: *mut i64,
         fault: *mut i64,
+        gas_used: *mut i64,
     ) -> i32;
 }
 
@@ -128,6 +129,7 @@ mod mock {
         miner_id: *mut u64,
         epoch: *mut i64,
         fault: *mut i64,
+        gas_used: *mut i64,
     ) -> i32 {
         unimplemented!()
     }
