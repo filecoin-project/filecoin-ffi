@@ -3889,3 +3889,13 @@ dependencies = [
  "cc",
  "libc",
 ]
+
+[[patch.unused]]
+name = "fvm"
+version = "0.1.0"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=caterpillarnet#4f6966632680ca274b0710f9362c6e065e51883a"
+
+[[patch.unused]]
+name = "fvm_shared"
+version = "0.1.0"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=caterpillarnet#4f6966632680ca274b0710f9362c6e065e51883a"

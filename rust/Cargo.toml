@@ -73,3 +73,5 @@ bindgen=[]
 # Patched in
 [patch.crates-io]
 cid = { git = "https://github.com/multiformats/rust-cid", branch = "steb/cbor-hack" }
+fvm = { git = "https://github.com/filecoin-project/ref-fvm", branch = "caterpillarnet" }
+fvm_shared = { git = "https://github.com/filecoin-project/ref-fvm", branch = "caterpillarnet" }
