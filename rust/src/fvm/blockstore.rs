@@ -8,6 +8,11 @@ use super::cgo::*;
 
 const ERR_NO_STORE: i32 = -1;
 const ERR_NOT_FOUND: i32 = -2;
+const MAX_BUF_SIZE: usize = 4 << 20; // 4MiB
+const MAX_BLOCK_BATCH: usize = 1024;
+
+// This is just a rough estimate, it doesn't need to be accurate.
+const EST_MAX_CID_LEN: usize = 100;
 
 pub struct CgoBlockstore {
     handle: u64,
@@ -61,6 +66,57 @@ impl Blockstore for CgoBlockstore {
                 e => Err(anyhow!("cgo blockstore 'get' failed with error code {}", e)),
             }
         }
+    }
+
+    fn put_many_keyed<D, I>(&self, blocks: I) -> Result<()>
+    where
+        Self: Sized,
+        D: AsRef<[u8]>,
+        I: IntoIterator<Item = (Cid, D)>,
+    {
+        fn flush_buffered(handle: u64, lengths: &mut Vec<i32>, buf: &mut Vec<u8>) -> Result<()> {
+            if buf.is_empty() {
+                return Ok(());
+            }
+
+            unsafe {
+                let result = cgo_blockstore_put_many(
+                    handle,
+                    lengths.as_ptr(),
+                    lengths.len() as i32,
+                    buf.as_ptr(),
+                );
+                buf.clear();
+                lengths.clear();
+
+                match result {
+                    0 => Ok(()),
+                    r @ 1.. => panic!("invalid return value from put_many: {}", r),
+                    ERR_NO_STORE => panic!("blockstore {} not registered", handle),
+                    // This error makes no sense.
+                    ERR_NOT_FOUND => panic!("not found error on put"),
+                    e => Err(anyhow!("cgo blockstore 'put' failed with error code {}", e)),
+                }
+            }
+        }
+
+        let mut lengths = Vec::with_capacity(MAX_BLOCK_BATCH);
+        let mut buf = Vec::with_capacity(MAX_BUF_SIZE);
+        for (k, block) in blocks {
+            let block = block.as_ref();
+            if lengths.len() >= MAX_BLOCK_BATCH
+                || EST_MAX_CID_LEN + block.len() + buf.len() > MAX_BUF_SIZE
+            {
+                flush_buffered(self.handle, &mut lengths, &mut buf)?;
+            }
+
+            let start = buf.len();
+            k.write_bytes(&mut buf)?;
+            buf.extend_from_slice(block);
+            let size = buf.len() - start;
+            lengths.push(size as i32);
+        }
+        flush_buffered(self.handle, &mut lengths, &mut buf)
     }
 
     fn put_keyed(&self, k: &Cid, block: &[u8]) -> Result<()> {
