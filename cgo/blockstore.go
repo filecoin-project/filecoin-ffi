@@ -61,8 +61,51 @@ func cgo_blockstore_put(handle C.uint64_t, k C.buf_t, k_len C.int32_t, block C.b
 	return 0
 }
 
-// TODO: Implement a "put many". We should just pass a single massive buffer, or an array of
-// buffers?
+//export cgo_blockstore_put_many
+func cgo_blockstore_put_many(handle C.uint64_t, lengths *C.int32_t, lengths_len C.int32_t, block_buf C.buf_t) C.int32_t {
+	bs := Lookup(uint64(handle))
+	if bs == nil {
+		return ErrInvalidHandle
+	}
+	// Get a reference to the lengths vector without copying.
+	const MAX_LEN = 1 << 30
+	if lengths_len > MAX_LEN {
+		return ErrInvalidArgument
+	}
+
+	lengthsGo := (*[MAX_LEN]C.int32_t)(unsafe.Pointer(lengths))[:lengths_len:lengths_len]
+	blocksGo := make([]blocks.Block, 0, lengths_len)
+	for _, length := range lengthsGo {
+		if length > MAX_LEN {
+			return ErrInvalidArgument
+		}
+		// get the next buffer. We could use C.GoBytes, but that copies.
+		buf := (*[MAX_LEN]byte)(unsafe.Pointer(block_buf))[:length:length]
+
+		// read the CID. This function will copy the CID internally.
+		cidLen, k, err := cid.CidFromBytes(buf)
+		if err != nil {
+			return ErrInvalidArgument
+		}
+		buf = buf[cidLen:]
+
+		// Read the block and copy it. Unfortunately, our blockstore makes no guarantees
+		// about not holding onto blocks.
+		block := make([]byte, len(buf))
+		copy(block, buf)
+		b, _ := blocks.NewBlockWithCid(block, k)
+
+		// Add it to the batch.
+		blocksGo = append(blocksGo, b)
+
+		// Advance the block buffer.
+		block_buf = (C.buf_t)(unsafe.Pointer(uintptr(unsafe.Pointer(block_buf)) + uintptr(length)))
+	}
+	if bs.PutMany(context.TODO(), blocksGo) != nil {
+		return ErrIO
+	}
+	return 0
+}
 
 //export cgo_blockstore_has
 func cgo_blockstore_has(handle C.uint64_t, k C.buf_t, k_len C.int32_t) C.int32_t {

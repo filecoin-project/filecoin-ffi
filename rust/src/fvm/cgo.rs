@@ -16,6 +16,13 @@ extern "C" {
         block_len: i32,
     ) -> i32;
 
+    pub fn cgo_blockstore_put_many(
+        store: u64,
+        lengths: *const i32,
+        lengths_len: i32,
+        blocks: *const u8,
+    ) -> i32;
+
     pub fn cgo_blockstore_has(store: u64, k: *const u8, k_len: i32) -> i32;
 
     pub fn cgo_extern_get_chain_randomness(
@@ -71,6 +78,15 @@ mod mock {
         k_len: i32,
         block: *const u8,
         block_len: i32,
+    ) -> i32 {
+        unimplemented!()
+    }
+
+    pub fn cgo_blockstore_put_many(
+        store: u64,
+        lengths: *const i32,
+        lengths_len: i32,
+        blocks: *const u8,
     ) -> i32 {
         unimplemented!()
     }
