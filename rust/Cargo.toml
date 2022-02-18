@@ -38,8 +38,8 @@ memmap = "0.7"
 rust-gpu-tools = { version = "0.5", default-features = false }
 storage-proofs-porep = { version = "~11.0", default-features = false }
 fr32 = { version = "~4.0", default-features = false }
-fvm = { git = "https://github.com/filecoin-project/ref-fvm", default-features = false, features = ["builtin_actors"] }
-fvm_shared = { git = "https://github.com/filecoin-project/ref-fvm" }
+fvm = { git = "https://github.com/filecoin-project/ref-fvm", branch="caterpillarnet", default-features = false, features = ["builtin_actors"] }
+fvm_shared = { git = "https://github.com/filecoin-project/ref-fvm", branch="caterpillarnet" }
 num-traits = "0.2.14"
 num-bigint = "0.4"
 cid = { version = "0.8.2", features = ["serde-codec"] }
@@ -73,5 +73,3 @@ bindgen=[]
 # Patched in
 [patch.crates-io]
 cid = { git = "https://github.com/multiformats/rust-cid", branch = "steb/cbor-hack" }
-fvm = { git = "https://github.com/filecoin-project/ref-fvm", branch = "caterpillarnet" }
-fvm_shared = { git = "https://github.com/filecoin-project/ref-fvm", branch = "caterpillarnet" }
