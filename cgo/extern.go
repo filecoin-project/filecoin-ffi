@@ -10,6 +10,7 @@ import (
 	"unsafe"
 
 	"github.com/filecoin-project/go-address"
+
 	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/filecoin-project/go-state-types/crypto"
 )
@@ -81,14 +82,17 @@ func cgo_extern_verify_consensus_fault(
 	extraGo := C.GoBytes(unsafe.Pointer(extra), extra_len)
 
 	res, gas := externs.VerifyConsensusFault(context.TODO(), h1Go, h2Go, extraGo)
-
-	id, err := address.IDFromAddress(res.Target)
-	if err != nil {
-		return ErrIO
-	}
-	*epoch = C.int64_t(res.Epoch)
-	*fault = C.int64_t(res.Type)
 	*gas_used = C.int64_t(gas)
-	*miner_id = C.uint64_t(id)
+	*fault = C.int64_t(res.Type)
+
+	if res.Type != ConsensusFaultNone {
+		id, err := address.IDFromAddress(res.Target)
+		if err != nil {
+			return ErrIO
+		}
+		*epoch = C.int64_t(res.Epoch)
+		*miner_id = C.uint64_t(id)
+	}
+
 	return 0
 }
