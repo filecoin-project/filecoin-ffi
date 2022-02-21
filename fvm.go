@@ -8,6 +8,7 @@ package ffi
 // #include "./filcrypto.h"
 import "C"
 import (
+	"context"
 	"math"
 	gobig "math/big"
 	"math/bits"
@@ -27,6 +28,11 @@ type FVM struct {
 	executor unsafe.Pointer
 }
 
+const (
+	applyExplicit = iota
+	applyImplicit
+)
+
 // CreateFVM
 func CreateFVM(fvmVersion uint64, externs cgo.Externs, epoch abi.ChainEpoch, baseFee abi.TokenAmount, filVested abi.TokenAmount, nv network.Version, stateBase cid.Cid) (*FVM, error) {
 	baseFeeHi, baseFeeLo, err := splitBigInt(baseFee)
@@ -38,7 +44,7 @@ func CreateFVM(fvmVersion uint64, externs cgo.Externs, epoch abi.ChainEpoch, bas
 		return nil, xerrors.Errorf("invalid circ supply: %w", err)
 	}
 
-	exHandle := cgo.Register(externs)
+	exHandle := cgo.Register(context.TODO(), externs)
 	resp := generated.FilCreateFvmMachine(generated.FilFvmRegisteredVersion(fvmVersion),
 		uint64(epoch),
 		baseFeeHi,
@@ -82,8 +88,7 @@ func (f *FVM) ApplyMessage(msgBytes []byte, chainLen uint) (*ApplyRet, error) {
 		msgBytes,
 		uint(len(msgBytes)),
 		uint64(chainLen),
-		// TODO: make this a type somewhere
-		0,
+		applyExplicit,
 	)
 	resp.Deref()
 
@@ -94,7 +99,6 @@ func (f *FVM) ApplyMessage(msgBytes []byte, chainLen uint) (*ApplyRet, error) {
 	}
 
 	return &ApplyRet{
-		// TODO: i don't understand when a deref is needed, one may be needed before this
 		Return:       copyBytes(resp.ReturnPtr, resp.ReturnLen),
 		ExitCode:     resp.ExitCode,
 		GasUsed:      int64(resp.GasUsed),
@@ -108,9 +112,8 @@ func (f *FVM) ApplyImplicitMessage(msgBytes []byte) (*ApplyRet, error) {
 	resp := generated.FilFvmMachineExecuteMessage(f.executor,
 		msgBytes,
 		uint(len(msgBytes)),
-		0,
-		// TODO: make this a type somewhere
-		1,
+		0, // this isn't an on-chain message, so it has no chain length.
+		applyImplicit,
 	)
 	resp.Deref()
 
@@ -121,7 +124,6 @@ func (f *FVM) ApplyImplicitMessage(msgBytes []byte) (*ApplyRet, error) {
 	}
 
 	return &ApplyRet{
-		// TODO: i don't understand when a deref is needed, one may be needed before this
 		Return:       copyBytes(resp.ReturnPtr, resp.ReturnLen),
 		ExitCode:     resp.ExitCode,
 		GasUsed:      int64(resp.GasUsed),

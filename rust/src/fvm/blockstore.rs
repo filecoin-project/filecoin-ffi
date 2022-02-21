@@ -25,8 +25,6 @@ impl CgoBlockstore {
     }
 }
 
-// TODO: Implement a trait. Unfortunately, the chainsafe one is a bit tangled with the concept of a
-// datastore.
 impl Blockstore for CgoBlockstore {
     fn has(&self, k: &Cid) -> Result<bool> {
         let k_bytes = k.to_bytes();

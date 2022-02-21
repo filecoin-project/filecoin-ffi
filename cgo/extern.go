@@ -6,7 +6,6 @@ typedef const uint8_t* buf_t;
 */
 import "C"
 import (
-	"context"
 	"unsafe"
 
 	"github.com/filecoin-project/go-address"
@@ -22,12 +21,12 @@ func cgo_extern_get_chain_randomness(
 	output C.buf_t,
 ) C.int32_t {
 	out := (*[32]byte)(unsafe.Pointer(output))
-	externs := Lookup(uint64(handle))
+	externs, ctx := Lookup(uint64(handle))
 	if externs == nil {
 		return ErrInvalidHandle
 	}
 
-	rand, err := externs.GetChainRandomness(context.TODO(), crypto.DomainSeparationTag(pers), abi.ChainEpoch(round), C.GoBytes(unsafe.Pointer(entropy), entropy_len))
+	rand, err := externs.GetChainRandomness(ctx, crypto.DomainSeparationTag(pers), abi.ChainEpoch(round), C.GoBytes(unsafe.Pointer(entropy), entropy_len))
 
 	switch err {
 	case nil:
@@ -45,12 +44,12 @@ func cgo_extern_get_beacon_randomness(
 	output C.buf_t,
 ) C.int32_t {
 	out := (*[32]byte)(unsafe.Pointer(output))
-	externs := Lookup(uint64(handle))
+	externs, ctx := Lookup(uint64(handle))
 	if externs == nil {
 		return ErrInvalidHandle
 	}
 
-	rand, err := externs.GetBeaconRandomness(context.TODO(), crypto.DomainSeparationTag(pers), abi.ChainEpoch(round), C.GoBytes(unsafe.Pointer(entropy), entropy_len))
+	rand, err := externs.GetBeaconRandomness(ctx, crypto.DomainSeparationTag(pers), abi.ChainEpoch(round), C.GoBytes(unsafe.Pointer(entropy), entropy_len))
 
 	switch err {
 	case nil:
@@ -72,7 +71,7 @@ func cgo_extern_verify_consensus_fault(
 	fault *C.int64_t,
 	gas_used *C.int64_t,
 ) C.int32_t {
-	externs := Lookup(uint64(handle))
+	externs, ctx := Lookup(uint64(handle))
 	if externs == nil {
 		return ErrInvalidHandle
 	}
@@ -81,7 +80,7 @@ func cgo_extern_verify_consensus_fault(
 	h2Go := C.GoBytes(unsafe.Pointer(h2), h2_len)
 	extraGo := C.GoBytes(unsafe.Pointer(extra), extra_len)
 
-	res, gas := externs.VerifyConsensusFault(context.TODO(), h1Go, h2Go, extraGo)
+	res, gas := externs.VerifyConsensusFault(ctx, h1Go, h2Go, extraGo)
 	*gas_used = C.int64_t(gas)
 	*fault = C.int64_t(res.Type)
 

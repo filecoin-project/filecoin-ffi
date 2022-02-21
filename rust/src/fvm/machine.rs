@@ -23,22 +23,12 @@ lazy_static! {
     static ref ENGINE: fvm::machine::Engine = fvm::machine::Engine::default();
 }
 
-fn get_default_config() -> fvm::Config {
-    Config {
-        max_call_depth: 4096,
-        initial_pages: 128, // FIXME https://github.com/filecoin-project/filecoin-ffi/issues/223
-        max_pages: 32768,   // FIXME
-        debug: false,
-    }
-}
-
 /// Note: the incoming args as u64 and odd conversions to i32/i64
 /// for some types is due to the generated bindings not liking the
 /// 32bit types as incoming args
 ///
 #[no_mangle]
 #[cfg(not(target_os = "windows"))]
-// FIXME: is u64 the right type for network_version?
 pub unsafe extern "C" fn fil_create_fvm_machine(
     fvm_version: fil_FvmRegisteredVersion,
     chain_epoch: u64,
@@ -63,7 +53,7 @@ pub unsafe extern "C" fn fil_create_fvm_machine(
             //_ => panic!("unsupported FVM Registered Version")
         }
 
-        let config = get_default_config();
+        let config = Config::default();
         let chain_epoch = chain_epoch as ChainEpoch;
 
         let fil_vested =
@@ -178,7 +168,7 @@ pub unsafe extern "C" fn fil_fvm_machine_execute_message(
 
         let return_bytes = Vec::from(apply_ret.msg_receipt.return_data).into_boxed_slice();
 
-        // FIXME: Return serialized ApplyRet type
+        // TODO: Do something with the backtrace.
         response.status_code = FCPResponseStatus::FCPNoError;
         response.exit_code = apply_ret.msg_receipt.exit_code as u64;
         response.return_ptr = return_bytes.as_ptr();
