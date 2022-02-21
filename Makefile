@@ -1,5 +1,7 @@
 DEPS:=filcrypto.h filcrypto.pc libfilcrypto.a
 
+export CARGO_TARGET_DIR=target
+
 all: $(DEPS)
 .PHONY: all
 
