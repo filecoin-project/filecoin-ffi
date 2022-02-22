@@ -38,7 +38,7 @@ memmap = "0.7"
 rust-gpu-tools = { version = "0.5", default-features = false }
 storage-proofs-porep = { version = "~11.0", default-features = false }
 fr32 = { version = "~4.0", default-features = false }
-fvm = { git = "https://github.com/filecoin-project/ref-fvm", features = ["builtin_actors"] }
+fvm = { git = "https://github.com/filecoin-project/ref-fvm", default-features = false, features = ["builtin_actors"] }
 fvm_shared = { git = "https://github.com/filecoin-project/ref-fvm" }
 num-traits = "0.2.14"
 num-bigint = "0.4"
@@ -64,8 +64,8 @@ tempfile = "3.0.8"
 [features]
 default = ["opencl", "multicore-sdr" ]
 blst-portable = ["bls-signatures/blst-portable", "blstrs/portable"]
-opencl = ["filecoin-proofs-api/opencl", "bellperson/opencl", "storage-proofs-porep/opencl", "rust-gpu-tools/opencl"]
-cuda = ["filecoin-proofs-api/cuda", "bellperson/cuda", "storage-proofs-porep/cuda", "rust-gpu-tools/cuda"]
+opencl = ["filecoin-proofs-api/opencl", "bellperson/opencl", "storage-proofs-porep/opencl", "rust-gpu-tools/opencl", "fvm/opencl"]
+cuda = ["filecoin-proofs-api/cuda", "bellperson/cuda", "storage-proofs-porep/cuda", "rust-gpu-tools/cuda", "fvm/cuda"]
 multicore-sdr = ["storage-proofs-porep/multicore-sdr"]
 bindgen=[]
 
