@@ -150,7 +150,7 @@ pub unsafe extern "C" fn fil_fvm_machine_execute_message(
             }
         };
 
-        let mut executor = unsafe { &mut *(executor as *mut Mutex<CgoExecutor>) }
+        let mut executor = unsafe { &*(executor as *mut Mutex<CgoExecutor>) }
             .lock()
             .unwrap();
         let apply_ret = match executor.execute_message(message, apply_kind, chain_len as usize) {
@@ -196,7 +196,7 @@ pub unsafe extern "C" fn fil_fvm_machine_flush(
 
         info!("fil_fvm_machine_flush: start");
 
-        let mut executor = unsafe { &mut *(executor as *mut Mutex<CgoExecutor>) }
+        let mut executor = unsafe { &*(executor as *mut Mutex<CgoExecutor>) }
             .lock()
             .unwrap();
         let mut response = fil_FvmMachineFlushResponse::default();
