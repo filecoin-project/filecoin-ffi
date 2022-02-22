@@ -3,11 +3,13 @@
 
 package ffi
 
-// #cgo LDFLAGS: ${SRCDIR}/libfilcrypto.a -Wl,-unresolved-symbols=ignore-all
+// #cgo linux LDFLAGS: ${SRCDIR}/libfilcrypto.a -Wl,-unresolved-symbols=ignore-all
+// #cgo darwin LDFLAGS: ${SRCDIR}/libfilcrypto.a -Wl,-undefined,dynamic_lookup
 // #cgo pkg-config: ${SRCDIR}/filcrypto.pc
 // #include "./filcrypto.h"
 import "C"
 import (
+	"context"
 	"math"
 	gobig "math/big"
 	"math/bits"
@@ -27,6 +29,11 @@ type FVM struct {
 	executor unsafe.Pointer
 }
 
+const (
+	applyExplicit = iota
+	applyImplicit
+)
+
 // CreateFVM
 func CreateFVM(fvmVersion uint64, externs cgo.Externs, epoch abi.ChainEpoch, baseFee abi.TokenAmount, filVested abi.TokenAmount, nv network.Version, stateBase cid.Cid) (*FVM, error) {
 	baseFeeHi, baseFeeLo, err := splitBigInt(baseFee)
@@ -38,7 +45,7 @@ func CreateFVM(fvmVersion uint64, externs cgo.Externs, epoch abi.ChainEpoch, bas
 		return nil, xerrors.Errorf("invalid circ supply: %w", err)
 	}
 
-	exHandle := cgo.Register(externs)
+	exHandle := cgo.Register(context.TODO(), externs)
 	resp := generated.FilCreateFvmMachine(generated.FilFvmRegisteredVersion(fvmVersion),
 		uint64(epoch),
 		baseFeeHi,
@@ -82,8 +89,7 @@ func (f *FVM) ApplyMessage(msgBytes []byte, chainLen uint) (*ApplyRet, error) {
 		msgBytes,
 		uint(len(msgBytes)),
 		uint64(chainLen),
-		// TODO: make this a type somewhere
-		0,
+		applyExplicit,
 	)
 	resp.Deref()
 
@@ -94,7 +100,6 @@ func (f *FVM) ApplyMessage(msgBytes []byte, chainLen uint) (*ApplyRet, error) {
 	}
 
 	return &ApplyRet{
-		// TODO: i don't understand when a deref is needed, one may be needed before this
 		Return:       copyBytes(resp.ReturnPtr, resp.ReturnLen),
 		ExitCode:     resp.ExitCode,
 		GasUsed:      int64(resp.GasUsed),
@@ -108,9 +113,8 @@ func (f *FVM) ApplyImplicitMessage(msgBytes []byte) (*ApplyRet, error) {
 	resp := generated.FilFvmMachineExecuteMessage(f.executor,
 		msgBytes,
 		uint(len(msgBytes)),
-		0,
-		// TODO: make this a type somewhere
-		1,
+		0, // this isn't an on-chain message, so it has no chain length.
+		applyImplicit,
 	)
 	resp.Deref()
 
@@ -121,7 +125,6 @@ func (f *FVM) ApplyImplicitMessage(msgBytes []byte) (*ApplyRet, error) {
 	}
 
 	return &ApplyRet{
-		// TODO: i don't understand when a deref is needed, one may be needed before this
 		Return:       copyBytes(resp.ReturnPtr, resp.ReturnLen),
 		ExitCode:     resp.ExitCode,
 		GasUsed:      int64(resp.GasUsed),
@@ -163,13 +166,13 @@ func splitBigInt(i big.Int) (hi uint64, lo uint64, err error) {
 	case 32:
 		switch len(words) {
 		case 4:
-			hi = uint64(words[3]) << bits.UintSize
+			hi = uint64(words[3]) << 32
 			fallthrough
 		case 3:
 			hi |= uint64(words[2])
 			fallthrough
 		case 2:
-			lo = uint64(words[1]) << bits.UintSize
+			lo = uint64(words[1]) << 32
 			fallthrough
 		case 1:
 			lo |= uint64(words[0])
@@ -198,11 +201,11 @@ func reformBigInt(hi, lo uint64) big.Int {
 	var words []gobig.Word
 	switch bits.UintSize {
 	case 32:
-		if hi > math.MaxUint {
+		if hi > math.MaxUint32 {
 			words = make([]gobig.Word, 4)
 		} else if hi > 0 {
 			words = make([]gobig.Word, 3)
-		} else if lo > math.MaxUint {
+		} else if lo > math.MaxUint32 {
 			words = make([]gobig.Word, 2)
 		} else if lo > 0 {
 			words = make([]gobig.Word, 1)
@@ -211,13 +214,13 @@ func reformBigInt(hi, lo uint64) big.Int {
 		}
 		switch len(words) {
 		case 4:
-			words[3] = gobig.Word(hi >> bits.UintSize)
+			words[3] = gobig.Word(hi >> 32)
 			fallthrough
 		case 3:
 			words[2] = gobig.Word(hi)
 			fallthrough
 		case 2:
-			words[1] = gobig.Word(lo >> bits.UintSize)
+			words[1] = gobig.Word(lo >> 32)
 			fallthrough
 		case 1:
 			words[0] = gobig.Word(lo)

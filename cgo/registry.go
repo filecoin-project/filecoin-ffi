@@ -1,25 +1,31 @@
 package cgo
 
 import (
+	"context"
 	"sync"
 )
 
 var (
 	mu       sync.RWMutex
-	registry map[uint64]Externs
+	registry map[uint64]registeredExterns
 	nextId   uint64
 )
 
+type registeredExterns struct {
+	context.Context
+	Externs
+}
+
 // Register a new item and get a handle.
-func Register(bs Externs) uint64 {
+func Register(ctx context.Context, externs Externs) uint64 {
 	mu.Lock()
 	defer mu.Unlock()
 	if registry == nil {
-		registry = make(map[uint64]Externs)
+		registry = make(map[uint64]registeredExterns)
 	}
 	id := nextId
-	nextId += 1
-	registry[id] = bs
+	nextId++
+	registry[id] = registeredExterns{ctx, externs}
 	return id
 }
 
@@ -34,10 +40,10 @@ func Unregister(handle uint64) {
 }
 
 // Lookup a blockstore by handle.
-func Lookup(handle uint64) Externs {
+func Lookup(handle uint64) (Externs, context.Context) {
 	mu.RLock()
 	externs := registry[handle]
 	mu.RUnlock()
 
-	return externs
+	return externs.Externs, externs.Context
 }
