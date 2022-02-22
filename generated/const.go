@@ -4,7 +4,8 @@
 package generated
 
 /*
-#cgo LDFLAGS: -L${SRCDIR}/.. -Wl,-unresolved-symbols=ignore-all
+#cgo linux LDFLAGS: -L${SRCDIR}/.. -Wl,-unresolved-symbols=ignore-all
+#cgo darwin LDFLAGS: -L${SRCDIR}/.. -Wl,-undefined,dynamic_lookup
 #cgo pkg-config: ${SRCDIR}/../filcrypto.pc
 #include "../filcrypto.h"
 #include <stdlib.h>
