@@ -7,7 +7,7 @@ orbs:
 executors:
   golang:
     docker:
-      - image: circleci/golang:1.13
+      - image: circleci/golang:1.16.4
     resource_class: 2xlarge
   rust:
     docker:
@@ -32,7 +32,7 @@ jobs:
       - go/mod-download
       - go/install-golangci-lint:
           gobin: $HOME/.local/bin
-          version: 1.32.0
+          version: 1.44.2
       - run:
           command: make go-lint
 
