@@ -8,8 +8,19 @@ GENERATOR:
   Includes:
     - ../filcrypto.h
   FlagGroups:
-    - {name: LDFLAGS, flags: ["-L${SRCDIR}/..", "-Wl,-unresolved-symbols=ignore-all"]}
-    - {name: pkg-config, flags: ["${SRCDIR}/../filcrypto.pc"]}
+    - name: LDFLAGS
+      traits: ["linux"]
+      flags:
+        - "-L${SRCDIR}/.."
+        - "-Wl,-unresolved-symbols=ignore-all"
+    - name: LDFLAGS
+      traits: ["darwin"]
+      flags:
+        - "-L${SRCDIR}/.."
+        - "-Wl,-unresolved-symbols=ignore-all"
+    - name: pkg-config
+      flags:
+        - "${SRCDIR}/../filcrypto.pc"
 
 PARSER:
   Defines:
