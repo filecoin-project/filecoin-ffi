@@ -109,6 +109,7 @@ jobs:
             - cargo-v0-{{ checksum "rust/rust-toolchain" }}-{{ checksum "rust/Cargo.toml" }}-{{ checksum "rust/Cargo.lock" }}-{{ arch }}
       - run: cd rust && rustup install $(cat rust-toolchain)
       - run: cd rust && rustup default $(cat rust-toolchain)
+      - run: cd rust && rustup target add wasm32-unknown-unknown
       - run: cd rust && rustup component add rustfmt
       - run: cd rust && rustup component add clippy
       - run: cd rust && cargo fetch
@@ -145,6 +146,7 @@ jobs:
             - cargo-v0-{{ checksum "rust/rust-toolchain" }}-{{ checksum "rust/Cargo.toml" }}-{{ checksum "rust/Cargo.lock" }}-{{ arch }}
       - run: cd rust && rustup install $(cat rust-toolchain)
       - run: cd rust && rustup default $(cat rust-toolchain)
+      - run: cd rust && rustup target add wasm32-unknown-unknown
       - run: cd rust && rustup component add rustfmt
       - run: cd rust && rustup component add clippy
       - run: cd rust && cargo fetch
@@ -209,7 +211,7 @@ commands:
             - run:
                 name: Install Go
                 command: |
-                  curl https://dl.google.com/go/go1.13.7.darwin-amd64.pkg -o /tmp/go.pkg && \
+                  curl https://dl.google.com/go/go1.16.4.darwin-amd64.pkg -o /tmp/go.pkg && \
                   sudo installer -pkg /tmp/go.pkg -target /
                   go version
             - run:
