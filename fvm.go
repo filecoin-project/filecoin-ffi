@@ -165,13 +165,13 @@ func splitBigInt(i big.Int) (hi uint64, lo uint64, err error) {
 	case 32:
 		switch len(words) {
 		case 4:
-			hi = uint64(words[3]) << bits.UintSize
+			hi = uint64(words[3]) << 32
 			fallthrough
 		case 3:
 			hi |= uint64(words[2])
 			fallthrough
 		case 2:
-			lo = uint64(words[1]) << bits.UintSize
+			lo = uint64(words[1]) << 32
 			fallthrough
 		case 1:
 			lo |= uint64(words[0])
@@ -200,11 +200,11 @@ func reformBigInt(hi, lo uint64) big.Int {
 	var words []gobig.Word
 	switch bits.UintSize {
 	case 32:
-		if hi > math.MaxUint {
+		if hi > math.MaxUint32 {
 			words = make([]gobig.Word, 4)
 		} else if hi > 0 {
 			words = make([]gobig.Word, 3)
-		} else if lo > math.MaxUint {
+		} else if lo > math.MaxUint32 {
 			words = make([]gobig.Word, 2)
 		} else if lo > 0 {
 			words = make([]gobig.Word, 1)
@@ -213,13 +213,13 @@ func reformBigInt(hi, lo uint64) big.Int {
 		}
 		switch len(words) {
 		case 4:
-			words[3] = gobig.Word(hi >> bits.UintSize)
+			words[3] = gobig.Word(hi >> 32)
 			fallthrough
 		case 3:
 			words[2] = gobig.Word(hi)
 			fallthrough
 		case 2:
-			words[1] = gobig.Word(lo >> bits.UintSize)
+			words[1] = gobig.Word(lo >> 32)
 			fallthrough
 		case 1:
 			words[0] = gobig.Word(lo)
