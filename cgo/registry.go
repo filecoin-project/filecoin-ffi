@@ -24,7 +24,7 @@ func Register(ctx context.Context, externs Externs) uint64 {
 		registry = make(map[uint64]registeredExterns)
 	}
 	id := nextId
-	nextId += 1
+	nextId++
 	registry[id] = registeredExterns{ctx, externs}
 	return id
 }
