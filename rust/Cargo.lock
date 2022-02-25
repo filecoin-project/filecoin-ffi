@@ -5,14 +5,14 @@ version = 3
 [[package]]
 name = "actors-runtime"
 version = "4.0.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#e53d1416fab5b7f2787f884171ace4cb2b6edb9f"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/fuel#935bf31526cb7a8452b389dc38f8e258b209876c"
 dependencies = [
  "anyhow",
  "base64",
  "byteorder 1.4.3",
  "cid",
  "fvm_shared",
- "getrandom 0.2.4",
+ "getrandom 0.2.5",
  "indexmap",
  "integer-encoding",
  "ipld_amt",
@@ -80,7 +80,7 @@ version = "0.7.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fcb51a0695d8f838b1ee009b3fbf66bda078cd64590202a864a8f3e8c4315c47"
 dependencies = [
- "getrandom 0.2.4",
+ "getrandom 0.2.5",
  "once_cell",
  "version_check",
 ]
@@ -114,9 +114,9 @@ dependencies = [
 
 [[package]]
 name = "anyhow"
-version = "1.0.53"
+version = "1.0.55"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "94a45b455c14666b85fc40a019e8ab9eb75e3a124e05494f5397122bc9eb06e0"
+checksum = "159bb86af3a200e19a068f4224eae4c8bb2d0fa054c7e5d1cacd5cef95e684cd"
 
 [[package]]
 name = "arrayref"
@@ -434,9 +434,9 @@ checksum = "a4a45a46ab1f2412e53d3a0ade76ffad2025804294569aae387231a0cd6e0899"
 
 [[package]]
 name = "byte-slice-cast"
-version = "1.2.0"
+version = "1.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1d30c751592b77c499e7bce34d99d67c2c11bdc0574e9a488ddade14150a4698"
+checksum = "87c5fdd0166095e1d463fc6cc01aa8ce547ad77a4e84d42eb6762b084e28067e"
 
 [[package]]
 name = "byte-tools"
@@ -482,7 +482,7 @@ checksum = "4acbb09d9ee8e23699b9634375c72795d095bf268439da88562cf9b501f181fa"
 dependencies = [
  "camino",
  "cargo-platform",
- "semver 1.0.5",
+ "semver 1.0.6",
  "serde",
  "serde_json",
 ]
@@ -1429,7 +1429,7 @@ checksum = "3f9eec918d3f24069decb9af1554cad7c880e2da24a9afd88aca000531ab82c1"
 [[package]]
 name = "forest_bitfield"
 version = "0.1.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#e53d1416fab5b7f2787f884171ace4cb2b6edb9f"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/fuel#935bf31526cb7a8452b389dc38f8e258b209876c"
 dependencies = [
  "cs_serde_bytes",
  "fvm_shared",
@@ -1487,7 +1487,7 @@ checksum = "1847abb9cb65d566acd5942e94aea9c8f547ad02c98e1649326fc0e8910b8b1e"
 [[package]]
 name = "fvm"
 version = "0.1.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#e53d1416fab5b7f2787f884171ace4cb2b6edb9f"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/fuel#935bf31526cb7a8452b389dc38f8e258b209876c"
 dependencies = [
  "ahash",
  "anyhow",
@@ -1529,7 +1529,7 @@ dependencies = [
 [[package]]
 name = "fvm_actor_account"
 version = "1.0.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#e53d1416fab5b7f2787f884171ace4cb2b6edb9f"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/fuel#935bf31526cb7a8452b389dc38f8e258b209876c"
 dependencies = [
  "actors-runtime",
  "fvm_shared",
@@ -1542,7 +1542,7 @@ dependencies = [
 [[package]]
 name = "fvm_actor_cron"
 version = "1.0.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#e53d1416fab5b7f2787f884171ace4cb2b6edb9f"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/fuel#935bf31526cb7a8452b389dc38f8e258b209876c"
 dependencies = [
  "actors-runtime",
  "fvm_shared",
@@ -1556,7 +1556,7 @@ dependencies = [
 [[package]]
 name = "fvm_actor_init"
 version = "1.0.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#e53d1416fab5b7f2787f884171ace4cb2b6edb9f"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/fuel#935bf31526cb7a8452b389dc38f8e258b209876c"
 dependencies = [
  "actors-runtime",
  "anyhow",
@@ -1573,7 +1573,7 @@ dependencies = [
 [[package]]
 name = "fvm_actor_market"
 version = "1.0.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#e53d1416fab5b7f2787f884171ace4cb2b6edb9f"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/fuel#935bf31526cb7a8452b389dc38f8e258b209876c"
 dependencies = [
  "actors-runtime",
  "ahash",
@@ -1591,7 +1591,7 @@ dependencies = [
 [[package]]
 name = "fvm_actor_miner"
 version = "1.0.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#e53d1416fab5b7f2787f884171ace4cb2b6edb9f"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/fuel#935bf31526cb7a8452b389dc38f8e258b209876c"
 dependencies = [
  "actors-runtime",
  "anyhow",
@@ -1613,7 +1613,7 @@ dependencies = [
 [[package]]
 name = "fvm_actor_multisig"
 version = "1.0.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#e53d1416fab5b7f2787f884171ace4cb2b6edb9f"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/fuel#935bf31526cb7a8452b389dc38f8e258b209876c"
 dependencies = [
  "actors-runtime",
  "anyhow",
@@ -1631,7 +1631,7 @@ dependencies = [
 [[package]]
 name = "fvm_actor_paych"
 version = "1.0.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#e53d1416fab5b7f2787f884171ace4cb2b6edb9f"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/fuel#935bf31526cb7a8452b389dc38f8e258b209876c"
 dependencies = [
  "actors-runtime",
  "anyhow",
@@ -1646,7 +1646,7 @@ dependencies = [
 [[package]]
 name = "fvm_actor_power"
 version = "1.0.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#e53d1416fab5b7f2787f884171ace4cb2b6edb9f"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/fuel#935bf31526cb7a8452b389dc38f8e258b209876c"
 dependencies = [
  "actors-runtime",
  "anyhow",
@@ -1666,7 +1666,7 @@ dependencies = [
 [[package]]
 name = "fvm_actor_reward"
 version = "1.0.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#e53d1416fab5b7f2787f884171ace4cb2b6edb9f"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/fuel#935bf31526cb7a8452b389dc38f8e258b209876c"
 dependencies = [
  "actors-runtime",
  "fvm_shared",
@@ -1681,7 +1681,7 @@ dependencies = [
 [[package]]
 name = "fvm_actor_system"
 version = "1.0.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#e53d1416fab5b7f2787f884171ace4cb2b6edb9f"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/fuel#935bf31526cb7a8452b389dc38f8e258b209876c"
 dependencies = [
  "actors-runtime",
  "fvm_shared",
@@ -1694,7 +1694,7 @@ dependencies = [
 [[package]]
 name = "fvm_actor_verifreg"
 version = "1.0.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#e53d1416fab5b7f2787f884171ace4cb2b6edb9f"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/fuel#935bf31526cb7a8452b389dc38f8e258b209876c"
 dependencies = [
  "actors-runtime",
  "anyhow",
@@ -1710,7 +1710,7 @@ dependencies = [
 [[package]]
 name = "fvm_shared"
 version = "0.1.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#e53d1416fab5b7f2787f884171ace4cb2b6edb9f"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/fuel#935bf31526cb7a8452b389dc38f8e258b209876c"
 dependencies = [
  "anyhow",
  "blake2b_simd 1.0.0",
@@ -1770,9 +1770,9 @@ dependencies = [
 
 [[package]]
 name = "getrandom"
-version = "0.2.4"
+version = "0.2.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "418d37c8b1d42553c93648be529cb70f920d3baf8ef469b74b9638df426e0b4c"
+checksum = "d39cd93900197114fa1fcb7ae84ca742095eed9442088988ae74fa744e930e77"
 dependencies = [
  "cfg-if 1.0.0",
  "js-sys",
@@ -1910,9 +1910,9 @@ dependencies = [
 
 [[package]]
 name = "integer-encoding"
-version = "3.0.2"
+version = "3.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "90c11140ffea82edce8dcd74137ce9324ec24b3cf0175fc9d7e29164da9915b8"
+checksum = "0e85a1509a128c855368e135cffcde7eac17d8e1083f41e2b98c58bc1a5074be"
 
 [[package]]
 name = "io-lifetimes"
@@ -1926,7 +1926,7 @@ dependencies = [
 [[package]]
 name = "ipld_amt"
 version = "1.0.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#e53d1416fab5b7f2787f884171ace4cb2b6edb9f"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/fuel#935bf31526cb7a8452b389dc38f8e258b209876c"
 dependencies = [
  "ahash",
  "anyhow",
@@ -1941,7 +1941,7 @@ dependencies = [
 [[package]]
 name = "ipld_hamt"
 version = "2.0.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#e53d1416fab5b7f2787f884171ace4cb2b6edb9f"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/fuel#935bf31526cb7a8452b389dc38f8e258b209876c"
 dependencies = [
  "anyhow",
  "byteorder 1.4.3",
@@ -2043,9 +2043,9 @@ dependencies = [
 
 [[package]]
 name = "libc"
-version = "0.2.118"
+version = "0.2.119"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "06e509672465a0504304aa87f9f176f2b2b716ed8fb105ebe5c02dc6dce96a94"
+checksum = "1bf2e165bb3457c8e098ea76f3e3bc9db55f87aa90d52d0e6be741470916aaa4"
 
 [[package]]
 name = "libsecp256k1"
@@ -2516,9 +2516,9 @@ dependencies = [
 
 [[package]]
 name = "proc-macro-crate"
-version = "1.1.2"
+version = "1.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9dada8c9981fcf32929c3c0f0cd796a9284aca335565227ed88c83babb1d43dc"
+checksum = "e17d47ce914bf4de440332250b0edd23ce48c005f59fab39d3335866b114f11a"
 dependencies = [
  "thiserror",
  "toml",
@@ -2692,7 +2692,7 @@ version = "0.6.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d34f1408f55294453790c48b2f1ebbb1c5b4b7563eb1f418bcfcfdbb06ebb4e7"
 dependencies = [
- "getrandom 0.2.4",
+ "getrandom 0.2.5",
 ]
 
 [[package]]
@@ -2762,7 +2762,7 @@ version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "528532f3d801c87aec9def2add9ca802fe569e44a544afe633765267840abe64"
 dependencies = [
- "getrandom 0.2.4",
+ "getrandom 0.2.5",
  "redox_syscall",
 ]
 
@@ -2878,7 +2878,7 @@ version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bfa0f585226d2e68097d4f95d113b15b83a82e819ab25717ec0590d9584ef366"
 dependencies = [
- "semver 1.0.5",
+ "semver 1.0.6",
 ]
 
 [[package]]
@@ -2942,9 +2942,9 @@ dependencies = [
 
 [[package]]
 name = "semver"
-version = "1.0.5"
+version = "1.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0486718e92ec9a68fbed73bb5ef687d71103b142595b406835649bebd33f72c7"
+checksum = "a4a3381e03edd24287172047536f20cabde766e2cd3e65e6b00fb3af51c4f38d"
 dependencies = [
  "serde",
 ]
@@ -3127,7 +3127,7 @@ checksum = "f2dd574626839106c320a323308629dcb1acfc96e32a8cba364ddc61ac23ee83"
 [[package]]
 name = "sp-maybe-compressed-blob"
 version = "4.1.0-dev"
-source = "git+https://github.com/paritytech/substrate#adc95f06936dbdec9479958b13255fcad033264f"
+source = "git+https://github.com/paritytech/substrate#c22fce5a311beede13479c9a00cca85d823b6b00"
 dependencies = [
  "thiserror",
  "zstd",
@@ -3347,7 +3347,7 @@ dependencies = [
 [[package]]
 name = "substrate-wasm-builder"
 version = "5.0.0-dev"
-source = "git+https://github.com/paritytech/substrate#adc95f06936dbdec9479958b13255fcad033264f"
+source = "git+https://github.com/paritytech/substrate#c22fce5a311beede13479c9a00cca85d823b6b00"
 dependencies = [
  "ansi_term 0.12.1",
  "build-helper",

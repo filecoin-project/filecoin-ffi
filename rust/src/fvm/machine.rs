@@ -1,4 +1,7 @@
 use std::convert::{TryFrom, TryInto};
+use std::env;
+use std::fs::{File, OpenOptions};
+use std::io::{BufWriter, Write};
 use std::sync::Mutex;
 
 use cid::Cid;
@@ -21,6 +24,13 @@ pub type CgoExecutor =
 
 lazy_static! {
     static ref ENGINE: fvm::machine::Engine = fvm::machine::Engine::default();
+}
+
+lazy_static! {
+    static ref TIMING_LOG: Option<Mutex<BufWriter<File>>> = env::var_os("FVM_TIMING_LOG")
+        .and_then(|path| OpenOptions::new().create(true).append(true).open(path).ok())
+        .map(BufWriter::new)
+        .map(Mutex::new);
 }
 
 /// Note: the incoming args as u64 and odd conversions to i32/i64
@@ -162,6 +172,18 @@ pub unsafe extern "C" fn fil_fvm_machine_execute_message(
             }
         };
 
+        if let (Some(mut log), Some(stats)) = (
+            TIMING_LOG.as_ref().and_then(|l| l.lock().ok()),
+            &apply_ret.wasm_stats,
+        ) {
+            let _ = writeln!(
+                log,
+                "{} {}",
+                stats.fuel_used,
+                stats.wasm_duration.as_nanos()
+            );
+        }
+
         // TODO: use the non-bigint token amount everywhere in the FVM
         let penalty: u128 = apply_ret.penalty.try_into().unwrap();
         let miner_tip: u128 = apply_ret.miner_tip.try_into().unwrap();
@@ -213,6 +235,10 @@ pub unsafe extern "C" fn fil_fvm_machine_flush(
             }
         }
         info!("fil_fvm_machine_flush: end");
+
+        if let Some(mut log) = TIMING_LOG.as_ref().and_then(|l| l.lock().ok()) {
+            let _ = log.flush();
+        }
 
         raw_ptr(response)
     })
