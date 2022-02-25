@@ -3,10 +3,12 @@ use std::sync::Mutex;
 
 use cid::Cid;
 use ffi_toolkit::{catch_panic_response, raw_ptr, rust_str_to_c_str, FCPResponseStatus};
+use futures::executor::block_on;
 use fvm::call_manager::DefaultCallManager;
 use fvm::executor::{ApplyKind, DefaultExecutor, Executor};
 use fvm::machine::DefaultMachine;
 use fvm::{Config, DefaultKernel};
+use fvm_ipld_car::load_car;
 use fvm_shared::{clock::ChainEpoch, econ::TokenAmount, message::Message, version::NetworkVersion};
 use lazy_static::lazy_static;
 use log::info;
@@ -34,8 +36,8 @@ pub unsafe extern "C" fn fil_create_fvm_machine(
     chain_epoch: u64,
     base_fee_hi: u64,
     base_fee_lo: u64,
-    fil_vested_hi: u64,
-    fil_vested_lo: u64,
+    base_circ_supply_hi: u64,
+    base_circ_supply_lo: u64,
     network_version: u64,
     state_root_ptr: *const u8,
     state_root_len: libc::size_t,
@@ -56,8 +58,9 @@ pub unsafe extern "C" fn fil_create_fvm_machine(
         let config = Config::default();
         let chain_epoch = chain_epoch as ChainEpoch;
 
-        let fil_vested =
-            TokenAmount::from(((fil_vested_hi as u128) << u64::BITS) | fil_vested_lo as u128);
+        let base_circ_supply = TokenAmount::from(
+            ((base_circ_supply_hi as u128) << u64::BITS) | base_circ_supply_lo as u128,
+        );
         let base_fee =
             TokenAmount::from(((base_fee_hi as u128) << u64::BITS) | base_fee_lo as u128);
 
@@ -82,15 +85,27 @@ pub unsafe extern "C" fn fil_create_fvm_machine(
         };
 
         let blockstore = CgoBlockstore::new(blockstore_id);
+
+        let builtin_actors = match import_actors(&blockstore, network_version) {
+            Ok(x) => x,
+            Err(err) => {
+                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                response.error_msg =
+                    rust_str_to_c_str(format!("couldn't load builtin actors: {}", err));
+                return raw_ptr(response);
+            }
+        };
+
         let externs = CgoExterns::new(externs_id);
         let machine = fvm::machine::DefaultMachine::new(
             config,
             ENGINE.clone(),
             chain_epoch,
             base_fee,
-            fil_vested,
+            base_circ_supply,
             network_version,
             state_root,
+            builtin_actors,
             blockstore,
             externs,
         );
@@ -240,4 +255,18 @@ pub unsafe extern "C" fn fil_destroy_fvm_machine_flush_response(
     ptr: *mut fil_FvmMachineFlushResponse,
 ) {
     let _ = Box::from_raw(ptr);
+}
+
+fn import_actors(
+    blockstore: &CgoBlockstore,
+    network_version: NetworkVersion,
+) -> Result<Cid, &'static str> {
+    let car = match network_version {
+        NetworkVersion::V14 => Ok(actors_v6::BUNDLE_CAR),
+        NetworkVersion::V15 => Ok(actors_v7::BUNDLE_CAR),
+        _ => Err("unsupported network version"),
+    }?;
+    let roots = block_on(async { load_car(blockstore, car).await.unwrap() });
+    assert_eq!(roots.len(), 1);
+    Ok(roots[0])
 }
