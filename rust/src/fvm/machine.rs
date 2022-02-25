@@ -1,5 +1,9 @@
 use std::convert::{TryFrom, TryInto};
+use std::env;
+use std::fs::{File, OpenOptions};
+use std::io::{BufWriter, Write};
 use std::sync::Mutex;
+use std::time::Instant;
 
 use anyhow::anyhow;
 use cid::Cid;
@@ -32,6 +36,13 @@ pub type CgoExecutor = DefaultExecutor<
 
 lazy_static! {
     static ref ENGINE: fvm::machine::Engine = fvm::machine::Engine::default();
+}
+
+lazy_static! {
+    static ref TIMING_LOG: Option<Mutex<BufWriter<File>>> = env::var_os("FVM_TIMING_LOG")
+        .and_then(|path| OpenOptions::new().create(true).append(true).open(path).ok())
+        .map(BufWriter::new)
+        .map(Mutex::new);
 }
 
 /// Note: the incoming args as u64 and odd conversions to i32/i64
@@ -195,6 +206,7 @@ pub unsafe extern "C" fn fil_fvm_machine_execute_message(
             ApplyKind::Implicit
         };
 
+        let start = Instant::now();
         let message_bytes = std::slice::from_raw_parts(message_ptr, message_len);
         let message: Message = match fvm_ipld_encoding::from_slice(message_bytes) {
             Ok(x) => x,
@@ -217,8 +229,26 @@ pub unsafe extern "C" fn fil_fvm_machine_execute_message(
             }
         };
 
+        // Dump execution stats if supplied.
+        let duration = start.elapsed();
+        if let (ApplyKind::Explicit, Some(mut log), Some(stats)) = (
+            apply_kind,
+            TIMING_LOG.as_ref().and_then(|l| l.lock().ok()),
+            &apply_ret.exec_stats,
+        ) {
+            let _ = writeln!(
+                log,
+                r#"{{"fuel":{},"wasm_time":{},"gas":{},"total_time":{}}}"#,
+                stats.fuel_used,
+                stats.wasm_duration.as_nanos(),
+                apply_ret.msg_receipt.gas_used,
+                duration.as_nanos(),
+            );
+        }
+
         if !apply_ret.exec_trace.is_empty() {
             let mut trace_iter = apply_ret.exec_trace.into_iter();
+
             if let Ok(Ok(lotus_t_bytes)) = build_lotus_trace(
                 &trace_iter
                     .next()
@@ -294,6 +324,10 @@ pub unsafe extern "C" fn fil_fvm_machine_flush(
             }
         }
         info!("fil_fvm_machine_flush: end");
+
+        if let Some(mut log) = TIMING_LOG.as_ref().and_then(|l| l.lock().ok()) {
+            let _ = log.flush();
+        }
 
         raw_ptr(response)
     })
