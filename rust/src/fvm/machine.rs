@@ -34,8 +34,8 @@ pub unsafe extern "C" fn fil_create_fvm_machine(
     chain_epoch: u64,
     base_fee_hi: u64,
     base_fee_lo: u64,
-    fil_vested_hi: u64,
-    fil_vested_lo: u64,
+    base_circ_supply_hi: u64,
+    base_circ_supply_lo: u64,
     network_version: u64,
     state_root_ptr: *const u8,
     state_root_len: libc::size_t,
@@ -56,8 +56,9 @@ pub unsafe extern "C" fn fil_create_fvm_machine(
         let config = Config::default();
         let chain_epoch = chain_epoch as ChainEpoch;
 
-        let fil_vested =
-            TokenAmount::from(((fil_vested_hi as u128) << u64::BITS) | fil_vested_lo as u128);
+        let base_circ_supply = TokenAmount::from(
+            ((base_circ_supply_hi as u128) << u64::BITS) | base_circ_supply_lo as u128,
+        );
         let base_fee =
             TokenAmount::from(((base_fee_hi as u128) << u64::BITS) | base_fee_lo as u128);
 
@@ -88,7 +89,7 @@ pub unsafe extern "C" fn fil_create_fvm_machine(
             ENGINE.clone(),
             chain_epoch,
             base_fee,
-            fil_vested,
+            base_circ_supply,
             network_version,
             state_root,
             blockstore,

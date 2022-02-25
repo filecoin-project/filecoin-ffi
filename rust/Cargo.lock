@@ -5,7 +5,7 @@ version = 3
 [[package]]
 name = "actors-runtime"
 version = "4.0.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#e53d1416fab5b7f2787f884171ace4cb2b6edb9f"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=asr/nv15#f508b0b962eeb8bd72e6136693736874b28c27c1"
 dependencies = [
  "anyhow",
  "base64",
@@ -1429,7 +1429,7 @@ checksum = "3f9eec918d3f24069decb9af1554cad7c880e2da24a9afd88aca000531ab82c1"
 [[package]]
 name = "forest_bitfield"
 version = "0.1.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#e53d1416fab5b7f2787f884171ace4cb2b6edb9f"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=asr/nv15#f508b0b962eeb8bd72e6136693736874b28c27c1"
 dependencies = [
  "cs_serde_bytes",
  "fvm_shared",
@@ -1487,7 +1487,7 @@ checksum = "1847abb9cb65d566acd5942e94aea9c8f547ad02c98e1649326fc0e8910b8b1e"
 [[package]]
 name = "fvm"
 version = "0.1.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#e53d1416fab5b7f2787f884171ace4cb2b6edb9f"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=asr/nv15#f508b0b962eeb8bd72e6136693736874b28c27c1"
 dependencies = [
  "ahash",
  "anyhow",
@@ -1529,7 +1529,7 @@ dependencies = [
 [[package]]
 name = "fvm_actor_account"
 version = "1.0.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#e53d1416fab5b7f2787f884171ace4cb2b6edb9f"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=asr/nv15#f508b0b962eeb8bd72e6136693736874b28c27c1"
 dependencies = [
  "actors-runtime",
  "fvm_shared",
@@ -1542,7 +1542,7 @@ dependencies = [
 [[package]]
 name = "fvm_actor_cron"
 version = "1.0.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#e53d1416fab5b7f2787f884171ace4cb2b6edb9f"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=asr/nv15#f508b0b962eeb8bd72e6136693736874b28c27c1"
 dependencies = [
  "actors-runtime",
  "fvm_shared",
@@ -1556,7 +1556,7 @@ dependencies = [
 [[package]]
 name = "fvm_actor_init"
 version = "1.0.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#e53d1416fab5b7f2787f884171ace4cb2b6edb9f"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=asr/nv15#f508b0b962eeb8bd72e6136693736874b28c27c1"
 dependencies = [
  "actors-runtime",
  "anyhow",
@@ -1573,7 +1573,7 @@ dependencies = [
 [[package]]
 name = "fvm_actor_market"
 version = "1.0.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#e53d1416fab5b7f2787f884171ace4cb2b6edb9f"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=asr/nv15#f508b0b962eeb8bd72e6136693736874b28c27c1"
 dependencies = [
  "actors-runtime",
  "ahash",
@@ -1591,7 +1591,7 @@ dependencies = [
 [[package]]
 name = "fvm_actor_miner"
 version = "1.0.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#e53d1416fab5b7f2787f884171ace4cb2b6edb9f"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=asr/nv15#f508b0b962eeb8bd72e6136693736874b28c27c1"
 dependencies = [
  "actors-runtime",
  "anyhow",
@@ -1613,7 +1613,7 @@ dependencies = [
 [[package]]
 name = "fvm_actor_multisig"
 version = "1.0.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#e53d1416fab5b7f2787f884171ace4cb2b6edb9f"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=asr/nv15#f508b0b962eeb8bd72e6136693736874b28c27c1"
 dependencies = [
  "actors-runtime",
  "anyhow",
@@ -1631,7 +1631,7 @@ dependencies = [
 [[package]]
 name = "fvm_actor_paych"
 version = "1.0.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#e53d1416fab5b7f2787f884171ace4cb2b6edb9f"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=asr/nv15#f508b0b962eeb8bd72e6136693736874b28c27c1"
 dependencies = [
  "actors-runtime",
  "anyhow",
@@ -1646,7 +1646,7 @@ dependencies = [
 [[package]]
 name = "fvm_actor_power"
 version = "1.0.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#e53d1416fab5b7f2787f884171ace4cb2b6edb9f"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=asr/nv15#f508b0b962eeb8bd72e6136693736874b28c27c1"
 dependencies = [
  "actors-runtime",
  "anyhow",
@@ -1666,7 +1666,7 @@ dependencies = [
 [[package]]
 name = "fvm_actor_reward"
 version = "1.0.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#e53d1416fab5b7f2787f884171ace4cb2b6edb9f"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=asr/nv15#f508b0b962eeb8bd72e6136693736874b28c27c1"
 dependencies = [
  "actors-runtime",
  "fvm_shared",
@@ -1681,7 +1681,7 @@ dependencies = [
 [[package]]
 name = "fvm_actor_system"
 version = "1.0.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#e53d1416fab5b7f2787f884171ace4cb2b6edb9f"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=asr/nv15#f508b0b962eeb8bd72e6136693736874b28c27c1"
 dependencies = [
  "actors-runtime",
  "fvm_shared",
@@ -1694,12 +1694,14 @@ dependencies = [
 [[package]]
 name = "fvm_actor_verifreg"
 version = "1.0.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#e53d1416fab5b7f2787f884171ace4cb2b6edb9f"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=asr/nv15#f508b0b962eeb8bd72e6136693736874b28c27c1"
 dependencies = [
  "actors-runtime",
  "anyhow",
  "cid",
+ "fvm_sdk",
  "fvm_shared",
+ "ipld_hamt",
  "lazy_static",
  "num-derive",
  "num-traits",
@@ -1708,9 +1710,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "fvm_sdk"
+version = "0.1.0"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=asr/nv15#f508b0b962eeb8bd72e6136693736874b28c27c1"
+dependencies = [
+ "cid",
+ "fvm_shared",
+ "lazy_static",
+ "log",
+ "num-traits",
+ "thiserror",
+]
+
+[[package]]
 name = "fvm_shared"
 version = "0.1.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#e53d1416fab5b7f2787f884171ace4cb2b6edb9f"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=asr/nv15#f508b0b962eeb8bd72e6136693736874b28c27c1"
 dependencies = [
  "anyhow",
  "blake2b_simd 1.0.0",
@@ -1926,7 +1941,7 @@ dependencies = [
 [[package]]
 name = "ipld_amt"
 version = "1.0.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#e53d1416fab5b7f2787f884171ace4cb2b6edb9f"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=asr/nv15#f508b0b962eeb8bd72e6136693736874b28c27c1"
 dependencies = [
  "ahash",
  "anyhow",
@@ -1941,7 +1956,7 @@ dependencies = [
 [[package]]
 name = "ipld_hamt"
 version = "2.0.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#e53d1416fab5b7f2787f884171ace4cb2b6edb9f"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=asr/nv15#f508b0b962eeb8bd72e6136693736874b28c27c1"
 dependencies = [
  "anyhow",
  "byteorder 1.4.3",
