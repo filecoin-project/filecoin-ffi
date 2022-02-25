@@ -1,5 +1,9 @@
 use std::convert::{TryFrom, TryInto};
+use std::env;
+use std::fs::{File, OpenOptions};
+use std::io::{BufWriter, Write};
 use std::sync::Mutex;
+use std::time::Instant;
 
 use cid::Cid;
 use ffi_toolkit::{catch_panic_response, raw_ptr, rust_str_to_c_str, FCPResponseStatus};
@@ -21,6 +25,13 @@ pub type CgoExecutor =
 
 lazy_static! {
     static ref ENGINE: fvm::machine::Engine = fvm::machine::Engine::default();
+}
+
+lazy_static! {
+    static ref TIMING_LOG: Option<Mutex<BufWriter<File>>> = env::var_os("FVM_TIMING_LOG")
+        .and_then(|path| OpenOptions::new().create(true).append(true).open(path).ok())
+        .map(BufWriter::new)
+        .map(Mutex::new);
 }
 
 /// Note: the incoming args as u64 and odd conversions to i32/i64
@@ -140,6 +151,7 @@ pub unsafe extern "C" fn fil_fvm_machine_execute_message(
             ApplyKind::Implicit
         };
 
+        let start = Instant::now();
         let message_bytes = std::slice::from_raw_parts(message_ptr, message_len);
         let message: Message = match fvm_shared::encoding::from_slice(message_bytes) {
             Ok(x) => x,
@@ -161,6 +173,22 @@ pub unsafe extern "C" fn fil_fvm_machine_execute_message(
                 return raw_ptr(response);
             }
         };
+
+        let duration = start.elapsed();
+        if let (ApplyKind::Explicit, Some(mut log), Some(stats)) = (
+            apply_kind,
+            TIMING_LOG.as_ref().and_then(|l| l.lock().ok()),
+            &apply_ret.wasm_stats,
+        ) {
+            let _ = writeln!(
+                log,
+                r#"{{"fuel":{},"wasm_time":{},"gas":{},"total_time":{}}}"#,
+                stats.fuel_used,
+                stats.wasm_duration.as_nanos(),
+                apply_ret.msg_receipt.gas_used,
+                duration.as_nanos(),
+            );
+        }
 
         // TODO: use the non-bigint token amount everywhere in the FVM
         let penalty: u128 = apply_ret.penalty.try_into().unwrap();
@@ -216,6 +244,10 @@ pub unsafe extern "C" fn fil_fvm_machine_flush(
             }
         }
         info!("fil_fvm_machine_flush: end");
+
+        if let Some(mut log) = TIMING_LOG.as_ref().and_then(|l| l.lock().ok()) {
+            let _ = log.flush();
+        }
 
         raw_ptr(response)
     })
