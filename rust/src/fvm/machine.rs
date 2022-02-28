@@ -166,20 +166,23 @@ pub unsafe extern "C" fn fil_fvm_machine_execute_message(
         let penalty: u128 = apply_ret.penalty.try_into().unwrap();
         let miner_tip: u128 = apply_ret.miner_tip.try_into().unwrap();
 
-        let return_bytes = Vec::from(apply_ret.msg_receipt.return_data).into_boxed_slice();
+        // Only do this if the return data is non-empty. The empty vec pointer is non-null and not
+        // valid in go.
+        if !apply_ret.msg_receipt.return_data.is_empty() {
+            let return_bytes = Vec::from(apply_ret.msg_receipt.return_data).into_boxed_slice();
+            response.return_ptr = return_bytes.as_ptr();
+            response.return_len = return_bytes.len();
+            Box::leak(return_bytes);
+        }
 
         // TODO: Do something with the backtrace.
         response.status_code = FCPResponseStatus::FCPNoError;
         response.exit_code = apply_ret.msg_receipt.exit_code as u64;
-        response.return_ptr = return_bytes.as_ptr();
-        response.return_len = return_bytes.len();
         response.gas_used = apply_ret.msg_receipt.gas_used as u64;
         response.penalty_hi = (penalty >> u64::BITS) as u64;
         response.penalty_lo = penalty as u64;
         response.miner_tip_hi = (miner_tip >> u64::BITS) as u64;
         response.miner_tip_lo = miner_tip as u64;
-
-        Box::leak(return_bytes);
 
         info!("fil_fvm_machine_execute_message: end");
 
