@@ -38,11 +38,11 @@ memmap = "0.7"
 rust-gpu-tools = { version = "0.5", default-features = false }
 storage-proofs-porep = { version = "~11.0", default-features = false }
 fr32 = { version = "~4.0", default-features = false }
-fvm = { git = "https://github.com/filecoin-project/ref-fvm", default-features = false }
-fvm_ipld_car = { git = "https://github.com/filecoin-project/ref-fvm"}
-fvm_shared = { git = "https://github.com/filecoin-project/ref-fvm" }
-actors-v6 = { package = "fil_builtin_actors_bundle", git = "https://github.com/filecoin-project/builtin-actors", branch = "release/v6" }
-actors-v7 = { package = "fil_builtin_actors_bundle", git = "https://github.com/filecoin-project/builtin-actors" }
+fvm = { version = "0.2.0", default-features = false }
+fvm_ipld_car = { version = "0.2.0" }
+fvm_shared = { version = "0.2.0" }
+actors-v6 = { package = "fil_builtin_actors_bundle", version = "6.0.5" }
+actors-v7 = { package = "fil_builtin_actors_bundle", version = "7.0.0" }
 num-traits = "0.2.14"
 num-bigint = "0.4"
 cid = { version = "0.8.2", features = ["serde-codec"] }

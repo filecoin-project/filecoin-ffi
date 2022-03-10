@@ -1259,9 +1259,9 @@ checksum = "77f3309417938f28bf8228fcff79a4a37103981e3e186d2ccd19c74b38f4eb71"
 
 [[package]]
 name = "execute"
-version = "0.2.9"
+version = "0.2.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7099ac27f7ca234fa6daac042ffc9ede4e3527fd43cfdcdb2abc3befb6192a8a"
+checksum = "23672a3a5872c06b1e8bc3a8803825a1dbe498c6636ee44c8c5abdba9e308fb6"
 dependencies = [
  "execute-command-macro",
  "execute-command-tokens",
@@ -1270,18 +1270,18 @@ dependencies = [
 
 [[package]]
 name = "execute-command-macro"
-version = "0.1.6"
+version = "0.1.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5371880151fac48751fccc4c785ab8d0ad4f589c55f76b7b0377f1c64fcf69aa"
+checksum = "6b53ed35ebdfe6022dde913360b081d814d0b3267fb773abf05d89da48fe5eeb"
 dependencies = [
  "execute-command-macro-impl",
 ]
 
 [[package]]
 name = "execute-command-macro-impl"
-version = "0.1.6"
+version = "0.1.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cc8bee3904e0525eff0d4b168208c92ddc14a24e9eb619745b69fdac87ea4142"
+checksum = "af4a304bcd894a5d41f8b379d01e09bff28fd8df257216a33699658ea37bccb8"
 dependencies = [
  "execute-command-tokens",
  "quote 1.0.15",
@@ -1290,9 +1290,9 @@ dependencies = [
 
 [[package]]
 name = "execute-command-tokens"
-version = "0.1.4"
+version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e31582eb1260be08aa265f004aca0a74e1b69ce432d8e53ebd85c5c145617ece"
+checksum = "b5e1442395a2d9a27af91ff8f348dfbc99b012f450e4962bdfc2da2fff4dd335"
 
 [[package]]
 name = "fake-simd"
@@ -1372,10 +1372,11 @@ dependencies = [
 
 [[package]]
 name = "fil_actor_account"
-version = "6.0.2"
-source = "git+https://github.com/filecoin-project/builtin-actors?branch=release/v6#e0f1f1653e0950d273f0cdcdb2e30fa9fba6edcb"
+version = "6.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e983dcf1aae114c84873c1d9b572b18bde0cb483cb56ccde0e1d7919d1e31cb0"
 dependencies = [
- "fil_actors_runtime 6.0.2 (git+https://github.com/filecoin-project/builtin-actors?branch=release/v6)",
+ "fil_actors_runtime 6.0.4",
  "fvm_shared",
  "num-derive",
  "num-traits",
@@ -1384,10 +1385,11 @@ dependencies = [
 
 [[package]]
 name = "fil_actor_account"
-version = "6.0.2"
-source = "git+https://github.com/filecoin-project/builtin-actors#22bf186351ca49a448219e1e5fc1dfa7df7a532e"
+version = "7.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c231416459c12853152566187b18e45ff7bf7aac09dc2d5948690e8381688a8b"
 dependencies = [
- "fil_actors_runtime 6.0.2 (git+https://github.com/filecoin-project/builtin-actors)",
+ "fil_actors_runtime 7.0.0",
  "fvm_shared",
  "num-derive",
  "num-traits",
@@ -1396,25 +1398,9 @@ dependencies = [
 
 [[package]]
 name = "fil_actor_bundler"
-version = "1.0.0"
-source = "git+https://github.com/filecoin-project/builtin-actors?branch=release/v6#e0f1f1653e0950d273f0cdcdb2e30fa9fba6edcb"
-dependencies = [
- "anyhow",
- "async-std",
- "cid",
- "clap 3.1.6",
- "futures",
- "fvm_ipld_car",
- "fvm_shared",
- "multihash",
- "serde_ipld_dagcbor",
- "serde_json",
-]
-
-[[package]]
-name = "fil_actor_bundler"
-version = "1.0.1"
-source = "git+https://github.com/filecoin-project/builtin-actors#22bf186351ca49a448219e1e5fc1dfa7df7a532e"
+version = "1.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d9bec58de1b0b77daaafe8de7dd341182a0163e2ad0e36056013822fab4288a4"
 dependencies = [
  "anyhow",
  "async-std",
@@ -1430,10 +1416,11 @@ dependencies = [
 
 [[package]]
 name = "fil_actor_cron"
-version = "6.0.2"
-source = "git+https://github.com/filecoin-project/builtin-actors?branch=release/v6#e0f1f1653e0950d273f0cdcdb2e30fa9fba6edcb"
+version = "6.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bc82ee4e3f2f032c07064a9475cbda2cb6f31bdd7c48a243616d99ec22e1ae17"
 dependencies = [
- "fil_actors_runtime 6.0.2 (git+https://github.com/filecoin-project/builtin-actors?branch=release/v6)",
+ "fil_actors_runtime 6.0.4",
  "fvm_shared",
  "log",
  "num-derive",
@@ -1443,10 +1430,11 @@ dependencies = [
 
 [[package]]
 name = "fil_actor_cron"
-version = "6.0.2"
-source = "git+https://github.com/filecoin-project/builtin-actors#22bf186351ca49a448219e1e5fc1dfa7df7a532e"
+version = "7.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "aeca237147c24f8b5dfbdc42889d2aba73b1e48e1a19f29b2bad80de5f7e3e95"
 dependencies = [
- "fil_actors_runtime 6.0.2 (git+https://github.com/filecoin-project/builtin-actors)",
+ "fil_actors_runtime 7.0.0",
  "fvm_shared",
  "log",
  "num-derive",
@@ -1456,12 +1444,13 @@ dependencies = [
 
 [[package]]
 name = "fil_actor_init"
-version = "6.0.2"
-source = "git+https://github.com/filecoin-project/builtin-actors?branch=release/v6#e0f1f1653e0950d273f0cdcdb2e30fa9fba6edcb"
+version = "6.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6d15a2146d74c2bd79295c6fd6a78aa1d98cbfe5b8a5a18d31a3e61126c41359"
 dependencies = [
  "anyhow",
  "cid",
- "fil_actors_runtime 6.0.2 (git+https://github.com/filecoin-project/builtin-actors?branch=release/v6)",
+ "fil_actors_runtime 6.0.4",
  "fvm_ipld_hamt",
  "fvm_shared",
  "log",
@@ -1472,12 +1461,13 @@ dependencies = [
 
 [[package]]
 name = "fil_actor_init"
-version = "6.0.2"
-source = "git+https://github.com/filecoin-project/builtin-actors#22bf186351ca49a448219e1e5fc1dfa7df7a532e"
+version = "7.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e5157df2bf2700cbc019f5ecf19477c2e9dec7d36aab904b9fb6575544404f74"
 dependencies = [
  "anyhow",
  "cid",
- "fil_actors_runtime 6.0.2 (git+https://github.com/filecoin-project/builtin-actors)",
+ "fil_actors_runtime 7.0.0",
  "fvm_ipld_hamt",
  "fvm_shared",
  "log",
@@ -1488,13 +1478,14 @@ dependencies = [
 
 [[package]]
 name = "fil_actor_market"
-version = "6.0.2"
-source = "git+https://github.com/filecoin-project/builtin-actors?branch=release/v6#e0f1f1653e0950d273f0cdcdb2e30fa9fba6edcb"
+version = "6.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d11960f2ddadb19b890b94e96de3a3b6546ef2cddd97293a1e47c49ccc1fcab5"
 dependencies = [
  "ahash",
  "anyhow",
  "cid",
- "fil_actors_runtime 6.0.2 (git+https://github.com/filecoin-project/builtin-actors?branch=release/v6)",
+ "fil_actors_runtime 6.0.4",
  "fvm_ipld_bitfield",
  "fvm_shared",
  "log",
@@ -1505,13 +1496,14 @@ dependencies = [
 
 [[package]]
 name = "fil_actor_market"
-version = "6.0.2"
-source = "git+https://github.com/filecoin-project/builtin-actors#22bf186351ca49a448219e1e5fc1dfa7df7a532e"
+version = "7.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "06fff2c20bdd88d0730928acf119df09480845494a6f048a5c1bab97a11cf535"
 dependencies = [
  "ahash",
  "anyhow",
  "cid",
- "fil_actors_runtime 6.0.2 (git+https://github.com/filecoin-project/builtin-actors)",
+ "fil_actors_runtime 7.0.0",
  "fvm_ipld_bitfield",
  "fvm_shared",
  "log",
@@ -1522,13 +1514,14 @@ dependencies = [
 
 [[package]]
 name = "fil_actor_miner"
-version = "6.0.2"
-source = "git+https://github.com/filecoin-project/builtin-actors?branch=release/v6#e0f1f1653e0950d273f0cdcdb2e30fa9fba6edcb"
+version = "6.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d0f9fd532f0b3230ba2202e37094810d8c53afe32b6fc864b5c7a5103649ee00"
 dependencies = [
  "anyhow",
  "byteorder 1.4.3",
  "cid",
- "fil_actors_runtime 6.0.2 (git+https://github.com/filecoin-project/builtin-actors?branch=release/v6)",
+ "fil_actors_runtime 6.0.4",
  "fvm_ipld_amt",
  "fvm_ipld_bitfield",
  "fvm_ipld_hamt",
@@ -1543,13 +1536,14 @@ dependencies = [
 
 [[package]]
 name = "fil_actor_miner"
-version = "6.0.2"
-source = "git+https://github.com/filecoin-project/builtin-actors#22bf186351ca49a448219e1e5fc1dfa7df7a532e"
+version = "7.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "64474daa78e40d44036ad61be8a1bed7ae479d7558502171557e1cbaa83bcdf0"
 dependencies = [
  "anyhow",
  "byteorder 1.4.3",
  "cid",
- "fil_actors_runtime 6.0.2 (git+https://github.com/filecoin-project/builtin-actors)",
+ "fil_actors_runtime 7.0.0",
  "fvm_ipld_amt",
  "fvm_ipld_bitfield",
  "fvm_ipld_hamt",
@@ -1564,12 +1558,13 @@ dependencies = [
 
 [[package]]
 name = "fil_actor_multisig"
-version = "6.0.2"
-source = "git+https://github.com/filecoin-project/builtin-actors?branch=release/v6#e0f1f1653e0950d273f0cdcdb2e30fa9fba6edcb"
+version = "6.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0200572126551a1f2d8bbd57976b3c9dd71e6886464f7f94770ad60474e0b1f8"
 dependencies = [
  "anyhow",
  "cid",
- "fil_actors_runtime 6.0.2 (git+https://github.com/filecoin-project/builtin-actors?branch=release/v6)",
+ "fil_actors_runtime 6.0.4",
  "fvm_ipld_hamt",
  "fvm_shared",
  "indexmap",
@@ -1581,12 +1576,13 @@ dependencies = [
 
 [[package]]
 name = "fil_actor_multisig"
-version = "6.0.2"
-source = "git+https://github.com/filecoin-project/builtin-actors#22bf186351ca49a448219e1e5fc1dfa7df7a532e"
+version = "7.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fefbf5a23de09d0f04ec5b32396bfbb0bb0b96ef019f9a56fd2faeffd984680a"
 dependencies = [
  "anyhow",
  "cid",
- "fil_actors_runtime 6.0.2 (git+https://github.com/filecoin-project/builtin-actors)",
+ "fil_actors_runtime 7.0.0",
  "fvm_ipld_hamt",
  "fvm_shared",
  "indexmap",
@@ -1598,12 +1594,13 @@ dependencies = [
 
 [[package]]
 name = "fil_actor_paych"
-version = "6.0.2"
-source = "git+https://github.com/filecoin-project/builtin-actors?branch=release/v6#e0f1f1653e0950d273f0cdcdb2e30fa9fba6edcb"
+version = "6.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ebbd5d695ccb85a7b48aa76606d473910d9ac1467a84657c4edaa7d4d280589e"
 dependencies = [
  "anyhow",
  "cid",
- "fil_actors_runtime 6.0.2 (git+https://github.com/filecoin-project/builtin-actors?branch=release/v6)",
+ "fil_actors_runtime 6.0.4",
  "fvm_shared",
  "num-derive",
  "num-traits",
@@ -1612,12 +1609,13 @@ dependencies = [
 
 [[package]]
 name = "fil_actor_paych"
-version = "6.0.2"
-source = "git+https://github.com/filecoin-project/builtin-actors#22bf186351ca49a448219e1e5fc1dfa7df7a532e"
+version = "7.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bc5e2f95f122a8d90f1a6270006a83d6bf3b773ae37df51655eb3109eee4675c"
 dependencies = [
  "anyhow",
  "cid",
- "fil_actors_runtime 6.0.2 (git+https://github.com/filecoin-project/builtin-actors)",
+ "fil_actors_runtime 7.0.0",
  "fvm_shared",
  "num-derive",
  "num-traits",
@@ -1626,12 +1624,13 @@ dependencies = [
 
 [[package]]
 name = "fil_actor_power"
-version = "6.0.2"
-source = "git+https://github.com/filecoin-project/builtin-actors?branch=release/v6#e0f1f1653e0950d273f0cdcdb2e30fa9fba6edcb"
+version = "6.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "36a6a94336789f1defc1705c7463f818ff8a062a2eaed7773be6a514f867a915"
 dependencies = [
  "anyhow",
  "cid",
- "fil_actors_runtime 6.0.2 (git+https://github.com/filecoin-project/builtin-actors?branch=release/v6)",
+ "fil_actors_runtime 6.0.4",
  "fvm_ipld_hamt",
  "fvm_shared",
  "indexmap",
@@ -1645,12 +1644,13 @@ dependencies = [
 
 [[package]]
 name = "fil_actor_power"
-version = "6.0.2"
-source = "git+https://github.com/filecoin-project/builtin-actors#22bf186351ca49a448219e1e5fc1dfa7df7a532e"
+version = "7.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1d0f071437504c1a42994c7d3a3f791ce22eaea7d924b94c401f92350b0bffd3"
 dependencies = [
  "anyhow",
  "cid",
- "fil_actors_runtime 6.0.2 (git+https://github.com/filecoin-project/builtin-actors)",
+ "fil_actors_runtime 7.0.0",
  "fvm_ipld_hamt",
  "fvm_shared",
  "indexmap",
@@ -1664,10 +1664,11 @@ dependencies = [
 
 [[package]]
 name = "fil_actor_reward"
-version = "6.0.2"
-source = "git+https://github.com/filecoin-project/builtin-actors?branch=release/v6#e0f1f1653e0950d273f0cdcdb2e30fa9fba6edcb"
+version = "6.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f53d71ddec450efd2c260e1381123c8639e7a7fab41b924bdb2ebb167339c361"
 dependencies = [
- "fil_actors_runtime 6.0.2 (git+https://github.com/filecoin-project/builtin-actors?branch=release/v6)",
+ "fil_actors_runtime 6.0.4",
  "fvm_shared",
  "lazy_static",
  "log",
@@ -1678,10 +1679,11 @@ dependencies = [
 
 [[package]]
 name = "fil_actor_reward"
-version = "6.0.2"
-source = "git+https://github.com/filecoin-project/builtin-actors#22bf186351ca49a448219e1e5fc1dfa7df7a532e"
+version = "7.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5a7244e38bbaceae1526d8967bf447523513f3047f11d22d9b662ee047728a2f"
 dependencies = [
- "fil_actors_runtime 6.0.2 (git+https://github.com/filecoin-project/builtin-actors)",
+ "fil_actors_runtime 7.0.0",
  "fvm_shared",
  "lazy_static",
  "log",
@@ -1692,10 +1694,11 @@ dependencies = [
 
 [[package]]
 name = "fil_actor_system"
-version = "6.0.2"
-source = "git+https://github.com/filecoin-project/builtin-actors?branch=release/v6#e0f1f1653e0950d273f0cdcdb2e30fa9fba6edcb"
+version = "6.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3b3d6e3fa9121c1500af5f4791ae2ac3ed38f989efb1ec2818ed81e43ab5e6a3"
 dependencies = [
- "fil_actors_runtime 6.0.2 (git+https://github.com/filecoin-project/builtin-actors?branch=release/v6)",
+ "fil_actors_runtime 6.0.4",
  "fvm_shared",
  "num-derive",
  "num-traits",
@@ -1704,10 +1707,11 @@ dependencies = [
 
 [[package]]
 name = "fil_actor_system"
-version = "6.0.2"
-source = "git+https://github.com/filecoin-project/builtin-actors#22bf186351ca49a448219e1e5fc1dfa7df7a532e"
+version = "7.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b79e6a8860d2f3fc158828871c6ac1b972868a4ecdbf736d7768ad2b1f5e4235"
 dependencies = [
- "fil_actors_runtime 6.0.2 (git+https://github.com/filecoin-project/builtin-actors)",
+ "fil_actors_runtime 7.0.0",
  "fvm_shared",
  "num-derive",
  "num-traits",
@@ -1716,12 +1720,13 @@ dependencies = [
 
 [[package]]
 name = "fil_actor_verifreg"
-version = "6.0.2"
-source = "git+https://github.com/filecoin-project/builtin-actors?branch=release/v6#e0f1f1653e0950d273f0cdcdb2e30fa9fba6edcb"
+version = "6.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3dd58b50165d53634575e5ea61868ce32db236b1ff88f8c82f0ec9199ad12b4d"
 dependencies = [
  "anyhow",
  "cid",
- "fil_actors_runtime 6.0.2 (git+https://github.com/filecoin-project/builtin-actors?branch=release/v6)",
+ "fil_actors_runtime 6.0.4",
  "fvm_shared",
  "lazy_static",
  "num-derive",
@@ -1731,12 +1736,13 @@ dependencies = [
 
 [[package]]
 name = "fil_actor_verifreg"
-version = "6.0.2"
-source = "git+https://github.com/filecoin-project/builtin-actors#22bf186351ca49a448219e1e5fc1dfa7df7a532e"
+version = "7.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d7416512810f076b852dde7150456fa9ced930c3ba6ebe395ee515dc77598b57"
 dependencies = [
  "anyhow",
  "cid",
- "fil_actors_runtime 6.0.2 (git+https://github.com/filecoin-project/builtin-actors)",
+ "fil_actors_runtime 7.0.0",
  "fvm_shared",
  "lazy_static",
  "num-derive",
@@ -1746,8 +1752,9 @@ dependencies = [
 
 [[package]]
 name = "fil_actors_runtime"
-version = "6.0.2"
-source = "git+https://github.com/filecoin-project/builtin-actors?branch=release/v6#e0f1f1653e0950d273f0cdcdb2e30fa9fba6edcb"
+version = "6.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "41f8a5fb86bd13e134d38b264d6378b9c134ebdcfb0e7d20e411409f9c457715"
 dependencies = [
  "anyhow",
  "base64",
@@ -1772,8 +1779,9 @@ dependencies = [
 
 [[package]]
 name = "fil_actors_runtime"
-version = "6.0.2"
-source = "git+https://github.com/filecoin-project/builtin-actors#22bf186351ca49a448219e1e5fc1dfa7df7a532e"
+version = "7.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1196f74626744d60510dee19ca10bbdf21ae7ec887430d1fdfcd08d2cd5755fc"
 dependencies = [
  "anyhow",
  "base64",
@@ -1798,42 +1806,44 @@ dependencies = [
 
 [[package]]
 name = "fil_builtin_actors_bundle"
-version = "6.0.2"
-source = "git+https://github.com/filecoin-project/builtin-actors?branch=release/v6#e0f1f1653e0950d273f0cdcdb2e30fa9fba6edcb"
+version = "6.0.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "474d65a48e74770f0ee62829b00c11243c3484bbfba2a551326cf7f12afa084b"
 dependencies = [
  "cid",
- "fil_actor_account 6.0.2 (git+https://github.com/filecoin-project/builtin-actors?branch=release/v6)",
- "fil_actor_bundler 1.0.0",
- "fil_actor_cron 6.0.2 (git+https://github.com/filecoin-project/builtin-actors?branch=release/v6)",
- "fil_actor_init 6.0.2 (git+https://github.com/filecoin-project/builtin-actors?branch=release/v6)",
- "fil_actor_market 6.0.2 (git+https://github.com/filecoin-project/builtin-actors?branch=release/v6)",
- "fil_actor_miner 6.0.2 (git+https://github.com/filecoin-project/builtin-actors?branch=release/v6)",
- "fil_actor_multisig 6.0.2 (git+https://github.com/filecoin-project/builtin-actors?branch=release/v6)",
- "fil_actor_paych 6.0.2 (git+https://github.com/filecoin-project/builtin-actors?branch=release/v6)",
- "fil_actor_power 6.0.2 (git+https://github.com/filecoin-project/builtin-actors?branch=release/v6)",
- "fil_actor_reward 6.0.2 (git+https://github.com/filecoin-project/builtin-actors?branch=release/v6)",
- "fil_actor_system 6.0.2 (git+https://github.com/filecoin-project/builtin-actors?branch=release/v6)",
- "fil_actor_verifreg 6.0.2 (git+https://github.com/filecoin-project/builtin-actors?branch=release/v6)",
+ "fil_actor_account 6.0.4",
+ "fil_actor_bundler",
+ "fil_actor_cron 6.0.4",
+ "fil_actor_init 6.0.4",
+ "fil_actor_market 6.0.4",
+ "fil_actor_miner 6.0.4",
+ "fil_actor_multisig 6.0.4",
+ "fil_actor_paych 6.0.4",
+ "fil_actor_power 6.0.4",
+ "fil_actor_reward 6.0.4",
+ "fil_actor_system 6.0.4",
+ "fil_actor_verifreg 6.0.4",
 ]
 
 [[package]]
 name = "fil_builtin_actors_bundle"
-version = "6.0.3"
-source = "git+https://github.com/filecoin-project/builtin-actors#22bf186351ca49a448219e1e5fc1dfa7df7a532e"
+version = "7.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ee6ceeefee88783c0008e4273ef0a5a49ba4b36458cecc54a72446b2aba4a0db"
 dependencies = [
  "cid",
- "fil_actor_account 6.0.2 (git+https://github.com/filecoin-project/builtin-actors)",
- "fil_actor_bundler 1.0.1",
- "fil_actor_cron 6.0.2 (git+https://github.com/filecoin-project/builtin-actors)",
- "fil_actor_init 6.0.2 (git+https://github.com/filecoin-project/builtin-actors)",
- "fil_actor_market 6.0.2 (git+https://github.com/filecoin-project/builtin-actors)",
- "fil_actor_miner 6.0.2 (git+https://github.com/filecoin-project/builtin-actors)",
- "fil_actor_multisig 6.0.2 (git+https://github.com/filecoin-project/builtin-actors)",
- "fil_actor_paych 6.0.2 (git+https://github.com/filecoin-project/builtin-actors)",
- "fil_actor_power 6.0.2 (git+https://github.com/filecoin-project/builtin-actors)",
- "fil_actor_reward 6.0.2 (git+https://github.com/filecoin-project/builtin-actors)",
- "fil_actor_system 6.0.2 (git+https://github.com/filecoin-project/builtin-actors)",
- "fil_actor_verifreg 6.0.2 (git+https://github.com/filecoin-project/builtin-actors)",
+ "fil_actor_account 7.0.0",
+ "fil_actor_bundler",
+ "fil_actor_cron 7.0.0",
+ "fil_actor_init 7.0.0",
+ "fil_actor_market 7.0.0",
+ "fil_actor_miner 7.0.0",
+ "fil_actor_multisig 7.0.0",
+ "fil_actor_paych 7.0.0",
+ "fil_actor_power 7.0.0",
+ "fil_actor_reward 7.0.0",
+ "fil_actor_system 7.0.0",
+ "fil_actor_verifreg 7.0.0",
 ]
 
 [[package]]
@@ -1861,8 +1871,8 @@ dependencies = [
  "drop_struct_macro_derive",
  "fff",
  "ffi-toolkit",
- "fil_builtin_actors_bundle 6.0.2",
- "fil_builtin_actors_bundle 6.0.3",
+ "fil_builtin_actors_bundle 6.0.5",
+ "fil_builtin_actors_bundle 7.0.0",
  "fil_logger",
  "filecoin-proofs-api 11.0.0 (git+https://github.com/filecoin-project/rust-filecoin-proofs-api)",
  "filepath",
@@ -2178,8 +2188,9 @@ dependencies = [
 
 [[package]]
 name = "fvm"
-version = "0.1.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#b8417ccf7d4f851aabe9898f0b61822b080f5ada"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a26adccbcac0ce187d86f7829777bd1f4ea136f089b3a26ee2da5843c1f7b066"
 dependencies = [
  "ahash",
  "anyhow",
@@ -2210,8 +2221,9 @@ dependencies = [
 
 [[package]]
 name = "fvm_ipld_amt"
-version = "0.1.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#b8417ccf7d4f851aabe9898f0b61822b080f5ada"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f2390a9be38948b76ee749da692a342e70000bce9cfc988e90c64729a915962e"
 dependencies = [
  "ahash",
  "anyhow",
@@ -2225,8 +2237,9 @@ dependencies = [
 
 [[package]]
 name = "fvm_ipld_bitfield"
-version = "0.1.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#b8417ccf7d4f851aabe9898f0b61822b080f5ada"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fc1af49e67e51d326297440c0250f2012dd0f9d19b2ebec5c26b0c8d5171b540"
 dependencies = [
  "cs_serde_bytes",
  "fvm_shared",
@@ -2236,8 +2249,9 @@ dependencies = [
 
 [[package]]
 name = "fvm_ipld_car"
-version = "0.1.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#b8417ccf7d4f851aabe9898f0b61822b080f5ada"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ce7ed46e948d0e83894d77dcb9b351615ef7ee15dc2a09b35fe9878d8cca5e5c"
 dependencies = [
  "cid",
  "futures",
@@ -2249,8 +2263,9 @@ dependencies = [
 
 [[package]]
 name = "fvm_ipld_hamt"
-version = "0.1.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#b8417ccf7d4f851aabe9898f0b61822b080f5ada"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dd4f07857e1978ce116716012ea6a675803fea00fb36504c307656f935f32578"
 dependencies = [
  "anyhow",
  "byteorder 1.4.3",
@@ -2267,8 +2282,9 @@ dependencies = [
 
 [[package]]
 name = "fvm_sdk"
-version = "0.1.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#b8417ccf7d4f851aabe9898f0b61822b080f5ada"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ce94d50a234db99c4fb445ad74e1520d0f35c934bd5d543625dbab14a157b53f"
 dependencies = [
  "cid",
  "fvm_shared",
@@ -2280,8 +2296,9 @@ dependencies = [
 
 [[package]]
 name = "fvm_shared"
-version = "0.1.0"
-source = "git+https://github.com/filecoin-project/ref-fvm#b8417ccf7d4f851aabe9898f0b61822b080f5ada"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7ab18d5c021bdca31f7b8719d540c157d3af8a116a1b1dfc2f7c09ff901a2606"
 dependencies = [
  "anyhow",
  "bimap",
