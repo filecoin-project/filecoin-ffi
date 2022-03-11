@@ -9,17 +9,19 @@ use fvm::executor::{ApplyKind, DefaultExecutor, Executor};
 use fvm::machine::DefaultMachine;
 use fvm::{Config, DefaultKernel};
 use fvm_ipld_car::load_car;
+use fvm_shared::blockstore::Blockstore;
 use fvm_shared::{clock::ChainEpoch, econ::TokenAmount, message::Message, version::NetworkVersion};
 use lazy_static::lazy_static;
 use log::info;
 
-use super::blockstore::CgoBlockstore;
+use super::blockstore::{CgoBlockstore, FakeBlockstore, OverlayBlockstore};
 use super::externs::CgoExterns;
 use super::types::*;
 use crate::util::api::init_log;
 
-pub type CgoExecutor =
-    DefaultExecutor<DefaultKernel<DefaultCallManager<DefaultMachine<CgoBlockstore, CgoExterns>>>>;
+pub type CgoExecutor = DefaultExecutor<
+    DefaultKernel<DefaultCallManager<DefaultMachine<OverlayBlockstore<CgoBlockstore>, CgoExterns>>>,
+>;
 
 lazy_static! {
     static ref ENGINE: fvm::machine::Engine = fvm::machine::Engine::default();
@@ -84,7 +86,7 @@ pub unsafe extern "C" fn fil_create_fvm_machine(
             }
         };
 
-        let blockstore = CgoBlockstore::new(blockstore_id);
+        let blockstore = FakeBlockstore::new(CgoBlockstore::new(blockstore_id));
 
         let builtin_actors = match import_actors(&blockstore, network_version) {
             Ok(x) => x,
@@ -95,6 +97,8 @@ pub unsafe extern "C" fn fil_create_fvm_machine(
                 return raw_ptr(response);
             }
         };
+
+        let blockstore = blockstore.finish();
 
         let externs = CgoExterns::new(externs_id);
         let machine = fvm::machine::DefaultMachine::new(
@@ -258,7 +262,7 @@ pub unsafe extern "C" fn fil_destroy_fvm_machine_flush_response(
 }
 
 fn import_actors(
-    blockstore: &CgoBlockstore,
+    blockstore: &impl Blockstore,
     network_version: NetworkVersion,
 ) -> Result<Cid, &'static str> {
     let car = match network_version {

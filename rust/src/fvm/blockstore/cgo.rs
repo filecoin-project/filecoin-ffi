@@ -4,7 +4,7 @@ use anyhow::{anyhow, Result};
 use cid::Cid;
 use fvm_shared::blockstore::Blockstore;
 
-use super::cgo::*;
+use super::super::cgo::*;
 
 const ERR_NO_STORE: i32 = -1;
 const ERR_NOT_FOUND: i32 = -2;
