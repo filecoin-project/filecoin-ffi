@@ -38,8 +38,11 @@ memmap = "0.7"
 rust-gpu-tools = { version = "0.5", default-features = false }
 storage-proofs-porep = { version = "~11.0", default-features = false }
 fr32 = { version = "~4.0", default-features = false }
-fvm = { git = "https://github.com/filecoin-project/ref-fvm", default-features = false, features = ["builtin_actors"] }
-fvm_shared = { git = "https://github.com/filecoin-project/ref-fvm" }
+fvm = { version = "0.2.0", default-features = false }
+fvm_ipld_car = { version = "0.2.0" }
+fvm_shared = { version = "0.2.0" }
+actors-v6 = { package = "fil_builtin_actors_bundle", version = "6.0.5" }
+actors-v7 = { package = "fil_builtin_actors_bundle", version = "7.0.1" }
 num-traits = "0.2.14"
 num-bigint = "0.4"
 cid = { version = "0.8.2", features = ["serde-codec"] }
@@ -48,6 +51,7 @@ once_cell = "1.9.0"
 serde = "1.0.117"
 serde_bytes = "0.11.5"
 serde_tuple = "0.5"
+futures = "0.3.5"
 
 [dependencies.filecoin-proofs-api]
 package = "filecoin-proofs-api"
@@ -68,8 +72,3 @@ opencl = ["filecoin-proofs-api/opencl", "bellperson/opencl", "storage-proofs-por
 cuda = ["filecoin-proofs-api/cuda", "bellperson/cuda", "storage-proofs-porep/cuda", "rust-gpu-tools/cuda", "fvm/cuda"]
 multicore-sdr = ["storage-proofs-porep/multicore-sdr"]
 bindgen=[]
-
-# FIXME: remove before merging
-# Patched in
-[patch.crates-io]
-cid = { git = "https://github.com/multiformats/rust-cid", branch = "steb/cbor-hack" }
