@@ -7,9 +7,12 @@ use futures::executor::block_on;
 use fvm::call_manager::DefaultCallManager;
 use fvm::executor::{ApplyKind, DefaultExecutor, Executor};
 use fvm::machine::DefaultMachine;
+use fvm::trace::ExecutionTrace;
 use fvm::{Config, DefaultKernel};
 use fvm_ipld_blockstore::Blockstore;
 use fvm_ipld_car::load_car;
+use fvm_ipld_encoding::to_vec;
+use fvm_shared::receipt::Receipt;
 use fvm_shared::{clock::ChainEpoch, econ::TokenAmount, message::Message, version::NetworkVersion};
 use lazy_static::lazy_static;
 use log::info;
@@ -205,6 +208,14 @@ pub unsafe extern "C" fn fil_fvm_machine_execute_message(
             }
         };
 
+        if apply_ret.exec_trace.is_some() {
+            lotus_trace = build_lotus_trace(apply_ret.exec_trace.expect("checked is_some already"));
+            let lotus_t_bytes = lotus_trace.into_boxed_slice();
+            response.exec_trace_ptr = lotus_t_bytes.as_ptr();
+            response.exec_trace_len = lotus_t_bytes.len();
+            Box::leak(lotus_t_bytes);
+        }
+
         // TODO: use the non-bigint token amount everywhere in the FVM
         let penalty: u128 = apply_ret.penalty.try_into().unwrap();
         let miner_tip: u128 = apply_ret.miner_tip.try_into().unwrap();
@@ -304,4 +315,20 @@ fn import_actors(
     let roots = block_on(async { load_car(blockstore, car).await.unwrap() });
     assert_eq!(roots.len(), 1);
     Ok(Some(roots[0]))
+}
+
+struct LotusTrace {
+    pub msg: Message,
+    pub msg_receipt: Receipt,
+    pub error: String,
+    pub subcalls: Vec<LotusTrace>,
+}
+
+fn build_lotus_trace(exec_trace: ExecutionTrace) -> LotusTrace {
+    LotusTrace {
+        msg: Message {},
+        msg_receipt: Receipt {},
+        error: "".to_string(),
+        subcalls: vec![],
+    }
 }

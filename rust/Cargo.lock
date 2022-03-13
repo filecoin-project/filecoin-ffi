@@ -2181,8 +2181,6 @@ dependencies = [
 [[package]]
 name = "fvm"
 version = "0.5.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "90d41dc54c85611a2af7d1755b32c26ded3ca8ded980fe23c195189eccbd9ec5"
 dependencies = [
  "ahash",
  "anyhow",
@@ -2233,8 +2231,6 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_amt"
 version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b3394e5f9c2adb4d586519bc24bbfd659366e01e7ffa6cda676be94a62bab474"
 dependencies = [
  "anyhow",
  "cid",
@@ -2261,8 +2257,6 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_blockstore"
 version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1985eae58ec2fbf54535ce115c72a2141459fb7fb4ff7379e17bffae0e302578"
 dependencies = [
  "anyhow",
  "cid",
@@ -2285,8 +2279,6 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_car"
 version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b29c366de4287fc6ae2a8f6adcab014020626d506150238f264d3ba2ee788e83"
 dependencies = [
  "cid",
  "futures",
@@ -2300,8 +2292,6 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_encoding"
 version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "43bd635987aac46a753ec81767713af35cb50f182c7cc49d3a429643ede0e709"
 dependencies = [
  "anyhow",
  "cid",
@@ -2336,8 +2326,6 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_hamt"
 version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a03c6ae361a882360bc0c0f47265b294429f096baa8d9467247bbd62c6a6683c"
 dependencies = [
  "anyhow",
  "byteorder 1.4.3",
@@ -2401,8 +2389,6 @@ dependencies = [
 [[package]]
 name = "fvm_shared"
 version = "0.4.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bceae71555508197a56161d5b2a30de2b8cf9ff83528a71def2ee67169f94572"
 dependencies = [
  "anyhow",
  "bimap",
