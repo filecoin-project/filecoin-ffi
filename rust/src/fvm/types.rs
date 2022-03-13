@@ -52,6 +52,8 @@ pub struct fil_FvmMachineExecuteResponse {
     pub penalty_lo: u64,
     pub miner_tip_hi: u64,
     pub miner_tip_lo: u64,
+    pub exec_trace_ptr: *const u8,
+    pub exec_trace_len: libc::size_t,
 }
 
 impl Default for fil_FvmMachineExecuteResponse {
@@ -67,6 +69,8 @@ impl Default for fil_FvmMachineExecuteResponse {
             penalty_lo: 0,
             miner_tip_hi: 0,
             miner_tip_lo: 0,
+            exec_trace_ptr: ptr::null(),
+            exec_trace_len: 0,
         }
     }
 }
