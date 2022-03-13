@@ -43,6 +43,7 @@ type FVMOpts struct {
 	NetworkVersion network.Version
 	StateBase      cid.Cid
 	Manifest       cid.Cid
+	Tracing        bool
 }
 
 // CreateFVM creates a new FVM instance.
@@ -68,6 +69,7 @@ func CreateFVM(opts *FVMOpts) (*FVM, error) {
 		uint(opts.StateBase.ByteLen()),
 		opts.Manifest.Bytes(),
 		uint(opts.Manifest.ByteLen()),
+		opts.Tracing,
 		exHandle, exHandle,
 	)
 	resp.Deref()
@@ -117,11 +119,12 @@ func (f *FVM) ApplyMessage(msgBytes []byte, chainLen uint) (*ApplyRet, error) {
 	}
 
 	return &ApplyRet{
-		Return:       copyBytes(resp.ReturnPtr, resp.ReturnLen),
-		ExitCode:     resp.ExitCode,
-		GasUsed:      int64(resp.GasUsed),
-		MinerPenalty: reformBigInt(resp.PenaltyHi, resp.PenaltyLo),
-		MinerTip:     reformBigInt(resp.MinerTipHi, resp.MinerTipLo),
+		Return:         copyBytes(resp.ReturnPtr, resp.ReturnLen),
+		ExitCode:       resp.ExitCode,
+		GasUsed:        int64(resp.GasUsed),
+		MinerPenalty:   reformBigInt(resp.PenaltyHi, resp.PenaltyLo),
+		MinerTip:       reformBigInt(resp.MinerTipHi, resp.MinerTipLo),
+		ExecTraceBytes: copyBytes(resp.ExecTracePtr, resp.ExecTraceLen),
 	}, nil
 }
 
@@ -166,11 +169,12 @@ func (f *FVM) Flush() (cid.Cid, error) {
 }
 
 type ApplyRet struct {
-	Return       []byte
-	ExitCode     uint64
-	GasUsed      int64
-	MinerPenalty abi.TokenAmount
-	MinerTip     abi.TokenAmount
+	Return         []byte
+	ExitCode       uint64
+	GasUsed        int64
+	MinerPenalty   abi.TokenAmount
+	MinerTip       abi.TokenAmount
+	ExecTraceBytes []byte
 }
 
 // NOTE: We only support 64bit platforms
