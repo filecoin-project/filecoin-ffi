@@ -210,7 +210,8 @@ pub unsafe extern "C" fn fil_fvm_machine_execute_message(
                 .map(|a| a.code);
             let _ = writeln!(
                 log,
-                r#"{{"fuel":{},"wasm_time":{},"gas":{},"total_time":{},"code":{},"method":{}}}"#,
+                r#"{{"type":"apply","epoch":{},"fuel":{},"wasm_time":{},"gas":{},"time":{},"code":{},"method":{}}}"#,
+                executor.context().epoch,
                 stats.fuel_used,
                 stats.wasm_duration.as_nanos(),
                 apply_ret.msg_receipt.gas_used,
@@ -258,6 +259,7 @@ pub unsafe extern "C" fn fil_fvm_machine_flush(
 
         info!("fil_fvm_machine_flush: start");
 
+        let start = Instant::now();
         let mut executor = unsafe { &*(executor as *mut Mutex<CgoExecutor>) }
             .lock()
             .unwrap();
@@ -276,7 +278,14 @@ pub unsafe extern "C" fn fil_fvm_machine_flush(
         }
         info!("fil_fvm_machine_flush: end");
 
+        let duration = start.elapsed();
         if let Some(mut log) = TIMING_LOG.as_ref().and_then(|l| l.lock().ok()) {
+            let _ = writeln!(
+                log,
+                r#"{{"type":"flush","epoch":{},"time":{}}}"#,
+                executor.context().epoch,
+                duration.as_nanos()
+            );
             let _ = log.flush();
         }
 
