@@ -11,9 +11,9 @@ use ffi_toolkit::{catch_panic_response, raw_ptr, rust_str_to_c_str, FCPResponseS
 use futures::executor::block_on;
 use fvm::call_manager::{DefaultCallManager, InvocationResult};
 use fvm::executor::{ApplyKind, DefaultExecutor, Executor};
-use fvm::machine::DefaultMachine;
+use fvm::machine::{DefaultMachine, Machine};
 use fvm::trace::ExecutionEvent;
-use fvm::DefaultKernel;
+use fvm::{Config, DefaultKernel};
 use fvm_ipld_blockstore::Blockstore;
 use fvm_ipld_car::load_car;
 use fvm_ipld_encoding::tuple::{Deserialize_tuple, Serialize_tuple};
@@ -217,6 +217,9 @@ pub unsafe extern "C" fn fil_fvm_machine_execute_message(
             }
         };
 
+        let recipient = message.to;
+        let method_num = message.method_num;
+
         let mut executor = unsafe { &*(executor as *mut Mutex<CgoExecutor>) }
             .lock()
             .unwrap();
@@ -236,13 +239,22 @@ pub unsafe extern "C" fn fil_fvm_machine_execute_message(
             TIMING_LOG.as_ref().and_then(|l| l.lock().ok()),
             &apply_ret.exec_stats,
         ) {
+            let code = executor
+                .state_tree()
+                .get_actor(&recipient)
+                .ok()
+                .flatten()
+                .map(|a| a.code);
             let _ = writeln!(
                 log,
-                r#"{{"fuel":{},"wasm_time":{},"gas":{},"total_time":{}}}"#,
+                r#"{{"fuel":{},"wasm_time":{},"gas":{},"total_time":{},"code":{},"method":{}}}"#,
                 stats.fuel_used,
                 stats.wasm_duration.as_nanos(),
                 apply_ret.msg_receipt.gas_used,
                 duration.as_nanos(),
+                code.map(|c| format!(r#""{}""#, c))
+                    .unwrap_or_else(|| String::from("null")),
+                method_num,
             );
         }
 
