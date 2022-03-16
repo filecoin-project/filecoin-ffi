@@ -2191,7 +2191,7 @@ dependencies = [
 [[package]]
 name = "fvm"
 version = "0.2.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/fuel#4292ee07c265da6a67d89c532dc0b312c02d066b"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/fuel#9ece505f1f97973809a8d4b4f465fb9cca6e4fea"
 dependencies = [
  "ahash",
  "anyhow",
@@ -2239,7 +2239,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_amt"
 version = "0.2.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/fuel#4292ee07c265da6a67d89c532dc0b312c02d066b"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/fuel#9ece505f1f97973809a8d4b4f465fb9cca6e4fea"
 dependencies = [
  "anyhow",
  "cid",
@@ -2265,7 +2265,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_car"
 version = "0.2.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/fuel#4292ee07c265da6a67d89c532dc0b312c02d066b"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/fuel#9ece505f1f97973809a8d4b4f465fb9cca6e4fea"
 dependencies = [
  "cid",
  "futures",
@@ -2297,7 +2297,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_hamt"
 version = "0.2.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/fuel#4292ee07c265da6a67d89c532dc0b312c02d066b"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/fuel#9ece505f1f97973809a8d4b4f465fb9cca6e4fea"
 dependencies = [
  "anyhow",
  "byteorder 1.4.3",
@@ -2329,7 +2329,7 @@ dependencies = [
 [[package]]
 name = "fvm_shared"
 version = "0.2.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/fuel#4292ee07c265da6a67d89c532dc0b312c02d066b"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/fuel#9ece505f1f97973809a8d4b4f465fb9cca6e4fea"
 dependencies = [
  "anyhow",
  "bimap",

@@ -210,7 +210,7 @@ pub unsafe extern "C" fn fil_fvm_machine_execute_message(
                 .map(|a| a.code);
             let _ = writeln!(
                 log,
-                r#"{{"type":"apply","epoch":{},"fuel":{},"wasm_time":{},"call_overhead":{},"gas":{},"time":{},"code":{},"method":{}}}"#,
+                r#"{{"type":"apply","epoch":{},"fuel":{},"wasm_time":{},"call_overhead":{},"gas":{},"compute_gas":{},"time":{},"code":{},"method":{}}}"#,
                 executor.context().epoch,
                 stats.fuel_used,
                 stats.wasm_duration.as_nanos(),
@@ -223,6 +223,7 @@ pub unsafe extern "C" fn fil_fvm_machine_execute_message(
                     "null".to_owned()
                 },
                 apply_ret.msg_receipt.gas_used,
+                stats.compute_gas,
                 duration.as_nanos(),
                 code.map(|c| format!(r#""{}""#, c))
                     .unwrap_or_else(|| String::from("null")),
