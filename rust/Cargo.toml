@@ -56,7 +56,6 @@ futures = "0.3.5"
 [dependencies.filecoin-proofs-api]
 package = "filecoin-proofs-api"
 version = "11.0"
-git = "https://github.com/filecoin-project/rust-filecoin-proofs-api"
 default-features = false
 
 [build-dependencies]

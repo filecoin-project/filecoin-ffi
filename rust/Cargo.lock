@@ -1877,7 +1877,7 @@ dependencies = [
  "fil_builtin_actors_bundle 6.0.5",
  "fil_builtin_actors_bundle 7.0.4",
  "fil_logger",
- "filecoin-proofs-api 11.0.0 (git+https://github.com/filecoin-project/rust-filecoin-proofs-api)",
+ "filecoin-proofs-api",
  "filepath",
  "fr32",
  "futures",
@@ -1970,23 +1970,6 @@ name = "filecoin-proofs-api"
 version = "11.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5280b3e09bdad4352756c78a9f71ab06442fedcc3f93cda681851c4bc7c25325"
-dependencies = [
- "anyhow",
- "bellperson",
- "bincode",
- "blstrs",
- "filecoin-hashers",
- "filecoin-proofs",
- "fr32",
- "serde",
- "storage-proofs-core",
- "storage-proofs-porep",
-]
-
-[[package]]
-name = "filecoin-proofs-api"
-version = "11.0.0"
-source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api#250963c69f13bef8ab91f709e9e33c9e1d760fbd"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -2203,7 +2186,7 @@ dependencies = [
  "derive-getters",
  "derive_builder",
  "derive_more",
- "filecoin-proofs-api 11.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "filecoin-proofs-api",
  "fvm_ipld_amt",
  "fvm_ipld_hamt",
  "fvm_shared",
@@ -2313,7 +2296,7 @@ dependencies = [
  "cs_serde_bytes",
  "data-encoding",
  "data-encoding-macro",
- "filecoin-proofs-api 11.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "filecoin-proofs-api",
  "lazy_static",
  "libsecp256k1",
  "log",
