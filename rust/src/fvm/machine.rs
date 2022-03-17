@@ -212,7 +212,7 @@ pub unsafe extern "C" fn fil_fvm_machine_execute_message(
 #[no_mangle]
 pub unsafe extern "C" fn fil_fvm_machine_flush(
     executor: *mut libc::c_void,
-) -> *const fil_FvmMachineFlushResponse {
+) -> *mut fil_FvmMachineFlushResponse {
     catch_panic_response(|| {
         init_log();
 
