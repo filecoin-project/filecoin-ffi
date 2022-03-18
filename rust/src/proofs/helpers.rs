@@ -127,11 +127,15 @@ pub unsafe fn c_to_rust_post_proofs(
 
     let out = from_raw_parts(post_proofs_ptr, post_proofs_len)
         .iter()
-        .map(|fpp| PoStProof {
-            registered_proof: fpp.registered_proof.into(),
-            proof: from_raw_parts(fpp.proof_ptr, fpp.proof_len).to_vec(),
+        .map(|fpp| {
+            ensure!(!fpp.proof_ptr.is_null(), "proof_ptr must not be null");
+
+            Ok(PoStProof {
+                registered_proof: fpp.registered_proof.into(),
+                proof: from_raw_parts(fpp.proof_ptr, fpp.proof_len).to_vec(),
+            })
         })
-        .collect();
+        .collect::<Result<_>>()?;
 
     Ok(out)
 }
@@ -147,10 +151,13 @@ pub unsafe fn c_to_rust_vanilla_partition_proofs(
 
     let out = from_raw_parts(partition_proofs_ptr, partition_proofs_len)
         .iter()
-        .map(|fpp| PartitionProof {
-            proof: from_raw_parts(fpp.proof_ptr, fpp.proof_len).to_vec(),
+        .map(|fpp| {
+            ensure!(!fpp.proof_ptr.is_null(), "proof_ptr must not be null");
+            Ok(PartitionProof {
+                proof: from_raw_parts(fpp.proof_ptr, fpp.proof_len).to_vec(),
+            })
         })
-        .collect();
+        .collect::<Result<_>>()?;
 
     Ok(out)
 }
@@ -166,11 +173,14 @@ pub unsafe fn c_to_rust_partition_proofs(
 
     let out = from_raw_parts(partition_proofs_ptr, partition_proofs_len)
         .iter()
-        .map(|fpp| PartitionSnarkProof {
-            registered_proof: fpp.registered_proof.into(),
-            proof: from_raw_parts(fpp.proof_ptr, fpp.proof_len).to_vec(),
+        .map(|fpp| {
+            ensure!(!fpp.proof_ptr.is_null(), "proof_ptr must not be null");
+            Ok(PartitionSnarkProof {
+                registered_proof: fpp.registered_proof.into(),
+                proof: from_raw_parts(fpp.proof_ptr, fpp.proof_len).to_vec(),
+            })
         })
-        .collect();
+        .collect::<Result<_>>()?;
 
     Ok(out)
 }

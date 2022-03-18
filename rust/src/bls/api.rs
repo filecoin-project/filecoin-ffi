@@ -1,4 +1,5 @@
-use std::slice::from_raw_parts;
+use std::ptr;
+use std::slice::{from_raw_parts, from_raw_parts_mut};
 
 use bls_signatures::{
     aggregate as aggregate_sig, hash as hash_sig, verify as verify_sig,
@@ -62,6 +63,10 @@ pub unsafe extern "C" fn fil_hash(
     message_ptr: *const u8,
     message_len: libc::size_t,
 ) -> *mut types::fil_HashResponse {
+    if message_ptr.is_null() {
+        return ptr::null_mut();
+    }
+
     // prep request
     let message = from_raw_parts(message_ptr, message_len);
 
@@ -92,6 +97,10 @@ pub unsafe extern "C" fn fil_aggregate(
     flattened_signatures_ptr: *const u8,
     flattened_signatures_len: libc::size_t,
 ) -> *mut types::fil_AggregateResponse {
+    if flattened_signatures_ptr.is_null() {
+        return ptr::null_mut();
+    }
+
     // prep request
     let signatures = try_ffi!(
         from_raw_parts(flattened_signatures_ptr, flattened_signatures_len)
@@ -134,6 +143,13 @@ pub unsafe extern "C" fn fil_verify(
     flattened_public_keys_ptr: *const u8,
     flattened_public_keys_len: libc::size_t,
 ) -> libc::c_int {
+    if signature_ptr.is_null()
+        || flattened_digests_ptr.is_null()
+        || flattened_public_keys_ptr.is_null()
+    {
+        return 0;
+    }
+
     // prep request
     let raw_signature = from_raw_parts(signature_ptr, SIGNATURE_BYTES);
     let signature = try_ffi!(Signature::from_bytes(raw_signature), 0);
@@ -197,6 +213,14 @@ pub unsafe extern "C" fn fil_hash_verify(
     flattened_public_keys_ptr: *const u8,
     flattened_public_keys_len: libc::size_t,
 ) -> libc::c_int {
+    if signature_ptr.is_null()
+        || flattened_messages_ptr.is_null()
+        || message_sizes_ptr.is_null()
+        || flattened_public_keys_ptr.is_null()
+    {
+        return 0;
+    }
+
     // prep request
     let raw_signature = from_raw_parts(signature_ptr, SIGNATURE_BYTES);
     let signature = try_ffi!(Signature::from_bytes(raw_signature), 0);
@@ -291,6 +315,10 @@ pub unsafe extern "C" fn fil_private_key_sign(
     message_ptr: *const u8,
     message_len: libc::size_t,
 ) -> *mut types::fil_PrivateKeySignResponse {
+    if raw_private_key_ptr.is_null() || message_ptr.is_null() {
+        return ptr::null_mut();
+    }
+
     // prep request
     let private_key_slice = from_raw_parts(raw_private_key_ptr, PRIVATE_KEY_BYTES);
     let private_key = try_ffi!(
@@ -324,6 +352,10 @@ pub unsafe extern "C" fn fil_private_key_sign(
 pub unsafe extern "C" fn fil_private_key_public_key(
     raw_private_key_ptr: *const u8,
 ) -> *mut types::fil_PrivateKeyPublicKeyResponse {
+    if raw_private_key_ptr.is_null() {
+        return ptr::null_mut();
+    }
+
     let private_key_slice = from_raw_parts(raw_private_key_ptr, PRIVATE_KEY_BYTES);
     let private_key = try_ffi!(
         PrivateKey::from_bytes(private_key_slice),
@@ -369,7 +401,9 @@ pub unsafe extern "C" fn fil_create_zero_signature() -> *mut types::fil_ZeroSign
 /// Frees the memory of the returned value of `fil_create_zero_signature`.
 #[no_mangle]
 pub unsafe extern "C" fn fil_drop_signature(sig: *mut u8) {
-    let _: &[u8] = std::slice::from_raw_parts_mut(sig, SIGNATURE_BYTES);
+    if !sig.is_null() {
+        let _: &[u8] = from_raw_parts_mut(sig, SIGNATURE_BYTES);
+    }
 }
 
 #[cfg(test)]

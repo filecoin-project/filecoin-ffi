@@ -57,3 +57,7 @@ blst-portable = ["bls-signatures/blst-portable", "blstrs/portable"]
 opencl = ["filecoin-proofs-api/opencl", "bellperson/opencl", "storage-proofs-porep/opencl", "rust-gpu-tools/opencl"]
 cuda = ["filecoin-proofs-api/cuda", "bellperson/cuda", "storage-proofs-porep/cuda", "rust-gpu-tools/cuda"]
 multicore-sdr = ["storage-proofs-porep/multicore-sdr"]
+
+[patch.crates-io]
+ffi-toolkit = { git = "https://github.com/filecoin-project/rust-fil-ffi-toolkit", branch = "use-mut-ptrs" }
+drop_struct_macro_derive = { git = "https://github.com/filecoin-project/rust-fil-ffi-toolkit", branch = "use-mut-ptrs" }

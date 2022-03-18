@@ -22,7 +22,6 @@ use blstrs::Scalar as Fr;
 use log::{error, info};
 use rayon::prelude::*;
 
-use std::mem;
 use std::path::PathBuf;
 use std::slice::from_raw_parts;
 
@@ -80,7 +79,7 @@ pub unsafe extern "C" fn fil_write_with_alignment(
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
             }
         }
 
@@ -120,7 +119,7 @@ pub unsafe extern "C" fn fil_write_without_alignment(
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
             }
         }
 
@@ -156,7 +155,7 @@ pub unsafe extern "C" fn fil_fauxrep(
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
             }
         }
 
@@ -192,7 +191,7 @@ pub unsafe extern "C" fn fil_fauxrep2(
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
             }
         }
 
@@ -242,13 +241,13 @@ pub unsafe extern "C" fn fil_seal_pre_commit_phase1(
         match result {
             Ok(output) => {
                 response.status_code = FCPResponseStatus::FCPNoError;
-                response.seal_pre_commit_phase1_output_ptr = output.as_ptr();
-                response.seal_pre_commit_phase1_output_len = output.len();
-                mem::forget(output);
+                let (ptr, len) = vec_into_raw(output);
+                response.seal_pre_commit_phase1_output_ptr = ptr;
+                response.seal_pre_commit_phase1_output_len = len;
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
             }
         }
 
@@ -297,7 +296,7 @@ pub unsafe extern "C" fn fil_seal_pre_commit_phase2(
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
             }
         }
 
@@ -354,13 +353,13 @@ pub unsafe extern "C" fn fil_seal_commit_phase1(
         match result.and_then(|output| serde_json::to_vec(&output).map_err(Into::into)) {
             Ok(output) => {
                 response.status_code = FCPResponseStatus::FCPNoError;
-                response.seal_commit_phase1_output_ptr = output.as_ptr();
-                response.seal_commit_phase1_output_len = output.len();
-                mem::forget(output);
+                let (ptr, len) = vec_into_raw(output);
+                response.seal_commit_phase1_output_ptr = ptr;
+                response.seal_commit_phase1_output_len = len;
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
             }
         }
 
@@ -396,13 +395,13 @@ pub unsafe extern "C" fn fil_seal_commit_phase2(
         match result {
             Ok(output) => {
                 response.status_code = FCPResponseStatus::FCPNoError;
-                response.proof_ptr = output.proof.as_ptr();
-                response.proof_len = output.proof.len();
-                mem::forget(output.proof);
+                let (ptr, len) = vec_into_raw(output.proof);
+                response.proof_ptr = ptr;
+                response.proof_len = len;
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
             }
         }
 
@@ -450,14 +449,13 @@ pub unsafe extern "C" fn fil_aggregate_seal_proofs(
         match result {
             Ok(output) => {
                 response.status_code = FCPResponseStatus::FCPNoError;
-                response.proof_ptr = output.as_ptr();
-                response.proof_len = output.len();
-
-                mem::forget(output);
+                let (ptr, len) = vec_into_raw(output);
+                response.proof_ptr = ptr;
+                response.proof_len = len;
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
             }
         }
 
@@ -547,14 +545,14 @@ pub unsafe extern "C" fn fil_verify_aggregate_seal_proof(
                     }
                     Err(err) => {
                         response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                        response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                        response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
                         response.is_valid = false;
                     }
                 }
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
                 response.is_valid = false;
             }
         }
@@ -615,7 +613,7 @@ pub unsafe extern "C" fn fil_unseal_range(
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
             }
         };
 
@@ -670,7 +668,7 @@ pub unsafe extern "C" fn fil_verify_seal(
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
             }
         };
 
@@ -708,14 +706,13 @@ pub unsafe extern "C" fn fil_generate_winning_post_sector_challenge(
                 let mapped: Vec<u64> = output.into_iter().map(u64::from).collect();
 
                 response.status_code = FCPResponseStatus::FCPNoError;
-                response.ids_ptr = mapped.as_ptr();
-                response.ids_len = mapped.len();
-
-                mem::forget(mapped);
+                let (ptr, len) = vec_into_raw(mapped);
+                response.ids_ptr = ptr;
+                response.ids_len = len;
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
             }
         }
 
@@ -785,22 +782,27 @@ pub unsafe extern "C" fn fil_generate_fallback_sector_challenges(
 
                 if challenges_stride_mismatch {
                     response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                    response.error_msg = rust_str_to_c_str("Challenge stride mismatch".to_string());
+                    response.error_msg =
+                        rust_str_to_c_str("Challenge stride mismatch".to_string()).unwrap();
                 } else {
                     response.status_code = FCPResponseStatus::FCPNoError;
-                    response.ids_ptr = sector_ids.as_ptr();
-                    response.ids_len = sector_ids.len();
-                    response.challenges_ptr = challenges.as_ptr();
-                    response.challenges_len = challenges.len();
-                    response.challenges_stride = challenges_stride;
 
-                    mem::forget(sector_ids);
-                    mem::forget(challenges);
+                    {
+                        let (ptr, len) = vec_into_raw(sector_ids);
+                        response.ids_ptr = ptr;
+                        response.ids_len = len;
+                    }
+                    {
+                        let (ptr, len) = vec_into_raw(challenges);
+                        response.challenges_ptr = ptr;
+                        response.challenges_len = len;
+                    }
+                    response.challenges_stride = challenges_stride;
                 }
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
             }
         };
 
@@ -852,14 +854,14 @@ pub unsafe extern "C" fn fil_generate_single_vanilla_proof(
         match result {
             Ok(output) => {
                 response.status_code = FCPResponseStatus::FCPNoError;
-                response.vanilla_proof.proof_len = output.len();
-                response.vanilla_proof.proof_ptr = output.as_ptr();
 
-                mem::forget(output);
+                let (ptr, len) = vec_into_raw(output);
+                response.vanilla_proof.proof_len = len;
+                response.vanilla_proof.proof_ptr = ptr;
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
             }
         };
 
@@ -907,30 +909,26 @@ pub unsafe extern "C" fn fil_generate_winning_post_with_vanilla(
         match result {
             Ok(output) => {
                 let mapped: Vec<fil_PoStProof> = output
-                    .iter()
-                    .cloned()
+                    .into_iter()
                     .map(|(t, proof)| {
-                        let out = fil_PoStProof {
+                        let (ptr, len) = vec_into_raw(proof);
+                        fil_PoStProof {
                             registered_proof: (t).into(),
-                            proof_len: proof.len(),
-                            proof_ptr: proof.as_ptr(),
-                        };
-
-                        mem::forget(proof);
-
-                        out
+                            proof_len: len,
+                            proof_ptr: ptr,
+                        }
                     })
                     .collect();
 
                 response.status_code = FCPResponseStatus::FCPNoError;
-                response.proofs_ptr = mapped.as_ptr();
-                response.proofs_len = mapped.len();
 
-                mem::forget(mapped);
+                let (ptr, len) = vec_into_raw(mapped);
+                response.proofs_ptr = ptr;
+                response.proofs_len = len;
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
             }
         }
 
@@ -967,29 +965,25 @@ pub unsafe extern "C" fn fil_generate_winning_post(
         match result {
             Ok(output) => {
                 let mapped: Vec<fil_PoStProof> = output
-                    .iter()
-                    .cloned()
+                    .into_iter()
                     .map(|(t, proof)| {
-                        let out = fil_PoStProof {
+                        let (ptr, len) = vec_into_raw(proof);
+                        fil_PoStProof {
                             registered_proof: (t).into(),
-                            proof_len: proof.len(),
-                            proof_ptr: proof.as_ptr(),
-                        };
-
-                        mem::forget(proof);
-
-                        out
+                            proof_len: len,
+                            proof_ptr: ptr,
+                        }
                     })
                     .collect();
 
                 response.status_code = FCPResponseStatus::FCPNoError;
-                response.proofs_ptr = mapped.as_ptr();
-                response.proofs_len = mapped.len();
-                mem::forget(mapped);
+                let (ptr, len) = vec_into_raw(mapped);
+                response.proofs_ptr = ptr;
+                response.proofs_len = len;
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
             }
         }
 
@@ -1037,7 +1031,7 @@ pub unsafe extern "C" fn fil_verify_winning_post(
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
             }
         };
 
@@ -1083,25 +1077,21 @@ pub unsafe extern "C" fn fil_generate_window_post_with_vanilla(
         match result {
             Ok(output) => {
                 let mapped: Vec<fil_PoStProof> = output
-                    .iter()
-                    .cloned()
+                    .into_iter()
                     .map(|(t, proof)| {
-                        let out = fil_PoStProof {
+                        let (ptr, len) = vec_into_raw(proof);
+                        fil_PoStProof {
                             registered_proof: (t).into(),
-                            proof_len: proof.len(),
-                            proof_ptr: proof.as_ptr(),
-                        };
-
-                        mem::forget(proof);
-
-                        out
+                            proof_len: len,
+                            proof_ptr: ptr,
+                        }
                     })
                     .collect();
 
                 response.status_code = FCPResponseStatus::FCPNoError;
-                response.proofs_ptr = mapped.as_ptr();
-                response.proofs_len = mapped.len();
-                mem::forget(mapped);
+                let (ptr, len) = vec_into_raw(mapped);
+                response.proofs_ptr = ptr;
+                response.proofs_len = len;
             }
             Err(err) => {
                 // If there were faulty sectors, add them to the response
@@ -1112,13 +1102,14 @@ pub unsafe extern "C" fn fil_generate_window_post_with_vanilla(
                         .iter()
                         .map(|sector| u64::from(*sector))
                         .collect::<Vec<u64>>();
-                    response.faulty_sectors_len = sectors_u64.len();
-                    response.faulty_sectors_ptr = sectors_u64.as_ptr();
-                    mem::forget(sectors_u64)
+
+                    let (ptr, len) = vec_into_raw(sectors_u64);
+                    response.faulty_sectors_ptr = ptr;
+                    response.faulty_sectors_len = len;
                 }
 
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
             }
         }
 
@@ -1151,25 +1142,21 @@ pub unsafe extern "C" fn fil_generate_window_post(
         match result {
             Ok(output) => {
                 let mapped: Vec<fil_PoStProof> = output
-                    .iter()
-                    .cloned()
+                    .into_iter()
                     .map(|(t, proof)| {
-                        let out = fil_PoStProof {
+                        let (ptr, len) = vec_into_raw(proof);
+                        fil_PoStProof {
                             registered_proof: (t).into(),
-                            proof_len: proof.len(),
-                            proof_ptr: proof.as_ptr(),
-                        };
-
-                        mem::forget(proof);
-
-                        out
+                            proof_len: len,
+                            proof_ptr: ptr,
+                        }
                     })
                     .collect();
 
                 response.status_code = FCPResponseStatus::FCPNoError;
-                response.proofs_ptr = mapped.as_ptr();
-                response.proofs_len = mapped.len();
-                mem::forget(mapped);
+                let (ptr, len) = vec_into_raw(mapped);
+                response.proofs_ptr = ptr;
+                response.proofs_len = len;
             }
             Err(err) => {
                 // If there were faulty sectors, add them to the response
@@ -1180,13 +1167,14 @@ pub unsafe extern "C" fn fil_generate_window_post(
                         .iter()
                         .map(|sector| u64::from(*sector))
                         .collect::<Vec<u64>>();
-                    response.faulty_sectors_len = sectors_u64.len();
-                    response.faulty_sectors_ptr = sectors_u64.as_ptr();
-                    mem::forget(sectors_u64)
+
+                    let (ptr, len) = vec_into_raw(sectors_u64);
+                    response.faulty_sectors_ptr = ptr;
+                    response.faulty_sectors_len = len;
                 }
 
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
             }
         }
 
@@ -1238,7 +1226,7 @@ pub unsafe extern "C" fn fil_verify_window_post(
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
             }
         };
 
@@ -1270,7 +1258,7 @@ pub unsafe extern "C" fn fil_merge_window_post_partition_proofs(
                     .collect(),
                 Err(err) => {
                     response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                    response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                    response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
                     Vec::new()
                 }
             };
@@ -1283,20 +1271,19 @@ pub unsafe extern "C" fn fil_merge_window_post_partition_proofs(
 
             match result {
                 Ok(output) => {
+                    let (ptr, len) = vec_into_raw(output);
                     let proof = fil_PoStProof {
                         registered_proof,
-                        proof_ptr: output.as_ptr(),
-                        proof_len: output.len(),
+                        proof_ptr: ptr,
+                        proof_len: len,
                     };
 
                     response.status_code = FCPResponseStatus::FCPNoError;
                     response.proof = proof;
-
-                    mem::forget(output);
                 }
                 Err(err) => {
                     response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                    response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                    response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
                 }
             }
         }
@@ -1332,7 +1319,7 @@ pub unsafe extern "C" fn fil_get_num_partition_for_fallback_post(
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
             }
         }
 
@@ -1380,12 +1367,12 @@ pub unsafe extern "C" fn fil_generate_single_window_post_with_vanilla(
 
         match result {
             Ok(output) => {
+                let (ptr, len) = vec_into_raw(output.0);
                 let partition_proof = fil_PartitionSnarkProof {
                     registered_proof,
-                    proof_ptr: output.0.as_ptr(),
-                    proof_len: output.0.len(),
+                    proof_ptr: ptr,
+                    proof_len: len,
                 };
-                mem::forget(output);
 
                 response.status_code = FCPResponseStatus::FCPNoError;
                 response.partition_proof = partition_proof;
@@ -1399,13 +1386,14 @@ pub unsafe extern "C" fn fil_generate_single_window_post_with_vanilla(
                         .iter()
                         .map(|sector| u64::from(*sector))
                         .collect::<Vec<u64>>();
-                    response.faulty_sectors_len = sectors_u64.len();
-                    response.faulty_sectors_ptr = sectors_u64.as_ptr();
-                    mem::forget(sectors_u64)
+
+                    let (ptr, len) = vec_into_raw(sectors_u64);
+                    response.faulty_sectors_ptr = ptr;
+                    response.faulty_sectors_len = len;
                 }
 
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
             }
         }
 
@@ -1458,7 +1446,7 @@ pub unsafe extern "C" fn fil_empty_sector_update_encode_into(
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
             }
         }
 
@@ -1501,7 +1489,7 @@ pub unsafe extern "C" fn fil_empty_sector_update_decode_from(
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
             }
         }
 
@@ -1546,7 +1534,7 @@ pub unsafe extern "C" fn fil_empty_sector_update_remove_encoded_data(
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
             }
         }
 
@@ -1590,29 +1578,24 @@ pub unsafe extern "C" fn fil_generate_empty_sector_update_partition_proofs(
         match result {
             Ok(output) => {
                 let mapped: Vec<fil_PartitionProof> = output
-                    .iter()
-                    .cloned()
+                    .into_iter()
                     .map(|proof| {
-                        let out = fil_PartitionProof {
-                            proof_ptr: proof.0.as_ptr(),
-                            proof_len: proof.0.len(),
-                        };
-
-                        mem::forget(proof);
-
-                        out
+                        let (ptr, len) = vec_into_raw(proof.0);
+                        fil_PartitionProof {
+                            proof_ptr: ptr,
+                            proof_len: len,
+                        }
                     })
                     .collect();
 
                 response.status_code = FCPResponseStatus::FCPNoError;
-                response.proofs_ptr = mapped.as_ptr();
-                response.proofs_len = mapped.len();
-
-                mem::forget(mapped);
+                let (ptr, len) = vec_into_raw(mapped);
+                response.proofs_ptr = ptr;
+                response.proofs_len = len;
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
             }
         }
 
@@ -1662,13 +1645,13 @@ pub unsafe extern "C" fn fil_verify_empty_sector_update_partition_proofs(
                     }
                     Err(err) => {
                         response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                        response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                        response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
                     }
                 }
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
             }
         };
 
@@ -1723,14 +1706,13 @@ pub unsafe extern "C" fn fil_generate_empty_sector_update_proof_with_vanilla(
         match result {
             Ok(output) => {
                 response.status_code = FCPResponseStatus::FCPNoError;
-                response.proof_ptr = output.0.as_ptr();
-                response.proof_len = output.0.len();
-
-                mem::forget(output);
+                let (ptr, len) = vec_into_raw(output.0);
+                response.proof_ptr = ptr;
+                response.proof_len = len;
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
             }
         }
 
@@ -1774,14 +1756,13 @@ pub unsafe extern "C" fn fil_generate_empty_sector_update_proof(
         match result {
             Ok(output) => {
                 response.status_code = FCPResponseStatus::FCPNoError;
-                response.proof_ptr = output.0.as_ptr();
-                response.proof_len = output.0.len();
-
-                mem::forget(output);
+                let (ptr, len) = vec_into_raw(output.0);
+                response.proof_ptr = ptr;
+                response.proof_len = len;
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
             }
         }
 
@@ -1830,7 +1811,7 @@ pub unsafe extern "C" fn fil_verify_empty_sector_update_proof(
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
                 response.is_valid = false;
             }
         }
@@ -1877,7 +1858,7 @@ pub unsafe extern "C" fn fil_generate_piece_commitment(
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
             }
         }
 
@@ -1915,7 +1896,7 @@ pub unsafe extern "C" fn fil_generate_data_commitment(
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
             }
         }
 
@@ -1943,7 +1924,7 @@ pub unsafe extern "C" fn fil_clear_cache(
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
             }
         };
 
@@ -2168,11 +2149,11 @@ unsafe fn registered_seal_proof_accessor(
     match op(rsp) {
         Ok(s) => {
             response.status_code = FCPResponseStatus::FCPNoError;
-            response.string_val = rust_str_to_c_str(s);
+            response.string_val = rust_str_to_c_str(s).unwrap();
         }
         Err(err) => {
             response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-            response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+            response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
         }
     }
 
@@ -2190,11 +2171,11 @@ unsafe fn registered_post_proof_accessor(
     match op(rsp) {
         Ok(s) => {
             response.status_code = FCPResponseStatus::FCPNoError;
-            response.string_val = rust_str_to_c_str(s);
+            response.string_val = rust_str_to_c_str(s).unwrap();
         }
         Err(err) => {
             response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-            response.error_msg = rust_str_to_c_str(format!("{:?}", err));
+            response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
         }
     }
 
@@ -2677,10 +2658,10 @@ pub mod tests {
                 panic!("generate_data_commitment failed: {:?}", msg);
             }
 
-            let cache_dir_path_c_str = rust_str_to_c_str(cache_dir_path.to_str().unwrap());
-            let staged_path_c_str = rust_str_to_c_str(staged_path.to_str().unwrap());
-            let replica_path_c_str = rust_str_to_c_str(sealed_path.to_str().unwrap());
-            let unseal_path_c_str = rust_str_to_c_str(unseal_path.to_str().unwrap());
+            let cache_dir_path_c_str = rust_str_to_c_str(cache_dir_path.to_str().unwrap()).unwrap();
+            let staged_path_c_str = rust_str_to_c_str(staged_path.to_str().unwrap()).unwrap();
+            let replica_path_c_str = rust_str_to_c_str(sealed_path.to_str().unwrap()).unwrap();
+            let unseal_path_c_str = rust_str_to_c_str(unseal_path.to_str().unwrap()).unwrap();
 
             let resp_b1 = fil_seal_pre_commit_phase1(
                 registered_proof_seal,
@@ -2889,13 +2870,17 @@ pub mod tests {
                 panic!("generate_data_commitment failed: {:?}", msg);
             }
 
-            let new_cache_dir_path_c_str = rust_str_to_c_str(new_cache_dir_path.to_str().unwrap());
-            let new_staged_path_c_str = rust_str_to_c_str(new_staged_path.to_str().unwrap());
-            let new_sealed_path_c_str = rust_str_to_c_str(new_sealed_path.to_str().unwrap());
-            let decoded_path_c_str = rust_str_to_c_str(decoded_path.to_str().unwrap());
-            let removed_data_path_c_str = rust_str_to_c_str(removed_data_path.to_str().unwrap());
+            let new_cache_dir_path_c_str =
+                rust_str_to_c_str(new_cache_dir_path.to_str().unwrap()).unwrap();
+            let new_staged_path_c_str =
+                rust_str_to_c_str(new_staged_path.to_str().unwrap()).unwrap();
+            let new_sealed_path_c_str =
+                rust_str_to_c_str(new_sealed_path.to_str().unwrap()).unwrap();
+            let decoded_path_c_str = rust_str_to_c_str(decoded_path.to_str().unwrap()).unwrap();
+            let removed_data_path_c_str =
+                rust_str_to_c_str(removed_data_path.to_str().unwrap()).unwrap();
             let removed_data_dir_path_c_str =
-                rust_str_to_c_str(removed_data_dir_path.to_str().unwrap());
+                rust_str_to_c_str(removed_data_dir_path.to_str().unwrap()).unwrap();
 
             // Set the new_sealed_file length to the same as the
             // original sealed file length (required for the API, but
@@ -3746,9 +3731,9 @@ pub mod tests {
                 panic!("generate_data_commitment failed: {:?}", msg);
             }
 
-            let cache_dir_path_c_str = rust_str_to_c_str(cache_dir_path.to_str().unwrap());
-            let staged_path_c_str = rust_str_to_c_str(staged_path.to_str().unwrap());
-            let replica_path_c_str = rust_str_to_c_str(sealed_path.to_str().unwrap());
+            let cache_dir_path_c_str = rust_str_to_c_str(cache_dir_path.to_str().unwrap()).unwrap();
+            let staged_path_c_str = rust_str_to_c_str(staged_path.to_str().unwrap()).unwrap();
+            let replica_path_c_str = rust_str_to_c_str(sealed_path.to_str().unwrap()).unwrap();
 
             let resp_b1 = fil_seal_pre_commit_phase1(
                 registered_proof_seal,
@@ -3783,7 +3768,7 @@ pub mod tests {
 
             let faulty_sealed_file = tempfile::NamedTempFile::new()?;
             let faulty_replica_path_c_str =
-                rust_str_to_c_str(faulty_sealed_file.path().to_str().unwrap());
+                rust_str_to_c_str(faulty_sealed_file.path().to_str().unwrap()).unwrap();
 
             let private_replicas = vec![fil_PrivateReplicaInfo {
                 registered_proof: registered_proof_window_post,
@@ -3941,9 +3926,9 @@ pub mod tests {
                 panic!("generate_data_commitment failed: {:?}", msg);
             }
 
-            let cache_dir_path_c_str = rust_str_to_c_str(cache_dir_path.to_str().unwrap());
-            let staged_path_c_str = rust_str_to_c_str(staged_path.to_str().unwrap());
-            let replica_path_c_str = rust_str_to_c_str(sealed_path.to_str().unwrap());
+            let cache_dir_path_c_str = rust_str_to_c_str(cache_dir_path.to_str().unwrap()).unwrap();
+            let staged_path_c_str = rust_str_to_c_str(staged_path.to_str().unwrap()).unwrap();
+            let replica_path_c_str = rust_str_to_c_str(sealed_path.to_str().unwrap()).unwrap();
 
             let resp_b1 = fil_seal_pre_commit_phase1(
                 registered_proof_seal,

@@ -72,7 +72,7 @@ pub unsafe extern "C" fn fil_init_log_fd(log_fd: libc::c_int) -> *mut fil_InitLo
         let mut response = fil_InitLogFdResponse::default();
         if init_log_with_file(file).is_none() {
             response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-            response.error_msg = rust_str_to_c_str("There is already an active logger. `fil_init_log_fd()` needs to be called before any other FFI function is called.");
+            response.error_msg = rust_str_to_c_str("There is already an active logger. `fil_init_log_fd()` needs to be called before any other FFI function is called.").unwrap();
         }
         raw_ptr(response)
     })
