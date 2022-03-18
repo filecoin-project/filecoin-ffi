@@ -26,22 +26,22 @@ const PublicKeyBytes = 48
 const DigestBytes = 96
 
 // Signature is a compressed affine
-type Signature [SignatureBytes]byte
+type Signature = [SignatureBytes]byte
 
 // PrivateKey is a compressed affine
-type PrivateKey [PrivateKeyBytes]byte
+type PrivateKey = [PrivateKeyBytes]byte
 
 // PublicKey is a compressed affine
-type PublicKey [PublicKeyBytes]byte
+type PublicKey = [PublicKeyBytes]byte
 
 // Message is a byte slice
-type Message []byte
+type Message = []byte
 
 // Digest is a compressed affine
-type Digest [DigestBytes]byte
+type Digest = [DigestBytes]byte
 
 // Used when generating a private key deterministically
-type PrivateKeyGenSeed [32]byte
+type PrivateKeyGenSeed = [32]byte
 
 // Proofs
 
