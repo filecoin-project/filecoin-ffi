@@ -1,5 +1,4 @@
 use std::io::{Error, SeekFrom};
-use std::mem::ManuallyDrop;
 use std::ptr;
 
 use anyhow::Result;
@@ -9,6 +8,8 @@ use filecoin_proofs_api::{
     seal::SealCommitPhase2Output, PieceInfo, RegisteredAggregationProof, RegisteredPoStProof,
     RegisteredSealProof, RegisteredUpdateProof, UnpaddedBytesAmount,
 };
+
+use crate::util::types::{clone_as_vec_from_parts, clone_box_parts, drop_box_from_parts};
 
 #[repr(C)]
 #[derive(Default, Debug, Clone, Copy)]
@@ -1182,49 +1183,3 @@ impl Default for fil_VerifyEmptySectorUpdateProofResponse {
 }
 
 code_and_message_impl!(fil_VerifyEmptySectorUpdateProofResponse);
-
-pub fn vec_into_raw<T>(v: Vec<T>) -> (*mut T, usize) {
-    let bytes = v.into_boxed_slice();
-    let len = bytes.len();
-    (Box::into_raw(bytes).cast(), len)
-}
-
-/// `ptr` must be allocated using `Box::into_raw` or be null.
-unsafe fn drop_box_from_parts<T>(ptr: *mut T) {
-    if !ptr.is_null() {
-        let _ = Box::from_raw(ptr);
-    }
-}
-
-/// `ptr` must be allocated using `Box::into_raw` or be null.
-unsafe fn clone_box_parts<T: Clone>(ptr: *const T, len: usize) -> *mut T {
-    if ptr.is_null() {
-        return ptr::null_mut();
-    }
-
-    // restore, but without triggering a drop on the original
-    // safe to cast as *mut as we don't mutate
-    let bytes: ManuallyDrop<Box<[T]>> = ManuallyDrop::new(Box::from_raw(
-        std::slice::from_raw_parts_mut(ptr as *mut _, len),
-    ));
-
-    // duplicate the bytes
-    let bytes2 = ManuallyDrop::into_inner(bytes.clone());
-    Box::into_raw(bytes2).cast()
-}
-
-/// `ptr` must be allocated using `Box::into_raw` or be null.
-unsafe fn clone_as_vec_from_parts<T: Clone>(ptr: *const T, len: usize) -> Vec<T> {
-    if ptr.is_null() {
-        return Vec::new();
-    }
-
-    // restore, but without triggering a drop on the original
-    // safe to cast as *mut as we don't mutate
-    let bytes: ManuallyDrop<Box<[T]>> = ManuallyDrop::new(Box::from_raw(
-        std::slice::from_raw_parts_mut(ptr as *mut _, len),
-    ));
-
-    // duplicate the bytes
-    bytes.to_vec()
-}

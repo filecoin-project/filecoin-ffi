@@ -1,11 +1,10 @@
-use std::ffi::CString;
 use std::fs::File;
 use std::os::unix::io::FromRawFd;
 use std::sync::Once;
 
-use ffi_toolkit::{catch_panic_response, raw_ptr, rust_str_to_c_str, FCPResponseStatus};
+use ffi_toolkit::catch_panic_response;
 
-use super::types::{fil_GpuDeviceResponse, fil_InitLogFdResponse};
+use super::types::{fil_Array, fil_Bytes, fil_GpuDeviceResponse, fil_InitLogFdResponse};
 
 /// Protects the init off the logger.
 static LOG_INIT: Once = Once::new();
@@ -34,26 +33,11 @@ pub fn init_log_with_file(file: File) -> Option<()> {
 #[no_mangle]
 pub unsafe extern "C" fn fil_get_gpu_devices() -> *mut fil_GpuDeviceResponse {
     catch_panic_response(|| {
-        let mut response = fil_GpuDeviceResponse::default();
         let devices = rust_gpu_tools::Device::all();
-        let n = devices.len();
+        let devices: Vec<fil_Bytes> = devices.iter().map(|d| d.name().into()).collect();
+        let devices: fil_Array<fil_Bytes> = devices.into();
 
-        let devices: Vec<*const libc::c_char> = devices
-            .iter()
-            .map(|d| d.name())
-            .map(|d| {
-                CString::new(d)
-                    .unwrap_or_else(|_| CString::new("Unknown").unwrap())
-                    .into_raw() as *const libc::c_char
-            })
-            .collect();
-
-        let dyn_array = Box::into_raw(devices.into_boxed_slice());
-
-        response.devices_len = n;
-        response.devices_ptr = dyn_array as *const *const libc::c_char;
-
-        raw_ptr(response)
+        fil_GpuDeviceResponse::from(devices).into_boxed_raw()
     })
 }
 
@@ -67,14 +51,15 @@ pub unsafe extern "C" fn fil_get_gpu_devices() -> *mut fil_GpuDeviceResponse {
 #[no_mangle]
 #[cfg(not(target_os = "windows"))]
 pub unsafe extern "C" fn fil_init_log_fd(log_fd: libc::c_int) -> *mut fil_InitLogFdResponse {
+    use super::types::fil_Result;
+
     catch_panic_response(|| {
         let file = File::from_raw_fd(log_fd);
-        let mut response = fil_InitLogFdResponse::default();
+
         if init_log_with_file(file).is_none() {
-            response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-            response.error_msg = rust_str_to_c_str("There is already an active logger. `fil_init_log_fd()` needs to be called before any other FFI function is called.").unwrap();
+            return fil_Result::err("There is already an active logger. `fil_init_log_fd()` needs to be called before any other FFI function is called.").into_boxed_raw();
         }
-        raw_ptr(response)
+        fil_Result::ok(()).into_boxed_raw()
     })
 }
 
@@ -89,23 +74,17 @@ mod tests {
     fn test_get_gpu_devices() {
         unsafe {
             let resp = fil_get_gpu_devices();
+            assert!((*resp).error_msg.is_empty());
 
-            let strings = std::slice::from_raw_parts_mut(
-                (*resp).devices_ptr as *mut *mut libc::c_char,
-                (*resp).devices_len as usize,
-            );
+            let strings = &(*resp).value;
 
-            let devices: Vec<String> = strings
-                .iter_mut()
-                .map(|s| {
-                    std::ffi::CStr::from_ptr(*s)
-                        .to_str()
-                        .unwrap_or("Unknown")
-                        .to_owned()
-                })
+            let devices: Vec<&str> = strings
+                .iter()
+                .map(|s| std::str::from_utf8(s).unwrap())
                 .collect();
 
-            assert_eq!(devices.len(), (*resp).devices_len);
+            assert_eq!(devices.len(), (*resp).value.len());
+
             fil_destroy_gpu_device_response(resp);
         }
     }

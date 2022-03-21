@@ -31,6 +31,7 @@ use super::helpers::{
 };
 use super::types::*;
 use crate::util::api::init_log;
+use crate::util::types::vec_into_raw;
 
 // A byte serialized representation of a vanilla proof.
 pub type VanillaProof = Vec<u8>;
