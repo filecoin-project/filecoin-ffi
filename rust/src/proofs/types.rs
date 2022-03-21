@@ -1,4 +1,5 @@
 use std::io::{Error, SeekFrom};
+use std::ops::Deref;
 use std::ptr;
 
 use anyhow::Result;
@@ -17,6 +18,20 @@ use crate::util::types::{
 #[derive(Default, Debug, Clone, Copy)]
 pub struct fil_32ByteArray {
     pub inner: [u8; 32],
+}
+
+impl Deref for fil_32ByteArray {
+    type Target = [u8; 32];
+
+    fn deref(&self) -> &Self::Target {
+        &self.inner
+    }
+}
+
+impl From<[u8; 32]> for fil_32ByteArray {
+    fn from(val: [u8; 32]) -> Self {
+        Self { inner: val }
+    }
 }
 
 /// FileDescriptorRef does not drop its file descriptor when it is dropped. Its
@@ -273,6 +288,15 @@ pub struct fil_PoStProof {
     pub proof: fil_Bytes,
 }
 
+impl Default for fil_PoStProof {
+    fn default() -> Self {
+        Self {
+            registered_proof: fil_RegisteredPoStProof::StackedDrgWindow32GiBV1, // dummy value
+            proof: Default::default(),
+        }
+    }
+}
+
 impl From<fil_PoStProof> for PoStProof {
     fn from(other: fil_PoStProof) -> Self {
         PoStProof {
@@ -332,97 +356,26 @@ pub struct fil_PublicReplicaInfo {
     pub sector_id: u64,
 }
 
-#[repr(C)]
-#[derive(DropStructMacro)]
-pub struct fil_GenerateWinningPoStSectorChallenge {
-    pub error_msg: *mut libc::c_char,
-    pub status_code: FCPResponseStatus,
-    pub ids_ptr: *mut u64,
-    pub ids_len: libc::size_t,
-}
+#[allow(non_camel_case_types)]
+pub type fil_GenerateWinningPoStSectorChallenge = fil_Result<fil_Array<u64>>;
 
-impl Default for fil_GenerateWinningPoStSectorChallenge {
-    fn default() -> fil_GenerateWinningPoStSectorChallenge {
-        fil_GenerateWinningPoStSectorChallenge {
-            ids_len: 0,
-            ids_ptr: ptr::null_mut(),
-            error_msg: ptr::null_mut(),
-            status_code: FCPResponseStatus::FCPNoError,
-        }
-    }
-}
-
-code_and_message_impl!(fil_GenerateWinningPoStSectorChallenge);
+#[allow(non_camel_case_types)]
+pub type fil_GenerateFallbackSectorChallengesResponse =
+    fil_Result<fil_GenerateFallbackSectorChallenges>;
 
 #[repr(C)]
-#[derive(DropStructMacro)]
-pub struct fil_GenerateFallbackSectorChallengesResponse {
-    pub error_msg: *mut libc::c_char,
-    pub status_code: FCPResponseStatus,
-    pub ids_ptr: *mut u64,
-    pub ids_len: libc::size_t,
-    pub challenges_ptr: *mut u64,
-    pub challenges_len: libc::size_t,
+#[derive(Default)]
+pub struct fil_GenerateFallbackSectorChallenges {
+    pub ids: fil_Array<u64>,
+    pub challenges: fil_Array<u64>,
     pub challenges_stride: libc::size_t,
 }
 
-impl Default for fil_GenerateFallbackSectorChallengesResponse {
-    fn default() -> fil_GenerateFallbackSectorChallengesResponse {
-        fil_GenerateFallbackSectorChallengesResponse {
-            challenges_len: 0,
-            challenges_stride: 0,
-            challenges_ptr: ptr::null_mut(),
-            ids_len: 0,
-            ids_ptr: ptr::null_mut(),
-            error_msg: ptr::null_mut(),
-            status_code: FCPResponseStatus::FCPNoError,
-        }
-    }
-}
+#[allow(non_camel_case_types)]
+pub type fil_GenerateSingleVanillaProofResponse = fil_Result<fil_VanillaProof>;
 
-code_and_message_impl!(fil_GenerateFallbackSectorChallengesResponse);
-
-#[repr(C)]
-#[derive(DropStructMacro)]
-pub struct fil_GenerateSingleVanillaProofResponse {
-    pub error_msg: *mut libc::c_char,
-    pub vanilla_proof: fil_VanillaProof,
-    pub status_code: FCPResponseStatus,
-}
-
-impl Default for fil_GenerateSingleVanillaProofResponse {
-    fn default() -> fil_GenerateSingleVanillaProofResponse {
-        fil_GenerateSingleVanillaProofResponse {
-            error_msg: ptr::null_mut(),
-            vanilla_proof: Default::default(),
-            status_code: FCPResponseStatus::FCPNoError,
-        }
-    }
-}
-
-code_and_message_impl!(fil_GenerateSingleVanillaProofResponse);
-
-#[repr(C)]
-#[derive(DropStructMacro)]
-pub struct fil_GenerateWinningPoStResponse {
-    pub error_msg: *mut libc::c_char,
-    pub proofs_len: libc::size_t,
-    pub proofs_ptr: *mut fil_PoStProof,
-    pub status_code: FCPResponseStatus,
-}
-
-impl Default for fil_GenerateWinningPoStResponse {
-    fn default() -> fil_GenerateWinningPoStResponse {
-        fil_GenerateWinningPoStResponse {
-            error_msg: ptr::null_mut(),
-            proofs_len: 0,
-            proofs_ptr: ptr::null_mut(),
-            status_code: FCPResponseStatus::FCPNoError,
-        }
-    }
-}
-
-code_and_message_impl!(fil_GenerateWinningPoStResponse);
+#[allow(non_camel_case_types)]
+pub type fil_GenerateWinningPoStResponse = fil_Result<fil_Array<fil_PoStProof>>;
 
 #[repr(C)]
 #[derive(DropStructMacro)]
@@ -477,48 +430,11 @@ impl Default for fil_GenerateSingleWindowPoStWithVanillaResponse {
 
 code_and_message_impl!(fil_GenerateSingleWindowPoStWithVanillaResponse);
 
-#[repr(C)]
-#[derive(DropStructMacro)]
-pub struct fil_GetNumPartitionForFallbackPoStResponse {
-    pub error_msg: *mut libc::c_char,
-    pub status_code: FCPResponseStatus,
-    pub num_partition: libc::size_t,
-}
+#[allow(non_camel_case_types)]
+pub type fil_GetNumPartitionForFallbackPoStResponse = fil_Result<libc::size_t>;
 
-impl Default for fil_GetNumPartitionForFallbackPoStResponse {
-    fn default() -> fil_GetNumPartitionForFallbackPoStResponse {
-        fil_GetNumPartitionForFallbackPoStResponse {
-            error_msg: ptr::null_mut(),
-            num_partition: 0,
-            status_code: FCPResponseStatus::FCPNoError,
-        }
-    }
-}
-
-code_and_message_impl!(fil_GetNumPartitionForFallbackPoStResponse);
-
-#[repr(C)]
-#[derive(DropStructMacro)]
-pub struct fil_MergeWindowPoStPartitionProofsResponse {
-    pub error_msg: *mut libc::c_char,
-    pub proof: fil_PoStProof,
-    pub status_code: FCPResponseStatus,
-}
-
-impl Default for fil_MergeWindowPoStPartitionProofsResponse {
-    fn default() -> fil_MergeWindowPoStPartitionProofsResponse {
-        fil_MergeWindowPoStPartitionProofsResponse {
-            error_msg: ptr::null_mut(),
-            proof: fil_PoStProof {
-                registered_proof: fil_RegisteredPoStProof::StackedDrgWinning2KiBV1,
-                proof: Default::default(),
-            },
-            status_code: FCPResponseStatus::FCPNoError,
-        }
-    }
-}
-
-code_and_message_impl!(fil_MergeWindowPoStPartitionProofsResponse);
+#[allow(non_camel_case_types)]
+pub type fil_MergeWindowPoStPartitionProofsResponse = fil_Result<fil_PoStProof>;
 
 #[repr(C)]
 #[derive(DropStructMacro)]
@@ -566,47 +482,11 @@ impl Default for fil_WriteWithoutAlignmentResponse {
 
 code_and_message_impl!(fil_WriteWithoutAlignmentResponse);
 
-#[repr(C)]
-#[derive(DropStructMacro)]
-pub struct fil_SealPreCommitPhase1Response {
-    pub error_msg: *mut libc::c_char,
-    pub status_code: FCPResponseStatus,
-    pub seal_pre_commit_phase1_output_ptr: *mut u8,
-    pub seal_pre_commit_phase1_output_len: libc::size_t,
-}
+#[allow(non_camel_case_types)]
+pub type fil_SealPreCommitPhase1Response = fil_Result<fil_Bytes>;
 
-impl Default for fil_SealPreCommitPhase1Response {
-    fn default() -> fil_SealPreCommitPhase1Response {
-        fil_SealPreCommitPhase1Response {
-            error_msg: ptr::null_mut(),
-            status_code: FCPResponseStatus::FCPNoError,
-            seal_pre_commit_phase1_output_ptr: ptr::null_mut(),
-            seal_pre_commit_phase1_output_len: 0,
-        }
-    }
-}
-
-code_and_message_impl!(fil_SealPreCommitPhase1Response);
-
-#[repr(C)]
-#[derive(DropStructMacro)]
-pub struct fil_FauxRepResponse {
-    pub error_msg: *mut libc::c_char,
-    pub status_code: FCPResponseStatus,
-    pub commitment: [u8; 32],
-}
-
-impl Default for fil_FauxRepResponse {
-    fn default() -> fil_FauxRepResponse {
-        fil_FauxRepResponse {
-            error_msg: ptr::null_mut(),
-            status_code: FCPResponseStatus::FCPNoError,
-            commitment: Default::default(),
-        }
-    }
-}
-
-code_and_message_impl!(fil_FauxRepResponse);
+#[allow(non_camel_case_types)]
+pub type fil_FauxRepResponse = fil_Result<fil_32ByteArray>;
 
 #[repr(C)]
 #[derive(DropStructMacro)]
@@ -632,27 +512,8 @@ impl Default for fil_SealPreCommitPhase2Response {
 
 code_and_message_impl!(fil_SealPreCommitPhase2Response);
 
-#[repr(C)]
-#[derive(DropStructMacro)]
-pub struct fil_SealCommitPhase1Response {
-    pub status_code: FCPResponseStatus,
-    pub error_msg: *mut libc::c_char,
-    pub seal_commit_phase1_output_ptr: *mut u8,
-    pub seal_commit_phase1_output_len: libc::size_t,
-}
-
-impl Default for fil_SealCommitPhase1Response {
-    fn default() -> fil_SealCommitPhase1Response {
-        fil_SealCommitPhase1Response {
-            status_code: FCPResponseStatus::FCPNoError,
-            error_msg: ptr::null_mut(),
-            seal_commit_phase1_output_ptr: ptr::null_mut(),
-            seal_commit_phase1_output_len: 0,
-        }
-    }
-}
-
-code_and_message_impl!(fil_SealCommitPhase1Response);
+#[allow(non_camel_case_types)]
+pub type fil_SealCommitPhase1Response = fil_Result<fil_Bytes>;
 
 #[repr(C)]
 #[derive(DropStructMacro)]
@@ -706,7 +567,7 @@ impl Clone for fil_SealCommitPhase2Response {
 code_and_message_impl!(fil_SealCommitPhase2Response);
 
 #[repr(C)]
-#[derive(Clone, DropStructMacro)]
+#[derive(Clone, Default)]
 pub struct fil_AggregationInputs {
     pub comm_r: fil_32ByteArray,
     pub comm_d: fil_32ByteArray,
@@ -715,135 +576,23 @@ pub struct fil_AggregationInputs {
     pub seed: fil_32ByteArray,
 }
 
-impl Default for fil_AggregationInputs {
-    fn default() -> fil_AggregationInputs {
-        fil_AggregationInputs {
-            comm_r: fil_32ByteArray::default(),
-            comm_d: fil_32ByteArray::default(),
-            sector_id: 0,
-            ticket: fil_32ByteArray::default(),
-            seed: fil_32ByteArray::default(),
-        }
-    }
-}
+#[allow(non_camel_case_types)]
+pub type fil_UnsealRangeResponse = fil_Result<()>;
 
-#[repr(C)]
-#[derive(DropStructMacro)]
-pub struct fil_UnsealRangeResponse {
-    pub status_code: FCPResponseStatus,
-    pub error_msg: *mut libc::c_char,
-}
+#[allow(non_camel_case_types)]
+pub type fil_VerifySealResponse = fil_Result<bool>;
 
-impl Default for fil_UnsealRangeResponse {
-    fn default() -> fil_UnsealRangeResponse {
-        fil_UnsealRangeResponse {
-            status_code: FCPResponseStatus::FCPNoError,
-            error_msg: ptr::null_mut(),
-        }
-    }
-}
+#[allow(non_camel_case_types)]
+pub type fil_VerifyAggregateSealProofResponse = fil_Result<bool>;
 
-code_and_message_impl!(fil_UnsealRangeResponse);
+#[allow(non_camel_case_types)]
+pub type fil_VerifyWinningPoStResponse = fil_Result<bool>;
 
-#[repr(C)]
-#[derive(DropStructMacro)]
-pub struct fil_VerifySealResponse {
-    pub status_code: FCPResponseStatus,
-    pub error_msg: *mut libc::c_char,
-    pub is_valid: bool,
-}
+#[allow(non_camel_case_types)]
+pub type fil_VerifyWindowPoStResponse = fil_Result<bool>;
 
-impl Default for fil_VerifySealResponse {
-    fn default() -> fil_VerifySealResponse {
-        fil_VerifySealResponse {
-            status_code: FCPResponseStatus::FCPNoError,
-            error_msg: ptr::null_mut(),
-            is_valid: false,
-        }
-    }
-}
-
-code_and_message_impl!(fil_VerifySealResponse);
-
-#[repr(C)]
-#[derive(DropStructMacro)]
-pub struct fil_VerifyAggregateSealProofResponse {
-    pub status_code: FCPResponseStatus,
-    pub error_msg: *mut libc::c_char,
-    pub is_valid: bool,
-}
-
-impl Default for fil_VerifyAggregateSealProofResponse {
-    fn default() -> fil_VerifyAggregateSealProofResponse {
-        fil_VerifyAggregateSealProofResponse {
-            status_code: FCPResponseStatus::FCPNoError,
-            error_msg: ptr::null_mut(),
-            is_valid: false,
-        }
-    }
-}
-
-code_and_message_impl!(fil_VerifyAggregateSealProofResponse);
-
-#[repr(C)]
-#[derive(DropStructMacro)]
-pub struct fil_VerifyWinningPoStResponse {
-    pub status_code: FCPResponseStatus,
-    pub error_msg: *mut libc::c_char,
-    pub is_valid: bool,
-}
-
-impl Default for fil_VerifyWinningPoStResponse {
-    fn default() -> fil_VerifyWinningPoStResponse {
-        fil_VerifyWinningPoStResponse {
-            status_code: FCPResponseStatus::FCPNoError,
-            error_msg: ptr::null_mut(),
-            is_valid: false,
-        }
-    }
-}
-
-code_and_message_impl!(fil_VerifyWinningPoStResponse);
-
-#[repr(C)]
-#[derive(DropStructMacro)]
-pub struct fil_VerifyWindowPoStResponse {
-    pub status_code: FCPResponseStatus,
-    pub error_msg: *mut libc::c_char,
-    pub is_valid: bool,
-}
-
-impl Default for fil_VerifyWindowPoStResponse {
-    fn default() -> fil_VerifyWindowPoStResponse {
-        fil_VerifyWindowPoStResponse {
-            status_code: FCPResponseStatus::FCPNoError,
-            error_msg: ptr::null_mut(),
-            is_valid: false,
-        }
-    }
-}
-
-code_and_message_impl!(fil_VerifyWindowPoStResponse);
-
-#[repr(C)]
-#[derive(DropStructMacro)]
-pub struct fil_FinalizeTicketResponse {
-    pub status_code: FCPResponseStatus,
-    pub error_msg: *mut libc::c_char,
-    pub ticket: [u8; 32],
-}
-
-impl Default for fil_FinalizeTicketResponse {
-    fn default() -> Self {
-        fil_FinalizeTicketResponse {
-            status_code: FCPResponseStatus::FCPNoError,
-            error_msg: ptr::null_mut(),
-            ticket: [0u8; 32],
-        }
-    }
-}
-
-code_and_message_impl!(fil_FinalizeTicketResponse);
+#[allow(non_camel_case_types)]
+pub type fil_FinalizeTicketResponse = fil_Result<fil_32ByteArray>;
 
 #[repr(C)]
 #[derive(DropStructMacro)]
@@ -869,65 +618,16 @@ impl Default for fil_GeneratePieceCommitmentResponse {
 
 code_and_message_impl!(fil_GeneratePieceCommitmentResponse);
 
-#[repr(C)]
-#[derive(DropStructMacro)]
-pub struct fil_GenerateDataCommitmentResponse {
-    pub status_code: FCPResponseStatus,
-    pub error_msg: *mut libc::c_char,
-    pub comm_d: [u8; 32],
-}
-
-impl Default for fil_GenerateDataCommitmentResponse {
-    fn default() -> fil_GenerateDataCommitmentResponse {
-        fil_GenerateDataCommitmentResponse {
-            status_code: FCPResponseStatus::FCPNoError,
-            comm_d: Default::default(),
-            error_msg: ptr::null_mut(),
-        }
-    }
-}
-
-code_and_message_impl!(fil_GenerateDataCommitmentResponse);
+#[allow(non_camel_case_types)]
+pub type fil_GenerateDataCommitmentResponse = fil_Result<fil_32ByteArray>;
 
 ///
 
-#[repr(C)]
-#[derive(DropStructMacro)]
-pub struct fil_StringResponse {
-    pub status_code: FCPResponseStatus,
-    pub error_msg: *mut libc::c_char,
-    pub string_val: *mut libc::c_char,
-}
+#[allow(non_camel_case_types)]
+pub type fil_StringResponse = fil_Result<fil_Bytes>;
 
-impl Default for fil_StringResponse {
-    fn default() -> fil_StringResponse {
-        fil_StringResponse {
-            status_code: FCPResponseStatus::FCPNoError,
-            error_msg: ptr::null_mut(),
-            string_val: ptr::null_mut(),
-        }
-    }
-}
-
-code_and_message_impl!(fil_StringResponse);
-
-#[repr(C)]
-#[derive(DropStructMacro)]
-pub struct fil_ClearCacheResponse {
-    pub error_msg: *mut libc::c_char,
-    pub status_code: FCPResponseStatus,
-}
-
-impl Default for fil_ClearCacheResponse {
-    fn default() -> fil_ClearCacheResponse {
-        fil_ClearCacheResponse {
-            error_msg: ptr::null_mut(),
-            status_code: FCPResponseStatus::FCPNoError,
-        }
-    }
-}
-
-code_and_message_impl!(fil_ClearCacheResponse);
+#[allow(non_camel_case_types)]
+pub type fil_ClearCacheResponse = fil_Result<()>;
 
 #[repr(C)]
 #[derive(DropStructMacro)]
@@ -953,41 +653,11 @@ impl Default for fil_EmptySectorUpdateEncodeIntoResponse {
 
 code_and_message_impl!(fil_EmptySectorUpdateEncodeIntoResponse);
 
-#[repr(C)]
-#[derive(DropStructMacro)]
-pub struct fil_EmptySectorUpdateDecodeFromResponse {
-    pub status_code: FCPResponseStatus,
-    pub error_msg: *mut libc::c_char,
-}
+#[allow(non_camel_case_types)]
+pub type fil_EmptySectorUpdateDecodeFromResponse = fil_Result<()>;
 
-impl Default for fil_EmptySectorUpdateDecodeFromResponse {
-    fn default() -> fil_EmptySectorUpdateDecodeFromResponse {
-        fil_EmptySectorUpdateDecodeFromResponse {
-            status_code: FCPResponseStatus::FCPNoError,
-            error_msg: ptr::null_mut(),
-        }
-    }
-}
-
-code_and_message_impl!(fil_EmptySectorUpdateDecodeFromResponse);
-
-#[repr(C)]
-#[derive(DropStructMacro)]
-pub struct fil_EmptySectorUpdateRemoveEncodedDataResponse {
-    pub status_code: FCPResponseStatus,
-    pub error_msg: *mut libc::c_char,
-}
-
-impl Default for fil_EmptySectorUpdateRemoveEncodedDataResponse {
-    fn default() -> fil_EmptySectorUpdateRemoveEncodedDataResponse {
-        fil_EmptySectorUpdateRemoveEncodedDataResponse {
-            status_code: FCPResponseStatus::FCPNoError,
-            error_msg: ptr::null_mut(),
-        }
-    }
-}
-
-code_and_message_impl!(fil_EmptySectorUpdateRemoveEncodedDataResponse);
+#[allow(non_camel_case_types)]
+pub type fil_EmptySectorUpdateRemoveEncodedDataResponse = fil_Result<()>;
 
 #[repr(C)]
 pub struct fil_EmptySectorUpdateProofResponse {
@@ -1019,64 +689,11 @@ impl Drop for fil_EmptySectorUpdateProofResponse {
 
 code_and_message_impl!(fil_EmptySectorUpdateProofResponse);
 
-#[repr(C)]
-#[derive(DropStructMacro)]
-pub struct fil_PartitionProofResponse {
-    pub status_code: FCPResponseStatus,
-    pub error_msg: *mut libc::c_char,
-    pub proofs_len: libc::size_t,
-    pub proofs_ptr: *mut fil_PartitionProof,
-}
+#[allow(non_camel_case_types)]
+pub type fil_PartitionProofResponse = fil_Result<fil_Array<fil_PartitionProof>>;
 
-impl Default for fil_PartitionProofResponse {
-    fn default() -> fil_PartitionProofResponse {
-        fil_PartitionProofResponse {
-            status_code: FCPResponseStatus::FCPNoError,
-            error_msg: ptr::null_mut(),
-            proofs_len: 0,
-            proofs_ptr: ptr::null_mut(),
-        }
-    }
-}
+#[allow(non_camel_case_types)]
+pub type fil_VerifyPartitionProofResponse = fil_Result<bool>;
 
-code_and_message_impl!(fil_PartitionProofResponse);
-
-#[repr(C)]
-#[derive(DropStructMacro)]
-pub struct fil_VerifyPartitionProofResponse {
-    pub status_code: FCPResponseStatus,
-    pub error_msg: *mut libc::c_char,
-    pub is_valid: bool,
-}
-
-impl Default for fil_VerifyPartitionProofResponse {
-    fn default() -> fil_VerifyPartitionProofResponse {
-        fil_VerifyPartitionProofResponse {
-            status_code: FCPResponseStatus::FCPNoError,
-            error_msg: ptr::null_mut(),
-            is_valid: false,
-        }
-    }
-}
-
-code_and_message_impl!(fil_VerifyPartitionProofResponse);
-
-#[repr(C)]
-#[derive(DropStructMacro)]
-pub struct fil_VerifyEmptySectorUpdateProofResponse {
-    pub status_code: FCPResponseStatus,
-    pub error_msg: *mut libc::c_char,
-    pub is_valid: bool,
-}
-
-impl Default for fil_VerifyEmptySectorUpdateProofResponse {
-    fn default() -> fil_VerifyEmptySectorUpdateProofResponse {
-        fil_VerifyEmptySectorUpdateProofResponse {
-            status_code: FCPResponseStatus::FCPNoError,
-            error_msg: ptr::null_mut(),
-            is_valid: false,
-        }
-    }
-}
-
-code_and_message_impl!(fil_VerifyEmptySectorUpdateProofResponse);
+#[allow(non_camel_case_types)]
+pub type fil_VerifyEmptySectorUpdateProofResponse = fil_Result<bool>;

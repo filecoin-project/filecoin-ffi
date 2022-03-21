@@ -204,6 +204,14 @@ impl<T: Sized> fil_Result<T> {
     pub unsafe fn into_boxed_raw(self) -> *mut fil_Result<T> {
         Box::into_raw(Box::new(self))
     }
+
+    pub fn err_with_default(err: impl Into<fil_Bytes>, value: T) -> Self {
+        fil_Result {
+            status_code: FCPResponseStatus::FCPUnclassifiedError,
+            error_msg: err.into(),
+            value,
+        }
+    }
 }
 
 impl<T: Sized + Default> fil_Result<T> {

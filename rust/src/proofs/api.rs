@@ -141,28 +141,14 @@ pub unsafe extern "C" fn fil_fauxrep(
 
         info!("fauxrep: start");
 
-        let mut response: fil_FauxRepResponse = Default::default();
-
         let result = fauxrep(
             registered_proof.into(),
             c_str_to_pbuf(cache_dir_path),
             c_str_to_pbuf(sealed_sector_path),
         );
 
-        match result {
-            Ok(output) => {
-                response.status_code = FCPResponseStatus::FCPNoError;
-                response.commitment = output;
-            }
-            Err(err) => {
-                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
-            }
-        }
-
         info!("fauxrep: finish");
-
-        raw_ptr(response)
+        fil_FauxRepResponse::from(result.map(Into::into)).into_boxed_raw()
     })
 }
 
@@ -177,28 +163,15 @@ pub unsafe extern "C" fn fil_fauxrep2(
 
         info!("fauxrep2: start");
 
-        let mut response: fil_FauxRepResponse = Default::default();
-
         let result = fauxrep2(
             registered_proof.into(),
             c_str_to_pbuf(cache_dir_path),
             c_str_to_pbuf(existing_p_aux_path),
         );
 
-        match result {
-            Ok(output) => {
-                response.status_code = FCPResponseStatus::FCPNoError;
-                response.commitment = output;
-            }
-            Err(err) => {
-                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
-            }
-        }
-
         info!("fauxrep2: finish");
 
-        raw_ptr(response)
+        fil_FauxRepResponse::from(result.map(Into::into)).into_boxed_raw()
     })
 }
 
@@ -225,8 +198,6 @@ pub unsafe extern "C" fn fil_seal_pre_commit_phase1(
         let public_pieces: Vec<PieceInfo> =
             slice.to_vec().iter().cloned().map(Into::into).collect();
 
-        let mut response: fil_SealPreCommitPhase1Response = Default::default();
-
         let result = seal_pre_commit_phase1(
             registered_proof.into(),
             c_str_to_pbuf(cache_dir_path),
@@ -239,22 +210,8 @@ pub unsafe extern "C" fn fil_seal_pre_commit_phase1(
         )
         .and_then(|output| serde_json::to_vec(&output).map_err(Into::into));
 
-        match result {
-            Ok(output) => {
-                response.status_code = FCPResponseStatus::FCPNoError;
-                let (ptr, len) = vec_into_raw(output);
-                response.seal_pre_commit_phase1_output_ptr = ptr;
-                response.seal_pre_commit_phase1_output_len = len;
-            }
-            Err(err) => {
-                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
-            }
-        }
-
         info!("seal_pre_commit_phase1: finish");
-
-        raw_ptr(response)
+        fil_SealPreCommitPhase1Response::from(result.map(Into::into)).into_boxed_raw()
     })
 }
 
@@ -328,8 +285,6 @@ pub unsafe extern "C" fn fil_seal_commit_phase1(
 
         info!("seal_commit_phase1: start");
 
-        let mut response = fil_SealCommitPhase1Response::default();
-
         let spcp2o = SealPreCommitPhase2Output {
             registered_proof: registered_proof.into(),
             comm_r: comm_r.inner,
@@ -349,24 +304,12 @@ pub unsafe extern "C" fn fil_seal_commit_phase1(
             seed.inner,
             spcp2o,
             &public_pieces,
-        );
-
-        match result.and_then(|output| serde_json::to_vec(&output).map_err(Into::into)) {
-            Ok(output) => {
-                response.status_code = FCPResponseStatus::FCPNoError;
-                let (ptr, len) = vec_into_raw(output);
-                response.seal_commit_phase1_output_ptr = ptr;
-                response.seal_commit_phase1_output_len = len;
-            }
-            Err(err) => {
-                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
-            }
-        }
+        )
+        .and_then(|output| serde_json::to_vec(&output).map_err(Into::into));
 
         info!("seal_commit_phase1: finish");
 
-        raw_ptr(response)
+        fil_SealCommitPhase1Response::from(result.map(Into::into)).into_boxed_raw()
     })
 }
 
@@ -499,9 +442,7 @@ pub unsafe extern "C" fn fil_verify_aggregate_seal_proof(
                 Ok(acc)
             });
 
-        let mut response = fil_VerifyAggregateSealProofResponse::default();
-
-        match inputs {
+        let result = match inputs {
             Ok(inputs) => {
                 let proof_bytes: Vec<u8> =
                     std::slice::from_raw_parts(proof_ptr, proof_len).to_vec();
@@ -512,41 +453,20 @@ pub unsafe extern "C" fn fil_verify_aggregate_seal_proof(
                 let seeds: Vec<[u8; 32]> =
                     commit_inputs.iter().map(|input| input.seed.inner).collect();
 
-                let result = verify_aggregate_seal_commit_proofs(
+                verify_aggregate_seal_commit_proofs(
                     registered_proof.into(),
                     registered_aggregation.into(),
                     proof_bytes,
                     &comm_rs,
                     &seeds,
                     inputs,
-                );
-
-                match result {
-                    Ok(true) => {
-                        response.status_code = FCPResponseStatus::FCPNoError;
-                        response.is_valid = true;
-                    }
-                    Ok(false) => {
-                        response.status_code = FCPResponseStatus::FCPNoError;
-                        response.is_valid = false;
-                    }
-                    Err(err) => {
-                        response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                        response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
-                        response.is_valid = false;
-                    }
-                }
+                )
             }
-            Err(err) => {
-                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
-                response.is_valid = false;
-            }
-        }
+            Err(err) => Err(err),
+        };
 
         info!("verify_aggregate_seal_proof: finish");
-
-        raw_ptr(response)
+        fil_VerifyAggregateSealProofResponse::from(result).into_boxed_raw()
     })
 }
 
@@ -592,21 +512,9 @@ pub unsafe extern "C" fn fil_unseal_range(
         let _ = sealed_sector.into_raw_fd();
         let _ = unseal_output.into_raw_fd();
 
-        let mut response = fil_UnsealRangeResponse::default();
-
-        match result {
-            Ok(_) => {
-                response.status_code = FCPResponseStatus::FCPNoError;
-            }
-            Err(err) => {
-                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
-            }
-        };
-
         info!("unseal_range: finish");
 
-        raw_ptr(response)
+        fil_UnsealRangeResponse::from(result.map(|_| ())).into_boxed_raw()
     })
 }
 
@@ -642,26 +550,9 @@ pub unsafe extern "C" fn fil_verify_seal(
             &proof_bytes,
         );
 
-        let mut response = fil_VerifySealResponse::default();
-
-        match result {
-            Ok(true) => {
-                response.status_code = FCPResponseStatus::FCPNoError;
-                response.is_valid = true;
-            }
-            Ok(false) => {
-                response.status_code = FCPResponseStatus::FCPNoError;
-                response.is_valid = false;
-            }
-            Err(err) => {
-                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
-            }
-        };
-
         info!("verify_seal: finish");
 
-        raw_ptr(response)
+        fil_VerifySealResponse::from(result).into_boxed_raw()
     })
 }
 
@@ -679,8 +570,6 @@ pub unsafe extern "C" fn fil_generate_winning_post_sector_challenge(
 
         info!("generate_winning_post_sector_challenge: start");
 
-        let mut response = fil_GenerateWinningPoStSectorChallenge::default();
-
         let result = filecoin_proofs_api::post::generate_winning_post_sector_challenge(
             registered_proof.into(),
             &randomness.inner,
@@ -688,24 +577,12 @@ pub unsafe extern "C" fn fil_generate_winning_post_sector_challenge(
             prover_id.inner,
         );
 
-        match result {
-            Ok(output) => {
-                let mapped: Vec<u64> = output.into_iter().map(u64::from).collect();
-
-                response.status_code = FCPResponseStatus::FCPNoError;
-                let (ptr, len) = vec_into_raw(mapped);
-                response.ids_ptr = ptr;
-                response.ids_len = len;
-            }
-            Err(err) => {
-                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
-            }
-        }
-
         info!("generate_winning_post_sector_challenge: finish");
 
-        raw_ptr(response)
+        let response: fil_GenerateWinningPoStSectorChallenge = result
+            .map(|v| v.into_iter().map(u64::from).collect::<Vec<_>>().into())
+            .into();
+        response.into_boxed_raw()
     })
 }
 
@@ -734,12 +611,8 @@ pub unsafe extern "C" fn fil_generate_fallback_sector_challenges(
             prover_id.inner,
         );
 
-        let mut response = fil_GenerateFallbackSectorChallengesResponse::default();
-
-        match result {
+        let result = match result {
             Ok(output) => {
-                response.status_code = FCPResponseStatus::FCPNoError;
-
                 let sector_ids: Vec<u64> = output
                     .clone()
                     .into_iter()
@@ -768,34 +641,22 @@ pub unsafe extern "C" fn fil_generate_fallback_sector_challenges(
                     .collect();
 
                 if challenges_stride_mismatch {
-                    response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                    response.error_msg =
-                        rust_str_to_c_str("Challenge stride mismatch".to_string()).unwrap();
+                    Err("Challenge stride mismatch".to_string())
                 } else {
-                    response.status_code = FCPResponseStatus::FCPNoError;
-
-                    {
-                        let (ptr, len) = vec_into_raw(sector_ids);
-                        response.ids_ptr = ptr;
-                        response.ids_len = len;
-                    }
-                    {
-                        let (ptr, len) = vec_into_raw(challenges);
-                        response.challenges_ptr = ptr;
-                        response.challenges_len = len;
-                    }
-                    response.challenges_stride = challenges_stride;
+                    Ok(fil_GenerateFallbackSectorChallenges {
+                        ids: sector_ids.into(),
+                        challenges: challenges.into(),
+                        challenges_stride: challenges_stride,
+                    })
                 }
             }
-            Err(err) => {
-                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
-            }
+            Err(err) => Err(format!("{:?}", err)),
         };
 
         info!("generate_fallback_sector_challenges: finish");
 
-        raw_ptr(response)
+        let response = fil_GenerateFallbackSectorChallengesResponse::from(result);
+        response.into_boxed_raw()
     })
 }
 
@@ -838,23 +699,9 @@ pub unsafe extern "C" fn fil_generate_single_vanilla_proof(
             &replica_v1,
             &challenges,
         );
-
-        let mut response = fil_GenerateSingleVanillaProofResponse::default();
-
-        match result {
-            Ok(output) => {
-                response.status_code = FCPResponseStatus::FCPNoError;
-                response.vanilla_proof = output.into();
-            }
-            Err(err) => {
-                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
-            }
-        };
-
         info!("generate_single_vanilla_proof: finish");
 
-        raw_ptr(response)
+        fil_GenerateSingleVanillaProofResponse::from(result.map(Into::into)).into_boxed_raw()
     })
 }
 
@@ -888,33 +735,17 @@ pub unsafe extern "C" fn fil_generate_winning_post_with_vanilla(
             &vanilla_proofs,
         );
 
-        let mut response = fil_GenerateWinningPoStResponse::default();
-
-        match result {
-            Ok(output) => {
-                let mapped: Vec<fil_PoStProof> = output
-                    .into_iter()
-                    .map(|(t, proof)| fil_PoStProof {
-                        registered_proof: (t).into(),
-                        proof: proof.into(),
-                    })
-                    .collect();
-
-                response.status_code = FCPResponseStatus::FCPNoError;
-
-                let (ptr, len) = vec_into_raw(mapped);
-                response.proofs_ptr = ptr;
-                response.proofs_len = len;
-            }
-            Err(err) => {
-                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
-            }
-        }
-
         info!("generate_winning_post_with_vanilla: finish");
-
-        raw_ptr(response)
+        fil_GenerateWinningPoStResponse::from(result.map(|r| {
+            r.into_iter()
+                .map(|(t, proof)| fil_PoStProof {
+                    registered_proof: (t).into(),
+                    proof: proof.into(),
+                })
+                .collect::<Vec<_>>()
+                .into()
+        }))
+        .into_boxed_raw()
     })
 }
 
@@ -932,8 +763,6 @@ pub unsafe extern "C" fn fil_generate_winning_post(
 
         info!("generate_winning_post: start");
 
-        let mut response = fil_GenerateWinningPoStResponse::default();
-
         let result = to_private_replica_info_map(replicas_ptr, replicas_len).and_then(|rs| {
             filecoin_proofs_api::post::generate_winning_post(
                 &randomness.inner,
@@ -942,30 +771,17 @@ pub unsafe extern "C" fn fil_generate_winning_post(
             )
         });
 
-        match result {
-            Ok(output) => {
-                let mapped: Vec<fil_PoStProof> = output
-                    .into_iter()
-                    .map(|(t, proof)| fil_PoStProof {
-                        registered_proof: (t).into(),
-                        proof: proof.into(),
-                    })
-                    .collect();
-
-                response.status_code = FCPResponseStatus::FCPNoError;
-                let (ptr, len) = vec_into_raw(mapped);
-                response.proofs_ptr = ptr;
-                response.proofs_len = len;
-            }
-            Err(err) => {
-                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
-            }
-        }
-
         info!("generate_winning_post: finish");
-
-        raw_ptr(response)
+        fil_GenerateWinningPoStResponse::from(result.map(|r| {
+            r.into_iter()
+                .map(|(t, proof)| fil_PoStProof {
+                    registered_proof: (t).into(),
+                    proof: proof.into(),
+                })
+                .collect::<Vec<_>>()
+                .into()
+        }))
+        .into_boxed_raw()
     })
 }
 
@@ -984,8 +800,6 @@ pub unsafe extern "C" fn fil_verify_winning_post(
 
         info!("verify_winning_post: start");
 
-        let mut response = fil_VerifyWinningPoStResponse::default();
-
         let convert = super::helpers::to_public_replica_info_map(replicas_ptr, replicas_len);
 
         let result = convert.and_then(|replicas| {
@@ -1000,19 +814,8 @@ pub unsafe extern "C" fn fil_verify_winning_post(
             )
         });
 
-        match result {
-            Ok(is_valid) => {
-                response.status_code = FCPResponseStatus::FCPNoError;
-                response.is_valid = is_valid;
-            }
-            Err(err) => {
-                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
-            }
-        };
-
         info!("verify_winning_post: {}", "finish");
-        raw_ptr(response)
+        fil_VerifyWinningPoStResponse::from(result).into_boxed_raw()
     })
 }
 
@@ -1163,9 +966,6 @@ pub unsafe extern "C" fn fil_verify_window_post(
         init_log();
 
         info!("verify_window_post: start");
-
-        let mut response = fil_VerifyWindowPoStResponse::default();
-
         let convert = super::helpers::to_public_replica_info_map(replicas_ptr, replicas_len);
 
         let result = convert.and_then(|replicas| {
@@ -1184,19 +984,9 @@ pub unsafe extern "C" fn fil_verify_window_post(
             )
         });
 
-        match result {
-            Ok(is_valid) => {
-                response.status_code = FCPResponseStatus::FCPNoError;
-                response.is_valid = is_valid;
-            }
-            Err(err) => {
-                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
-            }
-        };
-
         info!("verify_window_post: {}", "finish");
-        raw_ptr(response)
+
+        fil_VerifyWindowPoStResponse::from(result).into_boxed_raw()
     })
 }
 
@@ -1213,47 +1003,36 @@ pub unsafe extern "C" fn fil_merge_window_post_partition_proofs(
 
         info!("merge_window_post_partition_proofs: start");
 
-        let mut response = fil_MergeWindowPoStPartitionProofsResponse::default();
-
-        let partition_proofs: Vec<PartitionSnarkProof> =
-            match c_to_rust_partition_proofs(partition_proofs_ptr, partition_proofs_len) {
-                Ok(partition_proofs) => partition_proofs
+        let result = c_to_rust_partition_proofs(partition_proofs_ptr, partition_proofs_len)
+            .and_then(|partition_proofs| {
+                let partition_proofs = partition_proofs
                     .iter()
                     .map(|pp| PartitionSnarkProof(pp.proof.clone()))
-                    .collect(),
-                Err(err) => {
-                    response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                    response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
-                    Vec::new()
-                }
-            };
+                    .collect::<Vec<_>>();
 
-        if !partition_proofs.is_empty() {
-            let result = filecoin_proofs_api::post::merge_window_post_partition_proofs(
-                registered_proof.into(),
-                partition_proofs,
-            );
+                let proof = filecoin_proofs_api::post::merge_window_post_partition_proofs(
+                    registered_proof.into(),
+                    partition_proofs,
+                )?;
 
-            match result {
-                Ok(output) => {
-                    let proof = fil_PoStProof {
-                        registered_proof,
-                        proof: output.into(),
-                    };
-
-                    response.status_code = FCPResponseStatus::FCPNoError;
-                    response.proof = proof;
-                }
-                Err(err) => {
-                    response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                    response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
-                }
-            }
-        }
+                Ok(fil_PoStProof {
+                    registered_proof,
+                    proof: proof.into(),
+                })
+            });
 
         info!("merge_window_post_partition_proofs: finish");
-
-        raw_ptr(response)
+        match result {
+            Ok(res) => fil_MergeWindowPoStPartitionProofsResponse::ok(res).into_boxed_raw(),
+            Err(err) => fil_MergeWindowPoStPartitionProofsResponse::err_with_default(
+                err.to_string(),
+                fil_PoStProof {
+                    registered_proof,
+                    proof: Default::default(),
+                },
+            )
+            .into_boxed_raw(),
+        }
     })
 }
 
@@ -1273,22 +1052,9 @@ pub unsafe extern "C" fn fil_get_num_partition_for_fallback_post(
             num_sectors,
         );
 
-        let mut response = fil_GetNumPartitionForFallbackPoStResponse::default();
-
-        match result {
-            Ok(output) => {
-                response.status_code = FCPResponseStatus::FCPNoError;
-                response.num_partition = output;
-            }
-            Err(err) => {
-                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
-            }
-        }
-
         info!("get_num_partition_for_fallback_post: finish");
 
-        raw_ptr(response)
+        fil_GetNumPartitionForFallbackPoStResponse::from(result).into_boxed_raw()
     })
 }
 
@@ -1407,7 +1173,6 @@ pub unsafe extern "C" fn fil_empty_sector_update_encode_into(
                 response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
             }
         }
-
         info!("fil_empty_sector_update_encode_into: finish");
 
         raw_ptr(response)
@@ -1430,8 +1195,6 @@ pub unsafe extern "C" fn fil_empty_sector_update_decode_from(
 
         info!("fil_empty_sector_update_decode_from: start");
 
-        let mut response: fil_EmptySectorUpdateDecodeFromResponse = Default::default();
-
         let result = empty_sector_update_decode_from(
             registered_proof.into(),
             c_str_to_pbuf(out_data_path),
@@ -1441,19 +1204,9 @@ pub unsafe extern "C" fn fil_empty_sector_update_decode_from(
             comm_d_new.inner,
         );
 
-        match result {
-            Ok(_output) => {
-                response.status_code = FCPResponseStatus::FCPNoError;
-            }
-            Err(err) => {
-                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
-            }
-        }
-
         info!("fil_empty_sector_update_decode_from: finish");
 
-        raw_ptr(response)
+        fil_EmptySectorUpdateDecodeFromResponse::from(result).into_boxed_raw()
     })
 }
 
@@ -1474,8 +1227,6 @@ pub unsafe extern "C" fn fil_empty_sector_update_remove_encoded_data(
 
         info!("fil_empty_sector_update_remove_encoded_data: start");
 
-        let mut response: fil_EmptySectorUpdateRemoveEncodedDataResponse = Default::default();
-
         let result = empty_sector_update_remove_encoded_data(
             registered_proof.into(),
             c_str_to_pbuf(sector_key_path),
@@ -1486,19 +1237,9 @@ pub unsafe extern "C" fn fil_empty_sector_update_remove_encoded_data(
             comm_d_new.inner,
         );
 
-        match result {
-            Ok(_output) => {
-                response.status_code = FCPResponseStatus::FCPNoError;
-            }
-            Err(err) => {
-                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
-            }
-        }
-
         info!("fil_empty_sector_update_remove_encoded_data: finish");
 
-        raw_ptr(response)
+        fil_EmptySectorUpdateRemoveEncodedDataResponse::from(result).into_boxed_raw()
     })
 }
 
@@ -1520,8 +1261,6 @@ pub unsafe extern "C" fn fil_generate_empty_sector_update_partition_proofs(
 
         info!("fil_generate_empty_sector_update_partition_proofs: start");
 
-        let mut response: fil_PartitionProofResponse = Default::default();
-
         let result = generate_partition_proofs(
             registered_proof.into(),
             comm_r_old.inner,
@@ -1531,27 +1270,18 @@ pub unsafe extern "C" fn fil_generate_empty_sector_update_partition_proofs(
             c_str_to_pbuf(sector_key_cache_dir_path),
             c_str_to_pbuf(replica_path),
             c_str_to_pbuf(replica_cache_path),
-        );
-
-        match result {
-            Ok(output) => {
-                let mapped: Vec<fil_PartitionProof> =
-                    output.into_iter().map(|proof| proof.0.into()).collect();
-
-                response.status_code = FCPResponseStatus::FCPNoError;
-                let (ptr, len) = vec_into_raw(mapped);
-                response.proofs_ptr = ptr;
-                response.proofs_len = len;
-            }
-            Err(err) => {
-                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
-            }
-        }
+        )
+        .map(|output| {
+            output
+                .into_iter()
+                .map(|proof| proof.0.into())
+                .collect::<Vec<_>>()
+                .into()
+        });
 
         info!("fil_generate_empty_sector_update_partition_proofs: finish");
 
-        raw_ptr(response)
+        fil_PartitionProofResponse::from(result).into_boxed_raw()
     })
 }
 
@@ -1571,43 +1301,26 @@ pub unsafe extern "C" fn fil_verify_empty_sector_update_partition_proofs(
 
         info!("fil_verify_empty_sector_update_partition_proofs: start");
 
-        let mut response: fil_VerifyPartitionProofResponse = Default::default();
-
-        match c_to_rust_vanilla_partition_proofs(proofs_ptr, proofs_len) {
-            Ok(partition_proofs) => {
+        let result = c_to_rust_vanilla_partition_proofs(proofs_ptr, proofs_len).and_then(
+            |partition_proofs| {
                 let proofs: Vec<PartitionProofBytes> = partition_proofs
-                    .iter()
-                    .map(|pp| PartitionProofBytes(pp.clone().proof))
+                    .into_iter()
+                    .map(|pp| PartitionProofBytes(pp.proof))
                     .collect();
 
-                let result = verify_partition_proofs(
+                verify_partition_proofs(
                     registered_proof.into(),
                     &proofs,
                     comm_r_old.inner,
                     comm_r_new.inner,
                     comm_d_new.inner,
-                );
-
-                match result {
-                    Ok(is_valid) => {
-                        response.status_code = FCPResponseStatus::FCPNoError;
-                        response.is_valid = is_valid;
-                    }
-                    Err(err) => {
-                        response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                        response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
-                    }
-                }
-            }
-            Err(err) => {
-                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
-            }
-        };
+                )
+            },
+        );
 
         info!("fil_verify_empty_sector_update_partition_proofs: finish");
 
-        raw_ptr(response)
+        fil_VerifyPartitionProofResponse::from(result).into_boxed_raw()
     })
 }
 
@@ -1732,8 +1445,6 @@ pub unsafe extern "C" fn fil_verify_empty_sector_update_proof(
 
         let proof_bytes: Vec<u8> = std::slice::from_raw_parts(proof_ptr, proof_len).to_vec();
 
-        let mut response: fil_VerifyEmptySectorUpdateProofResponse = Default::default();
-
         let result = verify_empty_sector_update_proof(
             registered_proof.into(),
             &proof_bytes,
@@ -1742,25 +1453,9 @@ pub unsafe extern "C" fn fil_verify_empty_sector_update_proof(
             comm_d_new.inner,
         );
 
-        match result {
-            Ok(true) => {
-                response.status_code = FCPResponseStatus::FCPNoError;
-                response.is_valid = true;
-            }
-            Ok(false) => {
-                response.status_code = FCPResponseStatus::FCPNoError;
-                response.is_valid = false;
-            }
-            Err(err) => {
-                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
-                response.is_valid = false;
-            }
-        }
-
         info!("fil_verify_empty_sector_update_proof: finish");
 
-        raw_ptr(response)
+        fil_VerifyEmptySectorUpdateProofResponse::from(result).into_boxed_raw()
     })
 }
 
@@ -1829,22 +1524,8 @@ pub unsafe extern "C" fn fil_generate_data_commitment(
 
         let result = compute_comm_d(registered_proof.into(), &public_pieces);
 
-        let mut response = fil_GenerateDataCommitmentResponse::default();
-
-        match result {
-            Ok(commitment) => {
-                response.status_code = FCPResponseStatus::FCPNoError;
-                response.comm_d = commitment;
-            }
-            Err(err) => {
-                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
-            }
-        }
-
         info!("generate_data_commitment: finish");
-
-        raw_ptr(response)
+        fil_GenerateDataCommitmentResponse::from(result.map(Into::into)).into_boxed_raw()
     })
 }
 
@@ -1858,19 +1539,7 @@ pub unsafe extern "C" fn fil_clear_cache(
 
         let result = clear_cache(sector_size, &c_str_to_pbuf(cache_dir_path));
 
-        let mut response = fil_ClearCacheResponse::default();
-
-        match result {
-            Ok(_) => {
-                response.status_code = FCPResponseStatus::FCPNoError;
-            }
-            Err(err) => {
-                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
-            }
-        };
-
-        raw_ptr(response)
+        fil_ClearCacheResponse::from(result).into_boxed_raw()
     })
 }
 
@@ -2084,44 +1753,18 @@ unsafe fn registered_seal_proof_accessor(
     registered_proof: fil_RegisteredSealProof,
     op: fn(RegisteredSealProof) -> anyhow::Result<String>,
 ) -> *mut fil_StringResponse {
-    let mut response = fil_StringResponse::default();
-
     let rsp: RegisteredSealProof = registered_proof.into();
 
-    match op(rsp) {
-        Ok(s) => {
-            response.status_code = FCPResponseStatus::FCPNoError;
-            response.string_val = rust_str_to_c_str(s).unwrap();
-        }
-        Err(err) => {
-            response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-            response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
-        }
-    }
-
-    raw_ptr(response)
+    fil_StringResponse::from(op(rsp).map(Into::into)).into_boxed_raw()
 }
 
 unsafe fn registered_post_proof_accessor(
     registered_proof: fil_RegisteredPoStProof,
     op: fn(RegisteredPoStProof) -> anyhow::Result<String>,
 ) -> *mut fil_StringResponse {
-    let mut response = fil_StringResponse::default();
-
     let rsp: RegisteredPoStProof = registered_proof.into();
 
-    match op(rsp) {
-        Ok(s) => {
-            response.status_code = FCPResponseStatus::FCPNoError;
-            response.string_val = rust_str_to_c_str(s).unwrap();
-        }
-        Err(err) => {
-            response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-            response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
-        }
-    }
-
-    raw_ptr(response)
+    fil_StringResponse::from(op(rsp).map(Into::into)).into_boxed_raw()
 }
 
 /// Deallocates a VerifySealResponse.
@@ -2308,7 +1951,6 @@ pub mod tests {
 
     use super::*;
     use fr32::bytes_into_fr;
-    use std::ffi::CStr;
 
     // This is a test method for ensuring that the elements of 1 file
     // matches the other.
@@ -2484,11 +2126,10 @@ pub mod tests {
                     FCPResponseStatus::FCPNoError,
                     "non-success exit code from {:?}: {:?}",
                     label,
-                    c_str_to_rust_str((*r).error_msg)
+                    (*r).error_msg.as_str().unwrap()
                 );
 
-                let x = CStr::from_ptr((*r).string_val);
-                let y = x.to_str().unwrap();
+                let y = (*r).value.as_str().unwrap();
 
                 assert!(!y.is_empty());
 
@@ -2596,7 +2237,7 @@ pub mod tests {
                 fil_generate_data_commitment(registered_proof_seal, pieces.as_ptr(), pieces.len());
 
             if (*resp_x).status_code != FCPResponseStatus::FCPNoError {
-                let msg = c_str_to_rust_str((*resp_x).error_msg);
+                let msg = (*resp_x).error_msg.as_str().unwrap();
                 panic!("generate_data_commitment failed: {:?}", msg);
             }
 
@@ -2618,24 +2259,21 @@ pub mod tests {
             );
 
             if (*resp_b1).status_code != FCPResponseStatus::FCPNoError {
-                let msg = c_str_to_rust_str((*resp_b1).error_msg);
+                let msg = (*resp_b1).error_msg.as_str().unwrap();
                 panic!("seal_pre_commit_phase1 failed: {:?}", msg);
             }
 
-            let resp_b2 = fil_seal_pre_commit_phase2(
-                (*resp_b1).seal_pre_commit_phase1_output_ptr,
-                (*resp_b1).seal_pre_commit_phase1_output_len,
-                cache_dir_path_c_str,
-                replica_path_c_str,
-            );
+            let (ptr, len) = (*resp_b1).value.as_parts();
+            let resp_b2 =
+                fil_seal_pre_commit_phase2(ptr, len, cache_dir_path_c_str, replica_path_c_str);
 
             if (*resp_b2).status_code != FCPResponseStatus::FCPNoError {
                 let msg = c_str_to_rust_str((*resp_b2).error_msg);
                 panic!("seal_pre_commit_phase2 failed: {:?}", msg);
             }
 
-            let pre_computed_comm_d = &(*resp_x).comm_d;
-            let pre_commit_comm_d = &(*resp_b2).comm_d;
+            let pre_computed_comm_d: &[u8; 32] = &(*resp_x).value;
+            let pre_commit_comm_d: &[u8; 32] = &(*resp_b2).comm_d;
 
             assert_eq!(
                 format!("{:x?}", &pre_computed_comm_d),
@@ -2658,16 +2296,12 @@ pub mod tests {
             );
 
             if (*resp_c1).status_code != FCPResponseStatus::FCPNoError {
-                let msg = c_str_to_rust_str((*resp_c1).error_msg);
+                let msg = (*resp_c1).error_msg.as_str().unwrap();
                 panic!("seal_commit_phase1 failed: {:?}", msg);
             }
 
-            let resp_c2 = fil_seal_commit_phase2(
-                (*resp_c1).seal_commit_phase1_output_ptr,
-                (*resp_c1).seal_commit_phase1_output_len,
-                sector_id,
-                prover_id,
-            );
+            let (ptr, len) = (*resp_c1).value.as_parts();
+            let resp_c2 = fil_seal_commit_phase2(ptr, len, sector_id, prover_id);
 
             if (*resp_c2).status_code != FCPResponseStatus::FCPNoError {
                 let msg = c_str_to_rust_str((*resp_c2).error_msg);
@@ -2687,18 +2321,14 @@ pub mod tests {
             );
 
             if (*resp_d).status_code != FCPResponseStatus::FCPNoError {
-                let msg = c_str_to_rust_str((*resp_d).error_msg);
+                let msg = (*resp_d).error_msg.as_str().unwrap();
                 panic!("seal_commit failed: {:?}", msg);
             }
 
-            assert!((*resp_d).is_valid, "proof was not valid");
+            assert!((*resp_d).value, "proof was not valid");
 
-            let resp_c22 = fil_seal_commit_phase2(
-                (*resp_c1).seal_commit_phase1_output_ptr,
-                (*resp_c1).seal_commit_phase1_output_len,
-                sector_id,
-                prover_id,
-            );
+            let (ptr, len) = (*resp_c1).value.as_parts();
+            let resp_c22 = fil_seal_commit_phase2(ptr, len, sector_id, prover_id);
 
             if (*resp_c22).status_code != FCPResponseStatus::FCPNoError {
                 let msg = c_str_to_rust_str((*resp_c22).error_msg);
@@ -2718,11 +2348,11 @@ pub mod tests {
             );
 
             if (*resp_d2).status_code != FCPResponseStatus::FCPNoError {
-                let msg = c_str_to_rust_str((*resp_d2).error_msg);
+                let msg = (*resp_d2).error_msg.as_str().unwrap();
                 panic!("seal_commit failed: {:?}", msg);
             }
 
-            assert!((*resp_d2).is_valid, "proof was not valid");
+            assert!((*resp_d2).value, "proof was not valid");
 
             //////////////////////////////////////////////////////////////////
             // Begin Sector Upgrade testing
@@ -2808,7 +2438,7 @@ pub mod tests {
             );
 
             if (*resp_new_x).status_code != FCPResponseStatus::FCPNoError {
-                let msg = c_str_to_rust_str((*resp_new_x).error_msg);
+                let msg = (*resp_new_x).error_msg.as_str().unwrap();
                 panic!("generate_data_commitment failed: {:?}", msg);
             }
 
@@ -2864,30 +2494,33 @@ pub mod tests {
             );
 
             if (*resp_partition_proofs).status_code != FCPResponseStatus::FCPNoError {
-                let msg = c_str_to_rust_str((*resp_partition_proofs).error_msg);
+                let msg = (*resp_partition_proofs).error_msg.as_str().unwrap();
                 panic!("generate_partition_proofs failed: {:?}", msg);
             }
 
             // Verify vanilla partition proofs
+            let (ptr, len) = (*resp_partition_proofs).value.as_parts();
             let resp_verify_partition_proofs = fil_verify_empty_sector_update_partition_proofs(
                 registered_proof_empty_sector_update,
-                (*resp_partition_proofs).proofs_len,
-                (*resp_partition_proofs).proofs_ptr,
+                len,
+                ptr,
                 wrap((*resp_b2).comm_r),
                 wrap((*resp_encode).comm_r_new),
                 wrap((*resp_encode).comm_d_new),
             );
 
             if (*resp_verify_partition_proofs).status_code != FCPResponseStatus::FCPNoError {
-                let msg = c_str_to_rust_str((*resp_verify_partition_proofs).error_msg);
+                let msg = (*resp_verify_partition_proofs).error_msg.as_str().unwrap();
                 panic!("verify_partition_proofs failed: {:?}", msg);
             }
 
             // Then generate the sector update proof with the vanilla proofs
+            let (ptr, len) = (*resp_partition_proofs).value.as_parts();
+
             let resp_empty_sector_update = fil_generate_empty_sector_update_proof_with_vanilla(
                 registered_proof_empty_sector_update,
-                (*resp_partition_proofs).proofs_ptr,
-                (*resp_partition_proofs).proofs_len,
+                ptr,
+                len,
                 wrap((*resp_b2).comm_r),
                 wrap((*resp_encode).comm_r_new),
                 wrap((*resp_encode).comm_d_new),
@@ -2912,7 +2545,10 @@ pub mod tests {
             );
 
             if (*resp_verify_empty_sector_update).status_code != FCPResponseStatus::FCPNoError {
-                let msg = c_str_to_rust_str((*resp_verify_empty_sector_update).error_msg);
+                let msg = (*resp_verify_empty_sector_update)
+                    .error_msg
+                    .as_str()
+                    .unwrap();
                 panic!("verify_empty_sector_update_proof failed: {:?}", msg);
             }
 
@@ -2943,7 +2579,10 @@ pub mod tests {
             );
 
             if (*resp_verify_empty_sector_update2).status_code != FCPResponseStatus::FCPNoError {
-                let msg = c_str_to_rust_str((*resp_verify_empty_sector_update2).error_msg);
+                let msg = (*resp_verify_empty_sector_update2)
+                    .error_msg
+                    .as_str()
+                    .unwrap();
                 panic!("verify_empty_sector_update_proof failed: {:?}", msg);
             }
 
@@ -2967,7 +2606,7 @@ pub mod tests {
             );
 
             if (*resp_decode).status_code != FCPResponseStatus::FCPNoError {
-                let msg = c_str_to_rust_str((*resp_decode).error_msg);
+                let msg = (*resp_decode).error_msg.as_str().unwrap();
                 panic!("empty_sector_update_decode_from failed: {:?}", msg);
             }
 
@@ -2995,7 +2634,7 @@ pub mod tests {
             );
 
             if (*resp_removed).status_code != FCPResponseStatus::FCPNoError {
-                let msg = c_str_to_rust_str((*resp_removed).error_msg);
+                let msg = (*resp_removed).error_msg.as_str().unwrap();
                 panic!("empty_sector_update_remove_encoded_data failed: {:?}", msg);
             }
 
@@ -3055,7 +2694,7 @@ pub mod tests {
             );
 
             if (*resp_e).status_code != FCPResponseStatus::FCPNoError {
-                let msg = c_str_to_rust_str((*resp_e).error_msg);
+                let msg = (*resp_e).error_msg.as_str().unwrap();
                 panic!("unseal failed: {:?}", msg);
             }
 
@@ -3095,13 +2734,14 @@ pub mod tests {
             );
 
             if (*resp_f).status_code != FCPResponseStatus::FCPNoError {
-                let msg = c_str_to_rust_str((*resp_f).error_msg);
-                panic!("generate_candidates failed: {:?}", msg);
+                panic!(
+                    "generate_candidates failed: {}",
+                    (*resp_f).error_msg.as_str().unwrap()
+                );
             }
 
-            // exercise the ticket-finalizing code path (but don't do anything
-            // with the results
-            let result: &[u64] = std::slice::from_raw_parts((*resp_f).ids_ptr, (*resp_f).ids_len);
+            // exercise the ticket-finalizing code path (but don't do anything with the results
+            let result: &[u64] = &(*resp_f).value;
 
             if result.is_empty() {
                 panic!("generate_candidates produced no results");
@@ -3125,7 +2765,7 @@ pub mod tests {
             );
 
             if (*resp_h).status_code != FCPResponseStatus::FCPNoError {
-                let msg = c_str_to_rust_str((*resp_h).error_msg);
+                let msg = (*resp_h).error_msg.as_str().unwrap();
                 panic!("generate_winning_post failed: {:?}", msg);
             }
             let public_replicas = vec![fil_PublicReplicaInfo {
@@ -3134,21 +2774,22 @@ pub mod tests {
                 comm_r: (*resp_b2).comm_r,
             }];
 
+            let (ptr, len) = (*resp_h).value.as_parts();
             let resp_i = fil_verify_winning_post(
                 randomness,
                 public_replicas.as_ptr(),
                 public_replicas.len(),
-                (*resp_h).proofs_ptr,
-                (*resp_h).proofs_len,
+                ptr,
+                len,
                 prover_id,
             );
 
             if (*resp_i).status_code != FCPResponseStatus::FCPNoError {
-                let msg = c_str_to_rust_str((*resp_i).error_msg);
+                let msg = (*resp_i).error_msg.as_str().unwrap();
                 panic!("verify_winning_post failed: {:?}", msg);
             }
 
-            if !(*resp_i).is_valid {
+            if !(*resp_i).value {
                 panic!("verify_winning_post rejected the provided proof as invalid");
             }
 
@@ -3171,16 +2812,13 @@ pub mod tests {
             );
 
             if (*resp_sc).status_code != FCPResponseStatus::FCPNoError {
-                let msg = c_str_to_rust_str((*resp_sc).error_msg);
+                let msg = (*resp_sc).error_msg.as_str().unwrap();
                 panic!("fallback_sector_challenges failed: {:?}", msg);
             }
 
-            let sector_ids: Vec<u64> =
-                std::slice::from_raw_parts((*resp_sc).ids_ptr, (*resp_sc).ids_len).to_vec();
-            let sector_challenges: Vec<u64> =
-                std::slice::from_raw_parts((*resp_sc).challenges_ptr, (*resp_sc).challenges_len)
-                    .to_vec();
-            let challenges_stride = (*resp_sc).challenges_stride;
+            let sector_ids: Vec<u64> = (*resp_sc).value.ids.to_vec();
+            let sector_challenges: Vec<u64> = (*resp_sc).value.challenges.to_vec();
+            let challenges_stride = (*resp_sc).value.challenges_stride;
             let challenge_iterations = sector_challenges.len() / challenges_stride;
             assert_eq!(
                 sector_ids.len(),
@@ -3209,11 +2847,11 @@ pub mod tests {
                 );
 
                 if (*resp_vp).status_code != FCPResponseStatus::FCPNoError {
-                    let msg = c_str_to_rust_str((*resp_vp).error_msg);
+                    let msg = (*resp_vp).error_msg.as_str().unwrap();
                     panic!("generate_single_vanilla_proof failed: {:?}", msg);
                 }
 
-                vanilla_proofs.push((*resp_vp).vanilla_proof.clone());
+                vanilla_proofs.push((*resp_vp).value.clone());
                 fil_destroy_generate_single_vanilla_proof_response(resp_vp);
             }
 
@@ -3226,27 +2864,28 @@ pub mod tests {
             );
 
             if (*resp_wpwv).status_code != FCPResponseStatus::FCPNoError {
-                let msg = c_str_to_rust_str((*resp_wpwv).error_msg);
+                let msg = (*resp_wpwv).error_msg.as_str().unwrap();
                 panic!("generate_winning_post_with_vanilla failed: {:?}", msg);
             }
 
             // Verify the second winning post (generated by the
             // distributed post API)
+            let (ptr, len) = (*resp_wpwv).value.as_parts();
             let resp_di = fil_verify_winning_post(
                 randomness,
                 public_replicas.as_ptr(),
                 public_replicas.len(),
-                (*resp_wpwv).proofs_ptr,
-                (*resp_wpwv).proofs_len,
+                ptr,
+                len,
                 prover_id,
             );
 
             if (*resp_di).status_code != FCPResponseStatus::FCPNoError {
-                let msg = c_str_to_rust_str((*resp_di).error_msg);
+                let msg = (*resp_di).error_msg.as_str().unwrap();
                 panic!("verify_winning_post failed: {:?}", msg);
             }
 
-            if !(*resp_di).is_valid {
+            if !(*resp_di).value {
                 panic!("verify_winning_post rejected the provided proof as invalid");
             }
 
@@ -3288,11 +2927,11 @@ pub mod tests {
             );
 
             if (*resp_k).status_code != FCPResponseStatus::FCPNoError {
-                let msg = c_str_to_rust_str((*resp_k).error_msg);
+                let msg = (*resp_k).error_msg.as_str().unwrap();
                 panic!("verify_window_post failed: {:?}", msg);
             }
 
-            if !(*resp_k).is_valid {
+            if !(*resp_k).value {
                 panic!("verify_window_post rejected the provided proof as invalid");
             }
 
@@ -3345,16 +2984,13 @@ pub mod tests {
             );
 
             if (*resp_sc2).status_code != FCPResponseStatus::FCPNoError {
-                let msg = c_str_to_rust_str((*resp_sc2).error_msg);
+                let msg = (*resp_sc2).error_msg.as_str().unwrap();
                 panic!("fallback_sector_challenges failed: {:?}", msg);
             }
 
-            let sector_ids: Vec<u64> =
-                std::slice::from_raw_parts((*resp_sc2).ids_ptr, (*resp_sc2).ids_len).to_vec();
-            let sector_challenges: Vec<u64> =
-                std::slice::from_raw_parts((*resp_sc2).challenges_ptr, (*resp_sc2).challenges_len)
-                    .to_vec();
-            let challenges_stride = (*resp_sc2).challenges_stride;
+            let sector_ids: Vec<u64> = (*resp_sc2).value.ids.to_vec();
+            let sector_challenges: Vec<u64> = (*resp_sc2).value.challenges.to_vec();
+            let challenges_stride = (*resp_sc2).value.challenges_stride;
             let challenge_iterations = sector_challenges.len() / challenges_stride;
             assert_eq!(
                 sector_ids.len(),
@@ -3384,11 +3020,11 @@ pub mod tests {
                 );
 
                 if (*resp_vp).status_code != FCPResponseStatus::FCPNoError {
-                    let msg = c_str_to_rust_str((*resp_vp).error_msg);
+                    let msg = (*resp_vp).error_msg.as_str().unwrap();
                     panic!("generate_single_vanilla_proof failed: {:?}", msg);
                 }
 
-                vanilla_proofs.push((*resp_vp).vanilla_proof.clone());
+                vanilla_proofs.push((*resp_vp).value.clone());
                 fil_destroy_generate_single_vanilla_proof_response(resp_vp);
             }
 
@@ -3415,11 +3051,11 @@ pub mod tests {
             );
 
             if (*resp_k2).status_code != FCPResponseStatus::FCPNoError {
-                let msg = c_str_to_rust_str((*resp_k2).error_msg);
+                let msg = (*resp_k2).error_msg.as_str().unwrap();
                 panic!("verify_window_post failed: {:?}", msg);
             }
 
-            if !(*resp_k2).is_valid {
+            if !(*resp_k2).value {
                 panic!("verify_window_post rejected the provided proof as invalid");
             }
 
@@ -3440,13 +3076,13 @@ pub mod tests {
                 sectors.len(),
             );
             if (*num_partitions_resp).status_code != FCPResponseStatus::FCPNoError {
-                let msg = c_str_to_rust_str((*num_partitions_resp).error_msg);
+                let msg = (*num_partitions_resp).error_msg.as_str().unwrap();
                 panic!("get_num_partition_for_fallback_post failed: {:?}", msg);
             }
 
             let mut partition_proofs: Vec<fil_PartitionSnarkProof> =
-                Vec::with_capacity((*num_partitions_resp).num_partition);
-            for partition_index in 0..(*num_partitions_resp).num_partition {
+                Vec::with_capacity((*num_partitions_resp).value);
+            for partition_index in 0..(*num_partitions_resp).value {
                 let mut vanilla_proofs = Vec::with_capacity(challenge_iterations);
                 for i in 0..challenge_iterations {
                     let sector_id = sector_ids[i];
@@ -3467,11 +3103,11 @@ pub mod tests {
                     );
 
                     if (*resp_vp).status_code != FCPResponseStatus::FCPNoError {
-                        let msg = c_str_to_rust_str((*resp_vp).error_msg);
+                        let msg = (*resp_vp).error_msg.as_str().unwrap();
                         panic!("generate_single_vanilla_proof failed: {:?}", msg);
                     }
 
-                    vanilla_proofs.push((*resp_vp).vanilla_proof.clone());
+                    vanilla_proofs.push((*resp_vp).value.clone());
                     fil_destroy_generate_single_vanilla_proof_response(resp_vp);
                 }
 
@@ -3504,7 +3140,7 @@ pub mod tests {
             );
 
             if (*merged_proof_resp).status_code != FCPResponseStatus::FCPNoError {
-                let msg = c_str_to_rust_str((*merged_proof_resp).error_msg);
+                let msg = (*merged_proof_resp).error_msg.as_str().unwrap();
                 panic!("merge_window_post_partition_proofs failed: {:?}", msg);
             }
 
@@ -3512,17 +3148,17 @@ pub mod tests {
                 randomness,
                 public_replicas.as_ptr(),
                 public_replicas.len(),
-                &(*merged_proof_resp).proof,
+                &(*merged_proof_resp).value,
                 1, /* len is 1, as it's a single window post proof once merged */
                 prover_id,
             );
 
             if (*resp_k3).status_code != FCPResponseStatus::FCPNoError {
-                let msg = c_str_to_rust_str((*resp_k3).error_msg);
+                let msg = (*resp_k3).error_msg.as_str().unwrap();
                 panic!("verify_window_post failed: {:?}", msg);
             }
 
-            if !(*resp_k3).is_valid {
+            if !(*resp_k3).value {
                 panic!("verify_window_post rejected the provided proof as invalid");
             }
 
@@ -3669,7 +3305,7 @@ pub mod tests {
                 fil_generate_data_commitment(registered_proof_seal, pieces.as_ptr(), pieces.len());
 
             if (*resp_x).status_code != FCPResponseStatus::FCPNoError {
-                let msg = c_str_to_rust_str((*resp_x).error_msg);
+                let msg = (*resp_x).error_msg.as_str().unwrap();
                 panic!("generate_data_commitment failed: {:?}", msg);
             }
 
@@ -3690,16 +3326,13 @@ pub mod tests {
             );
 
             if (*resp_b1).status_code != FCPResponseStatus::FCPNoError {
-                let msg = c_str_to_rust_str((*resp_b1).error_msg);
+                let msg = (*resp_b1).error_msg.as_str().unwrap();
                 panic!("seal_pre_commit_phase1 failed: {:?}", msg);
             }
 
-            let resp_b2 = fil_seal_pre_commit_phase2(
-                (*resp_b1).seal_pre_commit_phase1_output_ptr,
-                (*resp_b1).seal_pre_commit_phase1_output_len,
-                cache_dir_path_c_str,
-                replica_path_c_str,
-            );
+            let (ptr, len) = (*resp_b1).value.as_parts();
+            let resp_b2 =
+                fil_seal_pre_commit_phase2(ptr, len, cache_dir_path_c_str, replica_path_c_str);
 
             if (*resp_b2).status_code != FCPResponseStatus::FCPNoError {
                 let msg = c_str_to_rust_str((*resp_b2).error_msg);
@@ -3863,7 +3496,7 @@ pub mod tests {
                 fil_generate_data_commitment(registered_proof_seal, pieces.as_ptr(), pieces.len());
 
             if (*resp_x).status_code != FCPResponseStatus::FCPNoError {
-                let msg = c_str_to_rust_str((*resp_x).error_msg);
+                let msg = (*resp_x).error_msg.as_str().unwrap();
                 panic!("generate_data_commitment failed: {:?}", msg);
             }
 
@@ -3884,24 +3517,21 @@ pub mod tests {
             );
 
             if (*resp_b1).status_code != FCPResponseStatus::FCPNoError {
-                let msg = c_str_to_rust_str((*resp_b1).error_msg);
+                let msg = (*resp_b1).error_msg.as_str().unwrap();
                 panic!("seal_pre_commit_phase1 failed: {:?}", msg);
             }
 
-            let resp_b2 = fil_seal_pre_commit_phase2(
-                (*resp_b1).seal_pre_commit_phase1_output_ptr,
-                (*resp_b1).seal_pre_commit_phase1_output_len,
-                cache_dir_path_c_str,
-                replica_path_c_str,
-            );
+            let (ptr, len) = (*resp_b1).value.as_parts();
+            let resp_b2 =
+                fil_seal_pre_commit_phase2(ptr, len, cache_dir_path_c_str, replica_path_c_str);
 
             if (*resp_b2).status_code != FCPResponseStatus::FCPNoError {
                 let msg = c_str_to_rust_str((*resp_b2).error_msg);
                 panic!("seal_pre_commit_phase2 failed: {:?}", msg);
             }
 
-            let pre_computed_comm_d = &(*resp_x).comm_d;
-            let pre_commit_comm_d = &(*resp_b2).comm_d;
+            let pre_computed_comm_d: &[u8; 32] = &(*resp_x).value;
+            let pre_commit_comm_d: &[u8; 32] = &(*resp_b2).comm_d;
 
             assert_eq!(
                 format!("{:x?}", &pre_computed_comm_d),
@@ -3924,16 +3554,12 @@ pub mod tests {
             );
 
             if (*resp_c1).status_code != FCPResponseStatus::FCPNoError {
-                let msg = c_str_to_rust_str((*resp_c1).error_msg);
+                let msg = (*resp_c1).error_msg.as_str().unwrap();
                 panic!("seal_commit_phase1 failed: {:?}", msg);
             }
 
-            let resp_c2 = fil_seal_commit_phase2(
-                (*resp_c1).seal_commit_phase1_output_ptr,
-                (*resp_c1).seal_commit_phase1_output_len,
-                sector_id,
-                prover_id,
-            );
+            let (ptr, len) = (*resp_c1).value.as_parts();
+            let resp_c2 = fil_seal_commit_phase2(ptr, len, sector_id, prover_id);
 
             if (*resp_c2).status_code != FCPResponseStatus::FCPNoError {
                 let msg = c_str_to_rust_str((*resp_c2).error_msg);
@@ -3953,18 +3579,14 @@ pub mod tests {
             );
 
             if (*resp_d).status_code != FCPResponseStatus::FCPNoError {
-                let msg = c_str_to_rust_str((*resp_d).error_msg);
+                let msg = (*resp_d).error_msg.as_str().unwrap();
                 panic!("seal_commit failed: {:?}", msg);
             }
 
-            assert!((*resp_d).is_valid, "proof was not valid");
+            assert!((*resp_d).value, "proof was not valid");
 
-            let resp_c22 = fil_seal_commit_phase2(
-                (*resp_c1).seal_commit_phase1_output_ptr,
-                (*resp_c1).seal_commit_phase1_output_len,
-                sector_id,
-                prover_id,
-            );
+            let (ptr, len) = (*resp_c1).value.as_parts();
+            let resp_c22 = fil_seal_commit_phase2(ptr, len, sector_id, prover_id);
 
             if (*resp_c22).status_code != FCPResponseStatus::FCPNoError {
                 let msg = c_str_to_rust_str((*resp_c22).error_msg);
@@ -3984,11 +3606,11 @@ pub mod tests {
             );
 
             if (*resp_d2).status_code != FCPResponseStatus::FCPNoError {
-                let msg = c_str_to_rust_str((*resp_d2).error_msg);
+                let msg = (*resp_d2).error_msg.as_str().unwrap();
                 panic!("seal_commit failed: {:?}", msg);
             }
 
-            assert!((*resp_d2).is_valid, "proof was not valid");
+            assert!((*resp_d2).value, "proof was not valid");
 
             let seal_commit_responses: Vec<fil_SealCommitPhase2Response> =
                 vec![(*resp_c2).clone(), (*resp_c22).clone()];
@@ -4049,11 +3671,11 @@ pub mod tests {
             );
 
             if (*resp_ad).status_code != FCPResponseStatus::FCPNoError {
-                let msg = c_str_to_rust_str((*resp_ad).error_msg);
+                let msg = (*resp_ad).error_msg.as_str().unwrap();
                 panic!("verify_aggregate_seal_proof failed: {:?}", msg);
             }
 
-            assert!((*resp_ad).is_valid, "aggregated proof was not valid");
+            assert!((*resp_ad).value, "aggregated proof was not valid");
 
             fil_destroy_write_without_alignment_response(resp_a1);
             fil_destroy_write_with_alignment_response(resp_a2);
