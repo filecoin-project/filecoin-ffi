@@ -1,7 +1,6 @@
 use std::{
     ffi::CStr,
     fmt::Display,
-    mem::ManuallyDrop,
     ops::Deref,
     path::{Path, PathBuf},
     ptr,
@@ -52,7 +51,7 @@ impl<T: Sized> fil_Array<T> {
     }
 
     pub fn is_null(&self) -> bool {
-        self.ptr.is_null()
+        self.ptr.is_null() || self.len == 0
     }
 }
 
@@ -90,7 +89,7 @@ impl<T> Deref for fil_Array<T> {
     type Target = [T];
     fn deref(&self) -> &[T] {
         unsafe {
-            if self.ptr.is_null() {
+            if self.is_null() {
                 std::slice::from_raw_parts(ptr::NonNull::dangling().as_ptr(), 0)
             } else {
                 std::slice::from_raw_parts(self.ptr, self.len)
@@ -261,12 +260,6 @@ pub unsafe extern "C" fn fil_destroy_init_log_fd_response(ptr: *mut fil_InitLogF
     let _ = Box::from_raw(ptr);
 }
 
-pub fn vec_into_raw<T>(v: Vec<T>) -> (*mut T, usize) {
-    let bytes = v.into_boxed_slice();
-    let len = bytes.len();
-    (Box::into_raw(bytes).cast(), len)
-}
-
 /// `ptr` must be allocated using `Box::into_raw` or be null.
 unsafe fn drop_box_from_parts<T>(ptr: *mut T) {
     if !ptr.is_null() {
@@ -280,13 +273,9 @@ unsafe fn clone_box_parts<T: Clone>(ptr: *const T, len: usize) -> *mut T {
         return ptr::null_mut();
     }
 
-    // restore, but without triggering a drop on the original
-    // safe to cast as *mut as we don't mutate
-    let bytes: ManuallyDrop<Box<[T]>> = ManuallyDrop::new(Box::from_raw(
-        std::slice::from_raw_parts_mut(ptr as *mut _, len),
-    ));
+    let bytes = std::slice::from_raw_parts(ptr, len)
+        .to_owned()
+        .into_boxed_slice();
 
-    // duplicate the bytes
-    let bytes2 = ManuallyDrop::into_inner(bytes.clone());
-    Box::into_raw(bytes2).cast()
+    Box::into_raw(bytes).cast()
 }
