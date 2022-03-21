@@ -2,6 +2,7 @@ use std::{
     ffi::CStr,
     fmt::Display,
     ops::Deref,
+    panic,
     path::{Path, PathBuf},
     ptr,
     str::Utf8Error,
@@ -9,6 +10,8 @@ use std::{
 
 // `CodeAndMessage` is the trait implemented by `code_and_message_impl
 use ffi_toolkit::{CodeAndMessage, FCPResponseStatus};
+
+use super::api::init_log;
 
 #[repr(C)]
 pub struct fil_Array<T: Sized> {
@@ -52,6 +55,28 @@ impl<T: Sized> fil_Array<T> {
 
     pub fn is_null(&self) -> bool {
         self.ptr.is_null() || self.len == 0
+    }
+
+    pub fn into_boxed_slice(self) -> Box<[T]> {
+        if self.is_null() {
+            Box::new([])
+        } else {
+            let res = unsafe { Box::from_raw(std::slice::from_raw_parts_mut(self.ptr, self.len)) };
+            // no drop for us
+            std::mem::forget(self);
+            res
+        }
+    }
+}
+
+// This is needed because of https://github.com/rust-lang/rust/issues/59878
+impl<T: Sized> IntoIterator for fil_Array<T> {
+    type Item = T;
+    type IntoIter = std::vec::IntoIter<T>;
+
+    #[inline]
+    fn into_iter(self) -> Self::IntoIter {
+        Vec::from(self.into_boxed_slice()).into_iter()
     }
 }
 
@@ -278,4 +303,34 @@ unsafe fn clone_box_parts<T: Clone>(ptr: *const T, len: usize) -> *mut T {
         .into_boxed_slice();
 
     Box::into_raw(bytes).cast()
+}
+
+/// Catch panics and return an error response
+pub fn catch_panic_response<F, T>(name: &str, callback: F) -> *mut fil_Result<T>
+where
+    T: Sized + Default,
+    F: FnOnce() -> anyhow::Result<T>,
+{
+    // Using AssertUnwindSafe is code smell. Though catching our panics here is really
+    // last resort, so it should be OK.
+    let result = match panic::catch_unwind(panic::AssertUnwindSafe(|| {
+        init_log();
+        log::info!("{}: start", name);
+        let res = callback();
+        log::info!("{}: end", name);
+        res
+    })) {
+        Ok(Ok(t)) => Ok(t),
+        Ok(Err(err)) => Err(err.to_string()),
+        Err(panic) => {
+            let error_msg = match panic.downcast_ref::<&'static str>() {
+                Some(message) => message,
+                _ => "no unwind information",
+            };
+
+            Err(format!("Rust panic: {}", error_msg))
+        }
+    };
+
+    unsafe { fil_Result::<T>::from(result).into_boxed_raw() }
 }

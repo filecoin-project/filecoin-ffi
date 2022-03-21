@@ -20,7 +20,6 @@ use blstrs::Scalar as Fr;
 use log::{error, info};
 use rayon::prelude::*;
 
-use std::path::PathBuf;
 use std::slice::from_raw_parts;
 
 use super::helpers::{
@@ -29,6 +28,7 @@ use super::helpers::{
 };
 use super::types::*;
 use crate::util::api::init_log;
+use crate::util::types::{catch_panic_response as catch_panic_response2, fil_Array, fil_Bytes};
 
 // A byte serialized representation of a vanilla proof.
 pub type VanillaProof = Vec<u8>;
@@ -42,40 +42,29 @@ pub unsafe extern "C" fn fil_write_with_alignment(
     src_fd: libc::c_int,
     src_size: u64,
     dst_fd: libc::c_int,
-    existing_piece_sizes_ptr: *const u64,
-    existing_piece_sizes_len: libc::size_t,
+    existing_piece_sizes: fil_Array<u64>,
 ) -> *mut fil_WriteWithAlignmentResponse {
-    catch_panic_response(|| {
-        init_log();
-
-        info!("write_with_alignment: start");
-
-        let slice: &[u64] =
-            std::slice::from_raw_parts(existing_piece_sizes_ptr, existing_piece_sizes_len);
-        let piece_sizes: Vec<UnpaddedBytesAmount> = slice
-            .to_vec()
-            .iter()
-            .map(|n| UnpaddedBytesAmount(*n))
+    catch_panic_response2("write_with_alignment", || {
+        let piece_sizes: Vec<UnpaddedBytesAmount> = existing_piece_sizes
+            .into_iter()
+            .map(UnpaddedBytesAmount)
             .collect();
 
         let n = UnpaddedBytesAmount(src_size);
 
-        let result = add_piece(
+        let (info, written) = add_piece(
             registered_proof.into(),
             FileDescriptorRef::new(src_fd),
             FileDescriptorRef::new(dst_fd),
             n,
             &piece_sizes,
-        )
-        .map(|(info, written)| fil_WriteWithAlignment {
+        )?;
+
+        Ok(fil_WriteWithAlignment {
             comm_p: info.commitment,
             left_alignment_unpadded: (written - n).into(),
             total_write_unpadded: written.into(),
-        });
-
-        info!("write_with_alignment: finish");
-
-        fil_WriteWithAlignmentResponse::from(result).into_boxed_raw()
+        })
     })
 }
 
@@ -89,70 +78,51 @@ pub unsafe extern "C" fn fil_write_without_alignment(
     src_size: u64,
     dst_fd: libc::c_int,
 ) -> *mut fil_WriteWithoutAlignmentResponse {
-    catch_panic_response(|| {
-        init_log();
-
-        info!("write_without_alignment: start");
-
-        let result = write_and_preprocess(
+    catch_panic_response2("write_without_alignment", || {
+        let (info, written) = write_and_preprocess(
             registered_proof.into(),
             FileDescriptorRef::new(src_fd),
             FileDescriptorRef::new(dst_fd),
             UnpaddedBytesAmount(src_size),
-        )
-        .map(|(info, written)| fil_WriteWithoutAlignment {
+        )?;
+
+        Ok(fil_WriteWithoutAlignment {
             comm_p: info.commitment,
             total_write_unpadded: written.into(),
-        });
-
-        info!("write_without_alignment: finish");
-
-        fil_WriteWithoutAlignmentResponse::from(result).into_boxed_raw()
+        })
     })
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn fil_fauxrep(
     registered_proof: fil_RegisteredSealProof,
-    cache_dir_path: *const libc::c_char,
-    sealed_sector_path: *const libc::c_char,
+    cache_dir_path: fil_Bytes,
+    sealed_sector_path: fil_Bytes,
 ) -> *mut fil_FauxRepResponse {
-    catch_panic_response(|| {
-        init_log();
-
-        info!("fauxrep: start");
-
-        let result = fauxrep(
+    catch_panic_response2("fauxrep", || {
+        let res = fauxrep(
             registered_proof.into(),
-            c_str_to_pbuf(cache_dir_path),
-            c_str_to_pbuf(sealed_sector_path),
-        );
-
-        info!("fauxrep: finish");
-        fil_FauxRepResponse::from(result.map(Into::into)).into_boxed_raw()
+            cache_dir_path.as_path()?,
+            sealed_sector_path.as_path()?,
+        )?;
+        Ok(res.into())
     })
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn fil_fauxrep2(
     registered_proof: fil_RegisteredSealProof,
-    cache_dir_path: *const libc::c_char,
-    existing_p_aux_path: *const libc::c_char,
+    cache_dir_path: fil_Bytes,
+    existing_p_aux_path: fil_Bytes,
 ) -> *mut fil_FauxRepResponse {
-    catch_panic_response(|| {
-        init_log();
-
-        info!("fauxrep2: start");
-
+    catch_panic_response2("fauxrep2", || {
         let result = fauxrep2(
             registered_proof.into(),
-            c_str_to_pbuf(cache_dir_path),
-            c_str_to_pbuf(existing_p_aux_path),
-        );
+            cache_dir_path.as_path()?,
+            existing_p_aux_path.as_path()?,
+        )?;
 
-        info!("fauxrep2: finish");
-
-        fil_FauxRepResponse::from(result.map(Into::into)).into_boxed_raw()
+        Ok(result.into())
     })
 }
 
@@ -161,38 +131,30 @@ pub unsafe extern "C" fn fil_fauxrep2(
 #[no_mangle]
 pub unsafe extern "C" fn fil_seal_pre_commit_phase1(
     registered_proof: fil_RegisteredSealProof,
-    cache_dir_path: *const libc::c_char,
-    staged_sector_path: *const libc::c_char,
-    sealed_sector_path: *const libc::c_char,
+    cache_dir_path: fil_Bytes,
+    staged_sector_path: fil_Bytes,
+    sealed_sector_path: fil_Bytes,
     sector_id: u64,
     prover_id: fil_32ByteArray,
     ticket: fil_32ByteArray,
-    pieces_ptr: *const fil_PublicPieceInfo,
-    pieces_len: libc::size_t,
+    pieces: fil_Array<fil_PublicPieceInfo>,
 ) -> *mut fil_SealPreCommitPhase1Response {
-    catch_panic_response(|| {
-        init_log();
-
-        info!("seal_pre_commit_phase1: start");
-
-        let slice: &[fil_PublicPieceInfo] = std::slice::from_raw_parts(pieces_ptr, pieces_len);
-        let public_pieces: Vec<PieceInfo> =
-            slice.to_vec().iter().cloned().map(Into::into).collect();
+    catch_panic_response2("seal_pre_commit_phase1", || {
+        let public_pieces: Vec<PieceInfo> = pieces.into_iter().map(Into::into).collect();
 
         let result = seal_pre_commit_phase1(
             registered_proof.into(),
-            c_str_to_pbuf(cache_dir_path),
-            c_str_to_pbuf(staged_sector_path),
-            c_str_to_pbuf(sealed_sector_path),
+            cache_dir_path.as_path()?,
+            staged_sector_path.as_path()?,
+            sealed_sector_path.as_path()?,
             prover_id.inner,
             SectorId::from(sector_id),
             ticket.inner,
             &public_pieces,
-        )
-        .and_then(|output| serde_json::to_vec(&output).map_err(Into::into));
+        )?;
+        let result = serde_json::to_vec(&result)?;
 
-        info!("seal_pre_commit_phase1: finish");
-        fil_SealPreCommitPhase1Response::from(result.map(Into::into)).into_boxed_raw()
+        Ok(result.into())
     })
 }
 
@@ -200,38 +162,24 @@ pub unsafe extern "C" fn fil_seal_pre_commit_phase1(
 ///
 #[no_mangle]
 pub unsafe extern "C" fn fil_seal_pre_commit_phase2(
-    seal_pre_commit_phase1_output_ptr: *const u8,
-    seal_pre_commit_phase1_output_len: libc::size_t,
-    cache_dir_path: *const libc::c_char,
-    sealed_sector_path: *const libc::c_char,
+    seal_pre_commit_phase1_output: fil_Bytes,
+    cache_dir_path: fil_Bytes,
+    sealed_sector_path: fil_Bytes,
 ) -> *mut fil_SealPreCommitPhase2Response {
-    catch_panic_response(|| {
-        init_log();
+    catch_panic_response2("seal_pre_commit_phase2", || {
+        let phase_1_output = serde_json::from_slice(&seal_pre_commit_phase1_output)?;
 
-        info!("seal_pre_commit_phase2: start");
+        let output = seal_pre_commit_phase2(
+            phase_1_output,
+            cache_dir_path.as_path()?,
+            sealed_sector_path.as_path()?,
+        )?;
 
-        let phase_1_output = serde_json::from_slice(from_raw_parts(
-            seal_pre_commit_phase1_output_ptr,
-            seal_pre_commit_phase1_output_len,
-        ))
-        .map_err(Into::into);
-
-        let result = phase_1_output
-            .and_then(|o| {
-                seal_pre_commit_phase2::<PathBuf, PathBuf>(
-                    o,
-                    c_str_to_pbuf(cache_dir_path),
-                    c_str_to_pbuf(sealed_sector_path),
-                )
-            })
-            .map(|output| fil_SealPreCommitPhase2 {
-                comm_r: output.comm_r,
-                comm_d: output.comm_d,
-                registered_proof: output.registered_proof.into(),
-            });
-
-        info!("seal_pre_commit_phase2: finish");
-        fil_SealPreCommitPhase2Response::from(result).into_boxed_raw()
+        Ok(fil_SealPreCommitPhase2 {
+            comm_r: output.comm_r,
+            comm_d: output.comm_d,
+            registered_proof: output.registered_proof.into(),
+        })
     })
 }
 
@@ -242,45 +190,36 @@ pub unsafe extern "C" fn fil_seal_commit_phase1(
     registered_proof: fil_RegisteredSealProof,
     comm_r: fil_32ByteArray,
     comm_d: fil_32ByteArray,
-    cache_dir_path: *const libc::c_char,
-    replica_path: *const libc::c_char,
+    cache_dir_path: fil_Bytes,
+    replica_path: fil_Bytes,
     sector_id: u64,
     prover_id: fil_32ByteArray,
     ticket: fil_32ByteArray,
     seed: fil_32ByteArray,
-    pieces_ptr: *const fil_PublicPieceInfo,
-    pieces_len: libc::size_t,
+    pieces: fil_Array<fil_PublicPieceInfo>,
 ) -> *mut fil_SealCommitPhase1Response {
-    catch_panic_response(|| {
-        init_log();
-
-        info!("seal_commit_phase1: start");
-
+    catch_panic_response2("seal_commit_phase1", || {
         let spcp2o = SealPreCommitPhase2Output {
             registered_proof: registered_proof.into(),
             comm_r: comm_r.inner,
             comm_d: comm_d.inner,
         };
 
-        let slice: &[fil_PublicPieceInfo] = std::slice::from_raw_parts(pieces_ptr, pieces_len);
-        let public_pieces: Vec<PieceInfo> =
-            slice.to_vec().iter().cloned().map(Into::into).collect();
+        let public_pieces: Vec<PieceInfo> = pieces.into_iter().map(Into::into).collect();
 
-        let result = seal_commit_phase1(
-            c_str_to_pbuf(cache_dir_path),
-            c_str_to_pbuf(replica_path),
+        let output = seal_commit_phase1(
+            cache_dir_path.as_path()?,
+            replica_path.as_path()?,
             prover_id.inner,
             SectorId::from(sector_id),
             ticket.inner,
             seed.inner,
             spcp2o,
             &public_pieces,
-        )
-        .and_then(|output| serde_json::to_vec(&output).map_err(Into::into));
+        )?;
 
-        info!("seal_commit_phase1: finish");
-
-        fil_SealCommitPhase1Response::from(result.map(Into::into)).into_boxed_raw()
+        let result = serde_json::to_vec(&output)?;
+        Ok(result.into())
     })
 }
 
@@ -318,26 +257,16 @@ pub unsafe extern "C" fn fil_seal_commit_phase2(
 pub unsafe extern "C" fn fil_aggregate_seal_proofs(
     registered_proof: fil_RegisteredSealProof,
     registered_aggregation: fil_RegisteredAggregationProof,
-    comm_rs_ptr: *const fil_32ByteArray,
-    comm_rs_len: libc::size_t,
-    seeds_ptr: *const fil_32ByteArray,
-    seeds_len: libc::size_t,
-    seal_commit_responses_ptr: *const fil_SealCommitPhase2Response,
-    seal_commit_responses_len: libc::size_t,
+    comm_rs: fil_Array<fil_32ByteArray>,
+    seeds: fil_Array<fil_32ByteArray>,
+    seal_commit_responses: fil_Array<fil_SealCommitPhase2>,
 ) -> *mut fil_AggregateProof {
-    catch_panic_response(|| {
-        init_log();
-        info!("aggregate_seal_proofs: start");
+    catch_panic_response2("aggregate_seal_proofs", || {
+        let outputs: Vec<SealCommitPhase2Output> =
+            seal_commit_responses.iter().map(Into::into).collect();
 
-        let responses: &[fil_SealCommitPhase2Response] =
-            std::slice::from_raw_parts(seal_commit_responses_ptr, seal_commit_responses_len);
-        let outputs: Vec<SealCommitPhase2Output> = responses.iter().map(|x| x.into()).collect();
-
-        let raw_comm_rs: &[fil_32ByteArray] = std::slice::from_raw_parts(comm_rs_ptr, comm_rs_len);
-        let comm_rs: Vec<[u8; 32]> = raw_comm_rs.iter().map(|x| x.inner).collect();
-
-        let raw_seeds: &[fil_32ByteArray] = std::slice::from_raw_parts(seeds_ptr, seeds_len);
-        let seeds: Vec<[u8; 32]> = raw_seeds.iter().map(|x| x.inner).collect();
+        let comm_rs: Vec<[u8; 32]> = comm_rs.into_iter().map(|x| x.inner).collect();
+        let seeds: Vec<[u8; 32]> = seeds.into_iter().map(|x| x.inner).collect();
 
         let result = aggregate_seal_commit_proofs(
             registered_proof.into(),
@@ -345,12 +274,9 @@ pub unsafe extern "C" fn fil_aggregate_seal_proofs(
             &comm_rs,
             &seeds,
             &outputs,
-        );
+        )?;
 
-        info!("aggregate_seal_proofs: finish");
-
-        let response: fil_AggregateProof = result.map(|v| v.into()).into();
-        response.into_boxed_raw()
+        Ok(result.into())
     })
 }
 
@@ -1924,14 +1850,8 @@ pub mod tests {
         unsafe {
             let existing = vec![127u64];
 
-            let resp = fil_write_with_alignment(
-                registered_proof,
-                src_fd_b,
-                508,
-                dst_fd,
-                existing.as_ptr(),
-                existing.len(),
-            );
+            let resp =
+                fil_write_with_alignment(registered_proof, src_fd_b, 508, dst_fd, existing.into());
 
             if (*resp).status_code != FCPResponseStatus::FCPNoError {
                 let msg = (*resp).error_msg.as_str().unwrap();
@@ -2112,8 +2032,7 @@ pub mod tests {
                 piece_file_b_fd,
                 1016,
                 staged_sector_fd,
-                existing_piece_sizes.as_ptr(),
-                existing_piece_sizes.len(),
+                existing_piece_sizes.into(),
             );
 
             if (*resp_a2).status_code != FCPResponseStatus::FCPNoError {
@@ -2147,14 +2066,13 @@ pub mod tests {
 
             let resp_b1 = fil_seal_pre_commit_phase1(
                 registered_proof_seal,
-                cache_dir_path_c_str,
-                staged_path_c_str,
-                replica_path_c_str,
+                cache_dir_path.clone().into(),
+                staged_path.clone().into(),
+                sealed_path.clone().into(),
                 sector_id,
                 prover_id,
                 ticket,
-                pieces.as_ptr(),
-                pieces.len(),
+                pieces.clone().into(),
             );
 
             if (*resp_b1).status_code != FCPResponseStatus::FCPNoError {
@@ -2162,9 +2080,11 @@ pub mod tests {
                 panic!("seal_pre_commit_phase1 failed: {:?}", msg);
             }
 
-            let (ptr, len) = (*resp_b1).as_parts();
-            let resp_b2 =
-                fil_seal_pre_commit_phase2(ptr, len, cache_dir_path_c_str, replica_path_c_str);
+            let resp_b2 = fil_seal_pre_commit_phase2(
+                (*resp_b1).value.clone(),
+                cache_dir_path.clone().into(),
+                sealed_path.clone().into(),
+            );
 
             if (*resp_b2).status_code != FCPResponseStatus::FCPNoError {
                 let msg = (*resp_b2).error_msg.as_str().unwrap();
@@ -2184,14 +2104,13 @@ pub mod tests {
                 registered_proof_seal,
                 wrap((*resp_b2).comm_r),
                 wrap((*resp_b2).comm_d),
-                cache_dir_path_c_str,
-                replica_path_c_str,
+                cache_dir_path.clone().into(),
+                sealed_path.clone().into(),
                 sector_id,
                 prover_id,
                 ticket,
                 seed,
-                pieces.as_ptr(),
-                pieces.len(),
+                pieces.clone().into(),
             );
 
             if (*resp_c1).status_code != FCPResponseStatus::FCPNoError {
@@ -2313,8 +2232,7 @@ pub mod tests {
                 piece_file_d_fd,
                 1016,
                 new_staged_sector_fd,
-                existing_piece_sizes.as_ptr(),
-                existing_piece_sizes.len(),
+                existing_piece_sizes.into(),
             );
 
             if (*resp_new_a2).status_code != FCPResponseStatus::FCPNoError {
@@ -3183,8 +3101,7 @@ pub mod tests {
                 piece_file_b_fd,
                 1016,
                 staged_sector_fd,
-                existing_piece_sizes.as_ptr(),
-                existing_piece_sizes.len(),
+                existing_piece_sizes.into(),
             );
 
             if (*resp_a2).status_code != FCPResponseStatus::FCPNoError {
@@ -3217,14 +3134,13 @@ pub mod tests {
 
             let resp_b1 = fil_seal_pre_commit_phase1(
                 registered_proof_seal,
-                cache_dir_path_c_str,
-                staged_path_c_str,
-                replica_path_c_str,
+                cache_dir_path.clone().into(),
+                staged_path.clone().into(),
+                sealed_path.clone().into(),
                 sector_id,
                 prover_id,
                 ticket,
-                pieces.as_ptr(),
-                pieces.len(),
+                pieces.into(),
             );
 
             if (*resp_b1).status_code != FCPResponseStatus::FCPNoError {
@@ -3232,9 +3148,11 @@ pub mod tests {
                 panic!("seal_pre_commit_phase1 failed: {:?}", msg);
             }
 
-            let (ptr, len) = (*resp_b1).as_parts();
-            let resp_b2 =
-                fil_seal_pre_commit_phase2(ptr, len, cache_dir_path_c_str, replica_path_c_str);
+            let resp_b2 = fil_seal_pre_commit_phase2(
+                (*resp_b1).value.clone(),
+                cache_dir_path.clone().into(),
+                sealed_path.clone().into(),
+            );
 
             if (*resp_b2).status_code != FCPResponseStatus::FCPNoError {
                 let msg = (*resp_b2).error_msg.as_str().unwrap();
@@ -3371,8 +3289,7 @@ pub mod tests {
                 piece_file_b_fd,
                 1016,
                 staged_sector_fd,
-                existing_piece_sizes.as_ptr(),
-                existing_piece_sizes.len(),
+                existing_piece_sizes.into(),
             );
 
             if (*resp_a2).status_code != FCPResponseStatus::FCPNoError {
@@ -3405,14 +3322,13 @@ pub mod tests {
 
             let resp_b1 = fil_seal_pre_commit_phase1(
                 registered_proof_seal,
-                cache_dir_path_c_str,
-                staged_path_c_str,
-                replica_path_c_str,
+                cache_dir_path.clone().into(),
+                staged_path.clone().into(),
+                sealed_path.clone().into(),
                 sector_id,
                 prover_id,
                 ticket,
-                pieces.as_ptr(),
-                pieces.len(),
+                pieces.clone().into(),
             );
 
             if (*resp_b1).status_code != FCPResponseStatus::FCPNoError {
@@ -3420,9 +3336,11 @@ pub mod tests {
                 panic!("seal_pre_commit_phase1 failed: {:?}", msg);
             }
 
-            let (ptr, len) = (*resp_b1).as_parts();
-            let resp_b2 =
-                fil_seal_pre_commit_phase2(ptr, len, cache_dir_path_c_str, replica_path_c_str);
+            let resp_b2 = fil_seal_pre_commit_phase2(
+                (*resp_b1).value.clone(),
+                cache_dir_path.clone().into(),
+                sealed_path.clone().into(),
+            );
 
             if (*resp_b2).status_code != FCPResponseStatus::FCPNoError {
                 let msg = (*resp_b2).error_msg.as_str().unwrap();
@@ -3442,14 +3360,13 @@ pub mod tests {
                 registered_proof_seal,
                 wrap((*resp_b2).comm_r),
                 wrap((*resp_b2).comm_d),
-                cache_dir_path_c_str,
-                replica_path_c_str,
+                cache_dir_path.clone().into(),
+                sealed_path.clone().into(),
                 sector_id,
                 prover_id,
                 ticket,
                 seed,
-                pieces.as_ptr(),
-                pieces.len(),
+                pieces.clone().into(),
             );
 
             if (*resp_c1).status_code != FCPResponseStatus::FCPNoError {
@@ -3511,8 +3428,8 @@ pub mod tests {
 
             assert!(*(*resp_d2), "proof was not valid");
 
-            let seal_commit_responses: Vec<fil_SealCommitPhase2Response> =
-                vec![(*resp_c2).clone(), (*resp_c22).clone()];
+            let seal_commit_responses: Vec<fil_SealCommitPhase2> =
+                vec![(*resp_c2).value.clone(), (*resp_c22).value.clone()];
 
             let comm_rs = vec![
                 fil_32ByteArray {
@@ -3526,12 +3443,9 @@ pub mod tests {
             let resp_aggregate_proof = fil_aggregate_seal_proofs(
                 registered_proof_seal,
                 registered_aggregation,
-                comm_rs.as_ptr(),
-                comm_rs.len(),
-                seeds.as_ptr(),
-                seeds.len(),
-                seal_commit_responses.as_ptr(),
-                seal_commit_responses.len(),
+                comm_rs.into(),
+                seeds.into(),
+                seal_commit_responses.into(),
             );
 
             if (*resp_aggregate_proof).status_code != FCPResponseStatus::FCPNoError {

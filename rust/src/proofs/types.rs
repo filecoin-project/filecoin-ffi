@@ -462,10 +462,10 @@ pub type fil_SealCommitPhase1Response = fil_Result<fil_Bytes>;
 #[allow(non_camel_case_types)]
 pub type fil_SealCommitPhase2Response = fil_Result<fil_SealCommitPhase2>;
 
-impl From<&fil_SealCommitPhase2Response> for SealCommitPhase2Output {
-    fn from(other: &fil_SealCommitPhase2Response) -> Self {
+impl From<&fil_SealCommitPhase2> for SealCommitPhase2Output {
+    fn from(other: &fil_SealCommitPhase2) -> Self {
         SealCommitPhase2Output {
-            proof: other.value.proof.to_vec(),
+            proof: other.proof.to_vec(),
         }
     }
 }
