@@ -1,9 +1,7 @@
 use std::collections::btree_map::BTreeMap;
-use std::path::PathBuf;
 use std::slice::from_raw_parts;
 
 use anyhow::{ensure, Result};
-use ffi_toolkit::{c_str_to_pbuf, c_str_to_rust_str};
 use filecoin_proofs_api::{PrivateReplicaInfo, PublicReplicaInfo, SectorId};
 
 use super::types::{fil_PrivateReplicaInfo, fil_PublicReplicaInfo, fil_RegisteredPoStProof};
@@ -77,18 +75,18 @@ pub unsafe fn to_private_replica_info_map(
     let replicas: Vec<_> = from_raw_parts(replicas_ptr, replicas_len)
         .iter()
         .map(|ffi_info| {
-            let cache_dir_path = c_str_to_pbuf(ffi_info.cache_dir_path);
-            let replica_path = c_str_to_rust_str(ffi_info.replica_path).to_string();
+            let cache_dir_path = ffi_info.cache_dir_path.as_path()?;
+            let replica_path = ffi_info.replica_path.as_path()?;
 
-            PrivateReplicaInfoTmp {
+            Ok(PrivateReplicaInfoTmp {
                 registered_proof: ffi_info.registered_proof,
                 cache_dir_path,
                 comm_r: ffi_info.comm_r,
-                replica_path: PathBuf::from(replica_path),
+                replica_path,
                 sector_id: ffi_info.sector_id,
-            }
+            })
         })
-        .collect();
+        .collect::<Result<_>>()?;
 
     let map = replicas
         .into_par_iter()
@@ -128,11 +126,11 @@ pub unsafe fn c_to_rust_post_proofs(
     let out = from_raw_parts(post_proofs_ptr, post_proofs_len)
         .iter()
         .map(|fpp| {
-            ensure!(!fpp.proof_ptr.is_null(), "proof_ptr must not be null");
+            ensure!(!fpp.proof.is_null(), "proof_ptr must not be null");
 
             Ok(PoStProof {
                 registered_proof: fpp.registered_proof.into(),
-                proof: from_raw_parts(fpp.proof_ptr, fpp.proof_len).to_vec(),
+                proof: fpp.proof.to_vec(),
             })
         })
         .collect::<Result<_>>()?;
@@ -152,9 +150,9 @@ pub unsafe fn c_to_rust_vanilla_partition_proofs(
     let out = from_raw_parts(partition_proofs_ptr, partition_proofs_len)
         .iter()
         .map(|fpp| {
-            ensure!(!fpp.proof_ptr.is_null(), "proof_ptr must not be null");
+            ensure!(!fpp.is_null(), "proof_ptr must not be null");
             Ok(PartitionProof {
-                proof: from_raw_parts(fpp.proof_ptr, fpp.proof_len).to_vec(),
+                proof: fpp.to_vec(),
             })
         })
         .collect::<Result<_>>()?;
@@ -174,10 +172,10 @@ pub unsafe fn c_to_rust_partition_proofs(
     let out = from_raw_parts(partition_proofs_ptr, partition_proofs_len)
         .iter()
         .map(|fpp| {
-            ensure!(!fpp.proof_ptr.is_null(), "proof_ptr must not be null");
+            ensure!(!fpp.proof.is_null(), "proof_ptr must not be null");
             Ok(PartitionSnarkProof {
                 registered_proof: fpp.registered_proof.into(),
-                proof: from_raw_parts(fpp.proof_ptr, fpp.proof_len).to_vec(),
+                proof: fpp.proof.to_vec(),
             })
         })
         .collect::<Result<_>>()?;

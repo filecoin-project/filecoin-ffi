@@ -9,7 +9,9 @@ use filecoin_proofs_api::{
     RegisteredSealProof, RegisteredUpdateProof, UnpaddedBytesAmount,
 };
 
-use crate::util::types::{clone_as_vec_from_parts, clone_box_parts, drop_box_from_parts};
+use crate::util::types::{
+    clone_as_vec_from_parts, clone_box_parts, drop_box_from_parts, fil_Array, fil_Bytes, fil_Result,
+};
 
 #[repr(C)]
 #[derive(Default, Debug, Clone, Copy)]
@@ -252,60 +254,11 @@ impl From<fil_PublicPieceInfo> for PieceInfo {
     }
 }
 
-#[repr(C)]
-pub struct fil_VanillaProof {
-    pub proof_len: libc::size_t,
-    pub proof_ptr: *mut u8,
-}
+#[allow(non_camel_case_types)]
+pub type fil_VanillaProof = fil_Bytes;
 
-impl Clone for fil_VanillaProof {
-    fn clone(&self) -> Self {
-        let proof_ptr = unsafe { clone_box_parts(self.proof_ptr, self.proof_len).cast() };
-
-        fil_VanillaProof {
-            proof_len: self.proof_len,
-            proof_ptr,
-        }
-    }
-}
-
-impl Drop for fil_VanillaProof {
-    fn drop(&mut self) {
-        unsafe {
-            drop_box_from_parts(self.proof_ptr);
-        }
-    }
-}
-
-#[repr(C)]
-pub struct fil_AggregateProof {
-    pub status_code: FCPResponseStatus,
-    pub error_msg: *mut libc::c_char,
-    pub proof_len: libc::size_t,
-    pub proof_ptr: *mut u8,
-}
-
-impl Default for fil_AggregateProof {
-    fn default() -> fil_AggregateProof {
-        fil_AggregateProof {
-            status_code: FCPResponseStatus::FCPNoError,
-            error_msg: ptr::null_mut(),
-            proof_len: 0,
-            proof_ptr: ptr::null_mut(),
-        }
-    }
-}
-
-impl Drop for fil_AggregateProof {
-    fn drop(&mut self) {
-        unsafe {
-            drop_box_from_parts(self.proof_ptr);
-            free_c_str(self.error_msg as *mut libc::c_char);
-        }
-    }
-}
-
-code_and_message_impl!(fil_AggregateProof);
+#[allow(non_camel_case_types)]
+pub type fil_AggregateProof = fil_Result<fil_VanillaProof>;
 
 #[derive(Clone, Debug)]
 pub struct PoStProof {
@@ -317,25 +270,14 @@ pub struct PoStProof {
 #[derive(Clone)]
 pub struct fil_PoStProof {
     pub registered_proof: fil_RegisteredPoStProof,
-    pub proof_len: libc::size_t,
-    pub proof_ptr: *mut u8,
-}
-
-impl Drop for fil_PoStProof {
-    fn drop(&mut self) {
-        unsafe {
-            drop_box_from_parts(self.proof_ptr);
-        }
-    }
+    pub proof: fil_Bytes,
 }
 
 impl From<fil_PoStProof> for PoStProof {
     fn from(other: fil_PoStProof) -> Self {
-        let proof = unsafe { clone_as_vec_from_parts(other.proof_ptr, other.proof_len) };
-
         PoStProof {
             registered_proof: other.registered_proof.into(),
-            proof,
+            proof: other.proof.to_vec(),
         }
     }
 }
@@ -348,37 +290,17 @@ pub struct PartitionSnarkProof {
 }
 
 #[repr(C)]
+#[derive(Clone)]
 pub struct fil_PartitionSnarkProof {
     pub registered_proof: fil_RegisteredPoStProof,
-    pub proof_len: libc::size_t,
-    pub proof_ptr: *mut u8,
-}
-
-impl Clone for fil_PartitionSnarkProof {
-    fn clone(&self) -> Self {
-        let proof_ptr = unsafe { clone_box_parts(self.proof_ptr, self.proof_len).cast() };
-
-        fil_PartitionSnarkProof {
-            registered_proof: self.registered_proof,
-            proof_len: self.proof_len,
-            proof_ptr,
-        }
-    }
-}
-
-impl Drop for fil_PartitionSnarkProof {
-    fn drop(&mut self) {
-        unsafe { drop_box_from_parts(self.proof_ptr) };
-    }
+    pub proof: fil_Bytes,
 }
 
 impl From<fil_PartitionSnarkProof> for PartitionSnarkProof {
     fn from(other: fil_PartitionSnarkProof) -> Self {
-        let proof = unsafe { clone_as_vec_from_parts(other.proof_ptr, other.proof_len) };
-
         PartitionSnarkProof {
             registered_proof: other.registered_proof.into(),
-            proof,
+            proof: other.proof.to_vec(),
         }
     }
 }
@@ -389,36 +311,16 @@ pub struct PartitionProof {
     pub proof: Vec<u8>,
 }
 
-#[repr(C)]
-pub struct fil_PartitionProof {
-    pub proof_len: libc::size_t,
-    pub proof_ptr: *mut u8,
-}
-
-impl Clone for fil_PartitionProof {
-    fn clone(&self) -> Self {
-        let proof_ptr = unsafe { clone_box_parts(self.proof_ptr, self.proof_len).cast() };
-
-        fil_PartitionProof {
-            proof_len: self.proof_len,
-            proof_ptr,
-        }
-    }
-}
-
-impl Drop for fil_PartitionProof {
-    fn drop(&mut self) {
-        unsafe { drop_box_from_parts(self.proof_ptr) };
-    }
-}
+#[allow(non_camel_case_types)]
+pub type fil_PartitionProof = fil_Bytes;
 
 #[repr(C)]
 #[derive(Clone)]
 pub struct fil_PrivateReplicaInfo {
     pub registered_proof: fil_RegisteredPoStProof,
-    pub cache_dir_path: *mut libc::c_char,
+    pub cache_dir_path: fil_Bytes,
     pub comm_r: [u8; 32],
-    pub replica_path: *mut libc::c_char,
+    pub replica_path: fil_Bytes,
     pub sector_id: u64,
 }
 
@@ -492,10 +394,7 @@ impl Default for fil_GenerateSingleVanillaProofResponse {
     fn default() -> fil_GenerateSingleVanillaProofResponse {
         fil_GenerateSingleVanillaProofResponse {
             error_msg: ptr::null_mut(),
-            vanilla_proof: fil_VanillaProof {
-                proof_len: 0,
-                proof_ptr: ptr::null_mut(),
-            },
+            vanilla_proof: Default::default(),
             status_code: FCPResponseStatus::FCPNoError,
         }
     }
@@ -567,8 +466,7 @@ impl Default for fil_GenerateSingleWindowPoStWithVanillaResponse {
             error_msg: ptr::null_mut(),
             partition_proof: fil_PartitionSnarkProof {
                 registered_proof: fil_RegisteredPoStProof::StackedDrgWinning2KiBV1,
-                proof_len: 0,
-                proof_ptr: ptr::null_mut(),
+                proof: Default::default(),
             },
             faulty_sectors_len: 0,
             faulty_sectors_ptr: ptr::null_mut(),
@@ -613,8 +511,7 @@ impl Default for fil_MergeWindowPoStPartitionProofsResponse {
             error_msg: ptr::null_mut(),
             proof: fil_PoStProof {
                 registered_proof: fil_RegisteredPoStProof::StackedDrgWinning2KiBV1,
-                proof_len: 0,
-                proof_ptr: ptr::null_mut(),
+                proof: Default::default(),
             },
             status_code: FCPResponseStatus::FCPNoError,
         }

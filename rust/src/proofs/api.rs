@@ -437,8 +437,6 @@ pub unsafe extern "C" fn fil_aggregate_seal_proofs(
         let raw_seeds: &[fil_32ByteArray] = std::slice::from_raw_parts(seeds_ptr, seeds_len);
         let seeds: Vec<[u8; 32]> = raw_seeds.iter().map(|x| x.inner).collect();
 
-        let mut response = fil_AggregateProof::default();
-
         let result = aggregate_seal_commit_proofs(
             registered_proof.into(),
             registered_aggregation.into(),
@@ -447,22 +445,10 @@ pub unsafe extern "C" fn fil_aggregate_seal_proofs(
             &outputs,
         );
 
-        match result {
-            Ok(output) => {
-                response.status_code = FCPResponseStatus::FCPNoError;
-                let (ptr, len) = vec_into_raw(output);
-                response.proof_ptr = ptr;
-                response.proof_len = len;
-            }
-            Err(err) => {
-                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err)).unwrap();
-            }
-        }
-
         info!("aggregate_seal_proofs: finish");
 
-        raw_ptr(response)
+        let response: fil_AggregateProof = result.map(|v| v.into()).into();
+        response.into_boxed_raw()
     })
 }
 
@@ -833,8 +819,11 @@ pub unsafe extern "C" fn fil_generate_single_vanilla_proof(
             .collect();
 
         let sector_id = SectorId::from(replica.sector_id);
-        let cache_dir_path = c_str_to_pbuf(replica.cache_dir_path);
-        let replica_path = c_str_to_pbuf(replica.replica_path);
+        let cache_dir_path = replica.cache_dir_path.as_path().expect("invalid cache dir");
+        let replica_path = replica
+            .replica_path
+            .as_path()
+            .expect("invalid replica path");
 
         let replica_v1 = PrivateReplicaInfo::new(
             replica.registered_proof.into(),
@@ -855,10 +844,7 @@ pub unsafe extern "C" fn fil_generate_single_vanilla_proof(
         match result {
             Ok(output) => {
                 response.status_code = FCPResponseStatus::FCPNoError;
-
-                let (ptr, len) = vec_into_raw(output);
-                response.vanilla_proof.proof_len = len;
-                response.vanilla_proof.proof_ptr = ptr;
+                response.vanilla_proof = output.into();
             }
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
@@ -892,10 +878,7 @@ pub unsafe extern "C" fn fil_generate_winning_post_with_vanilla(
         let vanilla_proofs: Vec<VanillaProof> = proofs
             .iter()
             .cloned()
-            .map(|vanilla_proof| {
-                std::slice::from_raw_parts(vanilla_proof.proof_ptr, vanilla_proof.proof_len)
-                    .to_vec()
-            })
+            .map(|vanilla_proof| vanilla_proof.to_vec())
             .collect();
 
         let result = filecoin_proofs_api::post::generate_winning_post_with_vanilla(
@@ -911,13 +894,9 @@ pub unsafe extern "C" fn fil_generate_winning_post_with_vanilla(
             Ok(output) => {
                 let mapped: Vec<fil_PoStProof> = output
                     .into_iter()
-                    .map(|(t, proof)| {
-                        let (ptr, len) = vec_into_raw(proof);
-                        fil_PoStProof {
-                            registered_proof: (t).into(),
-                            proof_len: len,
-                            proof_ptr: ptr,
-                        }
+                    .map(|(t, proof)| fil_PoStProof {
+                        registered_proof: (t).into(),
+                        proof: proof.into(),
                     })
                     .collect();
 
@@ -967,13 +946,9 @@ pub unsafe extern "C" fn fil_generate_winning_post(
             Ok(output) => {
                 let mapped: Vec<fil_PoStProof> = output
                     .into_iter()
-                    .map(|(t, proof)| {
-                        let (ptr, len) = vec_into_raw(proof);
-                        fil_PoStProof {
-                            registered_proof: (t).into(),
-                            proof_len: len,
-                            proof_ptr: ptr,
-                        }
+                    .map(|(t, proof)| fil_PoStProof {
+                        registered_proof: (t).into(),
+                        proof: proof.into(),
                     })
                     .collect();
 
@@ -1060,10 +1035,7 @@ pub unsafe extern "C" fn fil_generate_window_post_with_vanilla(
             std::slice::from_raw_parts(vanilla_proofs_ptr, vanilla_proofs_len)
                 .iter()
                 .cloned()
-                .map(|vanilla_proof| {
-                    std::slice::from_raw_parts(vanilla_proof.proof_ptr, vanilla_proof.proof_len)
-                        .to_vec()
-                })
+                .map(|vanilla_proof| vanilla_proof.to_vec())
                 .collect();
 
         let result = filecoin_proofs_api::post::generate_window_post_with_vanilla(
@@ -1079,13 +1051,9 @@ pub unsafe extern "C" fn fil_generate_window_post_with_vanilla(
             Ok(output) => {
                 let mapped: Vec<fil_PoStProof> = output
                     .into_iter()
-                    .map(|(t, proof)| {
-                        let (ptr, len) = vec_into_raw(proof);
-                        fil_PoStProof {
-                            registered_proof: (t).into(),
-                            proof_len: len,
-                            proof_ptr: ptr,
-                        }
+                    .map(|(t, proof)| fil_PoStProof {
+                        registered_proof: t.into(),
+                        proof: proof.into(),
                     })
                     .collect();
 
@@ -1144,13 +1112,9 @@ pub unsafe extern "C" fn fil_generate_window_post(
             Ok(output) => {
                 let mapped: Vec<fil_PoStProof> = output
                     .into_iter()
-                    .map(|(t, proof)| {
-                        let (ptr, len) = vec_into_raw(proof);
-                        fil_PoStProof {
-                            registered_proof: (t).into(),
-                            proof_len: len,
-                            proof_ptr: ptr,
-                        }
+                    .map(|(t, proof)| fil_PoStProof {
+                        registered_proof: t.into(),
+                        proof: proof.into(),
                     })
                     .collect();
 
@@ -1272,11 +1236,9 @@ pub unsafe extern "C" fn fil_merge_window_post_partition_proofs(
 
             match result {
                 Ok(output) => {
-                    let (ptr, len) = vec_into_raw(output);
                     let proof = fil_PoStProof {
                         registered_proof,
-                        proof_ptr: ptr,
-                        proof_len: len,
+                        proof: output.into(),
                     };
 
                     response.status_code = FCPResponseStatus::FCPNoError;
@@ -1350,10 +1312,7 @@ pub unsafe extern "C" fn fil_generate_single_window_post_with_vanilla(
             std::slice::from_raw_parts(vanilla_proofs_ptr, vanilla_proofs_len)
                 .iter()
                 .cloned()
-                .map(|vanilla_proof| {
-                    std::slice::from_raw_parts(vanilla_proof.proof_ptr, vanilla_proof.proof_len)
-                        .to_vec()
-                })
+                .map(|vanilla_proof| vanilla_proof.to_vec())
                 .collect();
 
         let result = filecoin_proofs_api::post::generate_single_window_post_with_vanilla(
@@ -1368,11 +1327,9 @@ pub unsafe extern "C" fn fil_generate_single_window_post_with_vanilla(
 
         match result {
             Ok(output) => {
-                let (ptr, len) = vec_into_raw(output.0);
                 let partition_proof = fil_PartitionSnarkProof {
                     registered_proof,
-                    proof_ptr: ptr,
-                    proof_len: len,
+                    proof: output.0.into(),
                 };
 
                 response.status_code = FCPResponseStatus::FCPNoError;
@@ -1578,16 +1535,8 @@ pub unsafe extern "C" fn fil_generate_empty_sector_update_partition_proofs(
 
         match result {
             Ok(output) => {
-                let mapped: Vec<fil_PartitionProof> = output
-                    .into_iter()
-                    .map(|proof| {
-                        let (ptr, len) = vec_into_raw(proof.0);
-                        fil_PartitionProof {
-                            proof_ptr: ptr,
-                            proof_len: len,
-                        }
-                    })
-                    .collect();
+                let mapped: Vec<fil_PartitionProof> =
+                    output.into_iter().map(|proof| proof.0.into()).collect();
 
                 response.status_code = FCPResponseStatus::FCPNoError;
                 let (ptr, len) = vec_into_raw(mapped);
@@ -1685,15 +1634,7 @@ pub unsafe extern "C" fn fil_generate_empty_sector_update_proof_with_vanilla(
         let partition_proofs: Vec<PartitionProofBytes> = proofs
             .iter()
             .cloned()
-            .map(|partition_proof| {
-                PartitionProofBytes(
-                    std::slice::from_raw_parts(
-                        partition_proof.proof_ptr,
-                        partition_proof.proof_len,
-                    )
-                    .to_vec(),
-                )
-            })
+            .map(|partition_proof| PartitionProofBytes(partition_proof.to_vec()))
             .collect();
 
         let result = generate_empty_sector_update_proof_with_vanilla(
@@ -3168,9 +3109,9 @@ pub mod tests {
 
             let private_replicas = vec![fil_PrivateReplicaInfo {
                 registered_proof: registered_proof_winning_post,
-                cache_dir_path: cache_dir_path_c_str,
+                cache_dir_path: cache_dir_path.clone().into(),
                 comm_r: (*resp_b2).comm_r,
-                replica_path: replica_path_c_str,
+                replica_path: sealed_path.clone().into(),
                 sector_id,
             }];
 
@@ -3313,9 +3254,9 @@ pub mod tests {
 
             let private_replicas = vec![fil_PrivateReplicaInfo {
                 registered_proof: registered_proof_window_post,
-                cache_dir_path: cache_dir_path_c_str,
+                cache_dir_path: cache_dir_path.clone().into(),
                 comm_r: (*resp_b2).comm_r,
-                replica_path: replica_path_c_str,
+                replica_path: sealed_path.clone().into(),
                 sector_id,
             }];
 
@@ -3368,16 +3309,16 @@ pub mod tests {
             let private_replicas = vec![
                 fil_PrivateReplicaInfo {
                     registered_proof: registered_proof_window_post,
-                    cache_dir_path: cache_dir_path_c_str,
+                    cache_dir_path: cache_dir_path.clone().into(),
                     comm_r: (*resp_b2).comm_r,
-                    replica_path: replica_path_c_str,
+                    replica_path: sealed_path.clone().into(),
                     sector_id,
                 },
                 fil_PrivateReplicaInfo {
                     registered_proof: registered_proof_window_post,
-                    cache_dir_path: cache_dir_path_c_str,
+                    cache_dir_path: cache_dir_path.into(),
                     comm_r: (*resp_b2).comm_r,
-                    replica_path: replica_path_c_str,
+                    replica_path: sealed_path.clone().into(),
                     sector_id: sector_id2,
                 },
             ];
@@ -3768,14 +3709,13 @@ pub mod tests {
             // window post
 
             let faulty_sealed_file = tempfile::NamedTempFile::new()?;
-            let faulty_replica_path_c_str =
-                rust_str_to_c_str(faulty_sealed_file.path().to_str().unwrap()).unwrap();
+            let faulty_sealed_path = faulty_sealed_file.path();
 
             let private_replicas = vec![fil_PrivateReplicaInfo {
                 registered_proof: registered_proof_window_post,
-                cache_dir_path: cache_dir_path_c_str,
+                cache_dir_path: cache_dir_path.into(),
                 comm_r: (*resp_b2).comm_r,
-                replica_path: faulty_replica_path_c_str,
+                replica_path: faulty_sealed_path.into(),
                 sector_id,
             }];
 
@@ -4074,8 +4014,10 @@ pub mod tests {
             );
 
             if (*resp_aggregate_proof).status_code != FCPResponseStatus::FCPNoError {
-                let msg = c_str_to_rust_str((*resp_aggregate_proof).error_msg);
-                panic!("aggregate_seal_proofs failed: {:?}", msg);
+                panic!(
+                    "aggregate_seal_proofs failed: {}",
+                    (*resp_aggregate_proof).error_msg.as_str().unwrap()
+                );
             }
 
             let mut inputs: Vec<fil_AggregationInputs> = vec![
@@ -4095,12 +4037,13 @@ pub mod tests {
                 },
             ];
 
+            let (proof_ptr, proof_len) = (*resp_aggregate_proof).value.as_parts();
             let resp_ad = fil_verify_aggregate_seal_proof(
                 registered_proof_seal,
                 registered_aggregation,
                 prover_id,
-                (*resp_aggregate_proof).proof_ptr,
-                (*resp_aggregate_proof).proof_len,
+                proof_ptr,
+                proof_len,
                 inputs.as_mut_ptr(),
                 inputs.len(),
             );

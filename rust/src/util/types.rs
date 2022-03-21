@@ -1,4 +1,12 @@
-use std::{ffi::CStr, fmt::Display, mem::ManuallyDrop, ops::Deref, ptr};
+use std::{
+    ffi::CStr,
+    fmt::Display,
+    mem::ManuallyDrop,
+    ops::Deref,
+    path::{Path, PathBuf},
+    ptr,
+    str::Utf8Error,
+};
 
 // `CodeAndMessage` is the trait implemented by `code_and_message_impl
 use ffi_toolkit::{CodeAndMessage, FCPResponseStatus};
@@ -9,12 +17,30 @@ pub struct fil_Array<T: Sized> {
     len: usize,
 }
 
+impl<T: Clone> Clone for fil_Array<T> {
+    fn clone(&self) -> Self {
+        let ptr = unsafe { clone_box_parts(self.ptr, self.len).cast() };
+
+        fil_Array { len: self.len, ptr }
+    }
+}
+
 impl<T> Default for fil_Array<T> {
     fn default() -> Self {
         Self {
             ptr: ptr::null_mut(),
             len: 0,
         }
+    }
+}
+
+impl<T: Sized> fil_Array<T> {
+    pub fn as_parts(&self) -> (*const T, usize) {
+        (self.ptr.cast(), self.len)
+    }
+
+    pub fn is_null(&self) -> bool {
+        self.ptr.is_null()
     }
 }
 
@@ -79,6 +105,18 @@ impl From<String> for fil_Bytes {
     }
 }
 
+impl From<PathBuf> for fil_Bytes {
+    fn from(s: PathBuf) -> Self {
+        s.to_string_lossy().as_ref().into()
+    }
+}
+
+impl From<&Path> for fil_Bytes {
+    fn from(s: &Path) -> Self {
+        s.to_string_lossy().as_ref().into()
+    }
+}
+
 impl From<Box<str>> for fil_Bytes {
     fn from(s: Box<str>) -> Self {
         if s.is_empty() {
@@ -88,6 +126,16 @@ impl From<Box<str>> for fil_Bytes {
         let ptr = Box::into_raw(s).cast();
 
         Self { ptr, len }
+    }
+}
+
+impl fil_Bytes {
+    pub fn as_str(&self) -> Result<&str, Utf8Error> {
+        std::str::from_utf8(self)
+    }
+
+    pub fn as_path(&self) -> Result<PathBuf, Utf8Error> {
+        self.as_str().map(PathBuf::from)
     }
 }
 
