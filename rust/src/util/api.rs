@@ -51,15 +51,13 @@ pub unsafe extern "C" fn fil_get_gpu_devices() -> *mut fil_GpuDeviceResponse {
 #[no_mangle]
 #[cfg(not(target_os = "windows"))]
 pub unsafe extern "C" fn fil_init_log_fd(log_fd: libc::c_int) -> *mut fil_InitLogFdResponse {
-    use super::types::fil_Result;
-
     catch_panic_response(|| {
         let file = File::from_raw_fd(log_fd);
 
         if init_log_with_file(file).is_none() {
-            return fil_Result::err("There is already an active logger. `fil_init_log_fd()` needs to be called before any other FFI function is called.").into_boxed_raw();
+            return fil_InitLogFdResponse::err("There is already an active logger. `fil_init_log_fd()` needs to be called before any other FFI function is called.").into_boxed_raw();
         }
-        fil_Result::ok(()).into_boxed_raw()
+        fil_InitLogFdResponse::ok(()).into_boxed_raw()
     })
 }
 

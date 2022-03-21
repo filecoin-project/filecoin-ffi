@@ -1,18 +1,14 @@
 use std::io::{Error, SeekFrom};
 use std::ops::Deref;
-use std::ptr;
 
 use anyhow::Result;
-use drop_struct_macro_derive::DropStructMacro;
-use ffi_toolkit::{code_and_message_impl, free_c_str, CodeAndMessage, FCPResponseStatus};
+use filecoin_proofs_api::seal::SealCommitPhase2Output;
 use filecoin_proofs_api::{
-    seal::SealCommitPhase2Output, PieceInfo, RegisteredAggregationProof, RegisteredPoStProof,
-    RegisteredSealProof, RegisteredUpdateProof, UnpaddedBytesAmount,
+    PieceInfo, RegisteredAggregationProof, RegisteredPoStProof, RegisteredSealProof,
+    RegisteredUpdateProof, UnpaddedBytesAmount,
 };
 
-use crate::util::types::{
-    clone_as_vec_from_parts, clone_box_parts, drop_box_from_parts, fil_Array, fil_Bytes, fil_Result,
-};
+use crate::util::types::{fil_Array, fil_Bytes, fil_Result};
 
 #[repr(C)]
 #[derive(Default, Debug, Clone, Copy)]
@@ -320,6 +316,15 @@ pub struct fil_PartitionSnarkProof {
     pub proof: fil_Bytes,
 }
 
+impl Default for fil_PartitionSnarkProof {
+    fn default() -> Self {
+        Self {
+            registered_proof: fil_RegisteredPoStProof::StackedDrgWindow32GiBV1, // dummy value
+            proof: Default::default(),
+        }
+    }
+}
+
 impl From<fil_PartitionSnarkProof> for PartitionSnarkProof {
     fn from(other: fil_PartitionSnarkProof) -> Self {
         PartitionSnarkProof {
@@ -377,58 +382,26 @@ pub type fil_GenerateSingleVanillaProofResponse = fil_Result<fil_VanillaProof>;
 #[allow(non_camel_case_types)]
 pub type fil_GenerateWinningPoStResponse = fil_Result<fil_Array<fil_PoStProof>>;
 
-#[repr(C)]
-#[derive(DropStructMacro)]
-pub struct fil_GenerateWindowPoStResponse {
-    pub error_msg: *mut libc::c_char,
-    pub proofs_len: libc::size_t,
-    pub proofs_ptr: *mut fil_PoStProof,
-    pub faulty_sectors_len: libc::size_t,
-    pub faulty_sectors_ptr: *mut u64,
-    pub status_code: FCPResponseStatus,
-}
-
-impl Default for fil_GenerateWindowPoStResponse {
-    fn default() -> fil_GenerateWindowPoStResponse {
-        fil_GenerateWindowPoStResponse {
-            error_msg: ptr::null_mut(),
-            proofs_len: 0,
-            proofs_ptr: ptr::null_mut(),
-            faulty_sectors_len: 0,
-            faulty_sectors_ptr: ptr::null_mut(),
-            status_code: FCPResponseStatus::FCPNoError,
-        }
-    }
-}
-
-code_and_message_impl!(fil_GenerateWindowPoStResponse);
+#[allow(non_camel_case_types)]
+pub type fil_GenerateWindowPoStResponse = fil_Result<fil_GenerateWindowPoSt>;
 
 #[repr(C)]
-#[derive(DropStructMacro)]
-pub struct fil_GenerateSingleWindowPoStWithVanillaResponse {
-    pub error_msg: *mut libc::c_char,
+#[derive(Default)]
+pub struct fil_GenerateWindowPoSt {
+    pub proofs: fil_Array<fil_PoStProof>,
+    pub faulty_sectors: fil_Array<u64>,
+}
+
+#[allow(non_camel_case_types)]
+pub type fil_GenerateSingleWindowPoStWithVanillaResponse =
+    fil_Result<fil_GenerateSingleWindowPoStWithVanilla>;
+
+#[repr(C)]
+#[derive(Default)]
+pub struct fil_GenerateSingleWindowPoStWithVanilla {
     pub partition_proof: fil_PartitionSnarkProof,
-    pub faulty_sectors_len: libc::size_t,
-    pub faulty_sectors_ptr: *mut u64,
-    pub status_code: FCPResponseStatus,
+    pub faulty_sectors: fil_Array<u64>,
 }
-
-impl Default for fil_GenerateSingleWindowPoStWithVanillaResponse {
-    fn default() -> fil_GenerateSingleWindowPoStWithVanillaResponse {
-        fil_GenerateSingleWindowPoStWithVanillaResponse {
-            error_msg: ptr::null_mut(),
-            partition_proof: fil_PartitionSnarkProof {
-                registered_proof: fil_RegisteredPoStProof::StackedDrgWinning2KiBV1,
-                proof: Default::default(),
-            },
-            faulty_sectors_len: 0,
-            faulty_sectors_ptr: ptr::null_mut(),
-            status_code: FCPResponseStatus::FCPNoError,
-        }
-    }
-}
-
-code_and_message_impl!(fil_GenerateSingleWindowPoStWithVanillaResponse);
 
 #[allow(non_camel_case_types)]
 pub type fil_GetNumPartitionForFallbackPoStResponse = fil_Result<libc::size_t>;
@@ -436,51 +409,26 @@ pub type fil_GetNumPartitionForFallbackPoStResponse = fil_Result<libc::size_t>;
 #[allow(non_camel_case_types)]
 pub type fil_MergeWindowPoStPartitionProofsResponse = fil_Result<fil_PoStProof>;
 
+#[allow(non_camel_case_types)]
+pub type fil_WriteWithAlignmentResponse = fil_Result<fil_WriteWithAlignment>;
+
 #[repr(C)]
-#[derive(DropStructMacro)]
-pub struct fil_WriteWithAlignmentResponse {
+#[derive(Default)]
+pub struct fil_WriteWithAlignment {
     pub comm_p: [u8; 32],
-    pub error_msg: *mut libc::c_char,
     pub left_alignment_unpadded: u64,
-    pub status_code: FCPResponseStatus,
     pub total_write_unpadded: u64,
 }
 
-impl Default for fil_WriteWithAlignmentResponse {
-    fn default() -> fil_WriteWithAlignmentResponse {
-        fil_WriteWithAlignmentResponse {
-            comm_p: Default::default(),
-            status_code: FCPResponseStatus::FCPNoError,
-            error_msg: ptr::null_mut(),
-            left_alignment_unpadded: 0,
-            total_write_unpadded: 0,
-        }
-    }
-}
-
-code_and_message_impl!(fil_WriteWithAlignmentResponse);
+#[allow(non_camel_case_types)]
+pub type fil_WriteWithoutAlignmentResponse = fil_Result<fil_WriteWithoutAlignment>;
 
 #[repr(C)]
-#[derive(DropStructMacro)]
-pub struct fil_WriteWithoutAlignmentResponse {
+#[derive(Default)]
+pub struct fil_WriteWithoutAlignment {
     pub comm_p: [u8; 32],
-    pub error_msg: *mut libc::c_char,
-    pub status_code: FCPResponseStatus,
     pub total_write_unpadded: u64,
 }
-
-impl Default for fil_WriteWithoutAlignmentResponse {
-    fn default() -> fil_WriteWithoutAlignmentResponse {
-        fil_WriteWithoutAlignmentResponse {
-            comm_p: Default::default(),
-            status_code: FCPResponseStatus::FCPNoError,
-            error_msg: ptr::null_mut(),
-            total_write_unpadded: 0,
-        }
-    }
-}
-
-code_and_message_impl!(fil_WriteWithoutAlignmentResponse);
 
 #[allow(non_camel_case_types)]
 pub type fil_SealPreCommitPhase1Response = fil_Result<fil_Bytes>;
@@ -488,83 +436,47 @@ pub type fil_SealPreCommitPhase1Response = fil_Result<fil_Bytes>;
 #[allow(non_camel_case_types)]
 pub type fil_FauxRepResponse = fil_Result<fil_32ByteArray>;
 
+#[allow(non_camel_case_types)]
+pub type fil_SealPreCommitPhase2Response = fil_Result<fil_SealPreCommitPhase2>;
+
 #[repr(C)]
-#[derive(DropStructMacro)]
-pub struct fil_SealPreCommitPhase2Response {
-    pub error_msg: *mut libc::c_char,
-    pub status_code: FCPResponseStatus,
+pub struct fil_SealPreCommitPhase2 {
     pub registered_proof: fil_RegisteredSealProof,
     pub comm_d: [u8; 32],
     pub comm_r: [u8; 32],
 }
 
-impl Default for fil_SealPreCommitPhase2Response {
-    fn default() -> fil_SealPreCommitPhase2Response {
-        fil_SealPreCommitPhase2Response {
-            error_msg: ptr::null_mut(),
-            status_code: FCPResponseStatus::FCPNoError,
-            registered_proof: fil_RegisteredSealProof::StackedDrg2KiBV1,
+impl Default for fil_SealPreCommitPhase2 {
+    fn default() -> Self {
+        Self {
+            registered_proof: fil_RegisteredSealProof::StackedDrg2KiBV1_1, // dummy value
             comm_d: Default::default(),
             comm_r: Default::default(),
         }
     }
 }
 
-code_and_message_impl!(fil_SealPreCommitPhase2Response);
-
 #[allow(non_camel_case_types)]
 pub type fil_SealCommitPhase1Response = fil_Result<fil_Bytes>;
 
-#[repr(C)]
-#[derive(DropStructMacro)]
-pub struct fil_SealCommitPhase2Response {
-    pub status_code: FCPResponseStatus,
-    pub error_msg: *mut libc::c_char,
-    pub proof_ptr: *mut u8,
-    pub proof_len: libc::size_t,
-    pub commit_inputs_ptr: *mut fil_AggregationInputs,
-    pub commit_inputs_len: libc::size_t,
-}
+#[allow(non_camel_case_types)]
+pub type fil_SealCommitPhase2Response = fil_Result<fil_SealCommitPhase2>;
 
 impl From<&fil_SealCommitPhase2Response> for SealCommitPhase2Output {
     fn from(other: &fil_SealCommitPhase2Response) -> Self {
-        let proof = unsafe { clone_as_vec_from_parts(other.proof_ptr, other.proof_len) };
-
-        SealCommitPhase2Output { proof }
-    }
-}
-
-impl Default for fil_SealCommitPhase2Response {
-    fn default() -> fil_SealCommitPhase2Response {
-        fil_SealCommitPhase2Response {
-            status_code: FCPResponseStatus::FCPNoError,
-            error_msg: ptr::null_mut(),
-            proof_ptr: ptr::null_mut(),
-            proof_len: 0,
-            commit_inputs_ptr: ptr::null_mut(),
-            commit_inputs_len: 0,
+        SealCommitPhase2Output {
+            proof: other.value.proof.to_vec(),
         }
     }
 }
 
-impl Clone for fil_SealCommitPhase2Response {
-    fn clone(&self) -> Self {
-        let proof_ptr = unsafe { clone_box_parts(self.proof_ptr, self.proof_len) };
-        let commit_inputs_ptr =
-            unsafe { clone_box_parts(self.commit_inputs_ptr, self.commit_inputs_len) };
-
-        fil_SealCommitPhase2Response {
-            status_code: self.status_code,
-            error_msg: self.error_msg,
-            proof_ptr,
-            proof_len: self.proof_len,
-            commit_inputs_ptr,
-            commit_inputs_len: self.commit_inputs_len,
-        }
-    }
+#[repr(C)]
+#[derive(Default, Clone)]
+pub struct fil_SealCommitPhase2 {
+    pub proof: fil_Bytes,
+    // TODO: this is not actualy used?
+    // pub commit_inputs: fil_Array<fil_AggregationInputs>,
 }
-
-code_and_message_impl!(fil_SealCommitPhase2Response);
 
 #[repr(C)]
 #[derive(Clone, Default)]
@@ -594,29 +506,17 @@ pub type fil_VerifyWindowPoStResponse = fil_Result<bool>;
 #[allow(non_camel_case_types)]
 pub type fil_FinalizeTicketResponse = fil_Result<fil_32ByteArray>;
 
+#[allow(non_camel_case_types)]
+pub type fil_GeneratePieceCommitmentResponse = fil_Result<fil_GeneratePieceCommitment>;
+
 #[repr(C)]
-#[derive(DropStructMacro)]
-pub struct fil_GeneratePieceCommitmentResponse {
-    pub status_code: FCPResponseStatus,
-    pub error_msg: *mut libc::c_char,
+#[derive(Default)]
+pub struct fil_GeneratePieceCommitment {
     pub comm_p: [u8; 32],
     /// The number of unpadded bytes in the original piece plus any (unpadded)
     /// alignment bytes added to create a whole merkle tree.
     pub num_bytes_aligned: u64,
 }
-
-impl Default for fil_GeneratePieceCommitmentResponse {
-    fn default() -> fil_GeneratePieceCommitmentResponse {
-        fil_GeneratePieceCommitmentResponse {
-            status_code: FCPResponseStatus::FCPNoError,
-            comm_p: Default::default(),
-            error_msg: ptr::null_mut(),
-            num_bytes_aligned: 0,
-        }
-    }
-}
-
-code_and_message_impl!(fil_GeneratePieceCommitmentResponse);
 
 #[allow(non_camel_case_types)]
 pub type fil_GenerateDataCommitmentResponse = fil_Result<fil_32ByteArray>;
@@ -629,29 +529,16 @@ pub type fil_StringResponse = fil_Result<fil_Bytes>;
 #[allow(non_camel_case_types)]
 pub type fil_ClearCacheResponse = fil_Result<()>;
 
+#[allow(non_camel_case_types)]
+pub type fil_EmptySectorUpdateEncodeIntoResponse = fil_Result<fil_EmptySectorUpdateEncodeInto>;
+
 #[repr(C)]
-#[derive(DropStructMacro)]
-pub struct fil_EmptySectorUpdateEncodeIntoResponse {
-    pub error_msg: *mut libc::c_char,
-    pub status_code: FCPResponseStatus,
+#[derive(Default)]
+pub struct fil_EmptySectorUpdateEncodeInto {
     pub comm_r_new: [u8; 32],
     pub comm_r_last_new: [u8; 32],
     pub comm_d_new: [u8; 32],
 }
-
-impl Default for fil_EmptySectorUpdateEncodeIntoResponse {
-    fn default() -> fil_EmptySectorUpdateEncodeIntoResponse {
-        fil_EmptySectorUpdateEncodeIntoResponse {
-            error_msg: ptr::null_mut(),
-            status_code: FCPResponseStatus::FCPNoError,
-            comm_r_new: Default::default(),
-            comm_r_last_new: Default::default(),
-            comm_d_new: Default::default(),
-        }
-    }
-}
-
-code_and_message_impl!(fil_EmptySectorUpdateEncodeIntoResponse);
 
 #[allow(non_camel_case_types)]
 pub type fil_EmptySectorUpdateDecodeFromResponse = fil_Result<()>;
@@ -659,35 +546,8 @@ pub type fil_EmptySectorUpdateDecodeFromResponse = fil_Result<()>;
 #[allow(non_camel_case_types)]
 pub type fil_EmptySectorUpdateRemoveEncodedDataResponse = fil_Result<()>;
 
-#[repr(C)]
-pub struct fil_EmptySectorUpdateProofResponse {
-    pub status_code: FCPResponseStatus,
-    pub error_msg: *mut libc::c_char,
-    pub proof_len: libc::size_t,
-    pub proof_ptr: *mut u8,
-}
-
-impl Default for fil_EmptySectorUpdateProofResponse {
-    fn default() -> fil_EmptySectorUpdateProofResponse {
-        fil_EmptySectorUpdateProofResponse {
-            status_code: FCPResponseStatus::FCPNoError,
-            error_msg: ptr::null_mut(),
-            proof_len: 0,
-            proof_ptr: ptr::null_mut(),
-        }
-    }
-}
-
-impl Drop for fil_EmptySectorUpdateProofResponse {
-    fn drop(&mut self) {
-        unsafe {
-            drop_box_from_parts(self.proof_ptr);
-            free_c_str(self.error_msg as *mut libc::c_char);
-        }
-    }
-}
-
-code_and_message_impl!(fil_EmptySectorUpdateProofResponse);
+#[allow(non_camel_case_types)]
+pub type fil_EmptySectorUpdateProofResponse = fil_Result<fil_Bytes>;
 
 #[allow(non_camel_case_types)]
 pub type fil_PartitionProofResponse = fil_Result<fil_Array<fil_PartitionProof>>;

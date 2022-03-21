@@ -39,6 +39,18 @@ impl<T: Sized> fil_Array<T> {
         (self.ptr.cast(), self.len)
     }
 
+    pub fn ptr(&self) -> *const T {
+        self.ptr.cast()
+    }
+
+    pub fn len(&self) -> usize {
+        self.len
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.len == 0
+    }
+
     pub fn is_null(&self) -> bool {
         self.ptr.is_null()
     }
@@ -140,10 +152,19 @@ impl fil_Bytes {
 }
 
 #[repr(C)]
+#[derive(Clone)]
 pub struct fil_Result<T: Sized> {
     pub status_code: FCPResponseStatus,
     pub error_msg: fil_Bytes,
     pub value: T,
+}
+
+impl<T: Sized> Deref for fil_Result<T> {
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        &self.value
+    }
 }
 
 impl<T: Sized + Default> Default for fil_Result<T> {
@@ -247,14 +268,14 @@ pub fn vec_into_raw<T>(v: Vec<T>) -> (*mut T, usize) {
 }
 
 /// `ptr` must be allocated using `Box::into_raw` or be null.
-pub unsafe fn drop_box_from_parts<T>(ptr: *mut T) {
+unsafe fn drop_box_from_parts<T>(ptr: *mut T) {
     if !ptr.is_null() {
         let _ = Box::from_raw(ptr);
     }
 }
 
 /// `ptr` must be allocated using `Box::into_raw` or be null.
-pub unsafe fn clone_box_parts<T: Clone>(ptr: *const T, len: usize) -> *mut T {
+unsafe fn clone_box_parts<T: Clone>(ptr: *const T, len: usize) -> *mut T {
     if ptr.is_null() {
         return ptr::null_mut();
     }
@@ -268,20 +289,4 @@ pub unsafe fn clone_box_parts<T: Clone>(ptr: *const T, len: usize) -> *mut T {
     // duplicate the bytes
     let bytes2 = ManuallyDrop::into_inner(bytes.clone());
     Box::into_raw(bytes2).cast()
-}
-
-/// `ptr` must be allocated using `Box::into_raw` or be null.
-pub unsafe fn clone_as_vec_from_parts<T: Clone>(ptr: *const T, len: usize) -> Vec<T> {
-    if ptr.is_null() {
-        return Vec::new();
-    }
-
-    // restore, but without triggering a drop on the original
-    // safe to cast as *mut as we don't mutate
-    let bytes: ManuallyDrop<Box<[T]>> = ManuallyDrop::new(Box::from_raw(
-        std::slice::from_raw_parts_mut(ptr as *mut _, len),
-    ));
-
-    // duplicate the bytes
-    bytes.to_vec()
 }
