@@ -31,7 +31,6 @@ use crate::util::types::{catch_panic_response as catch_panic_response2, fil_Arra
 pub type VanillaProof = Vec<u8>;
 
 /// TODO: document
-///
 #[no_mangle]
 #[cfg(not(target_os = "windows"))]
 pub unsafe extern "C" fn fil_write_with_alignment(
@@ -66,7 +65,6 @@ pub unsafe extern "C" fn fil_write_with_alignment(
 }
 
 /// TODO: document
-///
 #[no_mangle]
 #[cfg(not(target_os = "windows"))]
 pub unsafe extern "C" fn fil_write_without_alignment(
@@ -124,7 +122,6 @@ pub unsafe extern "C" fn fil_fauxrep2(
 }
 
 /// TODO: document
-///
 #[no_mangle]
 pub unsafe extern "C" fn fil_seal_pre_commit_phase1(
     registered_proof: fil_RegisteredSealProof,
@@ -156,7 +153,6 @@ pub unsafe extern "C" fn fil_seal_pre_commit_phase1(
 }
 
 /// TODO: document
-///
 #[no_mangle]
 pub unsafe extern "C" fn fil_seal_pre_commit_phase2(
     seal_pre_commit_phase1_output: fil_Bytes,
@@ -181,7 +177,6 @@ pub unsafe extern "C" fn fil_seal_pre_commit_phase2(
 }
 
 /// TODO: document
-///
 #[no_mangle]
 pub unsafe extern "C" fn fil_seal_commit_phase1(
     registered_proof: fil_RegisteredSealProof,
@@ -264,7 +259,6 @@ pub unsafe extern "C" fn fil_aggregate_seal_proofs(
 }
 
 /// Retrieves the seal inputs based on the provided input, used for aggregation verification.
-///
 #[no_mangle]
 pub fn convert_aggregation_inputs(
     registered_proof: fil_RegisteredSealProof,
@@ -283,7 +277,6 @@ pub fn convert_aggregation_inputs(
 }
 
 /// Verifies the output of an aggregated seal.
-///
 #[no_mangle]
 pub unsafe extern "C" fn fil_verify_aggregate_seal_proof(
     registered_proof: fil_RegisteredSealProof,
@@ -371,7 +364,6 @@ pub unsafe extern "C" fn fil_unseal_range(
 }
 
 /// Verifies the output of seal.
-///
 #[no_mangle]
 pub unsafe extern "C" fn fil_verify_seal(
     registered_proof: fil_RegisteredSealProof,
@@ -402,7 +394,6 @@ pub unsafe extern "C" fn fil_verify_seal(
 }
 
 /// TODO: document
-///
 #[no_mangle]
 pub unsafe extern "C" fn fil_generate_winning_post_sector_challenge(
     registered_proof: fil_RegisteredPoStProof,
@@ -432,7 +423,6 @@ pub unsafe extern "C" fn fil_generate_winning_post_sector_challenge(
 }
 
 /// TODO: document
-///
 #[no_mangle]
 pub unsafe extern "C" fn fil_generate_fallback_sector_challenges(
     registered_proof: fil_RegisteredPoStProof,
@@ -506,7 +496,6 @@ pub unsafe extern "C" fn fil_generate_fallback_sector_challenges(
 }
 
 /// TODO: document
-///
 #[no_mangle]
 pub unsafe extern "C" fn fil_generate_single_vanilla_proof(
     replica: fil_PrivateReplicaInfo,
@@ -551,7 +540,6 @@ pub unsafe extern "C" fn fil_generate_single_vanilla_proof(
 }
 
 /// TODO: document
-///
 #[no_mangle]
 pub unsafe extern "C" fn fil_generate_winning_post_with_vanilla(
     registered_proof: fil_RegisteredPoStProof,
@@ -595,7 +583,6 @@ pub unsafe extern "C" fn fil_generate_winning_post_with_vanilla(
 }
 
 /// TODO: document
-///
 #[no_mangle]
 pub unsafe extern "C" fn fil_generate_winning_post(
     randomness: fil_32ByteArray,
@@ -654,7 +641,6 @@ pub unsafe extern "C" fn fil_verify_winning_post(
 }
 
 /// TODO: document
-///
 #[no_mangle]
 pub unsafe extern "C" fn fil_generate_window_post_with_vanilla(
     registered_proof: fil_RegisteredPoStProof,
@@ -722,7 +708,6 @@ pub unsafe extern "C" fn fil_generate_window_post_with_vanilla(
 }
 
 /// TODO: document
-///
 #[no_mangle]
 pub unsafe extern "C" fn fil_generate_window_post(
     randomness: fil_32ByteArray,
@@ -805,7 +790,6 @@ pub unsafe extern "C" fn fil_verify_window_post(
 }
 
 /// TODO: document
-///
 #[no_mangle]
 pub unsafe extern "C" fn fil_merge_window_post_partition_proofs(
     registered_proof: fil_RegisteredPoStProof,
@@ -851,7 +835,6 @@ pub unsafe extern "C" fn fil_merge_window_post_partition_proofs(
 }
 
 /// TODO: document
-///
 #[no_mangle]
 pub unsafe extern "C" fn fil_get_num_partition_for_fallback_post(
     registered_proof: fil_RegisteredPoStProof,
@@ -873,7 +856,6 @@ pub unsafe extern "C" fn fil_get_num_partition_for_fallback_post(
 }
 
 /// TODO: document
-///
 #[no_mangle]
 pub unsafe extern "C" fn fil_generate_single_window_post_with_vanilla(
     registered_proof: fil_RegisteredPoStProof,
@@ -940,7 +922,6 @@ pub unsafe extern "C" fn fil_generate_single_window_post_with_vanilla(
 }
 
 /// TODO: document
-///
 #[no_mangle]
 pub unsafe extern "C" fn fil_empty_sector_update_encode_into(
     registered_proof: fil_RegisteredUpdateProof,
@@ -982,7 +963,6 @@ pub unsafe extern "C" fn fil_empty_sector_update_encode_into(
 }
 
 /// TODO: document
-///
 #[no_mangle]
 pub unsafe extern "C" fn fil_empty_sector_update_decode_from(
     registered_proof: fil_RegisteredUpdateProof,
@@ -1013,7 +993,6 @@ pub unsafe extern "C" fn fil_empty_sector_update_decode_from(
 }
 
 /// TODO: document
-///
 #[no_mangle]
 pub unsafe extern "C" fn fil_empty_sector_update_remove_encoded_data(
     registered_proof: fil_RegisteredUpdateProof,
@@ -1046,7 +1025,6 @@ pub unsafe extern "C" fn fil_empty_sector_update_remove_encoded_data(
 }
 
 /// TODO: document
-///
 #[no_mangle]
 pub unsafe extern "C" fn fil_generate_empty_sector_update_partition_proofs(
     registered_proof: fil_RegisteredUpdateProof,
@@ -1088,7 +1066,6 @@ pub unsafe extern "C" fn fil_generate_empty_sector_update_partition_proofs(
 }
 
 /// TODO: document
-///
 #[no_mangle]
 pub unsafe extern "C" fn fil_verify_empty_sector_update_partition_proofs(
     registered_proof: fil_RegisteredUpdateProof,
@@ -1116,7 +1093,6 @@ pub unsafe extern "C" fn fil_verify_empty_sector_update_partition_proofs(
 }
 
 /// TODO: document
-///
 #[no_mangle]
 pub unsafe extern "C" fn fil_generate_empty_sector_update_proof_with_vanilla(
     registered_proof: fil_RegisteredUpdateProof,
@@ -1147,7 +1123,6 @@ pub unsafe extern "C" fn fil_generate_empty_sector_update_proof_with_vanilla(
 }
 
 /// TODO: document
-///
 #[no_mangle]
 pub unsafe extern "C" fn fil_generate_empty_sector_update_proof(
     registered_proof: fil_RegisteredUpdateProof,
@@ -1181,7 +1156,6 @@ pub unsafe extern "C" fn fil_generate_empty_sector_update_proof(
 }
 
 /// TODO: document
-///
 #[no_mangle]
 pub unsafe extern "C" fn fil_verify_empty_sector_update_proof(
     registered_proof: fil_RegisteredUpdateProof,
@@ -1352,7 +1326,6 @@ pub unsafe extern "C" fn fil_destroy_string_response(ptr: *mut fil_StringRespons
 }
 
 /// Returns the number of user bytes that will fit into a staged sector.
-///
 #[no_mangle]
 pub unsafe extern "C" fn fil_get_max_user_bytes_per_staged_sector(
     registered_proof: fil_RegisteredSealProof,
@@ -1363,7 +1336,6 @@ pub unsafe extern "C" fn fil_get_max_user_bytes_per_staged_sector(
 }
 
 /// Returns the CID of the Groth parameter file for sealing.
-///
 #[no_mangle]
 pub unsafe extern "C" fn fil_get_seal_params_cid(
     registered_proof: fil_RegisteredSealProof,
@@ -1372,7 +1344,6 @@ pub unsafe extern "C" fn fil_get_seal_params_cid(
 }
 
 /// Returns the CID of the verifying key-file for verifying a seal proof.
-///
 #[no_mangle]
 pub unsafe extern "C" fn fil_get_seal_verifying_key_cid(
     registered_proof: fil_RegisteredSealProof,
@@ -1382,7 +1353,6 @@ pub unsafe extern "C" fn fil_get_seal_verifying_key_cid(
 
 /// Returns the path from which the proofs library expects to find the Groth
 /// parameter file used when sealing.
-///
 #[no_mangle]
 pub unsafe extern "C" fn fil_get_seal_params_path(
     registered_proof: fil_RegisteredSealProof,
@@ -1395,7 +1365,6 @@ pub unsafe extern "C" fn fil_get_seal_params_path(
 
 /// Returns the path from which the proofs library expects to find the verifying
 /// key-file used when verifying a seal proof.
-///
 #[no_mangle]
 pub unsafe extern "C" fn fil_get_seal_verifying_key_path(
     registered_proof: fil_RegisteredSealProof,
@@ -1407,7 +1376,6 @@ pub unsafe extern "C" fn fil_get_seal_verifying_key_path(
 }
 
 /// Returns the identity of the circuit for the provided seal proof.
-///
 #[no_mangle]
 pub unsafe extern "C" fn fil_get_seal_circuit_identifier(
     registered_proof: fil_RegisteredSealProof,
@@ -1416,7 +1384,6 @@ pub unsafe extern "C" fn fil_get_seal_circuit_identifier(
 }
 
 /// Returns the version of the provided seal proof type.
-///
 #[no_mangle]
 pub unsafe extern "C" fn fil_get_seal_version(
     registered_proof: fil_RegisteredSealProof,
@@ -1425,7 +1392,6 @@ pub unsafe extern "C" fn fil_get_seal_version(
 }
 
 /// Returns the CID of the Groth parameter file for generating a PoSt.
-///
 #[no_mangle]
 pub unsafe extern "C" fn fil_get_post_params_cid(
     registered_proof: fil_RegisteredPoStProof,
@@ -1434,7 +1400,6 @@ pub unsafe extern "C" fn fil_get_post_params_cid(
 }
 
 /// Returns the CID of the verifying key-file for verifying a PoSt proof.
-///
 #[no_mangle]
 pub unsafe extern "C" fn fil_get_post_verifying_key_cid(
     registered_proof: fil_RegisteredPoStProof,
@@ -1444,7 +1409,6 @@ pub unsafe extern "C" fn fil_get_post_verifying_key_cid(
 
 /// Returns the path from which the proofs library expects to find the Groth
 /// parameter file used when generating a PoSt.
-///
 #[no_mangle]
 pub unsafe extern "C" fn fil_get_post_params_path(
     registered_proof: fil_RegisteredPoStProof,
@@ -1457,7 +1421,6 @@ pub unsafe extern "C" fn fil_get_post_params_path(
 
 /// Returns the path from which the proofs library expects to find the verifying
 /// key-file used when verifying a PoSt proof.
-///
 #[no_mangle]
 pub unsafe extern "C" fn fil_get_post_verifying_key_path(
     registered_proof: fil_RegisteredPoStProof,
@@ -1469,7 +1432,6 @@ pub unsafe extern "C" fn fil_get_post_verifying_key_path(
 }
 
 /// Returns the identity of the circuit for the provided PoSt proof type.
-///
 #[no_mangle]
 pub unsafe extern "C" fn fil_get_post_circuit_identifier(
     registered_proof: fil_RegisteredPoStProof,
@@ -1478,7 +1440,6 @@ pub unsafe extern "C" fn fil_get_post_circuit_identifier(
 }
 
 /// Returns the version of the provided seal proof.
-///
 #[no_mangle]
 pub unsafe extern "C" fn fil_get_post_version(
     registered_proof: fil_RegisteredPoStProof,
@@ -1505,14 +1466,12 @@ unsafe fn registered_post_proof_accessor(
 }
 
 /// Deallocates a VerifySealResponse.
-///
 #[no_mangle]
 pub unsafe extern "C" fn fil_destroy_verify_seal_response(ptr: *mut fil_VerifySealResponse) {
     let _ = Box::from_raw(ptr);
 }
 
 /// Deallocates a VerifyAggregateSealProofResponse.
-///
 #[no_mangle]
 pub unsafe extern "C" fn fil_destroy_verify_aggregate_seal_response(
     ptr: *mut fil_VerifyAggregateSealProofResponse,
@@ -1528,7 +1487,6 @@ pub unsafe extern "C" fn fil_destroy_finalize_ticket_response(
 }
 
 /// Deallocates a VerifyPoStResponse.
-///
 #[no_mangle]
 pub unsafe extern "C" fn fil_destroy_verify_winning_post_response(
     ptr: *mut fil_VerifyWinningPoStResponse,
@@ -1605,14 +1563,12 @@ pub unsafe extern "C" fn fil_destroy_clear_cache_response(ptr: *mut fil_ClearCac
 }
 
 /// Deallocates a AggregateProof
-///
 #[no_mangle]
 pub unsafe extern "C" fn fil_destroy_aggregate_proof(ptr: *mut fil_AggregateProof) {
     let _ = Box::from_raw(ptr);
 }
 
 /// Deallocates a EmptySectorUpdateProof
-///
 #[no_mangle]
 pub unsafe extern "C" fn fil_destroy_empty_sector_update_generate_proof_response(
     ptr: *mut fil_EmptySectorUpdateProofResponse,
@@ -1621,7 +1577,6 @@ pub unsafe extern "C" fn fil_destroy_empty_sector_update_generate_proof_response
 }
 
 /// Deallocates a VerifyEmptySectorUpdateProofResponse
-///
 #[no_mangle]
 pub unsafe extern "C" fn fil_destroy_empty_sector_update_verify_proof_response(
     ptr: *mut fil_VerifyEmptySectorUpdateProofResponse,
@@ -1630,7 +1585,6 @@ pub unsafe extern "C" fn fil_destroy_empty_sector_update_verify_proof_response(
 }
 
 /// Deallocates a PartitionProofResponse
-///
 #[no_mangle]
 pub unsafe extern "C" fn fil_destroy_generate_empty_sector_update_partition_proof_response(
     ptr: *mut fil_PartitionProofResponse,
@@ -1639,7 +1593,6 @@ pub unsafe extern "C" fn fil_destroy_generate_empty_sector_update_partition_proo
 }
 
 /// Deallocates a VerifyEmptySectorUpdateProofResponse
-///
 #[no_mangle]
 pub unsafe extern "C" fn fil_destroy_verify_empty_sector_update_partition_proof_response(
     ptr: *mut fil_VerifyPartitionProofResponse,
@@ -1648,7 +1601,6 @@ pub unsafe extern "C" fn fil_destroy_verify_empty_sector_update_partition_proof_
 }
 
 /// Deallocates a EmptySectorUpdateEncodeIntoResponse
-///
 #[no_mangle]
 pub unsafe extern "C" fn fil_destroy_empty_sector_update_encode_into_response(
     ptr: *mut fil_EmptySectorUpdateEncodeIntoResponse,
@@ -1657,7 +1609,6 @@ pub unsafe extern "C" fn fil_destroy_empty_sector_update_encode_into_response(
 }
 
 /// Deallocates a EmptySectorUpdateDecodeFromResponse
-///
 #[no_mangle]
 pub unsafe extern "C" fn fil_destroy_empty_sector_update_decode_from_response(
     ptr: *mut fil_EmptySectorUpdateDecodeFromResponse,
@@ -1666,7 +1617,6 @@ pub unsafe extern "C" fn fil_destroy_empty_sector_update_decode_from_response(
 }
 
 /// Deallocates a EmptySectorUpdateRemoveEncodedDataResponse
-///
 #[no_mangle]
 pub unsafe extern "C" fn fil_destroy_empty_sector_update_remove_encoded_data_response(
     ptr: *mut fil_EmptySectorUpdateRemoveEncodedDataResponse,

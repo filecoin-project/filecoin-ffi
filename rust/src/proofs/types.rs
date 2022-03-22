@@ -521,8 +521,6 @@ pub struct fil_GeneratePieceCommitment {
 #[allow(non_camel_case_types)]
 pub type fil_GenerateDataCommitmentResponse = fil_Result<fil_32ByteArray>;
 
-///
-
 #[allow(non_camel_case_types)]
 pub type fil_StringResponse = fil_Result<fil_Bytes>;
 
