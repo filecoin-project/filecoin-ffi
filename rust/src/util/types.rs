@@ -88,6 +88,15 @@ impl<T> From<Vec<T>> for fil_Array<T> {
     }
 }
 
+impl<T: Clone> From<&[T]> for fil_Array<T> {
+    fn from(buf: &[T]) -> Self {
+        if buf.is_empty() {
+            return Default::default();
+        }
+        buf.to_vec().into_boxed_slice().into()
+    }
+}
+
 impl<T> From<Box<[T]>> for fil_Array<T> {
     fn from(buf: Box<[T]>) -> Self {
         if buf.is_empty() {
@@ -286,6 +295,16 @@ where
     T: Sized + Default,
     F: FnOnce() -> anyhow::Result<T>,
 {
+    catch_panic_response_raw(name, || {
+        fil_Result::from(callback().map_err(|err| err.to_string()))
+    })
+}
+
+pub fn catch_panic_response_raw<F, T>(name: &str, callback: F) -> *mut fil_Result<T>
+where
+    T: Sized + Default,
+    F: FnOnce() -> fil_Result<T>,
+{
     // Using AssertUnwindSafe is code smell. Though catching our panics here is really
     // last resort, so it should be OK.
     let result = match panic::catch_unwind(panic::AssertUnwindSafe(|| {
@@ -295,17 +314,16 @@ where
         log::info!("{}: end", name);
         res
     })) {
-        Ok(Ok(t)) => Ok(t),
-        Ok(Err(err)) => Err(err.to_string()),
+        Ok(t) => t,
         Err(panic) => {
             let error_msg = match panic.downcast_ref::<&'static str>() {
                 Some(message) => message,
                 _ => "no unwind information",
             };
 
-            Err(format!("Rust panic: {}", error_msg))
+            fil_Result::from(Err(format!("Rust panic: {}", error_msg)))
         }
     };
 
-    unsafe { fil_Result::<T>::from(result).into_boxed_raw() }
+    unsafe { result.into_boxed_raw() }
 }

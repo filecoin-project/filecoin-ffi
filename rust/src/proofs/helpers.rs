@@ -58,14 +58,11 @@ struct PrivateReplicaInfoTmp {
 }
 
 pub unsafe fn to_private_replica_info_map(
-    replicas_ptr: *const fil_PrivateReplicaInfo,
-    replicas_len: libc::size_t,
+    replicas: &fil_Array<fil_PrivateReplicaInfo>,
 ) -> Result<BTreeMap<SectorId, PrivateReplicaInfo>> {
     use rayon::prelude::*;
 
-    ensure!(!replicas_ptr.is_null(), "replicas_ptr must not be null");
-
-    let replicas: Vec<_> = from_raw_parts(replicas_ptr, replicas_len)
+    let replicas: Vec<_> = replicas
         .iter()
         .map(|ffi_info| {
             let cache_dir_path = ffi_info.cache_dir_path.as_path()?;
