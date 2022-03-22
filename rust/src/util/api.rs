@@ -2,9 +2,11 @@ use std::fs::File;
 use std::os::unix::io::FromRawFd;
 use std::sync::Once;
 
-use ffi_toolkit::catch_panic_response;
+use anyhow::anyhow;
 
-use super::types::{fil_Array, fil_Bytes, fil_GpuDeviceResponse, fil_InitLogFdResponse};
+use super::types::{
+    catch_panic_response, fil_Array, fil_Bytes, fil_GpuDeviceResponse, fil_InitLogFdResponse,
+};
 
 /// Protects the init off the logger.
 static LOG_INIT: Once = Once::new();
@@ -32,12 +34,12 @@ pub fn init_log_with_file(file: File) -> Option<()> {
 /// Returns an array of strings containing the device names that can be used.
 #[no_mangle]
 pub unsafe extern "C" fn fil_get_gpu_devices() -> *mut fil_GpuDeviceResponse {
-    catch_panic_response(|| {
+    catch_panic_response("get_gpu_devices", || {
         let devices = rust_gpu_tools::Device::all();
         let devices: Vec<fil_Bytes> = devices.iter().map(|d| d.name().into()).collect();
         let devices: fil_Array<fil_Bytes> = devices.into();
 
-        fil_GpuDeviceResponse::from(devices).into_boxed_raw()
+        Ok(devices)
     })
 }
 
@@ -51,13 +53,13 @@ pub unsafe extern "C" fn fil_get_gpu_devices() -> *mut fil_GpuDeviceResponse {
 #[no_mangle]
 #[cfg(not(target_os = "windows"))]
 pub unsafe extern "C" fn fil_init_log_fd(log_fd: libc::c_int) -> *mut fil_InitLogFdResponse {
-    catch_panic_response(|| {
+    catch_panic_response("init_log_fd", || {
         let file = File::from_raw_fd(log_fd);
 
         if init_log_with_file(file).is_none() {
-            return fil_InitLogFdResponse::err("There is already an active logger. `fil_init_log_fd()` needs to be called before any other FFI function is called.").into_boxed_raw();
+            return Err(anyhow!("There is already an active logger. `fil_init_log_fd()` needs to be called before any other FFI function is called."));
         }
-        fil_InitLogFdResponse::ok(()).into_boxed_raw()
+        Ok(())
     })
 }
 

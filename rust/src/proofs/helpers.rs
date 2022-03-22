@@ -1,14 +1,9 @@
-use std::collections::btree_map::BTreeMap;
-use std::slice::from_raw_parts;
-
-use anyhow::{ensure, Result};
+use anyhow::Result;
 use filecoin_proofs_api::{PrivateReplicaInfo, PublicReplicaInfo, SectorId};
+use std::collections::btree_map::BTreeMap;
 
 use super::types::{fil_PrivateReplicaInfo, fil_PublicReplicaInfo, fil_RegisteredPoStProof};
-use crate::{
-    proofs::types::{fil_PartitionSnarkProof, PartitionSnarkProof},
-    util::types::fil_Array,
-};
+use crate::util::types::fil_Array;
 
 #[derive(Debug, Clone)]
 struct PublicReplicaInfoTmp {
@@ -102,27 +97,4 @@ pub unsafe fn to_private_replica_info_map(
         .collect();
 
     Ok(map)
-}
-
-pub unsafe fn c_to_rust_partition_proofs(
-    partition_proofs_ptr: *const fil_PartitionSnarkProof,
-    partition_proofs_len: libc::size_t,
-) -> Result<Vec<PartitionSnarkProof>> {
-    ensure!(
-        !partition_proofs_ptr.is_null(),
-        "partition_proofs_ptr must not be null"
-    );
-
-    let out = from_raw_parts(partition_proofs_ptr, partition_proofs_len)
-        .iter()
-        .map(|fpp| {
-            ensure!(!fpp.proof.is_null(), "proof_ptr must not be null");
-            Ok(PartitionSnarkProof {
-                registered_proof: fpp.registered_proof.into(),
-                proof: fpp.proof.to_vec(),
-            })
-        })
-        .collect::<Result<_>>()?;
-
-    Ok(out)
 }

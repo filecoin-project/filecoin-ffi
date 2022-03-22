@@ -1,4 +1,4 @@
-use ffi_toolkit::{c_str_to_pbuf, catch_panic_response, FCPResponseStatus};
+use ffi_toolkit::{catch_panic_response, FCPResponseStatus};
 use filecoin_proofs_api::seal::{
     add_piece, aggregate_seal_commit_proofs, clear_cache, compute_comm_d, fauxrep, fauxrep2,
     generate_piece_commitment, get_seal_inputs, seal_commit_phase1, seal_commit_phase2,
@@ -21,9 +21,7 @@ use blstrs::Scalar as Fr;
 use log::{error, info};
 use rayon::prelude::*;
 
-use super::helpers::{
-    c_to_rust_partition_proofs, to_private_replica_info_map, to_public_replica_info_map,
-};
+use super::helpers::{to_private_replica_info_map, to_public_replica_info_map};
 use super::types::*;
 use crate::util::api::init_log;
 use crate::util::types::{
@@ -134,10 +132,10 @@ pub unsafe extern "C" fn fil_seal_pre_commit_phase1(
     sector_id: u64,
     prover_id: fil_32ByteArray,
     ticket: fil_32ByteArray,
-    pieces: fil_Array<fil_PublicPieceInfo>,
+    pieces: &fil_Array<fil_PublicPieceInfo>,
 ) -> *mut fil_SealPreCommitPhase1Response {
     catch_panic_response2("seal_pre_commit_phase1", || {
-        let public_pieces: Vec<PieceInfo> = pieces.into_iter().map(Into::into).collect();
+        let public_pieces: Vec<PieceInfo> = pieces.iter().map(Into::into).collect();
 
         let result = seal_pre_commit_phase1(
             registered_proof.into(),
@@ -191,7 +189,7 @@ pub unsafe extern "C" fn fil_seal_commit_phase1(
     prover_id: fil_32ByteArray,
     ticket: fil_32ByteArray,
     seed: fil_32ByteArray,
-    pieces: fil_Array<fil_PublicPieceInfo>,
+    pieces: &fil_Array<fil_PublicPieceInfo>,
 ) -> *mut fil_SealCommitPhase1Response {
     catch_panic_response2("seal_commit_phase1", || {
         let spcp2o = SealPreCommitPhase2Output {
@@ -200,7 +198,7 @@ pub unsafe extern "C" fn fil_seal_commit_phase1(
             comm_d: comm_d.inner,
         };
 
-        let public_pieces: Vec<PieceInfo> = pieces.into_iter().map(Into::into).collect();
+        let public_pieces: Vec<PieceInfo> = pieces.iter().map(Into::into).collect();
 
         let output = seal_commit_phase1(
             cache_dir_path.as_path()?,
@@ -585,20 +583,13 @@ pub unsafe extern "C" fn fil_generate_window_post_with_vanilla(
     registered_proof: fil_RegisteredPoStProof,
     randomness: fil_32ByteArray,
     prover_id: fil_32ByteArray,
-    vanilla_proofs_ptr: *const fil_VanillaProof,
-    vanilla_proofs_len: libc::size_t,
+    vanilla_proofs: &fil_Array<fil_VanillaProof>,
 ) -> *mut fil_GenerateWindowPoStResponse {
-    catch_panic_response(|| {
-        init_log();
-
-        info!("generate_window_post_with_vanilla: start");
-
-        let vanilla_proofs: Vec<VanillaProof> =
-            std::slice::from_raw_parts(vanilla_proofs_ptr, vanilla_proofs_len)
-                .iter()
-                .cloned()
-                .map(|vanilla_proof| vanilla_proof.to_vec())
-                .collect();
+    catch_panic_response_raw("generate_window_post_with_vanilla", || {
+        let vanilla_proofs: Vec<VanillaProof> = vanilla_proofs
+            .iter()
+            .map(|vanilla_proof| vanilla_proof.to_vec())
+            .collect();
 
         let result = filecoin_proofs_api::post::generate_window_post_with_vanilla(
             registered_proof.into(),
@@ -640,9 +631,7 @@ pub unsafe extern "C" fn fil_generate_window_post_with_vanilla(
             }
         }
 
-        info!("generate_window_post_with_vanilla: finish");
-
-        response.into_boxed_raw()
+        response
     })
 }
 
@@ -728,44 +717,23 @@ pub unsafe extern "C" fn fil_verify_window_post(
 #[no_mangle]
 pub unsafe extern "C" fn fil_merge_window_post_partition_proofs(
     registered_proof: fil_RegisteredPoStProof,
-    partition_proofs_ptr: *const fil_PartitionSnarkProof,
-    partition_proofs_len: libc::size_t,
+    partition_proofs: &fil_Array<fil_PartitionSnarkProof>,
 ) -> *mut fil_MergeWindowPoStPartitionProofsResponse {
-    catch_panic_response(|| {
-        init_log();
+    catch_panic_response2("merge_window_post_partition_proofs", || {
+        let partition_proofs = partition_proofs
+            .iter()
+            .map(|pp| PartitionSnarkProof(pp.proof.to_vec()))
+            .collect::<Vec<_>>();
 
-        info!("merge_window_post_partition_proofs: start");
+        let proof = filecoin_proofs_api::post::merge_window_post_partition_proofs(
+            registered_proof.into(),
+            partition_proofs,
+        )?;
 
-        let result = c_to_rust_partition_proofs(partition_proofs_ptr, partition_proofs_len)
-            .and_then(|partition_proofs| {
-                let partition_proofs = partition_proofs
-                    .iter()
-                    .map(|pp| PartitionSnarkProof(pp.proof.clone()))
-                    .collect::<Vec<_>>();
-
-                let proof = filecoin_proofs_api::post::merge_window_post_partition_proofs(
-                    registered_proof.into(),
-                    partition_proofs,
-                )?;
-
-                Ok(fil_PoStProof {
-                    registered_proof,
-                    proof: proof.into(),
-                })
-            });
-
-        info!("merge_window_post_partition_proofs: finish");
-        match result {
-            Ok(res) => fil_MergeWindowPoStPartitionProofsResponse::ok(res).into_boxed_raw(),
-            Err(err) => fil_MergeWindowPoStPartitionProofsResponse::err_with_default(
-                err.to_string(),
-                fil_PoStProof {
-                    registered_proof,
-                    proof: Default::default(),
-                },
-            )
-            .into_boxed_raw(),
-        }
+        Ok(fil_PoStProof {
+            registered_proof,
+            proof: proof.into(),
+        })
     })
 }
 
@@ -775,18 +743,12 @@ pub unsafe extern "C" fn fil_get_num_partition_for_fallback_post(
     registered_proof: fil_RegisteredPoStProof,
     num_sectors: libc::size_t,
 ) -> *mut fil_GetNumPartitionForFallbackPoStResponse {
-    catch_panic_response(|| {
-        init_log();
-
-        info!("get_num_partition_for_fallback_post: start");
+    catch_panic_response2("get_num_partition_for_fallback_post", || {
         let result = filecoin_proofs_api::post::get_num_partition_for_fallback_post(
             registered_proof.into(),
             num_sectors,
-        );
-
-        info!("get_num_partition_for_fallback_post: finish");
-
-        fil_GetNumPartitionForFallbackPoStResponse::from(result).into_boxed_raw()
+        )?;
+        Ok(result)
     })
 }
 
@@ -796,21 +758,14 @@ pub unsafe extern "C" fn fil_generate_single_window_post_with_vanilla(
     registered_proof: fil_RegisteredPoStProof,
     randomness: fil_32ByteArray,
     prover_id: fil_32ByteArray,
-    vanilla_proofs_ptr: *const fil_VanillaProof,
-    vanilla_proofs_len: libc::size_t,
+    vanilla_proofs: &fil_Array<fil_VanillaProof>,
     partition_index: libc::size_t,
 ) -> *mut fil_GenerateSingleWindowPoStWithVanillaResponse {
-    catch_panic_response(|| {
-        init_log();
-
-        info!("generate_single_window_post_with_vanilla: start");
-
-        let vanilla_proofs: Vec<VanillaProof> =
-            std::slice::from_raw_parts(vanilla_proofs_ptr, vanilla_proofs_len)
-                .iter()
-                .cloned()
-                .map(|vanilla_proof| vanilla_proof.to_vec())
-                .collect();
+    catch_panic_response_raw("generate_single_window_post_with_vanilla", || {
+        let vanilla_proofs: Vec<VanillaProof> = vanilla_proofs
+            .iter()
+            .map(|vanilla_proof| vanilla_proof.to_vec())
+            .collect();
 
         let result = filecoin_proofs_api::post::generate_single_window_post_with_vanilla(
             registered_proof.into(),
@@ -852,7 +807,7 @@ pub unsafe extern "C" fn fil_generate_single_window_post_with_vanilla(
 
         info!("generate_single_window_post_with_vanilla: finish");
 
-        response.into_boxed_raw()
+        response
     })
 }
 
@@ -860,40 +815,31 @@ pub unsafe extern "C" fn fil_generate_single_window_post_with_vanilla(
 #[no_mangle]
 pub unsafe extern "C" fn fil_empty_sector_update_encode_into(
     registered_proof: fil_RegisteredUpdateProof,
-    new_replica_path: *const libc::c_char,
-    new_cache_dir_path: *const libc::c_char,
-    sector_key_path: *const libc::c_char,
-    sector_key_cache_dir_path: *const libc::c_char,
-    staged_data_path: *const libc::c_char,
-    pieces_ptr: *const fil_PublicPieceInfo,
-    pieces_len: libc::size_t,
+    new_replica_path: &fil_Bytes,
+    new_cache_dir_path: &fil_Bytes,
+    sector_key_path: &fil_Bytes,
+    sector_key_cache_dir_path: &fil_Bytes,
+    staged_data_path: &fil_Bytes,
+    pieces: &fil_Array<fil_PublicPieceInfo>,
 ) -> *mut fil_EmptySectorUpdateEncodeIntoResponse {
-    catch_panic_response(|| {
-        init_log();
+    catch_panic_response2("fil_empty_sector_update_encode_into", || {
+        let public_pieces = pieces.iter().map(Into::into).collect::<Vec<_>>();
 
-        info!("fil_empty_sector_update_encode_into: start");
-
-        let slice: &[fil_PublicPieceInfo] = std::slice::from_raw_parts(pieces_ptr, pieces_len);
-        let public_pieces: Vec<PieceInfo> =
-            slice.to_vec().iter().cloned().map(Into::into).collect();
-
-        let result = empty_sector_update_encode_into(
+        let output = empty_sector_update_encode_into(
             registered_proof.into(),
-            c_str_to_pbuf(new_replica_path),
-            c_str_to_pbuf(new_cache_dir_path),
-            c_str_to_pbuf(sector_key_path),
-            c_str_to_pbuf(sector_key_cache_dir_path),
-            c_str_to_pbuf(staged_data_path),
+            new_replica_path.as_path()?,
+            new_cache_dir_path.as_path()?,
+            sector_key_path.as_path()?,
+            sector_key_cache_dir_path.as_path()?,
+            staged_data_path.as_path()?,
             &public_pieces,
-        )
-        .map(|output| fil_EmptySectorUpdateEncodeInto {
+        )?;
+
+        Ok(fil_EmptySectorUpdateEncodeInto {
             comm_r_new: output.comm_r_new,
             comm_r_last_new: output.comm_r_last_new,
             comm_d_new: output.comm_d_new,
-        });
-        info!("fil_empty_sector_update_encode_into: finish");
-
-        fil_EmptySectorUpdateEncodeIntoResponse::from(result).into_boxed_raw()
+        })
     })
 }
 
@@ -901,29 +847,23 @@ pub unsafe extern "C" fn fil_empty_sector_update_encode_into(
 #[no_mangle]
 pub unsafe extern "C" fn fil_empty_sector_update_decode_from(
     registered_proof: fil_RegisteredUpdateProof,
-    out_data_path: *const libc::c_char,
-    replica_path: *const libc::c_char,
-    sector_key_path: *const libc::c_char,
-    sector_key_cache_dir_path: *const libc::c_char,
+    out_data_path: &fil_Bytes,
+    replica_path: &fil_Bytes,
+    sector_key_path: &fil_Bytes,
+    sector_key_cache_dir_path: &fil_Bytes,
     comm_d_new: fil_32ByteArray,
 ) -> *mut fil_EmptySectorUpdateDecodeFromResponse {
-    catch_panic_response(|| {
-        init_log();
-
-        info!("fil_empty_sector_update_decode_from: start");
-
-        let result = empty_sector_update_decode_from(
+    catch_panic_response2("fil_empty_sector_update_decode_from", || {
+        empty_sector_update_decode_from(
             registered_proof.into(),
-            c_str_to_pbuf(out_data_path),
-            c_str_to_pbuf(replica_path),
-            c_str_to_pbuf(sector_key_path),
-            c_str_to_pbuf(sector_key_cache_dir_path),
+            out_data_path.as_path()?,
+            replica_path.as_path()?,
+            sector_key_path.as_path()?,
+            sector_key_cache_dir_path.as_path()?,
             comm_d_new.inner,
-        );
+        )?;
 
-        info!("fil_empty_sector_update_decode_from: finish");
-
-        fil_EmptySectorUpdateDecodeFromResponse::from(result).into_boxed_raw()
+        Ok(())
     })
 }
 
@@ -931,31 +871,25 @@ pub unsafe extern "C" fn fil_empty_sector_update_decode_from(
 #[no_mangle]
 pub unsafe extern "C" fn fil_empty_sector_update_remove_encoded_data(
     registered_proof: fil_RegisteredUpdateProof,
-    sector_key_path: *const libc::c_char,
-    sector_key_cache_dir_path: *const libc::c_char,
-    replica_path: *const libc::c_char,
-    replica_cache_path: *const libc::c_char,
-    data_path: *const libc::c_char,
+    sector_key_path: &fil_Bytes,
+    sector_key_cache_dir_path: &fil_Bytes,
+    replica_path: &fil_Bytes,
+    replica_cache_path: &fil_Bytes,
+    data_path: &fil_Bytes,
     comm_d_new: fil_32ByteArray,
 ) -> *mut fil_EmptySectorUpdateRemoveEncodedDataResponse {
-    catch_panic_response(|| {
-        init_log();
-
-        info!("fil_empty_sector_update_remove_encoded_data: start");
-
-        let result = empty_sector_update_remove_encoded_data(
+    catch_panic_response2("fil_empty_sector_update_remove_encoded_data", || {
+        empty_sector_update_remove_encoded_data(
             registered_proof.into(),
-            c_str_to_pbuf(sector_key_path),
-            c_str_to_pbuf(sector_key_cache_dir_path),
-            c_str_to_pbuf(replica_path),
-            c_str_to_pbuf(replica_cache_path),
-            c_str_to_pbuf(data_path),
+            sector_key_path.as_path()?,
+            sector_key_cache_dir_path.as_path()?,
+            replica_path.as_path()?,
+            replica_cache_path.as_path()?,
+            data_path.as_path()?,
             comm_d_new.inner,
-        );
+        )?;
 
-        info!("fil_empty_sector_update_remove_encoded_data: finish");
-
-        fil_EmptySectorUpdateRemoveEncodedDataResponse::from(result).into_boxed_raw()
+        Ok(())
     })
 }
 
@@ -966,37 +900,29 @@ pub unsafe extern "C" fn fil_generate_empty_sector_update_partition_proofs(
     comm_r_old: fil_32ByteArray,
     comm_r_new: fil_32ByteArray,
     comm_d_new: fil_32ByteArray,
-    sector_key_path: *const libc::c_char,
-    sector_key_cache_dir_path: *const libc::c_char,
-    replica_path: *const libc::c_char,
-    replica_cache_path: *const libc::c_char,
+    sector_key_path: &fil_Bytes,
+    sector_key_cache_dir_path: &fil_Bytes,
+    replica_path: &fil_Bytes,
+    replica_cache_path: &fil_Bytes,
 ) -> *mut fil_PartitionProofResponse {
-    catch_panic_response(|| {
-        init_log();
-
-        info!("fil_generate_empty_sector_update_partition_proofs: start");
-
-        let result = generate_partition_proofs(
+    catch_panic_response2("fil_generate_empty_sector_update_partition_proofs", || {
+        let output = generate_partition_proofs(
             registered_proof.into(),
             comm_r_old.inner,
             comm_r_new.inner,
             comm_d_new.inner,
-            c_str_to_pbuf(sector_key_path),
-            c_str_to_pbuf(sector_key_cache_dir_path),
-            c_str_to_pbuf(replica_path),
-            c_str_to_pbuf(replica_cache_path),
-        )
-        .map(|output| {
-            output
-                .into_iter()
-                .map(|proof| proof.0.into())
-                .collect::<Vec<_>>()
-                .into()
-        });
+            sector_key_path.as_path()?,
+            sector_key_cache_dir_path.as_path()?,
+            replica_path.as_path()?,
+            replica_cache_path.as_path()?,
+        )?;
 
-        info!("fil_generate_empty_sector_update_partition_proofs: finish");
-
-        fil_PartitionProofResponse::from(result).into_boxed_raw()
+        let result = output
+            .into_iter()
+            .map(|proof| proof.0.into())
+            .collect::<Vec<_>>()
+            .into();
+        Ok(result)
     })
 }
 
@@ -1064,29 +990,24 @@ pub unsafe extern "C" fn fil_generate_empty_sector_update_proof(
     comm_r_old: fil_32ByteArray,
     comm_r_new: fil_32ByteArray,
     comm_d_new: fil_32ByteArray,
-    sector_key_path: *const libc::c_char,
-    sector_key_cache_dir_path: *const libc::c_char,
-    replica_path: *const libc::c_char,
-    replica_cache_path: *const libc::c_char,
+    sector_key_path: &fil_Bytes,
+    sector_key_cache_dir_path: &fil_Bytes,
+    replica_path: &fil_Bytes,
+    replica_cache_path: &fil_Bytes,
 ) -> *mut fil_EmptySectorUpdateProofResponse {
-    catch_panic_response(|| {
-        init_log();
-
-        info!("fil_generate_empty_sector_update_proof: start");
-
+    catch_panic_response2("fil_generate_empty_sector_update_proof", || {
         let result = generate_empty_sector_update_proof(
             registered_proof.into(),
             comm_r_old.inner,
             comm_r_new.inner,
             comm_d_new.inner,
-            c_str_to_pbuf(sector_key_path),
-            c_str_to_pbuf(sector_key_cache_dir_path),
-            c_str_to_pbuf(replica_path),
-            c_str_to_pbuf(replica_cache_path),
-        );
+            sector_key_path.as_path()?,
+            sector_key_cache_dir_path.as_path()?,
+            replica_path.as_path()?,
+            replica_cache_path.as_path()?,
+        )?;
 
-        info!("fil_generate_empty_sector_update_proof: finish");
-        fil_EmptySectorUpdateProofResponse::from(result.map(|o| o.0.into())).into_boxed_raw()
+        Ok(result.0.into())
     })
 }
 
@@ -1153,39 +1074,25 @@ pub unsafe extern "C" fn fil_generate_piece_commitment(
 #[no_mangle]
 pub unsafe extern "C" fn fil_generate_data_commitment(
     registered_proof: fil_RegisteredSealProof,
-    pieces_ptr: *const fil_PublicPieceInfo,
-    pieces_len: libc::size_t,
+    pieces: &fil_Array<fil_PublicPieceInfo>,
 ) -> *mut fil_GenerateDataCommitmentResponse {
-    catch_panic_response(|| {
-        init_log();
+    catch_panic_response2("generate_data_commitment", || {
+        let public_pieces: Vec<PieceInfo> = pieces.iter().map(Into::into).collect();
+        let result = compute_comm_d(registered_proof.into(), &public_pieces)?;
 
-        info!("generate_data_commitment: start");
-
-        let public_pieces: Vec<PieceInfo> = std::slice::from_raw_parts(pieces_ptr, pieces_len)
-            .to_vec()
-            .iter()
-            .cloned()
-            .map(Into::into)
-            .collect();
-
-        let result = compute_comm_d(registered_proof.into(), &public_pieces);
-
-        info!("generate_data_commitment: finish");
-        fil_GenerateDataCommitmentResponse::from(result.map(Into::into)).into_boxed_raw()
+        Ok(result.into())
     })
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn fil_clear_cache(
     sector_size: u64,
-    cache_dir_path: *const libc::c_char,
+    cache_dir_path: &fil_Bytes,
 ) -> *mut fil_ClearCacheResponse {
-    catch_panic_response(|| {
-        init_log();
+    catch_panic_response2("fil_clear_cache", || {
+        let result = clear_cache(sector_size, &cache_dir_path.as_path()?)?;
 
-        let result = clear_cache(sector_size, &c_str_to_pbuf(cache_dir_path));
-
-        fil_ClearCacheResponse::from(result).into_boxed_raw()
+        Ok(result)
     })
 }
 
@@ -1848,20 +1755,15 @@ pub mod tests {
                     num_bytes: 1016,
                     comm_p: (*resp_a2).comm_p,
                 },
-            ];
+            ]
+            .into();
 
-            let resp_x =
-                fil_generate_data_commitment(registered_proof_seal, pieces.as_ptr(), pieces.len());
+            let resp_x = fil_generate_data_commitment(registered_proof_seal, &pieces);
 
             if (*resp_x).status_code != FCPResponseStatus::FCPNoError {
                 let msg = (*resp_x).error_msg.as_str().unwrap();
                 panic!("generate_data_commitment failed: {:?}", msg);
             }
-
-            let cache_dir_path_c_str = rust_str_to_c_str(cache_dir_path.as_str().unwrap()).unwrap();
-            let staged_path_c_str = rust_str_to_c_str(staged_path.as_str().unwrap()).unwrap();
-            let replica_path_c_str = rust_str_to_c_str(sealed_path.as_str().unwrap()).unwrap();
-            let unseal_path_c_str = rust_str_to_c_str(unseal_path.to_str().unwrap()).unwrap();
 
             let resp_b1 = fil_seal_pre_commit_phase1(
                 registered_proof_seal,
@@ -1871,7 +1773,7 @@ pub mod tests {
                 sector_id,
                 prover_id,
                 ticket,
-                pieces.clone().into(),
+                &pieces,
             );
 
             if (*resp_b1).status_code != FCPResponseStatus::FCPNoError {
@@ -1906,7 +1808,7 @@ pub mod tests {
                 prover_id,
                 ticket,
                 seed,
-                pieces.clone().into(),
+                &pieces,
             );
 
             if (*resp_c1).status_code != FCPResponseStatus::FCPNoError {
@@ -2038,30 +1940,22 @@ pub mod tests {
                     num_bytes: 1016,
                     comm_p: (*resp_new_a2).comm_p,
                 },
-            ];
+            ]
+            .into();
 
-            let resp_new_x = fil_generate_data_commitment(
-                registered_proof_seal,
-                new_pieces.as_ptr(),
-                new_pieces.len(),
-            );
+            let resp_new_x = fil_generate_data_commitment(registered_proof_seal, &new_pieces);
 
             if (*resp_new_x).status_code != FCPResponseStatus::FCPNoError {
                 let msg = (*resp_new_x).error_msg.as_str().unwrap();
                 panic!("generate_data_commitment failed: {:?}", msg);
             }
 
-            let new_cache_dir_path_c_str =
-                rust_str_to_c_str(new_cache_dir_path.to_str().unwrap()).unwrap();
-            let new_staged_path_c_str =
-                rust_str_to_c_str(new_staged_path.to_str().unwrap()).unwrap();
-            let new_sealed_path_c_str =
-                rust_str_to_c_str(new_sealed_path.to_str().unwrap()).unwrap();
-            let decoded_path_c_str = rust_str_to_c_str(decoded_path.to_str().unwrap()).unwrap();
-            let removed_data_path_c_str =
-                rust_str_to_c_str(removed_data_path.to_str().unwrap()).unwrap();
-            let removed_data_dir_path_c_str =
-                rust_str_to_c_str(removed_data_dir_path.to_str().unwrap()).unwrap();
+            let new_cache_dir_path = new_cache_dir_path.into();
+            let new_staged_path: fil_Bytes = new_staged_path.into();
+            let new_sealed_path: fil_Bytes = new_sealed_path.into();
+            let decoded_path: fil_Bytes = decoded_path.into();
+            let removed_data_path: fil_Bytes = removed_data_path.into();
+            let removed_data_dir_path = removed_data_dir_path.into();
 
             // Set the new_sealed_file length to the same as the
             // original sealed file length (required for the API, but
@@ -2071,18 +1965,17 @@ pub mod tests {
                 .read(true)
                 .write(true)
                 .create(true)
-                .open(&new_sealed_path)?;
+                .open(new_sealed_path.as_path().unwrap())?;
             f_new_sealed_sector.set_len(new_sealed_target_len)?;
 
             let resp_encode = fil_empty_sector_update_encode_into(
                 registered_proof_empty_sector_update,
-                new_sealed_path_c_str,
-                new_cache_dir_path_c_str,
-                replica_path_c_str,
-                cache_dir_path_c_str,
-                new_staged_path_c_str,
-                new_pieces.as_ptr(),
-                new_pieces.len(),
+                &new_sealed_path,
+                &new_cache_dir_path,
+                &sealed_path,
+                &cache_dir_path,
+                &new_staged_path,
+                &new_pieces,
             );
 
             if (*resp_encode).status_code != FCPResponseStatus::FCPNoError {
@@ -2096,10 +1989,10 @@ pub mod tests {
                 wrap((*resp_b2).comm_r),
                 wrap((*resp_encode).comm_r_new),
                 wrap((*resp_encode).comm_d_new),
-                replica_path_c_str,
-                cache_dir_path_c_str,
-                new_sealed_path_c_str,
-                new_cache_dir_path_c_str,
+                &sealed_path,
+                &cache_dir_path,
+                &new_sealed_path,
+                &new_cache_dir_path,
             );
 
             if (*resp_partition_proofs).status_code != FCPResponseStatus::FCPNoError {
@@ -2161,10 +2054,10 @@ pub mod tests {
                 wrap((*resp_b2).comm_r),
                 wrap((*resp_encode).comm_r_new),
                 wrap((*resp_encode).comm_d_new),
-                replica_path_c_str,
-                cache_dir_path_c_str,
-                new_sealed_path_c_str,
-                new_cache_dir_path_c_str,
+                &sealed_path,
+                &cache_dir_path,
+                &new_sealed_path,
+                &new_cache_dir_path,
             );
 
             if (*resp_empty_sector_update2).status_code != FCPResponseStatus::FCPNoError {
@@ -2195,15 +2088,15 @@ pub mod tests {
                 .read(true)
                 .write(true)
                 .create(true)
-                .open(&decoded_path)?;
+                .open(&decoded_path.as_path().unwrap())?;
             f_decoded_sector.set_len(new_sealed_target_len)?;
 
             let resp_decode = fil_empty_sector_update_decode_from(
                 registered_proof_empty_sector_update,
-                decoded_path_c_str,
-                new_sealed_path_c_str,
-                replica_path_c_str,
-                cache_dir_path_c_str,
+                &decoded_path,
+                &new_sealed_path,
+                &sealed_path,
+                &cache_dir_path,
                 wrap((*resp_encode).comm_d_new),
             );
 
@@ -2213,7 +2106,10 @@ pub mod tests {
             }
 
             // When the data is decoded, it MUST match the original new staged data.
-            compare_elements(&decoded_path, &new_staged_path)?;
+            compare_elements(
+                &decoded_path.as_path().unwrap(),
+                &new_staged_path.as_path().unwrap(),
+            )?;
 
             // Set the new_removed_data_file length to the same as the
             // original sealed file length (required for the API, but
@@ -2222,16 +2118,16 @@ pub mod tests {
                 .read(true)
                 .write(true)
                 .create(true)
-                .open(&removed_data_path)?;
+                .open(&removed_data_path.as_path().unwrap())?;
             f_removed_data_sector.set_len(new_sealed_target_len)?;
 
             let resp_removed = fil_empty_sector_update_remove_encoded_data(
                 registered_proof_empty_sector_update,
-                removed_data_path_c_str,
-                removed_data_dir_path_c_str,
-                new_sealed_path_c_str, // new sealed file path
-                cache_dir_path_c_str,  // old replica dir path (for p_aux)
-                new_staged_path_c_str, // new staged file data path
+                &removed_data_path,
+                &removed_data_dir_path,
+                &new_sealed_path, // new sealed file path
+                &cache_dir_path,  // old replica dir path (for p_aux)
+                &new_staged_path, // new staged file data path
                 wrap((*resp_encode).comm_d_new),
             );
 
@@ -2241,7 +2137,10 @@ pub mod tests {
             }
 
             // When the data is removed, it MUST match the original sealed data.
-            compare_elements(&removed_data_path, &sealed_path.as_path().unwrap())?;
+            compare_elements(
+                &removed_data_path.as_path().unwrap(),
+                &sealed_path.as_path().unwrap(),
+            )?;
 
             fil_destroy_write_without_alignment_response(resp_new_a1);
             fil_destroy_write_with_alignment_response(resp_new_a2);
@@ -2264,19 +2163,19 @@ pub mod tests {
             fil_destroy_empty_sector_update_verify_proof_response(resp_verify_empty_sector_update2);
 
             ensure!(
-                remove_file(&new_staged_path).is_ok(),
+                remove_file(&new_staged_path.as_path().unwrap()).is_ok(),
                 "failed to remove new_staged_path"
             );
             ensure!(
-                remove_file(&new_sealed_path).is_ok(),
+                remove_file(&new_sealed_path.as_path().unwrap()).is_ok(),
                 "failed to remove new_sealed_path"
             );
             ensure!(
-                remove_file(&decoded_path).is_ok(),
+                remove_file(&decoded_path.as_path().unwrap()).is_ok(),
                 "failed to remove decoded_path"
             );
             ensure!(
-                remove_file(&removed_data_path).is_ok(),
+                remove_file(&removed_data_path.as_path().unwrap()).is_ok(),
                 "failed to remove unseal_path"
             );
             // End Sector Upgrade testing
@@ -2603,8 +2502,7 @@ pub mod tests {
                 registered_proof_window_post,
                 randomness,
                 prover_id,
-                vanilla_proofs.as_ptr(),
-                vanilla_proofs.len(),
+                &vanilla_proofs.into(),
             );
 
             if (*resp_wpwv2).status_code != FCPResponseStatus::FCPNoError {
@@ -2680,8 +2578,7 @@ pub mod tests {
                     registered_proof_window_post,
                     randomness,
                     prover_id,
-                    vanilla_proofs.as_ptr(),
-                    vanilla_proofs.len(),
+                    &vanilla_proofs.into(),
                     partition_index,
                 );
 
@@ -2700,8 +2597,7 @@ pub mod tests {
 
             let merged_proof_resp = fil_merge_window_post_partition_proofs(
                 registered_proof_window_post,
-                partition_proofs.as_ptr(),
-                partition_proofs.len(),
+                &partition_proofs.into(),
             );
 
             if (*merged_proof_resp).status_code != FCPResponseStatus::FCPNoError {
@@ -2756,11 +2652,6 @@ pub mod tests {
             fil_destroy_verify_window_post_response(resp_k);
             fil_destroy_verify_window_post_response(resp_k2);
             fil_destroy_verify_window_post_response(resp_k3);
-
-            c_str_to_rust_str(cache_dir_path_c_str);
-            c_str_to_rust_str(staged_path_c_str);
-            c_str_to_rust_str(replica_path_c_str);
-            c_str_to_rust_str(unseal_path_c_str);
 
             ensure!(
                 remove_file(&staged_path.as_path().unwrap()).is_ok(),
@@ -2863,19 +2754,15 @@ pub mod tests {
                     num_bytes: 1016,
                     comm_p: (*resp_a2).comm_p,
                 },
-            ];
+            ]
+            .into();
 
-            let resp_x =
-                fil_generate_data_commitment(registered_proof_seal, pieces.as_ptr(), pieces.len());
+            let resp_x = fil_generate_data_commitment(registered_proof_seal, &pieces);
 
             if (*resp_x).status_code != FCPResponseStatus::FCPNoError {
                 let msg = (*resp_x).error_msg.as_str().unwrap();
                 panic!("generate_data_commitment failed: {:?}", msg);
             }
-
-            let cache_dir_path_c_str = rust_str_to_c_str(cache_dir_path.as_str().unwrap()).unwrap();
-            let staged_path_c_str = rust_str_to_c_str(staged_path.as_str().unwrap()).unwrap();
-            let replica_path_c_str = rust_str_to_c_str(sealed_path.as_str().unwrap()).unwrap();
 
             let resp_b1 = fil_seal_pre_commit_phase1(
                 registered_proof_seal,
@@ -2885,7 +2772,7 @@ pub mod tests {
                 sector_id,
                 prover_id,
                 ticket,
-                pieces.into(),
+                &pieces,
             );
 
             if (*resp_b1).status_code != FCPResponseStatus::FCPNoError {
@@ -2932,10 +2819,6 @@ pub mod tests {
             fil_destroy_seal_pre_commit_phase2_response(resp_b2);
 
             fil_destroy_generate_window_post_response(resp_j);
-
-            c_str_to_rust_str(cache_dir_path_c_str);
-            c_str_to_rust_str(staged_path_c_str);
-            c_str_to_rust_str(replica_path_c_str);
 
             ensure!(
                 remove_file(&staged_path.as_path().unwrap()).is_ok(),
@@ -3045,10 +2928,10 @@ pub mod tests {
                     num_bytes: 1016,
                     comm_p: (*resp_a2).comm_p,
                 },
-            ];
+            ]
+            .into();
 
-            let resp_x =
-                fil_generate_data_commitment(registered_proof_seal, pieces.as_ptr(), pieces.len());
+            let resp_x = fil_generate_data_commitment(registered_proof_seal, &pieces);
 
             if (*resp_x).status_code != FCPResponseStatus::FCPNoError {
                 let msg = (*resp_x).error_msg.as_str().unwrap();
@@ -3067,7 +2950,7 @@ pub mod tests {
                 sector_id,
                 prover_id,
                 ticket,
-                pieces.clone().into(),
+                &pieces,
             );
 
             if (*resp_b1).status_code != FCPResponseStatus::FCPNoError {
@@ -3102,7 +2985,7 @@ pub mod tests {
                 prover_id,
                 ticket,
                 seed,
-                pieces.clone().into(),
+                &pieces,
             );
 
             if (*resp_c1).status_code != FCPResponseStatus::FCPNoError {

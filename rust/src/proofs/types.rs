@@ -255,12 +255,12 @@ pub struct fil_PublicPieceInfo {
     pub comm_p: [u8; 32],
 }
 
-impl From<fil_PublicPieceInfo> for PieceInfo {
-    fn from(x: fil_PublicPieceInfo) -> Self {
+impl From<&fil_PublicPieceInfo> for PieceInfo {
+    fn from(x: &fil_PublicPieceInfo) -> Self {
         let fil_PublicPieceInfo { num_bytes, comm_p } = x;
         PieceInfo {
-            commitment: comm_p,
-            size: UnpaddedBytesAmount(num_bytes),
+            commitment: *comm_p,
+            size: UnpaddedBytesAmount(*num_bytes),
         }
     }
 }
