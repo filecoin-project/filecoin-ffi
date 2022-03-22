@@ -107,10 +107,8 @@ mod tests {
         use std::io::{BufRead, BufReader, Write};
         use std::os::unix::io::FromRawFd;
 
-        use ffi_toolkit::FCPResponseStatus;
-
         use crate::util::api::fil_init_log_fd;
-        use crate::util::types::fil_destroy_init_log_fd_response;
+        use crate::util::types::{fil_destroy_init_log_fd_response, FCPResponseStatus};
 
         let mut fds: [libc::c_int; 2] = [0; 2];
         let res = unsafe { libc::pipe2(fds.as_mut_ptr(), libc::O_CLOEXEC) };
