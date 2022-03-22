@@ -3,7 +3,7 @@ use std::{
     ops::Deref,
     panic,
     path::{Path, PathBuf},
-    ptr::{self, NonNull},
+    ptr::NonNull,
     str::Utf8Error,
 };
 
@@ -127,7 +127,7 @@ impl<T> Deref for fil_Array<T> {
     type Target = [T];
     fn deref(&self) -> &[T] {
         match self.ptr {
-            None => unsafe { std::slice::from_raw_parts(ptr::NonNull::dangling().as_ptr(), 0) },
+            None => &[],
             Some(ptr) => unsafe { std::slice::from_raw_parts(ptr.as_ptr().cast(), self.len) },
         }
     }
@@ -180,8 +180,17 @@ impl fil_Bytes {
         std::str::from_utf8(self)
     }
 
+    #[cfg(not(target_os = "linux"))]
     pub fn as_path(&self) -> Result<PathBuf, Utf8Error> {
-        self.as_str().map(PathBuf::from)
+        self.as_str().map(Into::into)
+    }
+
+    #[cfg(target_os = "linux")]
+    pub fn as_path(&self) -> Result<PathBuf, Utf8Error> {
+        use std::ffi::OsStr;
+        use std::os::unix::ffi::OsStrExt;
+
+        Ok(OsStr::from_bytes(self).into())
     }
 }
 
@@ -289,7 +298,7 @@ pub unsafe extern "C" fn fil_destroy_init_log_fd_response(ptr: *mut fil_InitLogF
 pub fn catch_panic_response<F, T>(name: &str, callback: F) -> *mut fil_Result<T>
 where
     T: Sized + Default,
-    F: FnOnce() -> anyhow::Result<T>,
+    F: FnOnce() -> anyhow::Result<T> + std::panic::UnwindSafe,
 {
     catch_panic_response_raw(name, || {
         fil_Result::from(callback().map_err(|err| err.to_string()))
@@ -299,17 +308,15 @@ where
 pub fn catch_panic_response_raw<F, T>(name: &str, callback: F) -> *mut fil_Result<T>
 where
     T: Sized + Default,
-    F: FnOnce() -> fil_Result<T>,
+    F: FnOnce() -> fil_Result<T> + std::panic::UnwindSafe,
 {
-    // Using AssertUnwindSafe is code smell. Though catching our panics here is really
-    // last resort, so it should be OK.
-    let result = match panic::catch_unwind(panic::AssertUnwindSafe(|| {
+    let result = match panic::catch_unwind(|| {
         init_log();
         log::info!("{}: start", name);
         let res = callback();
         log::info!("{}: end", name);
         res
-    })) {
+    }) {
         Ok(t) => t,
         Err(panic) => {
             let error_msg = match panic.downcast_ref::<&'static str>() {
