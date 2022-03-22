@@ -4,7 +4,7 @@ use std::{
     ops::Deref,
     panic,
     path::{Path, PathBuf},
-    ptr,
+    ptr::{self, NonNull},
     str::Utf8Error,
 };
 
@@ -16,21 +16,19 @@ use super::api::init_log;
 /// Owned, fixed size array, allocated on the heap.
 #[repr(C)]
 pub struct fil_Array<T: Sized> {
-    ptr: *mut T,
+    ptr: Option<NonNull<*mut T>>,
     len: usize,
 }
 
 impl<T: Clone> Clone for fil_Array<T> {
     fn clone(&self) -> Self {
-        let ptr = if self.ptr.is_null() {
-            ptr::null_mut()
-        } else {
-            let bytes = unsafe { std::slice::from_raw_parts(self.ptr, self.len) }
+        let ptr = self.ptr.and_then(|ptr| {
+            let bytes = unsafe { std::slice::from_raw_parts(ptr.as_ptr(), self.len) }
                 .to_owned()
                 .into_boxed_slice();
 
-            Box::into_raw(bytes).cast()
-        };
+            NonNull::new(Box::into_raw(bytes).cast())
+        });
 
         fil_Array { ptr, len: self.len }
     }
@@ -38,27 +36,30 @@ impl<T: Clone> Clone for fil_Array<T> {
 
 impl<T> Default for fil_Array<T> {
     fn default() -> Self {
-        Self {
-            ptr: ptr::null_mut(),
-            len: 0,
-        }
+        Self { ptr: None, len: 0 }
     }
 }
 
 impl<T: Sized> fil_Array<T> {
     pub fn is_null(&self) -> bool {
-        self.ptr.is_null() || self.len == 0
+        self.ptr.is_none() || self.len == 0
     }
 
     /// Converts this array into a boxed slice, transferring ownership of the memory.
     pub fn into_boxed_slice(self) -> Box<[T]> {
-        if self.is_null() {
-            Box::new([])
-        } else {
-            let res = unsafe { Box::from_raw(std::slice::from_raw_parts_mut(self.ptr, self.len)) };
-            // no drop for us
-            std::mem::forget(self);
-            res
+        match self.ptr {
+            None => Box::new([]),
+            Some(ptr) => {
+                let res = unsafe {
+                    Box::from_raw(std::slice::from_raw_parts_mut(
+                        ptr.as_ptr().cast(),
+                        self.len,
+                    ))
+                };
+                // no drop for us
+                std::mem::forget(self);
+                res
+            }
         }
     }
 }
@@ -93,7 +94,7 @@ impl<T> From<Box<[T]>> for fil_Array<T> {
             return Default::default();
         }
         let len = buf.len();
-        let ptr = Box::into_raw(buf).cast();
+        let ptr = NonNull::new(Box::into_raw(buf).cast());
 
         Self { ptr, len }
     }
@@ -101,8 +102,8 @@ impl<T> From<Box<[T]>> for fil_Array<T> {
 
 impl<T> Drop for fil_Array<T> {
     fn drop(&mut self) {
-        if !self.ptr.is_null() {
-            let _ = unsafe { Box::from_raw(self.ptr) };
+        if let Some(ptr) = self.ptr {
+            let _ = unsafe { Box::from_raw(ptr.as_ptr()) };
         }
     }
 }
@@ -110,12 +111,9 @@ impl<T> Drop for fil_Array<T> {
 impl<T> Deref for fil_Array<T> {
     type Target = [T];
     fn deref(&self) -> &[T] {
-        unsafe {
-            if self.is_null() {
-                std::slice::from_raw_parts(ptr::NonNull::dangling().as_ptr(), 0)
-            } else {
-                std::slice::from_raw_parts(self.ptr, self.len)
-            }
+        match self.ptr {
+            None => unsafe { std::slice::from_raw_parts(ptr::NonNull::dangling().as_ptr(), 0) },
+            Some(ptr) => unsafe { std::slice::from_raw_parts(ptr.as_ptr().cast(), self.len) },
         }
     }
 }
@@ -156,7 +154,7 @@ impl From<Box<str>> for fil_Bytes {
             return Default::default();
         }
         let len = s.len();
-        let ptr = Box::into_raw(s).cast();
+        let ptr = NonNull::new(Box::into_raw(s).cast());
 
         Self { ptr, len }
     }
