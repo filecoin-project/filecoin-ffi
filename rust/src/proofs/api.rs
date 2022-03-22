@@ -93,8 +93,8 @@ pub unsafe extern "C" fn fil_write_without_alignment(
 #[no_mangle]
 pub unsafe extern "C" fn fil_fauxrep(
     registered_proof: fil_RegisteredSealProof,
-    cache_dir_path: fil_Bytes,
-    sealed_sector_path: fil_Bytes,
+    cache_dir_path: &fil_Bytes,
+    sealed_sector_path: &fil_Bytes,
 ) -> *mut fil_FauxRepResponse {
     catch_panic_response2("fauxrep", || {
         let res = fauxrep(
@@ -109,8 +109,8 @@ pub unsafe extern "C" fn fil_fauxrep(
 #[no_mangle]
 pub unsafe extern "C" fn fil_fauxrep2(
     registered_proof: fil_RegisteredSealProof,
-    cache_dir_path: fil_Bytes,
-    existing_p_aux_path: fil_Bytes,
+    cache_dir_path: &fil_Bytes,
+    existing_p_aux_path: &fil_Bytes,
 ) -> *mut fil_FauxRepResponse {
     catch_panic_response2("fauxrep2", || {
         let result = fauxrep2(
@@ -128,9 +128,9 @@ pub unsafe extern "C" fn fil_fauxrep2(
 #[no_mangle]
 pub unsafe extern "C" fn fil_seal_pre_commit_phase1(
     registered_proof: fil_RegisteredSealProof,
-    cache_dir_path: fil_Bytes,
-    staged_sector_path: fil_Bytes,
-    sealed_sector_path: fil_Bytes,
+    cache_dir_path: &fil_Bytes,
+    staged_sector_path: &fil_Bytes,
+    sealed_sector_path: &fil_Bytes,
     sector_id: u64,
     prover_id: fil_32ByteArray,
     ticket: fil_32ByteArray,
@@ -160,8 +160,8 @@ pub unsafe extern "C" fn fil_seal_pre_commit_phase1(
 #[no_mangle]
 pub unsafe extern "C" fn fil_seal_pre_commit_phase2(
     seal_pre_commit_phase1_output: fil_Bytes,
-    cache_dir_path: fil_Bytes,
-    sealed_sector_path: fil_Bytes,
+    cache_dir_path: &fil_Bytes,
+    sealed_sector_path: &fil_Bytes,
 ) -> *mut fil_SealPreCommitPhase2Response {
     catch_panic_response2("seal_pre_commit_phase2", || {
         let phase_1_output = serde_json::from_slice(&seal_pre_commit_phase1_output)?;
@@ -187,8 +187,8 @@ pub unsafe extern "C" fn fil_seal_commit_phase1(
     registered_proof: fil_RegisteredSealProof,
     comm_r: fil_32ByteArray,
     comm_d: fil_32ByteArray,
-    cache_dir_path: fil_Bytes,
-    replica_path: fil_Bytes,
+    cache_dir_path: &fil_Bytes,
+    replica_path: &fil_Bytes,
     sector_id: u64,
     prover_id: fil_32ByteArray,
     ticket: fil_32ByteArray,
@@ -227,7 +227,7 @@ pub unsafe extern "C" fn fil_seal_commit_phase2(
     prover_id: fil_32ByteArray,
 ) -> *mut fil_SealCommitPhase2Response {
     catch_panic_response2("seal_commit_phase2", || {
-        let scp1o = serde_json::from_slice(&seal_commit_phase1_output)?;
+        let scp1o = serde_json::from_slice(seal_commit_phase1_output)?;
         let result = seal_commit_phase2(scp1o, prover_id.inner, SectorId::from(sector_id))?;
 
         Ok(fil_SealCommitPhase2 {
@@ -396,7 +396,8 @@ pub unsafe extern "C" fn fil_verify_seal(
             seed.inner,
             &proof_bytes,
         )?;
-        Ok(result.into())
+
+        Ok(result)
     })
 }
 
@@ -1888,7 +1889,7 @@ pub mod tests {
         let registered_proof_window_post = fil_RegisteredPoStProof::StackedDrgWindow2KiBV1;
 
         let cache_dir = tempfile::tempdir()?;
-        let cache_dir_path = cache_dir.into_path();
+        let cache_dir_path: fil_Bytes = cache_dir.into_path().into();
 
         let prover_id = fil_32ByteArray { inner: [1u8; 32] };
         let randomness = fil_32ByteArray { inner: [7u8; 32] };
@@ -1911,9 +1912,11 @@ pub mod tests {
 
         // create the staged sector (the byte destination)
         let (staged_file, staged_path) = tempfile::NamedTempFile::new()?.keep()?;
+        let staged_path: fil_Bytes = staged_path.into();
 
         // create a temp file to be used as the byte destination
         let (sealed_file, sealed_path) = tempfile::NamedTempFile::new()?.keep()?;
+        let sealed_path: fil_Bytes = sealed_path.into();
 
         // last temp file is used to output unsealed bytes
         let (unseal_file, unseal_path) = tempfile::NamedTempFile::new()?.keep()?;
@@ -1970,16 +1973,16 @@ pub mod tests {
                 panic!("generate_data_commitment failed: {:?}", msg);
             }
 
-            let cache_dir_path_c_str = rust_str_to_c_str(cache_dir_path.to_str().unwrap()).unwrap();
-            let staged_path_c_str = rust_str_to_c_str(staged_path.to_str().unwrap()).unwrap();
-            let replica_path_c_str = rust_str_to_c_str(sealed_path.to_str().unwrap()).unwrap();
+            let cache_dir_path_c_str = rust_str_to_c_str(cache_dir_path.as_str().unwrap()).unwrap();
+            let staged_path_c_str = rust_str_to_c_str(staged_path.as_str().unwrap()).unwrap();
+            let replica_path_c_str = rust_str_to_c_str(sealed_path.as_str().unwrap()).unwrap();
             let unseal_path_c_str = rust_str_to_c_str(unseal_path.to_str().unwrap()).unwrap();
 
             let resp_b1 = fil_seal_pre_commit_phase1(
                 registered_proof_seal,
-                cache_dir_path.clone().into(),
-                staged_path.clone().into(),
-                sealed_path.clone().into(),
+                &cache_dir_path,
+                &staged_path,
+                &sealed_path,
                 sector_id,
                 prover_id,
                 ticket,
@@ -1991,11 +1994,8 @@ pub mod tests {
                 panic!("seal_pre_commit_phase1 failed: {:?}", msg);
             }
 
-            let resp_b2 = fil_seal_pre_commit_phase2(
-                (*resp_b1).value.clone(),
-                cache_dir_path.clone().into(),
-                sealed_path.clone().into(),
-            );
+            let resp_b2 =
+                fil_seal_pre_commit_phase2((*resp_b1).value.clone(), &cache_dir_path, &sealed_path);
 
             if (*resp_b2).status_code != FCPResponseStatus::FCPNoError {
                 let msg = (*resp_b2).error_msg.as_str().unwrap();
@@ -2015,8 +2015,8 @@ pub mod tests {
                 registered_proof_seal,
                 wrap((*resp_b2).comm_r),
                 wrap((*resp_b2).comm_d),
-                cache_dir_path.clone().into(),
-                sealed_path.clone().into(),
+                &cache_dir_path,
+                &sealed_path,
                 sector_id,
                 prover_id,
                 ticket,
@@ -2181,7 +2181,7 @@ pub mod tests {
             // Set the new_sealed_file length to the same as the
             // original sealed file length (required for the API, but
             // this is a test-specific workaround)
-            let new_sealed_target_len = metadata(&sealed_path)?.len();
+            let new_sealed_target_len = metadata(&sealed_path.as_path().unwrap())?.len();
             let f_new_sealed_sector = OpenOptions::new()
                 .read(true)
                 .write(true)
@@ -2356,7 +2356,7 @@ pub mod tests {
             }
 
             // When the data is removed, it MUST match the original sealed data.
-            compare_elements(&removed_data_path, &sealed_path)?;
+            compare_elements(&removed_data_path, &sealed_path.as_path().unwrap())?;
 
             fil_destroy_write_without_alignment_response(resp_new_a1);
             fil_destroy_write_with_alignment_response(resp_new_a2);
@@ -2902,11 +2902,11 @@ pub mod tests {
             c_str_to_rust_str(unseal_path_c_str);
 
             ensure!(
-                remove_file(&staged_path).is_ok(),
+                remove_file(&staged_path.as_path().unwrap()).is_ok(),
                 "failed to remove staged_path"
             );
             ensure!(
-                remove_file(&sealed_path).is_ok(),
+                remove_file(&sealed_path.as_path().unwrap()).is_ok(),
                 "failed to remove sealed_path"
             );
             ensure!(
@@ -2933,7 +2933,7 @@ pub mod tests {
         let registered_proof_window_post = fil_RegisteredPoStProof::StackedDrgWindow2KiBV1;
 
         let cache_dir = tempfile::tempdir()?;
-        let cache_dir_path = cache_dir.into_path();
+        let cache_dir_path: fil_Bytes = cache_dir.into_path().into();
 
         let prover_id = fil_32ByteArray { inner: [1u8; 32] };
         let randomness = fil_32ByteArray { inner: [7u8; 32] };
@@ -2954,9 +2954,11 @@ pub mod tests {
 
         // create the staged sector (the byte destination)
         let (staged_file, staged_path) = tempfile::NamedTempFile::new()?.keep()?;
+        let staged_path: fil_Bytes = staged_path.into();
 
         // create a temp file to be used as the byte destination
         let (_sealed_file, sealed_path) = tempfile::NamedTempFile::new()?.keep()?;
+        let sealed_path: fil_Bytes = sealed_path.into();
 
         // transmute temp files to file descriptors
         let piece_file_a_fd = piece_file_a.into_raw_fd();
@@ -3010,15 +3012,15 @@ pub mod tests {
                 panic!("generate_data_commitment failed: {:?}", msg);
             }
 
-            let cache_dir_path_c_str = rust_str_to_c_str(cache_dir_path.to_str().unwrap()).unwrap();
-            let staged_path_c_str = rust_str_to_c_str(staged_path.to_str().unwrap()).unwrap();
-            let replica_path_c_str = rust_str_to_c_str(sealed_path.to_str().unwrap()).unwrap();
+            let cache_dir_path_c_str = rust_str_to_c_str(cache_dir_path.as_str().unwrap()).unwrap();
+            let staged_path_c_str = rust_str_to_c_str(staged_path.as_str().unwrap()).unwrap();
+            let replica_path_c_str = rust_str_to_c_str(sealed_path.as_str().unwrap()).unwrap();
 
             let resp_b1 = fil_seal_pre_commit_phase1(
                 registered_proof_seal,
-                cache_dir_path.clone().into(),
-                staged_path.clone().into(),
-                sealed_path.clone().into(),
+                &cache_dir_path,
+                &staged_path,
+                &sealed_path,
                 sector_id,
                 prover_id,
                 ticket,
@@ -3030,11 +3032,8 @@ pub mod tests {
                 panic!("seal_pre_commit_phase1 failed: {:?}", msg);
             }
 
-            let resp_b2 = fil_seal_pre_commit_phase2(
-                (*resp_b1).value.clone(),
-                cache_dir_path.clone().into(),
-                sealed_path.clone().into(),
-            );
+            let resp_b2 =
+                fil_seal_pre_commit_phase2((*resp_b1).value.clone(), &cache_dir_path, &sealed_path);
 
             if (*resp_b2).status_code != FCPResponseStatus::FCPNoError {
                 let msg = (*resp_b2).error_msg.as_str().unwrap();
@@ -3083,11 +3082,11 @@ pub mod tests {
             c_str_to_rust_str(replica_path_c_str);
 
             ensure!(
-                remove_file(&staged_path).is_ok(),
+                remove_file(&staged_path.as_path().unwrap()).is_ok(),
                 "failed to remove staged_path"
             );
             ensure!(
-                remove_file(&sealed_path).is_ok(),
+                remove_file(&sealed_path.as_path().unwrap()).is_ok(),
                 "failed to remove sealed_path"
             );
         }
@@ -3121,7 +3120,7 @@ pub mod tests {
 
         // miscellaneous setup and shared values
         let cache_dir = tempfile::tempdir()?;
-        let cache_dir_path = cache_dir.into_path();
+        let cache_dir_path: fil_Bytes = cache_dir.into_path().into();
 
         let prover_id = fil_32ByteArray { inner: [1u8; 32] };
         let sector_id = 42;
@@ -3142,9 +3141,11 @@ pub mod tests {
 
         // create the staged sector (the byte destination)
         let (staged_file, staged_path) = tempfile::NamedTempFile::new()?.keep()?;
+        let staged_path: fil_Bytes = staged_path.into();
 
         // create a temp file to be used as the byte destination
         let (_sealed_file, sealed_path) = tempfile::NamedTempFile::new()?.keep()?;
+        let sealed_path: fil_Bytes = sealed_path.into();
 
         // transmute temp files to file descriptors
         let piece_file_a_fd = piece_file_a.into_raw_fd();
@@ -3198,15 +3199,15 @@ pub mod tests {
                 panic!("generate_data_commitment failed: {:?}", msg);
             }
 
-            let cache_dir_path_c_str = rust_str_to_c_str(cache_dir_path.to_str().unwrap()).unwrap();
-            let staged_path_c_str = rust_str_to_c_str(staged_path.to_str().unwrap()).unwrap();
-            let replica_path_c_str = rust_str_to_c_str(sealed_path.to_str().unwrap()).unwrap();
+            let cache_dir_path_c_str = rust_str_to_c_str(cache_dir_path.as_str().unwrap()).unwrap();
+            let staged_path_c_str = rust_str_to_c_str(staged_path.as_str().unwrap()).unwrap();
+            let replica_path_c_str = rust_str_to_c_str(sealed_path.as_str().unwrap()).unwrap();
 
             let resp_b1 = fil_seal_pre_commit_phase1(
                 registered_proof_seal,
-                cache_dir_path.clone().into(),
-                staged_path.clone().into(),
-                sealed_path.clone().into(),
+                &cache_dir_path,
+                &staged_path,
+                &sealed_path,
                 sector_id,
                 prover_id,
                 ticket,
@@ -3218,11 +3219,8 @@ pub mod tests {
                 panic!("seal_pre_commit_phase1 failed: {:?}", msg);
             }
 
-            let resp_b2 = fil_seal_pre_commit_phase2(
-                (*resp_b1).value.clone(),
-                cache_dir_path.clone().into(),
-                sealed_path.clone().into(),
-            );
+            let resp_b2 =
+                fil_seal_pre_commit_phase2((*resp_b1).value.clone(), &cache_dir_path, &sealed_path);
 
             if (*resp_b2).status_code != FCPResponseStatus::FCPNoError {
                 let msg = (*resp_b2).error_msg.as_str().unwrap();
@@ -3242,8 +3240,8 @@ pub mod tests {
                 registered_proof_seal,
                 wrap((*resp_b2).comm_r),
                 wrap((*resp_b2).comm_d),
-                cache_dir_path.clone().into(),
-                sealed_path.clone().into(),
+                &cache_dir_path.into(),
+                &sealed_path,
                 sector_id,
                 prover_id,
                 ticket,
@@ -3391,11 +3389,11 @@ pub mod tests {
             c_str_to_rust_str(replica_path_c_str);
 
             ensure!(
-                remove_file(&staged_path).is_ok(),
+                remove_file(&staged_path.as_path().unwrap()).is_ok(),
                 "failed to remove staged_path"
             );
             ensure!(
-                remove_file(&sealed_path).is_ok(),
+                remove_file(&sealed_path.as_path().unwrap()).is_ok(),
                 "failed to remove sealed_path"
             );
         }
