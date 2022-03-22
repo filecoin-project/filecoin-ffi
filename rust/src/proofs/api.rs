@@ -37,11 +37,12 @@ pub unsafe extern "C" fn fil_write_with_alignment(
     src_fd: libc::c_int,
     src_size: u64,
     dst_fd: libc::c_int,
-    existing_piece_sizes: fil_Array<u64>,
+    existing_piece_sizes: &fil_Array<u64>,
 ) -> *mut fil_WriteWithAlignmentResponse {
     catch_panic_response("write_with_alignment", || {
         let piece_sizes: Vec<UnpaddedBytesAmount> = existing_piece_sizes
-            .into_iter()
+            .iter()
+            .copied()
             .map(UnpaddedBytesAmount)
             .collect();
 
@@ -154,12 +155,12 @@ pub unsafe extern "C" fn fil_seal_pre_commit_phase1(
 /// TODO: document
 #[no_mangle]
 pub unsafe extern "C" fn fil_seal_pre_commit_phase2(
-    seal_pre_commit_phase1_output: fil_Bytes,
+    seal_pre_commit_phase1_output: &fil_Bytes,
     cache_dir_path: &fil_Bytes,
     sealed_sector_path: &fil_Bytes,
 ) -> *mut fil_SealPreCommitPhase2Response {
     catch_panic_response("seal_pre_commit_phase2", || {
-        let phase_1_output = serde_json::from_slice(&seal_pre_commit_phase1_output)?;
+        let phase_1_output = serde_json::from_slice(seal_pre_commit_phase1_output)?;
 
         let output = seal_pre_commit_phase2(
             phase_1_output,
@@ -236,7 +237,7 @@ pub unsafe extern "C" fn fil_aggregate_seal_proofs(
     registered_aggregation: fil_RegisteredAggregationProof,
     comm_rs: fil_Array<fil_32ByteArray>,
     seeds: fil_Array<fil_32ByteArray>,
-    seal_commit_responses: fil_Array<fil_SealCommitPhase2>,
+    seal_commit_responses: &fil_Array<fil_SealCommitPhase2>,
 ) -> *mut fil_AggregateProof {
     catch_panic_response("aggregate_seal_proofs", || {
         let outputs: Vec<SealCommitPhase2Output> =
@@ -426,7 +427,7 @@ pub unsafe extern "C" fn fil_generate_fallback_sector_challenges(
         let sector_ids: Vec<u64> = output
             .clone()
             .into_iter()
-            .map(|(id, _challenges)| u64::from(id))
+            .map(|(id, _)| u64::from(id))
             .collect();
         let mut challenges_stride = 0;
         let mut challenges_stride_mismatch = false;
@@ -1549,7 +1550,7 @@ pub mod tests {
             let existing = vec![127u64];
 
             let resp =
-                fil_write_with_alignment(registered_proof, src_fd_b, 508, dst_fd, existing.into());
+                fil_write_with_alignment(registered_proof, src_fd_b, 508, dst_fd, &existing.into());
 
             if (*resp).status_code != FCPResponseStatus::FCPNoError {
                 let msg = (*resp).error_msg.as_str().unwrap();
@@ -1732,7 +1733,7 @@ pub mod tests {
                 piece_file_b_fd,
                 1016,
                 staged_sector_fd,
-                existing_piece_sizes.into(),
+                &existing_piece_sizes.into(),
             );
 
             if (*resp_a2).status_code != FCPResponseStatus::FCPNoError {
@@ -1775,8 +1776,7 @@ pub mod tests {
                 panic!("seal_pre_commit_phase1 failed: {:?}", msg);
             }
 
-            let resp_b2 =
-                fil_seal_pre_commit_phase2((*resp_b1).value.clone(), &cache_dir_path, &sealed_path);
+            let resp_b2 = fil_seal_pre_commit_phase2(&(*resp_b1), &cache_dir_path, &sealed_path);
 
             if (*resp_b2).status_code != FCPResponseStatus::FCPNoError {
                 let msg = (*resp_b2).error_msg.as_str().unwrap();
@@ -1917,7 +1917,7 @@ pub mod tests {
                 piece_file_d_fd,
                 1016,
                 new_staged_sector_fd,
-                existing_piece_sizes.into(),
+                &existing_piece_sizes.into(),
             );
 
             if (*resp_new_a2).status_code != FCPResponseStatus::FCPNoError {
@@ -2727,7 +2727,7 @@ pub mod tests {
                 piece_file_b_fd,
                 1016,
                 staged_sector_fd,
-                existing_piece_sizes.into(),
+                &existing_piece_sizes.into(),
             );
 
             if (*resp_a2).status_code != FCPResponseStatus::FCPNoError {
@@ -2770,8 +2770,7 @@ pub mod tests {
                 panic!("seal_pre_commit_phase1 failed: {:?}", msg);
             }
 
-            let resp_b2 =
-                fil_seal_pre_commit_phase2((*resp_b1).value.clone(), &cache_dir_path, &sealed_path);
+            let resp_b2 = fil_seal_pre_commit_phase2(&(*resp_b1), &cache_dir_path, &sealed_path);
 
             if (*resp_b2).status_code != FCPResponseStatus::FCPNoError {
                 let msg = (*resp_b2).error_msg.as_str().unwrap();
@@ -2901,7 +2900,7 @@ pub mod tests {
                 piece_file_b_fd,
                 1016,
                 staged_sector_fd,
-                existing_piece_sizes.into(),
+                &existing_piece_sizes.into(),
             );
 
             if (*resp_a2).status_code != FCPResponseStatus::FCPNoError {
@@ -2944,8 +2943,7 @@ pub mod tests {
                 panic!("seal_pre_commit_phase1 failed: {:?}", msg);
             }
 
-            let resp_b2 =
-                fil_seal_pre_commit_phase2((*resp_b1).value.clone(), &cache_dir_path, &sealed_path);
+            let resp_b2 = fil_seal_pre_commit_phase2(&(*resp_b1), &cache_dir_path, &sealed_path);
 
             if (*resp_b2).status_code != FCPResponseStatus::FCPNoError {
                 let msg = (*resp_b2).error_msg.as_str().unwrap();
@@ -3046,7 +3044,7 @@ pub mod tests {
                 registered_aggregation,
                 comm_rs.into(),
                 seeds.into(),
-                seal_commit_responses.into(),
+                &seal_commit_responses.into(),
             );
 
             if (*resp_aggregate_proof).status_code != FCPResponseStatus::FCPNoError {
