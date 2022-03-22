@@ -13,6 +13,7 @@ use ffi_toolkit::{CodeAndMessage, FCPResponseStatus};
 
 use super::api::init_log;
 
+/// Owned, fixed size array, allocated on the heap.
 #[repr(C)]
 pub struct fil_Array<T: Sized> {
     ptr: *mut T,
@@ -21,9 +22,17 @@ pub struct fil_Array<T: Sized> {
 
 impl<T: Clone> Clone for fil_Array<T> {
     fn clone(&self) -> Self {
-        let ptr = unsafe { clone_box_parts(self.ptr, self.len).cast() };
+        let ptr = if self.ptr.is_null() {
+            ptr::null_mut()
+        } else {
+            let bytes = unsafe { std::slice::from_raw_parts(self.ptr, self.len) }
+                .to_owned()
+                .into_boxed_slice();
 
-        fil_Array { len: self.len, ptr }
+            Box::into_raw(bytes).cast()
+        };
+
+        fil_Array { ptr, len: self.len }
     }
 }
 
@@ -37,26 +46,11 @@ impl<T> Default for fil_Array<T> {
 }
 
 impl<T: Sized> fil_Array<T> {
-    pub fn as_parts(&self) -> (*const T, usize) {
-        (self.ptr.cast(), self.len)
-    }
-
-    pub fn ptr(&self) -> *const T {
-        self.ptr.cast()
-    }
-
-    pub fn len(&self) -> usize {
-        self.len
-    }
-
-    pub fn is_empty(&self) -> bool {
-        self.len == 0
-    }
-
     pub fn is_null(&self) -> bool {
         self.ptr.is_null() || self.len == 0
     }
 
+    /// Converts this array into a boxed slice, transferring ownership of the memory.
     pub fn into_boxed_slice(self) -> Box<[T]> {
         if self.is_null() {
             Box::new([])
@@ -80,6 +74,7 @@ impl<T: Sized> IntoIterator for fil_Array<T> {
     }
 }
 
+/// Owned, fixed size and heap allocated array of bytes.
 #[allow(non_camel_case_types)]
 pub type fil_Bytes = fil_Array<u8>;
 
@@ -106,7 +101,9 @@ impl<T> From<Box<[T]>> for fil_Array<T> {
 
 impl<T> Drop for fil_Array<T> {
     fn drop(&mut self) {
-        unsafe { drop_box_from_parts(self.ptr) }
+        if !self.ptr.is_null() {
+            let _ = unsafe { Box::from_raw(self.ptr) };
+        }
     }
 }
 
@@ -283,26 +280,6 @@ pub type fil_InitLogFdResponse = fil_Result<()>;
 #[no_mangle]
 pub unsafe extern "C" fn fil_destroy_init_log_fd_response(ptr: *mut fil_InitLogFdResponse) {
     let _ = Box::from_raw(ptr);
-}
-
-/// `ptr` must be allocated using `Box::into_raw` or be null.
-unsafe fn drop_box_from_parts<T>(ptr: *mut T) {
-    if !ptr.is_null() {
-        let _ = Box::from_raw(ptr);
-    }
-}
-
-/// `ptr` must be allocated using `Box::into_raw` or be null.
-unsafe fn clone_box_parts<T: Clone>(ptr: *const T, len: usize) -> *mut T {
-    if ptr.is_null() {
-        return ptr::null_mut();
-    }
-
-    let bytes = std::slice::from_raw_parts(ptr, len)
-        .to_owned()
-        .into_boxed_slice();
-
-    Box::into_raw(bytes).cast()
 }
 
 /// Catch panics and return an error response
