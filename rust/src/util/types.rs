@@ -1,5 +1,4 @@
 use std::{
-    ffi::CStr,
     fmt::Display,
     ops::Deref,
     panic,
@@ -8,10 +7,17 @@ use std::{
     str::Utf8Error,
 };
 
-// `CodeAndMessage` is the trait implemented by `code_and_message_impl
-use ffi_toolkit::{CodeAndMessage, FCPResponseStatus};
-
 use super::api::init_log;
+
+#[repr(C)]
+#[derive(PartialEq, Debug, Copy, Clone)]
+pub enum FCPResponseStatus {
+    // Don't use FCPSuccess, since that complicates description of 'successful' verification.
+    FCPNoError = 0,
+    FCPUnclassifiedError = 1,
+    FCPCallerError = 2,
+    FCPReceiverError = 3,
+}
 
 /// Owned, fixed size array, allocated on the heap.
 #[repr(C)]
@@ -202,16 +208,6 @@ impl<T: Sized + Default> Default for fil_Result<T> {
             error_msg: Default::default(),
             value: Default::default(),
         }
-    }
-}
-
-impl<T: Sized> CodeAndMessage for fil_Result<T> {
-    fn set_error(&mut self, code_and_message: (FCPResponseStatus, *mut libc::c_char)) {
-        let s = unsafe { CStr::from_ptr(code_and_message.1.cast()) }
-            .to_string_lossy()
-            .to_string();
-        self.status_code = code_and_message.0;
-        self.error_msg = s.into();
     }
 }
 
