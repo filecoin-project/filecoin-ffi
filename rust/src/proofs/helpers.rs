@@ -1,20 +1,20 @@
 use anyhow::Result;
-use filecoin_proofs_api::{PrivateReplicaInfo, PublicReplicaInfo, SectorId};
+use filecoin_proofs_api::{self as api, SectorId};
 use std::collections::btree_map::BTreeMap;
 
-use super::types::{fil_PrivateReplicaInfo, fil_PublicReplicaInfo, fil_RegisteredPoStProof};
-use crate::util::types::fil_Array;
+use super::types::{PrivateReplicaInfo, PublicReplicaInfo, RegisteredPoStProof};
+use crate::util::types::Array;
 
 #[derive(Debug, Clone)]
 struct PublicReplicaInfoTmp {
-    pub registered_proof: fil_RegisteredPoStProof,
+    pub registered_proof: RegisteredPoStProof,
     pub comm_r: [u8; 32],
     pub sector_id: u64,
 }
 
 pub unsafe fn to_public_replica_info_map(
-    replicas: &fil_Array<fil_PublicReplicaInfo>,
-) -> BTreeMap<SectorId, PublicReplicaInfo> {
+    replicas: &Array<PublicReplicaInfo>,
+) -> BTreeMap<SectorId, api::PublicReplicaInfo> {
     use rayon::prelude::*;
 
     let replicas = replicas
@@ -37,7 +37,7 @@ pub unsafe fn to_public_replica_info_map(
 
             (
                 SectorId::from(sector_id),
-                PublicReplicaInfo::new(registered_proof.into(), comm_r),
+                api::PublicReplicaInfo::new(registered_proof.into(), comm_r),
             )
         })
         .collect()
@@ -45,7 +45,7 @@ pub unsafe fn to_public_replica_info_map(
 
 #[derive(Debug, Clone)]
 struct PrivateReplicaInfoTmp {
-    pub registered_proof: fil_RegisteredPoStProof,
+    pub registered_proof: RegisteredPoStProof,
     pub cache_dir_path: std::path::PathBuf,
     pub comm_r: [u8; 32],
     pub replica_path: std::path::PathBuf,
@@ -53,8 +53,8 @@ struct PrivateReplicaInfoTmp {
 }
 
 pub unsafe fn to_private_replica_info_map(
-    replicas: &fil_Array<fil_PrivateReplicaInfo>,
-) -> Result<BTreeMap<SectorId, PrivateReplicaInfo>> {
+    replicas: &Array<PrivateReplicaInfo>,
+) -> Result<BTreeMap<SectorId, api::PrivateReplicaInfo>> {
     use rayon::prelude::*;
 
     let replicas: Vec<_> = replicas
@@ -86,7 +86,7 @@ pub unsafe fn to_private_replica_info_map(
 
             (
                 SectorId::from(sector_id),
-                PrivateReplicaInfo::new(
+                api::PrivateReplicaInfo::new(
                     registered_proof.into(),
                     comm_r,
                     cache_dir_path,

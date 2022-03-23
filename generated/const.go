@@ -12,15 +12,26 @@ package generated
 */
 import "C"
 
-// FCPResponseStatus as declared in filecoin-ffi/filcrypto.h:26
-type FCPResponseStatus int32
-
-// FCPResponseStatus enumeration from filecoin-ffi/filcrypto.h:26
 const (
-	FCPResponseStatusFCPNoError           = iota
-	FCPResponseStatusFCPUnclassifiedError = 1
-	FCPResponseStatusFCPCallerError       = 2
-	FCPResponseStatusFCPReceiverError     = 3
+	// FilSIGNATUREBYTES as defined in filecoin-ffi/filcrypto.h:18
+	FilSIGNATUREBYTES = 96
+	// FilPRIVATEKEYBYTES as defined in filecoin-ffi/filcrypto.h:20
+	FilPRIVATEKEYBYTES = 32
+	// FilPUBLICKEYBYTES as defined in filecoin-ffi/filcrypto.h:22
+	FilPUBLICKEYBYTES = 48
+	// FilDIGESTBYTES as defined in filecoin-ffi/filcrypto.h:24
+	FilDIGESTBYTES = 96
+)
+
+// FilFCPResponseStatus as declared in filecoin-ffi/filcrypto.h:26
+type FilFCPResponseStatus int32
+
+// FilFCPResponseStatus enumeration from filecoin-ffi/filcrypto.h:26
+const (
+	FilFCPResponseStatusFCPNoError           = iota
+	FilFCPResponseStatusFCPUnclassifiedError = 1
+	FilFCPResponseStatusFCPCallerError       = 2
+	FilFCPResponseStatusFCPReceiverError     = 3
 )
 
 // FilRegisteredAggregationProof as declared in filecoin-ffi/filcrypto.h:34

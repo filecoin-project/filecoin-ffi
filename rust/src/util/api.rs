@@ -4,9 +4,7 @@ use std::sync::Once;
 
 use anyhow::anyhow;
 
-use super::types::{
-    catch_panic_response, fil_Array, fil_Bytes, fil_GpuDeviceResponse, fil_InitLogFdResponse,
-};
+use super::types::{catch_panic_response, Array, Bytes, GpuDeviceResponse, InitLogFdResponse};
 
 /// Protects the init off the logger.
 static LOG_INIT: Once = Once::new();
@@ -33,11 +31,11 @@ pub fn init_log_with_file(file: File) -> Option<()> {
 
 /// Returns an array of strings containing the device names that can be used.
 #[no_mangle]
-pub unsafe extern "C" fn fil_get_gpu_devices() -> *mut fil_GpuDeviceResponse {
+pub unsafe extern "C" fn get_gpu_devices() -> *mut GpuDeviceResponse {
     catch_panic_response("get_gpu_devices", || {
         let devices = rust_gpu_tools::Device::all();
-        let devices: Vec<fil_Bytes> = devices.iter().map(|d| d.name().into()).collect();
-        let devices: fil_Array<fil_Bytes> = devices.into();
+        let devices: Vec<Bytes> = devices.iter().map(|d| d.name().into()).collect();
+        let devices: Array<Bytes> = devices.into();
 
         Ok(devices)
     })
@@ -52,12 +50,12 @@ pub unsafe extern "C" fn fil_get_gpu_devices() -> *mut fil_GpuDeviceResponse {
 /// be initializes implicitely and log to stderr.
 #[no_mangle]
 #[cfg(not(target_os = "windows"))]
-pub unsafe extern "C" fn fil_init_log_fd(log_fd: libc::c_int) -> *mut fil_InitLogFdResponse {
+pub unsafe extern "C" fn init_log_fd(log_fd: libc::c_int) -> *mut InitLogFdResponse {
     catch_panic_response("init_log_fd", || {
         let file = File::from_raw_fd(log_fd);
 
         if init_log_with_file(file).is_none() {
-            return Err(anyhow!("There is already an active logger. `fil_init_log_fd()` needs to be called before any other FFI function is called."));
+            return Err(anyhow!("There is already an active logger. `init_log_fd()` needs to be called before any other FFI function is called."));
         }
         Ok(())
     })
@@ -66,14 +64,14 @@ pub unsafe extern "C" fn fil_init_log_fd(log_fd: libc::c_int) -> *mut fil_InitLo
 #[cfg(test)]
 mod tests {
 
-    use crate::util::api::fil_get_gpu_devices;
-    use crate::util::types::fil_destroy_gpu_device_response;
+    use crate::util::api::get_gpu_devices;
+    use crate::util::types::destroy_gpu_device_response;
 
     #[test]
     #[allow(clippy::needless_collect)]
     fn test_get_gpu_devices() {
         unsafe {
-            let resp = fil_get_gpu_devices();
+            let resp = get_gpu_devices();
             assert!((*resp).error_msg.is_empty());
 
             let strings = &(*resp).value;
@@ -85,7 +83,7 @@ mod tests {
 
             assert_eq!(devices.len(), (*resp).value.len());
 
-            fil_destroy_gpu_device_response(resp);
+            destroy_gpu_device_response(resp);
         }
     }
 
@@ -107,8 +105,8 @@ mod tests {
         use std::io::{BufRead, BufReader, Write};
         use std::os::unix::io::FromRawFd;
 
-        use crate::util::api::fil_init_log_fd;
-        use crate::util::types::{fil_destroy_init_log_fd_response, FCPResponseStatus};
+        use crate::util::api::init_log_fd;
+        use crate::util::types::{destroy_init_log_fd_response, FCPResponseStatus};
 
         let mut fds: [libc::c_int; 2] = [0; 2];
         let res = unsafe { libc::pipe2(fds.as_mut_ptr(), libc::O_CLOEXEC) };
@@ -124,8 +122,8 @@ mod tests {
             // Without setting this env variable there won't be any log output
             env::set_var("RUST_LOG", "debug");
 
-            let resp = fil_init_log_fd(write_fd);
-            fil_destroy_init_log_fd_response(resp);
+            let resp = init_log_fd(write_fd);
+            destroy_init_log_fd_response(resp);
 
             log::info!("a log message");
 
@@ -138,9 +136,9 @@ mod tests {
             assert!(log_message.ends_with("a log message\n"));
 
             // Now test that there is an error when we try to init it again
-            let resp_error = fil_init_log_fd(write_fd);
+            let resp_error = init_log_fd(write_fd);
             assert_ne!((*resp_error).status_code, FCPResponseStatus::FCPNoError);
-            fil_destroy_init_log_fd_response(resp_error);
+            destroy_init_log_fd_response(resp_error);
         }
     }
 }

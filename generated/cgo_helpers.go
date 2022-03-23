@@ -554,73 +554,73 @@ func (x *FilPrivateKeyGenerateResponse) Deref() {
 	x.PrivateKey = *NewFilBLSPrivateKeyRef(unsafe.Pointer(&x.ref2dba09f.private_key))
 }
 
-// allocFil32ByteArrayMemory allocates memory for type C.fil_32ByteArray in C.
+// allocFilByteArray32Memory allocates memory for type C.fil_ByteArray32 in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocFil32ByteArrayMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFil32ByteArrayValue))
+func allocFilByteArray32Memory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilByteArray32Value))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfFil32ByteArrayValue = unsafe.Sizeof([1]C.fil_32ByteArray{})
+const sizeOfFilByteArray32Value = unsafe.Sizeof([1]C.fil_ByteArray32{})
 
 // Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *Fil32ByteArray) Ref() *C.fil_32ByteArray {
+func (x *FilByteArray32) Ref() *C.fil_ByteArray32 {
 	if x == nil {
 		return nil
 	}
-	return x.ref373ec61a
+	return x.ref3d84e09c
 }
 
 // Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
 // Does nothing if struct is nil or has no allocation map.
-func (x *Fil32ByteArray) Free() {
-	if x != nil && x.allocs373ec61a != nil {
-		x.allocs373ec61a.(*cgoAllocMap).Free()
-		x.ref373ec61a = nil
+func (x *FilByteArray32) Free() {
+	if x != nil && x.allocs3d84e09c != nil {
+		x.allocs3d84e09c.(*cgoAllocMap).Free()
+		x.ref3d84e09c = nil
 	}
 }
 
-// NewFil32ByteArrayRef creates a new wrapper struct with underlying reference set to the original C object.
+// NewFilByteArray32Ref creates a new wrapper struct with underlying reference set to the original C object.
 // Returns nil if the provided pointer to C object is nil too.
-func NewFil32ByteArrayRef(ref unsafe.Pointer) *Fil32ByteArray {
+func NewFilByteArray32Ref(ref unsafe.Pointer) *FilByteArray32 {
 	if ref == nil {
 		return nil
 	}
-	obj := new(Fil32ByteArray)
-	obj.ref373ec61a = (*C.fil_32ByteArray)(unsafe.Pointer(ref))
+	obj := new(FilByteArray32)
+	obj.ref3d84e09c = (*C.fil_ByteArray32)(unsafe.Pointer(ref))
 	return obj
 }
 
 // PassRef returns the underlying C object, otherwise it will allocate one and set its values
 // from this wrapping struct, counting allocations into an allocation map.
-func (x *Fil32ByteArray) PassRef() (*C.fil_32ByteArray, *cgoAllocMap) {
+func (x *FilByteArray32) PassRef() (*C.fil_ByteArray32, *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
-	} else if x.ref373ec61a != nil {
-		return x.ref373ec61a, nil
+	} else if x.ref3d84e09c != nil {
+		return x.ref3d84e09c, nil
 	}
-	mem373ec61a := allocFil32ByteArrayMemory(1)
-	ref373ec61a := (*C.fil_32ByteArray)(mem373ec61a)
-	allocs373ec61a := new(cgoAllocMap)
-	allocs373ec61a.Add(mem373ec61a)
+	mem3d84e09c := allocFilByteArray32Memory(1)
+	ref3d84e09c := (*C.fil_ByteArray32)(mem3d84e09c)
+	allocs3d84e09c := new(cgoAllocMap)
+	allocs3d84e09c.Add(mem3d84e09c)
 
 	var cinner_allocs *cgoAllocMap
-	ref373ec61a.inner, cinner_allocs = *(*[32]C.uint8_t)(unsafe.Pointer(&x.Inner)), cgoAllocsUnknown
-	allocs373ec61a.Borrow(cinner_allocs)
+	ref3d84e09c.inner, cinner_allocs = *(*[32]C.uint8_t)(unsafe.Pointer(&x.Inner)), cgoAllocsUnknown
+	allocs3d84e09c.Borrow(cinner_allocs)
 
-	x.ref373ec61a = ref373ec61a
-	x.allocs373ec61a = allocs373ec61a
-	return ref373ec61a, allocs373ec61a
+	x.ref3d84e09c = ref3d84e09c
+	x.allocs3d84e09c = allocs3d84e09c
+	return ref3d84e09c, allocs3d84e09c
 
 }
 
 // PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x Fil32ByteArray) PassValue() (C.fil_32ByteArray, *cgoAllocMap) {
-	if x.ref373ec61a != nil {
-		return *x.ref373ec61a, nil
+func (x FilByteArray32) PassValue() (C.fil_ByteArray32, *cgoAllocMap) {
+	if x.ref3d84e09c != nil {
+		return *x.ref3d84e09c, nil
 	}
 	ref, allocs := x.PassRef()
 	return *ref, allocs
@@ -628,11 +628,11 @@ func (x Fil32ByteArray) PassValue() (C.fil_32ByteArray, *cgoAllocMap) {
 
 // Deref uses the underlying reference to C object and fills the wrapping struct with values.
 // Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *Fil32ByteArray) Deref() {
-	if x.ref373ec61a == nil {
+func (x *FilByteArray32) Deref() {
+	if x.ref3d84e09c == nil {
 		return
 	}
-	x.Inner = *(*[32]byte)(unsafe.Pointer(&x.ref373ec61a.inner))
+	x.Inner = *(*[32]byte)(unsafe.Pointer(&x.ref3d84e09c.inner))
 }
 
 // allocFilPrivateKeySignResponseMemory allocates memory for type C.fil_PrivateKeySignResponse in C.
@@ -1282,81 +1282,81 @@ func (x *FilWriteWithAlignment) Deref() {
 	x.TotalWriteUnpadded = (uint64)(x.reffc1bd1.total_write_unpadded)
 }
 
-// allocFilResultFilWriteWithAlignmentMemory allocates memory for type C.fil_Result_fil_WriteWithAlignment in C.
+// allocFilResultWriteWithAlignmentMemory allocates memory for type C.fil_Result_WriteWithAlignment in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocFilResultFilWriteWithAlignmentMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilResultFilWriteWithAlignmentValue))
+func allocFilResultWriteWithAlignmentMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilResultWriteWithAlignmentValue))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfFilResultFilWriteWithAlignmentValue = unsafe.Sizeof([1]C.fil_Result_fil_WriteWithAlignment{})
+const sizeOfFilResultWriteWithAlignmentValue = unsafe.Sizeof([1]C.fil_Result_WriteWithAlignment{})
 
 // Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *FilResultFilWriteWithAlignment) Ref() *C.fil_Result_fil_WriteWithAlignment {
+func (x *FilResultWriteWithAlignment) Ref() *C.fil_Result_WriteWithAlignment {
 	if x == nil {
 		return nil
 	}
-	return x.reff43b9cc5
+	return x.refc8fc94a1
 }
 
 // Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
 // Does nothing if struct is nil or has no allocation map.
-func (x *FilResultFilWriteWithAlignment) Free() {
-	if x != nil && x.allocsf43b9cc5 != nil {
-		x.allocsf43b9cc5.(*cgoAllocMap).Free()
-		x.reff43b9cc5 = nil
+func (x *FilResultWriteWithAlignment) Free() {
+	if x != nil && x.allocsc8fc94a1 != nil {
+		x.allocsc8fc94a1.(*cgoAllocMap).Free()
+		x.refc8fc94a1 = nil
 	}
 }
 
-// NewFilResultFilWriteWithAlignmentRef creates a new wrapper struct with underlying reference set to the original C object.
+// NewFilResultWriteWithAlignmentRef creates a new wrapper struct with underlying reference set to the original C object.
 // Returns nil if the provided pointer to C object is nil too.
-func NewFilResultFilWriteWithAlignmentRef(ref unsafe.Pointer) *FilResultFilWriteWithAlignment {
+func NewFilResultWriteWithAlignmentRef(ref unsafe.Pointer) *FilResultWriteWithAlignment {
 	if ref == nil {
 		return nil
 	}
-	obj := new(FilResultFilWriteWithAlignment)
-	obj.reff43b9cc5 = (*C.fil_Result_fil_WriteWithAlignment)(unsafe.Pointer(ref))
+	obj := new(FilResultWriteWithAlignment)
+	obj.refc8fc94a1 = (*C.fil_Result_WriteWithAlignment)(unsafe.Pointer(ref))
 	return obj
 }
 
 // PassRef returns the underlying C object, otherwise it will allocate one and set its values
 // from this wrapping struct, counting allocations into an allocation map.
-func (x *FilResultFilWriteWithAlignment) PassRef() (*C.fil_Result_fil_WriteWithAlignment, *cgoAllocMap) {
+func (x *FilResultWriteWithAlignment) PassRef() (*C.fil_Result_WriteWithAlignment, *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
-	} else if x.reff43b9cc5 != nil {
-		return x.reff43b9cc5, nil
+	} else if x.refc8fc94a1 != nil {
+		return x.refc8fc94a1, nil
 	}
-	memf43b9cc5 := allocFilResultFilWriteWithAlignmentMemory(1)
-	reff43b9cc5 := (*C.fil_Result_fil_WriteWithAlignment)(memf43b9cc5)
-	allocsf43b9cc5 := new(cgoAllocMap)
-	allocsf43b9cc5.Add(memf43b9cc5)
+	memc8fc94a1 := allocFilResultWriteWithAlignmentMemory(1)
+	refc8fc94a1 := (*C.fil_Result_WriteWithAlignment)(memc8fc94a1)
+	allocsc8fc94a1 := new(cgoAllocMap)
+	allocsc8fc94a1.Add(memc8fc94a1)
 
 	var cstatus_code_allocs *cgoAllocMap
-	reff43b9cc5.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
-	allocsf43b9cc5.Borrow(cstatus_code_allocs)
+	refc8fc94a1.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	allocsc8fc94a1.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
-	reff43b9cc5.error_msg, cerror_msg_allocs = x.ErrorMsg.PassValue()
-	allocsf43b9cc5.Borrow(cerror_msg_allocs)
+	refc8fc94a1.error_msg, cerror_msg_allocs = x.ErrorMsg.PassValue()
+	allocsc8fc94a1.Borrow(cerror_msg_allocs)
 
 	var cvalue_allocs *cgoAllocMap
-	reff43b9cc5.value, cvalue_allocs = x.Value.PassValue()
-	allocsf43b9cc5.Borrow(cvalue_allocs)
+	refc8fc94a1.value, cvalue_allocs = x.Value.PassValue()
+	allocsc8fc94a1.Borrow(cvalue_allocs)
 
-	x.reff43b9cc5 = reff43b9cc5
-	x.allocsf43b9cc5 = allocsf43b9cc5
-	return reff43b9cc5, allocsf43b9cc5
+	x.refc8fc94a1 = refc8fc94a1
+	x.allocsc8fc94a1 = allocsc8fc94a1
+	return refc8fc94a1, allocsc8fc94a1
 
 }
 
 // PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x FilResultFilWriteWithAlignment) PassValue() (C.fil_Result_fil_WriteWithAlignment, *cgoAllocMap) {
-	if x.reff43b9cc5 != nil {
-		return *x.reff43b9cc5, nil
+func (x FilResultWriteWithAlignment) PassValue() (C.fil_Result_WriteWithAlignment, *cgoAllocMap) {
+	if x.refc8fc94a1 != nil {
+		return *x.refc8fc94a1, nil
 	}
 	ref, allocs := x.PassRef()
 	return *ref, allocs
@@ -1364,13 +1364,13 @@ func (x FilResultFilWriteWithAlignment) PassValue() (C.fil_Result_fil_WriteWithA
 
 // Deref uses the underlying reference to C object and fills the wrapping struct with values.
 // Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *FilResultFilWriteWithAlignment) Deref() {
-	if x.reff43b9cc5 == nil {
+func (x *FilResultWriteWithAlignment) Deref() {
+	if x.refc8fc94a1 == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.reff43b9cc5.status_code)
-	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.reff43b9cc5.error_msg))
-	x.Value = *NewFilWriteWithAlignmentRef(unsafe.Pointer(&x.reff43b9cc5.value))
+	x.StatusCode = (FilFCPResponseStatus)(x.refc8fc94a1.status_code)
+	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.refc8fc94a1.error_msg))
+	x.Value = *NewFilWriteWithAlignmentRef(unsafe.Pointer(&x.refc8fc94a1.value))
 }
 
 // allocFilWriteWithAlignmentResponseMemory allocates memory for type C.fil_WriteWithAlignmentResponse in C.
@@ -1427,7 +1427,7 @@ func (x *FilWriteWithAlignmentResponse) PassRef() (*C.fil_WriteWithAlignmentResp
 	allocsa330e79.Add(mema330e79)
 
 	var cstatus_code_allocs *cgoAllocMap
-	refa330e79.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	refa330e79.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
 	allocsa330e79.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
@@ -1459,7 +1459,7 @@ func (x *FilWriteWithAlignmentResponse) Deref() {
 	if x.refa330e79 == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.refa330e79.status_code)
+	x.StatusCode = (FilFCPResponseStatus)(x.refa330e79.status_code)
 	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.refa330e79.error_msg))
 	x.Value = *NewFilWriteWithAlignmentRef(unsafe.Pointer(&x.refa330e79.value))
 }
@@ -1688,81 +1688,81 @@ func (x *FilWriteWithoutAlignment) Deref() {
 	x.TotalWriteUnpadded = (uint64)(x.ref5d8e90d6.total_write_unpadded)
 }
 
-// allocFilResultFilWriteWithoutAlignmentMemory allocates memory for type C.fil_Result_fil_WriteWithoutAlignment in C.
+// allocFilResultWriteWithoutAlignmentMemory allocates memory for type C.fil_Result_WriteWithoutAlignment in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocFilResultFilWriteWithoutAlignmentMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilResultFilWriteWithoutAlignmentValue))
+func allocFilResultWriteWithoutAlignmentMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilResultWriteWithoutAlignmentValue))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfFilResultFilWriteWithoutAlignmentValue = unsafe.Sizeof([1]C.fil_Result_fil_WriteWithoutAlignment{})
+const sizeOfFilResultWriteWithoutAlignmentValue = unsafe.Sizeof([1]C.fil_Result_WriteWithoutAlignment{})
 
 // Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *FilResultFilWriteWithoutAlignment) Ref() *C.fil_Result_fil_WriteWithoutAlignment {
+func (x *FilResultWriteWithoutAlignment) Ref() *C.fil_Result_WriteWithoutAlignment {
 	if x == nil {
 		return nil
 	}
-	return x.ref3763c211
+	return x.refb5647cca
 }
 
 // Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
 // Does nothing if struct is nil or has no allocation map.
-func (x *FilResultFilWriteWithoutAlignment) Free() {
-	if x != nil && x.allocs3763c211 != nil {
-		x.allocs3763c211.(*cgoAllocMap).Free()
-		x.ref3763c211 = nil
+func (x *FilResultWriteWithoutAlignment) Free() {
+	if x != nil && x.allocsb5647cca != nil {
+		x.allocsb5647cca.(*cgoAllocMap).Free()
+		x.refb5647cca = nil
 	}
 }
 
-// NewFilResultFilWriteWithoutAlignmentRef creates a new wrapper struct with underlying reference set to the original C object.
+// NewFilResultWriteWithoutAlignmentRef creates a new wrapper struct with underlying reference set to the original C object.
 // Returns nil if the provided pointer to C object is nil too.
-func NewFilResultFilWriteWithoutAlignmentRef(ref unsafe.Pointer) *FilResultFilWriteWithoutAlignment {
+func NewFilResultWriteWithoutAlignmentRef(ref unsafe.Pointer) *FilResultWriteWithoutAlignment {
 	if ref == nil {
 		return nil
 	}
-	obj := new(FilResultFilWriteWithoutAlignment)
-	obj.ref3763c211 = (*C.fil_Result_fil_WriteWithoutAlignment)(unsafe.Pointer(ref))
+	obj := new(FilResultWriteWithoutAlignment)
+	obj.refb5647cca = (*C.fil_Result_WriteWithoutAlignment)(unsafe.Pointer(ref))
 	return obj
 }
 
 // PassRef returns the underlying C object, otherwise it will allocate one and set its values
 // from this wrapping struct, counting allocations into an allocation map.
-func (x *FilResultFilWriteWithoutAlignment) PassRef() (*C.fil_Result_fil_WriteWithoutAlignment, *cgoAllocMap) {
+func (x *FilResultWriteWithoutAlignment) PassRef() (*C.fil_Result_WriteWithoutAlignment, *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
-	} else if x.ref3763c211 != nil {
-		return x.ref3763c211, nil
+	} else if x.refb5647cca != nil {
+		return x.refb5647cca, nil
 	}
-	mem3763c211 := allocFilResultFilWriteWithoutAlignmentMemory(1)
-	ref3763c211 := (*C.fil_Result_fil_WriteWithoutAlignment)(mem3763c211)
-	allocs3763c211 := new(cgoAllocMap)
-	allocs3763c211.Add(mem3763c211)
+	memb5647cca := allocFilResultWriteWithoutAlignmentMemory(1)
+	refb5647cca := (*C.fil_Result_WriteWithoutAlignment)(memb5647cca)
+	allocsb5647cca := new(cgoAllocMap)
+	allocsb5647cca.Add(memb5647cca)
 
 	var cstatus_code_allocs *cgoAllocMap
-	ref3763c211.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
-	allocs3763c211.Borrow(cstatus_code_allocs)
+	refb5647cca.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	allocsb5647cca.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
-	ref3763c211.error_msg, cerror_msg_allocs = x.ErrorMsg.PassValue()
-	allocs3763c211.Borrow(cerror_msg_allocs)
+	refb5647cca.error_msg, cerror_msg_allocs = x.ErrorMsg.PassValue()
+	allocsb5647cca.Borrow(cerror_msg_allocs)
 
 	var cvalue_allocs *cgoAllocMap
-	ref3763c211.value, cvalue_allocs = x.Value.PassValue()
-	allocs3763c211.Borrow(cvalue_allocs)
+	refb5647cca.value, cvalue_allocs = x.Value.PassValue()
+	allocsb5647cca.Borrow(cvalue_allocs)
 
-	x.ref3763c211 = ref3763c211
-	x.allocs3763c211 = allocs3763c211
-	return ref3763c211, allocs3763c211
+	x.refb5647cca = refb5647cca
+	x.allocsb5647cca = allocsb5647cca
+	return refb5647cca, allocsb5647cca
 
 }
 
 // PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x FilResultFilWriteWithoutAlignment) PassValue() (C.fil_Result_fil_WriteWithoutAlignment, *cgoAllocMap) {
-	if x.ref3763c211 != nil {
-		return *x.ref3763c211, nil
+func (x FilResultWriteWithoutAlignment) PassValue() (C.fil_Result_WriteWithoutAlignment, *cgoAllocMap) {
+	if x.refb5647cca != nil {
+		return *x.refb5647cca, nil
 	}
 	ref, allocs := x.PassRef()
 	return *ref, allocs
@@ -1770,13 +1770,13 @@ func (x FilResultFilWriteWithoutAlignment) PassValue() (C.fil_Result_fil_WriteWi
 
 // Deref uses the underlying reference to C object and fills the wrapping struct with values.
 // Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *FilResultFilWriteWithoutAlignment) Deref() {
-	if x.ref3763c211 == nil {
+func (x *FilResultWriteWithoutAlignment) Deref() {
+	if x.refb5647cca == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.ref3763c211.status_code)
-	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.ref3763c211.error_msg))
-	x.Value = *NewFilWriteWithoutAlignmentRef(unsafe.Pointer(&x.ref3763c211.value))
+	x.StatusCode = (FilFCPResponseStatus)(x.refb5647cca.status_code)
+	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.refb5647cca.error_msg))
+	x.Value = *NewFilWriteWithoutAlignmentRef(unsafe.Pointer(&x.refb5647cca.value))
 }
 
 // allocFilWriteWithoutAlignmentResponseMemory allocates memory for type C.fil_WriteWithoutAlignmentResponse in C.
@@ -1833,7 +1833,7 @@ func (x *FilWriteWithoutAlignmentResponse) PassRef() (*C.fil_WriteWithoutAlignme
 	allocsc8e1ed8.Add(memc8e1ed8)
 
 	var cstatus_code_allocs *cgoAllocMap
-	refc8e1ed8.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	refc8e1ed8.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
 	allocsc8e1ed8.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
@@ -1865,86 +1865,86 @@ func (x *FilWriteWithoutAlignmentResponse) Deref() {
 	if x.refc8e1ed8 == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.refc8e1ed8.status_code)
+	x.StatusCode = (FilFCPResponseStatus)(x.refc8e1ed8.status_code)
 	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.refc8e1ed8.error_msg))
 	x.Value = *NewFilWriteWithoutAlignmentRef(unsafe.Pointer(&x.refc8e1ed8.value))
 }
 
-// allocFilResultFil32ByteArrayMemory allocates memory for type C.fil_Result_fil_32ByteArray in C.
+// allocFilResultByteArray32Memory allocates memory for type C.fil_Result_ByteArray32 in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocFilResultFil32ByteArrayMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilResultFil32ByteArrayValue))
+func allocFilResultByteArray32Memory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilResultByteArray32Value))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfFilResultFil32ByteArrayValue = unsafe.Sizeof([1]C.fil_Result_fil_32ByteArray{})
+const sizeOfFilResultByteArray32Value = unsafe.Sizeof([1]C.fil_Result_ByteArray32{})
 
 // Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *FilResultFil32ByteArray) Ref() *C.fil_Result_fil_32ByteArray {
+func (x *FilResultByteArray32) Ref() *C.fil_Result_ByteArray32 {
 	if x == nil {
 		return nil
 	}
-	return x.ref871bc766
+	return x.ref951fc2ba
 }
 
 // Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
 // Does nothing if struct is nil or has no allocation map.
-func (x *FilResultFil32ByteArray) Free() {
-	if x != nil && x.allocs871bc766 != nil {
-		x.allocs871bc766.(*cgoAllocMap).Free()
-		x.ref871bc766 = nil
+func (x *FilResultByteArray32) Free() {
+	if x != nil && x.allocs951fc2ba != nil {
+		x.allocs951fc2ba.(*cgoAllocMap).Free()
+		x.ref951fc2ba = nil
 	}
 }
 
-// NewFilResultFil32ByteArrayRef creates a new wrapper struct with underlying reference set to the original C object.
+// NewFilResultByteArray32Ref creates a new wrapper struct with underlying reference set to the original C object.
 // Returns nil if the provided pointer to C object is nil too.
-func NewFilResultFil32ByteArrayRef(ref unsafe.Pointer) *FilResultFil32ByteArray {
+func NewFilResultByteArray32Ref(ref unsafe.Pointer) *FilResultByteArray32 {
 	if ref == nil {
 		return nil
 	}
-	obj := new(FilResultFil32ByteArray)
-	obj.ref871bc766 = (*C.fil_Result_fil_32ByteArray)(unsafe.Pointer(ref))
+	obj := new(FilResultByteArray32)
+	obj.ref951fc2ba = (*C.fil_Result_ByteArray32)(unsafe.Pointer(ref))
 	return obj
 }
 
 // PassRef returns the underlying C object, otherwise it will allocate one and set its values
 // from this wrapping struct, counting allocations into an allocation map.
-func (x *FilResultFil32ByteArray) PassRef() (*C.fil_Result_fil_32ByteArray, *cgoAllocMap) {
+func (x *FilResultByteArray32) PassRef() (*C.fil_Result_ByteArray32, *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
-	} else if x.ref871bc766 != nil {
-		return x.ref871bc766, nil
+	} else if x.ref951fc2ba != nil {
+		return x.ref951fc2ba, nil
 	}
-	mem871bc766 := allocFilResultFil32ByteArrayMemory(1)
-	ref871bc766 := (*C.fil_Result_fil_32ByteArray)(mem871bc766)
-	allocs871bc766 := new(cgoAllocMap)
-	allocs871bc766.Add(mem871bc766)
+	mem951fc2ba := allocFilResultByteArray32Memory(1)
+	ref951fc2ba := (*C.fil_Result_ByteArray32)(mem951fc2ba)
+	allocs951fc2ba := new(cgoAllocMap)
+	allocs951fc2ba.Add(mem951fc2ba)
 
 	var cstatus_code_allocs *cgoAllocMap
-	ref871bc766.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
-	allocs871bc766.Borrow(cstatus_code_allocs)
+	ref951fc2ba.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	allocs951fc2ba.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
-	ref871bc766.error_msg, cerror_msg_allocs = x.ErrorMsg.PassValue()
-	allocs871bc766.Borrow(cerror_msg_allocs)
+	ref951fc2ba.error_msg, cerror_msg_allocs = x.ErrorMsg.PassValue()
+	allocs951fc2ba.Borrow(cerror_msg_allocs)
 
 	var cvalue_allocs *cgoAllocMap
-	ref871bc766.value, cvalue_allocs = x.Value.PassValue()
-	allocs871bc766.Borrow(cvalue_allocs)
+	ref951fc2ba.value, cvalue_allocs = x.Value.PassValue()
+	allocs951fc2ba.Borrow(cvalue_allocs)
 
-	x.ref871bc766 = ref871bc766
-	x.allocs871bc766 = allocs871bc766
-	return ref871bc766, allocs871bc766
+	x.ref951fc2ba = ref951fc2ba
+	x.allocs951fc2ba = allocs951fc2ba
+	return ref951fc2ba, allocs951fc2ba
 
 }
 
 // PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x FilResultFil32ByteArray) PassValue() (C.fil_Result_fil_32ByteArray, *cgoAllocMap) {
-	if x.ref871bc766 != nil {
-		return *x.ref871bc766, nil
+func (x FilResultByteArray32) PassValue() (C.fil_Result_ByteArray32, *cgoAllocMap) {
+	if x.ref951fc2ba != nil {
+		return *x.ref951fc2ba, nil
 	}
 	ref, allocs := x.PassRef()
 	return *ref, allocs
@@ -1952,13 +1952,13 @@ func (x FilResultFil32ByteArray) PassValue() (C.fil_Result_fil_32ByteArray, *cgo
 
 // Deref uses the underlying reference to C object and fills the wrapping struct with values.
 // Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *FilResultFil32ByteArray) Deref() {
-	if x.ref871bc766 == nil {
+func (x *FilResultByteArray32) Deref() {
+	if x.ref951fc2ba == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.ref871bc766.status_code)
-	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.ref871bc766.error_msg))
-	x.Value = *NewFil32ByteArrayRef(unsafe.Pointer(&x.ref871bc766.value))
+	x.StatusCode = (FilFCPResponseStatus)(x.ref951fc2ba.status_code)
+	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.ref951fc2ba.error_msg))
+	x.Value = *NewFilByteArray32Ref(unsafe.Pointer(&x.ref951fc2ba.value))
 }
 
 // allocFilFauxRepResponseMemory allocates memory for type C.fil_FauxRepResponse in C.
@@ -2015,7 +2015,7 @@ func (x *FilFauxRepResponse) PassRef() (*C.fil_FauxRepResponse, *cgoAllocMap) {
 	allocsaa003f71.Add(memaa003f71)
 
 	var cstatus_code_allocs *cgoAllocMap
-	refaa003f71.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	refaa003f71.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
 	allocsaa003f71.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
@@ -2047,86 +2047,86 @@ func (x *FilFauxRepResponse) Deref() {
 	if x.refaa003f71 == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.refaa003f71.status_code)
+	x.StatusCode = (FilFCPResponseStatus)(x.refaa003f71.status_code)
 	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.refaa003f71.error_msg))
-	x.Value = *NewFil32ByteArrayRef(unsafe.Pointer(&x.refaa003f71.value))
+	x.Value = *NewFilByteArray32Ref(unsafe.Pointer(&x.refaa003f71.value))
 }
 
-// allocFilResultFilBytesMemory allocates memory for type C.fil_Result_fil_Bytes in C.
+// allocFilResultBytesMemory allocates memory for type C.fil_Result_Bytes in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocFilResultFilBytesMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilResultFilBytesValue))
+func allocFilResultBytesMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilResultBytesValue))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfFilResultFilBytesValue = unsafe.Sizeof([1]C.fil_Result_fil_Bytes{})
+const sizeOfFilResultBytesValue = unsafe.Sizeof([1]C.fil_Result_Bytes{})
 
 // Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *FilResultFilBytes) Ref() *C.fil_Result_fil_Bytes {
+func (x *FilResultBytes) Ref() *C.fil_Result_Bytes {
 	if x == nil {
 		return nil
 	}
-	return x.refa5da5923
+	return x.refb8bd272b
 }
 
 // Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
 // Does nothing if struct is nil or has no allocation map.
-func (x *FilResultFilBytes) Free() {
-	if x != nil && x.allocsa5da5923 != nil {
-		x.allocsa5da5923.(*cgoAllocMap).Free()
-		x.refa5da5923 = nil
+func (x *FilResultBytes) Free() {
+	if x != nil && x.allocsb8bd272b != nil {
+		x.allocsb8bd272b.(*cgoAllocMap).Free()
+		x.refb8bd272b = nil
 	}
 }
 
-// NewFilResultFilBytesRef creates a new wrapper struct with underlying reference set to the original C object.
+// NewFilResultBytesRef creates a new wrapper struct with underlying reference set to the original C object.
 // Returns nil if the provided pointer to C object is nil too.
-func NewFilResultFilBytesRef(ref unsafe.Pointer) *FilResultFilBytes {
+func NewFilResultBytesRef(ref unsafe.Pointer) *FilResultBytes {
 	if ref == nil {
 		return nil
 	}
-	obj := new(FilResultFilBytes)
-	obj.refa5da5923 = (*C.fil_Result_fil_Bytes)(unsafe.Pointer(ref))
+	obj := new(FilResultBytes)
+	obj.refb8bd272b = (*C.fil_Result_Bytes)(unsafe.Pointer(ref))
 	return obj
 }
 
 // PassRef returns the underlying C object, otherwise it will allocate one and set its values
 // from this wrapping struct, counting allocations into an allocation map.
-func (x *FilResultFilBytes) PassRef() (*C.fil_Result_fil_Bytes, *cgoAllocMap) {
+func (x *FilResultBytes) PassRef() (*C.fil_Result_Bytes, *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
-	} else if x.refa5da5923 != nil {
-		return x.refa5da5923, nil
+	} else if x.refb8bd272b != nil {
+		return x.refb8bd272b, nil
 	}
-	mema5da5923 := allocFilResultFilBytesMemory(1)
-	refa5da5923 := (*C.fil_Result_fil_Bytes)(mema5da5923)
-	allocsa5da5923 := new(cgoAllocMap)
-	allocsa5da5923.Add(mema5da5923)
+	memb8bd272b := allocFilResultBytesMemory(1)
+	refb8bd272b := (*C.fil_Result_Bytes)(memb8bd272b)
+	allocsb8bd272b := new(cgoAllocMap)
+	allocsb8bd272b.Add(memb8bd272b)
 
 	var cstatus_code_allocs *cgoAllocMap
-	refa5da5923.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
-	allocsa5da5923.Borrow(cstatus_code_allocs)
+	refb8bd272b.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	allocsb8bd272b.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
-	refa5da5923.error_msg, cerror_msg_allocs = x.ErrorMsg.PassValue()
-	allocsa5da5923.Borrow(cerror_msg_allocs)
+	refb8bd272b.error_msg, cerror_msg_allocs = x.ErrorMsg.PassValue()
+	allocsb8bd272b.Borrow(cerror_msg_allocs)
 
 	var cvalue_allocs *cgoAllocMap
-	refa5da5923.value, cvalue_allocs = x.Value.PassValue()
-	allocsa5da5923.Borrow(cvalue_allocs)
+	refb8bd272b.value, cvalue_allocs = x.Value.PassValue()
+	allocsb8bd272b.Borrow(cvalue_allocs)
 
-	x.refa5da5923 = refa5da5923
-	x.allocsa5da5923 = allocsa5da5923
-	return refa5da5923, allocsa5da5923
+	x.refb8bd272b = refb8bd272b
+	x.allocsb8bd272b = allocsb8bd272b
+	return refb8bd272b, allocsb8bd272b
 
 }
 
 // PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x FilResultFilBytes) PassValue() (C.fil_Result_fil_Bytes, *cgoAllocMap) {
-	if x.refa5da5923 != nil {
-		return *x.refa5da5923, nil
+func (x FilResultBytes) PassValue() (C.fil_Result_Bytes, *cgoAllocMap) {
+	if x.refb8bd272b != nil {
+		return *x.refb8bd272b, nil
 	}
 	ref, allocs := x.PassRef()
 	return *ref, allocs
@@ -2134,13 +2134,13 @@ func (x FilResultFilBytes) PassValue() (C.fil_Result_fil_Bytes, *cgoAllocMap) {
 
 // Deref uses the underlying reference to C object and fills the wrapping struct with values.
 // Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *FilResultFilBytes) Deref() {
-	if x.refa5da5923 == nil {
+func (x *FilResultBytes) Deref() {
+	if x.refb8bd272b == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.refa5da5923.status_code)
-	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.refa5da5923.error_msg))
-	x.Value = *NewFilBytesRef(unsafe.Pointer(&x.refa5da5923.value))
+	x.StatusCode = (FilFCPResponseStatus)(x.refb8bd272b.status_code)
+	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.refb8bd272b.error_msg))
+	x.Value = *NewFilBytesRef(unsafe.Pointer(&x.refb8bd272b.value))
 }
 
 // allocFilSealPreCommitPhase1ResponseMemory allocates memory for type C.fil_SealPreCommitPhase1Response in C.
@@ -2197,7 +2197,7 @@ func (x *FilSealPreCommitPhase1Response) PassRef() (*C.fil_SealPreCommitPhase1Re
 	allocs132bbfd8.Add(mem132bbfd8)
 
 	var cstatus_code_allocs *cgoAllocMap
-	ref132bbfd8.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	ref132bbfd8.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
 	allocs132bbfd8.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
@@ -2229,7 +2229,7 @@ func (x *FilSealPreCommitPhase1Response) Deref() {
 	if x.ref132bbfd8 == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.ref132bbfd8.status_code)
+	x.StatusCode = (FilFCPResponseStatus)(x.ref132bbfd8.status_code)
 	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.ref132bbfd8.error_msg))
 	x.Value = *NewFilBytesRef(unsafe.Pointer(&x.ref132bbfd8.value))
 }
@@ -2320,17 +2320,17 @@ func (x *FilPublicPieceInfo) Deref() {
 	x.CommP = *(*[32]byte)(unsafe.Pointer(&x.refd00025ac.comm_p))
 }
 
-// allocFilArrayFilPublicPieceInfoMemory allocates memory for type C.fil_Array_fil_PublicPieceInfo in C.
+// allocFilArrayPublicPieceInfoMemory allocates memory for type C.fil_Array_PublicPieceInfo in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocFilArrayFilPublicPieceInfoMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilArrayFilPublicPieceInfoValue))
+func allocFilArrayPublicPieceInfoMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilArrayPublicPieceInfoValue))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfFilArrayFilPublicPieceInfoValue = unsafe.Sizeof([1]C.fil_Array_fil_PublicPieceInfo{})
+const sizeOfFilArrayPublicPieceInfoValue = unsafe.Sizeof([1]C.fil_Array_PublicPieceInfo{})
 
 // allocPStructFilPublicPieceInfoMemory allocates memory for type *C.struct_fil_PublicPieceInfo in C.
 // The caller is responsible for freeing the this memory via C.free.
@@ -2411,64 +2411,64 @@ func packSSFilPublicPieceInfo(v [][]FilPublicPieceInfo, ptr0 **C.struct_fil_Publ
 }
 
 // Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *FilArrayFilPublicPieceInfo) Ref() *C.fil_Array_fil_PublicPieceInfo {
+func (x *FilArrayPublicPieceInfo) Ref() *C.fil_Array_PublicPieceInfo {
 	if x == nil {
 		return nil
 	}
-	return x.refdcd7a2b8
+	return x.refd0678e8c
 }
 
 // Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
 // Does nothing if struct is nil or has no allocation map.
-func (x *FilArrayFilPublicPieceInfo) Free() {
-	if x != nil && x.allocsdcd7a2b8 != nil {
-		x.allocsdcd7a2b8.(*cgoAllocMap).Free()
-		x.refdcd7a2b8 = nil
+func (x *FilArrayPublicPieceInfo) Free() {
+	if x != nil && x.allocsd0678e8c != nil {
+		x.allocsd0678e8c.(*cgoAllocMap).Free()
+		x.refd0678e8c = nil
 	}
 }
 
-// NewFilArrayFilPublicPieceInfoRef creates a new wrapper struct with underlying reference set to the original C object.
+// NewFilArrayPublicPieceInfoRef creates a new wrapper struct with underlying reference set to the original C object.
 // Returns nil if the provided pointer to C object is nil too.
-func NewFilArrayFilPublicPieceInfoRef(ref unsafe.Pointer) *FilArrayFilPublicPieceInfo {
+func NewFilArrayPublicPieceInfoRef(ref unsafe.Pointer) *FilArrayPublicPieceInfo {
 	if ref == nil {
 		return nil
 	}
-	obj := new(FilArrayFilPublicPieceInfo)
-	obj.refdcd7a2b8 = (*C.fil_Array_fil_PublicPieceInfo)(unsafe.Pointer(ref))
+	obj := new(FilArrayPublicPieceInfo)
+	obj.refd0678e8c = (*C.fil_Array_PublicPieceInfo)(unsafe.Pointer(ref))
 	return obj
 }
 
 // PassRef returns the underlying C object, otherwise it will allocate one and set its values
 // from this wrapping struct, counting allocations into an allocation map.
-func (x *FilArrayFilPublicPieceInfo) PassRef() (*C.fil_Array_fil_PublicPieceInfo, *cgoAllocMap) {
+func (x *FilArrayPublicPieceInfo) PassRef() (*C.fil_Array_PublicPieceInfo, *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
-	} else if x.refdcd7a2b8 != nil {
-		return x.refdcd7a2b8, nil
+	} else if x.refd0678e8c != nil {
+		return x.refd0678e8c, nil
 	}
-	memdcd7a2b8 := allocFilArrayFilPublicPieceInfoMemory(1)
-	refdcd7a2b8 := (*C.fil_Array_fil_PublicPieceInfo)(memdcd7a2b8)
-	allocsdcd7a2b8 := new(cgoAllocMap)
-	allocsdcd7a2b8.Add(memdcd7a2b8)
+	memd0678e8c := allocFilArrayPublicPieceInfoMemory(1)
+	refd0678e8c := (*C.fil_Array_PublicPieceInfo)(memd0678e8c)
+	allocsd0678e8c := new(cgoAllocMap)
+	allocsd0678e8c.Add(memd0678e8c)
 
 	var cptr_allocs *cgoAllocMap
-	refdcd7a2b8.ptr, cptr_allocs = unpackSSFilPublicPieceInfo(x.Ptr)
-	allocsdcd7a2b8.Borrow(cptr_allocs)
+	refd0678e8c.ptr, cptr_allocs = unpackSSFilPublicPieceInfo(x.Ptr)
+	allocsd0678e8c.Borrow(cptr_allocs)
 
 	var clen_allocs *cgoAllocMap
-	refdcd7a2b8.len, clen_allocs = (C.uintptr_t)(x.Len), cgoAllocsUnknown
-	allocsdcd7a2b8.Borrow(clen_allocs)
+	refd0678e8c.len, clen_allocs = (C.uintptr_t)(x.Len), cgoAllocsUnknown
+	allocsd0678e8c.Borrow(clen_allocs)
 
-	x.refdcd7a2b8 = refdcd7a2b8
-	x.allocsdcd7a2b8 = allocsdcd7a2b8
-	return refdcd7a2b8, allocsdcd7a2b8
+	x.refd0678e8c = refd0678e8c
+	x.allocsd0678e8c = allocsd0678e8c
+	return refd0678e8c, allocsd0678e8c
 
 }
 
 // PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x FilArrayFilPublicPieceInfo) PassValue() (C.fil_Array_fil_PublicPieceInfo, *cgoAllocMap) {
-	if x.refdcd7a2b8 != nil {
-		return *x.refdcd7a2b8, nil
+func (x FilArrayPublicPieceInfo) PassValue() (C.fil_Array_PublicPieceInfo, *cgoAllocMap) {
+	if x.refd0678e8c != nil {
+		return *x.refd0678e8c, nil
 	}
 	ref, allocs := x.PassRef()
 	return *ref, allocs
@@ -2476,12 +2476,12 @@ func (x FilArrayFilPublicPieceInfo) PassValue() (C.fil_Array_fil_PublicPieceInfo
 
 // Deref uses the underlying reference to C object and fills the wrapping struct with values.
 // Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *FilArrayFilPublicPieceInfo) Deref() {
-	if x.refdcd7a2b8 == nil {
+func (x *FilArrayPublicPieceInfo) Deref() {
+	if x.refd0678e8c == nil {
 		return
 	}
-	packSSFilPublicPieceInfo(x.Ptr, x.refdcd7a2b8.ptr)
-	x.Len = (uint64)(x.refdcd7a2b8.len)
+	packSSFilPublicPieceInfo(x.Ptr, x.refd0678e8c.ptr)
+	x.Len = (uint64)(x.refd0678e8c.len)
 }
 
 // allocFilSealPreCommitPhase2Memory allocates memory for type C.fil_SealPreCommitPhase2 in C.
@@ -2575,81 +2575,81 @@ func (x *FilSealPreCommitPhase2) Deref() {
 	x.CommR = *(*[32]byte)(unsafe.Pointer(&x.reff1ee731e.comm_r))
 }
 
-// allocFilResultFilSealPreCommitPhase2Memory allocates memory for type C.fil_Result_fil_SealPreCommitPhase2 in C.
+// allocFilResultSealPreCommitPhase2Memory allocates memory for type C.fil_Result_SealPreCommitPhase2 in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocFilResultFilSealPreCommitPhase2Memory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilResultFilSealPreCommitPhase2Value))
+func allocFilResultSealPreCommitPhase2Memory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilResultSealPreCommitPhase2Value))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfFilResultFilSealPreCommitPhase2Value = unsafe.Sizeof([1]C.fil_Result_fil_SealPreCommitPhase2{})
+const sizeOfFilResultSealPreCommitPhase2Value = unsafe.Sizeof([1]C.fil_Result_SealPreCommitPhase2{})
 
 // Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *FilResultFilSealPreCommitPhase2) Ref() *C.fil_Result_fil_SealPreCommitPhase2 {
+func (x *FilResultSealPreCommitPhase2) Ref() *C.fil_Result_SealPreCommitPhase2 {
 	if x == nil {
 		return nil
 	}
-	return x.refebc060e4
+	return x.refa12302ad
 }
 
 // Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
 // Does nothing if struct is nil or has no allocation map.
-func (x *FilResultFilSealPreCommitPhase2) Free() {
-	if x != nil && x.allocsebc060e4 != nil {
-		x.allocsebc060e4.(*cgoAllocMap).Free()
-		x.refebc060e4 = nil
+func (x *FilResultSealPreCommitPhase2) Free() {
+	if x != nil && x.allocsa12302ad != nil {
+		x.allocsa12302ad.(*cgoAllocMap).Free()
+		x.refa12302ad = nil
 	}
 }
 
-// NewFilResultFilSealPreCommitPhase2Ref creates a new wrapper struct with underlying reference set to the original C object.
+// NewFilResultSealPreCommitPhase2Ref creates a new wrapper struct with underlying reference set to the original C object.
 // Returns nil if the provided pointer to C object is nil too.
-func NewFilResultFilSealPreCommitPhase2Ref(ref unsafe.Pointer) *FilResultFilSealPreCommitPhase2 {
+func NewFilResultSealPreCommitPhase2Ref(ref unsafe.Pointer) *FilResultSealPreCommitPhase2 {
 	if ref == nil {
 		return nil
 	}
-	obj := new(FilResultFilSealPreCommitPhase2)
-	obj.refebc060e4 = (*C.fil_Result_fil_SealPreCommitPhase2)(unsafe.Pointer(ref))
+	obj := new(FilResultSealPreCommitPhase2)
+	obj.refa12302ad = (*C.fil_Result_SealPreCommitPhase2)(unsafe.Pointer(ref))
 	return obj
 }
 
 // PassRef returns the underlying C object, otherwise it will allocate one and set its values
 // from this wrapping struct, counting allocations into an allocation map.
-func (x *FilResultFilSealPreCommitPhase2) PassRef() (*C.fil_Result_fil_SealPreCommitPhase2, *cgoAllocMap) {
+func (x *FilResultSealPreCommitPhase2) PassRef() (*C.fil_Result_SealPreCommitPhase2, *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
-	} else if x.refebc060e4 != nil {
-		return x.refebc060e4, nil
+	} else if x.refa12302ad != nil {
+		return x.refa12302ad, nil
 	}
-	memebc060e4 := allocFilResultFilSealPreCommitPhase2Memory(1)
-	refebc060e4 := (*C.fil_Result_fil_SealPreCommitPhase2)(memebc060e4)
-	allocsebc060e4 := new(cgoAllocMap)
-	allocsebc060e4.Add(memebc060e4)
+	mema12302ad := allocFilResultSealPreCommitPhase2Memory(1)
+	refa12302ad := (*C.fil_Result_SealPreCommitPhase2)(mema12302ad)
+	allocsa12302ad := new(cgoAllocMap)
+	allocsa12302ad.Add(mema12302ad)
 
 	var cstatus_code_allocs *cgoAllocMap
-	refebc060e4.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
-	allocsebc060e4.Borrow(cstatus_code_allocs)
+	refa12302ad.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	allocsa12302ad.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
-	refebc060e4.error_msg, cerror_msg_allocs = x.ErrorMsg.PassValue()
-	allocsebc060e4.Borrow(cerror_msg_allocs)
+	refa12302ad.error_msg, cerror_msg_allocs = x.ErrorMsg.PassValue()
+	allocsa12302ad.Borrow(cerror_msg_allocs)
 
 	var cvalue_allocs *cgoAllocMap
-	refebc060e4.value, cvalue_allocs = x.Value.PassValue()
-	allocsebc060e4.Borrow(cvalue_allocs)
+	refa12302ad.value, cvalue_allocs = x.Value.PassValue()
+	allocsa12302ad.Borrow(cvalue_allocs)
 
-	x.refebc060e4 = refebc060e4
-	x.allocsebc060e4 = allocsebc060e4
-	return refebc060e4, allocsebc060e4
+	x.refa12302ad = refa12302ad
+	x.allocsa12302ad = allocsa12302ad
+	return refa12302ad, allocsa12302ad
 
 }
 
 // PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x FilResultFilSealPreCommitPhase2) PassValue() (C.fil_Result_fil_SealPreCommitPhase2, *cgoAllocMap) {
-	if x.refebc060e4 != nil {
-		return *x.refebc060e4, nil
+func (x FilResultSealPreCommitPhase2) PassValue() (C.fil_Result_SealPreCommitPhase2, *cgoAllocMap) {
+	if x.refa12302ad != nil {
+		return *x.refa12302ad, nil
 	}
 	ref, allocs := x.PassRef()
 	return *ref, allocs
@@ -2657,13 +2657,13 @@ func (x FilResultFilSealPreCommitPhase2) PassValue() (C.fil_Result_fil_SealPreCo
 
 // Deref uses the underlying reference to C object and fills the wrapping struct with values.
 // Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *FilResultFilSealPreCommitPhase2) Deref() {
-	if x.refebc060e4 == nil {
+func (x *FilResultSealPreCommitPhase2) Deref() {
+	if x.refa12302ad == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.refebc060e4.status_code)
-	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.refebc060e4.error_msg))
-	x.Value = *NewFilSealPreCommitPhase2Ref(unsafe.Pointer(&x.refebc060e4.value))
+	x.StatusCode = (FilFCPResponseStatus)(x.refa12302ad.status_code)
+	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.refa12302ad.error_msg))
+	x.Value = *NewFilSealPreCommitPhase2Ref(unsafe.Pointer(&x.refa12302ad.value))
 }
 
 // allocFilSealPreCommitPhase2ResponseMemory allocates memory for type C.fil_SealPreCommitPhase2Response in C.
@@ -2720,7 +2720,7 @@ func (x *FilSealPreCommitPhase2Response) PassRef() (*C.fil_SealPreCommitPhase2Re
 	allocs2aa6831d.Add(mem2aa6831d)
 
 	var cstatus_code_allocs *cgoAllocMap
-	ref2aa6831d.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	ref2aa6831d.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
 	allocs2aa6831d.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
@@ -2752,7 +2752,7 @@ func (x *FilSealPreCommitPhase2Response) Deref() {
 	if x.ref2aa6831d == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.ref2aa6831d.status_code)
+	x.StatusCode = (FilFCPResponseStatus)(x.ref2aa6831d.status_code)
 	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.ref2aa6831d.error_msg))
 	x.Value = *NewFilSealPreCommitPhase2Ref(unsafe.Pointer(&x.ref2aa6831d.value))
 }
@@ -2811,7 +2811,7 @@ func (x *FilSealCommitPhase1Response) PassRef() (*C.fil_SealCommitPhase1Response
 	allocs61ed8561.Add(mem61ed8561)
 
 	var cstatus_code_allocs *cgoAllocMap
-	ref61ed8561.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	ref61ed8561.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
 	allocs61ed8561.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
@@ -2843,7 +2843,7 @@ func (x *FilSealCommitPhase1Response) Deref() {
 	if x.ref61ed8561 == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.ref61ed8561.status_code)
+	x.StatusCode = (FilFCPResponseStatus)(x.ref61ed8561.status_code)
 	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.ref61ed8561.error_msg))
 	x.Value = *NewFilBytesRef(unsafe.Pointer(&x.ref61ed8561.value))
 }
@@ -2929,81 +2929,81 @@ func (x *FilSealCommitPhase2) Deref() {
 	x.Proof = *NewFilBytesRef(unsafe.Pointer(&x.ref9f218b5.proof))
 }
 
-// allocFilResultFilSealCommitPhase2Memory allocates memory for type C.fil_Result_fil_SealCommitPhase2 in C.
+// allocFilResultSealCommitPhase2Memory allocates memory for type C.fil_Result_SealCommitPhase2 in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocFilResultFilSealCommitPhase2Memory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilResultFilSealCommitPhase2Value))
+func allocFilResultSealCommitPhase2Memory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilResultSealCommitPhase2Value))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfFilResultFilSealCommitPhase2Value = unsafe.Sizeof([1]C.fil_Result_fil_SealCommitPhase2{})
+const sizeOfFilResultSealCommitPhase2Value = unsafe.Sizeof([1]C.fil_Result_SealCommitPhase2{})
 
 // Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *FilResultFilSealCommitPhase2) Ref() *C.fil_Result_fil_SealCommitPhase2 {
+func (x *FilResultSealCommitPhase2) Ref() *C.fil_Result_SealCommitPhase2 {
 	if x == nil {
 		return nil
 	}
-	return x.ref572f58ad
+	return x.refdad0c454
 }
 
 // Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
 // Does nothing if struct is nil or has no allocation map.
-func (x *FilResultFilSealCommitPhase2) Free() {
-	if x != nil && x.allocs572f58ad != nil {
-		x.allocs572f58ad.(*cgoAllocMap).Free()
-		x.ref572f58ad = nil
+func (x *FilResultSealCommitPhase2) Free() {
+	if x != nil && x.allocsdad0c454 != nil {
+		x.allocsdad0c454.(*cgoAllocMap).Free()
+		x.refdad0c454 = nil
 	}
 }
 
-// NewFilResultFilSealCommitPhase2Ref creates a new wrapper struct with underlying reference set to the original C object.
+// NewFilResultSealCommitPhase2Ref creates a new wrapper struct with underlying reference set to the original C object.
 // Returns nil if the provided pointer to C object is nil too.
-func NewFilResultFilSealCommitPhase2Ref(ref unsafe.Pointer) *FilResultFilSealCommitPhase2 {
+func NewFilResultSealCommitPhase2Ref(ref unsafe.Pointer) *FilResultSealCommitPhase2 {
 	if ref == nil {
 		return nil
 	}
-	obj := new(FilResultFilSealCommitPhase2)
-	obj.ref572f58ad = (*C.fil_Result_fil_SealCommitPhase2)(unsafe.Pointer(ref))
+	obj := new(FilResultSealCommitPhase2)
+	obj.refdad0c454 = (*C.fil_Result_SealCommitPhase2)(unsafe.Pointer(ref))
 	return obj
 }
 
 // PassRef returns the underlying C object, otherwise it will allocate one and set its values
 // from this wrapping struct, counting allocations into an allocation map.
-func (x *FilResultFilSealCommitPhase2) PassRef() (*C.fil_Result_fil_SealCommitPhase2, *cgoAllocMap) {
+func (x *FilResultSealCommitPhase2) PassRef() (*C.fil_Result_SealCommitPhase2, *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
-	} else if x.ref572f58ad != nil {
-		return x.ref572f58ad, nil
+	} else if x.refdad0c454 != nil {
+		return x.refdad0c454, nil
 	}
-	mem572f58ad := allocFilResultFilSealCommitPhase2Memory(1)
-	ref572f58ad := (*C.fil_Result_fil_SealCommitPhase2)(mem572f58ad)
-	allocs572f58ad := new(cgoAllocMap)
-	allocs572f58ad.Add(mem572f58ad)
+	memdad0c454 := allocFilResultSealCommitPhase2Memory(1)
+	refdad0c454 := (*C.fil_Result_SealCommitPhase2)(memdad0c454)
+	allocsdad0c454 := new(cgoAllocMap)
+	allocsdad0c454.Add(memdad0c454)
 
 	var cstatus_code_allocs *cgoAllocMap
-	ref572f58ad.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
-	allocs572f58ad.Borrow(cstatus_code_allocs)
+	refdad0c454.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	allocsdad0c454.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
-	ref572f58ad.error_msg, cerror_msg_allocs = x.ErrorMsg.PassValue()
-	allocs572f58ad.Borrow(cerror_msg_allocs)
+	refdad0c454.error_msg, cerror_msg_allocs = x.ErrorMsg.PassValue()
+	allocsdad0c454.Borrow(cerror_msg_allocs)
 
 	var cvalue_allocs *cgoAllocMap
-	ref572f58ad.value, cvalue_allocs = x.Value.PassValue()
-	allocs572f58ad.Borrow(cvalue_allocs)
+	refdad0c454.value, cvalue_allocs = x.Value.PassValue()
+	allocsdad0c454.Borrow(cvalue_allocs)
 
-	x.ref572f58ad = ref572f58ad
-	x.allocs572f58ad = allocs572f58ad
-	return ref572f58ad, allocs572f58ad
+	x.refdad0c454 = refdad0c454
+	x.allocsdad0c454 = allocsdad0c454
+	return refdad0c454, allocsdad0c454
 
 }
 
 // PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x FilResultFilSealCommitPhase2) PassValue() (C.fil_Result_fil_SealCommitPhase2, *cgoAllocMap) {
-	if x.ref572f58ad != nil {
-		return *x.ref572f58ad, nil
+func (x FilResultSealCommitPhase2) PassValue() (C.fil_Result_SealCommitPhase2, *cgoAllocMap) {
+	if x.refdad0c454 != nil {
+		return *x.refdad0c454, nil
 	}
 	ref, allocs := x.PassRef()
 	return *ref, allocs
@@ -3011,13 +3011,13 @@ func (x FilResultFilSealCommitPhase2) PassValue() (C.fil_Result_fil_SealCommitPh
 
 // Deref uses the underlying reference to C object and fills the wrapping struct with values.
 // Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *FilResultFilSealCommitPhase2) Deref() {
-	if x.ref572f58ad == nil {
+func (x *FilResultSealCommitPhase2) Deref() {
+	if x.refdad0c454 == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.ref572f58ad.status_code)
-	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.ref572f58ad.error_msg))
-	x.Value = *NewFilSealCommitPhase2Ref(unsafe.Pointer(&x.ref572f58ad.value))
+	x.StatusCode = (FilFCPResponseStatus)(x.refdad0c454.status_code)
+	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.refdad0c454.error_msg))
+	x.Value = *NewFilSealCommitPhase2Ref(unsafe.Pointer(&x.refdad0c454.value))
 }
 
 // allocFilSealCommitPhase2ResponseMemory allocates memory for type C.fil_SealCommitPhase2Response in C.
@@ -3074,7 +3074,7 @@ func (x *FilSealCommitPhase2Response) PassRef() (*C.fil_SealCommitPhase2Response
 	allocs5860b9a4.Add(mem5860b9a4)
 
 	var cstatus_code_allocs *cgoAllocMap
-	ref5860b9a4.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	ref5860b9a4.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
 	allocs5860b9a4.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
@@ -3106,7 +3106,7 @@ func (x *FilSealCommitPhase2Response) Deref() {
 	if x.ref5860b9a4 == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.ref5860b9a4.status_code)
+	x.StatusCode = (FilFCPResponseStatus)(x.ref5860b9a4.status_code)
 	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.ref5860b9a4.error_msg))
 	x.Value = *NewFilSealCommitPhase2Ref(unsafe.Pointer(&x.ref5860b9a4.value))
 }
@@ -3185,81 +3185,81 @@ func (x *FilVanillaProof) Deref() {
 	x.Len = (uint64)(x.ref1605074.len)
 }
 
-// allocFilResultFilVanillaProofMemory allocates memory for type C.fil_Result_fil_VanillaProof in C.
+// allocFilResultVanillaProofMemory allocates memory for type C.fil_Result_VanillaProof in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocFilResultFilVanillaProofMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilResultFilVanillaProofValue))
+func allocFilResultVanillaProofMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilResultVanillaProofValue))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfFilResultFilVanillaProofValue = unsafe.Sizeof([1]C.fil_Result_fil_VanillaProof{})
+const sizeOfFilResultVanillaProofValue = unsafe.Sizeof([1]C.fil_Result_VanillaProof{})
 
 // Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *FilResultFilVanillaProof) Ref() *C.fil_Result_fil_VanillaProof {
+func (x *FilResultVanillaProof) Ref() *C.fil_Result_VanillaProof {
 	if x == nil {
 		return nil
 	}
-	return x.refeae47b9a
+	return x.ref61427d53
 }
 
 // Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
 // Does nothing if struct is nil or has no allocation map.
-func (x *FilResultFilVanillaProof) Free() {
-	if x != nil && x.allocseae47b9a != nil {
-		x.allocseae47b9a.(*cgoAllocMap).Free()
-		x.refeae47b9a = nil
+func (x *FilResultVanillaProof) Free() {
+	if x != nil && x.allocs61427d53 != nil {
+		x.allocs61427d53.(*cgoAllocMap).Free()
+		x.ref61427d53 = nil
 	}
 }
 
-// NewFilResultFilVanillaProofRef creates a new wrapper struct with underlying reference set to the original C object.
+// NewFilResultVanillaProofRef creates a new wrapper struct with underlying reference set to the original C object.
 // Returns nil if the provided pointer to C object is nil too.
-func NewFilResultFilVanillaProofRef(ref unsafe.Pointer) *FilResultFilVanillaProof {
+func NewFilResultVanillaProofRef(ref unsafe.Pointer) *FilResultVanillaProof {
 	if ref == nil {
 		return nil
 	}
-	obj := new(FilResultFilVanillaProof)
-	obj.refeae47b9a = (*C.fil_Result_fil_VanillaProof)(unsafe.Pointer(ref))
+	obj := new(FilResultVanillaProof)
+	obj.ref61427d53 = (*C.fil_Result_VanillaProof)(unsafe.Pointer(ref))
 	return obj
 }
 
 // PassRef returns the underlying C object, otherwise it will allocate one and set its values
 // from this wrapping struct, counting allocations into an allocation map.
-func (x *FilResultFilVanillaProof) PassRef() (*C.fil_Result_fil_VanillaProof, *cgoAllocMap) {
+func (x *FilResultVanillaProof) PassRef() (*C.fil_Result_VanillaProof, *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
-	} else if x.refeae47b9a != nil {
-		return x.refeae47b9a, nil
+	} else if x.ref61427d53 != nil {
+		return x.ref61427d53, nil
 	}
-	memeae47b9a := allocFilResultFilVanillaProofMemory(1)
-	refeae47b9a := (*C.fil_Result_fil_VanillaProof)(memeae47b9a)
-	allocseae47b9a := new(cgoAllocMap)
-	allocseae47b9a.Add(memeae47b9a)
+	mem61427d53 := allocFilResultVanillaProofMemory(1)
+	ref61427d53 := (*C.fil_Result_VanillaProof)(mem61427d53)
+	allocs61427d53 := new(cgoAllocMap)
+	allocs61427d53.Add(mem61427d53)
 
 	var cstatus_code_allocs *cgoAllocMap
-	refeae47b9a.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
-	allocseae47b9a.Borrow(cstatus_code_allocs)
+	ref61427d53.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	allocs61427d53.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
-	refeae47b9a.error_msg, cerror_msg_allocs = x.ErrorMsg.PassValue()
-	allocseae47b9a.Borrow(cerror_msg_allocs)
+	ref61427d53.error_msg, cerror_msg_allocs = x.ErrorMsg.PassValue()
+	allocs61427d53.Borrow(cerror_msg_allocs)
 
 	var cvalue_allocs *cgoAllocMap
-	refeae47b9a.value, cvalue_allocs = x.Value.PassValue()
-	allocseae47b9a.Borrow(cvalue_allocs)
+	ref61427d53.value, cvalue_allocs = x.Value.PassValue()
+	allocs61427d53.Borrow(cvalue_allocs)
 
-	x.refeae47b9a = refeae47b9a
-	x.allocseae47b9a = allocseae47b9a
-	return refeae47b9a, allocseae47b9a
+	x.ref61427d53 = ref61427d53
+	x.allocs61427d53 = allocs61427d53
+	return ref61427d53, allocs61427d53
 
 }
 
 // PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x FilResultFilVanillaProof) PassValue() (C.fil_Result_fil_VanillaProof, *cgoAllocMap) {
-	if x.refeae47b9a != nil {
-		return *x.refeae47b9a, nil
+func (x FilResultVanillaProof) PassValue() (C.fil_Result_VanillaProof, *cgoAllocMap) {
+	if x.ref61427d53 != nil {
+		return *x.ref61427d53, nil
 	}
 	ref, allocs := x.PassRef()
 	return *ref, allocs
@@ -3267,13 +3267,13 @@ func (x FilResultFilVanillaProof) PassValue() (C.fil_Result_fil_VanillaProof, *c
 
 // Deref uses the underlying reference to C object and fills the wrapping struct with values.
 // Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *FilResultFilVanillaProof) Deref() {
-	if x.refeae47b9a == nil {
+func (x *FilResultVanillaProof) Deref() {
+	if x.ref61427d53 == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.refeae47b9a.status_code)
-	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.refeae47b9a.error_msg))
-	x.Value = *NewFilVanillaProofRef(unsafe.Pointer(&x.refeae47b9a.value))
+	x.StatusCode = (FilFCPResponseStatus)(x.ref61427d53.status_code)
+	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.ref61427d53.error_msg))
+	x.Value = *NewFilVanillaProofRef(unsafe.Pointer(&x.ref61427d53.value))
 }
 
 // allocFilAggregateProofMemory allocates memory for type C.fil_AggregateProof in C.
@@ -3330,7 +3330,7 @@ func (x *FilAggregateProof) PassRef() (*C.fil_AggregateProof, *cgoAllocMap) {
 	allocs22b6c4f6.Add(mem22b6c4f6)
 
 	var cstatus_code_allocs *cgoAllocMap
-	ref22b6c4f6.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	ref22b6c4f6.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
 	allocs22b6c4f6.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
@@ -3362,49 +3362,49 @@ func (x *FilAggregateProof) Deref() {
 	if x.ref22b6c4f6 == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.ref22b6c4f6.status_code)
+	x.StatusCode = (FilFCPResponseStatus)(x.ref22b6c4f6.status_code)
 	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.ref22b6c4f6.error_msg))
 	x.Value = *NewFilVanillaProofRef(unsafe.Pointer(&x.ref22b6c4f6.value))
 }
 
-// allocFilArrayFil32ByteArrayMemory allocates memory for type C.fil_Array_fil_32ByteArray in C.
+// allocFilArrayByteArray32Memory allocates memory for type C.fil_Array_ByteArray32 in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocFilArrayFil32ByteArrayMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilArrayFil32ByteArrayValue))
+func allocFilArrayByteArray32Memory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilArrayByteArray32Value))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfFilArrayFil32ByteArrayValue = unsafe.Sizeof([1]C.fil_Array_fil_32ByteArray{})
+const sizeOfFilArrayByteArray32Value = unsafe.Sizeof([1]C.fil_Array_ByteArray32{})
 
-// allocPStructFil32ByteArrayMemory allocates memory for type *C.struct_fil_32ByteArray in C.
+// allocPStructFilByteArray32Memory allocates memory for type *C.struct_fil_ByteArray32 in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocPStructFil32ByteArrayMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfPStructFil32ByteArrayValue))
+func allocPStructFilByteArray32Memory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfPStructFilByteArray32Value))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfPStructFil32ByteArrayValue = unsafe.Sizeof([1]*C.struct_fil_32ByteArray{})
+const sizeOfPStructFilByteArray32Value = unsafe.Sizeof([1]*C.struct_fil_ByteArray32{})
 
-// allocStructFil32ByteArrayMemory allocates memory for type C.struct_fil_32ByteArray in C.
+// allocStructFilByteArray32Memory allocates memory for type C.struct_fil_ByteArray32 in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocStructFil32ByteArrayMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfStructFil32ByteArrayValue))
+func allocStructFilByteArray32Memory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfStructFilByteArray32Value))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfStructFil32ByteArrayValue = unsafe.Sizeof([1]C.struct_fil_32ByteArray{})
+const sizeOfStructFilByteArray32Value = unsafe.Sizeof([1]C.struct_fil_ByteArray32{})
 
-// unpackSSFil32ByteArray transforms a sliced Go data structure into plain C format.
-func unpackSSFil32ByteArray(x [][]Fil32ByteArray) (unpacked **C.struct_fil_32ByteArray, allocs *cgoAllocMap) {
+// unpackSSFilByteArray32 transforms a sliced Go data structure into plain C format.
+func unpackSSFilByteArray32(x [][]FilByteArray32) (unpacked **C.struct_fil_ByteArray32, allocs *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
 	}
@@ -3414,108 +3414,108 @@ func unpackSSFil32ByteArray(x [][]Fil32ByteArray) (unpacked **C.struct_fil_32Byt
 	})
 
 	len0 := len(x)
-	mem0 := allocPStructFil32ByteArrayMemory(len0)
+	mem0 := allocPStructFilByteArray32Memory(len0)
 	allocs.Add(mem0)
 	h0 := &sliceHeader{
 		Data: mem0,
 		Cap:  len0,
 		Len:  len0,
 	}
-	v0 := *(*[]*C.struct_fil_32ByteArray)(unsafe.Pointer(h0))
+	v0 := *(*[]*C.struct_fil_ByteArray32)(unsafe.Pointer(h0))
 	for i0 := range x {
 		len1 := len(x[i0])
-		mem1 := allocStructFil32ByteArrayMemory(len1)
+		mem1 := allocStructFilByteArray32Memory(len1)
 		allocs.Add(mem1)
 		h1 := &sliceHeader{
 			Data: mem1,
 			Cap:  len1,
 			Len:  len1,
 		}
-		v1 := *(*[]C.struct_fil_32ByteArray)(unsafe.Pointer(h1))
+		v1 := *(*[]C.struct_fil_ByteArray32)(unsafe.Pointer(h1))
 		for i1 := range x[i0] {
 			allocs1 := new(cgoAllocMap)
 			v1[i1], allocs1 = x[i0][i1].PassValue()
 			allocs.Borrow(allocs1)
 		}
 		h := (*sliceHeader)(unsafe.Pointer(&v1))
-		v0[i0] = (*C.struct_fil_32ByteArray)(h.Data)
+		v0[i0] = (*C.struct_fil_ByteArray32)(h.Data)
 	}
 	h := (*sliceHeader)(unsafe.Pointer(&v0))
-	unpacked = (**C.struct_fil_32ByteArray)(h.Data)
+	unpacked = (**C.struct_fil_ByteArray32)(h.Data)
 	return
 }
 
-// packSSFil32ByteArray reads sliced Go data structure out from plain C format.
-func packSSFil32ByteArray(v [][]Fil32ByteArray, ptr0 **C.struct_fil_32ByteArray) {
+// packSSFilByteArray32 reads sliced Go data structure out from plain C format.
+func packSSFilByteArray32(v [][]FilByteArray32, ptr0 **C.struct_fil_ByteArray32) {
 	const m = 0x7fffffff
 	for i0 := range v {
-		ptr1 := (*(*[m / sizeOfPtr]*C.struct_fil_32ByteArray)(unsafe.Pointer(ptr0)))[i0]
+		ptr1 := (*(*[m / sizeOfPtr]*C.struct_fil_ByteArray32)(unsafe.Pointer(ptr0)))[i0]
 		for i1 := range v[i0] {
-			ptr2 := (*(*[m / sizeOfStructFil32ByteArrayValue]C.struct_fil_32ByteArray)(unsafe.Pointer(ptr1)))[i1]
-			v[i0][i1] = *NewFil32ByteArrayRef(unsafe.Pointer(&ptr2))
+			ptr2 := (*(*[m / sizeOfStructFilByteArray32Value]C.struct_fil_ByteArray32)(unsafe.Pointer(ptr1)))[i1]
+			v[i0][i1] = *NewFilByteArray32Ref(unsafe.Pointer(&ptr2))
 		}
 	}
 }
 
 // Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *FilArrayFil32ByteArray) Ref() *C.fil_Array_fil_32ByteArray {
+func (x *FilArrayByteArray32) Ref() *C.fil_Array_ByteArray32 {
 	if x == nil {
 		return nil
 	}
-	return x.ref73547621
+	return x.refd6a29da3
 }
 
 // Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
 // Does nothing if struct is nil or has no allocation map.
-func (x *FilArrayFil32ByteArray) Free() {
-	if x != nil && x.allocs73547621 != nil {
-		x.allocs73547621.(*cgoAllocMap).Free()
-		x.ref73547621 = nil
+func (x *FilArrayByteArray32) Free() {
+	if x != nil && x.allocsd6a29da3 != nil {
+		x.allocsd6a29da3.(*cgoAllocMap).Free()
+		x.refd6a29da3 = nil
 	}
 }
 
-// NewFilArrayFil32ByteArrayRef creates a new wrapper struct with underlying reference set to the original C object.
+// NewFilArrayByteArray32Ref creates a new wrapper struct with underlying reference set to the original C object.
 // Returns nil if the provided pointer to C object is nil too.
-func NewFilArrayFil32ByteArrayRef(ref unsafe.Pointer) *FilArrayFil32ByteArray {
+func NewFilArrayByteArray32Ref(ref unsafe.Pointer) *FilArrayByteArray32 {
 	if ref == nil {
 		return nil
 	}
-	obj := new(FilArrayFil32ByteArray)
-	obj.ref73547621 = (*C.fil_Array_fil_32ByteArray)(unsafe.Pointer(ref))
+	obj := new(FilArrayByteArray32)
+	obj.refd6a29da3 = (*C.fil_Array_ByteArray32)(unsafe.Pointer(ref))
 	return obj
 }
 
 // PassRef returns the underlying C object, otherwise it will allocate one and set its values
 // from this wrapping struct, counting allocations into an allocation map.
-func (x *FilArrayFil32ByteArray) PassRef() (*C.fil_Array_fil_32ByteArray, *cgoAllocMap) {
+func (x *FilArrayByteArray32) PassRef() (*C.fil_Array_ByteArray32, *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
-	} else if x.ref73547621 != nil {
-		return x.ref73547621, nil
+	} else if x.refd6a29da3 != nil {
+		return x.refd6a29da3, nil
 	}
-	mem73547621 := allocFilArrayFil32ByteArrayMemory(1)
-	ref73547621 := (*C.fil_Array_fil_32ByteArray)(mem73547621)
-	allocs73547621 := new(cgoAllocMap)
-	allocs73547621.Add(mem73547621)
+	memd6a29da3 := allocFilArrayByteArray32Memory(1)
+	refd6a29da3 := (*C.fil_Array_ByteArray32)(memd6a29da3)
+	allocsd6a29da3 := new(cgoAllocMap)
+	allocsd6a29da3.Add(memd6a29da3)
 
 	var cptr_allocs *cgoAllocMap
-	ref73547621.ptr, cptr_allocs = unpackSSFil32ByteArray(x.Ptr)
-	allocs73547621.Borrow(cptr_allocs)
+	refd6a29da3.ptr, cptr_allocs = unpackSSFilByteArray32(x.Ptr)
+	allocsd6a29da3.Borrow(cptr_allocs)
 
 	var clen_allocs *cgoAllocMap
-	ref73547621.len, clen_allocs = (C.uintptr_t)(x.Len), cgoAllocsUnknown
-	allocs73547621.Borrow(clen_allocs)
+	refd6a29da3.len, clen_allocs = (C.uintptr_t)(x.Len), cgoAllocsUnknown
+	allocsd6a29da3.Borrow(clen_allocs)
 
-	x.ref73547621 = ref73547621
-	x.allocs73547621 = allocs73547621
-	return ref73547621, allocs73547621
+	x.refd6a29da3 = refd6a29da3
+	x.allocsd6a29da3 = allocsd6a29da3
+	return refd6a29da3, allocsd6a29da3
 
 }
 
 // PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x FilArrayFil32ByteArray) PassValue() (C.fil_Array_fil_32ByteArray, *cgoAllocMap) {
-	if x.ref73547621 != nil {
-		return *x.ref73547621, nil
+func (x FilArrayByteArray32) PassValue() (C.fil_Array_ByteArray32, *cgoAllocMap) {
+	if x.refd6a29da3 != nil {
+		return *x.refd6a29da3, nil
 	}
 	ref, allocs := x.PassRef()
 	return *ref, allocs
@@ -3523,25 +3523,25 @@ func (x FilArrayFil32ByteArray) PassValue() (C.fil_Array_fil_32ByteArray, *cgoAl
 
 // Deref uses the underlying reference to C object and fills the wrapping struct with values.
 // Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *FilArrayFil32ByteArray) Deref() {
-	if x.ref73547621 == nil {
+func (x *FilArrayByteArray32) Deref() {
+	if x.refd6a29da3 == nil {
 		return
 	}
-	packSSFil32ByteArray(x.Ptr, x.ref73547621.ptr)
-	x.Len = (uint64)(x.ref73547621.len)
+	packSSFilByteArray32(x.Ptr, x.refd6a29da3.ptr)
+	x.Len = (uint64)(x.refd6a29da3.len)
 }
 
-// allocFilArrayFilSealCommitPhase2Memory allocates memory for type C.fil_Array_fil_SealCommitPhase2 in C.
+// allocFilArraySealCommitPhase2Memory allocates memory for type C.fil_Array_SealCommitPhase2 in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocFilArrayFilSealCommitPhase2Memory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilArrayFilSealCommitPhase2Value))
+func allocFilArraySealCommitPhase2Memory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilArraySealCommitPhase2Value))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfFilArrayFilSealCommitPhase2Value = unsafe.Sizeof([1]C.fil_Array_fil_SealCommitPhase2{})
+const sizeOfFilArraySealCommitPhase2Value = unsafe.Sizeof([1]C.fil_Array_SealCommitPhase2{})
 
 // allocPStructFilSealCommitPhase2Memory allocates memory for type *C.struct_fil_SealCommitPhase2 in C.
 // The caller is responsible for freeing the this memory via C.free.
@@ -3622,64 +3622,64 @@ func packSSFilSealCommitPhase2(v [][]FilSealCommitPhase2, ptr0 **C.struct_fil_Se
 }
 
 // Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *FilArrayFilSealCommitPhase2) Ref() *C.fil_Array_fil_SealCommitPhase2 {
+func (x *FilArraySealCommitPhase2) Ref() *C.fil_Array_SealCommitPhase2 {
 	if x == nil {
 		return nil
 	}
-	return x.ref13241b4f
+	return x.ref329c5fd6
 }
 
 // Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
 // Does nothing if struct is nil or has no allocation map.
-func (x *FilArrayFilSealCommitPhase2) Free() {
-	if x != nil && x.allocs13241b4f != nil {
-		x.allocs13241b4f.(*cgoAllocMap).Free()
-		x.ref13241b4f = nil
+func (x *FilArraySealCommitPhase2) Free() {
+	if x != nil && x.allocs329c5fd6 != nil {
+		x.allocs329c5fd6.(*cgoAllocMap).Free()
+		x.ref329c5fd6 = nil
 	}
 }
 
-// NewFilArrayFilSealCommitPhase2Ref creates a new wrapper struct with underlying reference set to the original C object.
+// NewFilArraySealCommitPhase2Ref creates a new wrapper struct with underlying reference set to the original C object.
 // Returns nil if the provided pointer to C object is nil too.
-func NewFilArrayFilSealCommitPhase2Ref(ref unsafe.Pointer) *FilArrayFilSealCommitPhase2 {
+func NewFilArraySealCommitPhase2Ref(ref unsafe.Pointer) *FilArraySealCommitPhase2 {
 	if ref == nil {
 		return nil
 	}
-	obj := new(FilArrayFilSealCommitPhase2)
-	obj.ref13241b4f = (*C.fil_Array_fil_SealCommitPhase2)(unsafe.Pointer(ref))
+	obj := new(FilArraySealCommitPhase2)
+	obj.ref329c5fd6 = (*C.fil_Array_SealCommitPhase2)(unsafe.Pointer(ref))
 	return obj
 }
 
 // PassRef returns the underlying C object, otherwise it will allocate one and set its values
 // from this wrapping struct, counting allocations into an allocation map.
-func (x *FilArrayFilSealCommitPhase2) PassRef() (*C.fil_Array_fil_SealCommitPhase2, *cgoAllocMap) {
+func (x *FilArraySealCommitPhase2) PassRef() (*C.fil_Array_SealCommitPhase2, *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
-	} else if x.ref13241b4f != nil {
-		return x.ref13241b4f, nil
+	} else if x.ref329c5fd6 != nil {
+		return x.ref329c5fd6, nil
 	}
-	mem13241b4f := allocFilArrayFilSealCommitPhase2Memory(1)
-	ref13241b4f := (*C.fil_Array_fil_SealCommitPhase2)(mem13241b4f)
-	allocs13241b4f := new(cgoAllocMap)
-	allocs13241b4f.Add(mem13241b4f)
+	mem329c5fd6 := allocFilArraySealCommitPhase2Memory(1)
+	ref329c5fd6 := (*C.fil_Array_SealCommitPhase2)(mem329c5fd6)
+	allocs329c5fd6 := new(cgoAllocMap)
+	allocs329c5fd6.Add(mem329c5fd6)
 
 	var cptr_allocs *cgoAllocMap
-	ref13241b4f.ptr, cptr_allocs = unpackSSFilSealCommitPhase2(x.Ptr)
-	allocs13241b4f.Borrow(cptr_allocs)
+	ref329c5fd6.ptr, cptr_allocs = unpackSSFilSealCommitPhase2(x.Ptr)
+	allocs329c5fd6.Borrow(cptr_allocs)
 
 	var clen_allocs *cgoAllocMap
-	ref13241b4f.len, clen_allocs = (C.uintptr_t)(x.Len), cgoAllocsUnknown
-	allocs13241b4f.Borrow(clen_allocs)
+	ref329c5fd6.len, clen_allocs = (C.uintptr_t)(x.Len), cgoAllocsUnknown
+	allocs329c5fd6.Borrow(clen_allocs)
 
-	x.ref13241b4f = ref13241b4f
-	x.allocs13241b4f = allocs13241b4f
-	return ref13241b4f, allocs13241b4f
+	x.ref329c5fd6 = ref329c5fd6
+	x.allocs329c5fd6 = allocs329c5fd6
+	return ref329c5fd6, allocs329c5fd6
 
 }
 
 // PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x FilArrayFilSealCommitPhase2) PassValue() (C.fil_Array_fil_SealCommitPhase2, *cgoAllocMap) {
-	if x.ref13241b4f != nil {
-		return *x.ref13241b4f, nil
+func (x FilArraySealCommitPhase2) PassValue() (C.fil_Array_SealCommitPhase2, *cgoAllocMap) {
+	if x.ref329c5fd6 != nil {
+		return *x.ref329c5fd6, nil
 	}
 	ref, allocs := x.PassRef()
 	return *ref, allocs
@@ -3687,12 +3687,12 @@ func (x FilArrayFilSealCommitPhase2) PassValue() (C.fil_Array_fil_SealCommitPhas
 
 // Deref uses the underlying reference to C object and fills the wrapping struct with values.
 // Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *FilArrayFilSealCommitPhase2) Deref() {
-	if x.ref13241b4f == nil {
+func (x *FilArraySealCommitPhase2) Deref() {
+	if x.ref329c5fd6 == nil {
 		return
 	}
-	packSSFilSealCommitPhase2(x.Ptr, x.ref13241b4f.ptr)
-	x.Len = (uint64)(x.ref13241b4f.len)
+	packSSFilSealCommitPhase2(x.Ptr, x.ref329c5fd6.ptr)
+	x.Len = (uint64)(x.ref329c5fd6.len)
 }
 
 // allocFilResultBoolMemory allocates memory for type C.fil_Result_bool in C.
@@ -3749,7 +3749,7 @@ func (x *FilResultBool) PassRef() (*C.fil_Result_bool, *cgoAllocMap) {
 	allocs679b57a0.Add(mem679b57a0)
 
 	var cstatus_code_allocs *cgoAllocMap
-	ref679b57a0.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	ref679b57a0.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
 	allocs679b57a0.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
@@ -3781,7 +3781,7 @@ func (x *FilResultBool) Deref() {
 	if x.ref679b57a0 == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.ref679b57a0.status_code)
+	x.StatusCode = (FilFCPResponseStatus)(x.ref679b57a0.status_code)
 	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.ref679b57a0.error_msg))
 	x.Value = (bool)(x.ref679b57a0.value)
 }
@@ -3840,7 +3840,7 @@ func (x *FilVerifyAggregateSealProofResponse) PassRef() (*C.fil_VerifyAggregateS
 	allocs66180e0.Add(mem66180e0)
 
 	var cstatus_code_allocs *cgoAllocMap
-	ref66180e0.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	ref66180e0.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
 	allocs66180e0.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
@@ -3872,7 +3872,7 @@ func (x *FilVerifyAggregateSealProofResponse) Deref() {
 	if x.ref66180e0 == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.ref66180e0.status_code)
+	x.StatusCode = (FilFCPResponseStatus)(x.ref66180e0.status_code)
 	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.ref66180e0.error_msg))
 	x.Value = (bool)(x.ref66180e0.value)
 }
@@ -3971,24 +3971,24 @@ func (x *FilAggregationInputs) Deref() {
 	if x.ref90b967c9 == nil {
 		return
 	}
-	x.CommR = *NewFil32ByteArrayRef(unsafe.Pointer(&x.ref90b967c9.comm_r))
-	x.CommD = *NewFil32ByteArrayRef(unsafe.Pointer(&x.ref90b967c9.comm_d))
+	x.CommR = *NewFilByteArray32Ref(unsafe.Pointer(&x.ref90b967c9.comm_r))
+	x.CommD = *NewFilByteArray32Ref(unsafe.Pointer(&x.ref90b967c9.comm_d))
 	x.SectorId = (uint64)(x.ref90b967c9.sector_id)
-	x.Ticket = *NewFil32ByteArrayRef(unsafe.Pointer(&x.ref90b967c9.ticket))
-	x.Seed = *NewFil32ByteArrayRef(unsafe.Pointer(&x.ref90b967c9.seed))
+	x.Ticket = *NewFilByteArray32Ref(unsafe.Pointer(&x.ref90b967c9.ticket))
+	x.Seed = *NewFilByteArray32Ref(unsafe.Pointer(&x.ref90b967c9.seed))
 }
 
-// allocFilArrayFilAggregationInputsMemory allocates memory for type C.fil_Array_fil_AggregationInputs in C.
+// allocFilArrayAggregationInputsMemory allocates memory for type C.fil_Array_AggregationInputs in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocFilArrayFilAggregationInputsMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilArrayFilAggregationInputsValue))
+func allocFilArrayAggregationInputsMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilArrayAggregationInputsValue))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfFilArrayFilAggregationInputsValue = unsafe.Sizeof([1]C.fil_Array_fil_AggregationInputs{})
+const sizeOfFilArrayAggregationInputsValue = unsafe.Sizeof([1]C.fil_Array_AggregationInputs{})
 
 // allocPStructFilAggregationInputsMemory allocates memory for type *C.struct_fil_AggregationInputs in C.
 // The caller is responsible for freeing the this memory via C.free.
@@ -4069,64 +4069,64 @@ func packSSFilAggregationInputs(v [][]FilAggregationInputs, ptr0 **C.struct_fil_
 }
 
 // Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *FilArrayFilAggregationInputs) Ref() *C.fil_Array_fil_AggregationInputs {
+func (x *FilArrayAggregationInputs) Ref() *C.fil_Array_AggregationInputs {
 	if x == nil {
 		return nil
 	}
-	return x.refcdcbaac8
+	return x.ref4439396c
 }
 
 // Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
 // Does nothing if struct is nil or has no allocation map.
-func (x *FilArrayFilAggregationInputs) Free() {
-	if x != nil && x.allocscdcbaac8 != nil {
-		x.allocscdcbaac8.(*cgoAllocMap).Free()
-		x.refcdcbaac8 = nil
+func (x *FilArrayAggregationInputs) Free() {
+	if x != nil && x.allocs4439396c != nil {
+		x.allocs4439396c.(*cgoAllocMap).Free()
+		x.ref4439396c = nil
 	}
 }
 
-// NewFilArrayFilAggregationInputsRef creates a new wrapper struct with underlying reference set to the original C object.
+// NewFilArrayAggregationInputsRef creates a new wrapper struct with underlying reference set to the original C object.
 // Returns nil if the provided pointer to C object is nil too.
-func NewFilArrayFilAggregationInputsRef(ref unsafe.Pointer) *FilArrayFilAggregationInputs {
+func NewFilArrayAggregationInputsRef(ref unsafe.Pointer) *FilArrayAggregationInputs {
 	if ref == nil {
 		return nil
 	}
-	obj := new(FilArrayFilAggregationInputs)
-	obj.refcdcbaac8 = (*C.fil_Array_fil_AggregationInputs)(unsafe.Pointer(ref))
+	obj := new(FilArrayAggregationInputs)
+	obj.ref4439396c = (*C.fil_Array_AggregationInputs)(unsafe.Pointer(ref))
 	return obj
 }
 
 // PassRef returns the underlying C object, otherwise it will allocate one and set its values
 // from this wrapping struct, counting allocations into an allocation map.
-func (x *FilArrayFilAggregationInputs) PassRef() (*C.fil_Array_fil_AggregationInputs, *cgoAllocMap) {
+func (x *FilArrayAggregationInputs) PassRef() (*C.fil_Array_AggregationInputs, *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
-	} else if x.refcdcbaac8 != nil {
-		return x.refcdcbaac8, nil
+	} else if x.ref4439396c != nil {
+		return x.ref4439396c, nil
 	}
-	memcdcbaac8 := allocFilArrayFilAggregationInputsMemory(1)
-	refcdcbaac8 := (*C.fil_Array_fil_AggregationInputs)(memcdcbaac8)
-	allocscdcbaac8 := new(cgoAllocMap)
-	allocscdcbaac8.Add(memcdcbaac8)
+	mem4439396c := allocFilArrayAggregationInputsMemory(1)
+	ref4439396c := (*C.fil_Array_AggregationInputs)(mem4439396c)
+	allocs4439396c := new(cgoAllocMap)
+	allocs4439396c.Add(mem4439396c)
 
 	var cptr_allocs *cgoAllocMap
-	refcdcbaac8.ptr, cptr_allocs = unpackSSFilAggregationInputs(x.Ptr)
-	allocscdcbaac8.Borrow(cptr_allocs)
+	ref4439396c.ptr, cptr_allocs = unpackSSFilAggregationInputs(x.Ptr)
+	allocs4439396c.Borrow(cptr_allocs)
 
 	var clen_allocs *cgoAllocMap
-	refcdcbaac8.len, clen_allocs = (C.uintptr_t)(x.Len), cgoAllocsUnknown
-	allocscdcbaac8.Borrow(clen_allocs)
+	ref4439396c.len, clen_allocs = (C.uintptr_t)(x.Len), cgoAllocsUnknown
+	allocs4439396c.Borrow(clen_allocs)
 
-	x.refcdcbaac8 = refcdcbaac8
-	x.allocscdcbaac8 = allocscdcbaac8
-	return refcdcbaac8, allocscdcbaac8
+	x.ref4439396c = ref4439396c
+	x.allocs4439396c = allocs4439396c
+	return ref4439396c, allocs4439396c
 
 }
 
 // PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x FilArrayFilAggregationInputs) PassValue() (C.fil_Array_fil_AggregationInputs, *cgoAllocMap) {
-	if x.refcdcbaac8 != nil {
-		return *x.refcdcbaac8, nil
+func (x FilArrayAggregationInputs) PassValue() (C.fil_Array_AggregationInputs, *cgoAllocMap) {
+	if x.ref4439396c != nil {
+		return *x.ref4439396c, nil
 	}
 	ref, allocs := x.PassRef()
 	return *ref, allocs
@@ -4134,12 +4134,12 @@ func (x FilArrayFilAggregationInputs) PassValue() (C.fil_Array_fil_AggregationIn
 
 // Deref uses the underlying reference to C object and fills the wrapping struct with values.
 // Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *FilArrayFilAggregationInputs) Deref() {
-	if x.refcdcbaac8 == nil {
+func (x *FilArrayAggregationInputs) Deref() {
+	if x.ref4439396c == nil {
 		return
 	}
-	packSSFilAggregationInputs(x.Ptr, x.refcdcbaac8.ptr)
-	x.Len = (uint64)(x.refcdcbaac8.len)
+	packSSFilAggregationInputs(x.Ptr, x.ref4439396c.ptr)
+	x.Len = (uint64)(x.ref4439396c.len)
 }
 
 // allocFilResultCVoidMemory allocates memory for type C.fil_Result_c_void in C.
@@ -4196,7 +4196,7 @@ func (x *FilResultCVoid) PassRef() (*C.fil_Result_c_void, *cgoAllocMap) {
 	allocsa11bb51a.Add(mema11bb51a)
 
 	var cstatus_code_allocs *cgoAllocMap
-	refa11bb51a.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	refa11bb51a.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
 	allocsa11bb51a.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
@@ -4224,7 +4224,7 @@ func (x *FilResultCVoid) Deref() {
 	if x.refa11bb51a == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.refa11bb51a.status_code)
+	x.StatusCode = (FilFCPResponseStatus)(x.refa11bb51a.status_code)
 	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.refa11bb51a.error_msg))
 }
 
@@ -4282,7 +4282,7 @@ func (x *FilUnsealRangeResponse) PassRef() (*C.fil_UnsealRangeResponse, *cgoAllo
 	allocs61e219c9.Add(mem61e219c9)
 
 	var cstatus_code_allocs *cgoAllocMap
-	ref61e219c9.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	ref61e219c9.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
 	allocs61e219c9.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
@@ -4310,7 +4310,7 @@ func (x *FilUnsealRangeResponse) Deref() {
 	if x.ref61e219c9 == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.ref61e219c9.status_code)
+	x.StatusCode = (FilFCPResponseStatus)(x.ref61e219c9.status_code)
 	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.ref61e219c9.error_msg))
 }
 
@@ -4368,7 +4368,7 @@ func (x *FilVerifySealResponse) PassRef() (*C.fil_VerifySealResponse, *cgoAllocM
 	allocsd4397079.Add(memd4397079)
 
 	var cstatus_code_allocs *cgoAllocMap
-	refd4397079.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	refd4397079.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
 	allocsd4397079.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
@@ -4400,86 +4400,86 @@ func (x *FilVerifySealResponse) Deref() {
 	if x.refd4397079 == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.refd4397079.status_code)
+	x.StatusCode = (FilFCPResponseStatus)(x.refd4397079.status_code)
 	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.refd4397079.error_msg))
 	x.Value = (bool)(x.refd4397079.value)
 }
 
-// allocFilResultFilArrayU64Memory allocates memory for type C.fil_Result_fil_Array_u64 in C.
+// allocFilResultArrayU64Memory allocates memory for type C.fil_Result_Array_u64 in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocFilResultFilArrayU64Memory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilResultFilArrayU64Value))
+func allocFilResultArrayU64Memory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilResultArrayU64Value))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfFilResultFilArrayU64Value = unsafe.Sizeof([1]C.fil_Result_fil_Array_u64{})
+const sizeOfFilResultArrayU64Value = unsafe.Sizeof([1]C.fil_Result_Array_u64{})
 
 // Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *FilResultFilArrayU64) Ref() *C.fil_Result_fil_Array_u64 {
+func (x *FilResultArrayU64) Ref() *C.fil_Result_Array_u64 {
 	if x == nil {
 		return nil
 	}
-	return x.ref922f2f90
+	return x.ref404ed39c
 }
 
 // Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
 // Does nothing if struct is nil or has no allocation map.
-func (x *FilResultFilArrayU64) Free() {
-	if x != nil && x.allocs922f2f90 != nil {
-		x.allocs922f2f90.(*cgoAllocMap).Free()
-		x.ref922f2f90 = nil
+func (x *FilResultArrayU64) Free() {
+	if x != nil && x.allocs404ed39c != nil {
+		x.allocs404ed39c.(*cgoAllocMap).Free()
+		x.ref404ed39c = nil
 	}
 }
 
-// NewFilResultFilArrayU64Ref creates a new wrapper struct with underlying reference set to the original C object.
+// NewFilResultArrayU64Ref creates a new wrapper struct with underlying reference set to the original C object.
 // Returns nil if the provided pointer to C object is nil too.
-func NewFilResultFilArrayU64Ref(ref unsafe.Pointer) *FilResultFilArrayU64 {
+func NewFilResultArrayU64Ref(ref unsafe.Pointer) *FilResultArrayU64 {
 	if ref == nil {
 		return nil
 	}
-	obj := new(FilResultFilArrayU64)
-	obj.ref922f2f90 = (*C.fil_Result_fil_Array_u64)(unsafe.Pointer(ref))
+	obj := new(FilResultArrayU64)
+	obj.ref404ed39c = (*C.fil_Result_Array_u64)(unsafe.Pointer(ref))
 	return obj
 }
 
 // PassRef returns the underlying C object, otherwise it will allocate one and set its values
 // from this wrapping struct, counting allocations into an allocation map.
-func (x *FilResultFilArrayU64) PassRef() (*C.fil_Result_fil_Array_u64, *cgoAllocMap) {
+func (x *FilResultArrayU64) PassRef() (*C.fil_Result_Array_u64, *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
-	} else if x.ref922f2f90 != nil {
-		return x.ref922f2f90, nil
+	} else if x.ref404ed39c != nil {
+		return x.ref404ed39c, nil
 	}
-	mem922f2f90 := allocFilResultFilArrayU64Memory(1)
-	ref922f2f90 := (*C.fil_Result_fil_Array_u64)(mem922f2f90)
-	allocs922f2f90 := new(cgoAllocMap)
-	allocs922f2f90.Add(mem922f2f90)
+	mem404ed39c := allocFilResultArrayU64Memory(1)
+	ref404ed39c := (*C.fil_Result_Array_u64)(mem404ed39c)
+	allocs404ed39c := new(cgoAllocMap)
+	allocs404ed39c.Add(mem404ed39c)
 
 	var cstatus_code_allocs *cgoAllocMap
-	ref922f2f90.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
-	allocs922f2f90.Borrow(cstatus_code_allocs)
+	ref404ed39c.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	allocs404ed39c.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
-	ref922f2f90.error_msg, cerror_msg_allocs = x.ErrorMsg.PassValue()
-	allocs922f2f90.Borrow(cerror_msg_allocs)
+	ref404ed39c.error_msg, cerror_msg_allocs = x.ErrorMsg.PassValue()
+	allocs404ed39c.Borrow(cerror_msg_allocs)
 
 	var cvalue_allocs *cgoAllocMap
-	ref922f2f90.value, cvalue_allocs = x.Value.PassValue()
-	allocs922f2f90.Borrow(cvalue_allocs)
+	ref404ed39c.value, cvalue_allocs = x.Value.PassValue()
+	allocs404ed39c.Borrow(cvalue_allocs)
 
-	x.ref922f2f90 = ref922f2f90
-	x.allocs922f2f90 = allocs922f2f90
-	return ref922f2f90, allocs922f2f90
+	x.ref404ed39c = ref404ed39c
+	x.allocs404ed39c = allocs404ed39c
+	return ref404ed39c, allocs404ed39c
 
 }
 
 // PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x FilResultFilArrayU64) PassValue() (C.fil_Result_fil_Array_u64, *cgoAllocMap) {
-	if x.ref922f2f90 != nil {
-		return *x.ref922f2f90, nil
+func (x FilResultArrayU64) PassValue() (C.fil_Result_Array_u64, *cgoAllocMap) {
+	if x.ref404ed39c != nil {
+		return *x.ref404ed39c, nil
 	}
 	ref, allocs := x.PassRef()
 	return *ref, allocs
@@ -4487,13 +4487,13 @@ func (x FilResultFilArrayU64) PassValue() (C.fil_Result_fil_Array_u64, *cgoAlloc
 
 // Deref uses the underlying reference to C object and fills the wrapping struct with values.
 // Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *FilResultFilArrayU64) Deref() {
-	if x.ref922f2f90 == nil {
+func (x *FilResultArrayU64) Deref() {
+	if x.ref404ed39c == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.ref922f2f90.status_code)
-	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.ref922f2f90.error_msg))
-	x.Value = *NewFilArrayU64Ref(unsafe.Pointer(&x.ref922f2f90.value))
+	x.StatusCode = (FilFCPResponseStatus)(x.ref404ed39c.status_code)
+	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.ref404ed39c.error_msg))
+	x.Value = *NewFilArrayU64Ref(unsafe.Pointer(&x.ref404ed39c.value))
 }
 
 // allocFilGenerateWinningPoStSectorChallengeMemory allocates memory for type C.fil_GenerateWinningPoStSectorChallenge in C.
@@ -4550,7 +4550,7 @@ func (x *FilGenerateWinningPoStSectorChallenge) PassRef() (*C.fil_GenerateWinnin
 	allocs69d2a405.Add(mem69d2a405)
 
 	var cstatus_code_allocs *cgoAllocMap
-	ref69d2a405.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	ref69d2a405.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
 	allocs69d2a405.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
@@ -4582,7 +4582,7 @@ func (x *FilGenerateWinningPoStSectorChallenge) Deref() {
 	if x.ref69d2a405 == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.ref69d2a405.status_code)
+	x.StatusCode = (FilFCPResponseStatus)(x.ref69d2a405.status_code)
 	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.ref69d2a405.error_msg))
 	x.Value = *NewFilArrayU64Ref(unsafe.Pointer(&x.ref69d2a405.value))
 }
@@ -4678,81 +4678,81 @@ func (x *FilGenerateFallbackSectorChallenges) Deref() {
 	x.ChallengesStride = (uint)(x.ref4e86db4.challenges_stride)
 }
 
-// allocFilResultFilGenerateFallbackSectorChallengesMemory allocates memory for type C.fil_Result_fil_GenerateFallbackSectorChallenges in C.
+// allocFilResultGenerateFallbackSectorChallengesMemory allocates memory for type C.fil_Result_GenerateFallbackSectorChallenges in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocFilResultFilGenerateFallbackSectorChallengesMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilResultFilGenerateFallbackSectorChallengesValue))
+func allocFilResultGenerateFallbackSectorChallengesMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilResultGenerateFallbackSectorChallengesValue))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfFilResultFilGenerateFallbackSectorChallengesValue = unsafe.Sizeof([1]C.fil_Result_fil_GenerateFallbackSectorChallenges{})
+const sizeOfFilResultGenerateFallbackSectorChallengesValue = unsafe.Sizeof([1]C.fil_Result_GenerateFallbackSectorChallenges{})
 
 // Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *FilResultFilGenerateFallbackSectorChallenges) Ref() *C.fil_Result_fil_GenerateFallbackSectorChallenges {
+func (x *FilResultGenerateFallbackSectorChallenges) Ref() *C.fil_Result_GenerateFallbackSectorChallenges {
 	if x == nil {
 		return nil
 	}
-	return x.refbbc9d8fd
+	return x.ref72f7e3e6
 }
 
 // Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
 // Does nothing if struct is nil or has no allocation map.
-func (x *FilResultFilGenerateFallbackSectorChallenges) Free() {
-	if x != nil && x.allocsbbc9d8fd != nil {
-		x.allocsbbc9d8fd.(*cgoAllocMap).Free()
-		x.refbbc9d8fd = nil
+func (x *FilResultGenerateFallbackSectorChallenges) Free() {
+	if x != nil && x.allocs72f7e3e6 != nil {
+		x.allocs72f7e3e6.(*cgoAllocMap).Free()
+		x.ref72f7e3e6 = nil
 	}
 }
 
-// NewFilResultFilGenerateFallbackSectorChallengesRef creates a new wrapper struct with underlying reference set to the original C object.
+// NewFilResultGenerateFallbackSectorChallengesRef creates a new wrapper struct with underlying reference set to the original C object.
 // Returns nil if the provided pointer to C object is nil too.
-func NewFilResultFilGenerateFallbackSectorChallengesRef(ref unsafe.Pointer) *FilResultFilGenerateFallbackSectorChallenges {
+func NewFilResultGenerateFallbackSectorChallengesRef(ref unsafe.Pointer) *FilResultGenerateFallbackSectorChallenges {
 	if ref == nil {
 		return nil
 	}
-	obj := new(FilResultFilGenerateFallbackSectorChallenges)
-	obj.refbbc9d8fd = (*C.fil_Result_fil_GenerateFallbackSectorChallenges)(unsafe.Pointer(ref))
+	obj := new(FilResultGenerateFallbackSectorChallenges)
+	obj.ref72f7e3e6 = (*C.fil_Result_GenerateFallbackSectorChallenges)(unsafe.Pointer(ref))
 	return obj
 }
 
 // PassRef returns the underlying C object, otherwise it will allocate one and set its values
 // from this wrapping struct, counting allocations into an allocation map.
-func (x *FilResultFilGenerateFallbackSectorChallenges) PassRef() (*C.fil_Result_fil_GenerateFallbackSectorChallenges, *cgoAllocMap) {
+func (x *FilResultGenerateFallbackSectorChallenges) PassRef() (*C.fil_Result_GenerateFallbackSectorChallenges, *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
-	} else if x.refbbc9d8fd != nil {
-		return x.refbbc9d8fd, nil
+	} else if x.ref72f7e3e6 != nil {
+		return x.ref72f7e3e6, nil
 	}
-	membbc9d8fd := allocFilResultFilGenerateFallbackSectorChallengesMemory(1)
-	refbbc9d8fd := (*C.fil_Result_fil_GenerateFallbackSectorChallenges)(membbc9d8fd)
-	allocsbbc9d8fd := new(cgoAllocMap)
-	allocsbbc9d8fd.Add(membbc9d8fd)
+	mem72f7e3e6 := allocFilResultGenerateFallbackSectorChallengesMemory(1)
+	ref72f7e3e6 := (*C.fil_Result_GenerateFallbackSectorChallenges)(mem72f7e3e6)
+	allocs72f7e3e6 := new(cgoAllocMap)
+	allocs72f7e3e6.Add(mem72f7e3e6)
 
 	var cstatus_code_allocs *cgoAllocMap
-	refbbc9d8fd.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
-	allocsbbc9d8fd.Borrow(cstatus_code_allocs)
+	ref72f7e3e6.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	allocs72f7e3e6.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
-	refbbc9d8fd.error_msg, cerror_msg_allocs = x.ErrorMsg.PassValue()
-	allocsbbc9d8fd.Borrow(cerror_msg_allocs)
+	ref72f7e3e6.error_msg, cerror_msg_allocs = x.ErrorMsg.PassValue()
+	allocs72f7e3e6.Borrow(cerror_msg_allocs)
 
 	var cvalue_allocs *cgoAllocMap
-	refbbc9d8fd.value, cvalue_allocs = x.Value.PassValue()
-	allocsbbc9d8fd.Borrow(cvalue_allocs)
+	ref72f7e3e6.value, cvalue_allocs = x.Value.PassValue()
+	allocs72f7e3e6.Borrow(cvalue_allocs)
 
-	x.refbbc9d8fd = refbbc9d8fd
-	x.allocsbbc9d8fd = allocsbbc9d8fd
-	return refbbc9d8fd, allocsbbc9d8fd
+	x.ref72f7e3e6 = ref72f7e3e6
+	x.allocs72f7e3e6 = allocs72f7e3e6
+	return ref72f7e3e6, allocs72f7e3e6
 
 }
 
 // PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x FilResultFilGenerateFallbackSectorChallenges) PassValue() (C.fil_Result_fil_GenerateFallbackSectorChallenges, *cgoAllocMap) {
-	if x.refbbc9d8fd != nil {
-		return *x.refbbc9d8fd, nil
+func (x FilResultGenerateFallbackSectorChallenges) PassValue() (C.fil_Result_GenerateFallbackSectorChallenges, *cgoAllocMap) {
+	if x.ref72f7e3e6 != nil {
+		return *x.ref72f7e3e6, nil
 	}
 	ref, allocs := x.PassRef()
 	return *ref, allocs
@@ -4760,13 +4760,13 @@ func (x FilResultFilGenerateFallbackSectorChallenges) PassValue() (C.fil_Result_
 
 // Deref uses the underlying reference to C object and fills the wrapping struct with values.
 // Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *FilResultFilGenerateFallbackSectorChallenges) Deref() {
-	if x.refbbc9d8fd == nil {
+func (x *FilResultGenerateFallbackSectorChallenges) Deref() {
+	if x.ref72f7e3e6 == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.refbbc9d8fd.status_code)
-	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.refbbc9d8fd.error_msg))
-	x.Value = *NewFilGenerateFallbackSectorChallengesRef(unsafe.Pointer(&x.refbbc9d8fd.value))
+	x.StatusCode = (FilFCPResponseStatus)(x.ref72f7e3e6.status_code)
+	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.ref72f7e3e6.error_msg))
+	x.Value = *NewFilGenerateFallbackSectorChallengesRef(unsafe.Pointer(&x.ref72f7e3e6.value))
 }
 
 // allocFilGenerateFallbackSectorChallengesResponseMemory allocates memory for type C.fil_GenerateFallbackSectorChallengesResponse in C.
@@ -4823,7 +4823,7 @@ func (x *FilGenerateFallbackSectorChallengesResponse) PassRef() (*C.fil_Generate
 	allocs7047a3fa.Add(mem7047a3fa)
 
 	var cstatus_code_allocs *cgoAllocMap
-	ref7047a3fa.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	ref7047a3fa.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
 	allocs7047a3fa.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
@@ -4855,7 +4855,7 @@ func (x *FilGenerateFallbackSectorChallengesResponse) Deref() {
 	if x.ref7047a3fa == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.ref7047a3fa.status_code)
+	x.StatusCode = (FilFCPResponseStatus)(x.ref7047a3fa.status_code)
 	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.ref7047a3fa.error_msg))
 	x.Value = *NewFilGenerateFallbackSectorChallengesRef(unsafe.Pointer(&x.ref7047a3fa.value))
 }
@@ -4914,7 +4914,7 @@ func (x *FilGenerateSingleVanillaProofResponse) PassRef() (*C.fil_GenerateSingle
 	allocsf9d21b04.Add(memf9d21b04)
 
 	var cstatus_code_allocs *cgoAllocMap
-	reff9d21b04.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	reff9d21b04.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
 	allocsf9d21b04.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
@@ -4946,7 +4946,7 @@ func (x *FilGenerateSingleVanillaProofResponse) Deref() {
 	if x.reff9d21b04 == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.reff9d21b04.status_code)
+	x.StatusCode = (FilFCPResponseStatus)(x.reff9d21b04.status_code)
 	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.reff9d21b04.error_msg))
 	x.Value = *NewFilVanillaProofRef(unsafe.Pointer(&x.reff9d21b04.value))
 }
@@ -5138,17 +5138,17 @@ func (x *FilPoStProof) Deref() {
 	x.Proof = *NewFilBytesRef(unsafe.Pointer(&x.ref3451bfa.proof))
 }
 
-// allocFilArrayFilPoStProofMemory allocates memory for type C.fil_Array_fil_PoStProof in C.
+// allocFilArrayPoStProofMemory allocates memory for type C.fil_Array_PoStProof in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocFilArrayFilPoStProofMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilArrayFilPoStProofValue))
+func allocFilArrayPoStProofMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilArrayPoStProofValue))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfFilArrayFilPoStProofValue = unsafe.Sizeof([1]C.fil_Array_fil_PoStProof{})
+const sizeOfFilArrayPoStProofValue = unsafe.Sizeof([1]C.fil_Array_PoStProof{})
 
 // allocPStructFilPoStProofMemory allocates memory for type *C.struct_fil_PoStProof in C.
 // The caller is responsible for freeing the this memory via C.free.
@@ -5229,64 +5229,64 @@ func packSSFilPoStProof(v [][]FilPoStProof, ptr0 **C.struct_fil_PoStProof) {
 }
 
 // Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *FilArrayFilPoStProof) Ref() *C.fil_Array_fil_PoStProof {
+func (x *FilArrayPoStProof) Ref() *C.fil_Array_PoStProof {
 	if x == nil {
 		return nil
 	}
-	return x.reff50b906d
+	return x.ref4afd40c2
 }
 
 // Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
 // Does nothing if struct is nil or has no allocation map.
-func (x *FilArrayFilPoStProof) Free() {
-	if x != nil && x.allocsf50b906d != nil {
-		x.allocsf50b906d.(*cgoAllocMap).Free()
-		x.reff50b906d = nil
+func (x *FilArrayPoStProof) Free() {
+	if x != nil && x.allocs4afd40c2 != nil {
+		x.allocs4afd40c2.(*cgoAllocMap).Free()
+		x.ref4afd40c2 = nil
 	}
 }
 
-// NewFilArrayFilPoStProofRef creates a new wrapper struct with underlying reference set to the original C object.
+// NewFilArrayPoStProofRef creates a new wrapper struct with underlying reference set to the original C object.
 // Returns nil if the provided pointer to C object is nil too.
-func NewFilArrayFilPoStProofRef(ref unsafe.Pointer) *FilArrayFilPoStProof {
+func NewFilArrayPoStProofRef(ref unsafe.Pointer) *FilArrayPoStProof {
 	if ref == nil {
 		return nil
 	}
-	obj := new(FilArrayFilPoStProof)
-	obj.reff50b906d = (*C.fil_Array_fil_PoStProof)(unsafe.Pointer(ref))
+	obj := new(FilArrayPoStProof)
+	obj.ref4afd40c2 = (*C.fil_Array_PoStProof)(unsafe.Pointer(ref))
 	return obj
 }
 
 // PassRef returns the underlying C object, otherwise it will allocate one and set its values
 // from this wrapping struct, counting allocations into an allocation map.
-func (x *FilArrayFilPoStProof) PassRef() (*C.fil_Array_fil_PoStProof, *cgoAllocMap) {
+func (x *FilArrayPoStProof) PassRef() (*C.fil_Array_PoStProof, *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
-	} else if x.reff50b906d != nil {
-		return x.reff50b906d, nil
+	} else if x.ref4afd40c2 != nil {
+		return x.ref4afd40c2, nil
 	}
-	memf50b906d := allocFilArrayFilPoStProofMemory(1)
-	reff50b906d := (*C.fil_Array_fil_PoStProof)(memf50b906d)
-	allocsf50b906d := new(cgoAllocMap)
-	allocsf50b906d.Add(memf50b906d)
+	mem4afd40c2 := allocFilArrayPoStProofMemory(1)
+	ref4afd40c2 := (*C.fil_Array_PoStProof)(mem4afd40c2)
+	allocs4afd40c2 := new(cgoAllocMap)
+	allocs4afd40c2.Add(mem4afd40c2)
 
 	var cptr_allocs *cgoAllocMap
-	reff50b906d.ptr, cptr_allocs = unpackSSFilPoStProof(x.Ptr)
-	allocsf50b906d.Borrow(cptr_allocs)
+	ref4afd40c2.ptr, cptr_allocs = unpackSSFilPoStProof(x.Ptr)
+	allocs4afd40c2.Borrow(cptr_allocs)
 
 	var clen_allocs *cgoAllocMap
-	reff50b906d.len, clen_allocs = (C.uintptr_t)(x.Len), cgoAllocsUnknown
-	allocsf50b906d.Borrow(clen_allocs)
+	ref4afd40c2.len, clen_allocs = (C.uintptr_t)(x.Len), cgoAllocsUnknown
+	allocs4afd40c2.Borrow(clen_allocs)
 
-	x.reff50b906d = reff50b906d
-	x.allocsf50b906d = allocsf50b906d
-	return reff50b906d, allocsf50b906d
+	x.ref4afd40c2 = ref4afd40c2
+	x.allocs4afd40c2 = allocs4afd40c2
+	return ref4afd40c2, allocs4afd40c2
 
 }
 
 // PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x FilArrayFilPoStProof) PassValue() (C.fil_Array_fil_PoStProof, *cgoAllocMap) {
-	if x.reff50b906d != nil {
-		return *x.reff50b906d, nil
+func (x FilArrayPoStProof) PassValue() (C.fil_Array_PoStProof, *cgoAllocMap) {
+	if x.ref4afd40c2 != nil {
+		return *x.ref4afd40c2, nil
 	}
 	ref, allocs := x.PassRef()
 	return *ref, allocs
@@ -5294,89 +5294,89 @@ func (x FilArrayFilPoStProof) PassValue() (C.fil_Array_fil_PoStProof, *cgoAllocM
 
 // Deref uses the underlying reference to C object and fills the wrapping struct with values.
 // Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *FilArrayFilPoStProof) Deref() {
-	if x.reff50b906d == nil {
+func (x *FilArrayPoStProof) Deref() {
+	if x.ref4afd40c2 == nil {
 		return
 	}
-	packSSFilPoStProof(x.Ptr, x.reff50b906d.ptr)
-	x.Len = (uint64)(x.reff50b906d.len)
+	packSSFilPoStProof(x.Ptr, x.ref4afd40c2.ptr)
+	x.Len = (uint64)(x.ref4afd40c2.len)
 }
 
-// allocFilResultFilArrayFilPoStProofMemory allocates memory for type C.fil_Result_fil_Array_fil_PoStProof in C.
+// allocFilResultArrayPoStProofMemory allocates memory for type C.fil_Result_Array_PoStProof in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocFilResultFilArrayFilPoStProofMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilResultFilArrayFilPoStProofValue))
+func allocFilResultArrayPoStProofMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilResultArrayPoStProofValue))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfFilResultFilArrayFilPoStProofValue = unsafe.Sizeof([1]C.fil_Result_fil_Array_fil_PoStProof{})
+const sizeOfFilResultArrayPoStProofValue = unsafe.Sizeof([1]C.fil_Result_Array_PoStProof{})
 
 // Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *FilResultFilArrayFilPoStProof) Ref() *C.fil_Result_fil_Array_fil_PoStProof {
+func (x *FilResultArrayPoStProof) Ref() *C.fil_Result_Array_PoStProof {
 	if x == nil {
 		return nil
 	}
-	return x.refef258397
+	return x.refbed55aa5
 }
 
 // Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
 // Does nothing if struct is nil or has no allocation map.
-func (x *FilResultFilArrayFilPoStProof) Free() {
-	if x != nil && x.allocsef258397 != nil {
-		x.allocsef258397.(*cgoAllocMap).Free()
-		x.refef258397 = nil
+func (x *FilResultArrayPoStProof) Free() {
+	if x != nil && x.allocsbed55aa5 != nil {
+		x.allocsbed55aa5.(*cgoAllocMap).Free()
+		x.refbed55aa5 = nil
 	}
 }
 
-// NewFilResultFilArrayFilPoStProofRef creates a new wrapper struct with underlying reference set to the original C object.
+// NewFilResultArrayPoStProofRef creates a new wrapper struct with underlying reference set to the original C object.
 // Returns nil if the provided pointer to C object is nil too.
-func NewFilResultFilArrayFilPoStProofRef(ref unsafe.Pointer) *FilResultFilArrayFilPoStProof {
+func NewFilResultArrayPoStProofRef(ref unsafe.Pointer) *FilResultArrayPoStProof {
 	if ref == nil {
 		return nil
 	}
-	obj := new(FilResultFilArrayFilPoStProof)
-	obj.refef258397 = (*C.fil_Result_fil_Array_fil_PoStProof)(unsafe.Pointer(ref))
+	obj := new(FilResultArrayPoStProof)
+	obj.refbed55aa5 = (*C.fil_Result_Array_PoStProof)(unsafe.Pointer(ref))
 	return obj
 }
 
 // PassRef returns the underlying C object, otherwise it will allocate one and set its values
 // from this wrapping struct, counting allocations into an allocation map.
-func (x *FilResultFilArrayFilPoStProof) PassRef() (*C.fil_Result_fil_Array_fil_PoStProof, *cgoAllocMap) {
+func (x *FilResultArrayPoStProof) PassRef() (*C.fil_Result_Array_PoStProof, *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
-	} else if x.refef258397 != nil {
-		return x.refef258397, nil
+	} else if x.refbed55aa5 != nil {
+		return x.refbed55aa5, nil
 	}
-	memef258397 := allocFilResultFilArrayFilPoStProofMemory(1)
-	refef258397 := (*C.fil_Result_fil_Array_fil_PoStProof)(memef258397)
-	allocsef258397 := new(cgoAllocMap)
-	allocsef258397.Add(memef258397)
+	membed55aa5 := allocFilResultArrayPoStProofMemory(1)
+	refbed55aa5 := (*C.fil_Result_Array_PoStProof)(membed55aa5)
+	allocsbed55aa5 := new(cgoAllocMap)
+	allocsbed55aa5.Add(membed55aa5)
 
 	var cstatus_code_allocs *cgoAllocMap
-	refef258397.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
-	allocsef258397.Borrow(cstatus_code_allocs)
+	refbed55aa5.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	allocsbed55aa5.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
-	refef258397.error_msg, cerror_msg_allocs = x.ErrorMsg.PassValue()
-	allocsef258397.Borrow(cerror_msg_allocs)
+	refbed55aa5.error_msg, cerror_msg_allocs = x.ErrorMsg.PassValue()
+	allocsbed55aa5.Borrow(cerror_msg_allocs)
 
 	var cvalue_allocs *cgoAllocMap
-	refef258397.value, cvalue_allocs = x.Value.PassValue()
-	allocsef258397.Borrow(cvalue_allocs)
+	refbed55aa5.value, cvalue_allocs = x.Value.PassValue()
+	allocsbed55aa5.Borrow(cvalue_allocs)
 
-	x.refef258397 = refef258397
-	x.allocsef258397 = allocsef258397
-	return refef258397, allocsef258397
+	x.refbed55aa5 = refbed55aa5
+	x.allocsbed55aa5 = allocsbed55aa5
+	return refbed55aa5, allocsbed55aa5
 
 }
 
 // PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x FilResultFilArrayFilPoStProof) PassValue() (C.fil_Result_fil_Array_fil_PoStProof, *cgoAllocMap) {
-	if x.refef258397 != nil {
-		return *x.refef258397, nil
+func (x FilResultArrayPoStProof) PassValue() (C.fil_Result_Array_PoStProof, *cgoAllocMap) {
+	if x.refbed55aa5 != nil {
+		return *x.refbed55aa5, nil
 	}
 	ref, allocs := x.PassRef()
 	return *ref, allocs
@@ -5384,13 +5384,13 @@ func (x FilResultFilArrayFilPoStProof) PassValue() (C.fil_Result_fil_Array_fil_P
 
 // Deref uses the underlying reference to C object and fills the wrapping struct with values.
 // Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *FilResultFilArrayFilPoStProof) Deref() {
-	if x.refef258397 == nil {
+func (x *FilResultArrayPoStProof) Deref() {
+	if x.refbed55aa5 == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.refef258397.status_code)
-	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.refef258397.error_msg))
-	x.Value = *NewFilArrayFilPoStProofRef(unsafe.Pointer(&x.refef258397.value))
+	x.StatusCode = (FilFCPResponseStatus)(x.refbed55aa5.status_code)
+	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.refbed55aa5.error_msg))
+	x.Value = *NewFilArrayPoStProofRef(unsafe.Pointer(&x.refbed55aa5.value))
 }
 
 // allocFilGenerateWinningPoStResponseMemory allocates memory for type C.fil_GenerateWinningPoStResponse in C.
@@ -5447,7 +5447,7 @@ func (x *FilGenerateWinningPoStResponse) PassRef() (*C.fil_GenerateWinningPoStRe
 	allocs1405b8ec.Add(mem1405b8ec)
 
 	var cstatus_code_allocs *cgoAllocMap
-	ref1405b8ec.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	ref1405b8ec.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
 	allocs1405b8ec.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
@@ -5479,22 +5479,22 @@ func (x *FilGenerateWinningPoStResponse) Deref() {
 	if x.ref1405b8ec == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.ref1405b8ec.status_code)
+	x.StatusCode = (FilFCPResponseStatus)(x.ref1405b8ec.status_code)
 	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.ref1405b8ec.error_msg))
-	x.Value = *NewFilArrayFilPoStProofRef(unsafe.Pointer(&x.ref1405b8ec.value))
+	x.Value = *NewFilArrayPoStProofRef(unsafe.Pointer(&x.ref1405b8ec.value))
 }
 
-// allocFilArrayFilVanillaProofMemory allocates memory for type C.fil_Array_fil_VanillaProof in C.
+// allocFilArrayVanillaProofMemory allocates memory for type C.fil_Array_VanillaProof in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocFilArrayFilVanillaProofMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilArrayFilVanillaProofValue))
+func allocFilArrayVanillaProofMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilArrayVanillaProofValue))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfFilArrayFilVanillaProofValue = unsafe.Sizeof([1]C.fil_Array_fil_VanillaProof{})
+const sizeOfFilArrayVanillaProofValue = unsafe.Sizeof([1]C.fil_Array_VanillaProof{})
 
 // allocPFilVanillaProofMemory allocates memory for type *C.fil_VanillaProof in C.
 // The caller is responsible for freeing the this memory via C.free.
@@ -5575,64 +5575,64 @@ func packSSFilVanillaProof(v [][]FilVanillaProof, ptr0 **C.fil_VanillaProof) {
 }
 
 // Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *FilArrayFilVanillaProof) Ref() *C.fil_Array_fil_VanillaProof {
+func (x *FilArrayVanillaProof) Ref() *C.fil_Array_VanillaProof {
 	if x == nil {
 		return nil
 	}
-	return x.ref2a8e018
+	return x.ref56a68cc
 }
 
 // Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
 // Does nothing if struct is nil or has no allocation map.
-func (x *FilArrayFilVanillaProof) Free() {
-	if x != nil && x.allocs2a8e018 != nil {
-		x.allocs2a8e018.(*cgoAllocMap).Free()
-		x.ref2a8e018 = nil
+func (x *FilArrayVanillaProof) Free() {
+	if x != nil && x.allocs56a68cc != nil {
+		x.allocs56a68cc.(*cgoAllocMap).Free()
+		x.ref56a68cc = nil
 	}
 }
 
-// NewFilArrayFilVanillaProofRef creates a new wrapper struct with underlying reference set to the original C object.
+// NewFilArrayVanillaProofRef creates a new wrapper struct with underlying reference set to the original C object.
 // Returns nil if the provided pointer to C object is nil too.
-func NewFilArrayFilVanillaProofRef(ref unsafe.Pointer) *FilArrayFilVanillaProof {
+func NewFilArrayVanillaProofRef(ref unsafe.Pointer) *FilArrayVanillaProof {
 	if ref == nil {
 		return nil
 	}
-	obj := new(FilArrayFilVanillaProof)
-	obj.ref2a8e018 = (*C.fil_Array_fil_VanillaProof)(unsafe.Pointer(ref))
+	obj := new(FilArrayVanillaProof)
+	obj.ref56a68cc = (*C.fil_Array_VanillaProof)(unsafe.Pointer(ref))
 	return obj
 }
 
 // PassRef returns the underlying C object, otherwise it will allocate one and set its values
 // from this wrapping struct, counting allocations into an allocation map.
-func (x *FilArrayFilVanillaProof) PassRef() (*C.fil_Array_fil_VanillaProof, *cgoAllocMap) {
+func (x *FilArrayVanillaProof) PassRef() (*C.fil_Array_VanillaProof, *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
-	} else if x.ref2a8e018 != nil {
-		return x.ref2a8e018, nil
+	} else if x.ref56a68cc != nil {
+		return x.ref56a68cc, nil
 	}
-	mem2a8e018 := allocFilArrayFilVanillaProofMemory(1)
-	ref2a8e018 := (*C.fil_Array_fil_VanillaProof)(mem2a8e018)
-	allocs2a8e018 := new(cgoAllocMap)
-	allocs2a8e018.Add(mem2a8e018)
+	mem56a68cc := allocFilArrayVanillaProofMemory(1)
+	ref56a68cc := (*C.fil_Array_VanillaProof)(mem56a68cc)
+	allocs56a68cc := new(cgoAllocMap)
+	allocs56a68cc.Add(mem56a68cc)
 
 	var cptr_allocs *cgoAllocMap
-	ref2a8e018.ptr, cptr_allocs = unpackSSFilVanillaProof(x.Ptr)
-	allocs2a8e018.Borrow(cptr_allocs)
+	ref56a68cc.ptr, cptr_allocs = unpackSSFilVanillaProof(x.Ptr)
+	allocs56a68cc.Borrow(cptr_allocs)
 
 	var clen_allocs *cgoAllocMap
-	ref2a8e018.len, clen_allocs = (C.uintptr_t)(x.Len), cgoAllocsUnknown
-	allocs2a8e018.Borrow(clen_allocs)
+	ref56a68cc.len, clen_allocs = (C.uintptr_t)(x.Len), cgoAllocsUnknown
+	allocs56a68cc.Borrow(clen_allocs)
 
-	x.ref2a8e018 = ref2a8e018
-	x.allocs2a8e018 = allocs2a8e018
-	return ref2a8e018, allocs2a8e018
+	x.ref56a68cc = ref56a68cc
+	x.allocs56a68cc = allocs56a68cc
+	return ref56a68cc, allocs56a68cc
 
 }
 
 // PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x FilArrayFilVanillaProof) PassValue() (C.fil_Array_fil_VanillaProof, *cgoAllocMap) {
-	if x.ref2a8e018 != nil {
-		return *x.ref2a8e018, nil
+func (x FilArrayVanillaProof) PassValue() (C.fil_Array_VanillaProof, *cgoAllocMap) {
+	if x.ref56a68cc != nil {
+		return *x.ref56a68cc, nil
 	}
 	ref, allocs := x.PassRef()
 	return *ref, allocs
@@ -5640,25 +5640,25 @@ func (x FilArrayFilVanillaProof) PassValue() (C.fil_Array_fil_VanillaProof, *cgo
 
 // Deref uses the underlying reference to C object and fills the wrapping struct with values.
 // Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *FilArrayFilVanillaProof) Deref() {
-	if x.ref2a8e018 == nil {
+func (x *FilArrayVanillaProof) Deref() {
+	if x.ref56a68cc == nil {
 		return
 	}
-	packSSFilVanillaProof(x.Ptr, x.ref2a8e018.ptr)
-	x.Len = (uint64)(x.ref2a8e018.len)
+	packSSFilVanillaProof(x.Ptr, x.ref56a68cc.ptr)
+	x.Len = (uint64)(x.ref56a68cc.len)
 }
 
-// allocFilArrayFilPrivateReplicaInfoMemory allocates memory for type C.fil_Array_fil_PrivateReplicaInfo in C.
+// allocFilArrayPrivateReplicaInfoMemory allocates memory for type C.fil_Array_PrivateReplicaInfo in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocFilArrayFilPrivateReplicaInfoMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilArrayFilPrivateReplicaInfoValue))
+func allocFilArrayPrivateReplicaInfoMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilArrayPrivateReplicaInfoValue))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfFilArrayFilPrivateReplicaInfoValue = unsafe.Sizeof([1]C.fil_Array_fil_PrivateReplicaInfo{})
+const sizeOfFilArrayPrivateReplicaInfoValue = unsafe.Sizeof([1]C.fil_Array_PrivateReplicaInfo{})
 
 // allocPStructFilPrivateReplicaInfoMemory allocates memory for type *C.struct_fil_PrivateReplicaInfo in C.
 // The caller is responsible for freeing the this memory via C.free.
@@ -5739,64 +5739,64 @@ func packSSFilPrivateReplicaInfo(v [][]FilPrivateReplicaInfo, ptr0 **C.struct_fi
 }
 
 // Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *FilArrayFilPrivateReplicaInfo) Ref() *C.fil_Array_fil_PrivateReplicaInfo {
+func (x *FilArrayPrivateReplicaInfo) Ref() *C.fil_Array_PrivateReplicaInfo {
 	if x == nil {
 		return nil
 	}
-	return x.reff6f95cc0
+	return x.ref27cbc9a2
 }
 
 // Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
 // Does nothing if struct is nil or has no allocation map.
-func (x *FilArrayFilPrivateReplicaInfo) Free() {
-	if x != nil && x.allocsf6f95cc0 != nil {
-		x.allocsf6f95cc0.(*cgoAllocMap).Free()
-		x.reff6f95cc0 = nil
+func (x *FilArrayPrivateReplicaInfo) Free() {
+	if x != nil && x.allocs27cbc9a2 != nil {
+		x.allocs27cbc9a2.(*cgoAllocMap).Free()
+		x.ref27cbc9a2 = nil
 	}
 }
 
-// NewFilArrayFilPrivateReplicaInfoRef creates a new wrapper struct with underlying reference set to the original C object.
+// NewFilArrayPrivateReplicaInfoRef creates a new wrapper struct with underlying reference set to the original C object.
 // Returns nil if the provided pointer to C object is nil too.
-func NewFilArrayFilPrivateReplicaInfoRef(ref unsafe.Pointer) *FilArrayFilPrivateReplicaInfo {
+func NewFilArrayPrivateReplicaInfoRef(ref unsafe.Pointer) *FilArrayPrivateReplicaInfo {
 	if ref == nil {
 		return nil
 	}
-	obj := new(FilArrayFilPrivateReplicaInfo)
-	obj.reff6f95cc0 = (*C.fil_Array_fil_PrivateReplicaInfo)(unsafe.Pointer(ref))
+	obj := new(FilArrayPrivateReplicaInfo)
+	obj.ref27cbc9a2 = (*C.fil_Array_PrivateReplicaInfo)(unsafe.Pointer(ref))
 	return obj
 }
 
 // PassRef returns the underlying C object, otherwise it will allocate one and set its values
 // from this wrapping struct, counting allocations into an allocation map.
-func (x *FilArrayFilPrivateReplicaInfo) PassRef() (*C.fil_Array_fil_PrivateReplicaInfo, *cgoAllocMap) {
+func (x *FilArrayPrivateReplicaInfo) PassRef() (*C.fil_Array_PrivateReplicaInfo, *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
-	} else if x.reff6f95cc0 != nil {
-		return x.reff6f95cc0, nil
+	} else if x.ref27cbc9a2 != nil {
+		return x.ref27cbc9a2, nil
 	}
-	memf6f95cc0 := allocFilArrayFilPrivateReplicaInfoMemory(1)
-	reff6f95cc0 := (*C.fil_Array_fil_PrivateReplicaInfo)(memf6f95cc0)
-	allocsf6f95cc0 := new(cgoAllocMap)
-	allocsf6f95cc0.Add(memf6f95cc0)
+	mem27cbc9a2 := allocFilArrayPrivateReplicaInfoMemory(1)
+	ref27cbc9a2 := (*C.fil_Array_PrivateReplicaInfo)(mem27cbc9a2)
+	allocs27cbc9a2 := new(cgoAllocMap)
+	allocs27cbc9a2.Add(mem27cbc9a2)
 
 	var cptr_allocs *cgoAllocMap
-	reff6f95cc0.ptr, cptr_allocs = unpackSSFilPrivateReplicaInfo(x.Ptr)
-	allocsf6f95cc0.Borrow(cptr_allocs)
+	ref27cbc9a2.ptr, cptr_allocs = unpackSSFilPrivateReplicaInfo(x.Ptr)
+	allocs27cbc9a2.Borrow(cptr_allocs)
 
 	var clen_allocs *cgoAllocMap
-	reff6f95cc0.len, clen_allocs = (C.uintptr_t)(x.Len), cgoAllocsUnknown
-	allocsf6f95cc0.Borrow(clen_allocs)
+	ref27cbc9a2.len, clen_allocs = (C.uintptr_t)(x.Len), cgoAllocsUnknown
+	allocs27cbc9a2.Borrow(clen_allocs)
 
-	x.reff6f95cc0 = reff6f95cc0
-	x.allocsf6f95cc0 = allocsf6f95cc0
-	return reff6f95cc0, allocsf6f95cc0
+	x.ref27cbc9a2 = ref27cbc9a2
+	x.allocs27cbc9a2 = allocs27cbc9a2
+	return ref27cbc9a2, allocs27cbc9a2
 
 }
 
 // PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x FilArrayFilPrivateReplicaInfo) PassValue() (C.fil_Array_fil_PrivateReplicaInfo, *cgoAllocMap) {
-	if x.reff6f95cc0 != nil {
-		return *x.reff6f95cc0, nil
+func (x FilArrayPrivateReplicaInfo) PassValue() (C.fil_Array_PrivateReplicaInfo, *cgoAllocMap) {
+	if x.ref27cbc9a2 != nil {
+		return *x.ref27cbc9a2, nil
 	}
 	ref, allocs := x.PassRef()
 	return *ref, allocs
@@ -5804,12 +5804,12 @@ func (x FilArrayFilPrivateReplicaInfo) PassValue() (C.fil_Array_fil_PrivateRepli
 
 // Deref uses the underlying reference to C object and fills the wrapping struct with values.
 // Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *FilArrayFilPrivateReplicaInfo) Deref() {
-	if x.reff6f95cc0 == nil {
+func (x *FilArrayPrivateReplicaInfo) Deref() {
+	if x.ref27cbc9a2 == nil {
 		return
 	}
-	packSSFilPrivateReplicaInfo(x.Ptr, x.reff6f95cc0.ptr)
-	x.Len = (uint64)(x.reff6f95cc0.len)
+	packSSFilPrivateReplicaInfo(x.Ptr, x.ref27cbc9a2.ptr)
+	x.Len = (uint64)(x.ref27cbc9a2.len)
 }
 
 // allocFilVerifyWinningPoStResponseMemory allocates memory for type C.fil_VerifyWinningPoStResponse in C.
@@ -5866,7 +5866,7 @@ func (x *FilVerifyWinningPoStResponse) PassRef() (*C.fil_VerifyWinningPoStRespon
 	allocsaca6860c.Add(memaca6860c)
 
 	var cstatus_code_allocs *cgoAllocMap
-	refaca6860c.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	refaca6860c.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
 	allocsaca6860c.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
@@ -5898,7 +5898,7 @@ func (x *FilVerifyWinningPoStResponse) Deref() {
 	if x.refaca6860c == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.refaca6860c.status_code)
+	x.StatusCode = (FilFCPResponseStatus)(x.refaca6860c.status_code)
 	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.refaca6860c.error_msg))
 	x.Value = (bool)(x.refaca6860c.value)
 }
@@ -5994,17 +5994,17 @@ func (x *FilPublicReplicaInfo) Deref() {
 	x.SectorId = (uint64)(x.ref81b617c2.sector_id)
 }
 
-// allocFilArrayFilPublicReplicaInfoMemory allocates memory for type C.fil_Array_fil_PublicReplicaInfo in C.
+// allocFilArrayPublicReplicaInfoMemory allocates memory for type C.fil_Array_PublicReplicaInfo in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocFilArrayFilPublicReplicaInfoMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilArrayFilPublicReplicaInfoValue))
+func allocFilArrayPublicReplicaInfoMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilArrayPublicReplicaInfoValue))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfFilArrayFilPublicReplicaInfoValue = unsafe.Sizeof([1]C.fil_Array_fil_PublicReplicaInfo{})
+const sizeOfFilArrayPublicReplicaInfoValue = unsafe.Sizeof([1]C.fil_Array_PublicReplicaInfo{})
 
 // allocPStructFilPublicReplicaInfoMemory allocates memory for type *C.struct_fil_PublicReplicaInfo in C.
 // The caller is responsible for freeing the this memory via C.free.
@@ -6085,64 +6085,64 @@ func packSSFilPublicReplicaInfo(v [][]FilPublicReplicaInfo, ptr0 **C.struct_fil_
 }
 
 // Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *FilArrayFilPublicReplicaInfo) Ref() *C.fil_Array_fil_PublicReplicaInfo {
+func (x *FilArrayPublicReplicaInfo) Ref() *C.fil_Array_PublicReplicaInfo {
 	if x == nil {
 		return nil
 	}
-	return x.refdcc4dac3
+	return x.ref55364967
 }
 
 // Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
 // Does nothing if struct is nil or has no allocation map.
-func (x *FilArrayFilPublicReplicaInfo) Free() {
-	if x != nil && x.allocsdcc4dac3 != nil {
-		x.allocsdcc4dac3.(*cgoAllocMap).Free()
-		x.refdcc4dac3 = nil
+func (x *FilArrayPublicReplicaInfo) Free() {
+	if x != nil && x.allocs55364967 != nil {
+		x.allocs55364967.(*cgoAllocMap).Free()
+		x.ref55364967 = nil
 	}
 }
 
-// NewFilArrayFilPublicReplicaInfoRef creates a new wrapper struct with underlying reference set to the original C object.
+// NewFilArrayPublicReplicaInfoRef creates a new wrapper struct with underlying reference set to the original C object.
 // Returns nil if the provided pointer to C object is nil too.
-func NewFilArrayFilPublicReplicaInfoRef(ref unsafe.Pointer) *FilArrayFilPublicReplicaInfo {
+func NewFilArrayPublicReplicaInfoRef(ref unsafe.Pointer) *FilArrayPublicReplicaInfo {
 	if ref == nil {
 		return nil
 	}
-	obj := new(FilArrayFilPublicReplicaInfo)
-	obj.refdcc4dac3 = (*C.fil_Array_fil_PublicReplicaInfo)(unsafe.Pointer(ref))
+	obj := new(FilArrayPublicReplicaInfo)
+	obj.ref55364967 = (*C.fil_Array_PublicReplicaInfo)(unsafe.Pointer(ref))
 	return obj
 }
 
 // PassRef returns the underlying C object, otherwise it will allocate one and set its values
 // from this wrapping struct, counting allocations into an allocation map.
-func (x *FilArrayFilPublicReplicaInfo) PassRef() (*C.fil_Array_fil_PublicReplicaInfo, *cgoAllocMap) {
+func (x *FilArrayPublicReplicaInfo) PassRef() (*C.fil_Array_PublicReplicaInfo, *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
-	} else if x.refdcc4dac3 != nil {
-		return x.refdcc4dac3, nil
+	} else if x.ref55364967 != nil {
+		return x.ref55364967, nil
 	}
-	memdcc4dac3 := allocFilArrayFilPublicReplicaInfoMemory(1)
-	refdcc4dac3 := (*C.fil_Array_fil_PublicReplicaInfo)(memdcc4dac3)
-	allocsdcc4dac3 := new(cgoAllocMap)
-	allocsdcc4dac3.Add(memdcc4dac3)
+	mem55364967 := allocFilArrayPublicReplicaInfoMemory(1)
+	ref55364967 := (*C.fil_Array_PublicReplicaInfo)(mem55364967)
+	allocs55364967 := new(cgoAllocMap)
+	allocs55364967.Add(mem55364967)
 
 	var cptr_allocs *cgoAllocMap
-	refdcc4dac3.ptr, cptr_allocs = unpackSSFilPublicReplicaInfo(x.Ptr)
-	allocsdcc4dac3.Borrow(cptr_allocs)
+	ref55364967.ptr, cptr_allocs = unpackSSFilPublicReplicaInfo(x.Ptr)
+	allocs55364967.Borrow(cptr_allocs)
 
 	var clen_allocs *cgoAllocMap
-	refdcc4dac3.len, clen_allocs = (C.uintptr_t)(x.Len), cgoAllocsUnknown
-	allocsdcc4dac3.Borrow(clen_allocs)
+	ref55364967.len, clen_allocs = (C.uintptr_t)(x.Len), cgoAllocsUnknown
+	allocs55364967.Borrow(clen_allocs)
 
-	x.refdcc4dac3 = refdcc4dac3
-	x.allocsdcc4dac3 = allocsdcc4dac3
-	return refdcc4dac3, allocsdcc4dac3
+	x.ref55364967 = ref55364967
+	x.allocs55364967 = allocs55364967
+	return ref55364967, allocs55364967
 
 }
 
 // PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x FilArrayFilPublicReplicaInfo) PassValue() (C.fil_Array_fil_PublicReplicaInfo, *cgoAllocMap) {
-	if x.refdcc4dac3 != nil {
-		return *x.refdcc4dac3, nil
+func (x FilArrayPublicReplicaInfo) PassValue() (C.fil_Array_PublicReplicaInfo, *cgoAllocMap) {
+	if x.ref55364967 != nil {
+		return *x.ref55364967, nil
 	}
 	ref, allocs := x.PassRef()
 	return *ref, allocs
@@ -6150,12 +6150,12 @@ func (x FilArrayFilPublicReplicaInfo) PassValue() (C.fil_Array_fil_PublicReplica
 
 // Deref uses the underlying reference to C object and fills the wrapping struct with values.
 // Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *FilArrayFilPublicReplicaInfo) Deref() {
-	if x.refdcc4dac3 == nil {
+func (x *FilArrayPublicReplicaInfo) Deref() {
+	if x.ref55364967 == nil {
 		return
 	}
-	packSSFilPublicReplicaInfo(x.Ptr, x.refdcc4dac3.ptr)
-	x.Len = (uint64)(x.refdcc4dac3.len)
+	packSSFilPublicReplicaInfo(x.Ptr, x.ref55364967.ptr)
+	x.Len = (uint64)(x.ref55364967.len)
 }
 
 // allocFilGenerateWindowPoStMemory allocates memory for type C.fil_GenerateWindowPoSt in C.
@@ -6240,85 +6240,85 @@ func (x *FilGenerateWindowPoSt) Deref() {
 	if x.ref276e4853 == nil {
 		return
 	}
-	x.Proofs = *NewFilArrayFilPoStProofRef(unsafe.Pointer(&x.ref276e4853.proofs))
+	x.Proofs = *NewFilArrayPoStProofRef(unsafe.Pointer(&x.ref276e4853.proofs))
 	x.FaultySectors = *NewFilArrayU64Ref(unsafe.Pointer(&x.ref276e4853.faulty_sectors))
 }
 
-// allocFilResultFilGenerateWindowPoStMemory allocates memory for type C.fil_Result_fil_GenerateWindowPoSt in C.
+// allocFilResultGenerateWindowPoStMemory allocates memory for type C.fil_Result_GenerateWindowPoSt in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocFilResultFilGenerateWindowPoStMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilResultFilGenerateWindowPoStValue))
+func allocFilResultGenerateWindowPoStMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilResultGenerateWindowPoStValue))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfFilResultFilGenerateWindowPoStValue = unsafe.Sizeof([1]C.fil_Result_fil_GenerateWindowPoSt{})
+const sizeOfFilResultGenerateWindowPoStValue = unsafe.Sizeof([1]C.fil_Result_GenerateWindowPoSt{})
 
 // Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *FilResultFilGenerateWindowPoSt) Ref() *C.fil_Result_fil_GenerateWindowPoSt {
+func (x *FilResultGenerateWindowPoSt) Ref() *C.fil_Result_GenerateWindowPoSt {
 	if x == nil {
 		return nil
 	}
-	return x.refd3a9cf47
+	return x.refef6ec723
 }
 
 // Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
 // Does nothing if struct is nil or has no allocation map.
-func (x *FilResultFilGenerateWindowPoSt) Free() {
-	if x != nil && x.allocsd3a9cf47 != nil {
-		x.allocsd3a9cf47.(*cgoAllocMap).Free()
-		x.refd3a9cf47 = nil
+func (x *FilResultGenerateWindowPoSt) Free() {
+	if x != nil && x.allocsef6ec723 != nil {
+		x.allocsef6ec723.(*cgoAllocMap).Free()
+		x.refef6ec723 = nil
 	}
 }
 
-// NewFilResultFilGenerateWindowPoStRef creates a new wrapper struct with underlying reference set to the original C object.
+// NewFilResultGenerateWindowPoStRef creates a new wrapper struct with underlying reference set to the original C object.
 // Returns nil if the provided pointer to C object is nil too.
-func NewFilResultFilGenerateWindowPoStRef(ref unsafe.Pointer) *FilResultFilGenerateWindowPoSt {
+func NewFilResultGenerateWindowPoStRef(ref unsafe.Pointer) *FilResultGenerateWindowPoSt {
 	if ref == nil {
 		return nil
 	}
-	obj := new(FilResultFilGenerateWindowPoSt)
-	obj.refd3a9cf47 = (*C.fil_Result_fil_GenerateWindowPoSt)(unsafe.Pointer(ref))
+	obj := new(FilResultGenerateWindowPoSt)
+	obj.refef6ec723 = (*C.fil_Result_GenerateWindowPoSt)(unsafe.Pointer(ref))
 	return obj
 }
 
 // PassRef returns the underlying C object, otherwise it will allocate one and set its values
 // from this wrapping struct, counting allocations into an allocation map.
-func (x *FilResultFilGenerateWindowPoSt) PassRef() (*C.fil_Result_fil_GenerateWindowPoSt, *cgoAllocMap) {
+func (x *FilResultGenerateWindowPoSt) PassRef() (*C.fil_Result_GenerateWindowPoSt, *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
-	} else if x.refd3a9cf47 != nil {
-		return x.refd3a9cf47, nil
+	} else if x.refef6ec723 != nil {
+		return x.refef6ec723, nil
 	}
-	memd3a9cf47 := allocFilResultFilGenerateWindowPoStMemory(1)
-	refd3a9cf47 := (*C.fil_Result_fil_GenerateWindowPoSt)(memd3a9cf47)
-	allocsd3a9cf47 := new(cgoAllocMap)
-	allocsd3a9cf47.Add(memd3a9cf47)
+	memef6ec723 := allocFilResultGenerateWindowPoStMemory(1)
+	refef6ec723 := (*C.fil_Result_GenerateWindowPoSt)(memef6ec723)
+	allocsef6ec723 := new(cgoAllocMap)
+	allocsef6ec723.Add(memef6ec723)
 
 	var cstatus_code_allocs *cgoAllocMap
-	refd3a9cf47.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
-	allocsd3a9cf47.Borrow(cstatus_code_allocs)
+	refef6ec723.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	allocsef6ec723.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
-	refd3a9cf47.error_msg, cerror_msg_allocs = x.ErrorMsg.PassValue()
-	allocsd3a9cf47.Borrow(cerror_msg_allocs)
+	refef6ec723.error_msg, cerror_msg_allocs = x.ErrorMsg.PassValue()
+	allocsef6ec723.Borrow(cerror_msg_allocs)
 
 	var cvalue_allocs *cgoAllocMap
-	refd3a9cf47.value, cvalue_allocs = x.Value.PassValue()
-	allocsd3a9cf47.Borrow(cvalue_allocs)
+	refef6ec723.value, cvalue_allocs = x.Value.PassValue()
+	allocsef6ec723.Borrow(cvalue_allocs)
 
-	x.refd3a9cf47 = refd3a9cf47
-	x.allocsd3a9cf47 = allocsd3a9cf47
-	return refd3a9cf47, allocsd3a9cf47
+	x.refef6ec723 = refef6ec723
+	x.allocsef6ec723 = allocsef6ec723
+	return refef6ec723, allocsef6ec723
 
 }
 
 // PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x FilResultFilGenerateWindowPoSt) PassValue() (C.fil_Result_fil_GenerateWindowPoSt, *cgoAllocMap) {
-	if x.refd3a9cf47 != nil {
-		return *x.refd3a9cf47, nil
+func (x FilResultGenerateWindowPoSt) PassValue() (C.fil_Result_GenerateWindowPoSt, *cgoAllocMap) {
+	if x.refef6ec723 != nil {
+		return *x.refef6ec723, nil
 	}
 	ref, allocs := x.PassRef()
 	return *ref, allocs
@@ -6326,13 +6326,13 @@ func (x FilResultFilGenerateWindowPoSt) PassValue() (C.fil_Result_fil_GenerateWi
 
 // Deref uses the underlying reference to C object and fills the wrapping struct with values.
 // Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *FilResultFilGenerateWindowPoSt) Deref() {
-	if x.refd3a9cf47 == nil {
+func (x *FilResultGenerateWindowPoSt) Deref() {
+	if x.refef6ec723 == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.refd3a9cf47.status_code)
-	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.refd3a9cf47.error_msg))
-	x.Value = *NewFilGenerateWindowPoStRef(unsafe.Pointer(&x.refd3a9cf47.value))
+	x.StatusCode = (FilFCPResponseStatus)(x.refef6ec723.status_code)
+	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.refef6ec723.error_msg))
+	x.Value = *NewFilGenerateWindowPoStRef(unsafe.Pointer(&x.refef6ec723.value))
 }
 
 // allocFilGenerateWindowPoStResponseMemory allocates memory for type C.fil_GenerateWindowPoStResponse in C.
@@ -6389,7 +6389,7 @@ func (x *FilGenerateWindowPoStResponse) PassRef() (*C.fil_GenerateWindowPoStResp
 	allocs2a5f3ba8.Add(mem2a5f3ba8)
 
 	var cstatus_code_allocs *cgoAllocMap
-	ref2a5f3ba8.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	ref2a5f3ba8.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
 	allocs2a5f3ba8.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
@@ -6421,7 +6421,7 @@ func (x *FilGenerateWindowPoStResponse) Deref() {
 	if x.ref2a5f3ba8 == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.ref2a5f3ba8.status_code)
+	x.StatusCode = (FilFCPResponseStatus)(x.ref2a5f3ba8.status_code)
 	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.ref2a5f3ba8.error_msg))
 	x.Value = *NewFilGenerateWindowPoStRef(unsafe.Pointer(&x.ref2a5f3ba8.value))
 }
@@ -6480,7 +6480,7 @@ func (x *FilVerifyWindowPoStResponse) PassRef() (*C.fil_VerifyWindowPoStResponse
 	allocs34c4d49f.Add(mem34c4d49f)
 
 	var cstatus_code_allocs *cgoAllocMap
-	ref34c4d49f.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	ref34c4d49f.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
 	allocs34c4d49f.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
@@ -6512,86 +6512,86 @@ func (x *FilVerifyWindowPoStResponse) Deref() {
 	if x.ref34c4d49f == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.ref34c4d49f.status_code)
+	x.StatusCode = (FilFCPResponseStatus)(x.ref34c4d49f.status_code)
 	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.ref34c4d49f.error_msg))
 	x.Value = (bool)(x.ref34c4d49f.value)
 }
 
-// allocFilResultFilPoStProofMemory allocates memory for type C.fil_Result_fil_PoStProof in C.
+// allocFilResultPoStProofMemory allocates memory for type C.fil_Result_PoStProof in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocFilResultFilPoStProofMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilResultFilPoStProofValue))
+func allocFilResultPoStProofMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilResultPoStProofValue))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfFilResultFilPoStProofValue = unsafe.Sizeof([1]C.fil_Result_fil_PoStProof{})
+const sizeOfFilResultPoStProofValue = unsafe.Sizeof([1]C.fil_Result_PoStProof{})
 
 // Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *FilResultFilPoStProof) Ref() *C.fil_Result_fil_PoStProof {
+func (x *FilResultPoStProof) Ref() *C.fil_Result_PoStProof {
 	if x == nil {
 		return nil
 	}
-	return x.ref95df36ad
+	return x.ref47becaa1
 }
 
 // Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
 // Does nothing if struct is nil or has no allocation map.
-func (x *FilResultFilPoStProof) Free() {
-	if x != nil && x.allocs95df36ad != nil {
-		x.allocs95df36ad.(*cgoAllocMap).Free()
-		x.ref95df36ad = nil
+func (x *FilResultPoStProof) Free() {
+	if x != nil && x.allocs47becaa1 != nil {
+		x.allocs47becaa1.(*cgoAllocMap).Free()
+		x.ref47becaa1 = nil
 	}
 }
 
-// NewFilResultFilPoStProofRef creates a new wrapper struct with underlying reference set to the original C object.
+// NewFilResultPoStProofRef creates a new wrapper struct with underlying reference set to the original C object.
 // Returns nil if the provided pointer to C object is nil too.
-func NewFilResultFilPoStProofRef(ref unsafe.Pointer) *FilResultFilPoStProof {
+func NewFilResultPoStProofRef(ref unsafe.Pointer) *FilResultPoStProof {
 	if ref == nil {
 		return nil
 	}
-	obj := new(FilResultFilPoStProof)
-	obj.ref95df36ad = (*C.fil_Result_fil_PoStProof)(unsafe.Pointer(ref))
+	obj := new(FilResultPoStProof)
+	obj.ref47becaa1 = (*C.fil_Result_PoStProof)(unsafe.Pointer(ref))
 	return obj
 }
 
 // PassRef returns the underlying C object, otherwise it will allocate one and set its values
 // from this wrapping struct, counting allocations into an allocation map.
-func (x *FilResultFilPoStProof) PassRef() (*C.fil_Result_fil_PoStProof, *cgoAllocMap) {
+func (x *FilResultPoStProof) PassRef() (*C.fil_Result_PoStProof, *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
-	} else if x.ref95df36ad != nil {
-		return x.ref95df36ad, nil
+	} else if x.ref47becaa1 != nil {
+		return x.ref47becaa1, nil
 	}
-	mem95df36ad := allocFilResultFilPoStProofMemory(1)
-	ref95df36ad := (*C.fil_Result_fil_PoStProof)(mem95df36ad)
-	allocs95df36ad := new(cgoAllocMap)
-	allocs95df36ad.Add(mem95df36ad)
+	mem47becaa1 := allocFilResultPoStProofMemory(1)
+	ref47becaa1 := (*C.fil_Result_PoStProof)(mem47becaa1)
+	allocs47becaa1 := new(cgoAllocMap)
+	allocs47becaa1.Add(mem47becaa1)
 
 	var cstatus_code_allocs *cgoAllocMap
-	ref95df36ad.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
-	allocs95df36ad.Borrow(cstatus_code_allocs)
+	ref47becaa1.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	allocs47becaa1.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
-	ref95df36ad.error_msg, cerror_msg_allocs = x.ErrorMsg.PassValue()
-	allocs95df36ad.Borrow(cerror_msg_allocs)
+	ref47becaa1.error_msg, cerror_msg_allocs = x.ErrorMsg.PassValue()
+	allocs47becaa1.Borrow(cerror_msg_allocs)
 
 	var cvalue_allocs *cgoAllocMap
-	ref95df36ad.value, cvalue_allocs = x.Value.PassValue()
-	allocs95df36ad.Borrow(cvalue_allocs)
+	ref47becaa1.value, cvalue_allocs = x.Value.PassValue()
+	allocs47becaa1.Borrow(cvalue_allocs)
 
-	x.ref95df36ad = ref95df36ad
-	x.allocs95df36ad = allocs95df36ad
-	return ref95df36ad, allocs95df36ad
+	x.ref47becaa1 = ref47becaa1
+	x.allocs47becaa1 = allocs47becaa1
+	return ref47becaa1, allocs47becaa1
 
 }
 
 // PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x FilResultFilPoStProof) PassValue() (C.fil_Result_fil_PoStProof, *cgoAllocMap) {
-	if x.ref95df36ad != nil {
-		return *x.ref95df36ad, nil
+func (x FilResultPoStProof) PassValue() (C.fil_Result_PoStProof, *cgoAllocMap) {
+	if x.ref47becaa1 != nil {
+		return *x.ref47becaa1, nil
 	}
 	ref, allocs := x.PassRef()
 	return *ref, allocs
@@ -6599,13 +6599,13 @@ func (x FilResultFilPoStProof) PassValue() (C.fil_Result_fil_PoStProof, *cgoAllo
 
 // Deref uses the underlying reference to C object and fills the wrapping struct with values.
 // Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *FilResultFilPoStProof) Deref() {
-	if x.ref95df36ad == nil {
+func (x *FilResultPoStProof) Deref() {
+	if x.ref47becaa1 == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.ref95df36ad.status_code)
-	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.ref95df36ad.error_msg))
-	x.Value = *NewFilPoStProofRef(unsafe.Pointer(&x.ref95df36ad.value))
+	x.StatusCode = (FilFCPResponseStatus)(x.ref47becaa1.status_code)
+	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.ref47becaa1.error_msg))
+	x.Value = *NewFilPoStProofRef(unsafe.Pointer(&x.ref47becaa1.value))
 }
 
 // allocFilMergeWindowPoStPartitionProofsResponseMemory allocates memory for type C.fil_MergeWindowPoStPartitionProofsResponse in C.
@@ -6662,7 +6662,7 @@ func (x *FilMergeWindowPoStPartitionProofsResponse) PassRef() (*C.fil_MergeWindo
 	allocs3369154e.Add(mem3369154e)
 
 	var cstatus_code_allocs *cgoAllocMap
-	ref3369154e.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	ref3369154e.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
 	allocs3369154e.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
@@ -6694,7 +6694,7 @@ func (x *FilMergeWindowPoStPartitionProofsResponse) Deref() {
 	if x.ref3369154e == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.ref3369154e.status_code)
+	x.StatusCode = (FilFCPResponseStatus)(x.ref3369154e.status_code)
 	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.ref3369154e.error_msg))
 	x.Value = *NewFilPoStProofRef(unsafe.Pointer(&x.ref3369154e.value))
 }
@@ -6785,17 +6785,17 @@ func (x *FilPartitionSnarkProof) Deref() {
 	x.Proof = *NewFilBytesRef(unsafe.Pointer(&x.ref4de03739.proof))
 }
 
-// allocFilArrayFilPartitionSnarkProofMemory allocates memory for type C.fil_Array_fil_PartitionSnarkProof in C.
+// allocFilArrayPartitionSnarkProofMemory allocates memory for type C.fil_Array_PartitionSnarkProof in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocFilArrayFilPartitionSnarkProofMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilArrayFilPartitionSnarkProofValue))
+func allocFilArrayPartitionSnarkProofMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilArrayPartitionSnarkProofValue))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfFilArrayFilPartitionSnarkProofValue = unsafe.Sizeof([1]C.fil_Array_fil_PartitionSnarkProof{})
+const sizeOfFilArrayPartitionSnarkProofValue = unsafe.Sizeof([1]C.fil_Array_PartitionSnarkProof{})
 
 // allocPStructFilPartitionSnarkProofMemory allocates memory for type *C.struct_fil_PartitionSnarkProof in C.
 // The caller is responsible for freeing the this memory via C.free.
@@ -6876,64 +6876,64 @@ func packSSFilPartitionSnarkProof(v [][]FilPartitionSnarkProof, ptr0 **C.struct_
 }
 
 // Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *FilArrayFilPartitionSnarkProof) Ref() *C.fil_Array_fil_PartitionSnarkProof {
+func (x *FilArrayPartitionSnarkProof) Ref() *C.fil_Array_PartitionSnarkProof {
 	if x == nil {
 		return nil
 	}
-	return x.refb12ee507
+	return x.ref1243d7e6
 }
 
 // Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
 // Does nothing if struct is nil or has no allocation map.
-func (x *FilArrayFilPartitionSnarkProof) Free() {
-	if x != nil && x.allocsb12ee507 != nil {
-		x.allocsb12ee507.(*cgoAllocMap).Free()
-		x.refb12ee507 = nil
+func (x *FilArrayPartitionSnarkProof) Free() {
+	if x != nil && x.allocs1243d7e6 != nil {
+		x.allocs1243d7e6.(*cgoAllocMap).Free()
+		x.ref1243d7e6 = nil
 	}
 }
 
-// NewFilArrayFilPartitionSnarkProofRef creates a new wrapper struct with underlying reference set to the original C object.
+// NewFilArrayPartitionSnarkProofRef creates a new wrapper struct with underlying reference set to the original C object.
 // Returns nil if the provided pointer to C object is nil too.
-func NewFilArrayFilPartitionSnarkProofRef(ref unsafe.Pointer) *FilArrayFilPartitionSnarkProof {
+func NewFilArrayPartitionSnarkProofRef(ref unsafe.Pointer) *FilArrayPartitionSnarkProof {
 	if ref == nil {
 		return nil
 	}
-	obj := new(FilArrayFilPartitionSnarkProof)
-	obj.refb12ee507 = (*C.fil_Array_fil_PartitionSnarkProof)(unsafe.Pointer(ref))
+	obj := new(FilArrayPartitionSnarkProof)
+	obj.ref1243d7e6 = (*C.fil_Array_PartitionSnarkProof)(unsafe.Pointer(ref))
 	return obj
 }
 
 // PassRef returns the underlying C object, otherwise it will allocate one and set its values
 // from this wrapping struct, counting allocations into an allocation map.
-func (x *FilArrayFilPartitionSnarkProof) PassRef() (*C.fil_Array_fil_PartitionSnarkProof, *cgoAllocMap) {
+func (x *FilArrayPartitionSnarkProof) PassRef() (*C.fil_Array_PartitionSnarkProof, *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
-	} else if x.refb12ee507 != nil {
-		return x.refb12ee507, nil
+	} else if x.ref1243d7e6 != nil {
+		return x.ref1243d7e6, nil
 	}
-	memb12ee507 := allocFilArrayFilPartitionSnarkProofMemory(1)
-	refb12ee507 := (*C.fil_Array_fil_PartitionSnarkProof)(memb12ee507)
-	allocsb12ee507 := new(cgoAllocMap)
-	allocsb12ee507.Add(memb12ee507)
+	mem1243d7e6 := allocFilArrayPartitionSnarkProofMemory(1)
+	ref1243d7e6 := (*C.fil_Array_PartitionSnarkProof)(mem1243d7e6)
+	allocs1243d7e6 := new(cgoAllocMap)
+	allocs1243d7e6.Add(mem1243d7e6)
 
 	var cptr_allocs *cgoAllocMap
-	refb12ee507.ptr, cptr_allocs = unpackSSFilPartitionSnarkProof(x.Ptr)
-	allocsb12ee507.Borrow(cptr_allocs)
+	ref1243d7e6.ptr, cptr_allocs = unpackSSFilPartitionSnarkProof(x.Ptr)
+	allocs1243d7e6.Borrow(cptr_allocs)
 
 	var clen_allocs *cgoAllocMap
-	refb12ee507.len, clen_allocs = (C.uintptr_t)(x.Len), cgoAllocsUnknown
-	allocsb12ee507.Borrow(clen_allocs)
+	ref1243d7e6.len, clen_allocs = (C.uintptr_t)(x.Len), cgoAllocsUnknown
+	allocs1243d7e6.Borrow(clen_allocs)
 
-	x.refb12ee507 = refb12ee507
-	x.allocsb12ee507 = allocsb12ee507
-	return refb12ee507, allocsb12ee507
+	x.ref1243d7e6 = ref1243d7e6
+	x.allocs1243d7e6 = allocs1243d7e6
+	return ref1243d7e6, allocs1243d7e6
 
 }
 
 // PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x FilArrayFilPartitionSnarkProof) PassValue() (C.fil_Array_fil_PartitionSnarkProof, *cgoAllocMap) {
-	if x.refb12ee507 != nil {
-		return *x.refb12ee507, nil
+func (x FilArrayPartitionSnarkProof) PassValue() (C.fil_Array_PartitionSnarkProof, *cgoAllocMap) {
+	if x.ref1243d7e6 != nil {
+		return *x.ref1243d7e6, nil
 	}
 	ref, allocs := x.PassRef()
 	return *ref, allocs
@@ -6941,12 +6941,12 @@ func (x FilArrayFilPartitionSnarkProof) PassValue() (C.fil_Array_fil_PartitionSn
 
 // Deref uses the underlying reference to C object and fills the wrapping struct with values.
 // Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *FilArrayFilPartitionSnarkProof) Deref() {
-	if x.refb12ee507 == nil {
+func (x *FilArrayPartitionSnarkProof) Deref() {
+	if x.ref1243d7e6 == nil {
 		return
 	}
-	packSSFilPartitionSnarkProof(x.Ptr, x.refb12ee507.ptr)
-	x.Len = (uint64)(x.refb12ee507.len)
+	packSSFilPartitionSnarkProof(x.Ptr, x.ref1243d7e6.ptr)
+	x.Len = (uint64)(x.ref1243d7e6.len)
 }
 
 // allocFilResultSizeTMemory allocates memory for type C.fil_Result_size_t in C.
@@ -7003,7 +7003,7 @@ func (x *FilResultSizeT) PassRef() (*C.fil_Result_size_t, *cgoAllocMap) {
 	allocs5f4641d8.Add(mem5f4641d8)
 
 	var cstatus_code_allocs *cgoAllocMap
-	ref5f4641d8.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	ref5f4641d8.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
 	allocs5f4641d8.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
@@ -7035,7 +7035,7 @@ func (x *FilResultSizeT) Deref() {
 	if x.ref5f4641d8 == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.ref5f4641d8.status_code)
+	x.StatusCode = (FilFCPResponseStatus)(x.ref5f4641d8.status_code)
 	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.ref5f4641d8.error_msg))
 	x.Value = (uint)(x.ref5f4641d8.value)
 }
@@ -7094,7 +7094,7 @@ func (x *FilGetNumPartitionForFallbackPoStResponse) PassRef() (*C.fil_GetNumPart
 	allocsc0084478.Add(memc0084478)
 
 	var cstatus_code_allocs *cgoAllocMap
-	refc0084478.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	refc0084478.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
 	allocsc0084478.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
@@ -7126,7 +7126,7 @@ func (x *FilGetNumPartitionForFallbackPoStResponse) Deref() {
 	if x.refc0084478 == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.refc0084478.status_code)
+	x.StatusCode = (FilFCPResponseStatus)(x.refc0084478.status_code)
 	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.refc0084478.error_msg))
 	x.Value = (uint)(x.refc0084478.value)
 }
@@ -7217,81 +7217,81 @@ func (x *FilGenerateSingleWindowPoStWithVanilla) Deref() {
 	x.FaultySectors = *NewFilArrayU64Ref(unsafe.Pointer(&x.ref50dfbbfc.faulty_sectors))
 }
 
-// allocFilResultFilGenerateSingleWindowPoStWithVanillaMemory allocates memory for type C.fil_Result_fil_GenerateSingleWindowPoStWithVanilla in C.
+// allocFilResultGenerateSingleWindowPoStWithVanillaMemory allocates memory for type C.fil_Result_GenerateSingleWindowPoStWithVanilla in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocFilResultFilGenerateSingleWindowPoStWithVanillaMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilResultFilGenerateSingleWindowPoStWithVanillaValue))
+func allocFilResultGenerateSingleWindowPoStWithVanillaMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilResultGenerateSingleWindowPoStWithVanillaValue))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfFilResultFilGenerateSingleWindowPoStWithVanillaValue = unsafe.Sizeof([1]C.fil_Result_fil_GenerateSingleWindowPoStWithVanilla{})
+const sizeOfFilResultGenerateSingleWindowPoStWithVanillaValue = unsafe.Sizeof([1]C.fil_Result_GenerateSingleWindowPoStWithVanilla{})
 
 // Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *FilResultFilGenerateSingleWindowPoStWithVanilla) Ref() *C.fil_Result_fil_GenerateSingleWindowPoStWithVanilla {
+func (x *FilResultGenerateSingleWindowPoStWithVanilla) Ref() *C.fil_Result_GenerateSingleWindowPoStWithVanilla {
 	if x == nil {
 		return nil
 	}
-	return x.reffa4f47af
+	return x.ref17eff964
 }
 
 // Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
 // Does nothing if struct is nil or has no allocation map.
-func (x *FilResultFilGenerateSingleWindowPoStWithVanilla) Free() {
-	if x != nil && x.allocsfa4f47af != nil {
-		x.allocsfa4f47af.(*cgoAllocMap).Free()
-		x.reffa4f47af = nil
+func (x *FilResultGenerateSingleWindowPoStWithVanilla) Free() {
+	if x != nil && x.allocs17eff964 != nil {
+		x.allocs17eff964.(*cgoAllocMap).Free()
+		x.ref17eff964 = nil
 	}
 }
 
-// NewFilResultFilGenerateSingleWindowPoStWithVanillaRef creates a new wrapper struct with underlying reference set to the original C object.
+// NewFilResultGenerateSingleWindowPoStWithVanillaRef creates a new wrapper struct with underlying reference set to the original C object.
 // Returns nil if the provided pointer to C object is nil too.
-func NewFilResultFilGenerateSingleWindowPoStWithVanillaRef(ref unsafe.Pointer) *FilResultFilGenerateSingleWindowPoStWithVanilla {
+func NewFilResultGenerateSingleWindowPoStWithVanillaRef(ref unsafe.Pointer) *FilResultGenerateSingleWindowPoStWithVanilla {
 	if ref == nil {
 		return nil
 	}
-	obj := new(FilResultFilGenerateSingleWindowPoStWithVanilla)
-	obj.reffa4f47af = (*C.fil_Result_fil_GenerateSingleWindowPoStWithVanilla)(unsafe.Pointer(ref))
+	obj := new(FilResultGenerateSingleWindowPoStWithVanilla)
+	obj.ref17eff964 = (*C.fil_Result_GenerateSingleWindowPoStWithVanilla)(unsafe.Pointer(ref))
 	return obj
 }
 
 // PassRef returns the underlying C object, otherwise it will allocate one and set its values
 // from this wrapping struct, counting allocations into an allocation map.
-func (x *FilResultFilGenerateSingleWindowPoStWithVanilla) PassRef() (*C.fil_Result_fil_GenerateSingleWindowPoStWithVanilla, *cgoAllocMap) {
+func (x *FilResultGenerateSingleWindowPoStWithVanilla) PassRef() (*C.fil_Result_GenerateSingleWindowPoStWithVanilla, *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
-	} else if x.reffa4f47af != nil {
-		return x.reffa4f47af, nil
+	} else if x.ref17eff964 != nil {
+		return x.ref17eff964, nil
 	}
-	memfa4f47af := allocFilResultFilGenerateSingleWindowPoStWithVanillaMemory(1)
-	reffa4f47af := (*C.fil_Result_fil_GenerateSingleWindowPoStWithVanilla)(memfa4f47af)
-	allocsfa4f47af := new(cgoAllocMap)
-	allocsfa4f47af.Add(memfa4f47af)
+	mem17eff964 := allocFilResultGenerateSingleWindowPoStWithVanillaMemory(1)
+	ref17eff964 := (*C.fil_Result_GenerateSingleWindowPoStWithVanilla)(mem17eff964)
+	allocs17eff964 := new(cgoAllocMap)
+	allocs17eff964.Add(mem17eff964)
 
 	var cstatus_code_allocs *cgoAllocMap
-	reffa4f47af.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
-	allocsfa4f47af.Borrow(cstatus_code_allocs)
+	ref17eff964.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	allocs17eff964.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
-	reffa4f47af.error_msg, cerror_msg_allocs = x.ErrorMsg.PassValue()
-	allocsfa4f47af.Borrow(cerror_msg_allocs)
+	ref17eff964.error_msg, cerror_msg_allocs = x.ErrorMsg.PassValue()
+	allocs17eff964.Borrow(cerror_msg_allocs)
 
 	var cvalue_allocs *cgoAllocMap
-	reffa4f47af.value, cvalue_allocs = x.Value.PassValue()
-	allocsfa4f47af.Borrow(cvalue_allocs)
+	ref17eff964.value, cvalue_allocs = x.Value.PassValue()
+	allocs17eff964.Borrow(cvalue_allocs)
 
-	x.reffa4f47af = reffa4f47af
-	x.allocsfa4f47af = allocsfa4f47af
-	return reffa4f47af, allocsfa4f47af
+	x.ref17eff964 = ref17eff964
+	x.allocs17eff964 = allocs17eff964
+	return ref17eff964, allocs17eff964
 
 }
 
 // PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x FilResultFilGenerateSingleWindowPoStWithVanilla) PassValue() (C.fil_Result_fil_GenerateSingleWindowPoStWithVanilla, *cgoAllocMap) {
-	if x.reffa4f47af != nil {
-		return *x.reffa4f47af, nil
+func (x FilResultGenerateSingleWindowPoStWithVanilla) PassValue() (C.fil_Result_GenerateSingleWindowPoStWithVanilla, *cgoAllocMap) {
+	if x.ref17eff964 != nil {
+		return *x.ref17eff964, nil
 	}
 	ref, allocs := x.PassRef()
 	return *ref, allocs
@@ -7299,13 +7299,13 @@ func (x FilResultFilGenerateSingleWindowPoStWithVanilla) PassValue() (C.fil_Resu
 
 // Deref uses the underlying reference to C object and fills the wrapping struct with values.
 // Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *FilResultFilGenerateSingleWindowPoStWithVanilla) Deref() {
-	if x.reffa4f47af == nil {
+func (x *FilResultGenerateSingleWindowPoStWithVanilla) Deref() {
+	if x.ref17eff964 == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.reffa4f47af.status_code)
-	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.reffa4f47af.error_msg))
-	x.Value = *NewFilGenerateSingleWindowPoStWithVanillaRef(unsafe.Pointer(&x.reffa4f47af.value))
+	x.StatusCode = (FilFCPResponseStatus)(x.ref17eff964.status_code)
+	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.ref17eff964.error_msg))
+	x.Value = *NewFilGenerateSingleWindowPoStWithVanillaRef(unsafe.Pointer(&x.ref17eff964.value))
 }
 
 // allocFilGenerateSingleWindowPoStWithVanillaResponseMemory allocates memory for type C.fil_GenerateSingleWindowPoStWithVanillaResponse in C.
@@ -7362,7 +7362,7 @@ func (x *FilGenerateSingleWindowPoStWithVanillaResponse) PassRef() (*C.fil_Gener
 	allocs96c012c3.Add(mem96c012c3)
 
 	var cstatus_code_allocs *cgoAllocMap
-	ref96c012c3.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	ref96c012c3.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
 	allocs96c012c3.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
@@ -7394,7 +7394,7 @@ func (x *FilGenerateSingleWindowPoStWithVanillaResponse) Deref() {
 	if x.ref96c012c3 == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.ref96c012c3.status_code)
+	x.StatusCode = (FilFCPResponseStatus)(x.ref96c012c3.status_code)
 	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.ref96c012c3.error_msg))
 	x.Value = *NewFilGenerateSingleWindowPoStWithVanillaRef(unsafe.Pointer(&x.ref96c012c3.value))
 }
@@ -7490,81 +7490,81 @@ func (x *FilEmptySectorUpdateEncodeInto) Deref() {
 	x.CommDNew = *(*[32]byte)(unsafe.Pointer(&x.ref2ded7021.comm_d_new))
 }
 
-// allocFilResultFilEmptySectorUpdateEncodeIntoMemory allocates memory for type C.fil_Result_fil_EmptySectorUpdateEncodeInto in C.
+// allocFilResultEmptySectorUpdateEncodeIntoMemory allocates memory for type C.fil_Result_EmptySectorUpdateEncodeInto in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocFilResultFilEmptySectorUpdateEncodeIntoMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilResultFilEmptySectorUpdateEncodeIntoValue))
+func allocFilResultEmptySectorUpdateEncodeIntoMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilResultEmptySectorUpdateEncodeIntoValue))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfFilResultFilEmptySectorUpdateEncodeIntoValue = unsafe.Sizeof([1]C.fil_Result_fil_EmptySectorUpdateEncodeInto{})
+const sizeOfFilResultEmptySectorUpdateEncodeIntoValue = unsafe.Sizeof([1]C.fil_Result_EmptySectorUpdateEncodeInto{})
 
 // Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *FilResultFilEmptySectorUpdateEncodeInto) Ref() *C.fil_Result_fil_EmptySectorUpdateEncodeInto {
+func (x *FilResultEmptySectorUpdateEncodeInto) Ref() *C.fil_Result_EmptySectorUpdateEncodeInto {
 	if x == nil {
 		return nil
 	}
-	return x.ref2861595
+	return x.refaaeeb85b
 }
 
 // Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
 // Does nothing if struct is nil or has no allocation map.
-func (x *FilResultFilEmptySectorUpdateEncodeInto) Free() {
-	if x != nil && x.allocs2861595 != nil {
-		x.allocs2861595.(*cgoAllocMap).Free()
-		x.ref2861595 = nil
+func (x *FilResultEmptySectorUpdateEncodeInto) Free() {
+	if x != nil && x.allocsaaeeb85b != nil {
+		x.allocsaaeeb85b.(*cgoAllocMap).Free()
+		x.refaaeeb85b = nil
 	}
 }
 
-// NewFilResultFilEmptySectorUpdateEncodeIntoRef creates a new wrapper struct with underlying reference set to the original C object.
+// NewFilResultEmptySectorUpdateEncodeIntoRef creates a new wrapper struct with underlying reference set to the original C object.
 // Returns nil if the provided pointer to C object is nil too.
-func NewFilResultFilEmptySectorUpdateEncodeIntoRef(ref unsafe.Pointer) *FilResultFilEmptySectorUpdateEncodeInto {
+func NewFilResultEmptySectorUpdateEncodeIntoRef(ref unsafe.Pointer) *FilResultEmptySectorUpdateEncodeInto {
 	if ref == nil {
 		return nil
 	}
-	obj := new(FilResultFilEmptySectorUpdateEncodeInto)
-	obj.ref2861595 = (*C.fil_Result_fil_EmptySectorUpdateEncodeInto)(unsafe.Pointer(ref))
+	obj := new(FilResultEmptySectorUpdateEncodeInto)
+	obj.refaaeeb85b = (*C.fil_Result_EmptySectorUpdateEncodeInto)(unsafe.Pointer(ref))
 	return obj
 }
 
 // PassRef returns the underlying C object, otherwise it will allocate one and set its values
 // from this wrapping struct, counting allocations into an allocation map.
-func (x *FilResultFilEmptySectorUpdateEncodeInto) PassRef() (*C.fil_Result_fil_EmptySectorUpdateEncodeInto, *cgoAllocMap) {
+func (x *FilResultEmptySectorUpdateEncodeInto) PassRef() (*C.fil_Result_EmptySectorUpdateEncodeInto, *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
-	} else if x.ref2861595 != nil {
-		return x.ref2861595, nil
+	} else if x.refaaeeb85b != nil {
+		return x.refaaeeb85b, nil
 	}
-	mem2861595 := allocFilResultFilEmptySectorUpdateEncodeIntoMemory(1)
-	ref2861595 := (*C.fil_Result_fil_EmptySectorUpdateEncodeInto)(mem2861595)
-	allocs2861595 := new(cgoAllocMap)
-	allocs2861595.Add(mem2861595)
+	memaaeeb85b := allocFilResultEmptySectorUpdateEncodeIntoMemory(1)
+	refaaeeb85b := (*C.fil_Result_EmptySectorUpdateEncodeInto)(memaaeeb85b)
+	allocsaaeeb85b := new(cgoAllocMap)
+	allocsaaeeb85b.Add(memaaeeb85b)
 
 	var cstatus_code_allocs *cgoAllocMap
-	ref2861595.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
-	allocs2861595.Borrow(cstatus_code_allocs)
+	refaaeeb85b.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	allocsaaeeb85b.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
-	ref2861595.error_msg, cerror_msg_allocs = x.ErrorMsg.PassValue()
-	allocs2861595.Borrow(cerror_msg_allocs)
+	refaaeeb85b.error_msg, cerror_msg_allocs = x.ErrorMsg.PassValue()
+	allocsaaeeb85b.Borrow(cerror_msg_allocs)
 
 	var cvalue_allocs *cgoAllocMap
-	ref2861595.value, cvalue_allocs = x.Value.PassValue()
-	allocs2861595.Borrow(cvalue_allocs)
+	refaaeeb85b.value, cvalue_allocs = x.Value.PassValue()
+	allocsaaeeb85b.Borrow(cvalue_allocs)
 
-	x.ref2861595 = ref2861595
-	x.allocs2861595 = allocs2861595
-	return ref2861595, allocs2861595
+	x.refaaeeb85b = refaaeeb85b
+	x.allocsaaeeb85b = allocsaaeeb85b
+	return refaaeeb85b, allocsaaeeb85b
 
 }
 
 // PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x FilResultFilEmptySectorUpdateEncodeInto) PassValue() (C.fil_Result_fil_EmptySectorUpdateEncodeInto, *cgoAllocMap) {
-	if x.ref2861595 != nil {
-		return *x.ref2861595, nil
+func (x FilResultEmptySectorUpdateEncodeInto) PassValue() (C.fil_Result_EmptySectorUpdateEncodeInto, *cgoAllocMap) {
+	if x.refaaeeb85b != nil {
+		return *x.refaaeeb85b, nil
 	}
 	ref, allocs := x.PassRef()
 	return *ref, allocs
@@ -7572,13 +7572,13 @@ func (x FilResultFilEmptySectorUpdateEncodeInto) PassValue() (C.fil_Result_fil_E
 
 // Deref uses the underlying reference to C object and fills the wrapping struct with values.
 // Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *FilResultFilEmptySectorUpdateEncodeInto) Deref() {
-	if x.ref2861595 == nil {
+func (x *FilResultEmptySectorUpdateEncodeInto) Deref() {
+	if x.refaaeeb85b == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.ref2861595.status_code)
-	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.ref2861595.error_msg))
-	x.Value = *NewFilEmptySectorUpdateEncodeIntoRef(unsafe.Pointer(&x.ref2861595.value))
+	x.StatusCode = (FilFCPResponseStatus)(x.refaaeeb85b.status_code)
+	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.refaaeeb85b.error_msg))
+	x.Value = *NewFilEmptySectorUpdateEncodeIntoRef(unsafe.Pointer(&x.refaaeeb85b.value))
 }
 
 // allocFilEmptySectorUpdateEncodeIntoResponseMemory allocates memory for type C.fil_EmptySectorUpdateEncodeIntoResponse in C.
@@ -7635,7 +7635,7 @@ func (x *FilEmptySectorUpdateEncodeIntoResponse) PassRef() (*C.fil_EmptySectorUp
 	allocs8d3238a7.Add(mem8d3238a7)
 
 	var cstatus_code_allocs *cgoAllocMap
-	ref8d3238a7.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	ref8d3238a7.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
 	allocs8d3238a7.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
@@ -7667,7 +7667,7 @@ func (x *FilEmptySectorUpdateEncodeIntoResponse) Deref() {
 	if x.ref8d3238a7 == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.ref8d3238a7.status_code)
+	x.StatusCode = (FilFCPResponseStatus)(x.ref8d3238a7.status_code)
 	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.ref8d3238a7.error_msg))
 	x.Value = *NewFilEmptySectorUpdateEncodeIntoRef(unsafe.Pointer(&x.ref8d3238a7.value))
 }
@@ -7726,7 +7726,7 @@ func (x *FilEmptySectorUpdateDecodeFromResponse) PassRef() (*C.fil_EmptySectorUp
 	allocsf02a01b8.Add(memf02a01b8)
 
 	var cstatus_code_allocs *cgoAllocMap
-	reff02a01b8.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	reff02a01b8.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
 	allocsf02a01b8.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
@@ -7754,7 +7754,7 @@ func (x *FilEmptySectorUpdateDecodeFromResponse) Deref() {
 	if x.reff02a01b8 == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.reff02a01b8.status_code)
+	x.StatusCode = (FilFCPResponseStatus)(x.reff02a01b8.status_code)
 	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.reff02a01b8.error_msg))
 }
 
@@ -7812,7 +7812,7 @@ func (x *FilEmptySectorUpdateRemoveEncodedDataResponse) PassRef() (*C.fil_EmptyS
 	allocs50783b83.Add(mem50783b83)
 
 	var cstatus_code_allocs *cgoAllocMap
-	ref50783b83.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	ref50783b83.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
 	allocs50783b83.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
@@ -7840,12 +7840,12 @@ func (x *FilEmptySectorUpdateRemoveEncodedDataResponse) Deref() {
 	if x.ref50783b83 == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.ref50783b83.status_code)
+	x.StatusCode = (FilFCPResponseStatus)(x.ref50783b83.status_code)
 	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.ref50783b83.error_msg))
 }
 
 // Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *FilPartitionProof) Ref() *C.fil_Bytes {
+func (x *FilApiPartitionProof) Ref() *C.fil_Bytes {
 	if x == nil {
 		return nil
 	}
@@ -7854,27 +7854,27 @@ func (x *FilPartitionProof) Ref() *C.fil_Bytes {
 
 // Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
 // Does nothing if struct is nil or has no allocation map.
-func (x *FilPartitionProof) Free() {
+func (x *FilApiPartitionProof) Free() {
 	if x != nil && x.allocs1605074 != nil {
 		x.allocs1605074.(*cgoAllocMap).Free()
 		x.ref1605074 = nil
 	}
 }
 
-// NewFilPartitionProofRef creates a new wrapper struct with underlying reference set to the original C object.
+// NewFilApiPartitionProofRef creates a new wrapper struct with underlying reference set to the original C object.
 // Returns nil if the provided pointer to C object is nil too.
-func NewFilPartitionProofRef(ref unsafe.Pointer) *FilPartitionProof {
+func NewFilApiPartitionProofRef(ref unsafe.Pointer) *FilApiPartitionProof {
 	if ref == nil {
 		return nil
 	}
-	obj := new(FilPartitionProof)
+	obj := new(FilApiPartitionProof)
 	obj.ref1605074 = (*C.fil_Bytes)(unsafe.Pointer(ref))
 	return obj
 }
 
 // PassRef returns the underlying C object, otherwise it will allocate one and set its values
 // from this wrapping struct, counting allocations into an allocation map.
-func (x *FilPartitionProof) PassRef() (*C.fil_Bytes, *cgoAllocMap) {
+func (x *FilApiPartitionProof) PassRef() (*C.fil_Bytes, *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
 	} else if x.ref1605074 != nil {
@@ -7900,7 +7900,7 @@ func (x *FilPartitionProof) PassRef() (*C.fil_Bytes, *cgoAllocMap) {
 }
 
 // PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x FilPartitionProof) PassValue() (C.fil_Bytes, *cgoAllocMap) {
+func (x FilApiPartitionProof) PassValue() (C.fil_Bytes, *cgoAllocMap) {
 	if x.ref1605074 != nil {
 		return *x.ref1605074, nil
 	}
@@ -7910,7 +7910,7 @@ func (x FilPartitionProof) PassValue() (C.fil_Bytes, *cgoAllocMap) {
 
 // Deref uses the underlying reference to C object and fills the wrapping struct with values.
 // Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *FilPartitionProof) Deref() {
+func (x *FilApiPartitionProof) Deref() {
 	if x.ref1605074 == nil {
 		return
 	}
@@ -7918,44 +7918,44 @@ func (x *FilPartitionProof) Deref() {
 	x.Len = (uint64)(x.ref1605074.len)
 }
 
-// allocFilArrayFilPartitionProofMemory allocates memory for type C.fil_Array_fil_PartitionProof in C.
+// allocFilArrayApiPartitionProofMemory allocates memory for type C.fil_Array_ApiPartitionProof in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocFilArrayFilPartitionProofMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilArrayFilPartitionProofValue))
+func allocFilArrayApiPartitionProofMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilArrayApiPartitionProofValue))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfFilArrayFilPartitionProofValue = unsafe.Sizeof([1]C.fil_Array_fil_PartitionProof{})
+const sizeOfFilArrayApiPartitionProofValue = unsafe.Sizeof([1]C.fil_Array_ApiPartitionProof{})
 
-// allocPFilPartitionProofMemory allocates memory for type *C.fil_PartitionProof in C.
+// allocPFilApiPartitionProofMemory allocates memory for type *C.fil_ApiPartitionProof in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocPFilPartitionProofMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfPFilPartitionProofValue))
+func allocPFilApiPartitionProofMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfPFilApiPartitionProofValue))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfPFilPartitionProofValue = unsafe.Sizeof([1]*C.fil_PartitionProof{})
+const sizeOfPFilApiPartitionProofValue = unsafe.Sizeof([1]*C.fil_ApiPartitionProof{})
 
-// allocFilPartitionProofMemory allocates memory for type C.fil_PartitionProof in C.
+// allocFilApiPartitionProofMemory allocates memory for type C.fil_ApiPartitionProof in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocFilPartitionProofMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilPartitionProofValue))
+func allocFilApiPartitionProofMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilApiPartitionProofValue))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfFilPartitionProofValue = unsafe.Sizeof([1]C.fil_PartitionProof{})
+const sizeOfFilApiPartitionProofValue = unsafe.Sizeof([1]C.fil_ApiPartitionProof{})
 
-// unpackSSFilPartitionProof transforms a sliced Go data structure into plain C format.
-func unpackSSFilPartitionProof(x [][]FilPartitionProof) (unpacked **C.fil_PartitionProof, allocs *cgoAllocMap) {
+// unpackSSFilApiPartitionProof transforms a sliced Go data structure into plain C format.
+func unpackSSFilApiPartitionProof(x [][]FilApiPartitionProof) (unpacked **C.fil_ApiPartitionProof, allocs *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
 	}
@@ -7965,108 +7965,108 @@ func unpackSSFilPartitionProof(x [][]FilPartitionProof) (unpacked **C.fil_Partit
 	})
 
 	len0 := len(x)
-	mem0 := allocPFilPartitionProofMemory(len0)
+	mem0 := allocPFilApiPartitionProofMemory(len0)
 	allocs.Add(mem0)
 	h0 := &sliceHeader{
 		Data: mem0,
 		Cap:  len0,
 		Len:  len0,
 	}
-	v0 := *(*[]*C.fil_PartitionProof)(unsafe.Pointer(h0))
+	v0 := *(*[]*C.fil_ApiPartitionProof)(unsafe.Pointer(h0))
 	for i0 := range x {
 		len1 := len(x[i0])
-		mem1 := allocFilPartitionProofMemory(len1)
+		mem1 := allocFilApiPartitionProofMemory(len1)
 		allocs.Add(mem1)
 		h1 := &sliceHeader{
 			Data: mem1,
 			Cap:  len1,
 			Len:  len1,
 		}
-		v1 := *(*[]C.fil_PartitionProof)(unsafe.Pointer(h1))
+		v1 := *(*[]C.fil_ApiPartitionProof)(unsafe.Pointer(h1))
 		for i1 := range x[i0] {
 			allocs1 := new(cgoAllocMap)
 			v1[i1], allocs1 = x[i0][i1].PassValue()
 			allocs.Borrow(allocs1)
 		}
 		h := (*sliceHeader)(unsafe.Pointer(&v1))
-		v0[i0] = (*C.fil_PartitionProof)(h.Data)
+		v0[i0] = (*C.fil_ApiPartitionProof)(h.Data)
 	}
 	h := (*sliceHeader)(unsafe.Pointer(&v0))
-	unpacked = (**C.fil_PartitionProof)(h.Data)
+	unpacked = (**C.fil_ApiPartitionProof)(h.Data)
 	return
 }
 
-// packSSFilPartitionProof reads sliced Go data structure out from plain C format.
-func packSSFilPartitionProof(v [][]FilPartitionProof, ptr0 **C.fil_PartitionProof) {
+// packSSFilApiPartitionProof reads sliced Go data structure out from plain C format.
+func packSSFilApiPartitionProof(v [][]FilApiPartitionProof, ptr0 **C.fil_ApiPartitionProof) {
 	const m = 0x7fffffff
 	for i0 := range v {
-		ptr1 := (*(*[m / sizeOfPtr]*C.fil_PartitionProof)(unsafe.Pointer(ptr0)))[i0]
+		ptr1 := (*(*[m / sizeOfPtr]*C.fil_ApiPartitionProof)(unsafe.Pointer(ptr0)))[i0]
 		for i1 := range v[i0] {
-			ptr2 := (*(*[m / sizeOfFilPartitionProofValue]C.fil_PartitionProof)(unsafe.Pointer(ptr1)))[i1]
-			v[i0][i1] = *NewFilPartitionProofRef(unsafe.Pointer(&ptr2))
+			ptr2 := (*(*[m / sizeOfFilApiPartitionProofValue]C.fil_ApiPartitionProof)(unsafe.Pointer(ptr1)))[i1]
+			v[i0][i1] = *NewFilApiPartitionProofRef(unsafe.Pointer(&ptr2))
 		}
 	}
 }
 
 // Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *FilArrayFilPartitionProof) Ref() *C.fil_Array_fil_PartitionProof {
+func (x *FilArrayApiPartitionProof) Ref() *C.fil_Array_ApiPartitionProof {
 	if x == nil {
 		return nil
 	}
-	return x.ref37f6072d
+	return x.ref81119c0c
 }
 
 // Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
 // Does nothing if struct is nil or has no allocation map.
-func (x *FilArrayFilPartitionProof) Free() {
-	if x != nil && x.allocs37f6072d != nil {
-		x.allocs37f6072d.(*cgoAllocMap).Free()
-		x.ref37f6072d = nil
+func (x *FilArrayApiPartitionProof) Free() {
+	if x != nil && x.allocs81119c0c != nil {
+		x.allocs81119c0c.(*cgoAllocMap).Free()
+		x.ref81119c0c = nil
 	}
 }
 
-// NewFilArrayFilPartitionProofRef creates a new wrapper struct with underlying reference set to the original C object.
+// NewFilArrayApiPartitionProofRef creates a new wrapper struct with underlying reference set to the original C object.
 // Returns nil if the provided pointer to C object is nil too.
-func NewFilArrayFilPartitionProofRef(ref unsafe.Pointer) *FilArrayFilPartitionProof {
+func NewFilArrayApiPartitionProofRef(ref unsafe.Pointer) *FilArrayApiPartitionProof {
 	if ref == nil {
 		return nil
 	}
-	obj := new(FilArrayFilPartitionProof)
-	obj.ref37f6072d = (*C.fil_Array_fil_PartitionProof)(unsafe.Pointer(ref))
+	obj := new(FilArrayApiPartitionProof)
+	obj.ref81119c0c = (*C.fil_Array_ApiPartitionProof)(unsafe.Pointer(ref))
 	return obj
 }
 
 // PassRef returns the underlying C object, otherwise it will allocate one and set its values
 // from this wrapping struct, counting allocations into an allocation map.
-func (x *FilArrayFilPartitionProof) PassRef() (*C.fil_Array_fil_PartitionProof, *cgoAllocMap) {
+func (x *FilArrayApiPartitionProof) PassRef() (*C.fil_Array_ApiPartitionProof, *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
-	} else if x.ref37f6072d != nil {
-		return x.ref37f6072d, nil
+	} else if x.ref81119c0c != nil {
+		return x.ref81119c0c, nil
 	}
-	mem37f6072d := allocFilArrayFilPartitionProofMemory(1)
-	ref37f6072d := (*C.fil_Array_fil_PartitionProof)(mem37f6072d)
-	allocs37f6072d := new(cgoAllocMap)
-	allocs37f6072d.Add(mem37f6072d)
+	mem81119c0c := allocFilArrayApiPartitionProofMemory(1)
+	ref81119c0c := (*C.fil_Array_ApiPartitionProof)(mem81119c0c)
+	allocs81119c0c := new(cgoAllocMap)
+	allocs81119c0c.Add(mem81119c0c)
 
 	var cptr_allocs *cgoAllocMap
-	ref37f6072d.ptr, cptr_allocs = unpackSSFilPartitionProof(x.Ptr)
-	allocs37f6072d.Borrow(cptr_allocs)
+	ref81119c0c.ptr, cptr_allocs = unpackSSFilApiPartitionProof(x.Ptr)
+	allocs81119c0c.Borrow(cptr_allocs)
 
 	var clen_allocs *cgoAllocMap
-	ref37f6072d.len, clen_allocs = (C.uintptr_t)(x.Len), cgoAllocsUnknown
-	allocs37f6072d.Borrow(clen_allocs)
+	ref81119c0c.len, clen_allocs = (C.uintptr_t)(x.Len), cgoAllocsUnknown
+	allocs81119c0c.Borrow(clen_allocs)
 
-	x.ref37f6072d = ref37f6072d
-	x.allocs37f6072d = allocs37f6072d
-	return ref37f6072d, allocs37f6072d
+	x.ref81119c0c = ref81119c0c
+	x.allocs81119c0c = allocs81119c0c
+	return ref81119c0c, allocs81119c0c
 
 }
 
 // PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x FilArrayFilPartitionProof) PassValue() (C.fil_Array_fil_PartitionProof, *cgoAllocMap) {
-	if x.ref37f6072d != nil {
-		return *x.ref37f6072d, nil
+func (x FilArrayApiPartitionProof) PassValue() (C.fil_Array_ApiPartitionProof, *cgoAllocMap) {
+	if x.ref81119c0c != nil {
+		return *x.ref81119c0c, nil
 	}
 	ref, allocs := x.PassRef()
 	return *ref, allocs
@@ -8074,89 +8074,89 @@ func (x FilArrayFilPartitionProof) PassValue() (C.fil_Array_fil_PartitionProof, 
 
 // Deref uses the underlying reference to C object and fills the wrapping struct with values.
 // Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *FilArrayFilPartitionProof) Deref() {
-	if x.ref37f6072d == nil {
+func (x *FilArrayApiPartitionProof) Deref() {
+	if x.ref81119c0c == nil {
 		return
 	}
-	packSSFilPartitionProof(x.Ptr, x.ref37f6072d.ptr)
-	x.Len = (uint64)(x.ref37f6072d.len)
+	packSSFilApiPartitionProof(x.Ptr, x.ref81119c0c.ptr)
+	x.Len = (uint64)(x.ref81119c0c.len)
 }
 
-// allocFilResultFilArrayFilPartitionProofMemory allocates memory for type C.fil_Result_fil_Array_fil_PartitionProof in C.
+// allocFilResultArrayApiPartitionProofMemory allocates memory for type C.fil_Result_Array_ApiPartitionProof in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocFilResultFilArrayFilPartitionProofMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilResultFilArrayFilPartitionProofValue))
+func allocFilResultArrayApiPartitionProofMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilResultArrayApiPartitionProofValue))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfFilResultFilArrayFilPartitionProofValue = unsafe.Sizeof([1]C.fil_Result_fil_Array_fil_PartitionProof{})
+const sizeOfFilResultArrayApiPartitionProofValue = unsafe.Sizeof([1]C.fil_Result_Array_ApiPartitionProof{})
 
 // Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *FilResultFilArrayFilPartitionProof) Ref() *C.fil_Result_fil_Array_fil_PartitionProof {
+func (x *FilResultArrayApiPartitionProof) Ref() *C.fil_Result_Array_ApiPartitionProof {
 	if x == nil {
 		return nil
 	}
-	return x.reff5202691
+	return x.refceda87e8
 }
 
 // Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
 // Does nothing if struct is nil or has no allocation map.
-func (x *FilResultFilArrayFilPartitionProof) Free() {
-	if x != nil && x.allocsf5202691 != nil {
-		x.allocsf5202691.(*cgoAllocMap).Free()
-		x.reff5202691 = nil
+func (x *FilResultArrayApiPartitionProof) Free() {
+	if x != nil && x.allocsceda87e8 != nil {
+		x.allocsceda87e8.(*cgoAllocMap).Free()
+		x.refceda87e8 = nil
 	}
 }
 
-// NewFilResultFilArrayFilPartitionProofRef creates a new wrapper struct with underlying reference set to the original C object.
+// NewFilResultArrayApiPartitionProofRef creates a new wrapper struct with underlying reference set to the original C object.
 // Returns nil if the provided pointer to C object is nil too.
-func NewFilResultFilArrayFilPartitionProofRef(ref unsafe.Pointer) *FilResultFilArrayFilPartitionProof {
+func NewFilResultArrayApiPartitionProofRef(ref unsafe.Pointer) *FilResultArrayApiPartitionProof {
 	if ref == nil {
 		return nil
 	}
-	obj := new(FilResultFilArrayFilPartitionProof)
-	obj.reff5202691 = (*C.fil_Result_fil_Array_fil_PartitionProof)(unsafe.Pointer(ref))
+	obj := new(FilResultArrayApiPartitionProof)
+	obj.refceda87e8 = (*C.fil_Result_Array_ApiPartitionProof)(unsafe.Pointer(ref))
 	return obj
 }
 
 // PassRef returns the underlying C object, otherwise it will allocate one and set its values
 // from this wrapping struct, counting allocations into an allocation map.
-func (x *FilResultFilArrayFilPartitionProof) PassRef() (*C.fil_Result_fil_Array_fil_PartitionProof, *cgoAllocMap) {
+func (x *FilResultArrayApiPartitionProof) PassRef() (*C.fil_Result_Array_ApiPartitionProof, *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
-	} else if x.reff5202691 != nil {
-		return x.reff5202691, nil
+	} else if x.refceda87e8 != nil {
+		return x.refceda87e8, nil
 	}
-	memf5202691 := allocFilResultFilArrayFilPartitionProofMemory(1)
-	reff5202691 := (*C.fil_Result_fil_Array_fil_PartitionProof)(memf5202691)
-	allocsf5202691 := new(cgoAllocMap)
-	allocsf5202691.Add(memf5202691)
+	memceda87e8 := allocFilResultArrayApiPartitionProofMemory(1)
+	refceda87e8 := (*C.fil_Result_Array_ApiPartitionProof)(memceda87e8)
+	allocsceda87e8 := new(cgoAllocMap)
+	allocsceda87e8.Add(memceda87e8)
 
 	var cstatus_code_allocs *cgoAllocMap
-	reff5202691.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
-	allocsf5202691.Borrow(cstatus_code_allocs)
+	refceda87e8.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	allocsceda87e8.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
-	reff5202691.error_msg, cerror_msg_allocs = x.ErrorMsg.PassValue()
-	allocsf5202691.Borrow(cerror_msg_allocs)
+	refceda87e8.error_msg, cerror_msg_allocs = x.ErrorMsg.PassValue()
+	allocsceda87e8.Borrow(cerror_msg_allocs)
 
 	var cvalue_allocs *cgoAllocMap
-	reff5202691.value, cvalue_allocs = x.Value.PassValue()
-	allocsf5202691.Borrow(cvalue_allocs)
+	refceda87e8.value, cvalue_allocs = x.Value.PassValue()
+	allocsceda87e8.Borrow(cvalue_allocs)
 
-	x.reff5202691 = reff5202691
-	x.allocsf5202691 = allocsf5202691
-	return reff5202691, allocsf5202691
+	x.refceda87e8 = refceda87e8
+	x.allocsceda87e8 = allocsceda87e8
+	return refceda87e8, allocsceda87e8
 
 }
 
 // PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x FilResultFilArrayFilPartitionProof) PassValue() (C.fil_Result_fil_Array_fil_PartitionProof, *cgoAllocMap) {
-	if x.reff5202691 != nil {
-		return *x.reff5202691, nil
+func (x FilResultArrayApiPartitionProof) PassValue() (C.fil_Result_Array_ApiPartitionProof, *cgoAllocMap) {
+	if x.refceda87e8 != nil {
+		return *x.refceda87e8, nil
 	}
 	ref, allocs := x.PassRef()
 	return *ref, allocs
@@ -8164,13 +8164,13 @@ func (x FilResultFilArrayFilPartitionProof) PassValue() (C.fil_Result_fil_Array_
 
 // Deref uses the underlying reference to C object and fills the wrapping struct with values.
 // Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *FilResultFilArrayFilPartitionProof) Deref() {
-	if x.reff5202691 == nil {
+func (x *FilResultArrayApiPartitionProof) Deref() {
+	if x.refceda87e8 == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.reff5202691.status_code)
-	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.reff5202691.error_msg))
-	x.Value = *NewFilArrayFilPartitionProofRef(unsafe.Pointer(&x.reff5202691.value))
+	x.StatusCode = (FilFCPResponseStatus)(x.refceda87e8.status_code)
+	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.refceda87e8.error_msg))
+	x.Value = *NewFilArrayApiPartitionProofRef(unsafe.Pointer(&x.refceda87e8.value))
 }
 
 // allocFilPartitionProofResponseMemory allocates memory for type C.fil_PartitionProofResponse in C.
@@ -8227,7 +8227,7 @@ func (x *FilPartitionProofResponse) PassRef() (*C.fil_PartitionProofResponse, *c
 	allocs51343e7a.Add(mem51343e7a)
 
 	var cstatus_code_allocs *cgoAllocMap
-	ref51343e7a.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	ref51343e7a.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
 	allocs51343e7a.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
@@ -8259,9 +8259,9 @@ func (x *FilPartitionProofResponse) Deref() {
 	if x.ref51343e7a == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.ref51343e7a.status_code)
+	x.StatusCode = (FilFCPResponseStatus)(x.ref51343e7a.status_code)
 	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.ref51343e7a.error_msg))
-	x.Value = *NewFilArrayFilPartitionProofRef(unsafe.Pointer(&x.ref51343e7a.value))
+	x.Value = *NewFilArrayApiPartitionProofRef(unsafe.Pointer(&x.ref51343e7a.value))
 }
 
 // allocFilVerifyPartitionProofResponseMemory allocates memory for type C.fil_VerifyPartitionProofResponse in C.
@@ -8318,7 +8318,7 @@ func (x *FilVerifyPartitionProofResponse) PassRef() (*C.fil_VerifyPartitionProof
 	allocsaed1b67.Add(memaed1b67)
 
 	var cstatus_code_allocs *cgoAllocMap
-	refaed1b67.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	refaed1b67.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
 	allocsaed1b67.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
@@ -8350,7 +8350,7 @@ func (x *FilVerifyPartitionProofResponse) Deref() {
 	if x.refaed1b67 == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.refaed1b67.status_code)
+	x.StatusCode = (FilFCPResponseStatus)(x.refaed1b67.status_code)
 	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.refaed1b67.error_msg))
 	x.Value = (bool)(x.refaed1b67.value)
 }
@@ -8409,7 +8409,7 @@ func (x *FilEmptySectorUpdateProofResponse) PassRef() (*C.fil_EmptySectorUpdateP
 	allocs5c2faef.Add(mem5c2faef)
 
 	var cstatus_code_allocs *cgoAllocMap
-	ref5c2faef.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	ref5c2faef.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
 	allocs5c2faef.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
@@ -8441,7 +8441,7 @@ func (x *FilEmptySectorUpdateProofResponse) Deref() {
 	if x.ref5c2faef == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.ref5c2faef.status_code)
+	x.StatusCode = (FilFCPResponseStatus)(x.ref5c2faef.status_code)
 	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.ref5c2faef.error_msg))
 	x.Value = *NewFilBytesRef(unsafe.Pointer(&x.ref5c2faef.value))
 }
@@ -8500,7 +8500,7 @@ func (x *FilVerifyEmptySectorUpdateProofResponse) PassRef() (*C.fil_VerifyEmptyS
 	allocs50b7b13.Add(mem50b7b13)
 
 	var cstatus_code_allocs *cgoAllocMap
-	ref50b7b13.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	ref50b7b13.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
 	allocs50b7b13.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
@@ -8532,7 +8532,7 @@ func (x *FilVerifyEmptySectorUpdateProofResponse) Deref() {
 	if x.ref50b7b13 == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.ref50b7b13.status_code)
+	x.StatusCode = (FilFCPResponseStatus)(x.ref50b7b13.status_code)
 	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.ref50b7b13.error_msg))
 	x.Value = (bool)(x.ref50b7b13.value)
 }
@@ -8623,81 +8623,81 @@ func (x *FilGeneratePieceCommitment) Deref() {
 	x.NumBytesAligned = (uint64)(x.ref27f71149.num_bytes_aligned)
 }
 
-// allocFilResultFilGeneratePieceCommitmentMemory allocates memory for type C.fil_Result_fil_GeneratePieceCommitment in C.
+// allocFilResultGeneratePieceCommitmentMemory allocates memory for type C.fil_Result_GeneratePieceCommitment in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocFilResultFilGeneratePieceCommitmentMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilResultFilGeneratePieceCommitmentValue))
+func allocFilResultGeneratePieceCommitmentMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilResultGeneratePieceCommitmentValue))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfFilResultFilGeneratePieceCommitmentValue = unsafe.Sizeof([1]C.fil_Result_fil_GeneratePieceCommitment{})
+const sizeOfFilResultGeneratePieceCommitmentValue = unsafe.Sizeof([1]C.fil_Result_GeneratePieceCommitment{})
 
 // Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *FilResultFilGeneratePieceCommitment) Ref() *C.fil_Result_fil_GeneratePieceCommitment {
+func (x *FilResultGeneratePieceCommitment) Ref() *C.fil_Result_GeneratePieceCommitment {
 	if x == nil {
 		return nil
 	}
-	return x.ref26290af5
+	return x.ref683c0aad
 }
 
 // Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
 // Does nothing if struct is nil or has no allocation map.
-func (x *FilResultFilGeneratePieceCommitment) Free() {
-	if x != nil && x.allocs26290af5 != nil {
-		x.allocs26290af5.(*cgoAllocMap).Free()
-		x.ref26290af5 = nil
+func (x *FilResultGeneratePieceCommitment) Free() {
+	if x != nil && x.allocs683c0aad != nil {
+		x.allocs683c0aad.(*cgoAllocMap).Free()
+		x.ref683c0aad = nil
 	}
 }
 
-// NewFilResultFilGeneratePieceCommitmentRef creates a new wrapper struct with underlying reference set to the original C object.
+// NewFilResultGeneratePieceCommitmentRef creates a new wrapper struct with underlying reference set to the original C object.
 // Returns nil if the provided pointer to C object is nil too.
-func NewFilResultFilGeneratePieceCommitmentRef(ref unsafe.Pointer) *FilResultFilGeneratePieceCommitment {
+func NewFilResultGeneratePieceCommitmentRef(ref unsafe.Pointer) *FilResultGeneratePieceCommitment {
 	if ref == nil {
 		return nil
 	}
-	obj := new(FilResultFilGeneratePieceCommitment)
-	obj.ref26290af5 = (*C.fil_Result_fil_GeneratePieceCommitment)(unsafe.Pointer(ref))
+	obj := new(FilResultGeneratePieceCommitment)
+	obj.ref683c0aad = (*C.fil_Result_GeneratePieceCommitment)(unsafe.Pointer(ref))
 	return obj
 }
 
 // PassRef returns the underlying C object, otherwise it will allocate one and set its values
 // from this wrapping struct, counting allocations into an allocation map.
-func (x *FilResultFilGeneratePieceCommitment) PassRef() (*C.fil_Result_fil_GeneratePieceCommitment, *cgoAllocMap) {
+func (x *FilResultGeneratePieceCommitment) PassRef() (*C.fil_Result_GeneratePieceCommitment, *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
-	} else if x.ref26290af5 != nil {
-		return x.ref26290af5, nil
+	} else if x.ref683c0aad != nil {
+		return x.ref683c0aad, nil
 	}
-	mem26290af5 := allocFilResultFilGeneratePieceCommitmentMemory(1)
-	ref26290af5 := (*C.fil_Result_fil_GeneratePieceCommitment)(mem26290af5)
-	allocs26290af5 := new(cgoAllocMap)
-	allocs26290af5.Add(mem26290af5)
+	mem683c0aad := allocFilResultGeneratePieceCommitmentMemory(1)
+	ref683c0aad := (*C.fil_Result_GeneratePieceCommitment)(mem683c0aad)
+	allocs683c0aad := new(cgoAllocMap)
+	allocs683c0aad.Add(mem683c0aad)
 
 	var cstatus_code_allocs *cgoAllocMap
-	ref26290af5.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
-	allocs26290af5.Borrow(cstatus_code_allocs)
+	ref683c0aad.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	allocs683c0aad.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
-	ref26290af5.error_msg, cerror_msg_allocs = x.ErrorMsg.PassValue()
-	allocs26290af5.Borrow(cerror_msg_allocs)
+	ref683c0aad.error_msg, cerror_msg_allocs = x.ErrorMsg.PassValue()
+	allocs683c0aad.Borrow(cerror_msg_allocs)
 
 	var cvalue_allocs *cgoAllocMap
-	ref26290af5.value, cvalue_allocs = x.Value.PassValue()
-	allocs26290af5.Borrow(cvalue_allocs)
+	ref683c0aad.value, cvalue_allocs = x.Value.PassValue()
+	allocs683c0aad.Borrow(cvalue_allocs)
 
-	x.ref26290af5 = ref26290af5
-	x.allocs26290af5 = allocs26290af5
-	return ref26290af5, allocs26290af5
+	x.ref683c0aad = ref683c0aad
+	x.allocs683c0aad = allocs683c0aad
+	return ref683c0aad, allocs683c0aad
 
 }
 
 // PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x FilResultFilGeneratePieceCommitment) PassValue() (C.fil_Result_fil_GeneratePieceCommitment, *cgoAllocMap) {
-	if x.ref26290af5 != nil {
-		return *x.ref26290af5, nil
+func (x FilResultGeneratePieceCommitment) PassValue() (C.fil_Result_GeneratePieceCommitment, *cgoAllocMap) {
+	if x.ref683c0aad != nil {
+		return *x.ref683c0aad, nil
 	}
 	ref, allocs := x.PassRef()
 	return *ref, allocs
@@ -8705,13 +8705,13 @@ func (x FilResultFilGeneratePieceCommitment) PassValue() (C.fil_Result_fil_Gener
 
 // Deref uses the underlying reference to C object and fills the wrapping struct with values.
 // Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *FilResultFilGeneratePieceCommitment) Deref() {
-	if x.ref26290af5 == nil {
+func (x *FilResultGeneratePieceCommitment) Deref() {
+	if x.ref683c0aad == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.ref26290af5.status_code)
-	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.ref26290af5.error_msg))
-	x.Value = *NewFilGeneratePieceCommitmentRef(unsafe.Pointer(&x.ref26290af5.value))
+	x.StatusCode = (FilFCPResponseStatus)(x.ref683c0aad.status_code)
+	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.ref683c0aad.error_msg))
+	x.Value = *NewFilGeneratePieceCommitmentRef(unsafe.Pointer(&x.ref683c0aad.value))
 }
 
 // allocFilGeneratePieceCommitmentResponseMemory allocates memory for type C.fil_GeneratePieceCommitmentResponse in C.
@@ -8768,7 +8768,7 @@ func (x *FilGeneratePieceCommitmentResponse) PassRef() (*C.fil_GeneratePieceComm
 	allocs4b00fda4.Add(mem4b00fda4)
 
 	var cstatus_code_allocs *cgoAllocMap
-	ref4b00fda4.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	ref4b00fda4.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
 	allocs4b00fda4.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
@@ -8800,7 +8800,7 @@ func (x *FilGeneratePieceCommitmentResponse) Deref() {
 	if x.ref4b00fda4 == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.ref4b00fda4.status_code)
+	x.StatusCode = (FilFCPResponseStatus)(x.ref4b00fda4.status_code)
 	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.ref4b00fda4.error_msg))
 	x.Value = *NewFilGeneratePieceCommitmentRef(unsafe.Pointer(&x.ref4b00fda4.value))
 }
@@ -8859,7 +8859,7 @@ func (x *FilGenerateDataCommitmentResponse) PassRef() (*C.fil_GenerateDataCommit
 	allocs87da7dd9.Add(mem87da7dd9)
 
 	var cstatus_code_allocs *cgoAllocMap
-	ref87da7dd9.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	ref87da7dd9.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
 	allocs87da7dd9.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
@@ -8891,9 +8891,9 @@ func (x *FilGenerateDataCommitmentResponse) Deref() {
 	if x.ref87da7dd9 == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.ref87da7dd9.status_code)
+	x.StatusCode = (FilFCPResponseStatus)(x.ref87da7dd9.status_code)
 	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.ref87da7dd9.error_msg))
-	x.Value = *NewFil32ByteArrayRef(unsafe.Pointer(&x.ref87da7dd9.value))
+	x.Value = *NewFilByteArray32Ref(unsafe.Pointer(&x.ref87da7dd9.value))
 }
 
 // allocFilClearCacheResponseMemory allocates memory for type C.fil_ClearCacheResponse in C.
@@ -8950,7 +8950,7 @@ func (x *FilClearCacheResponse) PassRef() (*C.fil_ClearCacheResponse, *cgoAllocM
 	allocsa9a80400.Add(mema9a80400)
 
 	var cstatus_code_allocs *cgoAllocMap
-	refa9a80400.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	refa9a80400.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
 	allocsa9a80400.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
@@ -8978,7 +8978,7 @@ func (x *FilClearCacheResponse) Deref() {
 	if x.refa9a80400 == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.refa9a80400.status_code)
+	x.StatusCode = (FilFCPResponseStatus)(x.refa9a80400.status_code)
 	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.refa9a80400.error_msg))
 }
 
@@ -9036,7 +9036,7 @@ func (x *FilStringResponse) PassRef() (*C.fil_StringResponse, *cgoAllocMap) {
 	allocs4f413043.Add(mem4f413043)
 
 	var cstatus_code_allocs *cgoAllocMap
-	ref4f413043.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	ref4f413043.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
 	allocs4f413043.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
@@ -9068,7 +9068,7 @@ func (x *FilStringResponse) Deref() {
 	if x.ref4f413043 == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.ref4f413043.status_code)
+	x.StatusCode = (FilFCPResponseStatus)(x.ref4f413043.status_code)
 	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.ref4f413043.error_msg))
 	x.Value = *NewFilBytesRef(unsafe.Pointer(&x.ref4f413043.value))
 }
@@ -9127,7 +9127,7 @@ func (x *FilFinalizeTicketResponse) PassRef() (*C.fil_FinalizeTicketResponse, *c
 	allocsb370fa86.Add(memb370fa86)
 
 	var cstatus_code_allocs *cgoAllocMap
-	refb370fa86.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	refb370fa86.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
 	allocsb370fa86.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
@@ -9159,22 +9159,22 @@ func (x *FilFinalizeTicketResponse) Deref() {
 	if x.refb370fa86 == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.refb370fa86.status_code)
+	x.StatusCode = (FilFCPResponseStatus)(x.refb370fa86.status_code)
 	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.refb370fa86.error_msg))
-	x.Value = *NewFil32ByteArrayRef(unsafe.Pointer(&x.refb370fa86.value))
+	x.Value = *NewFilByteArray32Ref(unsafe.Pointer(&x.refb370fa86.value))
 }
 
-// allocFilArrayFilBytesMemory allocates memory for type C.fil_Array_fil_Bytes in C.
+// allocFilArrayBytesMemory allocates memory for type C.fil_Array_Bytes in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocFilArrayFilBytesMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilArrayFilBytesValue))
+func allocFilArrayBytesMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilArrayBytesValue))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfFilArrayFilBytesValue = unsafe.Sizeof([1]C.fil_Array_fil_Bytes{})
+const sizeOfFilArrayBytesValue = unsafe.Sizeof([1]C.fil_Array_Bytes{})
 
 // allocPFilBytesMemory allocates memory for type *C.fil_Bytes in C.
 // The caller is responsible for freeing the this memory via C.free.
@@ -9243,64 +9243,64 @@ func packSSFilBytes(v [][]FilBytes, ptr0 **C.fil_Bytes) {
 }
 
 // Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *FilArrayFilBytes) Ref() *C.fil_Array_fil_Bytes {
+func (x *FilArrayBytes) Ref() *C.fil_Array_Bytes {
 	if x == nil {
 		return nil
 	}
-	return x.refa899d340
+	return x.ref5a0628b6
 }
 
 // Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
 // Does nothing if struct is nil or has no allocation map.
-func (x *FilArrayFilBytes) Free() {
-	if x != nil && x.allocsa899d340 != nil {
-		x.allocsa899d340.(*cgoAllocMap).Free()
-		x.refa899d340 = nil
+func (x *FilArrayBytes) Free() {
+	if x != nil && x.allocs5a0628b6 != nil {
+		x.allocs5a0628b6.(*cgoAllocMap).Free()
+		x.ref5a0628b6 = nil
 	}
 }
 
-// NewFilArrayFilBytesRef creates a new wrapper struct with underlying reference set to the original C object.
+// NewFilArrayBytesRef creates a new wrapper struct with underlying reference set to the original C object.
 // Returns nil if the provided pointer to C object is nil too.
-func NewFilArrayFilBytesRef(ref unsafe.Pointer) *FilArrayFilBytes {
+func NewFilArrayBytesRef(ref unsafe.Pointer) *FilArrayBytes {
 	if ref == nil {
 		return nil
 	}
-	obj := new(FilArrayFilBytes)
-	obj.refa899d340 = (*C.fil_Array_fil_Bytes)(unsafe.Pointer(ref))
+	obj := new(FilArrayBytes)
+	obj.ref5a0628b6 = (*C.fil_Array_Bytes)(unsafe.Pointer(ref))
 	return obj
 }
 
 // PassRef returns the underlying C object, otherwise it will allocate one and set its values
 // from this wrapping struct, counting allocations into an allocation map.
-func (x *FilArrayFilBytes) PassRef() (*C.fil_Array_fil_Bytes, *cgoAllocMap) {
+func (x *FilArrayBytes) PassRef() (*C.fil_Array_Bytes, *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
-	} else if x.refa899d340 != nil {
-		return x.refa899d340, nil
+	} else if x.ref5a0628b6 != nil {
+		return x.ref5a0628b6, nil
 	}
-	mema899d340 := allocFilArrayFilBytesMemory(1)
-	refa899d340 := (*C.fil_Array_fil_Bytes)(mema899d340)
-	allocsa899d340 := new(cgoAllocMap)
-	allocsa899d340.Add(mema899d340)
+	mem5a0628b6 := allocFilArrayBytesMemory(1)
+	ref5a0628b6 := (*C.fil_Array_Bytes)(mem5a0628b6)
+	allocs5a0628b6 := new(cgoAllocMap)
+	allocs5a0628b6.Add(mem5a0628b6)
 
 	var cptr_allocs *cgoAllocMap
-	refa899d340.ptr, cptr_allocs = unpackSSFilBytes(x.Ptr)
-	allocsa899d340.Borrow(cptr_allocs)
+	ref5a0628b6.ptr, cptr_allocs = unpackSSFilBytes(x.Ptr)
+	allocs5a0628b6.Borrow(cptr_allocs)
 
 	var clen_allocs *cgoAllocMap
-	refa899d340.len, clen_allocs = (C.uintptr_t)(x.Len), cgoAllocsUnknown
-	allocsa899d340.Borrow(clen_allocs)
+	ref5a0628b6.len, clen_allocs = (C.uintptr_t)(x.Len), cgoAllocsUnknown
+	allocs5a0628b6.Borrow(clen_allocs)
 
-	x.refa899d340 = refa899d340
-	x.allocsa899d340 = allocsa899d340
-	return refa899d340, allocsa899d340
+	x.ref5a0628b6 = ref5a0628b6
+	x.allocs5a0628b6 = allocs5a0628b6
+	return ref5a0628b6, allocs5a0628b6
 
 }
 
 // PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x FilArrayFilBytes) PassValue() (C.fil_Array_fil_Bytes, *cgoAllocMap) {
-	if x.refa899d340 != nil {
-		return *x.refa899d340, nil
+func (x FilArrayBytes) PassValue() (C.fil_Array_Bytes, *cgoAllocMap) {
+	if x.ref5a0628b6 != nil {
+		return *x.ref5a0628b6, nil
 	}
 	ref, allocs := x.PassRef()
 	return *ref, allocs
@@ -9308,89 +9308,89 @@ func (x FilArrayFilBytes) PassValue() (C.fil_Array_fil_Bytes, *cgoAllocMap) {
 
 // Deref uses the underlying reference to C object and fills the wrapping struct with values.
 // Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *FilArrayFilBytes) Deref() {
-	if x.refa899d340 == nil {
+func (x *FilArrayBytes) Deref() {
+	if x.ref5a0628b6 == nil {
 		return
 	}
-	packSSFilBytes(x.Ptr, x.refa899d340.ptr)
-	x.Len = (uint64)(x.refa899d340.len)
+	packSSFilBytes(x.Ptr, x.ref5a0628b6.ptr)
+	x.Len = (uint64)(x.ref5a0628b6.len)
 }
 
-// allocFilResultFilArrayFilBytesMemory allocates memory for type C.fil_Result_fil_Array_fil_Bytes in C.
+// allocFilResultArrayBytesMemory allocates memory for type C.fil_Result_Array_Bytes in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocFilResultFilArrayFilBytesMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilResultFilArrayFilBytesValue))
+func allocFilResultArrayBytesMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfFilResultArrayBytesValue))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfFilResultFilArrayFilBytesValue = unsafe.Sizeof([1]C.fil_Result_fil_Array_fil_Bytes{})
+const sizeOfFilResultArrayBytesValue = unsafe.Sizeof([1]C.fil_Result_Array_Bytes{})
 
 // Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *FilResultFilArrayFilBytes) Ref() *C.fil_Result_fil_Array_fil_Bytes {
+func (x *FilResultArrayBytes) Ref() *C.fil_Result_Array_Bytes {
 	if x == nil {
 		return nil
 	}
-	return x.refab20c538
+	return x.reff29d0a90
 }
 
 // Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
 // Does nothing if struct is nil or has no allocation map.
-func (x *FilResultFilArrayFilBytes) Free() {
-	if x != nil && x.allocsab20c538 != nil {
-		x.allocsab20c538.(*cgoAllocMap).Free()
-		x.refab20c538 = nil
+func (x *FilResultArrayBytes) Free() {
+	if x != nil && x.allocsf29d0a90 != nil {
+		x.allocsf29d0a90.(*cgoAllocMap).Free()
+		x.reff29d0a90 = nil
 	}
 }
 
-// NewFilResultFilArrayFilBytesRef creates a new wrapper struct with underlying reference set to the original C object.
+// NewFilResultArrayBytesRef creates a new wrapper struct with underlying reference set to the original C object.
 // Returns nil if the provided pointer to C object is nil too.
-func NewFilResultFilArrayFilBytesRef(ref unsafe.Pointer) *FilResultFilArrayFilBytes {
+func NewFilResultArrayBytesRef(ref unsafe.Pointer) *FilResultArrayBytes {
 	if ref == nil {
 		return nil
 	}
-	obj := new(FilResultFilArrayFilBytes)
-	obj.refab20c538 = (*C.fil_Result_fil_Array_fil_Bytes)(unsafe.Pointer(ref))
+	obj := new(FilResultArrayBytes)
+	obj.reff29d0a90 = (*C.fil_Result_Array_Bytes)(unsafe.Pointer(ref))
 	return obj
 }
 
 // PassRef returns the underlying C object, otherwise it will allocate one and set its values
 // from this wrapping struct, counting allocations into an allocation map.
-func (x *FilResultFilArrayFilBytes) PassRef() (*C.fil_Result_fil_Array_fil_Bytes, *cgoAllocMap) {
+func (x *FilResultArrayBytes) PassRef() (*C.fil_Result_Array_Bytes, *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
-	} else if x.refab20c538 != nil {
-		return x.refab20c538, nil
+	} else if x.reff29d0a90 != nil {
+		return x.reff29d0a90, nil
 	}
-	memab20c538 := allocFilResultFilArrayFilBytesMemory(1)
-	refab20c538 := (*C.fil_Result_fil_Array_fil_Bytes)(memab20c538)
-	allocsab20c538 := new(cgoAllocMap)
-	allocsab20c538.Add(memab20c538)
+	memf29d0a90 := allocFilResultArrayBytesMemory(1)
+	reff29d0a90 := (*C.fil_Result_Array_Bytes)(memf29d0a90)
+	allocsf29d0a90 := new(cgoAllocMap)
+	allocsf29d0a90.Add(memf29d0a90)
 
 	var cstatus_code_allocs *cgoAllocMap
-	refab20c538.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
-	allocsab20c538.Borrow(cstatus_code_allocs)
+	reff29d0a90.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	allocsf29d0a90.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
-	refab20c538.error_msg, cerror_msg_allocs = x.ErrorMsg.PassValue()
-	allocsab20c538.Borrow(cerror_msg_allocs)
+	reff29d0a90.error_msg, cerror_msg_allocs = x.ErrorMsg.PassValue()
+	allocsf29d0a90.Borrow(cerror_msg_allocs)
 
 	var cvalue_allocs *cgoAllocMap
-	refab20c538.value, cvalue_allocs = x.Value.PassValue()
-	allocsab20c538.Borrow(cvalue_allocs)
+	reff29d0a90.value, cvalue_allocs = x.Value.PassValue()
+	allocsf29d0a90.Borrow(cvalue_allocs)
 
-	x.refab20c538 = refab20c538
-	x.allocsab20c538 = allocsab20c538
-	return refab20c538, allocsab20c538
+	x.reff29d0a90 = reff29d0a90
+	x.allocsf29d0a90 = allocsf29d0a90
+	return reff29d0a90, allocsf29d0a90
 
 }
 
 // PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x FilResultFilArrayFilBytes) PassValue() (C.fil_Result_fil_Array_fil_Bytes, *cgoAllocMap) {
-	if x.refab20c538 != nil {
-		return *x.refab20c538, nil
+func (x FilResultArrayBytes) PassValue() (C.fil_Result_Array_Bytes, *cgoAllocMap) {
+	if x.reff29d0a90 != nil {
+		return *x.reff29d0a90, nil
 	}
 	ref, allocs := x.PassRef()
 	return *ref, allocs
@@ -9398,13 +9398,13 @@ func (x FilResultFilArrayFilBytes) PassValue() (C.fil_Result_fil_Array_fil_Bytes
 
 // Deref uses the underlying reference to C object and fills the wrapping struct with values.
 // Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *FilResultFilArrayFilBytes) Deref() {
-	if x.refab20c538 == nil {
+func (x *FilResultArrayBytes) Deref() {
+	if x.reff29d0a90 == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.refab20c538.status_code)
-	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.refab20c538.error_msg))
-	x.Value = *NewFilArrayFilBytesRef(unsafe.Pointer(&x.refab20c538.value))
+	x.StatusCode = (FilFCPResponseStatus)(x.reff29d0a90.status_code)
+	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.reff29d0a90.error_msg))
+	x.Value = *NewFilArrayBytesRef(unsafe.Pointer(&x.reff29d0a90.value))
 }
 
 // allocFilGpuDeviceResponseMemory allocates memory for type C.fil_GpuDeviceResponse in C.
@@ -9461,7 +9461,7 @@ func (x *FilGpuDeviceResponse) PassRef() (*C.fil_GpuDeviceResponse, *cgoAllocMap
 	allocs58f92915.Add(mem58f92915)
 
 	var cstatus_code_allocs *cgoAllocMap
-	ref58f92915.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	ref58f92915.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
 	allocs58f92915.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
@@ -9493,9 +9493,9 @@ func (x *FilGpuDeviceResponse) Deref() {
 	if x.ref58f92915 == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.ref58f92915.status_code)
+	x.StatusCode = (FilFCPResponseStatus)(x.ref58f92915.status_code)
 	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.ref58f92915.error_msg))
-	x.Value = *NewFilArrayFilBytesRef(unsafe.Pointer(&x.ref58f92915.value))
+	x.Value = *NewFilArrayBytesRef(unsafe.Pointer(&x.ref58f92915.value))
 }
 
 // allocFilInitLogFdResponseMemory allocates memory for type C.fil_InitLogFdResponse in C.
@@ -9552,7 +9552,7 @@ func (x *FilInitLogFdResponse) PassRef() (*C.fil_InitLogFdResponse, *cgoAllocMap
 	allocs3c1a0a08.Add(mem3c1a0a08)
 
 	var cstatus_code_allocs *cgoAllocMap
-	ref3c1a0a08.status_code, cstatus_code_allocs = (C.FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
+	ref3c1a0a08.status_code, cstatus_code_allocs = (C.fil_FCPResponseStatus)(x.StatusCode), cgoAllocsUnknown
 	allocs3c1a0a08.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
@@ -9580,602 +9580,6 @@ func (x *FilInitLogFdResponse) Deref() {
 	if x.ref3c1a0a08 == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatus)(x.ref3c1a0a08.status_code)
+	x.StatusCode = (FilFCPResponseStatus)(x.ref3c1a0a08.status_code)
 	x.ErrorMsg = *NewFilBytesRef(unsafe.Pointer(&x.ref3c1a0a08.error_msg))
-}
-
-// copyPUint8TBytes copies the data from Go slice as *C.uint8_t.
-func copyPUint8TBytes(slice *sliceHeader) (*C.uint8_t, *cgoAllocMap) {
-	allocs := new(cgoAllocMap)
-	defer runtime.SetFinalizer(allocs, func(a *cgoAllocMap) {
-		go a.Free()
-	})
-
-	mem0 := unsafe.Pointer(C.CBytes(*(*[]byte)(unsafe.Pointer(&sliceHeader{
-		Data: slice.Data,
-		Len:  int(sizeOfUint8TValue) * slice.Len,
-		Cap:  int(sizeOfUint8TValue) * slice.Len,
-	}))))
-	allocs.Add(mem0)
-
-	return (*C.uint8_t)(mem0), allocs
-}
-
-// allocUint8TMemory allocates memory for type C.uint8_t in C.
-// The caller is responsible for freeing the this memory via C.free.
-func allocUint8TMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfUint8TValue))
-	if mem == nil {
-		panic(fmt.Sprintln("memory alloc error: ", err))
-	}
-	return mem
-}
-
-const sizeOfUint8TValue = unsafe.Sizeof([1]C.uint8_t{})
-
-// copyPSizeTBytes copies the data from Go slice as *C.size_t.
-func copyPSizeTBytes(slice *sliceHeader) (*C.size_t, *cgoAllocMap) {
-	allocs := new(cgoAllocMap)
-	defer runtime.SetFinalizer(allocs, func(a *cgoAllocMap) {
-		go a.Free()
-	})
-
-	mem0 := unsafe.Pointer(C.CBytes(*(*[]byte)(unsafe.Pointer(&sliceHeader{
-		Data: slice.Data,
-		Len:  int(sizeOfSizeTValue) * slice.Len,
-		Cap:  int(sizeOfSizeTValue) * slice.Len,
-	}))))
-	allocs.Add(mem0)
-
-	return (*C.size_t)(mem0), allocs
-}
-
-// allocSizeTMemory allocates memory for type C.size_t in C.
-// The caller is responsible for freeing the this memory via C.free.
-func allocSizeTMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfSizeTValue))
-	if mem == nil {
-		panic(fmt.Sprintln("memory alloc error: ", err))
-	}
-	return mem
-}
-
-const sizeOfSizeTValue = unsafe.Sizeof([1]C.size_t{})
-
-// allocStructFilArrayU64Memory allocates memory for type C.struct_fil_Array_u64 in C.
-// The caller is responsible for freeing the this memory via C.free.
-func allocStructFilArrayU64Memory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfStructFilArrayU64Value))
-	if mem == nil {
-		panic(fmt.Sprintln("memory alloc error: ", err))
-	}
-	return mem
-}
-
-const sizeOfStructFilArrayU64Value = unsafe.Sizeof([1]C.struct_fil_Array_u64{})
-
-// unpackArgSFilArrayU64 transforms a sliced Go data structure into plain C format.
-func unpackArgSFilArrayU64(x []FilArrayU64) (unpacked *C.struct_fil_Array_u64, allocs *cgoAllocMap) {
-	if x == nil {
-		return nil, nil
-	}
-	allocs = new(cgoAllocMap)
-	defer runtime.SetFinalizer(allocs, func(a *cgoAllocMap) {
-		go a.Free()
-	})
-
-	len0 := len(x)
-	mem0 := allocStructFilArrayU64Memory(len0)
-	allocs.Add(mem0)
-	h0 := &sliceHeader{
-		Data: mem0,
-		Cap:  len0,
-		Len:  len0,
-	}
-	v0 := *(*[]C.struct_fil_Array_u64)(unsafe.Pointer(h0))
-	for i0 := range x {
-		allocs0 := new(cgoAllocMap)
-		v0[i0], allocs0 = x[i0].PassValue()
-		allocs.Borrow(allocs0)
-	}
-	h := (*sliceHeader)(unsafe.Pointer(&v0))
-	unpacked = (*C.struct_fil_Array_u64)(h.Data)
-	return
-}
-
-// packSFilArrayU64 reads sliced Go data structure out from plain C format.
-func packSFilArrayU64(v []FilArrayU64, ptr0 *C.struct_fil_Array_u64) {
-	const m = 0x7fffffff
-	for i0 := range v {
-		ptr1 := (*(*[m / sizeOfStructFilArrayU64Value]C.struct_fil_Array_u64)(unsafe.Pointer(ptr0)))[i0]
-		v[i0] = *NewFilArrayU64Ref(unsafe.Pointer(&ptr1))
-	}
-}
-
-// unpackArgSFilBytes transforms a sliced Go data structure into plain C format.
-func unpackArgSFilBytes(x []FilBytes) (unpacked *C.fil_Bytes, allocs *cgoAllocMap) {
-	if x == nil {
-		return nil, nil
-	}
-	allocs = new(cgoAllocMap)
-	defer runtime.SetFinalizer(allocs, func(a *cgoAllocMap) {
-		go a.Free()
-	})
-
-	len0 := len(x)
-	mem0 := allocFilBytesMemory(len0)
-	allocs.Add(mem0)
-	h0 := &sliceHeader{
-		Data: mem0,
-		Cap:  len0,
-		Len:  len0,
-	}
-	v0 := *(*[]C.fil_Bytes)(unsafe.Pointer(h0))
-	for i0 := range x {
-		allocs0 := new(cgoAllocMap)
-		v0[i0], allocs0 = x[i0].PassValue()
-		allocs.Borrow(allocs0)
-	}
-	h := (*sliceHeader)(unsafe.Pointer(&v0))
-	unpacked = (*C.fil_Bytes)(h.Data)
-	return
-}
-
-// packSFilBytes reads sliced Go data structure out from plain C format.
-func packSFilBytes(v []FilBytes, ptr0 *C.fil_Bytes) {
-	const m = 0x7fffffff
-	for i0 := range v {
-		ptr1 := (*(*[m / sizeOfFilBytesValue]C.fil_Bytes)(unsafe.Pointer(ptr0)))[i0]
-		v[i0] = *NewFilBytesRef(unsafe.Pointer(&ptr1))
-	}
-}
-
-// allocStructFilArrayFilPublicPieceInfoMemory allocates memory for type C.struct_fil_Array_fil_PublicPieceInfo in C.
-// The caller is responsible for freeing the this memory via C.free.
-func allocStructFilArrayFilPublicPieceInfoMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfStructFilArrayFilPublicPieceInfoValue))
-	if mem == nil {
-		panic(fmt.Sprintln("memory alloc error: ", err))
-	}
-	return mem
-}
-
-const sizeOfStructFilArrayFilPublicPieceInfoValue = unsafe.Sizeof([1]C.struct_fil_Array_fil_PublicPieceInfo{})
-
-// unpackArgSFilArrayFilPublicPieceInfo transforms a sliced Go data structure into plain C format.
-func unpackArgSFilArrayFilPublicPieceInfo(x []FilArrayFilPublicPieceInfo) (unpacked *C.struct_fil_Array_fil_PublicPieceInfo, allocs *cgoAllocMap) {
-	if x == nil {
-		return nil, nil
-	}
-	allocs = new(cgoAllocMap)
-	defer runtime.SetFinalizer(allocs, func(a *cgoAllocMap) {
-		go a.Free()
-	})
-
-	len0 := len(x)
-	mem0 := allocStructFilArrayFilPublicPieceInfoMemory(len0)
-	allocs.Add(mem0)
-	h0 := &sliceHeader{
-		Data: mem0,
-		Cap:  len0,
-		Len:  len0,
-	}
-	v0 := *(*[]C.struct_fil_Array_fil_PublicPieceInfo)(unsafe.Pointer(h0))
-	for i0 := range x {
-		allocs0 := new(cgoAllocMap)
-		v0[i0], allocs0 = x[i0].PassValue()
-		allocs.Borrow(allocs0)
-	}
-	h := (*sliceHeader)(unsafe.Pointer(&v0))
-	unpacked = (*C.struct_fil_Array_fil_PublicPieceInfo)(h.Data)
-	return
-}
-
-// packSFilArrayFilPublicPieceInfo reads sliced Go data structure out from plain C format.
-func packSFilArrayFilPublicPieceInfo(v []FilArrayFilPublicPieceInfo, ptr0 *C.struct_fil_Array_fil_PublicPieceInfo) {
-	const m = 0x7fffffff
-	for i0 := range v {
-		ptr1 := (*(*[m / sizeOfStructFilArrayFilPublicPieceInfoValue]C.struct_fil_Array_fil_PublicPieceInfo)(unsafe.Pointer(ptr0)))[i0]
-		v[i0] = *NewFilArrayFilPublicPieceInfoRef(unsafe.Pointer(&ptr1))
-	}
-}
-
-// allocStructFilArrayFilSealCommitPhase2Memory allocates memory for type C.struct_fil_Array_fil_SealCommitPhase2 in C.
-// The caller is responsible for freeing the this memory via C.free.
-func allocStructFilArrayFilSealCommitPhase2Memory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfStructFilArrayFilSealCommitPhase2Value))
-	if mem == nil {
-		panic(fmt.Sprintln("memory alloc error: ", err))
-	}
-	return mem
-}
-
-const sizeOfStructFilArrayFilSealCommitPhase2Value = unsafe.Sizeof([1]C.struct_fil_Array_fil_SealCommitPhase2{})
-
-// unpackArgSFilArrayFilSealCommitPhase2 transforms a sliced Go data structure into plain C format.
-func unpackArgSFilArrayFilSealCommitPhase2(x []FilArrayFilSealCommitPhase2) (unpacked *C.struct_fil_Array_fil_SealCommitPhase2, allocs *cgoAllocMap) {
-	if x == nil {
-		return nil, nil
-	}
-	allocs = new(cgoAllocMap)
-	defer runtime.SetFinalizer(allocs, func(a *cgoAllocMap) {
-		go a.Free()
-	})
-
-	len0 := len(x)
-	mem0 := allocStructFilArrayFilSealCommitPhase2Memory(len0)
-	allocs.Add(mem0)
-	h0 := &sliceHeader{
-		Data: mem0,
-		Cap:  len0,
-		Len:  len0,
-	}
-	v0 := *(*[]C.struct_fil_Array_fil_SealCommitPhase2)(unsafe.Pointer(h0))
-	for i0 := range x {
-		allocs0 := new(cgoAllocMap)
-		v0[i0], allocs0 = x[i0].PassValue()
-		allocs.Borrow(allocs0)
-	}
-	h := (*sliceHeader)(unsafe.Pointer(&v0))
-	unpacked = (*C.struct_fil_Array_fil_SealCommitPhase2)(h.Data)
-	return
-}
-
-// packSFilArrayFilSealCommitPhase2 reads sliced Go data structure out from plain C format.
-func packSFilArrayFilSealCommitPhase2(v []FilArrayFilSealCommitPhase2, ptr0 *C.struct_fil_Array_fil_SealCommitPhase2) {
-	const m = 0x7fffffff
-	for i0 := range v {
-		ptr1 := (*(*[m / sizeOfStructFilArrayFilSealCommitPhase2Value]C.struct_fil_Array_fil_SealCommitPhase2)(unsafe.Pointer(ptr0)))[i0]
-		v[i0] = *NewFilArrayFilSealCommitPhase2Ref(unsafe.Pointer(&ptr1))
-	}
-}
-
-// allocStructFilArrayFilAggregationInputsMemory allocates memory for type C.struct_fil_Array_fil_AggregationInputs in C.
-// The caller is responsible for freeing the this memory via C.free.
-func allocStructFilArrayFilAggregationInputsMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfStructFilArrayFilAggregationInputsValue))
-	if mem == nil {
-		panic(fmt.Sprintln("memory alloc error: ", err))
-	}
-	return mem
-}
-
-const sizeOfStructFilArrayFilAggregationInputsValue = unsafe.Sizeof([1]C.struct_fil_Array_fil_AggregationInputs{})
-
-// unpackArgSFilArrayFilAggregationInputs transforms a sliced Go data structure into plain C format.
-func unpackArgSFilArrayFilAggregationInputs(x []FilArrayFilAggregationInputs) (unpacked *C.struct_fil_Array_fil_AggregationInputs, allocs *cgoAllocMap) {
-	if x == nil {
-		return nil, nil
-	}
-	allocs = new(cgoAllocMap)
-	defer runtime.SetFinalizer(allocs, func(a *cgoAllocMap) {
-		go a.Free()
-	})
-
-	len0 := len(x)
-	mem0 := allocStructFilArrayFilAggregationInputsMemory(len0)
-	allocs.Add(mem0)
-	h0 := &sliceHeader{
-		Data: mem0,
-		Cap:  len0,
-		Len:  len0,
-	}
-	v0 := *(*[]C.struct_fil_Array_fil_AggregationInputs)(unsafe.Pointer(h0))
-	for i0 := range x {
-		allocs0 := new(cgoAllocMap)
-		v0[i0], allocs0 = x[i0].PassValue()
-		allocs.Borrow(allocs0)
-	}
-	h := (*sliceHeader)(unsafe.Pointer(&v0))
-	unpacked = (*C.struct_fil_Array_fil_AggregationInputs)(h.Data)
-	return
-}
-
-// packSFilArrayFilAggregationInputs reads sliced Go data structure out from plain C format.
-func packSFilArrayFilAggregationInputs(v []FilArrayFilAggregationInputs, ptr0 *C.struct_fil_Array_fil_AggregationInputs) {
-	const m = 0x7fffffff
-	for i0 := range v {
-		ptr1 := (*(*[m / sizeOfStructFilArrayFilAggregationInputsValue]C.struct_fil_Array_fil_AggregationInputs)(unsafe.Pointer(ptr0)))[i0]
-		v[i0] = *NewFilArrayFilAggregationInputsRef(unsafe.Pointer(&ptr1))
-	}
-}
-
-// allocStructFilArrayFilVanillaProofMemory allocates memory for type C.struct_fil_Array_fil_VanillaProof in C.
-// The caller is responsible for freeing the this memory via C.free.
-func allocStructFilArrayFilVanillaProofMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfStructFilArrayFilVanillaProofValue))
-	if mem == nil {
-		panic(fmt.Sprintln("memory alloc error: ", err))
-	}
-	return mem
-}
-
-const sizeOfStructFilArrayFilVanillaProofValue = unsafe.Sizeof([1]C.struct_fil_Array_fil_VanillaProof{})
-
-// unpackArgSFilArrayFilVanillaProof transforms a sliced Go data structure into plain C format.
-func unpackArgSFilArrayFilVanillaProof(x []FilArrayFilVanillaProof) (unpacked *C.struct_fil_Array_fil_VanillaProof, allocs *cgoAllocMap) {
-	if x == nil {
-		return nil, nil
-	}
-	allocs = new(cgoAllocMap)
-	defer runtime.SetFinalizer(allocs, func(a *cgoAllocMap) {
-		go a.Free()
-	})
-
-	len0 := len(x)
-	mem0 := allocStructFilArrayFilVanillaProofMemory(len0)
-	allocs.Add(mem0)
-	h0 := &sliceHeader{
-		Data: mem0,
-		Cap:  len0,
-		Len:  len0,
-	}
-	v0 := *(*[]C.struct_fil_Array_fil_VanillaProof)(unsafe.Pointer(h0))
-	for i0 := range x {
-		allocs0 := new(cgoAllocMap)
-		v0[i0], allocs0 = x[i0].PassValue()
-		allocs.Borrow(allocs0)
-	}
-	h := (*sliceHeader)(unsafe.Pointer(&v0))
-	unpacked = (*C.struct_fil_Array_fil_VanillaProof)(h.Data)
-	return
-}
-
-// packSFilArrayFilVanillaProof reads sliced Go data structure out from plain C format.
-func packSFilArrayFilVanillaProof(v []FilArrayFilVanillaProof, ptr0 *C.struct_fil_Array_fil_VanillaProof) {
-	const m = 0x7fffffff
-	for i0 := range v {
-		ptr1 := (*(*[m / sizeOfStructFilArrayFilVanillaProofValue]C.struct_fil_Array_fil_VanillaProof)(unsafe.Pointer(ptr0)))[i0]
-		v[i0] = *NewFilArrayFilVanillaProofRef(unsafe.Pointer(&ptr1))
-	}
-}
-
-// allocStructFilArrayFilPrivateReplicaInfoMemory allocates memory for type C.struct_fil_Array_fil_PrivateReplicaInfo in C.
-// The caller is responsible for freeing the this memory via C.free.
-func allocStructFilArrayFilPrivateReplicaInfoMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfStructFilArrayFilPrivateReplicaInfoValue))
-	if mem == nil {
-		panic(fmt.Sprintln("memory alloc error: ", err))
-	}
-	return mem
-}
-
-const sizeOfStructFilArrayFilPrivateReplicaInfoValue = unsafe.Sizeof([1]C.struct_fil_Array_fil_PrivateReplicaInfo{})
-
-// unpackArgSFilArrayFilPrivateReplicaInfo transforms a sliced Go data structure into plain C format.
-func unpackArgSFilArrayFilPrivateReplicaInfo(x []FilArrayFilPrivateReplicaInfo) (unpacked *C.struct_fil_Array_fil_PrivateReplicaInfo, allocs *cgoAllocMap) {
-	if x == nil {
-		return nil, nil
-	}
-	allocs = new(cgoAllocMap)
-	defer runtime.SetFinalizer(allocs, func(a *cgoAllocMap) {
-		go a.Free()
-	})
-
-	len0 := len(x)
-	mem0 := allocStructFilArrayFilPrivateReplicaInfoMemory(len0)
-	allocs.Add(mem0)
-	h0 := &sliceHeader{
-		Data: mem0,
-		Cap:  len0,
-		Len:  len0,
-	}
-	v0 := *(*[]C.struct_fil_Array_fil_PrivateReplicaInfo)(unsafe.Pointer(h0))
-	for i0 := range x {
-		allocs0 := new(cgoAllocMap)
-		v0[i0], allocs0 = x[i0].PassValue()
-		allocs.Borrow(allocs0)
-	}
-	h := (*sliceHeader)(unsafe.Pointer(&v0))
-	unpacked = (*C.struct_fil_Array_fil_PrivateReplicaInfo)(h.Data)
-	return
-}
-
-// packSFilArrayFilPrivateReplicaInfo reads sliced Go data structure out from plain C format.
-func packSFilArrayFilPrivateReplicaInfo(v []FilArrayFilPrivateReplicaInfo, ptr0 *C.struct_fil_Array_fil_PrivateReplicaInfo) {
-	const m = 0x7fffffff
-	for i0 := range v {
-		ptr1 := (*(*[m / sizeOfStructFilArrayFilPrivateReplicaInfoValue]C.struct_fil_Array_fil_PrivateReplicaInfo)(unsafe.Pointer(ptr0)))[i0]
-		v[i0] = *NewFilArrayFilPrivateReplicaInfoRef(unsafe.Pointer(&ptr1))
-	}
-}
-
-// allocStructFilArrayFilPublicReplicaInfoMemory allocates memory for type C.struct_fil_Array_fil_PublicReplicaInfo in C.
-// The caller is responsible for freeing the this memory via C.free.
-func allocStructFilArrayFilPublicReplicaInfoMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfStructFilArrayFilPublicReplicaInfoValue))
-	if mem == nil {
-		panic(fmt.Sprintln("memory alloc error: ", err))
-	}
-	return mem
-}
-
-const sizeOfStructFilArrayFilPublicReplicaInfoValue = unsafe.Sizeof([1]C.struct_fil_Array_fil_PublicReplicaInfo{})
-
-// unpackArgSFilArrayFilPublicReplicaInfo transforms a sliced Go data structure into plain C format.
-func unpackArgSFilArrayFilPublicReplicaInfo(x []FilArrayFilPublicReplicaInfo) (unpacked *C.struct_fil_Array_fil_PublicReplicaInfo, allocs *cgoAllocMap) {
-	if x == nil {
-		return nil, nil
-	}
-	allocs = new(cgoAllocMap)
-	defer runtime.SetFinalizer(allocs, func(a *cgoAllocMap) {
-		go a.Free()
-	})
-
-	len0 := len(x)
-	mem0 := allocStructFilArrayFilPublicReplicaInfoMemory(len0)
-	allocs.Add(mem0)
-	h0 := &sliceHeader{
-		Data: mem0,
-		Cap:  len0,
-		Len:  len0,
-	}
-	v0 := *(*[]C.struct_fil_Array_fil_PublicReplicaInfo)(unsafe.Pointer(h0))
-	for i0 := range x {
-		allocs0 := new(cgoAllocMap)
-		v0[i0], allocs0 = x[i0].PassValue()
-		allocs.Borrow(allocs0)
-	}
-	h := (*sliceHeader)(unsafe.Pointer(&v0))
-	unpacked = (*C.struct_fil_Array_fil_PublicReplicaInfo)(h.Data)
-	return
-}
-
-// packSFilArrayFilPublicReplicaInfo reads sliced Go data structure out from plain C format.
-func packSFilArrayFilPublicReplicaInfo(v []FilArrayFilPublicReplicaInfo, ptr0 *C.struct_fil_Array_fil_PublicReplicaInfo) {
-	const m = 0x7fffffff
-	for i0 := range v {
-		ptr1 := (*(*[m / sizeOfStructFilArrayFilPublicReplicaInfoValue]C.struct_fil_Array_fil_PublicReplicaInfo)(unsafe.Pointer(ptr0)))[i0]
-		v[i0] = *NewFilArrayFilPublicReplicaInfoRef(unsafe.Pointer(&ptr1))
-	}
-}
-
-// allocStructFilArrayFilPoStProofMemory allocates memory for type C.struct_fil_Array_fil_PoStProof in C.
-// The caller is responsible for freeing the this memory via C.free.
-func allocStructFilArrayFilPoStProofMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfStructFilArrayFilPoStProofValue))
-	if mem == nil {
-		panic(fmt.Sprintln("memory alloc error: ", err))
-	}
-	return mem
-}
-
-const sizeOfStructFilArrayFilPoStProofValue = unsafe.Sizeof([1]C.struct_fil_Array_fil_PoStProof{})
-
-// unpackArgSFilArrayFilPoStProof transforms a sliced Go data structure into plain C format.
-func unpackArgSFilArrayFilPoStProof(x []FilArrayFilPoStProof) (unpacked *C.struct_fil_Array_fil_PoStProof, allocs *cgoAllocMap) {
-	if x == nil {
-		return nil, nil
-	}
-	allocs = new(cgoAllocMap)
-	defer runtime.SetFinalizer(allocs, func(a *cgoAllocMap) {
-		go a.Free()
-	})
-
-	len0 := len(x)
-	mem0 := allocStructFilArrayFilPoStProofMemory(len0)
-	allocs.Add(mem0)
-	h0 := &sliceHeader{
-		Data: mem0,
-		Cap:  len0,
-		Len:  len0,
-	}
-	v0 := *(*[]C.struct_fil_Array_fil_PoStProof)(unsafe.Pointer(h0))
-	for i0 := range x {
-		allocs0 := new(cgoAllocMap)
-		v0[i0], allocs0 = x[i0].PassValue()
-		allocs.Borrow(allocs0)
-	}
-	h := (*sliceHeader)(unsafe.Pointer(&v0))
-	unpacked = (*C.struct_fil_Array_fil_PoStProof)(h.Data)
-	return
-}
-
-// packSFilArrayFilPoStProof reads sliced Go data structure out from plain C format.
-func packSFilArrayFilPoStProof(v []FilArrayFilPoStProof, ptr0 *C.struct_fil_Array_fil_PoStProof) {
-	const m = 0x7fffffff
-	for i0 := range v {
-		ptr1 := (*(*[m / sizeOfStructFilArrayFilPoStProofValue]C.struct_fil_Array_fil_PoStProof)(unsafe.Pointer(ptr0)))[i0]
-		v[i0] = *NewFilArrayFilPoStProofRef(unsafe.Pointer(&ptr1))
-	}
-}
-
-// allocStructFilArrayFilPartitionSnarkProofMemory allocates memory for type C.struct_fil_Array_fil_PartitionSnarkProof in C.
-// The caller is responsible for freeing the this memory via C.free.
-func allocStructFilArrayFilPartitionSnarkProofMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfStructFilArrayFilPartitionSnarkProofValue))
-	if mem == nil {
-		panic(fmt.Sprintln("memory alloc error: ", err))
-	}
-	return mem
-}
-
-const sizeOfStructFilArrayFilPartitionSnarkProofValue = unsafe.Sizeof([1]C.struct_fil_Array_fil_PartitionSnarkProof{})
-
-// unpackArgSFilArrayFilPartitionSnarkProof transforms a sliced Go data structure into plain C format.
-func unpackArgSFilArrayFilPartitionSnarkProof(x []FilArrayFilPartitionSnarkProof) (unpacked *C.struct_fil_Array_fil_PartitionSnarkProof, allocs *cgoAllocMap) {
-	if x == nil {
-		return nil, nil
-	}
-	allocs = new(cgoAllocMap)
-	defer runtime.SetFinalizer(allocs, func(a *cgoAllocMap) {
-		go a.Free()
-	})
-
-	len0 := len(x)
-	mem0 := allocStructFilArrayFilPartitionSnarkProofMemory(len0)
-	allocs.Add(mem0)
-	h0 := &sliceHeader{
-		Data: mem0,
-		Cap:  len0,
-		Len:  len0,
-	}
-	v0 := *(*[]C.struct_fil_Array_fil_PartitionSnarkProof)(unsafe.Pointer(h0))
-	for i0 := range x {
-		allocs0 := new(cgoAllocMap)
-		v0[i0], allocs0 = x[i0].PassValue()
-		allocs.Borrow(allocs0)
-	}
-	h := (*sliceHeader)(unsafe.Pointer(&v0))
-	unpacked = (*C.struct_fil_Array_fil_PartitionSnarkProof)(h.Data)
-	return
-}
-
-// packSFilArrayFilPartitionSnarkProof reads sliced Go data structure out from plain C format.
-func packSFilArrayFilPartitionSnarkProof(v []FilArrayFilPartitionSnarkProof, ptr0 *C.struct_fil_Array_fil_PartitionSnarkProof) {
-	const m = 0x7fffffff
-	for i0 := range v {
-		ptr1 := (*(*[m / sizeOfStructFilArrayFilPartitionSnarkProofValue]C.struct_fil_Array_fil_PartitionSnarkProof)(unsafe.Pointer(ptr0)))[i0]
-		v[i0] = *NewFilArrayFilPartitionSnarkProofRef(unsafe.Pointer(&ptr1))
-	}
-}
-
-// allocStructFilArrayFilPartitionProofMemory allocates memory for type C.struct_fil_Array_fil_PartitionProof in C.
-// The caller is responsible for freeing the this memory via C.free.
-func allocStructFilArrayFilPartitionProofMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfStructFilArrayFilPartitionProofValue))
-	if mem == nil {
-		panic(fmt.Sprintln("memory alloc error: ", err))
-	}
-	return mem
-}
-
-const sizeOfStructFilArrayFilPartitionProofValue = unsafe.Sizeof([1]C.struct_fil_Array_fil_PartitionProof{})
-
-// unpackArgSFilArrayFilPartitionProof transforms a sliced Go data structure into plain C format.
-func unpackArgSFilArrayFilPartitionProof(x []FilArrayFilPartitionProof) (unpacked *C.struct_fil_Array_fil_PartitionProof, allocs *cgoAllocMap) {
-	if x == nil {
-		return nil, nil
-	}
-	allocs = new(cgoAllocMap)
-	defer runtime.SetFinalizer(allocs, func(a *cgoAllocMap) {
-		go a.Free()
-	})
-
-	len0 := len(x)
-	mem0 := allocStructFilArrayFilPartitionProofMemory(len0)
-	allocs.Add(mem0)
-	h0 := &sliceHeader{
-		Data: mem0,
-		Cap:  len0,
-		Len:  len0,
-	}
-	v0 := *(*[]C.struct_fil_Array_fil_PartitionProof)(unsafe.Pointer(h0))
-	for i0 := range x {
-		allocs0 := new(cgoAllocMap)
-		v0[i0], allocs0 = x[i0].PassValue()
-		allocs.Borrow(allocs0)
-	}
-	h := (*sliceHeader)(unsafe.Pointer(&v0))
-	unpacked = (*C.struct_fil_Array_fil_PartitionProof)(h.Data)
-	return
-}
-
-// packSFilArrayFilPartitionProof reads sliced Go data structure out from plain C format.
-func packSFilArrayFilPartitionProof(v []FilArrayFilPartitionProof, ptr0 *C.struct_fil_Array_fil_PartitionProof) {
-	const m = 0x7fffffff
-	for i0 := range v {
-		ptr1 := (*(*[m / sizeOfStructFilArrayFilPartitionProofValue]C.struct_fil_Array_fil_PartitionProof)(unsafe.Pointer(ptr0)))[i0]
-		v[i0] = *NewFilArrayFilPartitionProofRef(unsafe.Pointer(&ptr1))
-	}
 }

@@ -1,22 +1,18 @@
-use std::io::{Error, SeekFrom};
+use std::io::SeekFrom;
 use std::ops::Deref;
 
-use anyhow::Result;
+use filecoin_proofs_api as api;
 use filecoin_proofs_api::seal::SealCommitPhase2Output;
-use filecoin_proofs_api::{
-    PieceInfo, RegisteredAggregationProof, RegisteredPoStProof, RegisteredSealProof,
-    RegisteredUpdateProof, UnpaddedBytesAmount,
-};
 
-use crate::util::types::{fil_Array, fil_Bytes, fil_Result};
+use crate::util::types::{Array, Bytes, Result};
 
 #[repr(C)]
 #[derive(Default, Debug, Clone, Copy)]
-pub struct fil_32ByteArray {
+pub struct ByteArray32 {
     pub inner: [u8; 32],
 }
 
-impl Deref for fil_32ByteArray {
+impl Deref for ByteArray32 {
     type Target = [u8; 32];
 
     fn deref(&self) -> &Self::Target {
@@ -24,7 +20,7 @@ impl Deref for fil_32ByteArray {
     }
 }
 
-impl From<[u8; 32]> for fil_32ByteArray {
+impl From<[u8; 32]> for ByteArray32 {
     fn from(val: [u8; 32]) -> Self {
         Self { inner: val }
     }
@@ -49,25 +45,24 @@ impl std::io::Read for FileDescriptorRef {
 }
 
 impl std::io::Write for FileDescriptorRef {
-    fn write(&mut self, buf: &[u8]) -> Result<usize, Error> {
+    fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
         self.0.write(buf)
     }
 
-    fn flush(&mut self) -> Result<(), Error> {
+    fn flush(&mut self) -> std::io::Result<()> {
         self.0.flush()
     }
 }
 
 impl std::io::Seek for FileDescriptorRef {
-    fn seek(&mut self, pos: SeekFrom) -> Result<u64, Error> {
+    fn seek(&mut self, pos: SeekFrom) -> std::io::Result<u64> {
         self.0.seek(pos)
     }
 }
 
-#[allow(non_camel_case_types)]
 #[repr(i32)]
 #[derive(Debug, Clone, Copy)]
-pub enum fil_RegisteredSealProof {
+pub enum RegisteredSealProof {
     StackedDrg2KiBV1,
     StackedDrg8MiBV1,
     StackedDrg512MiBV1,
@@ -80,58 +75,46 @@ pub enum fil_RegisteredSealProof {
     StackedDrg64GiBV1_1,
 }
 
-impl From<RegisteredSealProof> for fil_RegisteredSealProof {
+impl From<api::RegisteredSealProof> for RegisteredSealProof {
+    fn from(other: api::RegisteredSealProof) -> Self {
+        use api::RegisteredSealProof::*;
+        match other {
+            StackedDrg2KiBV1 => RegisteredSealProof::StackedDrg2KiBV1,
+            StackedDrg8MiBV1 => RegisteredSealProof::StackedDrg8MiBV1,
+            StackedDrg512MiBV1 => RegisteredSealProof::StackedDrg512MiBV1,
+            StackedDrg32GiBV1 => RegisteredSealProof::StackedDrg32GiBV1,
+            StackedDrg64GiBV1 => RegisteredSealProof::StackedDrg64GiBV1,
+            StackedDrg2KiBV1_1 => RegisteredSealProof::StackedDrg2KiBV1_1,
+            StackedDrg8MiBV1_1 => RegisteredSealProof::StackedDrg8MiBV1_1,
+            StackedDrg512MiBV1_1 => RegisteredSealProof::StackedDrg512MiBV1_1,
+            StackedDrg32GiBV1_1 => RegisteredSealProof::StackedDrg32GiBV1_1,
+            StackedDrg64GiBV1_1 => RegisteredSealProof::StackedDrg64GiBV1_1,
+        }
+    }
+}
+
+impl From<RegisteredSealProof> for api::RegisteredSealProof {
     fn from(other: RegisteredSealProof) -> Self {
+        use api::RegisteredSealProof::*;
         match other {
-            RegisteredSealProof::StackedDrg2KiBV1 => fil_RegisteredSealProof::StackedDrg2KiBV1,
-            RegisteredSealProof::StackedDrg8MiBV1 => fil_RegisteredSealProof::StackedDrg8MiBV1,
-            RegisteredSealProof::StackedDrg512MiBV1 => fil_RegisteredSealProof::StackedDrg512MiBV1,
-            RegisteredSealProof::StackedDrg32GiBV1 => fil_RegisteredSealProof::StackedDrg32GiBV1,
-            RegisteredSealProof::StackedDrg64GiBV1 => fil_RegisteredSealProof::StackedDrg64GiBV1,
+            RegisteredSealProof::StackedDrg2KiBV1 => StackedDrg2KiBV1,
+            RegisteredSealProof::StackedDrg8MiBV1 => StackedDrg8MiBV1,
+            RegisteredSealProof::StackedDrg512MiBV1 => StackedDrg512MiBV1,
+            RegisteredSealProof::StackedDrg32GiBV1 => StackedDrg32GiBV1,
+            RegisteredSealProof::StackedDrg64GiBV1 => StackedDrg64GiBV1,
 
-            RegisteredSealProof::StackedDrg2KiBV1_1 => fil_RegisteredSealProof::StackedDrg2KiBV1_1,
-            RegisteredSealProof::StackedDrg8MiBV1_1 => fil_RegisteredSealProof::StackedDrg8MiBV1_1,
-            RegisteredSealProof::StackedDrg512MiBV1_1 => {
-                fil_RegisteredSealProof::StackedDrg512MiBV1_1
-            }
-            RegisteredSealProof::StackedDrg32GiBV1_1 => {
-                fil_RegisteredSealProof::StackedDrg32GiBV1_1
-            }
-            RegisteredSealProof::StackedDrg64GiBV1_1 => {
-                fil_RegisteredSealProof::StackedDrg64GiBV1_1
-            }
+            RegisteredSealProof::StackedDrg2KiBV1_1 => StackedDrg2KiBV1_1,
+            RegisteredSealProof::StackedDrg8MiBV1_1 => StackedDrg8MiBV1_1,
+            RegisteredSealProof::StackedDrg512MiBV1_1 => StackedDrg512MiBV1_1,
+            RegisteredSealProof::StackedDrg32GiBV1_1 => StackedDrg32GiBV1_1,
+            RegisteredSealProof::StackedDrg64GiBV1_1 => StackedDrg64GiBV1_1,
         }
     }
 }
 
-impl From<fil_RegisteredSealProof> for RegisteredSealProof {
-    fn from(other: fil_RegisteredSealProof) -> Self {
-        match other {
-            fil_RegisteredSealProof::StackedDrg2KiBV1 => RegisteredSealProof::StackedDrg2KiBV1,
-            fil_RegisteredSealProof::StackedDrg8MiBV1 => RegisteredSealProof::StackedDrg8MiBV1,
-            fil_RegisteredSealProof::StackedDrg512MiBV1 => RegisteredSealProof::StackedDrg512MiBV1,
-            fil_RegisteredSealProof::StackedDrg32GiBV1 => RegisteredSealProof::StackedDrg32GiBV1,
-            fil_RegisteredSealProof::StackedDrg64GiBV1 => RegisteredSealProof::StackedDrg64GiBV1,
-
-            fil_RegisteredSealProof::StackedDrg2KiBV1_1 => RegisteredSealProof::StackedDrg2KiBV1_1,
-            fil_RegisteredSealProof::StackedDrg8MiBV1_1 => RegisteredSealProof::StackedDrg8MiBV1_1,
-            fil_RegisteredSealProof::StackedDrg512MiBV1_1 => {
-                RegisteredSealProof::StackedDrg512MiBV1_1
-            }
-            fil_RegisteredSealProof::StackedDrg32GiBV1_1 => {
-                RegisteredSealProof::StackedDrg32GiBV1_1
-            }
-            fil_RegisteredSealProof::StackedDrg64GiBV1_1 => {
-                RegisteredSealProof::StackedDrg64GiBV1_1
-            }
-        }
-    }
-}
-
-#[allow(non_camel_case_types)]
 #[repr(i32)]
 #[derive(Debug, Clone, Copy)]
-pub enum fil_RegisteredPoStProof {
+pub enum RegisteredPoStProof {
     StackedDrgWinning2KiBV1,
     StackedDrgWinning8MiBV1,
     StackedDrgWinning512MiBV1,
@@ -144,71 +127,69 @@ pub enum fil_RegisteredPoStProof {
     StackedDrgWindow64GiBV1,
 }
 
-impl From<RegisteredPoStProof> for fil_RegisteredPoStProof {
+impl From<api::RegisteredPoStProof> for RegisteredPoStProof {
+    fn from(other: api::RegisteredPoStProof) -> Self {
+        use api::RegisteredPoStProof::*;
+
+        match other {
+            StackedDrgWinning2KiBV1 => RegisteredPoStProof::StackedDrgWinning2KiBV1,
+            StackedDrgWinning8MiBV1 => RegisteredPoStProof::StackedDrgWinning8MiBV1,
+            StackedDrgWinning512MiBV1 => RegisteredPoStProof::StackedDrgWinning512MiBV1,
+            StackedDrgWinning32GiBV1 => RegisteredPoStProof::StackedDrgWinning32GiBV1,
+            StackedDrgWinning64GiBV1 => RegisteredPoStProof::StackedDrgWinning64GiBV1,
+            StackedDrgWindow2KiBV1 => RegisteredPoStProof::StackedDrgWindow2KiBV1,
+            StackedDrgWindow8MiBV1 => RegisteredPoStProof::StackedDrgWindow8MiBV1,
+            StackedDrgWindow512MiBV1 => RegisteredPoStProof::StackedDrgWindow512MiBV1,
+            StackedDrgWindow32GiBV1 => RegisteredPoStProof::StackedDrgWindow32GiBV1,
+            StackedDrgWindow64GiBV1 => RegisteredPoStProof::StackedDrgWindow64GiBV1,
+        }
+    }
+}
+
+impl From<RegisteredPoStProof> for api::RegisteredPoStProof {
     fn from(other: RegisteredPoStProof) -> Self {
-        use RegisteredPoStProof::*;
+        use api::RegisteredPoStProof::*;
 
         match other {
-            StackedDrgWinning2KiBV1 => fil_RegisteredPoStProof::StackedDrgWinning2KiBV1,
-            StackedDrgWinning8MiBV1 => fil_RegisteredPoStProof::StackedDrgWinning8MiBV1,
-            StackedDrgWinning512MiBV1 => fil_RegisteredPoStProof::StackedDrgWinning512MiBV1,
-            StackedDrgWinning32GiBV1 => fil_RegisteredPoStProof::StackedDrgWinning32GiBV1,
-            StackedDrgWinning64GiBV1 => fil_RegisteredPoStProof::StackedDrgWinning64GiBV1,
-            StackedDrgWindow2KiBV1 => fil_RegisteredPoStProof::StackedDrgWindow2KiBV1,
-            StackedDrgWindow8MiBV1 => fil_RegisteredPoStProof::StackedDrgWindow8MiBV1,
-            StackedDrgWindow512MiBV1 => fil_RegisteredPoStProof::StackedDrgWindow512MiBV1,
-            StackedDrgWindow32GiBV1 => fil_RegisteredPoStProof::StackedDrgWindow32GiBV1,
-            StackedDrgWindow64GiBV1 => fil_RegisteredPoStProof::StackedDrgWindow64GiBV1,
+            RegisteredPoStProof::StackedDrgWinning2KiBV1 => StackedDrgWinning2KiBV1,
+            RegisteredPoStProof::StackedDrgWinning8MiBV1 => StackedDrgWinning8MiBV1,
+            RegisteredPoStProof::StackedDrgWinning512MiBV1 => StackedDrgWinning512MiBV1,
+            RegisteredPoStProof::StackedDrgWinning32GiBV1 => StackedDrgWinning32GiBV1,
+            RegisteredPoStProof::StackedDrgWinning64GiBV1 => StackedDrgWinning64GiBV1,
+            RegisteredPoStProof::StackedDrgWindow2KiBV1 => StackedDrgWindow2KiBV1,
+            RegisteredPoStProof::StackedDrgWindow8MiBV1 => StackedDrgWindow8MiBV1,
+            RegisteredPoStProof::StackedDrgWindow512MiBV1 => StackedDrgWindow512MiBV1,
+            RegisteredPoStProof::StackedDrgWindow32GiBV1 => StackedDrgWindow32GiBV1,
+            RegisteredPoStProof::StackedDrgWindow64GiBV1 => StackedDrgWindow64GiBV1,
         }
     }
 }
 
-impl From<fil_RegisteredPoStProof> for RegisteredPoStProof {
-    fn from(other: fil_RegisteredPoStProof) -> Self {
-        use RegisteredPoStProof::*;
-
-        match other {
-            fil_RegisteredPoStProof::StackedDrgWinning2KiBV1 => StackedDrgWinning2KiBV1,
-            fil_RegisteredPoStProof::StackedDrgWinning8MiBV1 => StackedDrgWinning8MiBV1,
-            fil_RegisteredPoStProof::StackedDrgWinning512MiBV1 => StackedDrgWinning512MiBV1,
-            fil_RegisteredPoStProof::StackedDrgWinning32GiBV1 => StackedDrgWinning32GiBV1,
-            fil_RegisteredPoStProof::StackedDrgWinning64GiBV1 => StackedDrgWinning64GiBV1,
-            fil_RegisteredPoStProof::StackedDrgWindow2KiBV1 => StackedDrgWindow2KiBV1,
-            fil_RegisteredPoStProof::StackedDrgWindow8MiBV1 => StackedDrgWindow8MiBV1,
-            fil_RegisteredPoStProof::StackedDrgWindow512MiBV1 => StackedDrgWindow512MiBV1,
-            fil_RegisteredPoStProof::StackedDrgWindow32GiBV1 => StackedDrgWindow32GiBV1,
-            fil_RegisteredPoStProof::StackedDrgWindow64GiBV1 => StackedDrgWindow64GiBV1,
-        }
-    }
-}
-
-#[allow(non_camel_case_types)]
 #[repr(i32)]
 #[derive(Debug, Clone, Copy)]
-pub enum fil_RegisteredAggregationProof {
+pub enum RegisteredAggregationProof {
     SnarkPackV1,
 }
 
-impl From<RegisteredAggregationProof> for fil_RegisteredAggregationProof {
+impl From<api::RegisteredAggregationProof> for RegisteredAggregationProof {
+    fn from(other: api::RegisteredAggregationProof) -> Self {
+        match other {
+            api::RegisteredAggregationProof::SnarkPackV1 => RegisteredAggregationProof::SnarkPackV1,
+        }
+    }
+}
+
+impl From<RegisteredAggregationProof> for api::RegisteredAggregationProof {
     fn from(other: RegisteredAggregationProof) -> Self {
         match other {
-            RegisteredAggregationProof::SnarkPackV1 => fil_RegisteredAggregationProof::SnarkPackV1,
+            RegisteredAggregationProof::SnarkPackV1 => api::RegisteredAggregationProof::SnarkPackV1,
         }
     }
 }
 
-impl From<fil_RegisteredAggregationProof> for RegisteredAggregationProof {
-    fn from(other: fil_RegisteredAggregationProof) -> Self {
-        match other {
-            fil_RegisteredAggregationProof::SnarkPackV1 => RegisteredAggregationProof::SnarkPackV1,
-        }
-    }
-}
-
-#[allow(non_camel_case_types)]
 #[repr(i32)]
 #[derive(Debug, Clone, Copy)]
-pub enum fil_RegisteredUpdateProof {
+pub enum RegisteredUpdateProof {
     StackedDrg2KiBV1,
     StackedDrg8MiBV1,
     StackedDrg512MiBV1,
@@ -216,90 +197,78 @@ pub enum fil_RegisteredUpdateProof {
     StackedDrg64GiBV1,
 }
 
-impl From<RegisteredUpdateProof> for fil_RegisteredUpdateProof {
-    fn from(other: RegisteredUpdateProof) -> Self {
+impl From<api::RegisteredUpdateProof> for RegisteredUpdateProof {
+    fn from(other: api::RegisteredUpdateProof) -> Self {
+        use api::RegisteredUpdateProof::*;
         match other {
-            RegisteredUpdateProof::StackedDrg2KiBV1 => fil_RegisteredUpdateProof::StackedDrg2KiBV1,
-            RegisteredUpdateProof::StackedDrg8MiBV1 => fil_RegisteredUpdateProof::StackedDrg8MiBV1,
-            RegisteredUpdateProof::StackedDrg512MiBV1 => {
-                fil_RegisteredUpdateProof::StackedDrg512MiBV1
-            }
-            RegisteredUpdateProof::StackedDrg32GiBV1 => {
-                fil_RegisteredUpdateProof::StackedDrg32GiBV1
-            }
-            RegisteredUpdateProof::StackedDrg64GiBV1 => {
-                fil_RegisteredUpdateProof::StackedDrg64GiBV1
-            }
+            StackedDrg2KiBV1 => RegisteredUpdateProof::StackedDrg2KiBV1,
+            StackedDrg8MiBV1 => RegisteredUpdateProof::StackedDrg8MiBV1,
+            StackedDrg512MiBV1 => RegisteredUpdateProof::StackedDrg512MiBV1,
+            StackedDrg32GiBV1 => RegisteredUpdateProof::StackedDrg32GiBV1,
+            StackedDrg64GiBV1 => RegisteredUpdateProof::StackedDrg64GiBV1,
         }
     }
 }
 
-impl From<fil_RegisteredUpdateProof> for RegisteredUpdateProof {
-    fn from(other: fil_RegisteredUpdateProof) -> Self {
+impl From<RegisteredUpdateProof> for api::RegisteredUpdateProof {
+    fn from(other: RegisteredUpdateProof) -> Self {
+        use api::RegisteredUpdateProof::*;
         match other {
-            fil_RegisteredUpdateProof::StackedDrg2KiBV1 => RegisteredUpdateProof::StackedDrg2KiBV1,
-            fil_RegisteredUpdateProof::StackedDrg8MiBV1 => RegisteredUpdateProof::StackedDrg8MiBV1,
-            fil_RegisteredUpdateProof::StackedDrg512MiBV1 => {
-                RegisteredUpdateProof::StackedDrg512MiBV1
-            }
-            fil_RegisteredUpdateProof::StackedDrg32GiBV1 => {
-                RegisteredUpdateProof::StackedDrg32GiBV1
-            }
-            fil_RegisteredUpdateProof::StackedDrg64GiBV1 => {
-                RegisteredUpdateProof::StackedDrg64GiBV1
-            }
+            RegisteredUpdateProof::StackedDrg2KiBV1 => StackedDrg2KiBV1,
+            RegisteredUpdateProof::StackedDrg8MiBV1 => StackedDrg8MiBV1,
+            RegisteredUpdateProof::StackedDrg512MiBV1 => StackedDrg512MiBV1,
+            RegisteredUpdateProof::StackedDrg32GiBV1 => StackedDrg32GiBV1,
+            RegisteredUpdateProof::StackedDrg64GiBV1 => StackedDrg64GiBV1,
         }
     }
 }
 
 #[repr(C)]
 #[derive(Clone)]
-pub struct fil_PublicPieceInfo {
+pub struct PublicPieceInfo {
     pub num_bytes: u64,
     pub comm_p: [u8; 32],
 }
 
-impl From<&fil_PublicPieceInfo> for PieceInfo {
-    fn from(x: &fil_PublicPieceInfo) -> Self {
-        let fil_PublicPieceInfo { num_bytes, comm_p } = x;
-        PieceInfo {
+impl From<&PublicPieceInfo> for api::PieceInfo {
+    fn from(x: &PublicPieceInfo) -> Self {
+        let PublicPieceInfo { num_bytes, comm_p } = x;
+        api::PieceInfo {
             commitment: *comm_p,
-            size: UnpaddedBytesAmount(*num_bytes),
+            size: api::UnpaddedBytesAmount(*num_bytes),
         }
     }
 }
 
-#[allow(non_camel_case_types)]
-pub type fil_VanillaProof = fil_Bytes;
+pub type VanillaProof = Bytes;
 
-#[allow(non_camel_case_types)]
-pub type fil_AggregateProof = fil_Result<fil_VanillaProof>;
+pub type AggregateProof = Result<VanillaProof>;
 
 #[derive(Clone, Debug)]
-pub struct PoStProof {
-    pub registered_proof: RegisteredPoStProof,
+pub struct ApiPoStProof {
+    pub registered_proof: api::RegisteredPoStProof,
     pub proof: Vec<u8>,
 }
 
 #[repr(C)]
 #[derive(Clone)]
-pub struct fil_PoStProof {
-    pub registered_proof: fil_RegisteredPoStProof,
-    pub proof: fil_Bytes,
+pub struct PoStProof {
+    pub registered_proof: RegisteredPoStProof,
+    pub proof: Bytes,
 }
 
-impl Default for fil_PoStProof {
+impl Default for PoStProof {
     fn default() -> Self {
         Self {
-            registered_proof: fil_RegisteredPoStProof::StackedDrgWindow32GiBV1, // dummy value
+            registered_proof: RegisteredPoStProof::StackedDrgWindow32GiBV1, // dummy value
             proof: Default::default(),
         }
     }
 }
 
-impl From<fil_PoStProof> for PoStProof {
-    fn from(other: fil_PoStProof) -> Self {
-        PoStProof {
+impl From<PoStProof> for ApiPoStProof {
+    fn from(other: PoStProof) -> Self {
+        ApiPoStProof {
             registered_proof: other.registered_proof.into(),
             proof: other.proof.to_vec(),
         }
@@ -308,30 +277,30 @@ impl From<fil_PoStProof> for PoStProof {
 
 #[repr(C)]
 #[derive(Clone)]
-pub struct PartitionSnarkProof {
-    pub registered_proof: RegisteredPoStProof,
+pub struct ApiPartitionSnarkProof {
+    pub registered_proof: api::RegisteredPoStProof,
     pub proof: Vec<u8>,
 }
 
 #[repr(C)]
 #[derive(Clone)]
-pub struct fil_PartitionSnarkProof {
-    pub registered_proof: fil_RegisteredPoStProof,
-    pub proof: fil_Bytes,
+pub struct PartitionSnarkProof {
+    pub registered_proof: RegisteredPoStProof,
+    pub proof: Bytes,
 }
 
-impl Default for fil_PartitionSnarkProof {
+impl Default for PartitionSnarkProof {
     fn default() -> Self {
         Self {
-            registered_proof: fil_RegisteredPoStProof::StackedDrgWindow32GiBV1, // dummy value
+            registered_proof: RegisteredPoStProof::StackedDrgWindow32GiBV1, // dummy value
             proof: Default::default(),
         }
     }
 }
 
-impl From<fil_PartitionSnarkProof> for PartitionSnarkProof {
-    fn from(other: fil_PartitionSnarkProof) -> Self {
-        PartitionSnarkProof {
+impl From<PartitionSnarkProof> for ApiPartitionSnarkProof {
+    fn from(other: PartitionSnarkProof) -> Self {
+        ApiPartitionSnarkProof {
             registered_proof: other.registered_proof.into(),
             proof: other.proof.to_vec(),
         }
@@ -344,130 +313,112 @@ pub struct PartitionProof {
     pub proof: Vec<u8>,
 }
 
-#[allow(non_camel_case_types)]
-pub type fil_PartitionProof = fil_Bytes;
+pub type ApiPartitionProof = Bytes;
 
 #[repr(C)]
 #[derive(Clone)]
-pub struct fil_PrivateReplicaInfo {
-    pub registered_proof: fil_RegisteredPoStProof,
-    pub cache_dir_path: fil_Bytes,
+pub struct PrivateReplicaInfo {
+    pub registered_proof: RegisteredPoStProof,
+    pub cache_dir_path: Bytes,
     pub comm_r: [u8; 32],
-    pub replica_path: fil_Bytes,
+    pub replica_path: Bytes,
     pub sector_id: u64,
 }
 
 #[repr(C)]
 #[derive(Clone)]
-pub struct fil_PublicReplicaInfo {
-    pub registered_proof: fil_RegisteredPoStProof,
+pub struct PublicReplicaInfo {
+    pub registered_proof: RegisteredPoStProof,
     pub comm_r: [u8; 32],
     pub sector_id: u64,
 }
 
-#[allow(non_camel_case_types)]
-pub type fil_GenerateWinningPoStSectorChallenge = fil_Result<fil_Array<u64>>;
+pub type GenerateWinningPoStSectorChallenge = Result<Array<u64>>;
 
-#[allow(non_camel_case_types)]
-pub type fil_GenerateFallbackSectorChallengesResponse =
-    fil_Result<fil_GenerateFallbackSectorChallenges>;
+pub type GenerateFallbackSectorChallengesResponse = Result<GenerateFallbackSectorChallenges>;
 
 #[repr(C)]
 #[derive(Default)]
-pub struct fil_GenerateFallbackSectorChallenges {
-    pub ids: fil_Array<u64>,
-    pub challenges: fil_Array<u64>,
+pub struct GenerateFallbackSectorChallenges {
+    pub ids: Array<u64>,
+    pub challenges: Array<u64>,
     pub challenges_stride: libc::size_t,
 }
 
-#[allow(non_camel_case_types)]
-pub type fil_GenerateSingleVanillaProofResponse = fil_Result<fil_VanillaProof>;
+pub type GenerateSingleVanillaProofResponse = Result<VanillaProof>;
 
-#[allow(non_camel_case_types)]
-pub type fil_GenerateWinningPoStResponse = fil_Result<fil_Array<fil_PoStProof>>;
+pub type GenerateWinningPoStResponse = Result<Array<PoStProof>>;
 
-#[allow(non_camel_case_types)]
-pub type fil_GenerateWindowPoStResponse = fil_Result<fil_GenerateWindowPoSt>;
+pub type GenerateWindowPoStResponse = Result<GenerateWindowPoSt>;
 
 #[repr(C)]
 #[derive(Default)]
-pub struct fil_GenerateWindowPoSt {
-    pub proofs: fil_Array<fil_PoStProof>,
-    pub faulty_sectors: fil_Array<u64>,
+pub struct GenerateWindowPoSt {
+    pub proofs: Array<PoStProof>,
+    pub faulty_sectors: Array<u64>,
 }
 
-#[allow(non_camel_case_types)]
-pub type fil_GenerateSingleWindowPoStWithVanillaResponse =
-    fil_Result<fil_GenerateSingleWindowPoStWithVanilla>;
+pub type GenerateSingleWindowPoStWithVanillaResponse = Result<GenerateSingleWindowPoStWithVanilla>;
 
 #[repr(C)]
 #[derive(Default)]
-pub struct fil_GenerateSingleWindowPoStWithVanilla {
-    pub partition_proof: fil_PartitionSnarkProof,
-    pub faulty_sectors: fil_Array<u64>,
+pub struct GenerateSingleWindowPoStWithVanilla {
+    pub partition_proof: PartitionSnarkProof,
+    pub faulty_sectors: Array<u64>,
 }
 
-#[allow(non_camel_case_types)]
-pub type fil_GetNumPartitionForFallbackPoStResponse = fil_Result<libc::size_t>;
+pub type GetNumPartitionForFallbackPoStResponse = Result<libc::size_t>;
 
-#[allow(non_camel_case_types)]
-pub type fil_MergeWindowPoStPartitionProofsResponse = fil_Result<fil_PoStProof>;
+pub type MergeWindowPoStPartitionProofsResponse = Result<PoStProof>;
 
-#[allow(non_camel_case_types)]
-pub type fil_WriteWithAlignmentResponse = fil_Result<fil_WriteWithAlignment>;
+pub type WriteWithAlignmentResponse = Result<WriteWithAlignment>;
 
 #[repr(C)]
 #[derive(Default)]
-pub struct fil_WriteWithAlignment {
+pub struct WriteWithAlignment {
     pub comm_p: [u8; 32],
     pub left_alignment_unpadded: u64,
     pub total_write_unpadded: u64,
 }
 
-#[allow(non_camel_case_types)]
-pub type fil_WriteWithoutAlignmentResponse = fil_Result<fil_WriteWithoutAlignment>;
+pub type WriteWithoutAlignmentResponse = Result<WriteWithoutAlignment>;
 
 #[repr(C)]
 #[derive(Default)]
-pub struct fil_WriteWithoutAlignment {
+pub struct WriteWithoutAlignment {
     pub comm_p: [u8; 32],
     pub total_write_unpadded: u64,
 }
 
-#[allow(non_camel_case_types)]
-pub type fil_SealPreCommitPhase1Response = fil_Result<fil_Bytes>;
+pub type SealPreCommitPhase1Response = Result<Bytes>;
 
-#[allow(non_camel_case_types)]
-pub type fil_FauxRepResponse = fil_Result<fil_32ByteArray>;
+pub type FauxRepResponse = Result<ByteArray32>;
 
-#[allow(non_camel_case_types)]
-pub type fil_SealPreCommitPhase2Response = fil_Result<fil_SealPreCommitPhase2>;
+pub type SealPreCommitPhase2Response = Result<SealPreCommitPhase2>;
 
 #[repr(C)]
-pub struct fil_SealPreCommitPhase2 {
-    pub registered_proof: fil_RegisteredSealProof,
+pub struct SealPreCommitPhase2 {
+    pub registered_proof: RegisteredSealProof,
     pub comm_d: [u8; 32],
     pub comm_r: [u8; 32],
 }
 
-impl Default for fil_SealPreCommitPhase2 {
+impl Default for SealPreCommitPhase2 {
     fn default() -> Self {
         Self {
-            registered_proof: fil_RegisteredSealProof::StackedDrg2KiBV1_1, // dummy value
+            registered_proof: RegisteredSealProof::StackedDrg2KiBV1_1, // dummy value
             comm_d: Default::default(),
             comm_r: Default::default(),
         }
     }
 }
 
-#[allow(non_camel_case_types)]
-pub type fil_SealCommitPhase1Response = fil_Result<fil_Bytes>;
+pub type SealCommitPhase1Response = Result<Bytes>;
 
-#[allow(non_camel_case_types)]
-pub type fil_SealCommitPhase2Response = fil_Result<fil_SealCommitPhase2>;
+pub type SealCommitPhase2Response = Result<SealCommitPhase2>;
 
-impl From<&fil_SealCommitPhase2> for SealCommitPhase2Output {
-    fn from(other: &fil_SealCommitPhase2) -> Self {
+impl From<&SealCommitPhase2> for SealCommitPhase2Output {
+    fn from(other: &SealCommitPhase2) -> Self {
         SealCommitPhase2Output {
             proof: other.proof.to_vec(),
         }
@@ -476,86 +427,69 @@ impl From<&fil_SealCommitPhase2> for SealCommitPhase2Output {
 
 #[repr(C)]
 #[derive(Default, Clone)]
-pub struct fil_SealCommitPhase2 {
-    pub proof: fil_Bytes,
+pub struct SealCommitPhase2 {
+    pub proof: Bytes,
     // TODO: this is not actualy used?
-    // pub commit_inputs: fil_Array<fil_AggregationInputs>,
+    // pub commit_inputs: Array<AggregationInputs>,
 }
 
 #[repr(C)]
 #[derive(Clone, Default)]
-pub struct fil_AggregationInputs {
-    pub comm_r: fil_32ByteArray,
-    pub comm_d: fil_32ByteArray,
+pub struct AggregationInputs {
+    pub comm_r: ByteArray32,
+    pub comm_d: ByteArray32,
     pub sector_id: u64,
-    pub ticket: fil_32ByteArray,
-    pub seed: fil_32ByteArray,
+    pub ticket: ByteArray32,
+    pub seed: ByteArray32,
 }
 
-#[allow(non_camel_case_types)]
-pub type fil_UnsealRangeResponse = fil_Result<()>;
+pub type UnsealRangeResponse = Result<()>;
 
-#[allow(non_camel_case_types)]
-pub type fil_VerifySealResponse = fil_Result<bool>;
+pub type VerifySealResponse = Result<bool>;
 
-#[allow(non_camel_case_types)]
-pub type fil_VerifyAggregateSealProofResponse = fil_Result<bool>;
+pub type VerifyAggregateSealProofResponse = Result<bool>;
 
-#[allow(non_camel_case_types)]
-pub type fil_VerifyWinningPoStResponse = fil_Result<bool>;
+pub type VerifyWinningPoStResponse = Result<bool>;
 
-#[allow(non_camel_case_types)]
-pub type fil_VerifyWindowPoStResponse = fil_Result<bool>;
+pub type VerifyWindowPoStResponse = Result<bool>;
 
-#[allow(non_camel_case_types)]
-pub type fil_FinalizeTicketResponse = fil_Result<fil_32ByteArray>;
+pub type FinalizeTicketResponse = Result<ByteArray32>;
 
-#[allow(non_camel_case_types)]
-pub type fil_GeneratePieceCommitmentResponse = fil_Result<fil_GeneratePieceCommitment>;
+pub type GeneratePieceCommitmentResponse = Result<GeneratePieceCommitment>;
 
 #[repr(C)]
 #[derive(Default)]
-pub struct fil_GeneratePieceCommitment {
+pub struct GeneratePieceCommitment {
     pub comm_p: [u8; 32],
     /// The number of unpadded bytes in the original piece plus any (unpadded)
     /// alignment bytes added to create a whole merkle tree.
     pub num_bytes_aligned: u64,
 }
 
-#[allow(non_camel_case_types)]
-pub type fil_GenerateDataCommitmentResponse = fil_Result<fil_32ByteArray>;
+pub type GenerateDataCommitmentResponse = Result<ByteArray32>;
 
-#[allow(non_camel_case_types)]
-pub type fil_StringResponse = fil_Result<fil_Bytes>;
+pub type StringResponse = Result<Bytes>;
 
-#[allow(non_camel_case_types)]
-pub type fil_ClearCacheResponse = fil_Result<()>;
+pub type ClearCacheResponse = Result<()>;
 
-#[allow(non_camel_case_types)]
-pub type fil_EmptySectorUpdateEncodeIntoResponse = fil_Result<fil_EmptySectorUpdateEncodeInto>;
+pub type EmptySectorUpdateEncodeIntoResponse = Result<EmptySectorUpdateEncodeInto>;
 
 #[repr(C)]
 #[derive(Default)]
-pub struct fil_EmptySectorUpdateEncodeInto {
+pub struct EmptySectorUpdateEncodeInto {
     pub comm_r_new: [u8; 32],
     pub comm_r_last_new: [u8; 32],
     pub comm_d_new: [u8; 32],
 }
 
-#[allow(non_camel_case_types)]
-pub type fil_EmptySectorUpdateDecodeFromResponse = fil_Result<()>;
+pub type EmptySectorUpdateDecodeFromResponse = Result<()>;
 
-#[allow(non_camel_case_types)]
-pub type fil_EmptySectorUpdateRemoveEncodedDataResponse = fil_Result<()>;
+pub type EmptySectorUpdateRemoveEncodedDataResponse = Result<()>;
 
-#[allow(non_camel_case_types)]
-pub type fil_EmptySectorUpdateProofResponse = fil_Result<fil_Bytes>;
+pub type EmptySectorUpdateProofResponse = Result<Bytes>;
 
-#[allow(non_camel_case_types)]
-pub type fil_PartitionProofResponse = fil_Result<fil_Array<fil_PartitionProof>>;
+pub type PartitionProofResponse = Result<Array<ApiPartitionProof>>;
 
-#[allow(non_camel_case_types)]
-pub type fil_VerifyPartitionProofResponse = fil_Result<bool>;
+pub type VerifyPartitionProofResponse = Result<bool>;
 
-#[allow(non_camel_case_types)]
-pub type fil_VerifyEmptySectorUpdateProofResponse = fil_Result<bool>;
+pub type VerifyEmptySectorUpdateProofResponse = Result<bool>;
