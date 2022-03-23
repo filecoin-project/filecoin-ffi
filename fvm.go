@@ -1,5 +1,6 @@
-//go:build cgo
+//go:build cgo && (amd64 || arm64 || riscv64)
 // +build cgo
+// +build amd64 arm64 riscv64
 
 package ffi
 
@@ -10,9 +11,7 @@ package ffi
 import "C"
 import (
 	"context"
-	"math"
 	gobig "math/big"
-	"math/bits"
 	"runtime"
 	"unsafe"
 
@@ -167,85 +166,35 @@ type ApplyRet struct {
 	MinerTip     abi.TokenAmount
 }
 
+// NOTE: We only support 64bit platforms
+
 // returns hi, lo
 func splitBigInt(i big.Int) (hi uint64, lo uint64, err error) {
 	if i.Sign() < 0 {
 		return 0, 0, xerrors.Errorf("negative number: %s", i)
 	}
 	words := i.Bits()
-	switch bits.UintSize {
-	case 32:
-		switch len(words) {
-		case 4:
-			hi = uint64(words[3]) << 32
-			fallthrough
-		case 3:
-			hi |= uint64(words[2])
-			fallthrough
-		case 2:
-			lo = uint64(words[1]) << 32
-			fallthrough
-		case 1:
-			lo |= uint64(words[0])
-		case 0:
-		default:
-			return 0, 0, xerrors.Errorf("exceeds max bigint size: %s", i)
-		}
-	case 64:
-		switch len(words) {
-		case 2:
-			hi = uint64(words[1])
-			fallthrough
-		case 1:
-			lo = uint64(words[0])
-		case 0:
-		default:
-			return 0, 0, xerrors.Errorf("exceeds max bigint size: %s", i)
-		}
+	switch len(words) {
+	case 2:
+		hi = uint64(words[1])
+		fallthrough
+	case 1:
+		lo = uint64(words[0])
+	case 0:
 	default:
-		panic("unsupported word size")
+		return 0, 0, xerrors.Errorf("exceeds max bigint size: %s", i)
 	}
 	return hi, lo, nil
 }
 
 func reformBigInt(hi, lo uint64) big.Int {
 	var words []gobig.Word
-	switch bits.UintSize {
-	case 32:
-		if hi > math.MaxUint32 {
-			words = make([]gobig.Word, 4)
-		} else if hi > 0 {
-			words = make([]gobig.Word, 3)
-		} else if lo > math.MaxUint32 {
-			words = make([]gobig.Word, 2)
-		} else if lo > 0 {
-			words = make([]gobig.Word, 1)
-		} else {
-			return big.Zero()
-		}
-		switch len(words) {
-		case 4:
-			words[3] = gobig.Word(hi >> 32)
-			fallthrough
-		case 3:
-			words[2] = gobig.Word(hi)
-			fallthrough
-		case 2:
-			words[1] = gobig.Word(lo >> 32)
-			fallthrough
-		case 1:
-			words[0] = gobig.Word(lo)
-		}
-	case 64:
-		if hi > 0 {
-			words = []gobig.Word{gobig.Word(lo), gobig.Word(hi)}
-		} else if lo > 0 {
-			words = []gobig.Word{gobig.Word(lo)}
-		} else {
-			return big.Zero()
-		}
-	default:
-		panic("unsupported word size")
+	if hi > 0 {
+		words = []gobig.Word{gobig.Word(lo), gobig.Word(hi)}
+	} else if lo > 0 {
+		words = []gobig.Word{gobig.Word(lo)}
+	} else {
+		return big.Zero()
 	}
 	int := new(gobig.Int)
 	int.SetBits(words)
