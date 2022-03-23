@@ -7,6 +7,7 @@ use filecoin_proofs_api::{
     PieceInfo, RegisteredAggregationProof, RegisteredPoStProof, RegisteredSealProof,
     RegisteredUpdateProof, UnpaddedBytesAmount,
 };
+use safer_ffi::derive_ReprC;
 
 use crate::util::types::{fil_Array, fil_Bytes, fil_Result};
 
@@ -63,9 +64,10 @@ impl std::io::Seek for FileDescriptorRef {
         self.0.seek(pos)
     }
 }
+//#[allow(non_camel_case_types)]
 
-#[allow(non_camel_case_types)]
-#[repr(isize)]
+#[derive_ReprC]
+#[repr(i32)]
 #[derive(Debug, Clone, Copy)]
 pub enum fil_RegisteredSealProof {
     StackedDrg2KiBV1,
@@ -413,9 +415,9 @@ pub type fil_GetNumPartitionForFallbackPoStResponse = fil_Result<libc::size_t>;
 #[allow(non_camel_case_types)]
 pub type fil_MergeWindowPoStPartitionProofsResponse = fil_Result<fil_PoStProof>;
 
-#[allow(non_camel_case_types)]
 pub type fil_WriteWithAlignmentResponse = fil_Result<fil_WriteWithAlignment>;
 
+#[derive_ReprC]
 #[repr(C)]
 #[derive(Default)]
 pub struct fil_WriteWithAlignment {

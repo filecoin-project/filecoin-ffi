@@ -7,9 +7,12 @@ use std::{
     str::Utf8Error,
 };
 
+use safer_ffi::derive_ReprC;
+
 use super::api::init_log;
 
-#[repr(isize)]
+#[derive_ReprC]
+#[repr(i32)]
 #[derive(PartialEq, Debug, Copy, Clone)]
 pub enum FCPResponseStatus {
     // Don't use FCPSuccess, since that complicates description of 'successful' verification.
@@ -20,6 +23,7 @@ pub enum FCPResponseStatus {
 }
 
 /// Owned, fixed size array, allocated on the heap.
+#[derive_ReprC]
 #[repr(C)]
 pub struct fil_Array<T: Sized> {
     ptr: Option<NonNull<*mut T>>,
@@ -194,6 +198,7 @@ impl fil_Bytes {
     }
 }
 
+#[derive_ReprC]
 #[repr(C)]
 #[derive(Clone)]
 pub struct fil_Result<T: Sized> {
@@ -305,6 +310,16 @@ where
     })
 }
 
+pub fn catch_panic_response_safe<F, T>(name: &str, callback: F) -> fil_Result<T>
+where
+    T: Sized + Default,
+    F: FnOnce() -> anyhow::Result<T> + std::panic::UnwindSafe,
+{
+    catch_panic_response_raw_safe(name, || {
+        fil_Result::from(callback().map_err(|err| err.to_string()))
+    })
+}
+
 pub fn catch_panic_response_raw<F, T>(name: &str, callback: F) -> *mut fil_Result<T>
 where
     T: Sized + Default,
@@ -329,4 +344,28 @@ where
     };
 
     unsafe { result.into_boxed_raw() }
+}
+
+pub fn catch_panic_response_raw_safe<F, T>(name: &str, callback: F) -> fil_Result<T>
+where
+    T: Sized + Default,
+    F: FnOnce() -> fil_Result<T> + std::panic::UnwindSafe,
+{
+    match panic::catch_unwind(|| {
+        init_log();
+        log::info!("{}: start", name);
+        let res = callback();
+        log::info!("{}: end", name);
+        res
+    }) {
+        Ok(t) => t,
+        Err(panic) => {
+            let error_msg = match panic.downcast_ref::<&'static str>() {
+                Some(message) => message,
+                _ => "no unwind information",
+            };
+
+            fil_Result::from(Err(format!("Rust panic: {}", error_msg)))
+        }
+    }
 }

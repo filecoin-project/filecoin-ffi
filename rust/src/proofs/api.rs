@@ -23,23 +23,26 @@ use rayon::prelude::*;
 use super::helpers::{to_private_replica_info_map, to_public_replica_info_map};
 use super::types::*;
 use crate::util::types::{
-    catch_panic_response, catch_panic_response_raw, fil_Array, fil_Bytes, FCPResponseStatus,
+    catch_panic_response, catch_panic_response_raw, catch_panic_response_safe, fil_Array,
+    fil_Bytes, FCPResponseStatus,
 };
 
 // A byte serialized representation of a vanilla proof.
 pub type VanillaProof = Vec<u8>;
 
+use safer_ffi::prelude::*;
+
 /// TODO: document
-#[no_mangle]
-#[cfg(not(target_os = "windows"))]
-pub unsafe extern "C" fn fil_write_with_alignment(
+// #[cfg(not(target_os = "windows"))] // Just drop windows support it is not real atm anyway
+#[ffi_export]
+fn fil_write_with_alignment(
     registered_proof: fil_RegisteredSealProof,
     src_fd: libc::c_int,
     src_size: u64,
     dst_fd: libc::c_int,
     existing_piece_sizes: &fil_Array<u64>,
-) -> *mut fil_WriteWithAlignmentResponse {
-    catch_panic_response("write_with_alignment", || {
+) -> fil_WriteWithAlignmentResponse {
+    catch_panic_response_safe("write_with_alignment", || {
         let piece_sizes: Vec<UnpaddedBytesAmount> = existing_piece_sizes
             .iter()
             .copied()
@@ -50,8 +53,8 @@ pub unsafe extern "C" fn fil_write_with_alignment(
 
         let (info, written) = add_piece(
             registered_proof.into(),
-            FileDescriptorRef::new(src_fd),
-            FileDescriptorRef::new(dst_fd),
+            unsafe { FileDescriptorRef::new(src_fd) },
+            unsafe { FileDescriptorRef::new(dst_fd) },
             n,
             &piece_sizes,
         )?;
@@ -1546,23 +1549,21 @@ pub mod tests {
         }
 
         // write the second
-        unsafe {
-            let existing = vec![127u64];
+        let existing = vec![127u64];
 
-            let resp =
-                fil_write_with_alignment(registered_proof, src_fd_b, 508, dst_fd, &existing.into());
+        let resp =
+            fil_write_with_alignment(registered_proof, src_fd_b, 508, dst_fd, &existing.into());
 
-            if (*resp).status_code != FCPResponseStatus::FCPNoError {
-                let msg = (*resp).error_msg.as_str().unwrap();
-                panic!("write_with_alignment failed: {:?}", msg);
-            }
-
-            assert_eq!(
-                (*resp).left_alignment_unpadded,
-                381,
-                "should have added 381 bytes of (unpadded) left alignment"
-            );
+        if resp.status_code != FCPResponseStatus::FCPNoError {
+            let msg = resp.error_msg.as_str().unwrap();
+            panic!("write_with_alignment failed: {:?}", msg);
         }
+
+        assert_eq!(
+            (*resp).left_alignment_unpadded,
+            381,
+            "should have added 381 bytes of (unpadded) left alignment"
+        );
 
         Ok(())
     }
@@ -1736,8 +1737,8 @@ pub mod tests {
                 &existing_piece_sizes.into(),
             );
 
-            if (*resp_a2).status_code != FCPResponseStatus::FCPNoError {
-                let msg = (*resp_a2).error_msg.as_str().unwrap();
+            if resp_a2.status_code != FCPResponseStatus::FCPNoError {
+                let msg = resp_a2.error_msg.as_str().unwrap();
                 panic!("write_with_alignment failed: {:?}", msg);
             }
 
@@ -1920,8 +1921,8 @@ pub mod tests {
                 &existing_piece_sizes.into(),
             );
 
-            if (*resp_new_a2).status_code != FCPResponseStatus::FCPNoError {
-                let msg = (*resp_new_a2).error_msg.as_str().unwrap();
+            if resp_new_a2.status_code != FCPResponseStatus::FCPNoError {
+                let msg = resp_new_a2.error_msg.as_str().unwrap();
                 panic!("write_with_alignment failed: {:?}", msg);
             }
 
@@ -2137,7 +2138,6 @@ pub mod tests {
             )?;
 
             fil_destroy_write_without_alignment_response(resp_new_a1);
-            fil_destroy_write_with_alignment_response(resp_new_a2);
             fil_destroy_generate_data_commitment_response(resp_new_x);
 
             fil_destroy_empty_sector_update_encode_into_response(resp_encode);
@@ -2618,7 +2618,6 @@ pub mod tests {
             ////////////////////
 
             fil_destroy_write_without_alignment_response(resp_a1);
-            fil_destroy_write_with_alignment_response(resp_a2);
             fil_destroy_generate_data_commitment_response(resp_x);
 
             fil_destroy_seal_pre_commit_phase1_response(resp_b1);
@@ -2730,8 +2729,8 @@ pub mod tests {
                 &existing_piece_sizes.into(),
             );
 
-            if (*resp_a2).status_code != FCPResponseStatus::FCPNoError {
-                let msg = (*resp_a2).error_msg.as_str().unwrap();
+            if resp_a2.status_code != FCPResponseStatus::FCPNoError {
+                let msg = resp_a2.error_msg.as_str().unwrap();
                 panic!("write_with_alignment failed: {:?}", msg);
             }
 
@@ -2802,7 +2801,6 @@ pub mod tests {
             assert_eq!(faulty_sectors, &[42], "sector 42 should be faulty");
 
             fil_destroy_write_without_alignment_response(resp_a1);
-            fil_destroy_write_with_alignment_response(resp_a2);
 
             fil_destroy_seal_pre_commit_phase1_response(resp_b1);
             fil_destroy_seal_pre_commit_phase2_response(resp_b2);
@@ -2903,8 +2901,8 @@ pub mod tests {
                 &existing_piece_sizes.into(),
             );
 
-            if (*resp_a2).status_code != FCPResponseStatus::FCPNoError {
-                let msg = (*resp_a2).error_msg.as_str().unwrap();
+            if resp_a2.status_code != FCPResponseStatus::FCPNoError {
+                let msg = resp_a2.error_msg.as_str().unwrap();
                 panic!("write_with_alignment failed: {:?}", msg);
             }
 
@@ -3087,7 +3085,6 @@ pub mod tests {
             assert!(*(*resp_ad), "aggregated proof was not valid");
 
             fil_destroy_write_without_alignment_response(resp_a1);
-            fil_destroy_write_with_alignment_response(resp_a2);
             fil_destroy_generate_data_commitment_response(resp_x);
 
             fil_destroy_seal_pre_commit_phase1_response(resp_b1);
@@ -3118,5 +3115,14 @@ pub mod tests {
         }
 
         Ok(())
+    }
+
+    /// The following test function is necessary for the header generation.
+    #[safer_ffi::cfg_headers]
+    #[test]
+    fn generate_headers() -> ::std::io::Result<()> {
+        safer_ffi::headers::builder()
+            .to_file("filcrypto.h")?
+            .generate()
     }
 }
