@@ -1,13 +1,13 @@
+use anyhow::anyhow;
+use blstrs::Scalar as Fr;
 use filecoin_proofs_api::seal;
 use filecoin_proofs_api::{
     self as api, update, PieceInfo, SectorId, StorageProofsError, UnpaddedByteIndex,
     UnpaddedBytesAmount,
 };
-
-use anyhow::anyhow;
-use blstrs::Scalar as Fr;
 use log::error;
 use rayon::prelude::*;
+use safer_ffi::prelude::*;
 
 use super::helpers::{to_private_replica_info_map, to_public_replica_info_map};
 use super::types::*;
@@ -17,6 +17,12 @@ use crate::util::types::{
 
 // A byte serialized representation of a vanilla proof.
 pub type ApiVanillaProof = Vec<u8>;
+
+#[ffi_export]
+fn foo() -> bool {
+    println!("hello world3");
+    true
+}
 
 /// TODO: document
 #[no_mangle]
