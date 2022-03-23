@@ -64,7 +64,8 @@ impl std::io::Seek for FileDescriptorRef {
     }
 }
 
-#[repr(C)]
+#[allow(non_camel_case_types)]
+#[repr(isize)]
 #[derive(Debug, Clone, Copy)]
 pub enum fil_RegisteredSealProof {
     StackedDrg2KiBV1,
@@ -127,7 +128,8 @@ impl From<fil_RegisteredSealProof> for RegisteredSealProof {
     }
 }
 
-#[repr(C)]
+#[allow(non_camel_case_types)]
+#[repr(isize)]
 #[derive(Debug, Clone, Copy)]
 pub enum fil_RegisteredPoStProof {
     StackedDrgWinning2KiBV1,
@@ -180,7 +182,8 @@ impl From<fil_RegisteredPoStProof> for RegisteredPoStProof {
     }
 }
 
-#[repr(C)]
+#[allow(non_camel_case_types)]
+#[repr(isize)]
 #[derive(Debug, Clone, Copy)]
 pub enum fil_RegisteredAggregationProof {
     SnarkPackV1,
@@ -202,7 +205,8 @@ impl From<fil_RegisteredAggregationProof> for RegisteredAggregationProof {
     }
 }
 
-#[repr(C)]
+#[allow(non_camel_case_types)]
+#[repr(isize)]
 #[derive(Debug, Clone, Copy)]
 pub enum fil_RegisteredUpdateProof {
     StackedDrg2KiBV1,

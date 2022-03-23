@@ -17,7 +17,7 @@ language = "C"
 
 [parse]
 parse_deps = true
-include = ["ffi-toolkit"]
+include = []
 
 [enum]
 prefix_with_name = true
