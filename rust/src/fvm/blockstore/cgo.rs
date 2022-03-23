@@ -6,12 +6,18 @@ use fvm_shared::blockstore::Blockstore;
 
 use super::super::cgo::*;
 
+/// The error code returned by cgo if the blockstore handle isn't valid.
 const ERR_NO_STORE: i32 = -1;
+/// The error code returned by the blockstore when the block isn't found.
 const ERR_NOT_FOUND: i32 = -2;
+/// The maximum amount of data to buffer in a batch before writing it to the underlying blockstore.
 const MAX_BUF_SIZE: usize = 4 << 20; // 4MiB
+/// The maximum number of blocks to buffer in a batch before before writing it to the underlying
+/// blockstore.
 const MAX_BLOCK_BATCH: usize = 1024;
 
-// This is just a rough estimate, it doesn't need to be accurate.
+/// A rough estimate of the CID size, used to estimate the maximum amount of space much space we'll
+/// need in the batch buffer to store a CID.
 const EST_MAX_CID_LEN: usize = 100;
 
 pub struct CgoBlockstore {
@@ -102,6 +108,10 @@ impl Blockstore for CgoBlockstore {
         let mut buf = Vec::with_capacity(MAX_BUF_SIZE);
         for (k, block) in blocks {
             let block = block.as_ref();
+            // We limit both the max number of blocks and the max buffer size. Technically, we could
+            // _just_ limit the buffer size as that should bound the number of blocks. However,
+            // bounding the maximum number of blocks means we can allocate the vector up-front and
+            // avoids any re-allocation, copying, etc.
             if lengths.len() >= MAX_BLOCK_BATCH
                 || EST_MAX_CID_LEN + block.len() + buf.len() > MAX_BUF_SIZE
             {
