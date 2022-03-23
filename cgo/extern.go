@@ -66,10 +66,10 @@ func cgo_extern_verify_consensus_fault(
 	h1 C.buf_t, h1Len C.int32_t,
 	h2 C.buf_t, h2Len C.int32_t,
 	extra C.buf_t, extraLen C.int32_t,
-	minerId *C.uint64_t,
-	epoch *C.int64_t,
-	fault *C.int64_t,
-	gasUsed *C.int64_t,
+	minerIdOut *C.uint64_t,
+	epochOut *C.int64_t,
+	faultOut *C.int64_t,
+	gasUsedOut *C.int64_t,
 ) C.int32_t {
 	externs, ctx := Lookup(uint64(handle))
 	if externs == nil {
@@ -81,16 +81,16 @@ func cgo_extern_verify_consensus_fault(
 	extraGo := C.GoBytes(unsafe.Pointer(extra), extraLen)
 
 	res, gas := externs.VerifyConsensusFault(ctx, h1Go, h2Go, extraGo)
-	*gasUsed = C.int64_t(gas)
-	*fault = C.int64_t(res.Type)
+	*gasUsedOut = C.int64_t(gas)
+	*faultOut = C.int64_t(res.Type)
 
 	if res.Type != ConsensusFaultNone {
 		id, err := address.IDFromAddress(res.Target)
 		if err != nil {
 			return ErrIO
 		}
-		*epoch = C.int64_t(res.Epoch)
-		*minerId = C.uint64_t(id)
+		*epochOut = C.int64_t(res.Epoch)
+		*minerIdOut = C.uint64_t(id)
 	}
 
 	return 0
