@@ -34,27 +34,38 @@ const (
 	applyImplicit
 )
 
-// CreateFVM
-func CreateFVM(fvmVersion uint64, externs cgo.Externs, epoch abi.ChainEpoch, baseFee abi.TokenAmount, baseCircSupply abi.TokenAmount, nv network.Version, stateBase cid.Cid) (*FVM, error) {
-	baseFeeHi, baseFeeLo, err := splitBigInt(baseFee)
+type FVMOpts struct {
+	FVMVersion uint64
+	Externs    cgo.Externs
+
+	Epoch          abi.ChainEpoch
+	BaseFee        abi.TokenAmount
+	BaseCircSupply abi.TokenAmount
+	NetworkVersion network.Version
+	StateBase      cid.Cid
+}
+
+// CreateFVM creates a new FVM instance.
+func CreateFVM(opts *FVMOpts) (*FVM, error) {
+	baseFeeHi, baseFeeLo, err := splitBigInt(opts.BaseFee)
 	if err != nil {
 		return nil, xerrors.Errorf("invalid basefee: %w", err)
 	}
-	baseCircSupplyHi, baseCircSupplyLo, err := splitBigInt(baseCircSupply)
+	baseCircSupplyHi, baseCircSupplyLo, err := splitBigInt(opts.BaseCircSupply)
 	if err != nil {
 		return nil, xerrors.Errorf("invalid circ supply: %w", err)
 	}
 
-	exHandle := cgo.Register(context.TODO(), externs)
-	resp := generated.FilCreateFvmMachine(generated.FilFvmRegisteredVersion(fvmVersion),
-		uint64(epoch),
+	exHandle := cgo.Register(context.TODO(), opts.Externs)
+	resp := generated.FilCreateFvmMachine(generated.FilFvmRegisteredVersion(opts.FVMVersion),
+		uint64(opts.Epoch),
 		baseFeeHi,
 		baseFeeLo,
 		baseCircSupplyHi,
 		baseCircSupplyLo,
-		uint64(nv),
-		stateBase.Bytes(),
-		uint(stateBase.ByteLen()),
+		uint64(opts.NetworkVersion),
+		opts.StateBase.Bytes(),
+		uint(opts.StateBase.ByteLen()),
 		exHandle, exHandle,
 	)
 	resp.Deref()
