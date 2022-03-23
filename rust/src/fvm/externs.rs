@@ -8,6 +8,7 @@ use num_traits::FromPrimitive;
 
 use super::cgo::*;
 
+/// The error code returned by cgo if the externs handle isn't valid.
 const ERR_NO_EXTERN: i32 = -1;
 
 pub struct CgoExterns {
