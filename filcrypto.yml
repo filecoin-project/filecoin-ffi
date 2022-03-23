@@ -23,7 +23,7 @@ TRANSLATOR:
   ConstUCharIsString: false
   ConstRules:
     defines: expand
-    enum: cgo
+    enum: expand
   PtrTips:
     function:
       - {target: "^fil_destroy", tips: [ref]}

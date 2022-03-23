@@ -12,67 +12,67 @@ package generated
 */
 import "C"
 
-// FCPResponseStatus as declared in filecoin-ffi/filcrypto.h:31
+// FCPResponseStatus as declared in filecoin-ffi/filcrypto.h:26
 type FCPResponseStatus int32
 
-// FCPResponseStatus enumeration from filecoin-ffi/filcrypto.h:31
+// FCPResponseStatus enumeration from filecoin-ffi/filcrypto.h:26
 const (
-	FCPResponseStatusFCPNoError           FCPResponseStatus = C.FCPResponseStatus_FCPNoError
-	FCPResponseStatusFCPUnclassifiedError FCPResponseStatus = C.FCPResponseStatus_FCPUnclassifiedError
-	FCPResponseStatusFCPCallerError       FCPResponseStatus = C.FCPResponseStatus_FCPCallerError
-	FCPResponseStatusFCPReceiverError     FCPResponseStatus = C.FCPResponseStatus_FCPReceiverError
+	FCPResponseStatusFCPNoError           = iota
+	FCPResponseStatusFCPUnclassifiedError = 1
+	FCPResponseStatusFCPCallerError       = 2
+	FCPResponseStatusFCPReceiverError     = 3
 )
 
-// FilRegisteredAggregationProof as declared in filecoin-ffi/filcrypto.h:35
+// FilRegisteredAggregationProof as declared in filecoin-ffi/filcrypto.h:34
 type FilRegisteredAggregationProof int32
 
-// FilRegisteredAggregationProof enumeration from filecoin-ffi/filcrypto.h:35
+// FilRegisteredAggregationProof enumeration from filecoin-ffi/filcrypto.h:34
 const (
-	FilRegisteredAggregationProofSnarkPackV1 FilRegisteredAggregationProof = C.fil_RegisteredAggregationProof_SnarkPackV1
+	FilRegisteredAggregationProofSnarkPackV1 = iota
 )
 
-// FilRegisteredPoStProof as declared in filecoin-ffi/filcrypto.h:48
+// FilRegisteredPoStProof as declared in filecoin-ffi/filcrypto.h:39
 type FilRegisteredPoStProof int32
 
-// FilRegisteredPoStProof enumeration from filecoin-ffi/filcrypto.h:48
+// FilRegisteredPoStProof enumeration from filecoin-ffi/filcrypto.h:39
 const (
-	FilRegisteredPoStProofStackedDrgWinning2KiBV1   FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrgWinning2KiBV1
-	FilRegisteredPoStProofStackedDrgWinning8MiBV1   FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrgWinning8MiBV1
-	FilRegisteredPoStProofStackedDrgWinning512MiBV1 FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrgWinning512MiBV1
-	FilRegisteredPoStProofStackedDrgWinning32GiBV1  FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrgWinning32GiBV1
-	FilRegisteredPoStProofStackedDrgWinning64GiBV1  FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrgWinning64GiBV1
-	FilRegisteredPoStProofStackedDrgWindow2KiBV1    FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrgWindow2KiBV1
-	FilRegisteredPoStProofStackedDrgWindow8MiBV1    FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrgWindow8MiBV1
-	FilRegisteredPoStProofStackedDrgWindow512MiBV1  FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrgWindow512MiBV1
-	FilRegisteredPoStProofStackedDrgWindow32GiBV1   FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrgWindow32GiBV1
-	FilRegisteredPoStProofStackedDrgWindow64GiBV1   FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrgWindow64GiBV1
+	FilRegisteredPoStProofStackedDrgWinning2KiBV1   = iota
+	FilRegisteredPoStProofStackedDrgWinning8MiBV1   = 1
+	FilRegisteredPoStProofStackedDrgWinning512MiBV1 = 2
+	FilRegisteredPoStProofStackedDrgWinning32GiBV1  = 3
+	FilRegisteredPoStProofStackedDrgWinning64GiBV1  = 4
+	FilRegisteredPoStProofStackedDrgWindow2KiBV1    = 5
+	FilRegisteredPoStProofStackedDrgWindow8MiBV1    = 6
+	FilRegisteredPoStProofStackedDrgWindow512MiBV1  = 7
+	FilRegisteredPoStProofStackedDrgWindow32GiBV1   = 8
+	FilRegisteredPoStProofStackedDrgWindow64GiBV1   = 9
 )
 
-// FilRegisteredSealProof as declared in filecoin-ffi/filcrypto.h:61
+// FilRegisteredSealProof as declared in filecoin-ffi/filcrypto.h:53
 type FilRegisteredSealProof int32
 
-// FilRegisteredSealProof enumeration from filecoin-ffi/filcrypto.h:61
+// FilRegisteredSealProof enumeration from filecoin-ffi/filcrypto.h:53
 const (
-	FilRegisteredSealProofStackedDrg2KiBV1    FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg2KiBV1
-	FilRegisteredSealProofStackedDrg8MiBV1    FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg8MiBV1
-	FilRegisteredSealProofStackedDrg512MiBV1  FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg512MiBV1
-	FilRegisteredSealProofStackedDrg32GiBV1   FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg32GiBV1
-	FilRegisteredSealProofStackedDrg64GiBV1   FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg64GiBV1
-	FilRegisteredSealProofStackedDrg2KiBV11   FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg2KiBV1_1
-	FilRegisteredSealProofStackedDrg8MiBV11   FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg8MiBV1_1
-	FilRegisteredSealProofStackedDrg512MiBV11 FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg512MiBV1_1
-	FilRegisteredSealProofStackedDrg32GiBV11  FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg32GiBV1_1
-	FilRegisteredSealProofStackedDrg64GiBV11  FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg64GiBV1_1
+	FilRegisteredSealProofStackedDrg2KiBV1    = iota
+	FilRegisteredSealProofStackedDrg8MiBV1    = 1
+	FilRegisteredSealProofStackedDrg512MiBV1  = 2
+	FilRegisteredSealProofStackedDrg32GiBV1   = 3
+	FilRegisteredSealProofStackedDrg64GiBV1   = 4
+	FilRegisteredSealProofStackedDrg2KiBV11   = 5
+	FilRegisteredSealProofStackedDrg8MiBV11   = 6
+	FilRegisteredSealProofStackedDrg512MiBV11 = 7
+	FilRegisteredSealProofStackedDrg32GiBV11  = 8
+	FilRegisteredSealProofStackedDrg64GiBV11  = 9
 )
 
-// FilRegisteredUpdateProof as declared in filecoin-ffi/filcrypto.h:69
+// FilRegisteredUpdateProof as declared in filecoin-ffi/filcrypto.h:67
 type FilRegisteredUpdateProof int32
 
-// FilRegisteredUpdateProof enumeration from filecoin-ffi/filcrypto.h:69
+// FilRegisteredUpdateProof enumeration from filecoin-ffi/filcrypto.h:67
 const (
-	FilRegisteredUpdateProofStackedDrg2KiBV1   FilRegisteredUpdateProof = C.fil_RegisteredUpdateProof_StackedDrg2KiBV1
-	FilRegisteredUpdateProofStackedDrg8MiBV1   FilRegisteredUpdateProof = C.fil_RegisteredUpdateProof_StackedDrg8MiBV1
-	FilRegisteredUpdateProofStackedDrg512MiBV1 FilRegisteredUpdateProof = C.fil_RegisteredUpdateProof_StackedDrg512MiBV1
-	FilRegisteredUpdateProofStackedDrg32GiBV1  FilRegisteredUpdateProof = C.fil_RegisteredUpdateProof_StackedDrg32GiBV1
-	FilRegisteredUpdateProofStackedDrg64GiBV1  FilRegisteredUpdateProof = C.fil_RegisteredUpdateProof_StackedDrg64GiBV1
+	FilRegisteredUpdateProofStackedDrg2KiBV1   = iota
+	FilRegisteredUpdateProofStackedDrg8MiBV1   = 1
+	FilRegisteredUpdateProofStackedDrg512MiBV1 = 2
+	FilRegisteredUpdateProofStackedDrg32GiBV1  = 3
+	FilRegisteredUpdateProofStackedDrg64GiBV1  = 4
 )
