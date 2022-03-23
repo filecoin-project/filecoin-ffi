@@ -70,4 +70,7 @@ blst-portable = ["bls-signatures/blst-portable", "blstrs/portable"]
 opencl = ["filecoin-proofs-api/opencl", "bellperson/opencl", "storage-proofs-porep/opencl", "rust-gpu-tools/opencl", "fvm/opencl"]
 cuda = ["filecoin-proofs-api/cuda", "bellperson/cuda", "storage-proofs-porep/cuda", "rust-gpu-tools/cuda", "fvm/cuda"]
 multicore-sdr = ["storage-proofs-porep/multicore-sdr"]
+
+# Only enabled by cbindgen. When enabled, the cgo_* externs are disabled so as not to confuse
+# cbindgen.
 bindgen=[]
