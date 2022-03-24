@@ -3,7 +3,7 @@ use filecoin_proofs_api::{self as api, SectorId};
 use std::collections::btree_map::BTreeMap;
 
 use super::types::{PrivateReplicaInfo, PublicReplicaInfo, RegisteredPoStProof};
-use crate::util::types::Array;
+use crate::util::types::{as_path_buf, Array};
 
 #[derive(Debug, Clone)]
 struct PublicReplicaInfoTmp {
@@ -60,8 +60,8 @@ pub fn to_private_replica_info_map(
     let replicas: Vec<_> = replicas
         .iter()
         .map(|ffi_info| {
-            let cache_dir_path = ffi_info.cache_dir_path.as_path()?;
-            let replica_path = ffi_info.replica_path.as_path()?;
+            let cache_dir_path = as_path_buf(&ffi_info.cache_dir_path)?;
+            let replica_path = as_path_buf(&ffi_info.replica_path)?;
 
             Ok(PrivateReplicaInfoTmp {
                 registered_proof: ffi_info.registered_proof,

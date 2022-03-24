@@ -14,7 +14,7 @@ use safer_ffi::prelude::*;
 
 use crate::bls::types;
 use crate::proofs::types::ByteArray32;
-use crate::util::types::{Array, Bytes};
+use crate::util::types::Array;
 
 pub const SIGNATURE_BYTES: usize = 96;
 pub const PRIVATE_KEY_BYTES: usize = 32;
@@ -61,9 +61,9 @@ macro_rules! try_ffi {
 ///
 /// * `message` - reference to a message byte array
 #[ffi_export]
-pub fn hash(message: &Bytes) -> repr_c::Box<types::HashResponse> {
+pub fn hash(message: c_slice::Ref<u8>) -> repr_c::Box<types::HashResponse> {
     // call method
-    let digest = hash_sig(message);
+    let digest = hash_sig(&message);
 
     // prep response
     let mut raw_digest: [u8; DIGEST_BYTES] = [0; DIGEST_BYTES];
@@ -84,7 +84,9 @@ pub fn hash(message: &Bytes) -> repr_c::Box<types::HashResponse> {
 ///
 /// Returns `NULL` on error. Result must be freed using `destroy_aggregate_response`.
 #[ffi_export]
-pub fn aggregate(flattened_signatures: &Bytes) -> Option<repr_c::Box<types::AggregateResponse>> {
+pub fn aggregate(
+    flattened_signatures: c_slice::Ref<u8>,
+) -> Option<repr_c::Box<types::AggregateResponse>> {
     // prep request
     let signatures = try_ffi!(
         flattened_signatures
@@ -120,8 +122,8 @@ pub fn aggregate(flattened_signatures: &Bytes) -> Option<repr_c::Box<types::Aggr
 #[ffi_export]
 pub fn verify(
     signature: &[u8; SIGNATURE_BYTES],
-    flattened_digests: &Bytes,
-    flattened_public_keys: &Bytes,
+    flattened_digests: c_slice::Ref<u8>,
+    flattened_public_keys: c_slice::Ref<u8>,
 ) -> libc::c_int {
     // prep request
     let signature = try_ffi!(Signature::from_bytes(signature), 0);
@@ -175,9 +177,9 @@ pub fn verify(
 #[ffi_export]
 pub fn hash_verify(
     signature: &[u8; SIGNATURE_BYTES],
-    flattened_messages: &Bytes,
+    flattened_messages: c_slice::Ref<u8>,
     message_sizes: &Array<libc::size_t>,
-    flattened_public_keys: &Bytes,
+    flattened_public_keys: c_slice::Ref<u8>,
 ) -> libc::c_int {
     // prep request
     let signature = try_ffi!(Signature::from_bytes(signature), 0);
@@ -268,12 +270,12 @@ pub fn private_key_generate_with_seed(
 #[ffi_export]
 pub fn private_key_sign(
     raw_private_key: &[u8; PRIVATE_KEY_BYTES],
-    message: &Bytes,
+    message: c_slice::Ref<u8>,
 ) -> Option<repr_c::Box<types::PrivateKeySignResponse>> {
     let private_key = try_ffi!(PrivateKey::from_bytes(raw_private_key), None);
 
     let mut raw_signature: [u8; SIGNATURE_BYTES] = [0; SIGNATURE_BYTES];
-    PrivateKey::sign(&private_key, message)
+    PrivateKey::sign(&private_key, &message[..])
         .write_bytes(&mut raw_signature.as_mut())
         .expect("preallocated");
 
@@ -352,17 +354,13 @@ mod tests {
             .unwrap()
             .public_key
             .inner;
-        let message: Bytes = b"hello world"[..].into();
-        let digest = hash(&message).digest.inner;
-        let signature = private_key_sign(&private_key, &message)
+        let message = b"hello world";
+        let digest = hash(message[..].into()).digest.inner;
+        let signature = private_key_sign(&private_key, message[..].into())
             .unwrap()
             .signature
             .inner;
-        let verified = verify(
-            &signature,
-            &digest.to_vec().into(),
-            &public_key.to_vec().into(),
-        );
+        let verified = verify(&signature, digest[..].into(), public_key[..].into());
 
         assert_eq!(1, verified);
 
@@ -371,19 +369,19 @@ mod tests {
 
         let verified = hash_verify(
             &signature,
-            &flattened_messages,
+            flattened_messages[..].into(),
             &message_sizes.into(),
-            &public_key.to_vec().into(),
+            public_key[..].into(),
         );
 
         assert_eq!(1, verified);
 
-        let different_message = b"bye world"[..].into();
-        let different_digest = hash(&different_message).digest.inner;
+        let different_message = b"bye world";
+        let different_digest = hash(different_message[..].into()).digest.inner;
         let not_verified = verify(
             &signature,
-            &different_digest.to_vec().into(),
-            &public_key.to_vec().into(),
+            different_digest[..].into(),
+            public_key[..].into(),
         );
 
         assert_eq!(0, not_verified);
@@ -392,8 +390,8 @@ mod tests {
         let different_digest = vec![0, 1, 2, 3, 4];
         let not_verified = verify(
             &signature,
-            &different_digest.into(),
-            &public_key.to_vec().into(),
+            different_digest[..].into(),
+            public_key[..].into(),
         );
 
         assert_eq!(0, not_verified);

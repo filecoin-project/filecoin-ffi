@@ -5,7 +5,7 @@ use std::sync::Once;
 use anyhow::anyhow;
 use safer_ffi::prelude::*;
 
-use super::types::{catch_panic_response, Array, Bytes, GpuDeviceResponse, InitLogFdResponse};
+use super::types::{catch_panic_response, Array, GpuDeviceResponse, InitLogFdResponse};
 
 /// Protects the init off the logger.
 static LOG_INIT: Once = Once::new();
@@ -35,8 +35,11 @@ pub fn init_log_with_file(file: File) -> Option<()> {
 pub fn get_gpu_devices() -> repr_c::Box<GpuDeviceResponse> {
     catch_panic_response("get_gpu_devices", || {
         let devices = rust_gpu_tools::Device::all();
-        let devices: Vec<Bytes> = devices.iter().map(|d| d.name().into()).collect();
-        let devices: Array<Bytes> = devices.into();
+        let devices: Vec<_> = devices
+            .iter()
+            .map(|d| d.name().into_bytes().into_boxed_slice().into())
+            .collect();
+        let devices: Array<_> = devices.into();
 
         Ok(devices)
     })

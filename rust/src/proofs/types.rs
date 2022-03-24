@@ -5,7 +5,7 @@ use filecoin_proofs_api as api;
 use filecoin_proofs_api::seal::SealCommitPhase2Output;
 use safer_ffi::prelude::*;
 
-use crate::util::types::{Array, Bytes, Result};
+use crate::util::types::{Array, Result};
 
 #[derive_ReprC]
 #[repr(C)]
@@ -247,7 +247,7 @@ impl From<&PublicPieceInfo> for api::PieceInfo {
     }
 }
 
-pub type VanillaProof = Bytes;
+pub type VanillaProof = c_slice::Box<u8>;
 
 pub type AggregateProof = Result<VanillaProof>;
 
@@ -262,7 +262,7 @@ pub struct ApiPoStProof {
 #[derive(Clone)]
 pub struct PoStProof {
     pub registered_proof: RegisteredPoStProof,
-    pub proof: Bytes,
+    pub proof: c_slice::Box<u8>,
 }
 
 impl Default for PoStProof {
@@ -294,7 +294,7 @@ pub struct ApiPartitionSnarkProof {
 #[derive(Clone)]
 pub struct PartitionSnarkProof {
     pub registered_proof: RegisteredPoStProof,
-    pub proof: Bytes,
+    pub proof: c_slice::Box<u8>,
 }
 
 impl Default for PartitionSnarkProof {
@@ -320,16 +320,16 @@ pub struct PartitionProof {
     pub proof: Vec<u8>,
 }
 
-pub type ApiPartitionProof = Bytes;
+pub type ApiPartitionProof = c_slice::Box<u8>;
 
 #[derive_ReprC]
 #[repr(C)]
 #[derive(Clone)]
 pub struct PrivateReplicaInfo {
     pub registered_proof: RegisteredPoStProof,
-    pub cache_dir_path: Bytes,
+    pub cache_dir_path: c_slice::Box<u8>,
     pub comm_r: [u8; 32],
-    pub replica_path: Bytes,
+    pub replica_path: c_slice::Box<u8>,
     pub sector_id: u64,
 }
 
@@ -404,7 +404,7 @@ pub struct WriteWithoutAlignment {
     pub total_write_unpadded: u64,
 }
 
-pub type SealPreCommitPhase1Response = Result<Bytes>;
+pub type SealPreCommitPhase1Response = Result<c_slice::Box<u8>>;
 
 pub type FauxRepResponse = Result<ByteArray32>;
 
@@ -428,7 +428,7 @@ impl Default for SealPreCommitPhase2 {
     }
 }
 
-pub type SealCommitPhase1Response = Result<Bytes>;
+pub type SealCommitPhase1Response = Result<c_slice::Box<u8>>;
 
 pub type SealCommitPhase2Response = Result<SealCommitPhase2>;
 
@@ -444,7 +444,7 @@ impl From<&SealCommitPhase2> for SealCommitPhase2Output {
 #[repr(C)]
 #[derive(Default, Clone)]
 pub struct SealCommitPhase2 {
-    pub proof: Bytes,
+    pub proof: c_slice::Box<u8>,
     // TODO: this is not actualy used?
     // pub commit_inputs: Array<AggregationInputs>,
 }
@@ -486,7 +486,7 @@ pub struct GeneratePieceCommitment {
 
 pub type GenerateDataCommitmentResponse = Result<ByteArray32>;
 
-pub type StringResponse = Result<Bytes>;
+pub type StringResponse = Result<c_slice::Box<u8>>;
 
 pub type ClearCacheResponse = Result<()>;
 
@@ -505,7 +505,7 @@ pub type EmptySectorUpdateDecodeFromResponse = Result<()>;
 
 pub type EmptySectorUpdateRemoveEncodedDataResponse = Result<()>;
 
-pub type EmptySectorUpdateProofResponse = Result<Bytes>;
+pub type EmptySectorUpdateProofResponse = Result<c_slice::Box<u8>>;
 
 pub type PartitionProofResponse = Result<Array<ApiPartitionProof>>;
 

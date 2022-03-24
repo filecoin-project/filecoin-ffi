@@ -1,11 +1,4 @@
-use std::{
-    fmt::Display,
-    ops::Deref,
-    panic,
-    path::{Path, PathBuf},
-    ptr::NonNull,
-    str::Utf8Error,
-};
+use std::{fmt::Display, ops::Deref, panic, path::PathBuf, ptr::NonNull, str::Utf8Error};
 
 use safer_ffi::prelude::*;
 
@@ -85,9 +78,6 @@ impl<T: Sized> IntoIterator for Array<T> {
     }
 }
 
-/// Owned, fixed size and heap allocated array of bytes.
-pub type Bytes = Array<u8>;
-
 impl<T> From<Vec<T>> for Array<T> {
     fn from(buf: Vec<T>) -> Self {
         if buf.is_empty() {
@@ -143,65 +133,30 @@ impl<T> AsRef<[T]> for Array<T> {
     }
 }
 
-impl From<&str> for Bytes {
-    fn from(s: &str) -> Self {
-        if s.is_empty() {
-            return Default::default();
-        }
-        Box::<str>::from(s).into()
-    }
+#[cfg(target_os = "linux")]
+pub fn as_path_buf(bytes: &[u8]) -> std::result::Result<PathBuf, Utf8Error> {
+    use std::ffi::OsStr;
+    use std::os::unix::ffi::OsStrExt;
+
+    Ok(OsStr::from_bytes(bytes).into())
 }
 
-impl From<String> for Bytes {
-    fn from(s: String) -> Self {
-        if s.is_empty() {
-            return Default::default();
-        }
-        s.into_boxed_str().into()
-    }
+#[cfg(not(target_os = "linux"))]
+pub fn as_path_buf(bytes: &[u8]) -> std::result::Result<PathBuf, Utf8Error> {
+    std::str::from_utf8(bytes).map(Into::into)
 }
 
-impl From<PathBuf> for Bytes {
-    fn from(s: PathBuf) -> Self {
-        s.to_string_lossy().as_ref().into()
-    }
+#[cfg(test)]
+#[cfg(target_os = "linux")]
+pub fn as_bytes(path: &std::path::Path) -> &[u8] {
+    use std::os::unix::ffi::OsStrExt;
+
+    path.as_os_str().as_bytes()
 }
 
-impl From<&Path> for Bytes {
-    fn from(s: &Path) -> Self {
-        s.to_string_lossy().as_ref().into()
-    }
-}
-
-impl From<Box<str>> for Bytes {
-    fn from(s: Box<str>) -> Self {
-        if s.is_empty() {
-            return Default::default();
-        }
-        let len = s.len();
-        let ptr = NonNull::new(Box::into_raw(s).cast());
-
-        Self { ptr, len }
-    }
-}
-
-impl Bytes {
-    pub fn as_str(&self) -> std::result::Result<&str, Utf8Error> {
-        std::str::from_utf8(self)
-    }
-
-    #[cfg(not(target_os = "linux"))]
-    pub fn as_path(&self) -> std::result::Result<PathBuf, Utf8Error> {
-        self.as_str().map(Into::into)
-    }
-
-    #[cfg(target_os = "linux")]
-    pub fn as_path(&self) -> std::result::Result<PathBuf, Utf8Error> {
-        use std::ffi::OsStr;
-        use std::os::unix::ffi::OsStrExt;
-
-        Ok(OsStr::from_bytes(self).into())
-    }
+#[cfg(all(test, not(target_os = "linux")))]
+pub fn as_bytes(path: &std::path::Path) -> &[u8] {
+    path.to_str().unwrap().as_bytes()
 }
 
 #[derive_ReprC]
@@ -209,7 +164,7 @@ impl Bytes {
 #[derive(Clone)]
 pub struct Result<T: Sized> {
     pub status_code: FCPResponseStatus,
-    pub error_msg: Bytes,
+    pub error_msg: c_slice::Box<u8>,
     pub value: T,
 }
 
@@ -239,7 +194,7 @@ where
     fn from(r: std::result::Result<T, E>) -> Self {
         match r {
             Ok(value) => Self::ok(value),
-            Err(e) => Self::err(e.to_string()),
+            Err(e) => Self::err(e.to_string().into_bytes().into_boxed_slice()),
         }
     }
 }
@@ -270,7 +225,7 @@ impl<T: Sized> Result<T> {
         Box::into_raw(Box::new(self))
     }
 
-    pub fn err_with_default(err: impl Into<Bytes>, value: T) -> Self {
+    pub fn err_with_default(err: impl Into<c_slice::Box<u8>>, value: T) -> Self {
         Result {
             status_code: FCPResponseStatus::FCPUnclassifiedError,
             error_msg: err.into(),
@@ -280,7 +235,7 @@ impl<T: Sized> Result<T> {
 }
 
 impl<T: Sized + Default> Result<T> {
-    pub fn err(err: impl Into<Bytes>) -> Self {
+    pub fn err(err: impl Into<c_slice::Box<u8>>) -> Self {
         Result {
             status_code: FCPResponseStatus::FCPUnclassifiedError,
             error_msg: err.into(),
@@ -289,7 +244,7 @@ impl<T: Sized + Default> Result<T> {
     }
 }
 
-pub type GpuDeviceResponse = Result<Array<Bytes>>;
+pub type GpuDeviceResponse = Result<Array<c_slice::Box<u8>>>;
 
 #[ffi_export]
 pub fn destroy_gpu_device_response(ptr: repr_c::Box<GpuDeviceResponse>) {
