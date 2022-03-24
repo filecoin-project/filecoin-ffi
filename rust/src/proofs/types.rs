@@ -5,7 +5,7 @@ use filecoin_proofs_api as api;
 use filecoin_proofs_api::seal::SealCommitPhase2Output;
 use safer_ffi::prelude::*;
 
-use crate::util::types::{Array, Result};
+use crate::util::types::Result;
 
 #[derive_ReprC]
 #[repr(C)]
@@ -342,7 +342,7 @@ pub struct PublicReplicaInfo {
     pub sector_id: u64,
 }
 
-pub type GenerateWinningPoStSectorChallenge = Result<Array<u64>>;
+pub type GenerateWinningPoStSectorChallenge = Result<c_slice::Box<u64>>;
 
 pub type GenerateFallbackSectorChallengesResponse = Result<GenerateFallbackSectorChallenges>;
 
@@ -350,14 +350,14 @@ pub type GenerateFallbackSectorChallengesResponse = Result<GenerateFallbackSecto
 #[repr(C)]
 #[derive(Default)]
 pub struct GenerateFallbackSectorChallenges {
-    pub ids: Array<u64>,
-    pub challenges: Array<u64>,
+    pub ids: c_slice::Box<u64>,
+    pub challenges: c_slice::Box<u64>,
     pub challenges_stride: libc::size_t,
 }
 
 pub type GenerateSingleVanillaProofResponse = Result<VanillaProof>;
 
-pub type GenerateWinningPoStResponse = Result<Array<PoStProof>>;
+pub type GenerateWinningPoStResponse = Result<c_slice::Box<PoStProof>>;
 
 pub type GenerateWindowPoStResponse = Result<GenerateWindowPoSt>;
 
@@ -365,8 +365,8 @@ pub type GenerateWindowPoStResponse = Result<GenerateWindowPoSt>;
 #[repr(C)]
 #[derive(Default)]
 pub struct GenerateWindowPoSt {
-    pub proofs: Array<PoStProof>,
-    pub faulty_sectors: Array<u64>,
+    pub proofs: c_slice::Box<PoStProof>,
+    pub faulty_sectors: c_slice::Box<u64>,
 }
 
 pub type GenerateSingleWindowPoStWithVanillaResponse = Result<GenerateSingleWindowPoStWithVanilla>;
@@ -376,7 +376,7 @@ pub type GenerateSingleWindowPoStWithVanillaResponse = Result<GenerateSingleWind
 #[derive(Default)]
 pub struct GenerateSingleWindowPoStWithVanilla {
     pub partition_proof: PartitionSnarkProof,
-    pub faulty_sectors: Array<u64>,
+    pub faulty_sectors: c_slice::Box<u64>,
 }
 
 pub type GetNumPartitionForFallbackPoStResponse = Result<libc::size_t>;
@@ -446,7 +446,7 @@ impl From<&SealCommitPhase2> for SealCommitPhase2Output {
 pub struct SealCommitPhase2 {
     pub proof: c_slice::Box<u8>,
     // TODO: this is not actualy used?
-    // pub commit_inputs: Array<AggregationInputs>,
+    // pub commit_inputs: c_slice::Box<AggregationInputs>,
 }
 
 #[derive_ReprC]
@@ -507,7 +507,7 @@ pub type EmptySectorUpdateRemoveEncodedDataResponse = Result<()>;
 
 pub type EmptySectorUpdateProofResponse = Result<c_slice::Box<u8>>;
 
-pub type PartitionProofResponse = Result<Array<ApiPartitionProof>>;
+pub type PartitionProofResponse = Result<c_slice::Box<ApiPartitionProof>>;
 
 pub type VerifyPartitionProofResponse = Result<bool>;
 

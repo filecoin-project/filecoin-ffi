@@ -5,7 +5,7 @@ use std::sync::Once;
 use anyhow::anyhow;
 use safer_ffi::prelude::*;
 
-use super::types::{catch_panic_response, Array, GpuDeviceResponse, InitLogFdResponse};
+use super::types::{catch_panic_response, GpuDeviceResponse, InitLogFdResponse};
 
 /// Protects the init off the logger.
 static LOG_INIT: Once = Once::new();
@@ -39,9 +39,8 @@ pub fn get_gpu_devices() -> repr_c::Box<GpuDeviceResponse> {
             .iter()
             .map(|d| d.name().into_bytes().into_boxed_slice().into())
             .collect();
-        let devices: Array<_> = devices.into();
 
-        Ok(devices)
+        Ok(devices.into_boxed_slice().into())
     })
 }
 
@@ -137,7 +136,7 @@ mod tests {
 
         // Now test that there is an error when we try to init it again
         let resp_error = init_log_fd(write_fd);
-        assert_ne!(resp_error.status_code, FCPResponseStatus::FCPNoError);
+        assert_ne!(resp_error.status_code, FCPResponseStatus::NoError);
         destroy_init_log_fd_response(resp_error);
     }
 }

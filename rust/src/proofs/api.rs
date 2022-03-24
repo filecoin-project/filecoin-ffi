@@ -14,7 +14,7 @@ use safer_ffi::prelude::*;
 use super::helpers::{to_private_replica_info_map, to_public_replica_info_map};
 use super::types::*;
 use crate::util::types::{
-    as_path_buf, catch_panic_response, catch_panic_response_raw, Array, FCPResponseStatus,
+    as_path_buf, catch_panic_response, catch_panic_response_raw, FCPResponseStatus,
 };
 
 // A byte serialized representation of a vanilla proof.
@@ -120,7 +120,7 @@ fn seal_pre_commit_phase1(
     sector_id: u64,
     prover_id: ByteArray32,
     ticket: ByteArray32,
-    pieces: &Array<PublicPieceInfo>,
+    pieces: c_slice::Ref<PublicPieceInfo>,
 ) -> repr_c::Box<SealPreCommitPhase1Response> {
     catch_panic_response("seal_pre_commit_phase1", || {
         let public_pieces: Vec<PieceInfo> = pieces.iter().map(Into::into).collect();
@@ -177,7 +177,7 @@ fn seal_commit_phase1(
     prover_id: ByteArray32,
     ticket: ByteArray32,
     seed: ByteArray32,
-    pieces: &Array<PublicPieceInfo>,
+    pieces: c_slice::Ref<PublicPieceInfo>,
 ) -> repr_c::Box<SealCommitPhase1Response> {
     catch_panic_response("seal_commit_phase1", || {
         let spcp2o = seal::SealPreCommitPhase2Output {
@@ -224,16 +224,16 @@ fn seal_commit_phase2(
 fn aggregate_seal_proofs(
     registered_proof: RegisteredSealProof,
     registered_aggregation: RegisteredAggregationProof,
-    comm_rs: Array<ByteArray32>,
-    seeds: Array<ByteArray32>,
-    seal_commit_responses: &Array<SealCommitPhase2>,
+    comm_rs: c_slice::Box<ByteArray32>,
+    seeds: c_slice::Box<ByteArray32>,
+    seal_commit_responses: c_slice::Ref<SealCommitPhase2>,
 ) -> repr_c::Box<AggregateProof> {
     catch_panic_response("aggregate_seal_proofs", || {
         let outputs: Vec<seal::SealCommitPhase2Output> =
             seal_commit_responses.iter().map(Into::into).collect();
 
-        let comm_rs: Vec<[u8; 32]> = comm_rs.into_iter().map(|x| x.inner).collect();
-        let seeds: Vec<[u8; 32]> = seeds.into_iter().map(|x| x.inner).collect();
+        let comm_rs: Vec<[u8; 32]> = comm_rs.iter().map(|x| x.inner).collect();
+        let seeds: Vec<[u8; 32]> = seeds.iter().map(|x| x.inner).collect();
 
         let result = seal::aggregate_seal_commit_proofs(
             registered_proof.into(),
@@ -271,7 +271,7 @@ fn verify_aggregate_seal_proof(
     registered_aggregation: RegisteredAggregationProof,
     prover_id: ByteArray32,
     proof: c_slice::Ref<u8>,
-    commit_inputs: &Array<AggregationInputs>,
+    commit_inputs: c_slice::Ref<AggregationInputs>,
 ) -> repr_c::Box<VerifyAggregateSealProofResponse> {
     catch_panic_response("verify_aggregate_seal_proof", || {
         let inputs: Vec<Vec<Fr>> = commit_inputs
@@ -391,7 +391,12 @@ fn generate_winning_post_sector_challenge(
             prover_id.inner,
         )?;
 
-        Ok(result.into_iter().map(u64::from).collect::<Vec<_>>().into())
+        Ok(result
+            .into_iter()
+            .map(u64::from)
+            .collect::<Vec<_>>()
+            .into_boxed_slice()
+            .into())
     })
 }
 
@@ -400,7 +405,7 @@ fn generate_winning_post_sector_challenge(
 fn generate_fallback_sector_challenges(
     registered_proof: RegisteredPoStProof,
     randomness: ByteArray32,
-    sector_ids: &Array<u64>,
+    sector_ids: c_slice::Ref<u64>,
     prover_id: ByteArray32,
 ) -> repr_c::Box<GenerateFallbackSectorChallengesResponse> {
     catch_panic_response("generate_fallback_sector_challenges", || {
@@ -444,8 +449,8 @@ fn generate_fallback_sector_challenges(
             return Err(anyhow!("Challenge stride mismatch"));
         }
         Ok(GenerateFallbackSectorChallenges {
-            ids: sector_ids.into(),
-            challenges: challenges.into(),
+            ids: sector_ids.into_boxed_slice().into(),
+            challenges: challenges.into_boxed_slice().into(),
             challenges_stride,
         })
     })
@@ -455,7 +460,7 @@ fn generate_fallback_sector_challenges(
 #[ffi_export]
 fn generate_single_vanilla_proof(
     replica: PrivateReplicaInfo,
-    challenges: &Array<u64>,
+    challenges: c_slice::Ref<u64>,
 ) -> repr_c::Box<GenerateSingleVanillaProofResponse> {
     catch_panic_response("generate_single_vanilla_proof", || {
         let sector_id = SectorId::from(replica.sector_id);
@@ -485,7 +490,7 @@ fn generate_winning_post_with_vanilla(
     registered_proof: RegisteredPoStProof,
     randomness: ByteArray32,
     prover_id: ByteArray32,
-    vanilla_proofs: &Array<VanillaProof>,
+    vanilla_proofs: c_slice::Ref<VanillaProof>,
 ) -> repr_c::Box<GenerateWinningPoStResponse> {
     catch_panic_response("generate_winning_post_with_vanilla", || {
         let vanilla_proofs: Vec<_> = vanilla_proofs
@@ -508,7 +513,7 @@ fn generate_winning_post_with_vanilla(
             })
             .collect::<Vec<_>>();
 
-        Ok(result.into())
+        Ok(result.into_boxed_slice().into())
     })
 }
 
@@ -516,7 +521,7 @@ fn generate_winning_post_with_vanilla(
 #[ffi_export]
 fn generate_winning_post(
     randomness: ByteArray32,
-    replicas: &Array<PrivateReplicaInfo>,
+    replicas: c_slice::Ref<PrivateReplicaInfo>,
     prover_id: ByteArray32,
 ) -> repr_c::Box<GenerateWinningPoStResponse> {
     catch_panic_response("generate_winning_post", || {
@@ -535,7 +540,7 @@ fn generate_winning_post(
             })
             .collect::<Vec<_>>();
 
-        Ok(result.into())
+        Ok(result.into_boxed_slice().into())
     })
 }
 
@@ -543,8 +548,8 @@ fn generate_winning_post(
 #[ffi_export]
 fn verify_winning_post(
     randomness: ByteArray32,
-    replicas: &Array<PublicReplicaInfo>,
-    proofs: &Array<PoStProof>,
+    replicas: c_slice::Ref<PublicReplicaInfo>,
+    proofs: c_slice::Ref<PoStProof>,
     prover_id: ByteArray32,
 ) -> repr_c::Box<VerifyWinningPoStResponse> {
     catch_panic_response("verify_winning_post", || {
@@ -572,7 +577,7 @@ fn generate_window_post_with_vanilla(
     registered_proof: RegisteredPoStProof,
     randomness: ByteArray32,
     prover_id: ByteArray32,
-    vanilla_proofs: &Array<VanillaProof>,
+    vanilla_proofs: c_slice::Ref<VanillaProof>,
 ) -> repr_c::Box<GenerateWindowPoStResponse> {
     catch_panic_response_raw("generate_window_post_with_vanilla", || {
         let vanilla_proofs: Vec<_> = vanilla_proofs
@@ -599,8 +604,8 @@ fn generate_window_post_with_vanilla(
                     })
                     .collect();
 
-                response.status_code = FCPResponseStatus::FCPNoError;
-                response.value.proofs = mapped.into();
+                response.status_code = FCPResponseStatus::NoError;
+                response.value.proofs = mapped.into_boxed_slice().into();
             }
             Err(err) => {
                 // If there were faulty sectors, add them to the response
@@ -612,10 +617,10 @@ fn generate_window_post_with_vanilla(
                         .map(|sector| u64::from(*sector))
                         .collect::<Vec<u64>>();
 
-                    response.value.faulty_sectors = sectors_u64.into()
+                    response.value.faulty_sectors = sectors_u64.into_boxed_slice().into()
                 }
 
-                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                response.status_code = FCPResponseStatus::UnclassifiedError;
                 response.error_msg = err.to_string().into_bytes().into_boxed_slice().into();
             }
         }
@@ -628,7 +633,7 @@ fn generate_window_post_with_vanilla(
 #[ffi_export]
 fn generate_window_post(
     randomness: ByteArray32,
-    replicas: &Array<PrivateReplicaInfo>,
+    replicas: c_slice::Ref<PrivateReplicaInfo>,
     prover_id: ByteArray32,
 ) -> repr_c::Box<GenerateWindowPoStResponse> {
     catch_panic_response_raw("generate_window_post", || {
@@ -651,8 +656,8 @@ fn generate_window_post(
                     })
                     .collect();
 
-                response.status_code = FCPResponseStatus::FCPNoError;
-                response.value.proofs = mapped.into();
+                response.status_code = FCPResponseStatus::NoError;
+                response.value.proofs = mapped.into_boxed_slice().into();
             }
             Err(err) => {
                 // If there were faulty sectors, add them to the response
@@ -664,10 +669,10 @@ fn generate_window_post(
                         .map(|sector| u64::from(*sector))
                         .collect::<Vec<u64>>();
 
-                    response.value.faulty_sectors = sectors_u64.into();
+                    response.value.faulty_sectors = sectors_u64.into_boxed_slice().into();
                 }
 
-                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                response.status_code = FCPResponseStatus::UnclassifiedError;
                 response.error_msg = err.to_string().into_bytes().into_boxed_slice().into();
             }
         }
@@ -680,8 +685,8 @@ fn generate_window_post(
 #[ffi_export]
 fn verify_window_post(
     randomness: ByteArray32,
-    replicas: &Array<PublicReplicaInfo>,
-    proofs: &Array<PoStProof>,
+    replicas: c_slice::Ref<PublicReplicaInfo>,
+    proofs: c_slice::Ref<PoStProof>,
     prover_id: ByteArray32,
 ) -> repr_c::Box<VerifyWindowPoStResponse> {
     catch_panic_response("verify_window_post", || {
@@ -711,7 +716,7 @@ fn verify_window_post(
 #[ffi_export]
 fn merge_window_post_partition_proofs(
     registered_proof: RegisteredPoStProof,
-    partition_proofs: &Array<PartitionSnarkProof>,
+    partition_proofs: c_slice::Ref<PartitionSnarkProof>,
 ) -> repr_c::Box<MergeWindowPoStPartitionProofsResponse> {
     catch_panic_response("merge_window_post_partition_proofs", || {
         let partition_proofs = partition_proofs
@@ -752,7 +757,7 @@ fn generate_single_window_post_with_vanilla(
     registered_proof: RegisteredPoStProof,
     randomness: ByteArray32,
     prover_id: ByteArray32,
-    vanilla_proofs: &Array<VanillaProof>,
+    vanilla_proofs: c_slice::Ref<VanillaProof>,
     partition_index: libc::size_t,
 ) -> repr_c::Box<GenerateSingleWindowPoStWithVanillaResponse> {
     catch_panic_response_raw("generate_single_window_post_with_vanilla", || {
@@ -778,7 +783,7 @@ fn generate_single_window_post_with_vanilla(
                     proof: output.0.into_boxed_slice().into(),
                 };
 
-                response.status_code = FCPResponseStatus::FCPNoError;
+                response.status_code = FCPResponseStatus::NoError;
                 response.value.partition_proof = partition_proof;
             }
             Err(err) => {
@@ -791,10 +796,10 @@ fn generate_single_window_post_with_vanilla(
                         .map(|sector| u64::from(*sector))
                         .collect::<Vec<u64>>();
 
-                    response.value.faulty_sectors = sectors_u64.into();
+                    response.value.faulty_sectors = sectors_u64.into_boxed_slice().into();
                 }
 
-                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                response.status_code = FCPResponseStatus::UnclassifiedError;
                 response.error_msg = err.to_string().into_bytes().into_boxed_slice().into();
             }
         }
@@ -812,7 +817,7 @@ fn empty_sector_update_encode_into(
     sector_key_path: c_slice::Ref<u8>,
     sector_key_cache_dir_path: c_slice::Ref<u8>,
     staged_data_path: c_slice::Ref<u8>,
-    pieces: &Array<PublicPieceInfo>,
+    pieces: c_slice::Ref<PublicPieceInfo>,
 ) -> repr_c::Box<EmptySectorUpdateEncodeIntoResponse> {
     catch_panic_response("empty_sector_update_encode_into", || {
         let public_pieces = pieces.iter().map(Into::into).collect::<Vec<_>>();
@@ -913,6 +918,7 @@ fn generate_empty_sector_update_partition_proofs(
             .into_iter()
             .map(|proof| proof.0.into_boxed_slice().into())
             .collect::<Vec<_>>()
+            .into_boxed_slice()
             .into();
         Ok(result)
     })
@@ -922,7 +928,7 @@ fn generate_empty_sector_update_partition_proofs(
 #[ffi_export]
 fn verify_empty_sector_update_partition_proofs(
     registered_proof: RegisteredUpdateProof,
-    proofs: &Array<ApiPartitionProof>,
+    proofs: c_slice::Ref<ApiPartitionProof>,
     comm_r_old: ByteArray32,
     comm_r_new: ByteArray32,
     comm_d_new: ByteArray32,
@@ -949,7 +955,7 @@ fn verify_empty_sector_update_partition_proofs(
 #[ffi_export]
 fn generate_empty_sector_update_proof_with_vanilla(
     registered_proof: RegisteredUpdateProof,
-    vanilla_proofs: &Array<ApiPartitionProof>,
+    vanilla_proofs: c_slice::Ref<ApiPartitionProof>,
     comm_r_old: ByteArray32,
     comm_r_new: ByteArray32,
     comm_d_new: ByteArray32,
@@ -1060,7 +1066,7 @@ unsafe fn generate_piece_commitment(
 #[ffi_export]
 fn generate_data_commitment(
     registered_proof: RegisteredSealProof,
-    pieces: &Array<PublicPieceInfo>,
+    pieces: c_slice::Ref<PublicPieceInfo>,
 ) -> repr_c::Box<GenerateDataCommitmentResponse> {
     catch_panic_response("generate_data_commitment", || {
         let public_pieces: Vec<PieceInfo> = pieces.iter().map(Into::into).collect();
@@ -1080,61 +1086,6 @@ fn clear_cache(
 
         Ok(result)
     })
-}
-
-#[ffi_export]
-fn destroy_write_with_alignment_response(ptr: repr_c::Box<WriteWithAlignmentResponse>) {
-    drop(ptr);
-}
-
-#[ffi_export]
-fn destroy_write_without_alignment_response(ptr: repr_c::Box<WriteWithoutAlignmentResponse>) {
-    drop(ptr);
-}
-
-#[ffi_export]
-fn destroy_fauxrep_response(ptr: repr_c::Box<FauxRepResponse>) {
-    drop(ptr);
-}
-
-#[ffi_export]
-fn destroy_seal_pre_commit_phase1_response(ptr: repr_c::Box<SealPreCommitPhase1Response>) {
-    drop(ptr);
-}
-
-#[ffi_export]
-fn destroy_seal_pre_commit_phase2_response(ptr: repr_c::Box<SealPreCommitPhase2Response>) {
-    drop(ptr);
-}
-
-#[ffi_export]
-fn destroy_seal_commit_phase1_response(ptr: repr_c::Box<SealCommitPhase1Response>) {
-    drop(ptr);
-}
-
-#[ffi_export]
-fn destroy_seal_commit_phase2_response(ptr: repr_c::Box<SealCommitPhase2Response>) {
-    drop(ptr);
-}
-
-#[ffi_export]
-fn destroy_unseal_range_response(ptr: repr_c::Box<UnsealRangeResponse>) {
-    drop(ptr);
-}
-
-#[ffi_export]
-fn destroy_generate_piece_commitment_response(ptr: repr_c::Box<GeneratePieceCommitmentResponse>) {
-    drop(ptr);
-}
-
-#[ffi_export]
-fn destroy_generate_data_commitment_response(ptr: repr_c::Box<GenerateDataCommitmentResponse>) {
-    drop(ptr);
-}
-
-#[ffi_export]
-fn destroy_string_response(ptr: repr_c::Box<StringResponse>) {
-    drop(ptr);
 }
 
 /// Returns the number of user bytes that will fit into a staged sector.
@@ -1279,152 +1230,128 @@ fn registered_post_proof_accessor(
     ))
 }
 
-/// Deallocates a VerifySealResponse.
-#[ffi_export]
-fn destroy_verify_seal_response(ptr: repr_c::Box<VerifySealResponse>) {
-    drop(ptr);
+/// Generate a destructor for the given type wrapped in a `repr_c::Box`.
+macro_rules! destructor {
+    ($name:ident, $type:ty) => {
+        /// Destroys the passed in `repr_c::Box<$type>`.
+        #[ffi_export]
+        fn $name(ptr: repr_c::Box<$type>) {
+            drop(ptr);
+        }
+    };
 }
 
-/// Deallocates a VerifyAggregateSealProofResponse.
-#[ffi_export]
-fn destroy_verify_aggregate_seal_response(ptr: repr_c::Box<VerifyAggregateSealProofResponse>) {
-    drop(ptr);
-}
-
-#[ffi_export]
-fn destroy_finalize_ticket_response(ptr: repr_c::Box<FinalizeTicketResponse>) {
-    drop(ptr);
-}
-
-/// Deallocates a VerifyPoStResponse.
-#[ffi_export]
-fn destroy_verify_winning_post_response(ptr: repr_c::Box<VerifyWinningPoStResponse>) {
-    drop(ptr);
-}
-
-#[ffi_export]
-fn destroy_verify_window_post_response(ptr: repr_c::Box<VerifyWindowPoStResponse>) {
-    drop(ptr);
-}
-
-#[ffi_export]
-fn destroy_generate_fallback_sector_challenges_response(
-    ptr: repr_c::Box<GenerateFallbackSectorChallengesResponse>,
-) {
-    drop(ptr);
-}
-
-#[ffi_export]
-fn destroy_generate_single_vanilla_proof_response(
-    ptr: repr_c::Box<GenerateSingleVanillaProofResponse>,
-) {
-    drop(ptr);
-}
-
-#[ffi_export]
-fn destroy_generate_single_window_post_with_vanilla_response(
-    ptr: repr_c::Box<GenerateSingleWindowPoStWithVanillaResponse>,
-) {
-    drop(ptr);
-}
-
-#[ffi_export]
-fn destroy_get_num_partition_for_fallback_post_response(
-    ptr: repr_c::Box<GetNumPartitionForFallbackPoStResponse>,
-) {
-    drop(ptr);
-}
-
-#[ffi_export]
-fn destroy_merge_window_post_partition_proofs_response(
-    ptr: repr_c::Box<MergeWindowPoStPartitionProofsResponse>,
-) {
-    drop(ptr);
-}
-
-#[ffi_export]
-fn destroy_generate_winning_post_response(ptr: repr_c::Box<GenerateWinningPoStResponse>) {
-    drop(ptr);
-}
-
-#[ffi_export]
-fn destroy_generate_window_post_response(ptr: repr_c::Box<GenerateWindowPoStResponse>) {
-    drop(ptr);
-}
-
-#[ffi_export]
-fn destroy_generate_winning_post_sector_challenge(
-    ptr: repr_c::Box<GenerateWinningPoStSectorChallenge>,
-) {
-    drop(ptr);
-}
-
-#[ffi_export]
-fn destroy_clear_cache_response(ptr: repr_c::Box<ClearCacheResponse>) {
-    drop(ptr);
-}
-
-/// Deallocates a AggregateProof
-#[ffi_export]
-fn destroy_aggregate_proof(ptr: repr_c::Box<AggregateProof>) {
-    drop(ptr);
-}
-
-/// Deallocates a EmptySectorUpdateProof
-#[ffi_export]
-fn destroy_empty_sector_update_generate_proof_response(
-    ptr: repr_c::Box<EmptySectorUpdateProofResponse>,
-) {
-    drop(ptr);
-}
-
-/// Deallocates a VerifyEmptySectorUpdateProofResponse
-#[ffi_export]
-fn destroy_empty_sector_update_verify_proof_response(
-    ptr: repr_c::Box<VerifyEmptySectorUpdateProofResponse>,
-) {
-    drop(ptr);
-}
-
-/// Deallocates a PartitionProofResponse
-#[ffi_export]
-fn destroy_generate_empty_sector_update_partition_proof_response(
-    ptr: repr_c::Box<PartitionProofResponse>,
-) {
-    drop(ptr);
-}
-
-/// Deallocates a VerifyEmptySectorUpdateProofResponse
-#[ffi_export]
-fn destroy_verify_empty_sector_update_partition_proof_response(
-    ptr: repr_c::Box<VerifyPartitionProofResponse>,
-) {
-    drop(ptr);
-}
-
-/// Deallocates a EmptySectorUpdateEncodeIntoResponse
-#[ffi_export]
-fn destroy_empty_sector_update_encode_into_response(
-    ptr: repr_c::Box<EmptySectorUpdateEncodeIntoResponse>,
-) {
-    drop(ptr);
-}
-
-/// Deallocates a EmptySectorUpdateDecodeFromResponse
-#[ffi_export]
-fn destroy_empty_sector_update_decode_from_response(
-    ptr: repr_c::Box<EmptySectorUpdateDecodeFromResponse>,
-) {
-    drop(ptr);
-}
-
-/// Deallocates a EmptySectorUpdateRemoveEncodedDataResponse
-#[ffi_export]
-fn destroy_empty_sector_update_remove_encoded_data_response(
-    ptr: repr_c::Box<EmptySectorUpdateRemoveEncodedDataResponse>,
-) {
-    drop(ptr);
-}
+destructor!(
+    destroy_write_with_alignment_response,
+    WriteWithAlignmentResponse
+);
+destructor!(
+    destroy_write_without_alignment_response,
+    WriteWithoutAlignmentResponse
+);
+destructor!(destroy_fauxrep_response, FauxRepResponse);
+destructor!(
+    destroy_seal_pre_commit_phase1_response,
+    SealPreCommitPhase1Response
+);
+destructor!(
+    destroy_seal_pre_commit_phase2_response,
+    SealPreCommitPhase2Response
+);
+destructor!(
+    destroy_seal_commit_phase1_response,
+    SealCommitPhase1Response
+);
+destructor!(
+    destroy_seal_commit_phase2_response,
+    SealCommitPhase2Response
+);
+destructor!(destroy_unseal_range_response, UnsealRangeResponse);
+destructor!(
+    destroy_generate_piece_commitment_response,
+    GeneratePieceCommitmentResponse
+);
+destructor!(
+    destroy_generate_data_commitment_response,
+    GenerateDataCommitmentResponse
+);
+destructor!(destroy_string_response, StringResponse);
+destructor!(destroy_verify_seal_response, VerifySealResponse);
+destructor!(
+    destroy_verify_aggregate_seal_response,
+    VerifyAggregateSealProofResponse
+);
+destructor!(destroy_finalize_ticket_response, FinalizeTicketResponse);
+destructor!(
+    destroy_verify_winning_post_response,
+    VerifyWinningPoStResponse
+);
+destructor!(
+    destroy_verify_window_post_response,
+    VerifyWindowPoStResponse
+);
+destructor!(
+    destroy_generate_fallback_sector_challenges_response,
+    GenerateFallbackSectorChallengesResponse
+);
+destructor!(
+    destroy_generate_single_vanilla_proof_response,
+    GenerateSingleVanillaProofResponse
+);
+destructor!(
+    destroy_generate_single_window_post_with_vanilla_response,
+    GenerateSingleWindowPoStWithVanillaResponse
+);
+destructor!(
+    destroy_get_num_partition_for_fallback_post_response,
+    GetNumPartitionForFallbackPoStResponse
+);
+destructor!(
+    destroy_merge_window_post_partition_proofs_response,
+    MergeWindowPoStPartitionProofsResponse
+);
+destructor!(
+    destroy_generate_winning_post_response,
+    GenerateWinningPoStResponse
+);
+destructor!(
+    destroy_generate_window_post_response,
+    GenerateWindowPoStResponse
+);
+destructor!(
+    destroy_generate_winning_post_sector_challenge,
+    GenerateWinningPoStSectorChallenge
+);
+destructor!(destroy_clear_cache_response, ClearCacheResponse);
+destructor!(destroy_aggregate_proof, AggregateProof);
+destructor!(
+    destroy_empty_sector_update_generate_proof_response,
+    EmptySectorUpdateProofResponse
+);
+destructor!(
+    destroy_empty_sector_update_verify_proof_response,
+    VerifyEmptySectorUpdateProofResponse
+);
+destructor!(
+    destroy_generate_empty_sector_update_partition_proof_response,
+    PartitionProofResponse
+);
+destructor!(
+    destroy_verify_empty_sector_update_partition_proof_response,
+    VerifyPartitionProofResponse
+);
+destructor!(
+    destroy_empty_sector_update_encode_into_response,
+    EmptySectorUpdateEncodeIntoResponse
+);
+destructor!(
+    destroy_empty_sector_update_decode_from_response,
+    EmptySectorUpdateDecodeFromResponse
+);
+destructor!(
+    destroy_empty_sector_update_remove_encoded_data_response,
+    EmptySectorUpdateRemoveEncodedDataResponse
+);
 
 #[cfg(test)]
 pub mod tests {
@@ -1500,7 +1427,7 @@ pub mod tests {
         {
             let resp = unsafe { write_without_alignment(registered_proof, src_fd_a, 127, dst_fd) };
 
-            if resp.status_code != FCPResponseStatus::FCPNoError {
+            if resp.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp.error_msg).unwrap();
                 panic!("write_without_alignment failed: {:?}", msg);
             }
@@ -1519,7 +1446,7 @@ pub mod tests {
                 write_with_alignment(registered_proof, src_fd_b, 508, dst_fd, existing[..].into())
             };
 
-            if resp.status_code != FCPResponseStatus::FCPNoError {
+            if resp.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp.error_msg).unwrap();
                 panic!("write_with_alignment failed: {:?}", msg);
             }
@@ -1595,7 +1522,7 @@ pub mod tests {
         for (label, r) in pairs {
             assert_eq!(
                 r.status_code,
-                FCPResponseStatus::FCPNoError,
+                FCPResponseStatus::NoError,
                 "non-success exit code from {:?}: {:?}",
                 label,
                 str::from_utf8(&r.error_msg).unwrap()
@@ -1677,7 +1604,7 @@ pub mod tests {
                 )
             };
 
-            if resp_a1.status_code != FCPResponseStatus::FCPNoError {
+            if resp_a1.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_a1.error_msg).unwrap();
                 panic!("write_without_alignment failed: {:?}", msg);
             }
@@ -1694,7 +1621,7 @@ pub mod tests {
                 )
             };
 
-            if resp_a2.status_code != FCPResponseStatus::FCPNoError {
+            if resp_a2.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_a2.error_msg).unwrap();
                 panic!("write_with_alignment failed: {:?}", msg);
             }
@@ -1708,12 +1635,11 @@ pub mod tests {
                     num_bytes: 1016,
                     comm_p: resp_a2.comm_p,
                 },
-            ]
-            .into();
+            ];
 
-            let resp_x = generate_data_commitment(registered_proof_seal, &pieces);
+            let resp_x = generate_data_commitment(registered_proof_seal, pieces[..].into());
 
-            if resp_x.status_code != FCPResponseStatus::FCPNoError {
+            if resp_x.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_x.error_msg).unwrap();
                 panic!("generate_data_commitment failed: {:?}", msg);
             }
@@ -1726,10 +1652,10 @@ pub mod tests {
                 sector_id,
                 prover_id,
                 ticket,
-                &pieces,
+                pieces[..].into(),
             );
 
-            if resp_b1.status_code != FCPResponseStatus::FCPNoError {
+            if resp_b1.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_b1.error_msg).unwrap();
                 panic!("seal_pre_commit_phase1 failed: {:?}", msg);
             }
@@ -1740,7 +1666,7 @@ pub mod tests {
                 sealed_path_ref.into(),
             );
 
-            if resp_b2.status_code != FCPResponseStatus::FCPNoError {
+            if resp_b2.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_b2.error_msg).unwrap();
                 panic!("seal_pre_commit_phase2 failed: {:?}", msg);
             }
@@ -1764,17 +1690,17 @@ pub mod tests {
                 prover_id,
                 ticket,
                 seed,
-                &pieces,
+                pieces[..].into(),
             );
 
-            if resp_c1.status_code != FCPResponseStatus::FCPNoError {
+            if resp_c1.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_c1.error_msg).unwrap();
                 panic!("seal_commit_phase1 failed: {:?}", msg);
             }
 
             let resp_c2 = seal_commit_phase2(resp_c1.as_ref(), sector_id, prover_id);
 
-            if resp_c2.status_code != FCPResponseStatus::FCPNoError {
+            if resp_c2.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_c2.error_msg).unwrap();
                 panic!("seal_commit_phase2 failed: {:?}", msg);
             }
@@ -1790,7 +1716,7 @@ pub mod tests {
                 resp_c2.proof.as_ref(),
             );
 
-            if resp_d.status_code != FCPResponseStatus::FCPNoError {
+            if resp_d.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_d.error_msg).unwrap();
                 panic!("seal_commit failed: {:?}", msg);
             }
@@ -1799,7 +1725,7 @@ pub mod tests {
 
             let resp_c22 = seal_commit_phase2(resp_c1.as_ref(), sector_id, prover_id);
 
-            if resp_c22.status_code != FCPResponseStatus::FCPNoError {
+            if resp_c22.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_c22.error_msg).unwrap();
                 panic!("seal_commit_phase2 failed: {:?}", msg);
             }
@@ -1815,7 +1741,7 @@ pub mod tests {
                 resp_c22.proof.as_ref(),
             );
 
-            if resp_d2.status_code != FCPResponseStatus::FCPNoError {
+            if resp_d2.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_d2.error_msg).unwrap();
                 panic!("seal_commit failed: {:?}", msg);
             }
@@ -1869,7 +1795,7 @@ pub mod tests {
                 )
             };
 
-            if resp_new_a1.status_code != FCPResponseStatus::FCPNoError {
+            if resp_new_a1.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_new_a1.error_msg).unwrap();
                 panic!("write_without_alignment failed: {:?}", msg);
             }
@@ -1886,7 +1812,7 @@ pub mod tests {
                 )
             };
 
-            if resp_new_a2.status_code != FCPResponseStatus::FCPNoError {
+            if resp_new_a2.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_new_a2.error_msg).unwrap();
                 panic!("write_with_alignment failed: {:?}", msg);
             }
@@ -1901,11 +1827,11 @@ pub mod tests {
                     comm_p: resp_new_a2.comm_p,
                 },
             ]
-            .into();
+            .into_boxed_slice();
 
-            let resp_new_x = generate_data_commitment(registered_proof_seal, &new_pieces);
+            let resp_new_x = generate_data_commitment(registered_proof_seal, new_pieces[..].into());
 
-            if resp_new_x.status_code != FCPResponseStatus::FCPNoError {
+            if resp_new_x.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_new_x.error_msg).unwrap();
                 panic!("generate_data_commitment failed: {:?}", msg);
             }
@@ -1935,10 +1861,10 @@ pub mod tests {
                 sealed_path_ref.into(),
                 cache_dir_path_ref.into(),
                 new_staged_path_ref.into(),
-                &new_pieces,
+                new_pieces[..].into(),
             );
 
-            if resp_encode.status_code != FCPResponseStatus::FCPNoError {
+            if resp_encode.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_encode.error_msg).unwrap();
                 panic!("empty_sector_update_encode_into failed: {:?}", msg);
             }
@@ -1955,7 +1881,7 @@ pub mod tests {
                 new_cache_dir_path_ref.into(),
             );
 
-            if resp_partition_proofs.status_code != FCPResponseStatus::FCPNoError {
+            if resp_partition_proofs.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_partition_proofs.error_msg).unwrap();
                 panic!("generate_partition_proofs failed: {:?}", msg);
             }
@@ -1963,13 +1889,13 @@ pub mod tests {
             // Verify vanilla partition proofs
             let resp_verify_partition_proofs = verify_empty_sector_update_partition_proofs(
                 registered_proof_empty_sector_update,
-                &resp_partition_proofs,
+                resp_partition_proofs.as_ref(),
                 wrap(resp_b2.comm_r),
                 wrap(resp_encode.comm_r_new),
                 wrap(resp_encode.comm_d_new),
             );
 
-            if resp_verify_partition_proofs.status_code != FCPResponseStatus::FCPNoError {
+            if resp_verify_partition_proofs.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_verify_partition_proofs.error_msg).unwrap();
                 panic!("verify_partition_proofs failed: {:?}", msg);
             }
@@ -1977,13 +1903,13 @@ pub mod tests {
             // Then generate the sector update proof with the vanilla proofs
             let resp_empty_sector_update = generate_empty_sector_update_proof_with_vanilla(
                 registered_proof_empty_sector_update,
-                &resp_partition_proofs,
+                resp_partition_proofs.as_ref(),
                 wrap(resp_b2.comm_r),
                 wrap(resp_encode.comm_r_new),
                 wrap(resp_encode.comm_d_new),
             );
 
-            if resp_empty_sector_update.status_code != FCPResponseStatus::FCPNoError {
+            if resp_empty_sector_update.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_empty_sector_update.error_msg).unwrap();
                 panic!(
                     "generate_empty_sector_update_proof_with_vanilla failed: {:?}",
@@ -2000,7 +1926,7 @@ pub mod tests {
                 wrap(resp_encode.comm_d_new),
             );
 
-            if resp_verify_empty_sector_update.status_code != FCPResponseStatus::FCPNoError {
+            if resp_verify_empty_sector_update.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_verify_empty_sector_update.error_msg).unwrap();
                 panic!("verify_empty_sector_update_proof failed: {:?}", msg);
             }
@@ -2017,7 +1943,7 @@ pub mod tests {
                 new_cache_dir_path_ref.into(),
             );
 
-            if resp_empty_sector_update2.status_code != FCPResponseStatus::FCPNoError {
+            if resp_empty_sector_update2.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_empty_sector_update2.error_msg).unwrap();
                 panic!("generate_empty_sector_update_proof failed: {:?}", msg);
             }
@@ -2030,7 +1956,7 @@ pub mod tests {
                 wrap(resp_encode.comm_d_new),
             );
 
-            if resp_verify_empty_sector_update2.status_code != FCPResponseStatus::FCPNoError {
+            if resp_verify_empty_sector_update2.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_verify_empty_sector_update2.error_msg).unwrap();
                 panic!("verify_empty_sector_update_proof failed: {:?}", msg);
             }
@@ -2054,7 +1980,7 @@ pub mod tests {
                 wrap(resp_encode.comm_d_new),
             );
 
-            if resp_decode.status_code != FCPResponseStatus::FCPNoError {
+            if resp_decode.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_decode.error_msg).unwrap();
                 panic!("empty_sector_update_decode_from failed: {:?}", msg);
             }
@@ -2082,7 +2008,7 @@ pub mod tests {
                 wrap(resp_encode.comm_d_new),
             );
 
-            if resp_removed.status_code != FCPResponseStatus::FCPNoError {
+            if resp_removed.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_removed.error_msg).unwrap();
                 panic!("empty_sector_update_remove_encoded_data failed: {:?}", msg);
             }
@@ -2142,7 +2068,7 @@ pub mod tests {
                 )
             };
 
-            if resp_e.status_code != FCPResponseStatus::FCPNoError {
+            if resp_e.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_e.error_msg).unwrap();
                 panic!("unseal failed: {:?}", msg);
             }
@@ -2182,7 +2108,7 @@ pub mod tests {
                 prover_id,
             );
 
-            if resp_f.status_code != FCPResponseStatus::FCPNoError {
+            if resp_f.status_code != FCPResponseStatus::NoError {
                 panic!(
                     "generate_candidates failed: {}",
                     str::from_utf8(&resp_f.error_msg).unwrap()
@@ -2202,14 +2128,13 @@ pub mod tests {
                 comm_r: resp_b2.comm_r,
                 replica_path: sealed_path_ref.to_vec().into_boxed_slice().into(),
                 sector_id,
-            }]
-            .into();
+            }];
 
             // winning post
 
-            let resp_h = generate_winning_post(randomness, &private_replicas, prover_id);
+            let resp_h = generate_winning_post(randomness, private_replicas[..].into(), prover_id);
 
-            if resp_h.status_code != FCPResponseStatus::FCPNoError {
+            if resp_h.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_h.error_msg).unwrap();
                 panic!("generate_winning_post failed: {:?}", msg);
             }
@@ -2218,11 +2143,16 @@ pub mod tests {
                 sector_id,
                 comm_r: resp_b2.comm_r,
             }]
-            .into();
+            .into_boxed_slice();
 
-            let resp_i = verify_winning_post(randomness, &public_replicas, &resp_h, prover_id);
+            let resp_i = verify_winning_post(
+                randomness,
+                public_replicas[..].into(),
+                resp_h.as_ref(),
+                prover_id,
+            );
 
-            if resp_i.status_code != FCPResponseStatus::FCPNoError {
+            if resp_i.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_i.error_msg).unwrap();
                 panic!("verify_winning_post failed: {:?}", msg);
             }
@@ -2244,11 +2174,11 @@ pub mod tests {
             let resp_sc = generate_fallback_sector_challenges(
                 registered_proof_winning_post,
                 randomness,
-                &sectors.into(),
+                sectors[..].into(),
                 prover_id,
             );
 
-            if resp_sc.status_code != FCPResponseStatus::FCPNoError {
+            if resp_sc.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_sc.error_msg).unwrap();
                 panic!("fallback_sector_challenges failed: {:?}", msg);
             }
@@ -2268,18 +2198,17 @@ pub mod tests {
             // Gather up all vanilla proofs.
             for i in 0..challenge_iterations {
                 let sector_id = sector_ids[i];
-                let challenges = sector_challenges
-                    [i * challenges_stride..i * challenges_stride + challenges_stride]
-                    .into();
+                let challenges = &sector_challenges
+                    [i * challenges_stride..i * challenges_stride + challenges_stride];
                 let private_replica = private_replicas
                     .iter()
                     .find(|&replica| replica.sector_id == sector_id)
                     .expect("failed to find private replica info")
                     .clone();
 
-                let resp_vp = generate_single_vanilla_proof(private_replica, &challenges);
+                let resp_vp = generate_single_vanilla_proof(private_replica, challenges.into());
 
-                if resp_vp.status_code != FCPResponseStatus::FCPNoError {
+                if resp_vp.status_code != FCPResponseStatus::NoError {
                     let msg = str::from_utf8(&resp_vp.error_msg).unwrap();
                     panic!("generate_single_vanilla_proof failed: {:?}", msg);
                 }
@@ -2292,18 +2221,23 @@ pub mod tests {
                 registered_proof_winning_post,
                 randomness,
                 prover_id,
-                &vanilla_proofs.into(),
+                vanilla_proofs[..].into(),
             );
 
-            if resp_wpwv.status_code != FCPResponseStatus::FCPNoError {
+            if resp_wpwv.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_wpwv.error_msg).unwrap();
                 panic!("generate_winning_post_with_vanilla failed: {:?}", msg);
             }
 
             // Verify the second winning post (generated by the distributed post API)
-            let resp_di = verify_winning_post(randomness, &public_replicas, &resp_wpwv, prover_id);
+            let resp_di = verify_winning_post(
+                randomness,
+                public_replicas[..].into(),
+                resp_wpwv.as_ref(),
+                prover_id,
+            );
 
-            if resp_di.status_code != FCPResponseStatus::FCPNoError {
+            if resp_di.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_di.error_msg).unwrap();
                 panic!("verify_winning_post failed: {:?}", msg);
             }
@@ -2322,9 +2256,9 @@ pub mod tests {
                 sector_id,
             }];
 
-            let resp_j = generate_window_post(randomness, &private_replicas.into(), prover_id);
+            let resp_j = generate_window_post(randomness, private_replicas[..].into(), prover_id);
 
-            if resp_j.status_code != FCPResponseStatus::FCPNoError {
+            if resp_j.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_j.error_msg).unwrap();
                 panic!("generate_window_post failed: {:?}", msg);
             }
@@ -2337,12 +2271,12 @@ pub mod tests {
 
             let resp_k = verify_window_post(
                 randomness,
-                &public_replicas.into(),
-                &resp_j.proofs,
+                public_replicas[..].into(),
+                resp_j.proofs.as_ref(),
                 prover_id,
             );
 
-            if resp_k.status_code != FCPResponseStatus::FCPNoError {
+            if resp_k.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_k.error_msg).unwrap();
                 panic!("verify_window_post failed: {:?}", msg);
             }
@@ -2360,7 +2294,7 @@ pub mod tests {
             //
             //////////////////////////////////////////////
 
-            let sectors = vec![sector_id, sector_id2].into();
+            let sectors = vec![sector_id, sector_id2];
             let private_replicas = vec![
                 PrivateReplicaInfo {
                     registered_proof: registered_proof_window_post,
@@ -2388,18 +2322,17 @@ pub mod tests {
                     sector_id: sector_id2,
                     comm_r: resp_b2.comm_r,
                 },
-            ]
-            .into();
+            ];
 
             // Generate sector challenges.
             let resp_sc2 = generate_fallback_sector_challenges(
                 registered_proof_window_post,
                 randomness,
-                &sectors,
+                sectors[..].into(),
                 prover_id,
             );
 
-            if resp_sc2.status_code != FCPResponseStatus::FCPNoError {
+            if resp_sc2.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_sc2.error_msg).unwrap();
                 panic!("fallback_sector_challenges failed: {:?}", msg);
             }
@@ -2419,9 +2352,8 @@ pub mod tests {
             // Gather up all vanilla proofs.
             for i in 0..challenge_iterations {
                 let sector_id = sector_ids[i];
-                let challenges = sector_challenges
-                    [i * challenges_stride..i * challenges_stride + challenges_stride]
-                    .into();
+                let challenges = &sector_challenges
+                    [i * challenges_stride..i * challenges_stride + challenges_stride];
 
                 let private_replica = private_replicas
                     .iter()
@@ -2429,9 +2361,9 @@ pub mod tests {
                     .expect("failed to find private replica info")
                     .clone();
 
-                let resp_vp = generate_single_vanilla_proof(private_replica, &challenges);
+                let resp_vp = generate_single_vanilla_proof(private_replica, challenges.into());
 
-                if resp_vp.status_code != FCPResponseStatus::FCPNoError {
+                if resp_vp.status_code != FCPResponseStatus::NoError {
                     let msg = str::from_utf8(&resp_vp.error_msg).unwrap();
                     panic!("generate_single_vanilla_proof failed: {:?}", msg);
                 }
@@ -2444,18 +2376,22 @@ pub mod tests {
                 registered_proof_window_post,
                 randomness,
                 prover_id,
-                &vanilla_proofs.into(),
+                vanilla_proofs[..].into(),
             );
 
-            if resp_wpwv2.status_code != FCPResponseStatus::FCPNoError {
+            if resp_wpwv2.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_wpwv2.error_msg).unwrap();
                 panic!("generate_window_post_with_vanilla failed: {:?}", msg);
             }
 
-            let resp_k2 =
-                verify_window_post(randomness, &public_replicas, &resp_wpwv2.proofs, prover_id);
+            let resp_k2 = verify_window_post(
+                randomness,
+                public_replicas[..].into(),
+                resp_wpwv2.proofs.as_ref(),
+                prover_id,
+            );
 
-            if resp_k2.status_code != FCPResponseStatus::FCPNoError {
+            if resp_k2.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_k2.error_msg).unwrap();
                 panic!("verify_window_post failed: {:?}", msg);
             }
@@ -2478,7 +2414,7 @@ pub mod tests {
 
             let num_partitions_resp =
                 get_num_partition_for_fallback_post(registered_proof_window_post, sectors.len());
-            if num_partitions_resp.status_code != FCPResponseStatus::FCPNoError {
+            if num_partitions_resp.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&num_partitions_resp.error_msg).unwrap();
                 panic!("get_num_partition_for_fallback_post failed: {:?}", msg);
             }
@@ -2489,9 +2425,8 @@ pub mod tests {
                 let mut vanilla_proofs = Vec::with_capacity(challenge_iterations);
                 for i in 0..challenge_iterations {
                     let sector_id = sector_ids[i];
-                    let challenges = sector_challenges
-                        [i * challenges_stride..i * challenges_stride + challenges_stride]
-                        .into();
+                    let challenges = &sector_challenges
+                        [i * challenges_stride..i * challenges_stride + challenges_stride];
 
                     let private_replica = private_replicas
                         .iter()
@@ -2499,9 +2434,9 @@ pub mod tests {
                         .expect("failed to find private replica info")
                         .clone();
 
-                    let resp_vp = generate_single_vanilla_proof(private_replica, &challenges);
+                    let resp_vp = generate_single_vanilla_proof(private_replica, challenges.into());
 
-                    if resp_vp.status_code != FCPResponseStatus::FCPNoError {
+                    if resp_vp.status_code != FCPResponseStatus::NoError {
                         let msg = str::from_utf8(&resp_vp.error_msg).unwrap();
                         panic!("generate_single_vanilla_proof failed: {:?}", msg);
                     }
@@ -2514,11 +2449,11 @@ pub mod tests {
                     registered_proof_window_post,
                     randomness,
                     prover_id,
-                    &vanilla_proofs.into(),
+                    vanilla_proofs[..].into(),
                     partition_index,
                 );
 
-                if single_partition_proof_resp.status_code != FCPResponseStatus::FCPNoError {
+                if single_partition_proof_resp.status_code != FCPResponseStatus::NoError {
                     let msg = str::from_utf8(&single_partition_proof_resp.error_msg).unwrap();
                     panic!("generate_single_window_post_with_vanilla failed: {:?}", msg);
                 }
@@ -2533,22 +2468,22 @@ pub mod tests {
 
             let merged_proof_resp = merge_window_post_partition_proofs(
                 registered_proof_window_post,
-                &partition_proofs.into(),
+                partition_proofs[..].into(),
             );
 
-            if merged_proof_resp.status_code != FCPResponseStatus::FCPNoError {
+            if merged_proof_resp.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&merged_proof_resp.error_msg).unwrap();
                 panic!("merge_window_post_partition_proofs failed: {:?}", msg);
             }
 
             let resp_k3 = verify_window_post(
                 randomness,
-                &public_replicas,
-                &vec![merged_proof_resp.value.clone()].into(),
+                public_replicas[..].into(),
+                vec![merged_proof_resp.value.clone()][..].into(),
                 prover_id,
             );
 
-            if resp_k3.status_code != FCPResponseStatus::FCPNoError {
+            if resp_k3.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_k3.error_msg).unwrap();
                 panic!("verify_window_post failed: {:?}", msg);
             }
@@ -2664,7 +2599,7 @@ pub mod tests {
                 )
             };
 
-            if resp_a1.status_code != FCPResponseStatus::FCPNoError {
+            if resp_a1.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_a1.error_msg).unwrap();
                 panic!("write_without_alignment failed: {:?}", msg);
             }
@@ -2681,7 +2616,7 @@ pub mod tests {
                 )
             };
 
-            if resp_a2.status_code != FCPResponseStatus::FCPNoError {
+            if resp_a2.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_a2.error_msg).unwrap();
                 panic!("write_with_alignment failed: {:?}", msg);
             }
@@ -2695,12 +2630,11 @@ pub mod tests {
                     num_bytes: 1016,
                     comm_p: resp_a2.comm_p,
                 },
-            ]
-            .into();
+            ];
 
-            let resp_x = generate_data_commitment(registered_proof_seal, &pieces);
+            let resp_x = generate_data_commitment(registered_proof_seal, pieces[..].into());
 
-            if resp_x.status_code != FCPResponseStatus::FCPNoError {
+            if resp_x.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_x.error_msg).unwrap();
                 panic!("generate_data_commitment failed: {:?}", msg);
             }
@@ -2713,10 +2647,10 @@ pub mod tests {
                 sector_id,
                 prover_id,
                 ticket,
-                &pieces,
+                pieces[..].into(),
             );
 
-            if resp_b1.status_code != FCPResponseStatus::FCPNoError {
+            if resp_b1.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_b1.error_msg).unwrap();
                 panic!("seal_pre_commit_phase1 failed: {:?}", msg);
             }
@@ -2727,7 +2661,7 @@ pub mod tests {
                 sealed_path_ref.into(),
             );
 
-            if resp_b2.status_code != FCPResponseStatus::FCPNoError {
+            if resp_b2.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_b2.error_msg).unwrap();
                 panic!("seal_pre_commit_phase2 failed: {:?}", msg);
             }
@@ -2745,11 +2679,11 @@ pub mod tests {
                 sector_id,
             }];
 
-            let resp_j = generate_window_post(randomness, &private_replicas.into(), prover_id);
+            let resp_j = generate_window_post(randomness, private_replicas[..].into(), prover_id);
 
             assert_eq!(
                 resp_j.status_code,
-                FCPResponseStatus::FCPUnclassifiedError,
+                FCPResponseStatus::UnclassifiedError,
                 "generate_window_post should have failed"
             );
 
@@ -2846,7 +2780,7 @@ pub mod tests {
                 )
             };
 
-            if resp_a1.status_code != FCPResponseStatus::FCPNoError {
+            if resp_a1.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_a1.error_msg).unwrap();
                 panic!("write_without_alignment failed: {:?}", msg);
             }
@@ -2863,7 +2797,7 @@ pub mod tests {
                 )
             };
 
-            if resp_a2.status_code != FCPResponseStatus::FCPNoError {
+            if resp_a2.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_a2.error_msg).unwrap();
                 panic!("write_with_alignment failed: {:?}", msg);
             }
@@ -2877,12 +2811,11 @@ pub mod tests {
                     num_bytes: 1016,
                     comm_p: resp_a2.comm_p,
                 },
-            ]
-            .into();
+            ];
 
-            let resp_x = generate_data_commitment(registered_proof_seal, &pieces);
+            let resp_x = generate_data_commitment(registered_proof_seal, pieces[..].into());
 
-            if resp_x.status_code != FCPResponseStatus::FCPNoError {
+            if resp_x.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_x.error_msg).unwrap();
                 panic!("generate_data_commitment failed: {:?}", msg);
             }
@@ -2895,10 +2828,10 @@ pub mod tests {
                 sector_id,
                 prover_id,
                 ticket,
-                &pieces,
+                pieces[..].into(),
             );
 
-            if resp_b1.status_code != FCPResponseStatus::FCPNoError {
+            if resp_b1.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_b1.error_msg).unwrap();
                 panic!("seal_pre_commit_phase1 failed: {:?}", msg);
             }
@@ -2909,7 +2842,7 @@ pub mod tests {
                 sealed_path_ref.into(),
             );
 
-            if resp_b2.status_code != FCPResponseStatus::FCPNoError {
+            if resp_b2.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_b2.error_msg).unwrap();
                 panic!("seal_pre_commit_phase2 failed: {:?}", msg);
             }
@@ -2933,17 +2866,17 @@ pub mod tests {
                 prover_id,
                 ticket,
                 seed,
-                &pieces,
+                pieces[..].into(),
             );
 
-            if resp_c1.status_code != FCPResponseStatus::FCPNoError {
+            if resp_c1.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_c1.error_msg).unwrap();
                 panic!("seal_commit_phase1 failed: {:?}", msg);
             }
 
             let resp_c2 = seal_commit_phase2(resp_c1.as_ref(), sector_id, prover_id);
 
-            if resp_c2.status_code != FCPResponseStatus::FCPNoError {
+            if resp_c2.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_c2.error_msg).unwrap();
                 panic!("seal_commit_phase2 failed: {:?}", msg);
             }
@@ -2959,7 +2892,7 @@ pub mod tests {
                 resp_c2.proof.as_ref(),
             );
 
-            if resp_d.status_code != FCPResponseStatus::FCPNoError {
+            if resp_d.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_d.error_msg).unwrap();
                 panic!("seal_commit failed: {:?}", msg);
             }
@@ -2968,7 +2901,7 @@ pub mod tests {
 
             let resp_c22 = seal_commit_phase2(resp_c1.as_ref(), sector_id, prover_id);
 
-            if resp_c22.status_code != FCPResponseStatus::FCPNoError {
+            if resp_c22.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_c22.error_msg).unwrap();
                 panic!("seal_commit_phase2 failed: {:?}", msg);
             }
@@ -2984,7 +2917,7 @@ pub mod tests {
                 resp_c22.proof.as_ref(),
             );
 
-            if resp_d2.status_code != FCPResponseStatus::FCPNoError {
+            if resp_d2.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_d2.error_msg).unwrap();
                 panic!("seal_commit failed: {:?}", msg);
             }
@@ -3006,12 +2939,12 @@ pub mod tests {
             let resp_aggregate_proof = aggregate_seal_proofs(
                 registered_proof_seal,
                 registered_aggregation,
-                comm_rs.into(),
-                seeds.into(),
-                &seal_commit_responses.into(),
+                comm_rs.into_boxed_slice().into(),
+                seeds.into_boxed_slice().into(),
+                seal_commit_responses[..].into(),
             );
 
-            if resp_aggregate_proof.status_code != FCPResponseStatus::FCPNoError {
+            if resp_aggregate_proof.status_code != FCPResponseStatus::NoError {
                 panic!(
                     "aggregate_seal_proofs failed: {}",
                     str::from_utf8(&resp_aggregate_proof.error_msg).unwrap()
@@ -3040,10 +2973,10 @@ pub mod tests {
                 registered_aggregation,
                 prover_id,
                 resp_aggregate_proof.as_ref(),
-                &inputs.into(),
+                inputs[..].into(),
             );
 
-            if resp_ad.status_code != FCPResponseStatus::FCPNoError {
+            if resp_ad.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_ad.error_msg).unwrap();
                 panic!("verify_aggregate_seal_proof failed: {:?}", msg);
             }

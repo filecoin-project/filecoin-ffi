@@ -193,34 +193,22 @@ func (x *SliceBoxedUint8T) Deref() {
 	x.Len = (SizeT)(x.ref2156ff4c.len)
 }
 
-// allocArraySliceBoxedUint8TMemory allocates memory for type C.Array_slice_boxed_uint8_t in C.
+// allocSliceBoxedSliceBoxedUint8TMemory allocates memory for type C.slice_boxed_slice_boxed_uint8_t in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocArraySliceBoxedUint8TMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfArraySliceBoxedUint8TValue))
+func allocSliceBoxedSliceBoxedUint8TMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfSliceBoxedSliceBoxedUint8TValue))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfArraySliceBoxedUint8TValue = unsafe.Sizeof([1]C.Array_slice_boxed_uint8_t{})
-
-// allocPSliceBoxedUint8TMemory allocates memory for type *C.slice_boxed_uint8_t in C.
-// The caller is responsible for freeing the this memory via C.free.
-func allocPSliceBoxedUint8TMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfPSliceBoxedUint8TValue))
-	if mem == nil {
-		panic(fmt.Sprintln("memory alloc error: ", err))
-	}
-	return mem
-}
-
-const sizeOfPSliceBoxedUint8TValue = unsafe.Sizeof([1]*C.slice_boxed_uint8_t{})
+const sizeOfSliceBoxedSliceBoxedUint8TValue = unsafe.Sizeof([1]C.slice_boxed_slice_boxed_uint8_t{})
 
 const sizeOfPtr = unsafe.Sizeof(&struct{}{})
 
-// unpackSSSliceBoxedUint8T transforms a sliced Go data structure into plain C format.
-func unpackSSSliceBoxedUint8T(x [][]SliceBoxedUint8T) (unpacked **C.slice_boxed_uint8_t, allocs *cgoAllocMap) {
+// unpackSSliceBoxedUint8T transforms a sliced Go data structure into plain C format.
+func unpackSSliceBoxedUint8T(x []SliceBoxedUint8T) (unpacked *C.slice_boxed_uint8_t, allocs *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
 	}
@@ -230,108 +218,92 @@ func unpackSSSliceBoxedUint8T(x [][]SliceBoxedUint8T) (unpacked **C.slice_boxed_
 	})
 
 	len0 := len(x)
-	mem0 := allocPSliceBoxedUint8TMemory(len0)
+	mem0 := allocSliceBoxedUint8TMemory(len0)
 	allocs.Add(mem0)
 	h0 := &sliceHeader{
 		Data: mem0,
 		Cap:  len0,
 		Len:  len0,
 	}
-	v0 := *(*[]*C.slice_boxed_uint8_t)(unsafe.Pointer(h0))
+	v0 := *(*[]C.slice_boxed_uint8_t)(unsafe.Pointer(h0))
 	for i0 := range x {
-		len1 := len(x[i0])
-		mem1 := allocSliceBoxedUint8TMemory(len1)
-		allocs.Add(mem1)
-		h1 := &sliceHeader{
-			Data: mem1,
-			Cap:  len1,
-			Len:  len1,
-		}
-		v1 := *(*[]C.slice_boxed_uint8_t)(unsafe.Pointer(h1))
-		for i1 := range x[i0] {
-			allocs1 := new(cgoAllocMap)
-			v1[i1], allocs1 = x[i0][i1].PassValue()
-			allocs.Borrow(allocs1)
-		}
-		h := (*sliceHeader)(unsafe.Pointer(&v1))
-		v0[i0] = (*C.slice_boxed_uint8_t)(h.Data)
+		allocs0 := new(cgoAllocMap)
+		v0[i0], allocs0 = x[i0].PassValue()
+		allocs.Borrow(allocs0)
 	}
 	h := (*sliceHeader)(unsafe.Pointer(&v0))
-	unpacked = (**C.slice_boxed_uint8_t)(h.Data)
+	unpacked = (*C.slice_boxed_uint8_t)(h.Data)
 	return
 }
 
-// packSSSliceBoxedUint8T reads sliced Go data structure out from plain C format.
-func packSSSliceBoxedUint8T(v [][]SliceBoxedUint8T, ptr0 **C.slice_boxed_uint8_t) {
+// packSSliceBoxedUint8T reads sliced Go data structure out from plain C format.
+func packSSliceBoxedUint8T(v []SliceBoxedUint8T, ptr0 *C.slice_boxed_uint8_t) {
 	const m = 0x7fffffff
 	for i0 := range v {
-		ptr1 := (*(*[m / sizeOfPtr]*C.slice_boxed_uint8_t)(unsafe.Pointer(ptr0)))[i0]
-		for i1 := range v[i0] {
-			ptr2 := (*(*[m / sizeOfSliceBoxedUint8TValue]C.slice_boxed_uint8_t)(unsafe.Pointer(ptr1)))[i1]
-			v[i0][i1] = *NewSliceBoxedUint8TRef(unsafe.Pointer(&ptr2))
-		}
+		ptr1 := (*(*[m / sizeOfSliceBoxedUint8TValue]C.slice_boxed_uint8_t)(unsafe.Pointer(ptr0)))[i0]
+		v[i0] = *NewSliceBoxedUint8TRef(unsafe.Pointer(&ptr1))
 	}
 }
 
 // Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *ArraySliceBoxedUint8T) Ref() *C.Array_slice_boxed_uint8_t {
+func (x *SliceBoxedSliceBoxedUint8T) Ref() *C.slice_boxed_slice_boxed_uint8_t {
 	if x == nil {
 		return nil
 	}
-	return x.reff71b9a50
+	return x.refe6bf5160
 }
 
 // Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
 // Does nothing if struct is nil or has no allocation map.
-func (x *ArraySliceBoxedUint8T) Free() {
-	if x != nil && x.allocsf71b9a50 != nil {
-		x.allocsf71b9a50.(*cgoAllocMap).Free()
-		x.reff71b9a50 = nil
+func (x *SliceBoxedSliceBoxedUint8T) Free() {
+	if x != nil && x.allocse6bf5160 != nil {
+		x.allocse6bf5160.(*cgoAllocMap).Free()
+		x.refe6bf5160 = nil
 	}
 }
 
-// NewArraySliceBoxedUint8TRef creates a new wrapper struct with underlying reference set to the original C object.
+// NewSliceBoxedSliceBoxedUint8TRef creates a new wrapper struct with underlying reference set to the original C object.
 // Returns nil if the provided pointer to C object is nil too.
-func NewArraySliceBoxedUint8TRef(ref unsafe.Pointer) *ArraySliceBoxedUint8T {
+func NewSliceBoxedSliceBoxedUint8TRef(ref unsafe.Pointer) *SliceBoxedSliceBoxedUint8T {
 	if ref == nil {
 		return nil
 	}
-	obj := new(ArraySliceBoxedUint8T)
-	obj.reff71b9a50 = (*C.Array_slice_boxed_uint8_t)(unsafe.Pointer(ref))
+	obj := new(SliceBoxedSliceBoxedUint8T)
+	obj.refe6bf5160 = (*C.slice_boxed_slice_boxed_uint8_t)(unsafe.Pointer(ref))
 	return obj
 }
 
 // PassRef returns the underlying C object, otherwise it will allocate one and set its values
 // from this wrapping struct, counting allocations into an allocation map.
-func (x *ArraySliceBoxedUint8T) PassRef() (*C.Array_slice_boxed_uint8_t, *cgoAllocMap) {
+func (x *SliceBoxedSliceBoxedUint8T) PassRef() (*C.slice_boxed_slice_boxed_uint8_t, *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
-	} else if x.reff71b9a50 != nil {
-		return x.reff71b9a50, nil
+	} else if x.refe6bf5160 != nil {
+		return x.refe6bf5160, nil
 	}
-	memf71b9a50 := allocArraySliceBoxedUint8TMemory(1)
-	reff71b9a50 := (*C.Array_slice_boxed_uint8_t)(memf71b9a50)
-	allocsf71b9a50 := new(cgoAllocMap)
-	allocsf71b9a50.Add(memf71b9a50)
+	meme6bf5160 := allocSliceBoxedSliceBoxedUint8TMemory(1)
+	refe6bf5160 := (*C.slice_boxed_slice_boxed_uint8_t)(meme6bf5160)
+	allocse6bf5160 := new(cgoAllocMap)
+	allocse6bf5160.Add(meme6bf5160)
 
 	var cptr_allocs *cgoAllocMap
-	reff71b9a50.ptr, cptr_allocs = unpackSSSliceBoxedUint8T(x.Ptr)
-	allocsf71b9a50.Borrow(cptr_allocs)
+	refe6bf5160.ptr, cptr_allocs = unpackSSliceBoxedUint8T(x.Ptr)
+	allocse6bf5160.Borrow(cptr_allocs)
 
 	var clen_allocs *cgoAllocMap
-	reff71b9a50.len, clen_allocs = (C.size_t)(x.Len), cgoAllocsUnknown
-	allocsf71b9a50.Borrow(clen_allocs)
+	refe6bf5160.len, clen_allocs = (C.size_t)(x.Len), cgoAllocsUnknown
+	allocse6bf5160.Borrow(clen_allocs)
 
-	x.reff71b9a50 = reff71b9a50
-	x.allocsf71b9a50 = allocsf71b9a50
-	return reff71b9a50, allocsf71b9a50
+	x.refe6bf5160 = refe6bf5160
+	x.allocse6bf5160 = allocse6bf5160
+	return refe6bf5160, allocse6bf5160
 
 }
 
 // PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x ArraySliceBoxedUint8T) PassValue() (C.Array_slice_boxed_uint8_t, *cgoAllocMap) {
-	if x.reff71b9a50 != nil {
-		return *x.reff71b9a50, nil
+func (x SliceBoxedSliceBoxedUint8T) PassValue() (C.slice_boxed_slice_boxed_uint8_t, *cgoAllocMap) {
+	if x.refe6bf5160 != nil {
+		return *x.refe6bf5160, nil
 	}
 	ref, allocs := x.PassRef()
 	return *ref, allocs
@@ -339,89 +311,89 @@ func (x ArraySliceBoxedUint8T) PassValue() (C.Array_slice_boxed_uint8_t, *cgoAll
 
 // Deref uses the underlying reference to C object and fills the wrapping struct with values.
 // Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *ArraySliceBoxedUint8T) Deref() {
-	if x.reff71b9a50 == nil {
+func (x *SliceBoxedSliceBoxedUint8T) Deref() {
+	if x.refe6bf5160 == nil {
 		return
 	}
-	packSSSliceBoxedUint8T(x.Ptr, x.reff71b9a50.ptr)
-	x.Len = (SizeT)(x.reff71b9a50.len)
+	packSSliceBoxedUint8T(x.Ptr, x.refe6bf5160.ptr)
+	x.Len = (SizeT)(x.refe6bf5160.len)
 }
 
-// allocResultArraySliceBoxedUint8TMemory allocates memory for type C.Result_Array_slice_boxed_uint8_t in C.
+// allocResultSliceBoxedSliceBoxedUint8TMemory allocates memory for type C.Result_slice_boxed_slice_boxed_uint8_t in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocResultArraySliceBoxedUint8TMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfResultArraySliceBoxedUint8TValue))
+func allocResultSliceBoxedSliceBoxedUint8TMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfResultSliceBoxedSliceBoxedUint8TValue))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfResultArraySliceBoxedUint8TValue = unsafe.Sizeof([1]C.Result_Array_slice_boxed_uint8_t{})
+const sizeOfResultSliceBoxedSliceBoxedUint8TValue = unsafe.Sizeof([1]C.Result_slice_boxed_slice_boxed_uint8_t{})
 
 // Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *ResultArraySliceBoxedUint8T) Ref() *C.Result_Array_slice_boxed_uint8_t {
+func (x *ResultSliceBoxedSliceBoxedUint8T) Ref() *C.Result_slice_boxed_slice_boxed_uint8_t {
 	if x == nil {
 		return nil
 	}
-	return x.ref27ca5a35
+	return x.ref44f2cc9e
 }
 
 // Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
 // Does nothing if struct is nil or has no allocation map.
-func (x *ResultArraySliceBoxedUint8T) Free() {
-	if x != nil && x.allocs27ca5a35 != nil {
-		x.allocs27ca5a35.(*cgoAllocMap).Free()
-		x.ref27ca5a35 = nil
+func (x *ResultSliceBoxedSliceBoxedUint8T) Free() {
+	if x != nil && x.allocs44f2cc9e != nil {
+		x.allocs44f2cc9e.(*cgoAllocMap).Free()
+		x.ref44f2cc9e = nil
 	}
 }
 
-// NewResultArraySliceBoxedUint8TRef creates a new wrapper struct with underlying reference set to the original C object.
+// NewResultSliceBoxedSliceBoxedUint8TRef creates a new wrapper struct with underlying reference set to the original C object.
 // Returns nil if the provided pointer to C object is nil too.
-func NewResultArraySliceBoxedUint8TRef(ref unsafe.Pointer) *ResultArraySliceBoxedUint8T {
+func NewResultSliceBoxedSliceBoxedUint8TRef(ref unsafe.Pointer) *ResultSliceBoxedSliceBoxedUint8T {
 	if ref == nil {
 		return nil
 	}
-	obj := new(ResultArraySliceBoxedUint8T)
-	obj.ref27ca5a35 = (*C.Result_Array_slice_boxed_uint8_t)(unsafe.Pointer(ref))
+	obj := new(ResultSliceBoxedSliceBoxedUint8T)
+	obj.ref44f2cc9e = (*C.Result_slice_boxed_slice_boxed_uint8_t)(unsafe.Pointer(ref))
 	return obj
 }
 
 // PassRef returns the underlying C object, otherwise it will allocate one and set its values
 // from this wrapping struct, counting allocations into an allocation map.
-func (x *ResultArraySliceBoxedUint8T) PassRef() (*C.Result_Array_slice_boxed_uint8_t, *cgoAllocMap) {
+func (x *ResultSliceBoxedSliceBoxedUint8T) PassRef() (*C.Result_slice_boxed_slice_boxed_uint8_t, *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
-	} else if x.ref27ca5a35 != nil {
-		return x.ref27ca5a35, nil
+	} else if x.ref44f2cc9e != nil {
+		return x.ref44f2cc9e, nil
 	}
-	mem27ca5a35 := allocResultArraySliceBoxedUint8TMemory(1)
-	ref27ca5a35 := (*C.Result_Array_slice_boxed_uint8_t)(mem27ca5a35)
-	allocs27ca5a35 := new(cgoAllocMap)
-	allocs27ca5a35.Add(mem27ca5a35)
+	mem44f2cc9e := allocResultSliceBoxedSliceBoxedUint8TMemory(1)
+	ref44f2cc9e := (*C.Result_slice_boxed_slice_boxed_uint8_t)(mem44f2cc9e)
+	allocs44f2cc9e := new(cgoAllocMap)
+	allocs44f2cc9e.Add(mem44f2cc9e)
 
 	var cstatus_code_allocs *cgoAllocMap
-	ref27ca5a35.status_code, cstatus_code_allocs = (C.FCPResponseStatus_t)(x.StatusCode), cgoAllocsUnknown
-	allocs27ca5a35.Borrow(cstatus_code_allocs)
+	ref44f2cc9e.status_code, cstatus_code_allocs = (C.FCPResponseStatus_t)(x.StatusCode), cgoAllocsUnknown
+	allocs44f2cc9e.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
-	ref27ca5a35.error_msg, cerror_msg_allocs = x.ErrorMsg.PassValue()
-	allocs27ca5a35.Borrow(cerror_msg_allocs)
+	ref44f2cc9e.error_msg, cerror_msg_allocs = x.ErrorMsg.PassValue()
+	allocs44f2cc9e.Borrow(cerror_msg_allocs)
 
 	var cvalue_allocs *cgoAllocMap
-	ref27ca5a35.value, cvalue_allocs = x.Value.PassValue()
-	allocs27ca5a35.Borrow(cvalue_allocs)
+	ref44f2cc9e.value, cvalue_allocs = x.Value.PassValue()
+	allocs44f2cc9e.Borrow(cvalue_allocs)
 
-	x.ref27ca5a35 = ref27ca5a35
-	x.allocs27ca5a35 = allocs27ca5a35
-	return ref27ca5a35, allocs27ca5a35
+	x.ref44f2cc9e = ref44f2cc9e
+	x.allocs44f2cc9e = allocs44f2cc9e
+	return ref44f2cc9e, allocs44f2cc9e
 
 }
 
 // PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x ResultArraySliceBoxedUint8T) PassValue() (C.Result_Array_slice_boxed_uint8_t, *cgoAllocMap) {
-	if x.ref27ca5a35 != nil {
-		return *x.ref27ca5a35, nil
+func (x ResultSliceBoxedSliceBoxedUint8T) PassValue() (C.Result_slice_boxed_slice_boxed_uint8_t, *cgoAllocMap) {
+	if x.ref44f2cc9e != nil {
+		return *x.ref44f2cc9e, nil
 	}
 	ref, allocs := x.PassRef()
 	return *ref, allocs
@@ -429,13 +401,13 @@ func (x ResultArraySliceBoxedUint8T) PassValue() (C.Result_Array_slice_boxed_uin
 
 // Deref uses the underlying reference to C object and fills the wrapping struct with values.
 // Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *ResultArraySliceBoxedUint8T) Deref() {
-	if x.ref27ca5a35 == nil {
+func (x *ResultSliceBoxedSliceBoxedUint8T) Deref() {
+	if x.ref44f2cc9e == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatusT)(x.ref27ca5a35.status_code)
-	x.ErrorMsg = *NewSliceBoxedUint8TRef(unsafe.Pointer(&x.ref27ca5a35.error_msg))
-	x.Value = *NewArraySliceBoxedUint8TRef(unsafe.Pointer(&x.ref27ca5a35.value))
+	x.StatusCode = (FCPResponseStatusT)(x.ref44f2cc9e.status_code)
+	x.ErrorMsg = *NewSliceBoxedUint8TRef(unsafe.Pointer(&x.ref44f2cc9e.error_msg))
+	x.Value = *NewSliceBoxedSliceBoxedUint8TRef(unsafe.Pointer(&x.ref44f2cc9e.value))
 }
 
 // allocResultVoidTMemory allocates memory for type C.Result_void_t in C.
@@ -1019,129 +991,106 @@ func (x *AggregateResponseT) Deref() {
 	x.Signature = *NewBLSSignatureTRef(unsafe.Pointer(&x.refe76ad5dd.signature))
 }
 
-// allocArraySizeTMemory allocates memory for type C.Array_size_t in C.
+// allocSliceRefSizeTMemory allocates memory for type C.slice_ref_size_t in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocArraySizeTMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfArraySizeTValue))
+func allocSliceRefSizeTMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfSliceRefSizeTValue))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfArraySizeTValue = unsafe.Sizeof([1]C.Array_size_t{})
+const sizeOfSliceRefSizeTValue = unsafe.Sizeof([1]C.slice_ref_size_t{})
 
-// allocPSizeTMemory allocates memory for type *C.size_t in C.
-// The caller is responsible for freeing the this memory via C.free.
-func allocPSizeTMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfPSizeTValue))
-	if mem == nil {
-		panic(fmt.Sprintln("memory alloc error: ", err))
-	}
-	return mem
-}
-
-const sizeOfPSizeTValue = unsafe.Sizeof([1]*C.size_t{})
-
-// unpackSSUSizeT transforms a sliced Go data structure into plain C format.
-func unpackSSUSizeT(x [][]SizeT) (unpacked **C.size_t, allocs *cgoAllocMap) {
-	if x == nil {
-		return nil, nil
-	}
-	allocs = new(cgoAllocMap)
+// copyPSizeTBytes copies the data from Go slice as *C.size_t.
+func copyPSizeTBytes(slice *sliceHeader) (*C.size_t, *cgoAllocMap) {
+	allocs := new(cgoAllocMap)
 	defer runtime.SetFinalizer(allocs, func(a *cgoAllocMap) {
 		go a.Free()
 	})
 
-	len0 := len(x)
-	mem0 := allocPSizeTMemory(len0)
+	mem0 := unsafe.Pointer(C.CBytes(*(*[]byte)(unsafe.Pointer(&sliceHeader{
+		Data: slice.Data,
+		Len:  int(sizeOfSizeTValue) * slice.Len,
+		Cap:  int(sizeOfSizeTValue) * slice.Len,
+	}))))
 	allocs.Add(mem0)
-	h0 := &sliceHeader{
-		Data: mem0,
-		Cap:  len0,
-		Len:  len0,
-	}
-	v0 := *(*[]*C.size_t)(unsafe.Pointer(h0))
-	for i0 := range x {
-		h := (*sliceHeader)(unsafe.Pointer(&x[i0]))
-		v0[i0] = (*C.size_t)(h.Data)
-	}
-	h := (*sliceHeader)(unsafe.Pointer(&v0))
-	unpacked = (**C.size_t)(h.Data)
-	return
+
+	return (*C.size_t)(mem0), allocs
 }
 
-// packSSUSizeT reads sliced Go data structure out from plain C format.
-func packSSUSizeT(v [][]SizeT, ptr0 **C.size_t) {
-	const m = 0x7fffffff
-	for i0 := range v {
-		ptr1 := (*(*[m / sizeOfPtr]*C.size_t)(unsafe.Pointer(ptr0)))[i0]
-		hxff2234b := (*sliceHeader)(unsafe.Pointer(&v[i0]))
-		hxff2234b.Data = unsafe.Pointer(ptr1)
-		hxff2234b.Cap = 0x7fffffff
-		// hxff2234b.Len = ?
+// allocSizeTMemory allocates memory for type C.size_t in C.
+// The caller is responsible for freeing the this memory via C.free.
+func allocSizeTMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfSizeTValue))
+	if mem == nil {
+		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
+	return mem
 }
+
+const sizeOfSizeTValue = unsafe.Sizeof([1]C.size_t{})
 
 // Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *ArraySizeT) Ref() *C.Array_size_t {
+func (x *SliceRefSizeT) Ref() *C.slice_ref_size_t {
 	if x == nil {
 		return nil
 	}
-	return x.ref903ad2bb
+	return x.refc9cb2248
 }
 
 // Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
 // Does nothing if struct is nil or has no allocation map.
-func (x *ArraySizeT) Free() {
-	if x != nil && x.allocs903ad2bb != nil {
-		x.allocs903ad2bb.(*cgoAllocMap).Free()
-		x.ref903ad2bb = nil
+func (x *SliceRefSizeT) Free() {
+	if x != nil && x.allocsc9cb2248 != nil {
+		x.allocsc9cb2248.(*cgoAllocMap).Free()
+		x.refc9cb2248 = nil
 	}
 }
 
-// NewArraySizeTRef creates a new wrapper struct with underlying reference set to the original C object.
+// NewSliceRefSizeTRef creates a new wrapper struct with underlying reference set to the original C object.
 // Returns nil if the provided pointer to C object is nil too.
-func NewArraySizeTRef(ref unsafe.Pointer) *ArraySizeT {
+func NewSliceRefSizeTRef(ref unsafe.Pointer) *SliceRefSizeT {
 	if ref == nil {
 		return nil
 	}
-	obj := new(ArraySizeT)
-	obj.ref903ad2bb = (*C.Array_size_t)(unsafe.Pointer(ref))
+	obj := new(SliceRefSizeT)
+	obj.refc9cb2248 = (*C.slice_ref_size_t)(unsafe.Pointer(ref))
 	return obj
 }
 
 // PassRef returns the underlying C object, otherwise it will allocate one and set its values
 // from this wrapping struct, counting allocations into an allocation map.
-func (x *ArraySizeT) PassRef() (*C.Array_size_t, *cgoAllocMap) {
+func (x *SliceRefSizeT) PassRef() (*C.slice_ref_size_t, *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
-	} else if x.ref903ad2bb != nil {
-		return x.ref903ad2bb, nil
+	} else if x.refc9cb2248 != nil {
+		return x.refc9cb2248, nil
 	}
-	mem903ad2bb := allocArraySizeTMemory(1)
-	ref903ad2bb := (*C.Array_size_t)(mem903ad2bb)
-	allocs903ad2bb := new(cgoAllocMap)
-	allocs903ad2bb.Add(mem903ad2bb)
+	memc9cb2248 := allocSliceRefSizeTMemory(1)
+	refc9cb2248 := (*C.slice_ref_size_t)(memc9cb2248)
+	allocsc9cb2248 := new(cgoAllocMap)
+	allocsc9cb2248.Add(memc9cb2248)
 
 	var cptr_allocs *cgoAllocMap
-	ref903ad2bb.ptr, cptr_allocs = unpackSSUSizeT(x.Ptr)
-	allocs903ad2bb.Borrow(cptr_allocs)
+	refc9cb2248.ptr, cptr_allocs = copyPSizeTBytes((*sliceHeader)(unsafe.Pointer(&x.Ptr)))
+	allocsc9cb2248.Borrow(cptr_allocs)
 
 	var clen_allocs *cgoAllocMap
-	ref903ad2bb.len, clen_allocs = (C.size_t)(x.Len), cgoAllocsUnknown
-	allocs903ad2bb.Borrow(clen_allocs)
+	refc9cb2248.len, clen_allocs = (C.size_t)(x.Len), cgoAllocsUnknown
+	allocsc9cb2248.Borrow(clen_allocs)
 
-	x.ref903ad2bb = ref903ad2bb
-	x.allocs903ad2bb = allocs903ad2bb
-	return ref903ad2bb, allocs903ad2bb
+	x.refc9cb2248 = refc9cb2248
+	x.allocsc9cb2248 = allocsc9cb2248
+	return refc9cb2248, allocsc9cb2248
 
 }
 
 // PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x ArraySizeT) PassValue() (C.Array_size_t, *cgoAllocMap) {
-	if x.ref903ad2bb != nil {
-		return *x.ref903ad2bb, nil
+func (x SliceRefSizeT) PassValue() (C.slice_ref_size_t, *cgoAllocMap) {
+	if x.refc9cb2248 != nil {
+		return *x.refc9cb2248, nil
 	}
 	ref, allocs := x.PassRef()
 	return *ref, allocs
@@ -1149,12 +1098,16 @@ func (x ArraySizeT) PassValue() (C.Array_size_t, *cgoAllocMap) {
 
 // Deref uses the underlying reference to C object and fills the wrapping struct with values.
 // Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *ArraySizeT) Deref() {
-	if x.ref903ad2bb == nil {
+func (x *SliceRefSizeT) Deref() {
+	if x.refc9cb2248 == nil {
 		return
 	}
-	packSSUSizeT(x.Ptr, x.ref903ad2bb.ptr)
-	x.Len = (SizeT)(x.ref903ad2bb.len)
+	hxff2234b := (*sliceHeader)(unsafe.Pointer(&x.Ptr))
+	hxff2234b.Data = unsafe.Pointer(x.refc9cb2248.ptr)
+	hxff2234b.Cap = 0x7fffffff
+	// hxff2234b.Len = ?
+
+	x.Len = (SizeT)(x.refc9cb2248.len)
 }
 
 // allocUint832ArrayTMemory allocates memory for type C.uint8_32_array_t in C.
@@ -2541,32 +2494,20 @@ func (x *PublicPieceInfoT) Deref() {
 	x.CommP = *NewUint832ArrayTRef(unsafe.Pointer(&x.ref41775798.comm_p))
 }
 
-// allocArrayPublicPieceInfoTMemory allocates memory for type C.Array_PublicPieceInfo_t in C.
+// allocSliceRefPublicPieceInfoTMemory allocates memory for type C.slice_ref_PublicPieceInfo_t in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocArrayPublicPieceInfoTMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfArrayPublicPieceInfoTValue))
+func allocSliceRefPublicPieceInfoTMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfSliceRefPublicPieceInfoTValue))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfArrayPublicPieceInfoTValue = unsafe.Sizeof([1]C.Array_PublicPieceInfo_t{})
+const sizeOfSliceRefPublicPieceInfoTValue = unsafe.Sizeof([1]C.slice_ref_PublicPieceInfo_t{})
 
-// allocPPublicPieceInfoTMemory allocates memory for type *C.PublicPieceInfo_t in C.
-// The caller is responsible for freeing the this memory via C.free.
-func allocPPublicPieceInfoTMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfPPublicPieceInfoTValue))
-	if mem == nil {
-		panic(fmt.Sprintln("memory alloc error: ", err))
-	}
-	return mem
-}
-
-const sizeOfPPublicPieceInfoTValue = unsafe.Sizeof([1]*C.PublicPieceInfo_t{})
-
-// unpackSSPublicPieceInfoT transforms a sliced Go data structure into plain C format.
-func unpackSSPublicPieceInfoT(x [][]PublicPieceInfoT) (unpacked **C.PublicPieceInfo_t, allocs *cgoAllocMap) {
+// unpackSPublicPieceInfoT transforms a sliced Go data structure into plain C format.
+func unpackSPublicPieceInfoT(x []PublicPieceInfoT) (unpacked *C.PublicPieceInfo_t, allocs *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
 	}
@@ -2576,108 +2517,92 @@ func unpackSSPublicPieceInfoT(x [][]PublicPieceInfoT) (unpacked **C.PublicPieceI
 	})
 
 	len0 := len(x)
-	mem0 := allocPPublicPieceInfoTMemory(len0)
+	mem0 := allocPublicPieceInfoTMemory(len0)
 	allocs.Add(mem0)
 	h0 := &sliceHeader{
 		Data: mem0,
 		Cap:  len0,
 		Len:  len0,
 	}
-	v0 := *(*[]*C.PublicPieceInfo_t)(unsafe.Pointer(h0))
+	v0 := *(*[]C.PublicPieceInfo_t)(unsafe.Pointer(h0))
 	for i0 := range x {
-		len1 := len(x[i0])
-		mem1 := allocPublicPieceInfoTMemory(len1)
-		allocs.Add(mem1)
-		h1 := &sliceHeader{
-			Data: mem1,
-			Cap:  len1,
-			Len:  len1,
-		}
-		v1 := *(*[]C.PublicPieceInfo_t)(unsafe.Pointer(h1))
-		for i1 := range x[i0] {
-			allocs1 := new(cgoAllocMap)
-			v1[i1], allocs1 = x[i0][i1].PassValue()
-			allocs.Borrow(allocs1)
-		}
-		h := (*sliceHeader)(unsafe.Pointer(&v1))
-		v0[i0] = (*C.PublicPieceInfo_t)(h.Data)
+		allocs0 := new(cgoAllocMap)
+		v0[i0], allocs0 = x[i0].PassValue()
+		allocs.Borrow(allocs0)
 	}
 	h := (*sliceHeader)(unsafe.Pointer(&v0))
-	unpacked = (**C.PublicPieceInfo_t)(h.Data)
+	unpacked = (*C.PublicPieceInfo_t)(h.Data)
 	return
 }
 
-// packSSPublicPieceInfoT reads sliced Go data structure out from plain C format.
-func packSSPublicPieceInfoT(v [][]PublicPieceInfoT, ptr0 **C.PublicPieceInfo_t) {
+// packSPublicPieceInfoT reads sliced Go data structure out from plain C format.
+func packSPublicPieceInfoT(v []PublicPieceInfoT, ptr0 *C.PublicPieceInfo_t) {
 	const m = 0x7fffffff
 	for i0 := range v {
-		ptr1 := (*(*[m / sizeOfPtr]*C.PublicPieceInfo_t)(unsafe.Pointer(ptr0)))[i0]
-		for i1 := range v[i0] {
-			ptr2 := (*(*[m / sizeOfPublicPieceInfoTValue]C.PublicPieceInfo_t)(unsafe.Pointer(ptr1)))[i1]
-			v[i0][i1] = *NewPublicPieceInfoTRef(unsafe.Pointer(&ptr2))
-		}
+		ptr1 := (*(*[m / sizeOfPublicPieceInfoTValue]C.PublicPieceInfo_t)(unsafe.Pointer(ptr0)))[i0]
+		v[i0] = *NewPublicPieceInfoTRef(unsafe.Pointer(&ptr1))
 	}
 }
 
 // Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *ArrayPublicPieceInfoT) Ref() *C.Array_PublicPieceInfo_t {
+func (x *SliceRefPublicPieceInfoT) Ref() *C.slice_ref_PublicPieceInfo_t {
 	if x == nil {
 		return nil
 	}
-	return x.refe3414758
+	return x.ref28c8f598
 }
 
 // Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
 // Does nothing if struct is nil or has no allocation map.
-func (x *ArrayPublicPieceInfoT) Free() {
-	if x != nil && x.allocse3414758 != nil {
-		x.allocse3414758.(*cgoAllocMap).Free()
-		x.refe3414758 = nil
+func (x *SliceRefPublicPieceInfoT) Free() {
+	if x != nil && x.allocs28c8f598 != nil {
+		x.allocs28c8f598.(*cgoAllocMap).Free()
+		x.ref28c8f598 = nil
 	}
 }
 
-// NewArrayPublicPieceInfoTRef creates a new wrapper struct with underlying reference set to the original C object.
+// NewSliceRefPublicPieceInfoTRef creates a new wrapper struct with underlying reference set to the original C object.
 // Returns nil if the provided pointer to C object is nil too.
-func NewArrayPublicPieceInfoTRef(ref unsafe.Pointer) *ArrayPublicPieceInfoT {
+func NewSliceRefPublicPieceInfoTRef(ref unsafe.Pointer) *SliceRefPublicPieceInfoT {
 	if ref == nil {
 		return nil
 	}
-	obj := new(ArrayPublicPieceInfoT)
-	obj.refe3414758 = (*C.Array_PublicPieceInfo_t)(unsafe.Pointer(ref))
+	obj := new(SliceRefPublicPieceInfoT)
+	obj.ref28c8f598 = (*C.slice_ref_PublicPieceInfo_t)(unsafe.Pointer(ref))
 	return obj
 }
 
 // PassRef returns the underlying C object, otherwise it will allocate one and set its values
 // from this wrapping struct, counting allocations into an allocation map.
-func (x *ArrayPublicPieceInfoT) PassRef() (*C.Array_PublicPieceInfo_t, *cgoAllocMap) {
+func (x *SliceRefPublicPieceInfoT) PassRef() (*C.slice_ref_PublicPieceInfo_t, *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
-	} else if x.refe3414758 != nil {
-		return x.refe3414758, nil
+	} else if x.ref28c8f598 != nil {
+		return x.ref28c8f598, nil
 	}
-	meme3414758 := allocArrayPublicPieceInfoTMemory(1)
-	refe3414758 := (*C.Array_PublicPieceInfo_t)(meme3414758)
-	allocse3414758 := new(cgoAllocMap)
-	allocse3414758.Add(meme3414758)
+	mem28c8f598 := allocSliceRefPublicPieceInfoTMemory(1)
+	ref28c8f598 := (*C.slice_ref_PublicPieceInfo_t)(mem28c8f598)
+	allocs28c8f598 := new(cgoAllocMap)
+	allocs28c8f598.Add(mem28c8f598)
 
 	var cptr_allocs *cgoAllocMap
-	refe3414758.ptr, cptr_allocs = unpackSSPublicPieceInfoT(x.Ptr)
-	allocse3414758.Borrow(cptr_allocs)
+	ref28c8f598.ptr, cptr_allocs = unpackSPublicPieceInfoT(x.Ptr)
+	allocs28c8f598.Borrow(cptr_allocs)
 
 	var clen_allocs *cgoAllocMap
-	refe3414758.len, clen_allocs = (C.size_t)(x.Len), cgoAllocsUnknown
-	allocse3414758.Borrow(clen_allocs)
+	ref28c8f598.len, clen_allocs = (C.size_t)(x.Len), cgoAllocsUnknown
+	allocs28c8f598.Borrow(clen_allocs)
 
-	x.refe3414758 = refe3414758
-	x.allocse3414758 = allocse3414758
-	return refe3414758, allocse3414758
+	x.ref28c8f598 = ref28c8f598
+	x.allocs28c8f598 = allocs28c8f598
+	return ref28c8f598, allocs28c8f598
 
 }
 
 // PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x ArrayPublicPieceInfoT) PassValue() (C.Array_PublicPieceInfo_t, *cgoAllocMap) {
-	if x.refe3414758 != nil {
-		return *x.refe3414758, nil
+func (x SliceRefPublicPieceInfoT) PassValue() (C.slice_ref_PublicPieceInfo_t, *cgoAllocMap) {
+	if x.ref28c8f598 != nil {
+		return *x.ref28c8f598, nil
 	}
 	ref, allocs := x.PassRef()
 	return *ref, allocs
@@ -2685,12 +2610,12 @@ func (x ArrayPublicPieceInfoT) PassValue() (C.Array_PublicPieceInfo_t, *cgoAlloc
 
 // Deref uses the underlying reference to C object and fills the wrapping struct with values.
 // Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *ArrayPublicPieceInfoT) Deref() {
-	if x.refe3414758 == nil {
+func (x *SliceRefPublicPieceInfoT) Deref() {
+	if x.ref28c8f598 == nil {
 		return
 	}
-	packSSPublicPieceInfoT(x.Ptr, x.refe3414758.ptr)
-	x.Len = (SizeT)(x.refe3414758.len)
+	packSPublicPieceInfoT(x.Ptr, x.ref28c8f598.ptr)
+	x.Len = (SizeT)(x.ref28c8f598.len)
 }
 
 // allocResultSliceBoxedUint8TMemory allocates memory for type C.Result_slice_boxed_uint8_t in C.
@@ -3138,32 +3063,20 @@ func (x *ResultSealCommitPhase2T) Deref() {
 	x.Value = *NewSealCommitPhase2TRef(unsafe.Pointer(&x.refb3d64060.value))
 }
 
-// allocArrayByteArray32TMemory allocates memory for type C.Array_ByteArray32_t in C.
+// allocSliceBoxedByteArray32TMemory allocates memory for type C.slice_boxed_ByteArray32_t in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocArrayByteArray32TMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfArrayByteArray32TValue))
+func allocSliceBoxedByteArray32TMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfSliceBoxedByteArray32TValue))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfArrayByteArray32TValue = unsafe.Sizeof([1]C.Array_ByteArray32_t{})
+const sizeOfSliceBoxedByteArray32TValue = unsafe.Sizeof([1]C.slice_boxed_ByteArray32_t{})
 
-// allocPByteArray32TMemory allocates memory for type *C.ByteArray32_t in C.
-// The caller is responsible for freeing the this memory via C.free.
-func allocPByteArray32TMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfPByteArray32TValue))
-	if mem == nil {
-		panic(fmt.Sprintln("memory alloc error: ", err))
-	}
-	return mem
-}
-
-const sizeOfPByteArray32TValue = unsafe.Sizeof([1]*C.ByteArray32_t{})
-
-// unpackSSByteArray32T transforms a sliced Go data structure into plain C format.
-func unpackSSByteArray32T(x [][]ByteArray32T) (unpacked **C.ByteArray32_t, allocs *cgoAllocMap) {
+// unpackSByteArray32T transforms a sliced Go data structure into plain C format.
+func unpackSByteArray32T(x []ByteArray32T) (unpacked *C.ByteArray32_t, allocs *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
 	}
@@ -3173,108 +3086,92 @@ func unpackSSByteArray32T(x [][]ByteArray32T) (unpacked **C.ByteArray32_t, alloc
 	})
 
 	len0 := len(x)
-	mem0 := allocPByteArray32TMemory(len0)
+	mem0 := allocByteArray32TMemory(len0)
 	allocs.Add(mem0)
 	h0 := &sliceHeader{
 		Data: mem0,
 		Cap:  len0,
 		Len:  len0,
 	}
-	v0 := *(*[]*C.ByteArray32_t)(unsafe.Pointer(h0))
+	v0 := *(*[]C.ByteArray32_t)(unsafe.Pointer(h0))
 	for i0 := range x {
-		len1 := len(x[i0])
-		mem1 := allocByteArray32TMemory(len1)
-		allocs.Add(mem1)
-		h1 := &sliceHeader{
-			Data: mem1,
-			Cap:  len1,
-			Len:  len1,
-		}
-		v1 := *(*[]C.ByteArray32_t)(unsafe.Pointer(h1))
-		for i1 := range x[i0] {
-			allocs1 := new(cgoAllocMap)
-			v1[i1], allocs1 = x[i0][i1].PassValue()
-			allocs.Borrow(allocs1)
-		}
-		h := (*sliceHeader)(unsafe.Pointer(&v1))
-		v0[i0] = (*C.ByteArray32_t)(h.Data)
+		allocs0 := new(cgoAllocMap)
+		v0[i0], allocs0 = x[i0].PassValue()
+		allocs.Borrow(allocs0)
 	}
 	h := (*sliceHeader)(unsafe.Pointer(&v0))
-	unpacked = (**C.ByteArray32_t)(h.Data)
+	unpacked = (*C.ByteArray32_t)(h.Data)
 	return
 }
 
-// packSSByteArray32T reads sliced Go data structure out from plain C format.
-func packSSByteArray32T(v [][]ByteArray32T, ptr0 **C.ByteArray32_t) {
+// packSByteArray32T reads sliced Go data structure out from plain C format.
+func packSByteArray32T(v []ByteArray32T, ptr0 *C.ByteArray32_t) {
 	const m = 0x7fffffff
 	for i0 := range v {
-		ptr1 := (*(*[m / sizeOfPtr]*C.ByteArray32_t)(unsafe.Pointer(ptr0)))[i0]
-		for i1 := range v[i0] {
-			ptr2 := (*(*[m / sizeOfByteArray32TValue]C.ByteArray32_t)(unsafe.Pointer(ptr1)))[i1]
-			v[i0][i1] = *NewByteArray32TRef(unsafe.Pointer(&ptr2))
-		}
+		ptr1 := (*(*[m / sizeOfByteArray32TValue]C.ByteArray32_t)(unsafe.Pointer(ptr0)))[i0]
+		v[i0] = *NewByteArray32TRef(unsafe.Pointer(&ptr1))
 	}
 }
 
 // Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *ArrayByteArray32T) Ref() *C.Array_ByteArray32_t {
+func (x *SliceBoxedByteArray32T) Ref() *C.slice_boxed_ByteArray32_t {
 	if x == nil {
 		return nil
 	}
-	return x.ref737257fb
+	return x.refe3015bfe
 }
 
 // Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
 // Does nothing if struct is nil or has no allocation map.
-func (x *ArrayByteArray32T) Free() {
-	if x != nil && x.allocs737257fb != nil {
-		x.allocs737257fb.(*cgoAllocMap).Free()
-		x.ref737257fb = nil
+func (x *SliceBoxedByteArray32T) Free() {
+	if x != nil && x.allocse3015bfe != nil {
+		x.allocse3015bfe.(*cgoAllocMap).Free()
+		x.refe3015bfe = nil
 	}
 }
 
-// NewArrayByteArray32TRef creates a new wrapper struct with underlying reference set to the original C object.
+// NewSliceBoxedByteArray32TRef creates a new wrapper struct with underlying reference set to the original C object.
 // Returns nil if the provided pointer to C object is nil too.
-func NewArrayByteArray32TRef(ref unsafe.Pointer) *ArrayByteArray32T {
+func NewSliceBoxedByteArray32TRef(ref unsafe.Pointer) *SliceBoxedByteArray32T {
 	if ref == nil {
 		return nil
 	}
-	obj := new(ArrayByteArray32T)
-	obj.ref737257fb = (*C.Array_ByteArray32_t)(unsafe.Pointer(ref))
+	obj := new(SliceBoxedByteArray32T)
+	obj.refe3015bfe = (*C.slice_boxed_ByteArray32_t)(unsafe.Pointer(ref))
 	return obj
 }
 
 // PassRef returns the underlying C object, otherwise it will allocate one and set its values
 // from this wrapping struct, counting allocations into an allocation map.
-func (x *ArrayByteArray32T) PassRef() (*C.Array_ByteArray32_t, *cgoAllocMap) {
+func (x *SliceBoxedByteArray32T) PassRef() (*C.slice_boxed_ByteArray32_t, *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
-	} else if x.ref737257fb != nil {
-		return x.ref737257fb, nil
+	} else if x.refe3015bfe != nil {
+		return x.refe3015bfe, nil
 	}
-	mem737257fb := allocArrayByteArray32TMemory(1)
-	ref737257fb := (*C.Array_ByteArray32_t)(mem737257fb)
-	allocs737257fb := new(cgoAllocMap)
-	allocs737257fb.Add(mem737257fb)
+	meme3015bfe := allocSliceBoxedByteArray32TMemory(1)
+	refe3015bfe := (*C.slice_boxed_ByteArray32_t)(meme3015bfe)
+	allocse3015bfe := new(cgoAllocMap)
+	allocse3015bfe.Add(meme3015bfe)
 
 	var cptr_allocs *cgoAllocMap
-	ref737257fb.ptr, cptr_allocs = unpackSSByteArray32T(x.Ptr)
-	allocs737257fb.Borrow(cptr_allocs)
+	refe3015bfe.ptr, cptr_allocs = unpackSByteArray32T(x.Ptr)
+	allocse3015bfe.Borrow(cptr_allocs)
 
 	var clen_allocs *cgoAllocMap
-	ref737257fb.len, clen_allocs = (C.size_t)(x.Len), cgoAllocsUnknown
-	allocs737257fb.Borrow(clen_allocs)
+	refe3015bfe.len, clen_allocs = (C.size_t)(x.Len), cgoAllocsUnknown
+	allocse3015bfe.Borrow(clen_allocs)
 
-	x.ref737257fb = ref737257fb
-	x.allocs737257fb = allocs737257fb
-	return ref737257fb, allocs737257fb
+	x.refe3015bfe = refe3015bfe
+	x.allocse3015bfe = allocse3015bfe
+	return refe3015bfe, allocse3015bfe
 
 }
 
 // PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x ArrayByteArray32T) PassValue() (C.Array_ByteArray32_t, *cgoAllocMap) {
-	if x.ref737257fb != nil {
-		return *x.ref737257fb, nil
+func (x SliceBoxedByteArray32T) PassValue() (C.slice_boxed_ByteArray32_t, *cgoAllocMap) {
+	if x.refe3015bfe != nil {
+		return *x.refe3015bfe, nil
 	}
 	ref, allocs := x.PassRef()
 	return *ref, allocs
@@ -3282,40 +3179,28 @@ func (x ArrayByteArray32T) PassValue() (C.Array_ByteArray32_t, *cgoAllocMap) {
 
 // Deref uses the underlying reference to C object and fills the wrapping struct with values.
 // Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *ArrayByteArray32T) Deref() {
-	if x.ref737257fb == nil {
+func (x *SliceBoxedByteArray32T) Deref() {
+	if x.refe3015bfe == nil {
 		return
 	}
-	packSSByteArray32T(x.Ptr, x.ref737257fb.ptr)
-	x.Len = (SizeT)(x.ref737257fb.len)
+	packSByteArray32T(x.Ptr, x.refe3015bfe.ptr)
+	x.Len = (SizeT)(x.refe3015bfe.len)
 }
 
-// allocArraySealCommitPhase2TMemory allocates memory for type C.Array_SealCommitPhase2_t in C.
+// allocSliceRefSealCommitPhase2TMemory allocates memory for type C.slice_ref_SealCommitPhase2_t in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocArraySealCommitPhase2TMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfArraySealCommitPhase2TValue))
+func allocSliceRefSealCommitPhase2TMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfSliceRefSealCommitPhase2TValue))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfArraySealCommitPhase2TValue = unsafe.Sizeof([1]C.Array_SealCommitPhase2_t{})
+const sizeOfSliceRefSealCommitPhase2TValue = unsafe.Sizeof([1]C.slice_ref_SealCommitPhase2_t{})
 
-// allocPSealCommitPhase2TMemory allocates memory for type *C.SealCommitPhase2_t in C.
-// The caller is responsible for freeing the this memory via C.free.
-func allocPSealCommitPhase2TMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfPSealCommitPhase2TValue))
-	if mem == nil {
-		panic(fmt.Sprintln("memory alloc error: ", err))
-	}
-	return mem
-}
-
-const sizeOfPSealCommitPhase2TValue = unsafe.Sizeof([1]*C.SealCommitPhase2_t{})
-
-// unpackSSSealCommitPhase2T transforms a sliced Go data structure into plain C format.
-func unpackSSSealCommitPhase2T(x [][]SealCommitPhase2T) (unpacked **C.SealCommitPhase2_t, allocs *cgoAllocMap) {
+// unpackSSealCommitPhase2T transforms a sliced Go data structure into plain C format.
+func unpackSSealCommitPhase2T(x []SealCommitPhase2T) (unpacked *C.SealCommitPhase2_t, allocs *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
 	}
@@ -3325,108 +3210,92 @@ func unpackSSSealCommitPhase2T(x [][]SealCommitPhase2T) (unpacked **C.SealCommit
 	})
 
 	len0 := len(x)
-	mem0 := allocPSealCommitPhase2TMemory(len0)
+	mem0 := allocSealCommitPhase2TMemory(len0)
 	allocs.Add(mem0)
 	h0 := &sliceHeader{
 		Data: mem0,
 		Cap:  len0,
 		Len:  len0,
 	}
-	v0 := *(*[]*C.SealCommitPhase2_t)(unsafe.Pointer(h0))
+	v0 := *(*[]C.SealCommitPhase2_t)(unsafe.Pointer(h0))
 	for i0 := range x {
-		len1 := len(x[i0])
-		mem1 := allocSealCommitPhase2TMemory(len1)
-		allocs.Add(mem1)
-		h1 := &sliceHeader{
-			Data: mem1,
-			Cap:  len1,
-			Len:  len1,
-		}
-		v1 := *(*[]C.SealCommitPhase2_t)(unsafe.Pointer(h1))
-		for i1 := range x[i0] {
-			allocs1 := new(cgoAllocMap)
-			v1[i1], allocs1 = x[i0][i1].PassValue()
-			allocs.Borrow(allocs1)
-		}
-		h := (*sliceHeader)(unsafe.Pointer(&v1))
-		v0[i0] = (*C.SealCommitPhase2_t)(h.Data)
+		allocs0 := new(cgoAllocMap)
+		v0[i0], allocs0 = x[i0].PassValue()
+		allocs.Borrow(allocs0)
 	}
 	h := (*sliceHeader)(unsafe.Pointer(&v0))
-	unpacked = (**C.SealCommitPhase2_t)(h.Data)
+	unpacked = (*C.SealCommitPhase2_t)(h.Data)
 	return
 }
 
-// packSSSealCommitPhase2T reads sliced Go data structure out from plain C format.
-func packSSSealCommitPhase2T(v [][]SealCommitPhase2T, ptr0 **C.SealCommitPhase2_t) {
+// packSSealCommitPhase2T reads sliced Go data structure out from plain C format.
+func packSSealCommitPhase2T(v []SealCommitPhase2T, ptr0 *C.SealCommitPhase2_t) {
 	const m = 0x7fffffff
 	for i0 := range v {
-		ptr1 := (*(*[m / sizeOfPtr]*C.SealCommitPhase2_t)(unsafe.Pointer(ptr0)))[i0]
-		for i1 := range v[i0] {
-			ptr2 := (*(*[m / sizeOfSealCommitPhase2TValue]C.SealCommitPhase2_t)(unsafe.Pointer(ptr1)))[i1]
-			v[i0][i1] = *NewSealCommitPhase2TRef(unsafe.Pointer(&ptr2))
-		}
+		ptr1 := (*(*[m / sizeOfSealCommitPhase2TValue]C.SealCommitPhase2_t)(unsafe.Pointer(ptr0)))[i0]
+		v[i0] = *NewSealCommitPhase2TRef(unsafe.Pointer(&ptr1))
 	}
 }
 
 // Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *ArraySealCommitPhase2T) Ref() *C.Array_SealCommitPhase2_t {
+func (x *SliceRefSealCommitPhase2T) Ref() *C.slice_ref_SealCommitPhase2_t {
 	if x == nil {
 		return nil
 	}
-	return x.reffd7e224a
+	return x.ref66d16948
 }
 
 // Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
 // Does nothing if struct is nil or has no allocation map.
-func (x *ArraySealCommitPhase2T) Free() {
-	if x != nil && x.allocsfd7e224a != nil {
-		x.allocsfd7e224a.(*cgoAllocMap).Free()
-		x.reffd7e224a = nil
+func (x *SliceRefSealCommitPhase2T) Free() {
+	if x != nil && x.allocs66d16948 != nil {
+		x.allocs66d16948.(*cgoAllocMap).Free()
+		x.ref66d16948 = nil
 	}
 }
 
-// NewArraySealCommitPhase2TRef creates a new wrapper struct with underlying reference set to the original C object.
+// NewSliceRefSealCommitPhase2TRef creates a new wrapper struct with underlying reference set to the original C object.
 // Returns nil if the provided pointer to C object is nil too.
-func NewArraySealCommitPhase2TRef(ref unsafe.Pointer) *ArraySealCommitPhase2T {
+func NewSliceRefSealCommitPhase2TRef(ref unsafe.Pointer) *SliceRefSealCommitPhase2T {
 	if ref == nil {
 		return nil
 	}
-	obj := new(ArraySealCommitPhase2T)
-	obj.reffd7e224a = (*C.Array_SealCommitPhase2_t)(unsafe.Pointer(ref))
+	obj := new(SliceRefSealCommitPhase2T)
+	obj.ref66d16948 = (*C.slice_ref_SealCommitPhase2_t)(unsafe.Pointer(ref))
 	return obj
 }
 
 // PassRef returns the underlying C object, otherwise it will allocate one and set its values
 // from this wrapping struct, counting allocations into an allocation map.
-func (x *ArraySealCommitPhase2T) PassRef() (*C.Array_SealCommitPhase2_t, *cgoAllocMap) {
+func (x *SliceRefSealCommitPhase2T) PassRef() (*C.slice_ref_SealCommitPhase2_t, *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
-	} else if x.reffd7e224a != nil {
-		return x.reffd7e224a, nil
+	} else if x.ref66d16948 != nil {
+		return x.ref66d16948, nil
 	}
-	memfd7e224a := allocArraySealCommitPhase2TMemory(1)
-	reffd7e224a := (*C.Array_SealCommitPhase2_t)(memfd7e224a)
-	allocsfd7e224a := new(cgoAllocMap)
-	allocsfd7e224a.Add(memfd7e224a)
+	mem66d16948 := allocSliceRefSealCommitPhase2TMemory(1)
+	ref66d16948 := (*C.slice_ref_SealCommitPhase2_t)(mem66d16948)
+	allocs66d16948 := new(cgoAllocMap)
+	allocs66d16948.Add(mem66d16948)
 
 	var cptr_allocs *cgoAllocMap
-	reffd7e224a.ptr, cptr_allocs = unpackSSSealCommitPhase2T(x.Ptr)
-	allocsfd7e224a.Borrow(cptr_allocs)
+	ref66d16948.ptr, cptr_allocs = unpackSSealCommitPhase2T(x.Ptr)
+	allocs66d16948.Borrow(cptr_allocs)
 
 	var clen_allocs *cgoAllocMap
-	reffd7e224a.len, clen_allocs = (C.size_t)(x.Len), cgoAllocsUnknown
-	allocsfd7e224a.Borrow(clen_allocs)
+	ref66d16948.len, clen_allocs = (C.size_t)(x.Len), cgoAllocsUnknown
+	allocs66d16948.Borrow(clen_allocs)
 
-	x.reffd7e224a = reffd7e224a
-	x.allocsfd7e224a = allocsfd7e224a
-	return reffd7e224a, allocsfd7e224a
+	x.ref66d16948 = ref66d16948
+	x.allocs66d16948 = allocs66d16948
+	return ref66d16948, allocs66d16948
 
 }
 
 // PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x ArraySealCommitPhase2T) PassValue() (C.Array_SealCommitPhase2_t, *cgoAllocMap) {
-	if x.reffd7e224a != nil {
-		return *x.reffd7e224a, nil
+func (x SliceRefSealCommitPhase2T) PassValue() (C.slice_ref_SealCommitPhase2_t, *cgoAllocMap) {
+	if x.ref66d16948 != nil {
+		return *x.ref66d16948, nil
 	}
 	ref, allocs := x.PassRef()
 	return *ref, allocs
@@ -3434,12 +3303,12 @@ func (x ArraySealCommitPhase2T) PassValue() (C.Array_SealCommitPhase2_t, *cgoAll
 
 // Deref uses the underlying reference to C object and fills the wrapping struct with values.
 // Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *ArraySealCommitPhase2T) Deref() {
-	if x.reffd7e224a == nil {
+func (x *SliceRefSealCommitPhase2T) Deref() {
+	if x.ref66d16948 == nil {
 		return
 	}
-	packSSSealCommitPhase2T(x.Ptr, x.reffd7e224a.ptr)
-	x.Len = (SizeT)(x.reffd7e224a.len)
+	packSSealCommitPhase2T(x.Ptr, x.ref66d16948.ptr)
+	x.Len = (SizeT)(x.ref66d16948.len)
 }
 
 // allocAggregationInputsTMemory allocates memory for type C.AggregationInputs_t in C.
@@ -3543,32 +3412,20 @@ func (x *AggregationInputsT) Deref() {
 	x.Seed = *NewByteArray32TRef(unsafe.Pointer(&x.refb10889cf.seed))
 }
 
-// allocArrayAggregationInputsTMemory allocates memory for type C.Array_AggregationInputs_t in C.
+// allocSliceRefAggregationInputsTMemory allocates memory for type C.slice_ref_AggregationInputs_t in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocArrayAggregationInputsTMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfArrayAggregationInputsTValue))
+func allocSliceRefAggregationInputsTMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfSliceRefAggregationInputsTValue))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfArrayAggregationInputsTValue = unsafe.Sizeof([1]C.Array_AggregationInputs_t{})
+const sizeOfSliceRefAggregationInputsTValue = unsafe.Sizeof([1]C.slice_ref_AggregationInputs_t{})
 
-// allocPAggregationInputsTMemory allocates memory for type *C.AggregationInputs_t in C.
-// The caller is responsible for freeing the this memory via C.free.
-func allocPAggregationInputsTMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfPAggregationInputsTValue))
-	if mem == nil {
-		panic(fmt.Sprintln("memory alloc error: ", err))
-	}
-	return mem
-}
-
-const sizeOfPAggregationInputsTValue = unsafe.Sizeof([1]*C.AggregationInputs_t{})
-
-// unpackSSAggregationInputsT transforms a sliced Go data structure into plain C format.
-func unpackSSAggregationInputsT(x [][]AggregationInputsT) (unpacked **C.AggregationInputs_t, allocs *cgoAllocMap) {
+// unpackSAggregationInputsT transforms a sliced Go data structure into plain C format.
+func unpackSAggregationInputsT(x []AggregationInputsT) (unpacked *C.AggregationInputs_t, allocs *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
 	}
@@ -3578,108 +3435,92 @@ func unpackSSAggregationInputsT(x [][]AggregationInputsT) (unpacked **C.Aggregat
 	})
 
 	len0 := len(x)
-	mem0 := allocPAggregationInputsTMemory(len0)
+	mem0 := allocAggregationInputsTMemory(len0)
 	allocs.Add(mem0)
 	h0 := &sliceHeader{
 		Data: mem0,
 		Cap:  len0,
 		Len:  len0,
 	}
-	v0 := *(*[]*C.AggregationInputs_t)(unsafe.Pointer(h0))
+	v0 := *(*[]C.AggregationInputs_t)(unsafe.Pointer(h0))
 	for i0 := range x {
-		len1 := len(x[i0])
-		mem1 := allocAggregationInputsTMemory(len1)
-		allocs.Add(mem1)
-		h1 := &sliceHeader{
-			Data: mem1,
-			Cap:  len1,
-			Len:  len1,
-		}
-		v1 := *(*[]C.AggregationInputs_t)(unsafe.Pointer(h1))
-		for i1 := range x[i0] {
-			allocs1 := new(cgoAllocMap)
-			v1[i1], allocs1 = x[i0][i1].PassValue()
-			allocs.Borrow(allocs1)
-		}
-		h := (*sliceHeader)(unsafe.Pointer(&v1))
-		v0[i0] = (*C.AggregationInputs_t)(h.Data)
+		allocs0 := new(cgoAllocMap)
+		v0[i0], allocs0 = x[i0].PassValue()
+		allocs.Borrow(allocs0)
 	}
 	h := (*sliceHeader)(unsafe.Pointer(&v0))
-	unpacked = (**C.AggregationInputs_t)(h.Data)
+	unpacked = (*C.AggregationInputs_t)(h.Data)
 	return
 }
 
-// packSSAggregationInputsT reads sliced Go data structure out from plain C format.
-func packSSAggregationInputsT(v [][]AggregationInputsT, ptr0 **C.AggregationInputs_t) {
+// packSAggregationInputsT reads sliced Go data structure out from plain C format.
+func packSAggregationInputsT(v []AggregationInputsT, ptr0 *C.AggregationInputs_t) {
 	const m = 0x7fffffff
 	for i0 := range v {
-		ptr1 := (*(*[m / sizeOfPtr]*C.AggregationInputs_t)(unsafe.Pointer(ptr0)))[i0]
-		for i1 := range v[i0] {
-			ptr2 := (*(*[m / sizeOfAggregationInputsTValue]C.AggregationInputs_t)(unsafe.Pointer(ptr1)))[i1]
-			v[i0][i1] = *NewAggregationInputsTRef(unsafe.Pointer(&ptr2))
-		}
+		ptr1 := (*(*[m / sizeOfAggregationInputsTValue]C.AggregationInputs_t)(unsafe.Pointer(ptr0)))[i0]
+		v[i0] = *NewAggregationInputsTRef(unsafe.Pointer(&ptr1))
 	}
 }
 
 // Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *ArrayAggregationInputsT) Ref() *C.Array_AggregationInputs_t {
+func (x *SliceRefAggregationInputsT) Ref() *C.slice_ref_AggregationInputs_t {
 	if x == nil {
 		return nil
 	}
-	return x.ref6745ecd3
+	return x.ref89d022b4
 }
 
 // Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
 // Does nothing if struct is nil or has no allocation map.
-func (x *ArrayAggregationInputsT) Free() {
-	if x != nil && x.allocs6745ecd3 != nil {
-		x.allocs6745ecd3.(*cgoAllocMap).Free()
-		x.ref6745ecd3 = nil
+func (x *SliceRefAggregationInputsT) Free() {
+	if x != nil && x.allocs89d022b4 != nil {
+		x.allocs89d022b4.(*cgoAllocMap).Free()
+		x.ref89d022b4 = nil
 	}
 }
 
-// NewArrayAggregationInputsTRef creates a new wrapper struct with underlying reference set to the original C object.
+// NewSliceRefAggregationInputsTRef creates a new wrapper struct with underlying reference set to the original C object.
 // Returns nil if the provided pointer to C object is nil too.
-func NewArrayAggregationInputsTRef(ref unsafe.Pointer) *ArrayAggregationInputsT {
+func NewSliceRefAggregationInputsTRef(ref unsafe.Pointer) *SliceRefAggregationInputsT {
 	if ref == nil {
 		return nil
 	}
-	obj := new(ArrayAggregationInputsT)
-	obj.ref6745ecd3 = (*C.Array_AggregationInputs_t)(unsafe.Pointer(ref))
+	obj := new(SliceRefAggregationInputsT)
+	obj.ref89d022b4 = (*C.slice_ref_AggregationInputs_t)(unsafe.Pointer(ref))
 	return obj
 }
 
 // PassRef returns the underlying C object, otherwise it will allocate one and set its values
 // from this wrapping struct, counting allocations into an allocation map.
-func (x *ArrayAggregationInputsT) PassRef() (*C.Array_AggregationInputs_t, *cgoAllocMap) {
+func (x *SliceRefAggregationInputsT) PassRef() (*C.slice_ref_AggregationInputs_t, *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
-	} else if x.ref6745ecd3 != nil {
-		return x.ref6745ecd3, nil
+	} else if x.ref89d022b4 != nil {
+		return x.ref89d022b4, nil
 	}
-	mem6745ecd3 := allocArrayAggregationInputsTMemory(1)
-	ref6745ecd3 := (*C.Array_AggregationInputs_t)(mem6745ecd3)
-	allocs6745ecd3 := new(cgoAllocMap)
-	allocs6745ecd3.Add(mem6745ecd3)
+	mem89d022b4 := allocSliceRefAggregationInputsTMemory(1)
+	ref89d022b4 := (*C.slice_ref_AggregationInputs_t)(mem89d022b4)
+	allocs89d022b4 := new(cgoAllocMap)
+	allocs89d022b4.Add(mem89d022b4)
 
 	var cptr_allocs *cgoAllocMap
-	ref6745ecd3.ptr, cptr_allocs = unpackSSAggregationInputsT(x.Ptr)
-	allocs6745ecd3.Borrow(cptr_allocs)
+	ref89d022b4.ptr, cptr_allocs = unpackSAggregationInputsT(x.Ptr)
+	allocs89d022b4.Borrow(cptr_allocs)
 
 	var clen_allocs *cgoAllocMap
-	ref6745ecd3.len, clen_allocs = (C.size_t)(x.Len), cgoAllocsUnknown
-	allocs6745ecd3.Borrow(clen_allocs)
+	ref89d022b4.len, clen_allocs = (C.size_t)(x.Len), cgoAllocsUnknown
+	allocs89d022b4.Borrow(clen_allocs)
 
-	x.ref6745ecd3 = ref6745ecd3
-	x.allocs6745ecd3 = allocs6745ecd3
-	return ref6745ecd3, allocs6745ecd3
+	x.ref89d022b4 = ref89d022b4
+	x.allocs89d022b4 = allocs89d022b4
+	return ref89d022b4, allocs89d022b4
 
 }
 
 // PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x ArrayAggregationInputsT) PassValue() (C.Array_AggregationInputs_t, *cgoAllocMap) {
-	if x.ref6745ecd3 != nil {
-		return *x.ref6745ecd3, nil
+func (x SliceRefAggregationInputsT) PassValue() (C.slice_ref_AggregationInputs_t, *cgoAllocMap) {
+	if x.ref89d022b4 != nil {
+		return *x.ref89d022b4, nil
 	}
 	ref, allocs := x.PassRef()
 	return *ref, allocs
@@ -3687,12 +3528,12 @@ func (x ArrayAggregationInputsT) PassValue() (C.Array_AggregationInputs_t, *cgoA
 
 // Deref uses the underlying reference to C object and fills the wrapping struct with values.
 // Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *ArrayAggregationInputsT) Deref() {
-	if x.ref6745ecd3 == nil {
+func (x *SliceRefAggregationInputsT) Deref() {
+	if x.ref89d022b4 == nil {
 		return
 	}
-	packSSAggregationInputsT(x.Ptr, x.ref6745ecd3.ptr)
-	x.Len = (SizeT)(x.ref6745ecd3.len)
+	packSAggregationInputsT(x.Ptr, x.ref89d022b4.ptr)
+	x.Len = (SizeT)(x.ref89d022b4.len)
 }
 
 // allocResultBoolTMemory allocates memory for type C.Result_bool_t in C.
@@ -3786,129 +3627,77 @@ func (x *ResultBoolT) Deref() {
 	x.Value = (bool)(x.reff0bebe68.value)
 }
 
-// allocArrayUint64TMemory allocates memory for type C.Array_uint64_t in C.
+// allocSliceBoxedUint64TMemory allocates memory for type C.slice_boxed_uint64_t in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocArrayUint64TMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfArrayUint64TValue))
+func allocSliceBoxedUint64TMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfSliceBoxedUint64TValue))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfArrayUint64TValue = unsafe.Sizeof([1]C.Array_uint64_t{})
-
-// allocPUint64TMemory allocates memory for type *C.uint64_t in C.
-// The caller is responsible for freeing the this memory via C.free.
-func allocPUint64TMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfPUint64TValue))
-	if mem == nil {
-		panic(fmt.Sprintln("memory alloc error: ", err))
-	}
-	return mem
-}
-
-const sizeOfPUint64TValue = unsafe.Sizeof([1]*C.uint64_t{})
-
-// unpackSSUUint64T transforms a sliced Go data structure into plain C format.
-func unpackSSUUint64T(x [][]Uint64T) (unpacked **C.uint64_t, allocs *cgoAllocMap) {
-	if x == nil {
-		return nil, nil
-	}
-	allocs = new(cgoAllocMap)
-	defer runtime.SetFinalizer(allocs, func(a *cgoAllocMap) {
-		go a.Free()
-	})
-
-	len0 := len(x)
-	mem0 := allocPUint64TMemory(len0)
-	allocs.Add(mem0)
-	h0 := &sliceHeader{
-		Data: mem0,
-		Cap:  len0,
-		Len:  len0,
-	}
-	v0 := *(*[]*C.uint64_t)(unsafe.Pointer(h0))
-	for i0 := range x {
-		h := (*sliceHeader)(unsafe.Pointer(&x[i0]))
-		v0[i0] = (*C.uint64_t)(h.Data)
-	}
-	h := (*sliceHeader)(unsafe.Pointer(&v0))
-	unpacked = (**C.uint64_t)(h.Data)
-	return
-}
-
-// packSSUUint64T reads sliced Go data structure out from plain C format.
-func packSSUUint64T(v [][]Uint64T, ptr0 **C.uint64_t) {
-	const m = 0x7fffffff
-	for i0 := range v {
-		ptr1 := (*(*[m / sizeOfPtr]*C.uint64_t)(unsafe.Pointer(ptr0)))[i0]
-		hxfa9955c := (*sliceHeader)(unsafe.Pointer(&v[i0]))
-		hxfa9955c.Data = unsafe.Pointer(ptr1)
-		hxfa9955c.Cap = 0x7fffffff
-		// hxfa9955c.Len = ?
-	}
-}
+const sizeOfSliceBoxedUint64TValue = unsafe.Sizeof([1]C.slice_boxed_uint64_t{})
 
 // Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *ArrayUint64T) Ref() *C.Array_uint64_t {
+func (x *SliceBoxedUint64T) Ref() *C.slice_boxed_uint64_t {
 	if x == nil {
 		return nil
 	}
-	return x.ref71627081
+	return x.ref280caf77
 }
 
 // Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
 // Does nothing if struct is nil or has no allocation map.
-func (x *ArrayUint64T) Free() {
-	if x != nil && x.allocs71627081 != nil {
-		x.allocs71627081.(*cgoAllocMap).Free()
-		x.ref71627081 = nil
+func (x *SliceBoxedUint64T) Free() {
+	if x != nil && x.allocs280caf77 != nil {
+		x.allocs280caf77.(*cgoAllocMap).Free()
+		x.ref280caf77 = nil
 	}
 }
 
-// NewArrayUint64TRef creates a new wrapper struct with underlying reference set to the original C object.
+// NewSliceBoxedUint64TRef creates a new wrapper struct with underlying reference set to the original C object.
 // Returns nil if the provided pointer to C object is nil too.
-func NewArrayUint64TRef(ref unsafe.Pointer) *ArrayUint64T {
+func NewSliceBoxedUint64TRef(ref unsafe.Pointer) *SliceBoxedUint64T {
 	if ref == nil {
 		return nil
 	}
-	obj := new(ArrayUint64T)
-	obj.ref71627081 = (*C.Array_uint64_t)(unsafe.Pointer(ref))
+	obj := new(SliceBoxedUint64T)
+	obj.ref280caf77 = (*C.slice_boxed_uint64_t)(unsafe.Pointer(ref))
 	return obj
 }
 
 // PassRef returns the underlying C object, otherwise it will allocate one and set its values
 // from this wrapping struct, counting allocations into an allocation map.
-func (x *ArrayUint64T) PassRef() (*C.Array_uint64_t, *cgoAllocMap) {
+func (x *SliceBoxedUint64T) PassRef() (*C.slice_boxed_uint64_t, *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
-	} else if x.ref71627081 != nil {
-		return x.ref71627081, nil
+	} else if x.ref280caf77 != nil {
+		return x.ref280caf77, nil
 	}
-	mem71627081 := allocArrayUint64TMemory(1)
-	ref71627081 := (*C.Array_uint64_t)(mem71627081)
-	allocs71627081 := new(cgoAllocMap)
-	allocs71627081.Add(mem71627081)
+	mem280caf77 := allocSliceBoxedUint64TMemory(1)
+	ref280caf77 := (*C.slice_boxed_uint64_t)(mem280caf77)
+	allocs280caf77 := new(cgoAllocMap)
+	allocs280caf77.Add(mem280caf77)
 
 	var cptr_allocs *cgoAllocMap
-	ref71627081.ptr, cptr_allocs = unpackSSUUint64T(x.Ptr)
-	allocs71627081.Borrow(cptr_allocs)
+	ref280caf77.ptr, cptr_allocs = copyPUint64TBytes((*sliceHeader)(unsafe.Pointer(&x.Ptr)))
+	allocs280caf77.Borrow(cptr_allocs)
 
 	var clen_allocs *cgoAllocMap
-	ref71627081.len, clen_allocs = (C.size_t)(x.Len), cgoAllocsUnknown
-	allocs71627081.Borrow(clen_allocs)
+	ref280caf77.len, clen_allocs = (C.size_t)(x.Len), cgoAllocsUnknown
+	allocs280caf77.Borrow(clen_allocs)
 
-	x.ref71627081 = ref71627081
-	x.allocs71627081 = allocs71627081
-	return ref71627081, allocs71627081
+	x.ref280caf77 = ref280caf77
+	x.allocs280caf77 = allocs280caf77
+	return ref280caf77, allocs280caf77
 
 }
 
 // PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x ArrayUint64T) PassValue() (C.Array_uint64_t, *cgoAllocMap) {
-	if x.ref71627081 != nil {
-		return *x.ref71627081, nil
+func (x SliceBoxedUint64T) PassValue() (C.slice_boxed_uint64_t, *cgoAllocMap) {
+	if x.ref280caf77 != nil {
+		return *x.ref280caf77, nil
 	}
 	ref, allocs := x.PassRef()
 	return *ref, allocs
@@ -3916,89 +3705,93 @@ func (x ArrayUint64T) PassValue() (C.Array_uint64_t, *cgoAllocMap) {
 
 // Deref uses the underlying reference to C object and fills the wrapping struct with values.
 // Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *ArrayUint64T) Deref() {
-	if x.ref71627081 == nil {
+func (x *SliceBoxedUint64T) Deref() {
+	if x.ref280caf77 == nil {
 		return
 	}
-	packSSUUint64T(x.Ptr, x.ref71627081.ptr)
-	x.Len = (SizeT)(x.ref71627081.len)
+	hxfa9955c := (*sliceHeader)(unsafe.Pointer(&x.Ptr))
+	hxfa9955c.Data = unsafe.Pointer(x.ref280caf77.ptr)
+	hxfa9955c.Cap = 0x7fffffff
+	// hxfa9955c.Len = ?
+
+	x.Len = (SizeT)(x.ref280caf77.len)
 }
 
-// allocResultArrayUint64TMemory allocates memory for type C.Result_Array_uint64_t in C.
+// allocResultSliceBoxedUint64TMemory allocates memory for type C.Result_slice_boxed_uint64_t in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocResultArrayUint64TMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfResultArrayUint64TValue))
+func allocResultSliceBoxedUint64TMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfResultSliceBoxedUint64TValue))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfResultArrayUint64TValue = unsafe.Sizeof([1]C.Result_Array_uint64_t{})
+const sizeOfResultSliceBoxedUint64TValue = unsafe.Sizeof([1]C.Result_slice_boxed_uint64_t{})
 
 // Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *ResultArrayUint64T) Ref() *C.Result_Array_uint64_t {
+func (x *ResultSliceBoxedUint64T) Ref() *C.Result_slice_boxed_uint64_t {
 	if x == nil {
 		return nil
 	}
-	return x.ref7f2387f1
+	return x.reff00c3ca9
 }
 
 // Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
 // Does nothing if struct is nil or has no allocation map.
-func (x *ResultArrayUint64T) Free() {
-	if x != nil && x.allocs7f2387f1 != nil {
-		x.allocs7f2387f1.(*cgoAllocMap).Free()
-		x.ref7f2387f1 = nil
+func (x *ResultSliceBoxedUint64T) Free() {
+	if x != nil && x.allocsf00c3ca9 != nil {
+		x.allocsf00c3ca9.(*cgoAllocMap).Free()
+		x.reff00c3ca9 = nil
 	}
 }
 
-// NewResultArrayUint64TRef creates a new wrapper struct with underlying reference set to the original C object.
+// NewResultSliceBoxedUint64TRef creates a new wrapper struct with underlying reference set to the original C object.
 // Returns nil if the provided pointer to C object is nil too.
-func NewResultArrayUint64TRef(ref unsafe.Pointer) *ResultArrayUint64T {
+func NewResultSliceBoxedUint64TRef(ref unsafe.Pointer) *ResultSliceBoxedUint64T {
 	if ref == nil {
 		return nil
 	}
-	obj := new(ResultArrayUint64T)
-	obj.ref7f2387f1 = (*C.Result_Array_uint64_t)(unsafe.Pointer(ref))
+	obj := new(ResultSliceBoxedUint64T)
+	obj.reff00c3ca9 = (*C.Result_slice_boxed_uint64_t)(unsafe.Pointer(ref))
 	return obj
 }
 
 // PassRef returns the underlying C object, otherwise it will allocate one and set its values
 // from this wrapping struct, counting allocations into an allocation map.
-func (x *ResultArrayUint64T) PassRef() (*C.Result_Array_uint64_t, *cgoAllocMap) {
+func (x *ResultSliceBoxedUint64T) PassRef() (*C.Result_slice_boxed_uint64_t, *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
-	} else if x.ref7f2387f1 != nil {
-		return x.ref7f2387f1, nil
+	} else if x.reff00c3ca9 != nil {
+		return x.reff00c3ca9, nil
 	}
-	mem7f2387f1 := allocResultArrayUint64TMemory(1)
-	ref7f2387f1 := (*C.Result_Array_uint64_t)(mem7f2387f1)
-	allocs7f2387f1 := new(cgoAllocMap)
-	allocs7f2387f1.Add(mem7f2387f1)
+	memf00c3ca9 := allocResultSliceBoxedUint64TMemory(1)
+	reff00c3ca9 := (*C.Result_slice_boxed_uint64_t)(memf00c3ca9)
+	allocsf00c3ca9 := new(cgoAllocMap)
+	allocsf00c3ca9.Add(memf00c3ca9)
 
 	var cstatus_code_allocs *cgoAllocMap
-	ref7f2387f1.status_code, cstatus_code_allocs = (C.FCPResponseStatus_t)(x.StatusCode), cgoAllocsUnknown
-	allocs7f2387f1.Borrow(cstatus_code_allocs)
+	reff00c3ca9.status_code, cstatus_code_allocs = (C.FCPResponseStatus_t)(x.StatusCode), cgoAllocsUnknown
+	allocsf00c3ca9.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
-	ref7f2387f1.error_msg, cerror_msg_allocs = x.ErrorMsg.PassValue()
-	allocs7f2387f1.Borrow(cerror_msg_allocs)
+	reff00c3ca9.error_msg, cerror_msg_allocs = x.ErrorMsg.PassValue()
+	allocsf00c3ca9.Borrow(cerror_msg_allocs)
 
 	var cvalue_allocs *cgoAllocMap
-	ref7f2387f1.value, cvalue_allocs = x.Value.PassValue()
-	allocs7f2387f1.Borrow(cvalue_allocs)
+	reff00c3ca9.value, cvalue_allocs = x.Value.PassValue()
+	allocsf00c3ca9.Borrow(cvalue_allocs)
 
-	x.ref7f2387f1 = ref7f2387f1
-	x.allocs7f2387f1 = allocs7f2387f1
-	return ref7f2387f1, allocs7f2387f1
+	x.reff00c3ca9 = reff00c3ca9
+	x.allocsf00c3ca9 = allocsf00c3ca9
+	return reff00c3ca9, allocsf00c3ca9
 
 }
 
 // PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x ResultArrayUint64T) PassValue() (C.Result_Array_uint64_t, *cgoAllocMap) {
-	if x.ref7f2387f1 != nil {
-		return *x.ref7f2387f1, nil
+func (x ResultSliceBoxedUint64T) PassValue() (C.Result_slice_boxed_uint64_t, *cgoAllocMap) {
+	if x.reff00c3ca9 != nil {
+		return *x.reff00c3ca9, nil
 	}
 	ref, allocs := x.PassRef()
 	return *ref, allocs
@@ -4006,13 +3799,13 @@ func (x ResultArrayUint64T) PassValue() (C.Result_Array_uint64_t, *cgoAllocMap) 
 
 // Deref uses the underlying reference to C object and fills the wrapping struct with values.
 // Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *ResultArrayUint64T) Deref() {
-	if x.ref7f2387f1 == nil {
+func (x *ResultSliceBoxedUint64T) Deref() {
+	if x.reff00c3ca9 == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatusT)(x.ref7f2387f1.status_code)
-	x.ErrorMsg = *NewSliceBoxedUint8TRef(unsafe.Pointer(&x.ref7f2387f1.error_msg))
-	x.Value = *NewArrayUint64TRef(unsafe.Pointer(&x.ref7f2387f1.value))
+	x.StatusCode = (FCPResponseStatusT)(x.reff00c3ca9.status_code)
+	x.ErrorMsg = *NewSliceBoxedUint8TRef(unsafe.Pointer(&x.reff00c3ca9.error_msg))
+	x.Value = *NewSliceBoxedUint64TRef(unsafe.Pointer(&x.reff00c3ca9.value))
 }
 
 // allocGenerateFallbackSectorChallengesTMemory allocates memory for type C.GenerateFallbackSectorChallenges_t in C.
@@ -4101,8 +3894,8 @@ func (x *GenerateFallbackSectorChallengesT) Deref() {
 	if x.ref1a0802cf == nil {
 		return
 	}
-	x.Ids = *NewArrayUint64TRef(unsafe.Pointer(&x.ref1a0802cf.ids))
-	x.Challenges = *NewArrayUint64TRef(unsafe.Pointer(&x.ref1a0802cf.challenges))
+	x.Ids = *NewSliceBoxedUint64TRef(unsafe.Pointer(&x.ref1a0802cf.ids))
+	x.Challenges = *NewSliceBoxedUint64TRef(unsafe.Pointer(&x.ref1a0802cf.challenges))
 	x.ChallengesStride = (SizeT)(x.ref1a0802cf.challenges_stride)
 }
 
@@ -4298,6 +4091,92 @@ func (x *PrivateReplicaInfoT) Deref() {
 	x.SectorId = (Uint64T)(x.ref4fcd660f.sector_id)
 }
 
+// allocSliceRefSliceBoxedUint8TMemory allocates memory for type C.slice_ref_slice_boxed_uint8_t in C.
+// The caller is responsible for freeing the this memory via C.free.
+func allocSliceRefSliceBoxedUint8TMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfSliceRefSliceBoxedUint8TValue))
+	if mem == nil {
+		panic(fmt.Sprintln("memory alloc error: ", err))
+	}
+	return mem
+}
+
+const sizeOfSliceRefSliceBoxedUint8TValue = unsafe.Sizeof([1]C.slice_ref_slice_boxed_uint8_t{})
+
+// Ref returns the underlying reference to C object or nil if struct is nil.
+func (x *SliceRefSliceBoxedUint8T) Ref() *C.slice_ref_slice_boxed_uint8_t {
+	if x == nil {
+		return nil
+	}
+	return x.ref198e5437
+}
+
+// Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
+// Does nothing if struct is nil or has no allocation map.
+func (x *SliceRefSliceBoxedUint8T) Free() {
+	if x != nil && x.allocs198e5437 != nil {
+		x.allocs198e5437.(*cgoAllocMap).Free()
+		x.ref198e5437 = nil
+	}
+}
+
+// NewSliceRefSliceBoxedUint8TRef creates a new wrapper struct with underlying reference set to the original C object.
+// Returns nil if the provided pointer to C object is nil too.
+func NewSliceRefSliceBoxedUint8TRef(ref unsafe.Pointer) *SliceRefSliceBoxedUint8T {
+	if ref == nil {
+		return nil
+	}
+	obj := new(SliceRefSliceBoxedUint8T)
+	obj.ref198e5437 = (*C.slice_ref_slice_boxed_uint8_t)(unsafe.Pointer(ref))
+	return obj
+}
+
+// PassRef returns the underlying C object, otherwise it will allocate one and set its values
+// from this wrapping struct, counting allocations into an allocation map.
+func (x *SliceRefSliceBoxedUint8T) PassRef() (*C.slice_ref_slice_boxed_uint8_t, *cgoAllocMap) {
+	if x == nil {
+		return nil, nil
+	} else if x.ref198e5437 != nil {
+		return x.ref198e5437, nil
+	}
+	mem198e5437 := allocSliceRefSliceBoxedUint8TMemory(1)
+	ref198e5437 := (*C.slice_ref_slice_boxed_uint8_t)(mem198e5437)
+	allocs198e5437 := new(cgoAllocMap)
+	allocs198e5437.Add(mem198e5437)
+
+	var cptr_allocs *cgoAllocMap
+	ref198e5437.ptr, cptr_allocs = unpackSSliceBoxedUint8T(x.Ptr)
+	allocs198e5437.Borrow(cptr_allocs)
+
+	var clen_allocs *cgoAllocMap
+	ref198e5437.len, clen_allocs = (C.size_t)(x.Len), cgoAllocsUnknown
+	allocs198e5437.Borrow(clen_allocs)
+
+	x.ref198e5437 = ref198e5437
+	x.allocs198e5437 = allocs198e5437
+	return ref198e5437, allocs198e5437
+
+}
+
+// PassValue does the same as PassRef except that it will try to dereference the returned pointer.
+func (x SliceRefSliceBoxedUint8T) PassValue() (C.slice_ref_slice_boxed_uint8_t, *cgoAllocMap) {
+	if x.ref198e5437 != nil {
+		return *x.ref198e5437, nil
+	}
+	ref, allocs := x.PassRef()
+	return *ref, allocs
+}
+
+// Deref uses the underlying reference to C object and fills the wrapping struct with values.
+// Do not forget to call this method whether you get a struct for C object and want to read its values.
+func (x *SliceRefSliceBoxedUint8T) Deref() {
+	if x.ref198e5437 == nil {
+		return
+	}
+	packSSliceBoxedUint8T(x.Ptr, x.ref198e5437.ptr)
+	x.Len = (SizeT)(x.ref198e5437.len)
+}
+
 // allocPoStProofTMemory allocates memory for type C.PoStProof_t in C.
 // The caller is responsible for freeing the this memory via C.free.
 func allocPoStProofTMemory(n int) unsafe.Pointer {
@@ -4384,32 +4263,20 @@ func (x *PoStProofT) Deref() {
 	x.Proof = *NewSliceBoxedUint8TRef(unsafe.Pointer(&x.ref6b19d074.proof))
 }
 
-// allocArrayPoStProofTMemory allocates memory for type C.Array_PoStProof_t in C.
+// allocSliceBoxedPoStProofTMemory allocates memory for type C.slice_boxed_PoStProof_t in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocArrayPoStProofTMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfArrayPoStProofTValue))
+func allocSliceBoxedPoStProofTMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfSliceBoxedPoStProofTValue))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfArrayPoStProofTValue = unsafe.Sizeof([1]C.Array_PoStProof_t{})
+const sizeOfSliceBoxedPoStProofTValue = unsafe.Sizeof([1]C.slice_boxed_PoStProof_t{})
 
-// allocPPoStProofTMemory allocates memory for type *C.PoStProof_t in C.
-// The caller is responsible for freeing the this memory via C.free.
-func allocPPoStProofTMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfPPoStProofTValue))
-	if mem == nil {
-		panic(fmt.Sprintln("memory alloc error: ", err))
-	}
-	return mem
-}
-
-const sizeOfPPoStProofTValue = unsafe.Sizeof([1]*C.PoStProof_t{})
-
-// unpackSSPoStProofT transforms a sliced Go data structure into plain C format.
-func unpackSSPoStProofT(x [][]PoStProofT) (unpacked **C.PoStProof_t, allocs *cgoAllocMap) {
+// unpackSPoStProofT transforms a sliced Go data structure into plain C format.
+func unpackSPoStProofT(x []PoStProofT) (unpacked *C.PoStProof_t, allocs *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
 	}
@@ -4419,108 +4286,92 @@ func unpackSSPoStProofT(x [][]PoStProofT) (unpacked **C.PoStProof_t, allocs *cgo
 	})
 
 	len0 := len(x)
-	mem0 := allocPPoStProofTMemory(len0)
+	mem0 := allocPoStProofTMemory(len0)
 	allocs.Add(mem0)
 	h0 := &sliceHeader{
 		Data: mem0,
 		Cap:  len0,
 		Len:  len0,
 	}
-	v0 := *(*[]*C.PoStProof_t)(unsafe.Pointer(h0))
+	v0 := *(*[]C.PoStProof_t)(unsafe.Pointer(h0))
 	for i0 := range x {
-		len1 := len(x[i0])
-		mem1 := allocPoStProofTMemory(len1)
-		allocs.Add(mem1)
-		h1 := &sliceHeader{
-			Data: mem1,
-			Cap:  len1,
-			Len:  len1,
-		}
-		v1 := *(*[]C.PoStProof_t)(unsafe.Pointer(h1))
-		for i1 := range x[i0] {
-			allocs1 := new(cgoAllocMap)
-			v1[i1], allocs1 = x[i0][i1].PassValue()
-			allocs.Borrow(allocs1)
-		}
-		h := (*sliceHeader)(unsafe.Pointer(&v1))
-		v0[i0] = (*C.PoStProof_t)(h.Data)
+		allocs0 := new(cgoAllocMap)
+		v0[i0], allocs0 = x[i0].PassValue()
+		allocs.Borrow(allocs0)
 	}
 	h := (*sliceHeader)(unsafe.Pointer(&v0))
-	unpacked = (**C.PoStProof_t)(h.Data)
+	unpacked = (*C.PoStProof_t)(h.Data)
 	return
 }
 
-// packSSPoStProofT reads sliced Go data structure out from plain C format.
-func packSSPoStProofT(v [][]PoStProofT, ptr0 **C.PoStProof_t) {
+// packSPoStProofT reads sliced Go data structure out from plain C format.
+func packSPoStProofT(v []PoStProofT, ptr0 *C.PoStProof_t) {
 	const m = 0x7fffffff
 	for i0 := range v {
-		ptr1 := (*(*[m / sizeOfPtr]*C.PoStProof_t)(unsafe.Pointer(ptr0)))[i0]
-		for i1 := range v[i0] {
-			ptr2 := (*(*[m / sizeOfPoStProofTValue]C.PoStProof_t)(unsafe.Pointer(ptr1)))[i1]
-			v[i0][i1] = *NewPoStProofTRef(unsafe.Pointer(&ptr2))
-		}
+		ptr1 := (*(*[m / sizeOfPoStProofTValue]C.PoStProof_t)(unsafe.Pointer(ptr0)))[i0]
+		v[i0] = *NewPoStProofTRef(unsafe.Pointer(&ptr1))
 	}
 }
 
 // Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *ArrayPoStProofT) Ref() *C.Array_PoStProof_t {
+func (x *SliceBoxedPoStProofT) Ref() *C.slice_boxed_PoStProof_t {
 	if x == nil {
 		return nil
 	}
-	return x.ref87d11e9b
+	return x.ref9a32842f
 }
 
 // Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
 // Does nothing if struct is nil or has no allocation map.
-func (x *ArrayPoStProofT) Free() {
-	if x != nil && x.allocs87d11e9b != nil {
-		x.allocs87d11e9b.(*cgoAllocMap).Free()
-		x.ref87d11e9b = nil
+func (x *SliceBoxedPoStProofT) Free() {
+	if x != nil && x.allocs9a32842f != nil {
+		x.allocs9a32842f.(*cgoAllocMap).Free()
+		x.ref9a32842f = nil
 	}
 }
 
-// NewArrayPoStProofTRef creates a new wrapper struct with underlying reference set to the original C object.
+// NewSliceBoxedPoStProofTRef creates a new wrapper struct with underlying reference set to the original C object.
 // Returns nil if the provided pointer to C object is nil too.
-func NewArrayPoStProofTRef(ref unsafe.Pointer) *ArrayPoStProofT {
+func NewSliceBoxedPoStProofTRef(ref unsafe.Pointer) *SliceBoxedPoStProofT {
 	if ref == nil {
 		return nil
 	}
-	obj := new(ArrayPoStProofT)
-	obj.ref87d11e9b = (*C.Array_PoStProof_t)(unsafe.Pointer(ref))
+	obj := new(SliceBoxedPoStProofT)
+	obj.ref9a32842f = (*C.slice_boxed_PoStProof_t)(unsafe.Pointer(ref))
 	return obj
 }
 
 // PassRef returns the underlying C object, otherwise it will allocate one and set its values
 // from this wrapping struct, counting allocations into an allocation map.
-func (x *ArrayPoStProofT) PassRef() (*C.Array_PoStProof_t, *cgoAllocMap) {
+func (x *SliceBoxedPoStProofT) PassRef() (*C.slice_boxed_PoStProof_t, *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
-	} else if x.ref87d11e9b != nil {
-		return x.ref87d11e9b, nil
+	} else if x.ref9a32842f != nil {
+		return x.ref9a32842f, nil
 	}
-	mem87d11e9b := allocArrayPoStProofTMemory(1)
-	ref87d11e9b := (*C.Array_PoStProof_t)(mem87d11e9b)
-	allocs87d11e9b := new(cgoAllocMap)
-	allocs87d11e9b.Add(mem87d11e9b)
+	mem9a32842f := allocSliceBoxedPoStProofTMemory(1)
+	ref9a32842f := (*C.slice_boxed_PoStProof_t)(mem9a32842f)
+	allocs9a32842f := new(cgoAllocMap)
+	allocs9a32842f.Add(mem9a32842f)
 
 	var cptr_allocs *cgoAllocMap
-	ref87d11e9b.ptr, cptr_allocs = unpackSSPoStProofT(x.Ptr)
-	allocs87d11e9b.Borrow(cptr_allocs)
+	ref9a32842f.ptr, cptr_allocs = unpackSPoStProofT(x.Ptr)
+	allocs9a32842f.Borrow(cptr_allocs)
 
 	var clen_allocs *cgoAllocMap
-	ref87d11e9b.len, clen_allocs = (C.size_t)(x.Len), cgoAllocsUnknown
-	allocs87d11e9b.Borrow(clen_allocs)
+	ref9a32842f.len, clen_allocs = (C.size_t)(x.Len), cgoAllocsUnknown
+	allocs9a32842f.Borrow(clen_allocs)
 
-	x.ref87d11e9b = ref87d11e9b
-	x.allocs87d11e9b = allocs87d11e9b
-	return ref87d11e9b, allocs87d11e9b
+	x.ref9a32842f = ref9a32842f
+	x.allocs9a32842f = allocs9a32842f
+	return ref9a32842f, allocs9a32842f
 
 }
 
 // PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x ArrayPoStProofT) PassValue() (C.Array_PoStProof_t, *cgoAllocMap) {
-	if x.ref87d11e9b != nil {
-		return *x.ref87d11e9b, nil
+func (x SliceBoxedPoStProofT) PassValue() (C.slice_boxed_PoStProof_t, *cgoAllocMap) {
+	if x.ref9a32842f != nil {
+		return *x.ref9a32842f, nil
 	}
 	ref, allocs := x.PassRef()
 	return *ref, allocs
@@ -4528,89 +4379,89 @@ func (x ArrayPoStProofT) PassValue() (C.Array_PoStProof_t, *cgoAllocMap) {
 
 // Deref uses the underlying reference to C object and fills the wrapping struct with values.
 // Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *ArrayPoStProofT) Deref() {
-	if x.ref87d11e9b == nil {
+func (x *SliceBoxedPoStProofT) Deref() {
+	if x.ref9a32842f == nil {
 		return
 	}
-	packSSPoStProofT(x.Ptr, x.ref87d11e9b.ptr)
-	x.Len = (SizeT)(x.ref87d11e9b.len)
+	packSPoStProofT(x.Ptr, x.ref9a32842f.ptr)
+	x.Len = (SizeT)(x.ref9a32842f.len)
 }
 
-// allocResultArrayPoStProofTMemory allocates memory for type C.Result_Array_PoStProof_t in C.
+// allocResultSliceBoxedPoStProofTMemory allocates memory for type C.Result_slice_boxed_PoStProof_t in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocResultArrayPoStProofTMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfResultArrayPoStProofTValue))
+func allocResultSliceBoxedPoStProofTMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfResultSliceBoxedPoStProofTValue))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfResultArrayPoStProofTValue = unsafe.Sizeof([1]C.Result_Array_PoStProof_t{})
+const sizeOfResultSliceBoxedPoStProofTValue = unsafe.Sizeof([1]C.Result_slice_boxed_PoStProof_t{})
 
 // Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *ResultArrayPoStProofT) Ref() *C.Result_Array_PoStProof_t {
+func (x *ResultSliceBoxedPoStProofT) Ref() *C.Result_slice_boxed_PoStProof_t {
 	if x == nil {
 		return nil
 	}
-	return x.ref890670b9
+	return x.ref47494514
 }
 
 // Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
 // Does nothing if struct is nil or has no allocation map.
-func (x *ResultArrayPoStProofT) Free() {
-	if x != nil && x.allocs890670b9 != nil {
-		x.allocs890670b9.(*cgoAllocMap).Free()
-		x.ref890670b9 = nil
+func (x *ResultSliceBoxedPoStProofT) Free() {
+	if x != nil && x.allocs47494514 != nil {
+		x.allocs47494514.(*cgoAllocMap).Free()
+		x.ref47494514 = nil
 	}
 }
 
-// NewResultArrayPoStProofTRef creates a new wrapper struct with underlying reference set to the original C object.
+// NewResultSliceBoxedPoStProofTRef creates a new wrapper struct with underlying reference set to the original C object.
 // Returns nil if the provided pointer to C object is nil too.
-func NewResultArrayPoStProofTRef(ref unsafe.Pointer) *ResultArrayPoStProofT {
+func NewResultSliceBoxedPoStProofTRef(ref unsafe.Pointer) *ResultSliceBoxedPoStProofT {
 	if ref == nil {
 		return nil
 	}
-	obj := new(ResultArrayPoStProofT)
-	obj.ref890670b9 = (*C.Result_Array_PoStProof_t)(unsafe.Pointer(ref))
+	obj := new(ResultSliceBoxedPoStProofT)
+	obj.ref47494514 = (*C.Result_slice_boxed_PoStProof_t)(unsafe.Pointer(ref))
 	return obj
 }
 
 // PassRef returns the underlying C object, otherwise it will allocate one and set its values
 // from this wrapping struct, counting allocations into an allocation map.
-func (x *ResultArrayPoStProofT) PassRef() (*C.Result_Array_PoStProof_t, *cgoAllocMap) {
+func (x *ResultSliceBoxedPoStProofT) PassRef() (*C.Result_slice_boxed_PoStProof_t, *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
-	} else if x.ref890670b9 != nil {
-		return x.ref890670b9, nil
+	} else if x.ref47494514 != nil {
+		return x.ref47494514, nil
 	}
-	mem890670b9 := allocResultArrayPoStProofTMemory(1)
-	ref890670b9 := (*C.Result_Array_PoStProof_t)(mem890670b9)
-	allocs890670b9 := new(cgoAllocMap)
-	allocs890670b9.Add(mem890670b9)
+	mem47494514 := allocResultSliceBoxedPoStProofTMemory(1)
+	ref47494514 := (*C.Result_slice_boxed_PoStProof_t)(mem47494514)
+	allocs47494514 := new(cgoAllocMap)
+	allocs47494514.Add(mem47494514)
 
 	var cstatus_code_allocs *cgoAllocMap
-	ref890670b9.status_code, cstatus_code_allocs = (C.FCPResponseStatus_t)(x.StatusCode), cgoAllocsUnknown
-	allocs890670b9.Borrow(cstatus_code_allocs)
+	ref47494514.status_code, cstatus_code_allocs = (C.FCPResponseStatus_t)(x.StatusCode), cgoAllocsUnknown
+	allocs47494514.Borrow(cstatus_code_allocs)
 
 	var cerror_msg_allocs *cgoAllocMap
-	ref890670b9.error_msg, cerror_msg_allocs = x.ErrorMsg.PassValue()
-	allocs890670b9.Borrow(cerror_msg_allocs)
+	ref47494514.error_msg, cerror_msg_allocs = x.ErrorMsg.PassValue()
+	allocs47494514.Borrow(cerror_msg_allocs)
 
 	var cvalue_allocs *cgoAllocMap
-	ref890670b9.value, cvalue_allocs = x.Value.PassValue()
-	allocs890670b9.Borrow(cvalue_allocs)
+	ref47494514.value, cvalue_allocs = x.Value.PassValue()
+	allocs47494514.Borrow(cvalue_allocs)
 
-	x.ref890670b9 = ref890670b9
-	x.allocs890670b9 = allocs890670b9
-	return ref890670b9, allocs890670b9
+	x.ref47494514 = ref47494514
+	x.allocs47494514 = allocs47494514
+	return ref47494514, allocs47494514
 
 }
 
 // PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x ResultArrayPoStProofT) PassValue() (C.Result_Array_PoStProof_t, *cgoAllocMap) {
-	if x.ref890670b9 != nil {
-		return *x.ref890670b9, nil
+func (x ResultSliceBoxedPoStProofT) PassValue() (C.Result_slice_boxed_PoStProof_t, *cgoAllocMap) {
+	if x.ref47494514 != nil {
+		return *x.ref47494514, nil
 	}
 	ref, allocs := x.PassRef()
 	return *ref, allocs
@@ -4618,41 +4469,29 @@ func (x ResultArrayPoStProofT) PassValue() (C.Result_Array_PoStProof_t, *cgoAllo
 
 // Deref uses the underlying reference to C object and fills the wrapping struct with values.
 // Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *ResultArrayPoStProofT) Deref() {
-	if x.ref890670b9 == nil {
+func (x *ResultSliceBoxedPoStProofT) Deref() {
+	if x.ref47494514 == nil {
 		return
 	}
-	x.StatusCode = (FCPResponseStatusT)(x.ref890670b9.status_code)
-	x.ErrorMsg = *NewSliceBoxedUint8TRef(unsafe.Pointer(&x.ref890670b9.error_msg))
-	x.Value = *NewArrayPoStProofTRef(unsafe.Pointer(&x.ref890670b9.value))
+	x.StatusCode = (FCPResponseStatusT)(x.ref47494514.status_code)
+	x.ErrorMsg = *NewSliceBoxedUint8TRef(unsafe.Pointer(&x.ref47494514.error_msg))
+	x.Value = *NewSliceBoxedPoStProofTRef(unsafe.Pointer(&x.ref47494514.value))
 }
 
-// allocArrayPrivateReplicaInfoTMemory allocates memory for type C.Array_PrivateReplicaInfo_t in C.
+// allocSliceRefPrivateReplicaInfoTMemory allocates memory for type C.slice_ref_PrivateReplicaInfo_t in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocArrayPrivateReplicaInfoTMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfArrayPrivateReplicaInfoTValue))
+func allocSliceRefPrivateReplicaInfoTMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfSliceRefPrivateReplicaInfoTValue))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfArrayPrivateReplicaInfoTValue = unsafe.Sizeof([1]C.Array_PrivateReplicaInfo_t{})
+const sizeOfSliceRefPrivateReplicaInfoTValue = unsafe.Sizeof([1]C.slice_ref_PrivateReplicaInfo_t{})
 
-// allocPPrivateReplicaInfoTMemory allocates memory for type *C.PrivateReplicaInfo_t in C.
-// The caller is responsible for freeing the this memory via C.free.
-func allocPPrivateReplicaInfoTMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfPPrivateReplicaInfoTValue))
-	if mem == nil {
-		panic(fmt.Sprintln("memory alloc error: ", err))
-	}
-	return mem
-}
-
-const sizeOfPPrivateReplicaInfoTValue = unsafe.Sizeof([1]*C.PrivateReplicaInfo_t{})
-
-// unpackSSPrivateReplicaInfoT transforms a sliced Go data structure into plain C format.
-func unpackSSPrivateReplicaInfoT(x [][]PrivateReplicaInfoT) (unpacked **C.PrivateReplicaInfo_t, allocs *cgoAllocMap) {
+// unpackSPrivateReplicaInfoT transforms a sliced Go data structure into plain C format.
+func unpackSPrivateReplicaInfoT(x []PrivateReplicaInfoT) (unpacked *C.PrivateReplicaInfo_t, allocs *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
 	}
@@ -4662,108 +4501,92 @@ func unpackSSPrivateReplicaInfoT(x [][]PrivateReplicaInfoT) (unpacked **C.Privat
 	})
 
 	len0 := len(x)
-	mem0 := allocPPrivateReplicaInfoTMemory(len0)
+	mem0 := allocPrivateReplicaInfoTMemory(len0)
 	allocs.Add(mem0)
 	h0 := &sliceHeader{
 		Data: mem0,
 		Cap:  len0,
 		Len:  len0,
 	}
-	v0 := *(*[]*C.PrivateReplicaInfo_t)(unsafe.Pointer(h0))
+	v0 := *(*[]C.PrivateReplicaInfo_t)(unsafe.Pointer(h0))
 	for i0 := range x {
-		len1 := len(x[i0])
-		mem1 := allocPrivateReplicaInfoTMemory(len1)
-		allocs.Add(mem1)
-		h1 := &sliceHeader{
-			Data: mem1,
-			Cap:  len1,
-			Len:  len1,
-		}
-		v1 := *(*[]C.PrivateReplicaInfo_t)(unsafe.Pointer(h1))
-		for i1 := range x[i0] {
-			allocs1 := new(cgoAllocMap)
-			v1[i1], allocs1 = x[i0][i1].PassValue()
-			allocs.Borrow(allocs1)
-		}
-		h := (*sliceHeader)(unsafe.Pointer(&v1))
-		v0[i0] = (*C.PrivateReplicaInfo_t)(h.Data)
+		allocs0 := new(cgoAllocMap)
+		v0[i0], allocs0 = x[i0].PassValue()
+		allocs.Borrow(allocs0)
 	}
 	h := (*sliceHeader)(unsafe.Pointer(&v0))
-	unpacked = (**C.PrivateReplicaInfo_t)(h.Data)
+	unpacked = (*C.PrivateReplicaInfo_t)(h.Data)
 	return
 }
 
-// packSSPrivateReplicaInfoT reads sliced Go data structure out from plain C format.
-func packSSPrivateReplicaInfoT(v [][]PrivateReplicaInfoT, ptr0 **C.PrivateReplicaInfo_t) {
+// packSPrivateReplicaInfoT reads sliced Go data structure out from plain C format.
+func packSPrivateReplicaInfoT(v []PrivateReplicaInfoT, ptr0 *C.PrivateReplicaInfo_t) {
 	const m = 0x7fffffff
 	for i0 := range v {
-		ptr1 := (*(*[m / sizeOfPtr]*C.PrivateReplicaInfo_t)(unsafe.Pointer(ptr0)))[i0]
-		for i1 := range v[i0] {
-			ptr2 := (*(*[m / sizeOfPrivateReplicaInfoTValue]C.PrivateReplicaInfo_t)(unsafe.Pointer(ptr1)))[i1]
-			v[i0][i1] = *NewPrivateReplicaInfoTRef(unsafe.Pointer(&ptr2))
-		}
+		ptr1 := (*(*[m / sizeOfPrivateReplicaInfoTValue]C.PrivateReplicaInfo_t)(unsafe.Pointer(ptr0)))[i0]
+		v[i0] = *NewPrivateReplicaInfoTRef(unsafe.Pointer(&ptr1))
 	}
 }
 
 // Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *ArrayPrivateReplicaInfoT) Ref() *C.Array_PrivateReplicaInfo_t {
+func (x *SliceRefPrivateReplicaInfoT) Ref() *C.slice_ref_PrivateReplicaInfo_t {
 	if x == nil {
 		return nil
 	}
-	return x.ref5b1a7725
+	return x.ref88221610
 }
 
 // Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
 // Does nothing if struct is nil or has no allocation map.
-func (x *ArrayPrivateReplicaInfoT) Free() {
-	if x != nil && x.allocs5b1a7725 != nil {
-		x.allocs5b1a7725.(*cgoAllocMap).Free()
-		x.ref5b1a7725 = nil
+func (x *SliceRefPrivateReplicaInfoT) Free() {
+	if x != nil && x.allocs88221610 != nil {
+		x.allocs88221610.(*cgoAllocMap).Free()
+		x.ref88221610 = nil
 	}
 }
 
-// NewArrayPrivateReplicaInfoTRef creates a new wrapper struct with underlying reference set to the original C object.
+// NewSliceRefPrivateReplicaInfoTRef creates a new wrapper struct with underlying reference set to the original C object.
 // Returns nil if the provided pointer to C object is nil too.
-func NewArrayPrivateReplicaInfoTRef(ref unsafe.Pointer) *ArrayPrivateReplicaInfoT {
+func NewSliceRefPrivateReplicaInfoTRef(ref unsafe.Pointer) *SliceRefPrivateReplicaInfoT {
 	if ref == nil {
 		return nil
 	}
-	obj := new(ArrayPrivateReplicaInfoT)
-	obj.ref5b1a7725 = (*C.Array_PrivateReplicaInfo_t)(unsafe.Pointer(ref))
+	obj := new(SliceRefPrivateReplicaInfoT)
+	obj.ref88221610 = (*C.slice_ref_PrivateReplicaInfo_t)(unsafe.Pointer(ref))
 	return obj
 }
 
 // PassRef returns the underlying C object, otherwise it will allocate one and set its values
 // from this wrapping struct, counting allocations into an allocation map.
-func (x *ArrayPrivateReplicaInfoT) PassRef() (*C.Array_PrivateReplicaInfo_t, *cgoAllocMap) {
+func (x *SliceRefPrivateReplicaInfoT) PassRef() (*C.slice_ref_PrivateReplicaInfo_t, *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
-	} else if x.ref5b1a7725 != nil {
-		return x.ref5b1a7725, nil
+	} else if x.ref88221610 != nil {
+		return x.ref88221610, nil
 	}
-	mem5b1a7725 := allocArrayPrivateReplicaInfoTMemory(1)
-	ref5b1a7725 := (*C.Array_PrivateReplicaInfo_t)(mem5b1a7725)
-	allocs5b1a7725 := new(cgoAllocMap)
-	allocs5b1a7725.Add(mem5b1a7725)
+	mem88221610 := allocSliceRefPrivateReplicaInfoTMemory(1)
+	ref88221610 := (*C.slice_ref_PrivateReplicaInfo_t)(mem88221610)
+	allocs88221610 := new(cgoAllocMap)
+	allocs88221610.Add(mem88221610)
 
 	var cptr_allocs *cgoAllocMap
-	ref5b1a7725.ptr, cptr_allocs = unpackSSPrivateReplicaInfoT(x.Ptr)
-	allocs5b1a7725.Borrow(cptr_allocs)
+	ref88221610.ptr, cptr_allocs = unpackSPrivateReplicaInfoT(x.Ptr)
+	allocs88221610.Borrow(cptr_allocs)
 
 	var clen_allocs *cgoAllocMap
-	ref5b1a7725.len, clen_allocs = (C.size_t)(x.Len), cgoAllocsUnknown
-	allocs5b1a7725.Borrow(clen_allocs)
+	ref88221610.len, clen_allocs = (C.size_t)(x.Len), cgoAllocsUnknown
+	allocs88221610.Borrow(clen_allocs)
 
-	x.ref5b1a7725 = ref5b1a7725
-	x.allocs5b1a7725 = allocs5b1a7725
-	return ref5b1a7725, allocs5b1a7725
+	x.ref88221610 = ref88221610
+	x.allocs88221610 = allocs88221610
+	return ref88221610, allocs88221610
 
 }
 
 // PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x ArrayPrivateReplicaInfoT) PassValue() (C.Array_PrivateReplicaInfo_t, *cgoAllocMap) {
-	if x.ref5b1a7725 != nil {
-		return *x.ref5b1a7725, nil
+func (x SliceRefPrivateReplicaInfoT) PassValue() (C.slice_ref_PrivateReplicaInfo_t, *cgoAllocMap) {
+	if x.ref88221610 != nil {
+		return *x.ref88221610, nil
 	}
 	ref, allocs := x.PassRef()
 	return *ref, allocs
@@ -4771,12 +4594,12 @@ func (x ArrayPrivateReplicaInfoT) PassValue() (C.Array_PrivateReplicaInfo_t, *cg
 
 // Deref uses the underlying reference to C object and fills the wrapping struct with values.
 // Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *ArrayPrivateReplicaInfoT) Deref() {
-	if x.ref5b1a7725 == nil {
+func (x *SliceRefPrivateReplicaInfoT) Deref() {
+	if x.ref88221610 == nil {
 		return
 	}
-	packSSPrivateReplicaInfoT(x.Ptr, x.ref5b1a7725.ptr)
-	x.Len = (SizeT)(x.ref5b1a7725.len)
+	packSPrivateReplicaInfoT(x.Ptr, x.ref88221610.ptr)
+	x.Len = (SizeT)(x.ref88221610.len)
 }
 
 // allocPublicReplicaInfoTMemory allocates memory for type C.PublicReplicaInfo_t in C.
@@ -4870,32 +4693,20 @@ func (x *PublicReplicaInfoT) Deref() {
 	x.SectorId = (Uint64T)(x.ref2f93037.sector_id)
 }
 
-// allocArrayPublicReplicaInfoTMemory allocates memory for type C.Array_PublicReplicaInfo_t in C.
+// allocSliceRefPublicReplicaInfoTMemory allocates memory for type C.slice_ref_PublicReplicaInfo_t in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocArrayPublicReplicaInfoTMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfArrayPublicReplicaInfoTValue))
+func allocSliceRefPublicReplicaInfoTMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfSliceRefPublicReplicaInfoTValue))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfArrayPublicReplicaInfoTValue = unsafe.Sizeof([1]C.Array_PublicReplicaInfo_t{})
+const sizeOfSliceRefPublicReplicaInfoTValue = unsafe.Sizeof([1]C.slice_ref_PublicReplicaInfo_t{})
 
-// allocPPublicReplicaInfoTMemory allocates memory for type *C.PublicReplicaInfo_t in C.
-// The caller is responsible for freeing the this memory via C.free.
-func allocPPublicReplicaInfoTMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfPPublicReplicaInfoTValue))
-	if mem == nil {
-		panic(fmt.Sprintln("memory alloc error: ", err))
-	}
-	return mem
-}
-
-const sizeOfPPublicReplicaInfoTValue = unsafe.Sizeof([1]*C.PublicReplicaInfo_t{})
-
-// unpackSSPublicReplicaInfoT transforms a sliced Go data structure into plain C format.
-func unpackSSPublicReplicaInfoT(x [][]PublicReplicaInfoT) (unpacked **C.PublicReplicaInfo_t, allocs *cgoAllocMap) {
+// unpackSPublicReplicaInfoT transforms a sliced Go data structure into plain C format.
+func unpackSPublicReplicaInfoT(x []PublicReplicaInfoT) (unpacked *C.PublicReplicaInfo_t, allocs *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
 	}
@@ -4905,108 +4716,92 @@ func unpackSSPublicReplicaInfoT(x [][]PublicReplicaInfoT) (unpacked **C.PublicRe
 	})
 
 	len0 := len(x)
-	mem0 := allocPPublicReplicaInfoTMemory(len0)
+	mem0 := allocPublicReplicaInfoTMemory(len0)
 	allocs.Add(mem0)
 	h0 := &sliceHeader{
 		Data: mem0,
 		Cap:  len0,
 		Len:  len0,
 	}
-	v0 := *(*[]*C.PublicReplicaInfo_t)(unsafe.Pointer(h0))
+	v0 := *(*[]C.PublicReplicaInfo_t)(unsafe.Pointer(h0))
 	for i0 := range x {
-		len1 := len(x[i0])
-		mem1 := allocPublicReplicaInfoTMemory(len1)
-		allocs.Add(mem1)
-		h1 := &sliceHeader{
-			Data: mem1,
-			Cap:  len1,
-			Len:  len1,
-		}
-		v1 := *(*[]C.PublicReplicaInfo_t)(unsafe.Pointer(h1))
-		for i1 := range x[i0] {
-			allocs1 := new(cgoAllocMap)
-			v1[i1], allocs1 = x[i0][i1].PassValue()
-			allocs.Borrow(allocs1)
-		}
-		h := (*sliceHeader)(unsafe.Pointer(&v1))
-		v0[i0] = (*C.PublicReplicaInfo_t)(h.Data)
+		allocs0 := new(cgoAllocMap)
+		v0[i0], allocs0 = x[i0].PassValue()
+		allocs.Borrow(allocs0)
 	}
 	h := (*sliceHeader)(unsafe.Pointer(&v0))
-	unpacked = (**C.PublicReplicaInfo_t)(h.Data)
+	unpacked = (*C.PublicReplicaInfo_t)(h.Data)
 	return
 }
 
-// packSSPublicReplicaInfoT reads sliced Go data structure out from plain C format.
-func packSSPublicReplicaInfoT(v [][]PublicReplicaInfoT, ptr0 **C.PublicReplicaInfo_t) {
+// packSPublicReplicaInfoT reads sliced Go data structure out from plain C format.
+func packSPublicReplicaInfoT(v []PublicReplicaInfoT, ptr0 *C.PublicReplicaInfo_t) {
 	const m = 0x7fffffff
 	for i0 := range v {
-		ptr1 := (*(*[m / sizeOfPtr]*C.PublicReplicaInfo_t)(unsafe.Pointer(ptr0)))[i0]
-		for i1 := range v[i0] {
-			ptr2 := (*(*[m / sizeOfPublicReplicaInfoTValue]C.PublicReplicaInfo_t)(unsafe.Pointer(ptr1)))[i1]
-			v[i0][i1] = *NewPublicReplicaInfoTRef(unsafe.Pointer(&ptr2))
-		}
+		ptr1 := (*(*[m / sizeOfPublicReplicaInfoTValue]C.PublicReplicaInfo_t)(unsafe.Pointer(ptr0)))[i0]
+		v[i0] = *NewPublicReplicaInfoTRef(unsafe.Pointer(&ptr1))
 	}
 }
 
 // Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *ArrayPublicReplicaInfoT) Ref() *C.Array_PublicReplicaInfo_t {
+func (x *SliceRefPublicReplicaInfoT) Ref() *C.slice_ref_PublicReplicaInfo_t {
 	if x == nil {
 		return nil
 	}
-	return x.refd4b4552b
+	return x.ref3a219b4c
 }
 
 // Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
 // Does nothing if struct is nil or has no allocation map.
-func (x *ArrayPublicReplicaInfoT) Free() {
-	if x != nil && x.allocsd4b4552b != nil {
-		x.allocsd4b4552b.(*cgoAllocMap).Free()
-		x.refd4b4552b = nil
+func (x *SliceRefPublicReplicaInfoT) Free() {
+	if x != nil && x.allocs3a219b4c != nil {
+		x.allocs3a219b4c.(*cgoAllocMap).Free()
+		x.ref3a219b4c = nil
 	}
 }
 
-// NewArrayPublicReplicaInfoTRef creates a new wrapper struct with underlying reference set to the original C object.
+// NewSliceRefPublicReplicaInfoTRef creates a new wrapper struct with underlying reference set to the original C object.
 // Returns nil if the provided pointer to C object is nil too.
-func NewArrayPublicReplicaInfoTRef(ref unsafe.Pointer) *ArrayPublicReplicaInfoT {
+func NewSliceRefPublicReplicaInfoTRef(ref unsafe.Pointer) *SliceRefPublicReplicaInfoT {
 	if ref == nil {
 		return nil
 	}
-	obj := new(ArrayPublicReplicaInfoT)
-	obj.refd4b4552b = (*C.Array_PublicReplicaInfo_t)(unsafe.Pointer(ref))
+	obj := new(SliceRefPublicReplicaInfoT)
+	obj.ref3a219b4c = (*C.slice_ref_PublicReplicaInfo_t)(unsafe.Pointer(ref))
 	return obj
 }
 
 // PassRef returns the underlying C object, otherwise it will allocate one and set its values
 // from this wrapping struct, counting allocations into an allocation map.
-func (x *ArrayPublicReplicaInfoT) PassRef() (*C.Array_PublicReplicaInfo_t, *cgoAllocMap) {
+func (x *SliceRefPublicReplicaInfoT) PassRef() (*C.slice_ref_PublicReplicaInfo_t, *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
-	} else if x.refd4b4552b != nil {
-		return x.refd4b4552b, nil
+	} else if x.ref3a219b4c != nil {
+		return x.ref3a219b4c, nil
 	}
-	memd4b4552b := allocArrayPublicReplicaInfoTMemory(1)
-	refd4b4552b := (*C.Array_PublicReplicaInfo_t)(memd4b4552b)
-	allocsd4b4552b := new(cgoAllocMap)
-	allocsd4b4552b.Add(memd4b4552b)
+	mem3a219b4c := allocSliceRefPublicReplicaInfoTMemory(1)
+	ref3a219b4c := (*C.slice_ref_PublicReplicaInfo_t)(mem3a219b4c)
+	allocs3a219b4c := new(cgoAllocMap)
+	allocs3a219b4c.Add(mem3a219b4c)
 
 	var cptr_allocs *cgoAllocMap
-	refd4b4552b.ptr, cptr_allocs = unpackSSPublicReplicaInfoT(x.Ptr)
-	allocsd4b4552b.Borrow(cptr_allocs)
+	ref3a219b4c.ptr, cptr_allocs = unpackSPublicReplicaInfoT(x.Ptr)
+	allocs3a219b4c.Borrow(cptr_allocs)
 
 	var clen_allocs *cgoAllocMap
-	refd4b4552b.len, clen_allocs = (C.size_t)(x.Len), cgoAllocsUnknown
-	allocsd4b4552b.Borrow(clen_allocs)
+	ref3a219b4c.len, clen_allocs = (C.size_t)(x.Len), cgoAllocsUnknown
+	allocs3a219b4c.Borrow(clen_allocs)
 
-	x.refd4b4552b = refd4b4552b
-	x.allocsd4b4552b = allocsd4b4552b
-	return refd4b4552b, allocsd4b4552b
+	x.ref3a219b4c = ref3a219b4c
+	x.allocs3a219b4c = allocs3a219b4c
+	return ref3a219b4c, allocs3a219b4c
 
 }
 
 // PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x ArrayPublicReplicaInfoT) PassValue() (C.Array_PublicReplicaInfo_t, *cgoAllocMap) {
-	if x.refd4b4552b != nil {
-		return *x.refd4b4552b, nil
+func (x SliceRefPublicReplicaInfoT) PassValue() (C.slice_ref_PublicReplicaInfo_t, *cgoAllocMap) {
+	if x.ref3a219b4c != nil {
+		return *x.ref3a219b4c, nil
 	}
 	ref, allocs := x.PassRef()
 	return *ref, allocs
@@ -5014,12 +4809,98 @@ func (x ArrayPublicReplicaInfoT) PassValue() (C.Array_PublicReplicaInfo_t, *cgoA
 
 // Deref uses the underlying reference to C object and fills the wrapping struct with values.
 // Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *ArrayPublicReplicaInfoT) Deref() {
-	if x.refd4b4552b == nil {
+func (x *SliceRefPublicReplicaInfoT) Deref() {
+	if x.ref3a219b4c == nil {
 		return
 	}
-	packSSPublicReplicaInfoT(x.Ptr, x.refd4b4552b.ptr)
-	x.Len = (SizeT)(x.refd4b4552b.len)
+	packSPublicReplicaInfoT(x.Ptr, x.ref3a219b4c.ptr)
+	x.Len = (SizeT)(x.ref3a219b4c.len)
+}
+
+// allocSliceRefPoStProofTMemory allocates memory for type C.slice_ref_PoStProof_t in C.
+// The caller is responsible for freeing the this memory via C.free.
+func allocSliceRefPoStProofTMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfSliceRefPoStProofTValue))
+	if mem == nil {
+		panic(fmt.Sprintln("memory alloc error: ", err))
+	}
+	return mem
+}
+
+const sizeOfSliceRefPoStProofTValue = unsafe.Sizeof([1]C.slice_ref_PoStProof_t{})
+
+// Ref returns the underlying reference to C object or nil if struct is nil.
+func (x *SliceRefPoStProofT) Ref() *C.slice_ref_PoStProof_t {
+	if x == nil {
+		return nil
+	}
+	return x.refd15cdd4b
+}
+
+// Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
+// Does nothing if struct is nil or has no allocation map.
+func (x *SliceRefPoStProofT) Free() {
+	if x != nil && x.allocsd15cdd4b != nil {
+		x.allocsd15cdd4b.(*cgoAllocMap).Free()
+		x.refd15cdd4b = nil
+	}
+}
+
+// NewSliceRefPoStProofTRef creates a new wrapper struct with underlying reference set to the original C object.
+// Returns nil if the provided pointer to C object is nil too.
+func NewSliceRefPoStProofTRef(ref unsafe.Pointer) *SliceRefPoStProofT {
+	if ref == nil {
+		return nil
+	}
+	obj := new(SliceRefPoStProofT)
+	obj.refd15cdd4b = (*C.slice_ref_PoStProof_t)(unsafe.Pointer(ref))
+	return obj
+}
+
+// PassRef returns the underlying C object, otherwise it will allocate one and set its values
+// from this wrapping struct, counting allocations into an allocation map.
+func (x *SliceRefPoStProofT) PassRef() (*C.slice_ref_PoStProof_t, *cgoAllocMap) {
+	if x == nil {
+		return nil, nil
+	} else if x.refd15cdd4b != nil {
+		return x.refd15cdd4b, nil
+	}
+	memd15cdd4b := allocSliceRefPoStProofTMemory(1)
+	refd15cdd4b := (*C.slice_ref_PoStProof_t)(memd15cdd4b)
+	allocsd15cdd4b := new(cgoAllocMap)
+	allocsd15cdd4b.Add(memd15cdd4b)
+
+	var cptr_allocs *cgoAllocMap
+	refd15cdd4b.ptr, cptr_allocs = unpackSPoStProofT(x.Ptr)
+	allocsd15cdd4b.Borrow(cptr_allocs)
+
+	var clen_allocs *cgoAllocMap
+	refd15cdd4b.len, clen_allocs = (C.size_t)(x.Len), cgoAllocsUnknown
+	allocsd15cdd4b.Borrow(clen_allocs)
+
+	x.refd15cdd4b = refd15cdd4b
+	x.allocsd15cdd4b = allocsd15cdd4b
+	return refd15cdd4b, allocsd15cdd4b
+
+}
+
+// PassValue does the same as PassRef except that it will try to dereference the returned pointer.
+func (x SliceRefPoStProofT) PassValue() (C.slice_ref_PoStProof_t, *cgoAllocMap) {
+	if x.refd15cdd4b != nil {
+		return *x.refd15cdd4b, nil
+	}
+	ref, allocs := x.PassRef()
+	return *ref, allocs
+}
+
+// Deref uses the underlying reference to C object and fills the wrapping struct with values.
+// Do not forget to call this method whether you get a struct for C object and want to read its values.
+func (x *SliceRefPoStProofT) Deref() {
+	if x.refd15cdd4b == nil {
+		return
+	}
+	packSPoStProofT(x.Ptr, x.refd15cdd4b.ptr)
+	x.Len = (SizeT)(x.refd15cdd4b.len)
 }
 
 // allocGenerateWindowPoStTMemory allocates memory for type C.GenerateWindowPoSt_t in C.
@@ -5104,8 +4985,8 @@ func (x *GenerateWindowPoStT) Deref() {
 	if x.refcee66945 == nil {
 		return
 	}
-	x.Proofs = *NewArrayPoStProofTRef(unsafe.Pointer(&x.refcee66945.proofs))
-	x.FaultySectors = *NewArrayUint64TRef(unsafe.Pointer(&x.refcee66945.faulty_sectors))
+	x.Proofs = *NewSliceBoxedPoStProofTRef(unsafe.Pointer(&x.refcee66945.proofs))
+	x.FaultySectors = *NewSliceBoxedUint64TRef(unsafe.Pointer(&x.refcee66945.faulty_sectors))
 }
 
 // allocResultGenerateWindowPoStTMemory allocates memory for type C.Result_GenerateWindowPoSt_t in C.
@@ -5285,32 +5166,20 @@ func (x *PartitionSnarkProofT) Deref() {
 	x.Proof = *NewSliceBoxedUint8TRef(unsafe.Pointer(&x.ref66732a1e.proof))
 }
 
-// allocArrayPartitionSnarkProofTMemory allocates memory for type C.Array_PartitionSnarkProof_t in C.
+// allocSliceRefPartitionSnarkProofTMemory allocates memory for type C.slice_ref_PartitionSnarkProof_t in C.
 // The caller is responsible for freeing the this memory via C.free.
-func allocArrayPartitionSnarkProofTMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfArrayPartitionSnarkProofTValue))
+func allocSliceRefPartitionSnarkProofTMemory(n int) unsafe.Pointer {
+	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfSliceRefPartitionSnarkProofTValue))
 	if mem == nil {
 		panic(fmt.Sprintln("memory alloc error: ", err))
 	}
 	return mem
 }
 
-const sizeOfArrayPartitionSnarkProofTValue = unsafe.Sizeof([1]C.Array_PartitionSnarkProof_t{})
+const sizeOfSliceRefPartitionSnarkProofTValue = unsafe.Sizeof([1]C.slice_ref_PartitionSnarkProof_t{})
 
-// allocPPartitionSnarkProofTMemory allocates memory for type *C.PartitionSnarkProof_t in C.
-// The caller is responsible for freeing the this memory via C.free.
-func allocPPartitionSnarkProofTMemory(n int) unsafe.Pointer {
-	mem, err := C.calloc(C.size_t(n), (C.size_t)(sizeOfPPartitionSnarkProofTValue))
-	if mem == nil {
-		panic(fmt.Sprintln("memory alloc error: ", err))
-	}
-	return mem
-}
-
-const sizeOfPPartitionSnarkProofTValue = unsafe.Sizeof([1]*C.PartitionSnarkProof_t{})
-
-// unpackSSPartitionSnarkProofT transforms a sliced Go data structure into plain C format.
-func unpackSSPartitionSnarkProofT(x [][]PartitionSnarkProofT) (unpacked **C.PartitionSnarkProof_t, allocs *cgoAllocMap) {
+// unpackSPartitionSnarkProofT transforms a sliced Go data structure into plain C format.
+func unpackSPartitionSnarkProofT(x []PartitionSnarkProofT) (unpacked *C.PartitionSnarkProof_t, allocs *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
 	}
@@ -5320,108 +5189,92 @@ func unpackSSPartitionSnarkProofT(x [][]PartitionSnarkProofT) (unpacked **C.Part
 	})
 
 	len0 := len(x)
-	mem0 := allocPPartitionSnarkProofTMemory(len0)
+	mem0 := allocPartitionSnarkProofTMemory(len0)
 	allocs.Add(mem0)
 	h0 := &sliceHeader{
 		Data: mem0,
 		Cap:  len0,
 		Len:  len0,
 	}
-	v0 := *(*[]*C.PartitionSnarkProof_t)(unsafe.Pointer(h0))
+	v0 := *(*[]C.PartitionSnarkProof_t)(unsafe.Pointer(h0))
 	for i0 := range x {
-		len1 := len(x[i0])
-		mem1 := allocPartitionSnarkProofTMemory(len1)
-		allocs.Add(mem1)
-		h1 := &sliceHeader{
-			Data: mem1,
-			Cap:  len1,
-			Len:  len1,
-		}
-		v1 := *(*[]C.PartitionSnarkProof_t)(unsafe.Pointer(h1))
-		for i1 := range x[i0] {
-			allocs1 := new(cgoAllocMap)
-			v1[i1], allocs1 = x[i0][i1].PassValue()
-			allocs.Borrow(allocs1)
-		}
-		h := (*sliceHeader)(unsafe.Pointer(&v1))
-		v0[i0] = (*C.PartitionSnarkProof_t)(h.Data)
+		allocs0 := new(cgoAllocMap)
+		v0[i0], allocs0 = x[i0].PassValue()
+		allocs.Borrow(allocs0)
 	}
 	h := (*sliceHeader)(unsafe.Pointer(&v0))
-	unpacked = (**C.PartitionSnarkProof_t)(h.Data)
+	unpacked = (*C.PartitionSnarkProof_t)(h.Data)
 	return
 }
 
-// packSSPartitionSnarkProofT reads sliced Go data structure out from plain C format.
-func packSSPartitionSnarkProofT(v [][]PartitionSnarkProofT, ptr0 **C.PartitionSnarkProof_t) {
+// packSPartitionSnarkProofT reads sliced Go data structure out from plain C format.
+func packSPartitionSnarkProofT(v []PartitionSnarkProofT, ptr0 *C.PartitionSnarkProof_t) {
 	const m = 0x7fffffff
 	for i0 := range v {
-		ptr1 := (*(*[m / sizeOfPtr]*C.PartitionSnarkProof_t)(unsafe.Pointer(ptr0)))[i0]
-		for i1 := range v[i0] {
-			ptr2 := (*(*[m / sizeOfPartitionSnarkProofTValue]C.PartitionSnarkProof_t)(unsafe.Pointer(ptr1)))[i1]
-			v[i0][i1] = *NewPartitionSnarkProofTRef(unsafe.Pointer(&ptr2))
-		}
+		ptr1 := (*(*[m / sizeOfPartitionSnarkProofTValue]C.PartitionSnarkProof_t)(unsafe.Pointer(ptr0)))[i0]
+		v[i0] = *NewPartitionSnarkProofTRef(unsafe.Pointer(&ptr1))
 	}
 }
 
 // Ref returns the underlying reference to C object or nil if struct is nil.
-func (x *ArrayPartitionSnarkProofT) Ref() *C.Array_PartitionSnarkProof_t {
+func (x *SliceRefPartitionSnarkProofT) Ref() *C.slice_ref_PartitionSnarkProof_t {
 	if x == nil {
 		return nil
 	}
-	return x.refbddc34d9
+	return x.refebbcc89b
 }
 
 // Free invokes alloc map's free mechanism that cleanups any allocated memory using C free.
 // Does nothing if struct is nil or has no allocation map.
-func (x *ArrayPartitionSnarkProofT) Free() {
-	if x != nil && x.allocsbddc34d9 != nil {
-		x.allocsbddc34d9.(*cgoAllocMap).Free()
-		x.refbddc34d9 = nil
+func (x *SliceRefPartitionSnarkProofT) Free() {
+	if x != nil && x.allocsebbcc89b != nil {
+		x.allocsebbcc89b.(*cgoAllocMap).Free()
+		x.refebbcc89b = nil
 	}
 }
 
-// NewArrayPartitionSnarkProofTRef creates a new wrapper struct with underlying reference set to the original C object.
+// NewSliceRefPartitionSnarkProofTRef creates a new wrapper struct with underlying reference set to the original C object.
 // Returns nil if the provided pointer to C object is nil too.
-func NewArrayPartitionSnarkProofTRef(ref unsafe.Pointer) *ArrayPartitionSnarkProofT {
+func NewSliceRefPartitionSnarkProofTRef(ref unsafe.Pointer) *SliceRefPartitionSnarkProofT {
 	if ref == nil {
 		return nil
 	}
-	obj := new(ArrayPartitionSnarkProofT)
-	obj.refbddc34d9 = (*C.Array_PartitionSnarkProof_t)(unsafe.Pointer(ref))
+	obj := new(SliceRefPartitionSnarkProofT)
+	obj.refebbcc89b = (*C.slice_ref_PartitionSnarkProof_t)(unsafe.Pointer(ref))
 	return obj
 }
 
 // PassRef returns the underlying C object, otherwise it will allocate one and set its values
 // from this wrapping struct, counting allocations into an allocation map.
-func (x *ArrayPartitionSnarkProofT) PassRef() (*C.Array_PartitionSnarkProof_t, *cgoAllocMap) {
+func (x *SliceRefPartitionSnarkProofT) PassRef() (*C.slice_ref_PartitionSnarkProof_t, *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
-	} else if x.refbddc34d9 != nil {
-		return x.refbddc34d9, nil
+	} else if x.refebbcc89b != nil {
+		return x.refebbcc89b, nil
 	}
-	membddc34d9 := allocArrayPartitionSnarkProofTMemory(1)
-	refbddc34d9 := (*C.Array_PartitionSnarkProof_t)(membddc34d9)
-	allocsbddc34d9 := new(cgoAllocMap)
-	allocsbddc34d9.Add(membddc34d9)
+	memebbcc89b := allocSliceRefPartitionSnarkProofTMemory(1)
+	refebbcc89b := (*C.slice_ref_PartitionSnarkProof_t)(memebbcc89b)
+	allocsebbcc89b := new(cgoAllocMap)
+	allocsebbcc89b.Add(memebbcc89b)
 
 	var cptr_allocs *cgoAllocMap
-	refbddc34d9.ptr, cptr_allocs = unpackSSPartitionSnarkProofT(x.Ptr)
-	allocsbddc34d9.Borrow(cptr_allocs)
+	refebbcc89b.ptr, cptr_allocs = unpackSPartitionSnarkProofT(x.Ptr)
+	allocsebbcc89b.Borrow(cptr_allocs)
 
 	var clen_allocs *cgoAllocMap
-	refbddc34d9.len, clen_allocs = (C.size_t)(x.Len), cgoAllocsUnknown
-	allocsbddc34d9.Borrow(clen_allocs)
+	refebbcc89b.len, clen_allocs = (C.size_t)(x.Len), cgoAllocsUnknown
+	allocsebbcc89b.Borrow(clen_allocs)
 
-	x.refbddc34d9 = refbddc34d9
-	x.allocsbddc34d9 = allocsbddc34d9
-	return refbddc34d9, allocsbddc34d9
+	x.refebbcc89b = refebbcc89b
+	x.allocsebbcc89b = allocsebbcc89b
+	return refebbcc89b, allocsebbcc89b
 
 }
 
 // PassValue does the same as PassRef except that it will try to dereference the returned pointer.
-func (x ArrayPartitionSnarkProofT) PassValue() (C.Array_PartitionSnarkProof_t, *cgoAllocMap) {
-	if x.refbddc34d9 != nil {
-		return *x.refbddc34d9, nil
+func (x SliceRefPartitionSnarkProofT) PassValue() (C.slice_ref_PartitionSnarkProof_t, *cgoAllocMap) {
+	if x.refebbcc89b != nil {
+		return *x.refebbcc89b, nil
 	}
 	ref, allocs := x.PassRef()
 	return *ref, allocs
@@ -5429,12 +5282,12 @@ func (x ArrayPartitionSnarkProofT) PassValue() (C.Array_PartitionSnarkProof_t, *
 
 // Deref uses the underlying reference to C object and fills the wrapping struct with values.
 // Do not forget to call this method whether you get a struct for C object and want to read its values.
-func (x *ArrayPartitionSnarkProofT) Deref() {
-	if x.refbddc34d9 == nil {
+func (x *SliceRefPartitionSnarkProofT) Deref() {
+	if x.refebbcc89b == nil {
 		return
 	}
-	packSSPartitionSnarkProofT(x.Ptr, x.refbddc34d9.ptr)
-	x.Len = (SizeT)(x.refbddc34d9.len)
+	packSPartitionSnarkProofT(x.Ptr, x.refebbcc89b.ptr)
+	x.Len = (SizeT)(x.refebbcc89b.len)
 }
 
 // allocResultPoStProofTMemory allocates memory for type C.Result_PoStProof_t in C.
@@ -5702,7 +5555,7 @@ func (x *GenerateSingleWindowPoStWithVanillaT) Deref() {
 		return
 	}
 	x.PartitionProof = *NewPartitionSnarkProofTRef(unsafe.Pointer(&x.refe1ddcd34.partition_proof))
-	x.FaultySectors = *NewArrayUint64TRef(unsafe.Pointer(&x.refe1ddcd34.faulty_sectors))
+	x.FaultySectors = *NewSliceBoxedUint64TRef(unsafe.Pointer(&x.refe1ddcd34.faulty_sectors))
 }
 
 // allocResultGenerateSingleWindowPoStWithVanillaTMemory allocates memory for type C.Result_GenerateSingleWindowPoStWithVanilla_t in C.
@@ -6184,8 +6037,8 @@ func allocCharMemory(n int) unsafe.Pointer {
 
 const sizeOfCharValue = unsafe.Sizeof([1]C.char{})
 
-// unpackArgSResultArraySliceBoxedUint8T transforms a sliced Go data structure into plain C format.
-func unpackArgSResultArraySliceBoxedUint8T(x []ResultArraySliceBoxedUint8T) (unpacked *C.Result_Array_slice_boxed_uint8_t, allocs *cgoAllocMap) {
+// unpackArgSResultSliceBoxedSliceBoxedUint8T transforms a sliced Go data structure into plain C format.
+func unpackArgSResultSliceBoxedSliceBoxedUint8T(x []ResultSliceBoxedSliceBoxedUint8T) (unpacked *C.Result_slice_boxed_slice_boxed_uint8_t, allocs *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
 	}
@@ -6195,30 +6048,30 @@ func unpackArgSResultArraySliceBoxedUint8T(x []ResultArraySliceBoxedUint8T) (unp
 	})
 
 	len0 := len(x)
-	mem0 := allocResultArraySliceBoxedUint8TMemory(len0)
+	mem0 := allocResultSliceBoxedSliceBoxedUint8TMemory(len0)
 	allocs.Add(mem0)
 	h0 := &sliceHeader{
 		Data: mem0,
 		Cap:  len0,
 		Len:  len0,
 	}
-	v0 := *(*[]C.Result_Array_slice_boxed_uint8_t)(unsafe.Pointer(h0))
+	v0 := *(*[]C.Result_slice_boxed_slice_boxed_uint8_t)(unsafe.Pointer(h0))
 	for i0 := range x {
 		allocs0 := new(cgoAllocMap)
 		v0[i0], allocs0 = x[i0].PassValue()
 		allocs.Borrow(allocs0)
 	}
 	h := (*sliceHeader)(unsafe.Pointer(&v0))
-	unpacked = (*C.Result_Array_slice_boxed_uint8_t)(h.Data)
+	unpacked = (*C.Result_slice_boxed_slice_boxed_uint8_t)(h.Data)
 	return
 }
 
-// packSResultArraySliceBoxedUint8T reads sliced Go data structure out from plain C format.
-func packSResultArraySliceBoxedUint8T(v []ResultArraySliceBoxedUint8T, ptr0 *C.Result_Array_slice_boxed_uint8_t) {
+// packSResultSliceBoxedSliceBoxedUint8T reads sliced Go data structure out from plain C format.
+func packSResultSliceBoxedSliceBoxedUint8T(v []ResultSliceBoxedSliceBoxedUint8T, ptr0 *C.Result_slice_boxed_slice_boxed_uint8_t) {
 	const m = 0x7fffffff
 	for i0 := range v {
-		ptr1 := (*(*[m / sizeOfResultArraySliceBoxedUint8TValue]C.Result_Array_slice_boxed_uint8_t)(unsafe.Pointer(ptr0)))[i0]
-		v[i0] = *NewResultArraySliceBoxedUint8TRef(unsafe.Pointer(&ptr1))
+		ptr1 := (*(*[m / sizeOfResultSliceBoxedSliceBoxedUint8TValue]C.Result_slice_boxed_slice_boxed_uint8_t)(unsafe.Pointer(ptr0)))[i0]
+		v[i0] = *NewResultSliceBoxedSliceBoxedUint8TRef(unsafe.Pointer(&ptr1))
 	}
 }
 
@@ -6298,44 +6151,6 @@ func packSUint896ArrayT(v []Uint896ArrayT, ptr0 *C.uint8_96_array_t) {
 	}
 }
 
-// unpackArgSArraySizeT transforms a sliced Go data structure into plain C format.
-func unpackArgSArraySizeT(x []ArraySizeT) (unpacked *C.Array_size_t, allocs *cgoAllocMap) {
-	if x == nil {
-		return nil, nil
-	}
-	allocs = new(cgoAllocMap)
-	defer runtime.SetFinalizer(allocs, func(a *cgoAllocMap) {
-		go a.Free()
-	})
-
-	len0 := len(x)
-	mem0 := allocArraySizeTMemory(len0)
-	allocs.Add(mem0)
-	h0 := &sliceHeader{
-		Data: mem0,
-		Cap:  len0,
-		Len:  len0,
-	}
-	v0 := *(*[]C.Array_size_t)(unsafe.Pointer(h0))
-	for i0 := range x {
-		allocs0 := new(cgoAllocMap)
-		v0[i0], allocs0 = x[i0].PassValue()
-		allocs.Borrow(allocs0)
-	}
-	h := (*sliceHeader)(unsafe.Pointer(&v0))
-	unpacked = (*C.Array_size_t)(h.Data)
-	return
-}
-
-// packSArraySizeT reads sliced Go data structure out from plain C format.
-func packSArraySizeT(v []ArraySizeT, ptr0 *C.Array_size_t) {
-	const m = 0x7fffffff
-	for i0 := range v {
-		ptr1 := (*(*[m / sizeOfArraySizeTValue]C.Array_size_t)(unsafe.Pointer(ptr0)))[i0]
-		v[i0] = *NewArraySizeTRef(unsafe.Pointer(&ptr1))
-	}
-}
-
 // unpackArgSUint832ArrayT transforms a sliced Go data structure into plain C format.
 func unpackArgSUint832ArrayT(x []Uint832ArrayT) (unpacked *C.uint8_32_array_t, allocs *cgoAllocMap) {
 	if x == nil {
@@ -6409,348 +6224,6 @@ func packSZeroSignatureResponseT(v []ZeroSignatureResponseT, ptr0 *C.ZeroSignatu
 	for i0 := range v {
 		ptr1 := (*(*[m / sizeOfZeroSignatureResponseTValue]C.ZeroSignatureResponse_t)(unsafe.Pointer(ptr0)))[i0]
 		v[i0] = *NewZeroSignatureResponseTRef(unsafe.Pointer(&ptr1))
-	}
-}
-
-// unpackArgSArrayPublicPieceInfoT transforms a sliced Go data structure into plain C format.
-func unpackArgSArrayPublicPieceInfoT(x []ArrayPublicPieceInfoT) (unpacked *C.Array_PublicPieceInfo_t, allocs *cgoAllocMap) {
-	if x == nil {
-		return nil, nil
-	}
-	allocs = new(cgoAllocMap)
-	defer runtime.SetFinalizer(allocs, func(a *cgoAllocMap) {
-		go a.Free()
-	})
-
-	len0 := len(x)
-	mem0 := allocArrayPublicPieceInfoTMemory(len0)
-	allocs.Add(mem0)
-	h0 := &sliceHeader{
-		Data: mem0,
-		Cap:  len0,
-		Len:  len0,
-	}
-	v0 := *(*[]C.Array_PublicPieceInfo_t)(unsafe.Pointer(h0))
-	for i0 := range x {
-		allocs0 := new(cgoAllocMap)
-		v0[i0], allocs0 = x[i0].PassValue()
-		allocs.Borrow(allocs0)
-	}
-	h := (*sliceHeader)(unsafe.Pointer(&v0))
-	unpacked = (*C.Array_PublicPieceInfo_t)(h.Data)
-	return
-}
-
-// packSArrayPublicPieceInfoT reads sliced Go data structure out from plain C format.
-func packSArrayPublicPieceInfoT(v []ArrayPublicPieceInfoT, ptr0 *C.Array_PublicPieceInfo_t) {
-	const m = 0x7fffffff
-	for i0 := range v {
-		ptr1 := (*(*[m / sizeOfArrayPublicPieceInfoTValue]C.Array_PublicPieceInfo_t)(unsafe.Pointer(ptr0)))[i0]
-		v[i0] = *NewArrayPublicPieceInfoTRef(unsafe.Pointer(&ptr1))
-	}
-}
-
-// unpackArgSArraySealCommitPhase2T transforms a sliced Go data structure into plain C format.
-func unpackArgSArraySealCommitPhase2T(x []ArraySealCommitPhase2T) (unpacked *C.Array_SealCommitPhase2_t, allocs *cgoAllocMap) {
-	if x == nil {
-		return nil, nil
-	}
-	allocs = new(cgoAllocMap)
-	defer runtime.SetFinalizer(allocs, func(a *cgoAllocMap) {
-		go a.Free()
-	})
-
-	len0 := len(x)
-	mem0 := allocArraySealCommitPhase2TMemory(len0)
-	allocs.Add(mem0)
-	h0 := &sliceHeader{
-		Data: mem0,
-		Cap:  len0,
-		Len:  len0,
-	}
-	v0 := *(*[]C.Array_SealCommitPhase2_t)(unsafe.Pointer(h0))
-	for i0 := range x {
-		allocs0 := new(cgoAllocMap)
-		v0[i0], allocs0 = x[i0].PassValue()
-		allocs.Borrow(allocs0)
-	}
-	h := (*sliceHeader)(unsafe.Pointer(&v0))
-	unpacked = (*C.Array_SealCommitPhase2_t)(h.Data)
-	return
-}
-
-// packSArraySealCommitPhase2T reads sliced Go data structure out from plain C format.
-func packSArraySealCommitPhase2T(v []ArraySealCommitPhase2T, ptr0 *C.Array_SealCommitPhase2_t) {
-	const m = 0x7fffffff
-	for i0 := range v {
-		ptr1 := (*(*[m / sizeOfArraySealCommitPhase2TValue]C.Array_SealCommitPhase2_t)(unsafe.Pointer(ptr0)))[i0]
-		v[i0] = *NewArraySealCommitPhase2TRef(unsafe.Pointer(&ptr1))
-	}
-}
-
-// unpackArgSArrayAggregationInputsT transforms a sliced Go data structure into plain C format.
-func unpackArgSArrayAggregationInputsT(x []ArrayAggregationInputsT) (unpacked *C.Array_AggregationInputs_t, allocs *cgoAllocMap) {
-	if x == nil {
-		return nil, nil
-	}
-	allocs = new(cgoAllocMap)
-	defer runtime.SetFinalizer(allocs, func(a *cgoAllocMap) {
-		go a.Free()
-	})
-
-	len0 := len(x)
-	mem0 := allocArrayAggregationInputsTMemory(len0)
-	allocs.Add(mem0)
-	h0 := &sliceHeader{
-		Data: mem0,
-		Cap:  len0,
-		Len:  len0,
-	}
-	v0 := *(*[]C.Array_AggregationInputs_t)(unsafe.Pointer(h0))
-	for i0 := range x {
-		allocs0 := new(cgoAllocMap)
-		v0[i0], allocs0 = x[i0].PassValue()
-		allocs.Borrow(allocs0)
-	}
-	h := (*sliceHeader)(unsafe.Pointer(&v0))
-	unpacked = (*C.Array_AggregationInputs_t)(h.Data)
-	return
-}
-
-// packSArrayAggregationInputsT reads sliced Go data structure out from plain C format.
-func packSArrayAggregationInputsT(v []ArrayAggregationInputsT, ptr0 *C.Array_AggregationInputs_t) {
-	const m = 0x7fffffff
-	for i0 := range v {
-		ptr1 := (*(*[m / sizeOfArrayAggregationInputsTValue]C.Array_AggregationInputs_t)(unsafe.Pointer(ptr0)))[i0]
-		v[i0] = *NewArrayAggregationInputsTRef(unsafe.Pointer(&ptr1))
-	}
-}
-
-// unpackArgSArrayUint64T transforms a sliced Go data structure into plain C format.
-func unpackArgSArrayUint64T(x []ArrayUint64T) (unpacked *C.Array_uint64_t, allocs *cgoAllocMap) {
-	if x == nil {
-		return nil, nil
-	}
-	allocs = new(cgoAllocMap)
-	defer runtime.SetFinalizer(allocs, func(a *cgoAllocMap) {
-		go a.Free()
-	})
-
-	len0 := len(x)
-	mem0 := allocArrayUint64TMemory(len0)
-	allocs.Add(mem0)
-	h0 := &sliceHeader{
-		Data: mem0,
-		Cap:  len0,
-		Len:  len0,
-	}
-	v0 := *(*[]C.Array_uint64_t)(unsafe.Pointer(h0))
-	for i0 := range x {
-		allocs0 := new(cgoAllocMap)
-		v0[i0], allocs0 = x[i0].PassValue()
-		allocs.Borrow(allocs0)
-	}
-	h := (*sliceHeader)(unsafe.Pointer(&v0))
-	unpacked = (*C.Array_uint64_t)(h.Data)
-	return
-}
-
-// packSArrayUint64T reads sliced Go data structure out from plain C format.
-func packSArrayUint64T(v []ArrayUint64T, ptr0 *C.Array_uint64_t) {
-	const m = 0x7fffffff
-	for i0 := range v {
-		ptr1 := (*(*[m / sizeOfArrayUint64TValue]C.Array_uint64_t)(unsafe.Pointer(ptr0)))[i0]
-		v[i0] = *NewArrayUint64TRef(unsafe.Pointer(&ptr1))
-	}
-}
-
-// unpackArgSArraySliceBoxedUint8T transforms a sliced Go data structure into plain C format.
-func unpackArgSArraySliceBoxedUint8T(x []ArraySliceBoxedUint8T) (unpacked *C.Array_slice_boxed_uint8_t, allocs *cgoAllocMap) {
-	if x == nil {
-		return nil, nil
-	}
-	allocs = new(cgoAllocMap)
-	defer runtime.SetFinalizer(allocs, func(a *cgoAllocMap) {
-		go a.Free()
-	})
-
-	len0 := len(x)
-	mem0 := allocArraySliceBoxedUint8TMemory(len0)
-	allocs.Add(mem0)
-	h0 := &sliceHeader{
-		Data: mem0,
-		Cap:  len0,
-		Len:  len0,
-	}
-	v0 := *(*[]C.Array_slice_boxed_uint8_t)(unsafe.Pointer(h0))
-	for i0 := range x {
-		allocs0 := new(cgoAllocMap)
-		v0[i0], allocs0 = x[i0].PassValue()
-		allocs.Borrow(allocs0)
-	}
-	h := (*sliceHeader)(unsafe.Pointer(&v0))
-	unpacked = (*C.Array_slice_boxed_uint8_t)(h.Data)
-	return
-}
-
-// packSArraySliceBoxedUint8T reads sliced Go data structure out from plain C format.
-func packSArraySliceBoxedUint8T(v []ArraySliceBoxedUint8T, ptr0 *C.Array_slice_boxed_uint8_t) {
-	const m = 0x7fffffff
-	for i0 := range v {
-		ptr1 := (*(*[m / sizeOfArraySliceBoxedUint8TValue]C.Array_slice_boxed_uint8_t)(unsafe.Pointer(ptr0)))[i0]
-		v[i0] = *NewArraySliceBoxedUint8TRef(unsafe.Pointer(&ptr1))
-	}
-}
-
-// unpackArgSArrayPrivateReplicaInfoT transforms a sliced Go data structure into plain C format.
-func unpackArgSArrayPrivateReplicaInfoT(x []ArrayPrivateReplicaInfoT) (unpacked *C.Array_PrivateReplicaInfo_t, allocs *cgoAllocMap) {
-	if x == nil {
-		return nil, nil
-	}
-	allocs = new(cgoAllocMap)
-	defer runtime.SetFinalizer(allocs, func(a *cgoAllocMap) {
-		go a.Free()
-	})
-
-	len0 := len(x)
-	mem0 := allocArrayPrivateReplicaInfoTMemory(len0)
-	allocs.Add(mem0)
-	h0 := &sliceHeader{
-		Data: mem0,
-		Cap:  len0,
-		Len:  len0,
-	}
-	v0 := *(*[]C.Array_PrivateReplicaInfo_t)(unsafe.Pointer(h0))
-	for i0 := range x {
-		allocs0 := new(cgoAllocMap)
-		v0[i0], allocs0 = x[i0].PassValue()
-		allocs.Borrow(allocs0)
-	}
-	h := (*sliceHeader)(unsafe.Pointer(&v0))
-	unpacked = (*C.Array_PrivateReplicaInfo_t)(h.Data)
-	return
-}
-
-// packSArrayPrivateReplicaInfoT reads sliced Go data structure out from plain C format.
-func packSArrayPrivateReplicaInfoT(v []ArrayPrivateReplicaInfoT, ptr0 *C.Array_PrivateReplicaInfo_t) {
-	const m = 0x7fffffff
-	for i0 := range v {
-		ptr1 := (*(*[m / sizeOfArrayPrivateReplicaInfoTValue]C.Array_PrivateReplicaInfo_t)(unsafe.Pointer(ptr0)))[i0]
-		v[i0] = *NewArrayPrivateReplicaInfoTRef(unsafe.Pointer(&ptr1))
-	}
-}
-
-// unpackArgSArrayPublicReplicaInfoT transforms a sliced Go data structure into plain C format.
-func unpackArgSArrayPublicReplicaInfoT(x []ArrayPublicReplicaInfoT) (unpacked *C.Array_PublicReplicaInfo_t, allocs *cgoAllocMap) {
-	if x == nil {
-		return nil, nil
-	}
-	allocs = new(cgoAllocMap)
-	defer runtime.SetFinalizer(allocs, func(a *cgoAllocMap) {
-		go a.Free()
-	})
-
-	len0 := len(x)
-	mem0 := allocArrayPublicReplicaInfoTMemory(len0)
-	allocs.Add(mem0)
-	h0 := &sliceHeader{
-		Data: mem0,
-		Cap:  len0,
-		Len:  len0,
-	}
-	v0 := *(*[]C.Array_PublicReplicaInfo_t)(unsafe.Pointer(h0))
-	for i0 := range x {
-		allocs0 := new(cgoAllocMap)
-		v0[i0], allocs0 = x[i0].PassValue()
-		allocs.Borrow(allocs0)
-	}
-	h := (*sliceHeader)(unsafe.Pointer(&v0))
-	unpacked = (*C.Array_PublicReplicaInfo_t)(h.Data)
-	return
-}
-
-// packSArrayPublicReplicaInfoT reads sliced Go data structure out from plain C format.
-func packSArrayPublicReplicaInfoT(v []ArrayPublicReplicaInfoT, ptr0 *C.Array_PublicReplicaInfo_t) {
-	const m = 0x7fffffff
-	for i0 := range v {
-		ptr1 := (*(*[m / sizeOfArrayPublicReplicaInfoTValue]C.Array_PublicReplicaInfo_t)(unsafe.Pointer(ptr0)))[i0]
-		v[i0] = *NewArrayPublicReplicaInfoTRef(unsafe.Pointer(&ptr1))
-	}
-}
-
-// unpackArgSArrayPoStProofT transforms a sliced Go data structure into plain C format.
-func unpackArgSArrayPoStProofT(x []ArrayPoStProofT) (unpacked *C.Array_PoStProof_t, allocs *cgoAllocMap) {
-	if x == nil {
-		return nil, nil
-	}
-	allocs = new(cgoAllocMap)
-	defer runtime.SetFinalizer(allocs, func(a *cgoAllocMap) {
-		go a.Free()
-	})
-
-	len0 := len(x)
-	mem0 := allocArrayPoStProofTMemory(len0)
-	allocs.Add(mem0)
-	h0 := &sliceHeader{
-		Data: mem0,
-		Cap:  len0,
-		Len:  len0,
-	}
-	v0 := *(*[]C.Array_PoStProof_t)(unsafe.Pointer(h0))
-	for i0 := range x {
-		allocs0 := new(cgoAllocMap)
-		v0[i0], allocs0 = x[i0].PassValue()
-		allocs.Borrow(allocs0)
-	}
-	h := (*sliceHeader)(unsafe.Pointer(&v0))
-	unpacked = (*C.Array_PoStProof_t)(h.Data)
-	return
-}
-
-// packSArrayPoStProofT reads sliced Go data structure out from plain C format.
-func packSArrayPoStProofT(v []ArrayPoStProofT, ptr0 *C.Array_PoStProof_t) {
-	const m = 0x7fffffff
-	for i0 := range v {
-		ptr1 := (*(*[m / sizeOfArrayPoStProofTValue]C.Array_PoStProof_t)(unsafe.Pointer(ptr0)))[i0]
-		v[i0] = *NewArrayPoStProofTRef(unsafe.Pointer(&ptr1))
-	}
-}
-
-// unpackArgSArrayPartitionSnarkProofT transforms a sliced Go data structure into plain C format.
-func unpackArgSArrayPartitionSnarkProofT(x []ArrayPartitionSnarkProofT) (unpacked *C.Array_PartitionSnarkProof_t, allocs *cgoAllocMap) {
-	if x == nil {
-		return nil, nil
-	}
-	allocs = new(cgoAllocMap)
-	defer runtime.SetFinalizer(allocs, func(a *cgoAllocMap) {
-		go a.Free()
-	})
-
-	len0 := len(x)
-	mem0 := allocArrayPartitionSnarkProofTMemory(len0)
-	allocs.Add(mem0)
-	h0 := &sliceHeader{
-		Data: mem0,
-		Cap:  len0,
-		Len:  len0,
-	}
-	v0 := *(*[]C.Array_PartitionSnarkProof_t)(unsafe.Pointer(h0))
-	for i0 := range x {
-		allocs0 := new(cgoAllocMap)
-		v0[i0], allocs0 = x[i0].PassValue()
-		allocs.Borrow(allocs0)
-	}
-	h := (*sliceHeader)(unsafe.Pointer(&v0))
-	unpacked = (*C.Array_PartitionSnarkProof_t)(h.Data)
-	return
-}
-
-// packSArrayPartitionSnarkProofT reads sliced Go data structure out from plain C format.
-func packSArrayPartitionSnarkProofT(v []ArrayPartitionSnarkProofT, ptr0 *C.Array_PartitionSnarkProof_t) {
-	const m = 0x7fffffff
-	for i0 := range v {
-		ptr1 := (*(*[m / sizeOfArrayPartitionSnarkProofTValue]C.Array_PartitionSnarkProof_t)(unsafe.Pointer(ptr0)))[i0]
-		v[i0] = *NewArrayPartitionSnarkProofTRef(unsafe.Pointer(&ptr1))
 	}
 }
 
@@ -7210,8 +6683,8 @@ func packSResultPoStProofT(v []ResultPoStProofT, ptr0 *C.Result_PoStProof_t) {
 	}
 }
 
-// unpackArgSResultArrayPoStProofT transforms a sliced Go data structure into plain C format.
-func unpackArgSResultArrayPoStProofT(x []ResultArrayPoStProofT) (unpacked *C.Result_Array_PoStProof_t, allocs *cgoAllocMap) {
+// unpackArgSResultSliceBoxedPoStProofT transforms a sliced Go data structure into plain C format.
+func unpackArgSResultSliceBoxedPoStProofT(x []ResultSliceBoxedPoStProofT) (unpacked *C.Result_slice_boxed_PoStProof_t, allocs *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
 	}
@@ -7221,30 +6694,30 @@ func unpackArgSResultArrayPoStProofT(x []ResultArrayPoStProofT) (unpacked *C.Res
 	})
 
 	len0 := len(x)
-	mem0 := allocResultArrayPoStProofTMemory(len0)
+	mem0 := allocResultSliceBoxedPoStProofTMemory(len0)
 	allocs.Add(mem0)
 	h0 := &sliceHeader{
 		Data: mem0,
 		Cap:  len0,
 		Len:  len0,
 	}
-	v0 := *(*[]C.Result_Array_PoStProof_t)(unsafe.Pointer(h0))
+	v0 := *(*[]C.Result_slice_boxed_PoStProof_t)(unsafe.Pointer(h0))
 	for i0 := range x {
 		allocs0 := new(cgoAllocMap)
 		v0[i0], allocs0 = x[i0].PassValue()
 		allocs.Borrow(allocs0)
 	}
 	h := (*sliceHeader)(unsafe.Pointer(&v0))
-	unpacked = (*C.Result_Array_PoStProof_t)(h.Data)
+	unpacked = (*C.Result_slice_boxed_PoStProof_t)(h.Data)
 	return
 }
 
-// packSResultArrayPoStProofT reads sliced Go data structure out from plain C format.
-func packSResultArrayPoStProofT(v []ResultArrayPoStProofT, ptr0 *C.Result_Array_PoStProof_t) {
+// packSResultSliceBoxedPoStProofT reads sliced Go data structure out from plain C format.
+func packSResultSliceBoxedPoStProofT(v []ResultSliceBoxedPoStProofT, ptr0 *C.Result_slice_boxed_PoStProof_t) {
 	const m = 0x7fffffff
 	for i0 := range v {
-		ptr1 := (*(*[m / sizeOfResultArrayPoStProofTValue]C.Result_Array_PoStProof_t)(unsafe.Pointer(ptr0)))[i0]
-		v[i0] = *NewResultArrayPoStProofTRef(unsafe.Pointer(&ptr1))
+		ptr1 := (*(*[m / sizeOfResultSliceBoxedPoStProofTValue]C.Result_slice_boxed_PoStProof_t)(unsafe.Pointer(ptr0)))[i0]
+		v[i0] = *NewResultSliceBoxedPoStProofTRef(unsafe.Pointer(&ptr1))
 	}
 }
 
@@ -7286,8 +6759,8 @@ func packSResultGenerateWindowPoStT(v []ResultGenerateWindowPoStT, ptr0 *C.Resul
 	}
 }
 
-// unpackArgSResultArrayUint64T transforms a sliced Go data structure into plain C format.
-func unpackArgSResultArrayUint64T(x []ResultArrayUint64T) (unpacked *C.Result_Array_uint64_t, allocs *cgoAllocMap) {
+// unpackArgSResultSliceBoxedUint64T transforms a sliced Go data structure into plain C format.
+func unpackArgSResultSliceBoxedUint64T(x []ResultSliceBoxedUint64T) (unpacked *C.Result_slice_boxed_uint64_t, allocs *cgoAllocMap) {
 	if x == nil {
 		return nil, nil
 	}
@@ -7297,30 +6770,30 @@ func unpackArgSResultArrayUint64T(x []ResultArrayUint64T) (unpacked *C.Result_Ar
 	})
 
 	len0 := len(x)
-	mem0 := allocResultArrayUint64TMemory(len0)
+	mem0 := allocResultSliceBoxedUint64TMemory(len0)
 	allocs.Add(mem0)
 	h0 := &sliceHeader{
 		Data: mem0,
 		Cap:  len0,
 		Len:  len0,
 	}
-	v0 := *(*[]C.Result_Array_uint64_t)(unsafe.Pointer(h0))
+	v0 := *(*[]C.Result_slice_boxed_uint64_t)(unsafe.Pointer(h0))
 	for i0 := range x {
 		allocs0 := new(cgoAllocMap)
 		v0[i0], allocs0 = x[i0].PassValue()
 		allocs.Borrow(allocs0)
 	}
 	h := (*sliceHeader)(unsafe.Pointer(&v0))
-	unpacked = (*C.Result_Array_uint64_t)(h.Data)
+	unpacked = (*C.Result_slice_boxed_uint64_t)(h.Data)
 	return
 }
 
-// packSResultArrayUint64T reads sliced Go data structure out from plain C format.
-func packSResultArrayUint64T(v []ResultArrayUint64T, ptr0 *C.Result_Array_uint64_t) {
+// packSResultSliceBoxedUint64T reads sliced Go data structure out from plain C format.
+func packSResultSliceBoxedUint64T(v []ResultSliceBoxedUint64T, ptr0 *C.Result_slice_boxed_uint64_t) {
 	const m = 0x7fffffff
 	for i0 := range v {
-		ptr1 := (*(*[m / sizeOfResultArrayUint64TValue]C.Result_Array_uint64_t)(unsafe.Pointer(ptr0)))[i0]
-		v[i0] = *NewResultArrayUint64TRef(unsafe.Pointer(&ptr1))
+		ptr1 := (*(*[m / sizeOfResultSliceBoxedUint64TValue]C.Result_slice_boxed_uint64_t)(unsafe.Pointer(ptr0)))[i0]
+		v[i0] = *NewResultSliceBoxedUint64TRef(unsafe.Pointer(&ptr1))
 	}
 }
 

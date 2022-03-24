@@ -23,24 +23,24 @@ type SliceBoxedUint8T struct {
 	allocs2156ff4c interface{}
 }
 
-// ArraySliceBoxedUint8T as declared in filecoin-ffi/filcrypto.h:79
-type ArraySliceBoxedUint8T struct {
-	Ptr            [][]SliceBoxedUint8T
+// SliceBoxedSliceBoxedUint8T as declared in filecoin-ffi/filcrypto.h:96
+type SliceBoxedSliceBoxedUint8T struct {
+	Ptr            []SliceBoxedUint8T
 	Len            SizeT
-	reff71b9a50    *C.Array_slice_boxed_uint8_t
-	allocsf71b9a50 interface{}
+	refe6bf5160    *C.slice_boxed_slice_boxed_uint8_t
+	allocse6bf5160 interface{}
 }
 
-// ResultArraySliceBoxedUint8T as declared in filecoin-ffi/filcrypto.h:89
-type ResultArraySliceBoxedUint8T struct {
+// ResultSliceBoxedSliceBoxedUint8T as declared in filecoin-ffi/filcrypto.h:106
+type ResultSliceBoxedSliceBoxedUint8T struct {
 	StatusCode     FCPResponseStatusT
 	ErrorMsg       SliceBoxedUint8T
-	Value          ArraySliceBoxedUint8T
-	ref27ca5a35    *C.Result_Array_slice_boxed_uint8_t
-	allocs27ca5a35 interface{}
+	Value          SliceBoxedSliceBoxedUint8T
+	ref44f2cc9e    *C.Result_slice_boxed_slice_boxed_uint8_t
+	allocs44f2cc9e interface{}
 }
 
-// ResultVoidT as declared in filecoin-ffi/filcrypto.h:100
+// ResultVoidT as declared in filecoin-ffi/filcrypto.h:117
 type ResultVoidT struct {
 	StatusCode     FCPResponseStatusT
 	ErrorMsg       SliceBoxedUint8T
@@ -48,7 +48,7 @@ type ResultVoidT struct {
 	allocs4381f081 interface{}
 }
 
-// SliceRefUint8T as declared in filecoin-ffi/filcrypto.h:130
+// SliceRefUint8T as declared in filecoin-ffi/filcrypto.h:147
 type SliceRefUint8T struct {
 	Ptr            []Uint8T
 	Len            SizeT
@@ -56,116 +56,116 @@ type SliceRefUint8T struct {
 	allocsd8594c66 interface{}
 }
 
-// Uint896ArrayT as declared in filecoin-ffi/filcrypto.h:132
+// Uint896ArrayT as declared in filecoin-ffi/filcrypto.h:149
 type Uint896ArrayT struct {
 	Idx            [96]Uint8T
 	refa6a34c86    *C.uint8_96_array_t
 	allocsa6a34c86 interface{}
 }
 
-// BLSDigestT as declared in filecoin-ffi/filcrypto.h:138
+// BLSDigestT as declared in filecoin-ffi/filcrypto.h:155
 type BLSDigestT struct {
 	Inner          Uint896ArrayT
 	ref9d19b2e1    *C.BLSDigest_t
 	allocs9d19b2e1 interface{}
 }
 
-// HashResponseT as declared in filecoin-ffi/filcrypto.h:147
+// HashResponseT as declared in filecoin-ffi/filcrypto.h:164
 type HashResponseT struct {
 	Digest         BLSDigestT
 	ref2e22e5c0    *C.HashResponse_t
 	allocs2e22e5c0 interface{}
 }
 
-// BLSSignatureT as declared in filecoin-ffi/filcrypto.h:163
+// BLSSignatureT as declared in filecoin-ffi/filcrypto.h:180
 type BLSSignatureT struct {
 	Inner          Uint896ArrayT
 	ref4552d217    *C.BLSSignature_t
 	allocs4552d217 interface{}
 }
 
-// AggregateResponseT as declared in filecoin-ffi/filcrypto.h:172
+// AggregateResponseT as declared in filecoin-ffi/filcrypto.h:189
 type AggregateResponseT struct {
 	Signature      BLSSignatureT
 	refe76ad5dd    *C.AggregateResponse_t
 	allocse76ad5dd interface{}
 }
 
-// ArraySizeT as declared in filecoin-ffi/filcrypto.h:209
-type ArraySizeT struct {
-	Ptr            [][]SizeT
+// SliceRefSizeT as declared in filecoin-ffi/filcrypto.h:242
+type SliceRefSizeT struct {
+	Ptr            []SizeT
 	Len            SizeT
-	ref903ad2bb    *C.Array_size_t
-	allocs903ad2bb interface{}
+	refc9cb2248    *C.slice_ref_size_t
+	allocsc9cb2248 interface{}
 }
 
-// Uint832ArrayT as declared in filecoin-ffi/filcrypto.h:229
+// Uint832ArrayT as declared in filecoin-ffi/filcrypto.h:262
 type Uint832ArrayT struct {
 	Idx            [32]Uint8T
 	refec6d8d43    *C.uint8_32_array_t
 	allocsec6d8d43 interface{}
 }
 
-// BLSPrivateKeyT as declared in filecoin-ffi/filcrypto.h:235
+// BLSPrivateKeyT as declared in filecoin-ffi/filcrypto.h:268
 type BLSPrivateKeyT struct {
 	Inner          Uint832ArrayT
 	ref1033d34f    *C.BLSPrivateKey_t
 	allocs1033d34f interface{}
 }
 
-// PrivateKeyGenerateResponseT as declared in filecoin-ffi/filcrypto.h:244
+// PrivateKeyGenerateResponseT as declared in filecoin-ffi/filcrypto.h:277
 type PrivateKeyGenerateResponseT struct {
 	PrivateKey     BLSPrivateKeyT
 	ref791c6bf1    *C.PrivateKeyGenerateResponse_t
 	allocs791c6bf1 interface{}
 }
 
-// ByteArray32T as declared in filecoin-ffi/filcrypto.h:255
+// ByteArray32T as declared in filecoin-ffi/filcrypto.h:288
 type ByteArray32T struct {
 	Inner          Uint832ArrayT
 	refd648bba7    *C.ByteArray32_t
 	allocsd648bba7 interface{}
 }
 
-// PrivateKeySignResponseT as declared in filecoin-ffi/filcrypto.h:278
+// PrivateKeySignResponseT as declared in filecoin-ffi/filcrypto.h:311
 type PrivateKeySignResponseT struct {
 	Signature      BLSSignatureT
 	ref4b42f5cd    *C.PrivateKeySignResponse_t
 	allocs4b42f5cd interface{}
 }
 
-// Uint848ArrayT as declared in filecoin-ffi/filcrypto.h:294
+// Uint848ArrayT as declared in filecoin-ffi/filcrypto.h:327
 type Uint848ArrayT struct {
 	Idx            [48]Uint8T
 	ref9b9f1ca4    *C.uint8_48_array_t
 	allocs9b9f1ca4 interface{}
 }
 
-// BLSPublicKeyT as declared in filecoin-ffi/filcrypto.h:300
+// BLSPublicKeyT as declared in filecoin-ffi/filcrypto.h:333
 type BLSPublicKeyT struct {
 	Inner         Uint848ArrayT
 	ref24fd8d3    *C.BLSPublicKey_t
 	allocs24fd8d3 interface{}
 }
 
-// PrivateKeyPublicKeyResponseT as declared in filecoin-ffi/filcrypto.h:309
+// PrivateKeyPublicKeyResponseT as declared in filecoin-ffi/filcrypto.h:342
 type PrivateKeyPublicKeyResponseT struct {
 	PublicKey      BLSPublicKeyT
 	refbd679f8e    *C.PrivateKeyPublicKeyResponse_t
 	allocsbd679f8e interface{}
 }
 
-// ZeroSignatureResponseT as declared in filecoin-ffi/filcrypto.h:330
+// ZeroSignatureResponseT as declared in filecoin-ffi/filcrypto.h:363
 type ZeroSignatureResponseT struct {
 	Signature     BLSSignatureT
 	ref46d5d59    *C.ZeroSignatureResponse_t
 	allocs46d5d59 interface{}
 }
 
-// RegisteredSealProofT type as declared in filecoin-ffi/filcrypto.h:366
+// RegisteredSealProofT type as declared in filecoin-ffi/filcrypto.h:399
 type RegisteredSealProofT int64
 
-// SliceRefUint64T as declared in filecoin-ffi/filcrypto.h:420
+// SliceRefUint64T as declared in filecoin-ffi/filcrypto.h:453
 type SliceRefUint64T struct {
 	Ptr            []Uint64T
 	Len            SizeT
@@ -173,7 +173,7 @@ type SliceRefUint64T struct {
 	allocsf34e6912 interface{}
 }
 
-// WriteWithAlignmentT as declared in filecoin-ffi/filcrypto.h:430
+// WriteWithAlignmentT as declared in filecoin-ffi/filcrypto.h:463
 type WriteWithAlignmentT struct {
 	CommP                 Uint832ArrayT
 	LeftAlignmentUnpadded Uint64T
@@ -182,7 +182,7 @@ type WriteWithAlignmentT struct {
 	allocs3531b450        interface{}
 }
 
-// ResultWriteWithAlignmentT as declared in filecoin-ffi/filcrypto.h:440
+// ResultWriteWithAlignmentT as declared in filecoin-ffi/filcrypto.h:473
 type ResultWriteWithAlignmentT struct {
 	StatusCode     FCPResponseStatusT
 	ErrorMsg       SliceBoxedUint8T
@@ -191,7 +191,7 @@ type ResultWriteWithAlignmentT struct {
 	allocsed31278e interface{}
 }
 
-// WriteWithoutAlignmentT as declared in filecoin-ffi/filcrypto.h:458
+// WriteWithoutAlignmentT as declared in filecoin-ffi/filcrypto.h:491
 type WriteWithoutAlignmentT struct {
 	CommP              Uint832ArrayT
 	TotalWriteUnpadded Uint64T
@@ -199,7 +199,7 @@ type WriteWithoutAlignmentT struct {
 	allocs591a420c     interface{}
 }
 
-// ResultWriteWithoutAlignmentT as declared in filecoin-ffi/filcrypto.h:468
+// ResultWriteWithoutAlignmentT as declared in filecoin-ffi/filcrypto.h:501
 type ResultWriteWithoutAlignmentT struct {
 	StatusCode     FCPResponseStatusT
 	ErrorMsg       SliceBoxedUint8T
@@ -208,7 +208,7 @@ type ResultWriteWithoutAlignmentT struct {
 	allocs84618337 interface{}
 }
 
-// ResultByteArray32T as declared in filecoin-ffi/filcrypto.h:487
+// ResultByteArray32T as declared in filecoin-ffi/filcrypto.h:520
 type ResultByteArray32T struct {
 	StatusCode     FCPResponseStatusT
 	ErrorMsg       SliceBoxedUint8T
@@ -217,7 +217,7 @@ type ResultByteArray32T struct {
 	allocs4c37f9af interface{}
 }
 
-// PublicPieceInfoT as declared in filecoin-ffi/filcrypto.h:505
+// PublicPieceInfoT as declared in filecoin-ffi/filcrypto.h:538
 type PublicPieceInfoT struct {
 	NumBytes       Uint64T
 	CommP          Uint832ArrayT
@@ -225,15 +225,15 @@ type PublicPieceInfoT struct {
 	allocs41775798 interface{}
 }
 
-// ArrayPublicPieceInfoT as declared in filecoin-ffi/filcrypto.h:516
-type ArrayPublicPieceInfoT struct {
-	Ptr            [][]PublicPieceInfoT
+// SliceRefPublicPieceInfoT as declared in filecoin-ffi/filcrypto.h:565
+type SliceRefPublicPieceInfoT struct {
+	Ptr            []PublicPieceInfoT
 	Len            SizeT
-	refe3414758    *C.Array_PublicPieceInfo_t
-	allocse3414758 interface{}
+	ref28c8f598    *C.slice_ref_PublicPieceInfo_t
+	allocs28c8f598 interface{}
 }
 
-// ResultSliceBoxedUint8T as declared in filecoin-ffi/filcrypto.h:526
+// ResultSliceBoxedUint8T as declared in filecoin-ffi/filcrypto.h:575
 type ResultSliceBoxedUint8T struct {
 	StatusCode     FCPResponseStatusT
 	ErrorMsg       SliceBoxedUint8T
@@ -242,7 +242,7 @@ type ResultSliceBoxedUint8T struct {
 	allocs2ceefbe4 interface{}
 }
 
-// SealPreCommitPhase2T as declared in filecoin-ffi/filcrypto.h:549
+// SealPreCommitPhase2T as declared in filecoin-ffi/filcrypto.h:598
 type SealPreCommitPhase2T struct {
 	RegisteredProof RegisteredSealProofT
 	CommD           Uint832ArrayT
@@ -251,7 +251,7 @@ type SealPreCommitPhase2T struct {
 	allocscd07a1fc  interface{}
 }
 
-// ResultSealPreCommitPhase2T as declared in filecoin-ffi/filcrypto.h:559
+// ResultSealPreCommitPhase2T as declared in filecoin-ffi/filcrypto.h:608
 type ResultSealPreCommitPhase2T struct {
 	StatusCode     FCPResponseStatusT
 	ErrorMsg       SliceBoxedUint8T
@@ -260,14 +260,14 @@ type ResultSealPreCommitPhase2T struct {
 	allocsacb45ebc interface{}
 }
 
-// SealCommitPhase2T as declared in filecoin-ffi/filcrypto.h:588
+// SealCommitPhase2T as declared in filecoin-ffi/filcrypto.h:637
 type SealCommitPhase2T struct {
 	Proof          SliceBoxedUint8T
 	ref66b8d6ea    *C.SealCommitPhase2_t
 	allocs66b8d6ea interface{}
 }
 
-// ResultSealCommitPhase2T as declared in filecoin-ffi/filcrypto.h:598
+// ResultSealCommitPhase2T as declared in filecoin-ffi/filcrypto.h:647
 type ResultSealCommitPhase2T struct {
 	StatusCode     FCPResponseStatusT
 	ErrorMsg       SliceBoxedUint8T
@@ -276,26 +276,26 @@ type ResultSealCommitPhase2T struct {
 	allocsb3d64060 interface{}
 }
 
-// RegisteredAggregationProofT type as declared in filecoin-ffi/filcrypto.h:609
+// RegisteredAggregationProofT type as declared in filecoin-ffi/filcrypto.h:658
 type RegisteredAggregationProofT int64
 
-// ArrayByteArray32T as declared in filecoin-ffi/filcrypto.h:629
-type ArrayByteArray32T struct {
-	Ptr            [][]ByteArray32T
+// SliceBoxedByteArray32T as declared in filecoin-ffi/filcrypto.h:695
+type SliceBoxedByteArray32T struct {
+	Ptr            []ByteArray32T
 	Len            SizeT
-	ref737257fb    *C.Array_ByteArray32_t
-	allocs737257fb interface{}
+	refe3015bfe    *C.slice_boxed_ByteArray32_t
+	allocse3015bfe interface{}
 }
 
-// ArraySealCommitPhase2T as declared in filecoin-ffi/filcrypto.h:640
-type ArraySealCommitPhase2T struct {
-	Ptr            [][]SealCommitPhase2T
+// SliceRefSealCommitPhase2T as declared in filecoin-ffi/filcrypto.h:722
+type SliceRefSealCommitPhase2T struct {
+	Ptr            []SealCommitPhase2T
 	Len            SizeT
-	reffd7e224a    *C.Array_SealCommitPhase2_t
-	allocsfd7e224a interface{}
+	ref66d16948    *C.slice_ref_SealCommitPhase2_t
+	allocs66d16948 interface{}
 }
 
-// AggregationInputsT as declared in filecoin-ffi/filcrypto.h:661
+// AggregationInputsT as declared in filecoin-ffi/filcrypto.h:743
 type AggregationInputsT struct {
 	CommR          ByteArray32T
 	CommD          ByteArray32T
@@ -306,15 +306,15 @@ type AggregationInputsT struct {
 	allocsb10889cf interface{}
 }
 
-// ArrayAggregationInputsT as declared in filecoin-ffi/filcrypto.h:672
-type ArrayAggregationInputsT struct {
-	Ptr            [][]AggregationInputsT
+// SliceRefAggregationInputsT as declared in filecoin-ffi/filcrypto.h:770
+type SliceRefAggregationInputsT struct {
+	Ptr            []AggregationInputsT
 	Len            SizeT
-	ref6745ecd3    *C.Array_AggregationInputs_t
-	allocs6745ecd3 interface{}
+	ref89d022b4    *C.slice_ref_AggregationInputs_t
+	allocs89d022b4 interface{}
 }
 
-// ResultBoolT as declared in filecoin-ffi/filcrypto.h:685
+// ResultBoolT as declared in filecoin-ffi/filcrypto.h:783
 type ResultBoolT struct {
 	StatusCode     FCPResponseStatusT
 	ErrorMsg       SliceBoxedUint8T
@@ -323,36 +323,36 @@ type ResultBoolT struct {
 	allocsf0bebe68 interface{}
 }
 
-// RegisteredPoStProofT type as declared in filecoin-ffi/filcrypto.h:729
+// RegisteredPoStProofT type as declared in filecoin-ffi/filcrypto.h:827
 type RegisteredPoStProofT int64
 
-// ArrayUint64T as declared in filecoin-ffi/filcrypto.h:767
-type ArrayUint64T struct {
-	Ptr            [][]Uint64T
+// SliceBoxedUint64T as declared in filecoin-ffi/filcrypto.h:882
+type SliceBoxedUint64T struct {
+	Ptr            []Uint64T
 	Len            SizeT
-	ref71627081    *C.Array_uint64_t
-	allocs71627081 interface{}
+	ref280caf77    *C.slice_boxed_uint64_t
+	allocs280caf77 interface{}
 }
 
-// ResultArrayUint64T as declared in filecoin-ffi/filcrypto.h:777
-type ResultArrayUint64T struct {
+// ResultSliceBoxedUint64T as declared in filecoin-ffi/filcrypto.h:892
+type ResultSliceBoxedUint64T struct {
 	StatusCode     FCPResponseStatusT
 	ErrorMsg       SliceBoxedUint8T
-	Value          ArrayUint64T
-	ref7f2387f1    *C.Result_Array_uint64_t
-	allocs7f2387f1 interface{}
+	Value          SliceBoxedUint64T
+	reff00c3ca9    *C.Result_slice_boxed_uint64_t
+	allocsf00c3ca9 interface{}
 }
 
-// GenerateFallbackSectorChallengesT as declared in filecoin-ffi/filcrypto.h:796
+// GenerateFallbackSectorChallengesT as declared in filecoin-ffi/filcrypto.h:911
 type GenerateFallbackSectorChallengesT struct {
-	Ids              ArrayUint64T
-	Challenges       ArrayUint64T
+	Ids              SliceBoxedUint64T
+	Challenges       SliceBoxedUint64T
 	ChallengesStride SizeT
 	ref1a0802cf      *C.GenerateFallbackSectorChallenges_t
 	allocs1a0802cf   interface{}
 }
 
-// ResultGenerateFallbackSectorChallengesT as declared in filecoin-ffi/filcrypto.h:806
+// ResultGenerateFallbackSectorChallengesT as declared in filecoin-ffi/filcrypto.h:921
 type ResultGenerateFallbackSectorChallengesT struct {
 	StatusCode     FCPResponseStatusT
 	ErrorMsg       SliceBoxedUint8T
@@ -361,7 +361,7 @@ type ResultGenerateFallbackSectorChallengesT struct {
 	allocs69d095cd interface{}
 }
 
-// PrivateReplicaInfoT as declared in filecoin-ffi/filcrypto.h:829
+// PrivateReplicaInfoT as declared in filecoin-ffi/filcrypto.h:944
 type PrivateReplicaInfoT struct {
 	RegisteredProof RegisteredPoStProofT
 	CacheDirPath    SliceBoxedUint8T
@@ -372,7 +372,15 @@ type PrivateReplicaInfoT struct {
 	allocs4fcd660f  interface{}
 }
 
-// PoStProofT as declared in filecoin-ffi/filcrypto.h:844
+// SliceRefSliceBoxedUint8T as declared in filecoin-ffi/filcrypto.h:978
+type SliceRefSliceBoxedUint8T struct {
+	Ptr            []SliceBoxedUint8T
+	Len            SizeT
+	ref198e5437    *C.slice_ref_slice_boxed_uint8_t
+	allocs198e5437 interface{}
+}
+
+// PoStProofT as declared in filecoin-ffi/filcrypto.h:986
 type PoStProofT struct {
 	RegisteredProof RegisteredPoStProofT
 	Proof           SliceBoxedUint8T
@@ -380,32 +388,32 @@ type PoStProofT struct {
 	allocs6b19d074  interface{}
 }
 
-// ArrayPoStProofT as declared in filecoin-ffi/filcrypto.h:855
-type ArrayPoStProofT struct {
-	Ptr            [][]PoStProofT
+// SliceBoxedPoStProofT as declared in filecoin-ffi/filcrypto.h:1014
+type SliceBoxedPoStProofT struct {
+	Ptr            []PoStProofT
 	Len            SizeT
-	ref87d11e9b    *C.Array_PoStProof_t
-	allocs87d11e9b interface{}
+	ref9a32842f    *C.slice_boxed_PoStProof_t
+	allocs9a32842f interface{}
 }
 
-// ResultArrayPoStProofT as declared in filecoin-ffi/filcrypto.h:865
-type ResultArrayPoStProofT struct {
+// ResultSliceBoxedPoStProofT as declared in filecoin-ffi/filcrypto.h:1024
+type ResultSliceBoxedPoStProofT struct {
 	StatusCode     FCPResponseStatusT
 	ErrorMsg       SliceBoxedUint8T
-	Value          ArrayPoStProofT
-	ref890670b9    *C.Result_Array_PoStProof_t
-	allocs890670b9 interface{}
+	Value          SliceBoxedPoStProofT
+	ref47494514    *C.Result_slice_boxed_PoStProof_t
+	allocs47494514 interface{}
 }
 
-// ArrayPrivateReplicaInfoT as declared in filecoin-ffi/filcrypto.h:885
-type ArrayPrivateReplicaInfoT struct {
-	Ptr            [][]PrivateReplicaInfoT
+// SliceRefPrivateReplicaInfoT as declared in filecoin-ffi/filcrypto.h:1060
+type SliceRefPrivateReplicaInfoT struct {
+	Ptr            []PrivateReplicaInfoT
 	Len            SizeT
-	ref5b1a7725    *C.Array_PrivateReplicaInfo_t
-	allocs5b1a7725 interface{}
+	ref88221610    *C.slice_ref_PrivateReplicaInfo_t
+	allocs88221610 interface{}
 }
 
-// PublicReplicaInfoT as declared in filecoin-ffi/filcrypto.h:903
+// PublicReplicaInfoT as declared in filecoin-ffi/filcrypto.h:1078
 type PublicReplicaInfoT struct {
 	RegisteredProof RegisteredPoStProofT
 	CommR           Uint832ArrayT
@@ -414,23 +422,31 @@ type PublicReplicaInfoT struct {
 	allocs2f93037   interface{}
 }
 
-// ArrayPublicReplicaInfoT as declared in filecoin-ffi/filcrypto.h:914
-type ArrayPublicReplicaInfoT struct {
-	Ptr            [][]PublicReplicaInfoT
+// SliceRefPublicReplicaInfoT as declared in filecoin-ffi/filcrypto.h:1105
+type SliceRefPublicReplicaInfoT struct {
+	Ptr            []PublicReplicaInfoT
 	Len            SizeT
-	refd4b4552b    *C.Array_PublicReplicaInfo_t
-	allocsd4b4552b interface{}
+	ref3a219b4c    *C.slice_ref_PublicReplicaInfo_t
+	allocs3a219b4c interface{}
 }
 
-// GenerateWindowPoStT as declared in filecoin-ffi/filcrypto.h:931
+// SliceRefPoStProofT as declared in filecoin-ffi/filcrypto.h:1132
+type SliceRefPoStProofT struct {
+	Ptr            []PoStProofT
+	Len            SizeT
+	refd15cdd4b    *C.slice_ref_PoStProof_t
+	allocsd15cdd4b interface{}
+}
+
+// GenerateWindowPoStT as declared in filecoin-ffi/filcrypto.h:1149
 type GenerateWindowPoStT struct {
-	Proofs         ArrayPoStProofT
-	FaultySectors  ArrayUint64T
+	Proofs         SliceBoxedPoStProofT
+	FaultySectors  SliceBoxedUint64T
 	refcee66945    *C.GenerateWindowPoSt_t
 	allocscee66945 interface{}
 }
 
-// ResultGenerateWindowPoStT as declared in filecoin-ffi/filcrypto.h:941
+// ResultGenerateWindowPoStT as declared in filecoin-ffi/filcrypto.h:1159
 type ResultGenerateWindowPoStT struct {
 	StatusCode     FCPResponseStatusT
 	ErrorMsg       SliceBoxedUint8T
@@ -439,7 +455,7 @@ type ResultGenerateWindowPoStT struct {
 	allocs16e6fa9b interface{}
 }
 
-// PartitionSnarkProofT as declared in filecoin-ffi/filcrypto.h:975
+// PartitionSnarkProofT as declared in filecoin-ffi/filcrypto.h:1193
 type PartitionSnarkProofT struct {
 	RegisteredProof RegisteredPoStProofT
 	Proof           SliceBoxedUint8T
@@ -447,15 +463,15 @@ type PartitionSnarkProofT struct {
 	allocs66732a1e  interface{}
 }
 
-// ArrayPartitionSnarkProofT as declared in filecoin-ffi/filcrypto.h:986
-type ArrayPartitionSnarkProofT struct {
-	Ptr            [][]PartitionSnarkProofT
+// SliceRefPartitionSnarkProofT as declared in filecoin-ffi/filcrypto.h:1220
+type SliceRefPartitionSnarkProofT struct {
+	Ptr            []PartitionSnarkProofT
 	Len            SizeT
-	refbddc34d9    *C.Array_PartitionSnarkProof_t
-	allocsbddc34d9 interface{}
+	refebbcc89b    *C.slice_ref_PartitionSnarkProof_t
+	allocsebbcc89b interface{}
 }
 
-// ResultPoStProofT as declared in filecoin-ffi/filcrypto.h:996
+// ResultPoStProofT as declared in filecoin-ffi/filcrypto.h:1230
 type ResultPoStProofT struct {
 	StatusCode     FCPResponseStatusT
 	ErrorMsg       SliceBoxedUint8T
@@ -464,7 +480,7 @@ type ResultPoStProofT struct {
 	allocs20cbfc0b interface{}
 }
 
-// ResultSizeT as declared in filecoin-ffi/filcrypto.h:1013
+// ResultSizeT as declared in filecoin-ffi/filcrypto.h:1247
 type ResultSizeT struct {
 	StatusCode     FCPResponseStatusT
 	ErrorMsg       SliceBoxedUint8T
@@ -473,15 +489,15 @@ type ResultSizeT struct {
 	allocsdf6206d4 interface{}
 }
 
-// GenerateSingleWindowPoStWithVanillaT as declared in filecoin-ffi/filcrypto.h:1028
+// GenerateSingleWindowPoStWithVanillaT as declared in filecoin-ffi/filcrypto.h:1262
 type GenerateSingleWindowPoStWithVanillaT struct {
 	PartitionProof PartitionSnarkProofT
-	FaultySectors  ArrayUint64T
+	FaultySectors  SliceBoxedUint64T
 	refe1ddcd34    *C.GenerateSingleWindowPoStWithVanilla_t
 	allocse1ddcd34 interface{}
 }
 
-// ResultGenerateSingleWindowPoStWithVanillaT as declared in filecoin-ffi/filcrypto.h:1038
+// ResultGenerateSingleWindowPoStWithVanillaT as declared in filecoin-ffi/filcrypto.h:1272
 type ResultGenerateSingleWindowPoStWithVanillaT struct {
 	StatusCode     FCPResponseStatusT
 	ErrorMsg       SliceBoxedUint8T
@@ -490,10 +506,10 @@ type ResultGenerateSingleWindowPoStWithVanillaT struct {
 	allocs54515f12 interface{}
 }
 
-// RegisteredUpdateProofT type as declared in filecoin-ffi/filcrypto.h:1054
+// RegisteredUpdateProofT type as declared in filecoin-ffi/filcrypto.h:1288
 type RegisteredUpdateProofT int64
 
-// EmptySectorUpdateEncodeIntoT as declared in filecoin-ffi/filcrypto.h:1081
+// EmptySectorUpdateEncodeIntoT as declared in filecoin-ffi/filcrypto.h:1315
 type EmptySectorUpdateEncodeIntoT struct {
 	CommRNew       Uint832ArrayT
 	CommRLastNew   Uint832ArrayT
@@ -502,7 +518,7 @@ type EmptySectorUpdateEncodeIntoT struct {
 	allocs7572da08 interface{}
 }
 
-// ResultEmptySectorUpdateEncodeIntoT as declared in filecoin-ffi/filcrypto.h:1091
+// ResultEmptySectorUpdateEncodeIntoT as declared in filecoin-ffi/filcrypto.h:1325
 type ResultEmptySectorUpdateEncodeIntoT struct {
 	StatusCode     FCPResponseStatusT
 	ErrorMsg       SliceBoxedUint8T
@@ -511,7 +527,7 @@ type ResultEmptySectorUpdateEncodeIntoT struct {
 	allocsf6d56df3 interface{}
 }
 
-// GeneratePieceCommitmentT as declared in filecoin-ffi/filcrypto.h:1190
+// GeneratePieceCommitmentT as declared in filecoin-ffi/filcrypto.h:1424
 type GeneratePieceCommitmentT struct {
 	CommP           Uint832ArrayT
 	NumBytesAligned Uint64T
@@ -519,7 +535,7 @@ type GeneratePieceCommitmentT struct {
 	allocsba03f700  interface{}
 }
 
-// ResultGeneratePieceCommitmentT as declared in filecoin-ffi/filcrypto.h:1200
+// ResultGeneratePieceCommitmentT as declared in filecoin-ffi/filcrypto.h:1434
 type ResultGeneratePieceCommitmentT struct {
 	StatusCode     FCPResponseStatusT
 	ErrorMsg       SliceBoxedUint8T

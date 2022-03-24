@@ -14,7 +14,6 @@ use safer_ffi::prelude::*;
 
 use crate::bls::types;
 use crate::proofs::types::ByteArray32;
-use crate::util::types::Array;
 
 pub const SIGNATURE_BYTES: usize = 96;
 pub const PRIVATE_KEY_BYTES: usize = 32;
@@ -178,7 +177,7 @@ pub fn verify(
 pub fn hash_verify(
     signature: &[u8; SIGNATURE_BYTES],
     flattened_messages: c_slice::Ref<u8>,
-    message_sizes: &Array<libc::size_t>,
+    message_sizes: c_slice::Ref<libc::size_t>,
     flattened_public_keys: c_slice::Ref<u8>,
 ) -> libc::c_int {
     // prep request
@@ -370,7 +369,7 @@ mod tests {
         let verified = hash_verify(
             &signature,
             flattened_messages[..].into(),
-            &message_sizes.into(),
+            message_sizes[..].into(),
             public_key[..].into(),
         );
 

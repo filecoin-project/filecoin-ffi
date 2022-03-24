@@ -1,9 +1,11 @@
-use anyhow::Result;
-use filecoin_proofs_api::{self as api, SectorId};
 use std::collections::btree_map::BTreeMap;
 
+use anyhow::Result;
+use filecoin_proofs_api::{self as api, SectorId};
+use safer_ffi::prelude::*;
+
 use super::types::{PrivateReplicaInfo, PublicReplicaInfo, RegisteredPoStProof};
-use crate::util::types::{as_path_buf, Array};
+use crate::util::types::as_path_buf;
 
 #[derive(Debug, Clone)]
 struct PublicReplicaInfoTmp {
@@ -13,7 +15,7 @@ struct PublicReplicaInfoTmp {
 }
 
 pub fn to_public_replica_info_map(
-    replicas: &Array<PublicReplicaInfo>,
+    replicas: c_slice::Ref<PublicReplicaInfo>,
 ) -> BTreeMap<SectorId, api::PublicReplicaInfo> {
     use rayon::prelude::*;
 
@@ -53,7 +55,7 @@ struct PrivateReplicaInfoTmp {
 }
 
 pub fn to_private_replica_info_map(
-    replicas: &Array<PrivateReplicaInfo>,
+    replicas: c_slice::Ref<PrivateReplicaInfo>,
 ) -> Result<BTreeMap<SectorId, api::PrivateReplicaInfo>> {
     use rayon::prelude::*;
 
