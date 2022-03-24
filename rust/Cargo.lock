@@ -2174,9 +2174,9 @@ dependencies = [
 
 [[package]]
 name = "fvm"
-version = "0.2.0"
+version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a26adccbcac0ce187d86f7829777bd1f4ea136f089b3a26ee2da5843c1f7b066"
+checksum = "cf85081bb8f5d9856acd98f7e74e9a9b92f979686529d30368687487507e8a73"
 dependencies = [
  "ahash",
  "anyhow",
@@ -2282,9 +2282,9 @@ dependencies = [
 
 [[package]]
 name = "fvm_shared"
-version = "0.2.0"
+version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7ab18d5c021bdca31f7b8719d540c157d3af8a116a1b1dfc2f7c09ff901a2606"
+checksum = "55c07adcb4ad36f3354feb0df8e9e5e0049cffeaa71f213fddf300952c0bc6e4"
 dependencies = [
  "anyhow",
  "bimap",
@@ -3584,9 +3584,9 @@ dependencies = [
 
 [[package]]
 name = "serde_ipld_dagcbor"
-version = "0.1.1"
+version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "288c13e731ed502f0e5d5ab8d1cc0740515e1cd759ad1b86b837565299a57e49"
+checksum = "950f35fcae42dd9268d9253eb8f846dcef4d66e4e7d56494f38c8eb13e16d87b"
 dependencies = [
  "cid",
  "half",
