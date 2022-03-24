@@ -3,9 +3,11 @@ use std::ops::Deref;
 
 use filecoin_proofs_api as api;
 use filecoin_proofs_api::seal::SealCommitPhase2Output;
+use safer_ffi::prelude::*;
 
 use crate::util::types::{Array, Bytes, Result};
 
+#[derive_ReprC]
 #[repr(C)]
 #[derive(Default, Debug, Clone, Copy)]
 pub struct ByteArray32 {
@@ -60,6 +62,7 @@ impl std::io::Seek for FileDescriptorRef {
     }
 }
 
+#[derive_ReprC]
 #[repr(i32)]
 #[derive(Debug, Clone, Copy)]
 pub enum RegisteredSealProof {
@@ -112,6 +115,7 @@ impl From<RegisteredSealProof> for api::RegisteredSealProof {
     }
 }
 
+#[derive_ReprC]
 #[repr(i32)]
 #[derive(Debug, Clone, Copy)]
 pub enum RegisteredPoStProof {
@@ -165,6 +169,7 @@ impl From<RegisteredPoStProof> for api::RegisteredPoStProof {
     }
 }
 
+#[derive_ReprC]
 #[repr(i32)]
 #[derive(Debug, Clone, Copy)]
 pub enum RegisteredAggregationProof {
@@ -187,6 +192,7 @@ impl From<RegisteredAggregationProof> for api::RegisteredAggregationProof {
     }
 }
 
+#[derive_ReprC]
 #[repr(i32)]
 #[derive(Debug, Clone, Copy)]
 pub enum RegisteredUpdateProof {
@@ -223,6 +229,7 @@ impl From<RegisteredUpdateProof> for api::RegisteredUpdateProof {
     }
 }
 
+#[derive_ReprC]
 #[repr(C)]
 #[derive(Clone)]
 pub struct PublicPieceInfo {
@@ -250,6 +257,7 @@ pub struct ApiPoStProof {
     pub proof: Vec<u8>,
 }
 
+#[derive_ReprC]
 #[repr(C)]
 #[derive(Clone)]
 pub struct PoStProof {
@@ -275,13 +283,13 @@ impl From<PoStProof> for ApiPoStProof {
     }
 }
 
-#[repr(C)]
 #[derive(Clone)]
 pub struct ApiPartitionSnarkProof {
     pub registered_proof: api::RegisteredPoStProof,
     pub proof: Vec<u8>,
 }
 
+#[derive_ReprC]
 #[repr(C)]
 #[derive(Clone)]
 pub struct PartitionSnarkProof {
@@ -307,7 +315,6 @@ impl From<PartitionSnarkProof> for ApiPartitionSnarkProof {
     }
 }
 
-#[repr(C)]
 #[derive(Clone)]
 pub struct PartitionProof {
     pub proof: Vec<u8>,
@@ -315,6 +322,7 @@ pub struct PartitionProof {
 
 pub type ApiPartitionProof = Bytes;
 
+#[derive_ReprC]
 #[repr(C)]
 #[derive(Clone)]
 pub struct PrivateReplicaInfo {
@@ -325,6 +333,7 @@ pub struct PrivateReplicaInfo {
     pub sector_id: u64,
 }
 
+#[derive_ReprC]
 #[repr(C)]
 #[derive(Clone)]
 pub struct PublicReplicaInfo {
@@ -337,6 +346,7 @@ pub type GenerateWinningPoStSectorChallenge = Result<Array<u64>>;
 
 pub type GenerateFallbackSectorChallengesResponse = Result<GenerateFallbackSectorChallenges>;
 
+#[derive_ReprC]
 #[repr(C)]
 #[derive(Default)]
 pub struct GenerateFallbackSectorChallenges {
@@ -351,6 +361,7 @@ pub type GenerateWinningPoStResponse = Result<Array<PoStProof>>;
 
 pub type GenerateWindowPoStResponse = Result<GenerateWindowPoSt>;
 
+#[derive_ReprC]
 #[repr(C)]
 #[derive(Default)]
 pub struct GenerateWindowPoSt {
@@ -360,6 +371,7 @@ pub struct GenerateWindowPoSt {
 
 pub type GenerateSingleWindowPoStWithVanillaResponse = Result<GenerateSingleWindowPoStWithVanilla>;
 
+#[derive_ReprC]
 #[repr(C)]
 #[derive(Default)]
 pub struct GenerateSingleWindowPoStWithVanilla {
@@ -373,6 +385,7 @@ pub type MergeWindowPoStPartitionProofsResponse = Result<PoStProof>;
 
 pub type WriteWithAlignmentResponse = Result<WriteWithAlignment>;
 
+#[derive_ReprC]
 #[repr(C)]
 #[derive(Default)]
 pub struct WriteWithAlignment {
@@ -383,6 +396,7 @@ pub struct WriteWithAlignment {
 
 pub type WriteWithoutAlignmentResponse = Result<WriteWithoutAlignment>;
 
+#[derive_ReprC]
 #[repr(C)]
 #[derive(Default)]
 pub struct WriteWithoutAlignment {
@@ -396,6 +410,7 @@ pub type FauxRepResponse = Result<ByteArray32>;
 
 pub type SealPreCommitPhase2Response = Result<SealPreCommitPhase2>;
 
+#[derive_ReprC]
 #[repr(C)]
 pub struct SealPreCommitPhase2 {
     pub registered_proof: RegisteredSealProof,
@@ -425,6 +440,7 @@ impl From<&SealCommitPhase2> for SealCommitPhase2Output {
     }
 }
 
+#[derive_ReprC]
 #[repr(C)]
 #[derive(Default, Clone)]
 pub struct SealCommitPhase2 {
@@ -433,6 +449,7 @@ pub struct SealCommitPhase2 {
     // pub commit_inputs: Array<AggregationInputs>,
 }
 
+#[derive_ReprC]
 #[repr(C)]
 #[derive(Clone, Default)]
 pub struct AggregationInputs {
@@ -457,6 +474,7 @@ pub type FinalizeTicketResponse = Result<ByteArray32>;
 
 pub type GeneratePieceCommitmentResponse = Result<GeneratePieceCommitment>;
 
+#[derive_ReprC]
 #[repr(C)]
 #[derive(Default)]
 pub struct GeneratePieceCommitment {
@@ -474,6 +492,7 @@ pub type ClearCacheResponse = Result<()>;
 
 pub type EmptySectorUpdateEncodeIntoResponse = Result<EmptySectorUpdateEncodeInto>;
 
+#[derive_ReprC]
 #[repr(C)]
 #[derive(Default)]
 pub struct EmptySectorUpdateEncodeInto {

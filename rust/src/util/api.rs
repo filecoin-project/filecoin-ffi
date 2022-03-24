@@ -3,6 +3,7 @@ use std::os::unix::io::FromRawFd;
 use std::sync::Once;
 
 use anyhow::anyhow;
+use safer_ffi::prelude::*;
 
 use super::types::{catch_panic_response, Array, Bytes, GpuDeviceResponse, InitLogFdResponse};
 
@@ -30,8 +31,8 @@ pub fn init_log_with_file(file: File) -> Option<()> {
 }
 
 /// Returns an array of strings containing the device names that can be used.
-#[no_mangle]
-pub unsafe extern "C" fn get_gpu_devices() -> *mut GpuDeviceResponse {
+#[ffi_export]
+pub fn get_gpu_devices() -> repr_c::Box<GpuDeviceResponse> {
     catch_panic_response("get_gpu_devices", || {
         let devices = rust_gpu_tools::Device::all();
         let devices: Vec<Bytes> = devices.iter().map(|d| d.name().into()).collect();
@@ -48,11 +49,10 @@ pub unsafe extern "C" fn get_gpu_devices() -> *mut GpuDeviceResponse {
 ///
 /// This function must be called right at the start, before any other call. Else the logger will
 /// be initializes implicitely and log to stderr.
-#[no_mangle]
-#[cfg(not(target_os = "windows"))]
-pub unsafe extern "C" fn init_log_fd(log_fd: libc::c_int) -> *mut InitLogFdResponse {
+#[ffi_export]
+pub fn init_log_fd(log_fd: libc::c_int) -> repr_c::Box<InitLogFdResponse> {
     catch_panic_response("init_log_fd", || {
-        let file = File::from_raw_fd(log_fd);
+        let file = unsafe { File::from_raw_fd(log_fd) };
 
         if init_log_with_file(file).is_none() {
             return Err(anyhow!("There is already an active logger. `init_log_fd()` needs to be called before any other FFI function is called."));
@@ -70,21 +70,19 @@ mod tests {
     #[test]
     #[allow(clippy::needless_collect)]
     fn test_get_gpu_devices() {
-        unsafe {
-            let resp = get_gpu_devices();
-            assert!((*resp).error_msg.is_empty());
+        let resp = get_gpu_devices();
+        assert!(resp.error_msg.is_empty());
 
-            let strings = &(*resp).value;
+        let strings = &resp.value;
 
-            let devices: Vec<&str> = strings
-                .iter()
-                .map(|s| std::str::from_utf8(s).unwrap())
-                .collect();
+        let devices: Vec<&str> = strings
+            .iter()
+            .map(|s| std::str::from_utf8(s).unwrap())
+            .collect();
 
-            assert_eq!(devices.len(), (*resp).value.len());
+        assert_eq!(devices.len(), resp.value.len());
 
-            destroy_gpu_device_response(resp);
-        }
+        destroy_gpu_device_response(resp);
     }
 
     #[test]
@@ -115,30 +113,28 @@ mod tests {
         }
         let [read_fd, write_fd] = fds;
 
-        unsafe {
-            let mut reader = BufReader::new(File::from_raw_fd(read_fd));
-            let mut writer = File::from_raw_fd(write_fd);
+        let mut reader = unsafe { BufReader::new(File::from_raw_fd(read_fd)) };
+        let mut writer = unsafe { File::from_raw_fd(write_fd) };
 
-            // Without setting this env variable there won't be any log output
-            env::set_var("RUST_LOG", "debug");
+        // Without setting this env variable there won't be any log output
+        env::set_var("RUST_LOG", "debug");
 
-            let resp = init_log_fd(write_fd);
-            destroy_init_log_fd_response(resp);
+        let resp = init_log_fd(write_fd);
+        destroy_init_log_fd_response(resp);
 
-            log::info!("a log message");
+        log::info!("a log message");
 
-            // Write a newline so that things don't block even if the logging doesn't work
-            writer.write_all(b"\n").unwrap();
+        // Write a newline so that things don't block even if the logging doesn't work
+        writer.write_all(b"\n").unwrap();
 
-            let mut log_message = String::new();
-            reader.read_line(&mut log_message).unwrap();
+        let mut log_message = String::new();
+        reader.read_line(&mut log_message).unwrap();
 
-            assert!(log_message.ends_with("a log message\n"));
+        assert!(log_message.ends_with("a log message\n"));
 
-            // Now test that there is an error when we try to init it again
-            let resp_error = init_log_fd(write_fd);
-            assert_ne!((*resp_error).status_code, FCPResponseStatus::FCPNoError);
-            destroy_init_log_fd_response(resp_error);
-        }
+        // Now test that there is an error when we try to init it again
+        let resp_error = init_log_fd(write_fd);
+        assert_ne!(resp_error.status_code, FCPResponseStatus::FCPNoError);
+        destroy_init_log_fd_response(resp_error);
     }
 }

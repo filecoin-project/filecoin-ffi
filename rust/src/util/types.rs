@@ -7,8 +7,11 @@ use std::{
     str::Utf8Error,
 };
 
+use safer_ffi::prelude::*;
+
 use super::api::init_log;
 
+#[derive_ReprC]
 #[repr(i32)]
 #[derive(PartialEq, Debug, Copy, Clone)]
 pub enum FCPResponseStatus {
@@ -20,6 +23,7 @@ pub enum FCPResponseStatus {
 }
 
 /// Owned, fixed size array, allocated on the heap.
+#[derive_ReprC]
 #[repr(C)]
 pub struct Array<T: Sized> {
     ptr: Option<NonNull<*mut T>>,
@@ -125,6 +129,13 @@ impl<T> Drop for Array<T> {
 impl<T> Deref for Array<T> {
     type Target = [T];
     fn deref(&self) -> &[T] {
+        self.as_ref()
+    }
+}
+
+impl<T> AsRef<[T]> for Array<T> {
+    #[inline]
+    fn as_ref(&self) -> &[T] {
         match self.ptr {
             None => &[],
             Some(ptr) => unsafe { std::slice::from_raw_parts(ptr.as_ptr().cast(), self.len) },
@@ -193,6 +204,7 @@ impl Bytes {
     }
 }
 
+#[derive_ReprC]
 #[repr(C)]
 #[derive(Clone)]
 pub struct Result<T: Sized> {
@@ -279,20 +291,20 @@ impl<T: Sized + Default> Result<T> {
 
 pub type GpuDeviceResponse = Result<Array<Bytes>>;
 
-#[no_mangle]
-pub unsafe extern "C" fn destroy_gpu_device_response(ptr: *mut GpuDeviceResponse) {
-    let _ = Box::from_raw(ptr);
+#[ffi_export]
+pub fn destroy_gpu_device_response(ptr: repr_c::Box<GpuDeviceResponse>) {
+    drop(ptr)
 }
 
 pub type InitLogFdResponse = Result<()>;
 
-#[no_mangle]
-pub unsafe extern "C" fn destroy_init_log_fd_response(ptr: *mut InitLogFdResponse) {
-    let _ = Box::from_raw(ptr);
+#[ffi_export]
+pub fn destroy_init_log_fd_response(ptr: repr_c::Box<InitLogFdResponse>) {
+    drop(ptr)
 }
 
 /// Catch panics and return an error response
-pub fn catch_panic_response<F, T>(name: &str, callback: F) -> *mut Result<T>
+pub fn catch_panic_response<F, T>(name: &str, callback: F) -> repr_c::Box<Result<T>>
 where
     T: Sized + Default,
     F: FnOnce() -> anyhow::Result<T> + std::panic::UnwindSafe,
@@ -302,28 +314,26 @@ where
     })
 }
 
-pub fn catch_panic_response_raw<F, T>(name: &str, callback: F) -> *mut Result<T>
+pub fn catch_panic_response_raw<F, T>(name: &str, callback: F) -> repr_c::Box<Result<T>>
 where
     T: Sized + Default,
     F: FnOnce() -> Result<T> + std::panic::UnwindSafe,
 {
-    let result = match panic::catch_unwind(|| {
+    match panic::catch_unwind(|| {
         init_log();
         log::info!("{}: start", name);
         let res = callback();
         log::info!("{}: end", name);
         res
     }) {
-        Ok(t) => t,
+        Ok(t) => repr_c::Box::new(t),
         Err(panic) => {
             let error_msg = match panic.downcast_ref::<&'static str>() {
                 Some(message) => message,
                 _ => "no unwind information",
             };
 
-            Result::from(Err(format!("Rust panic: {}", error_msg)))
+            repr_c::Box::new(Result::from(Err(format!("Rust panic: {}", error_msg))))
         }
-    };
-
-    unsafe { result.into_boxed_raw() }
+    }
 }

@@ -12,7 +12,7 @@ struct PublicReplicaInfoTmp {
     pub sector_id: u64,
 }
 
-pub unsafe fn to_public_replica_info_map(
+pub fn to_public_replica_info_map(
     replicas: &Array<PublicReplicaInfo>,
 ) -> BTreeMap<SectorId, api::PublicReplicaInfo> {
     use rayon::prelude::*;
@@ -52,7 +52,7 @@ struct PrivateReplicaInfoTmp {
     pub sector_id: u64,
 }
 
-pub unsafe fn to_private_replica_info_map(
+pub fn to_private_replica_info_map(
     replicas: &Array<PrivateReplicaInfo>,
 ) -> Result<BTreeMap<SectorId, api::PrivateReplicaInfo>> {
     use rayon::prelude::*;
