@@ -35,15 +35,10 @@ where
     }
 
     fn put_keyed(&self, k: &Cid, block: &[u8]) -> Result<()> {
-        // TODO: we won't need this hack once we merge
-        // https://github.com/filecoin-project/ref-fvm/pull/382.
-        const IDENTITY_HASH_CODE: u64 = 0;
-        let code = k.hash().code();
-        if code != IDENTITY_HASH_CODE
-            && Code::try_from(code)
-                .ok()
-                .map(|code| &code.digest(block) == k.hash())
-                .unwrap_or_default()
+        if Code::try_from(k.hash().code())
+            .ok()
+            .map(|code| &code.digest(block) == k.hash())
+            .unwrap_or_default()
         {
             self.base.put_keyed(k, block)
         } else {
