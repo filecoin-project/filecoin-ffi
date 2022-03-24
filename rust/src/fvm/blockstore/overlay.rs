@@ -4,12 +4,19 @@ use anyhow::Result;
 use cid::Cid;
 use fvm_shared::blockstore::Blockstore;
 
+/// A blockstore with a read-only, in-memory "overlay".
+///
+/// 1. On get, the overlay will be checked first.
+/// 2. All puts will go directly to the base blockstore.
+///
+/// Use this blockstore to "overlay" some pre-determined set of blocks over a real blockstore.
 pub struct OverlayBlockstore<BS> {
     over: HashMap<Cid, Vec<u8>>,
     base: BS,
 }
 
 impl<BS> OverlayBlockstore<BS> {
+    /// Construct a new overlay blockstore with the specified "overlay".
     pub fn new(overlay: HashMap<Cid, Vec<u8>>, base: BS) -> Self {
         OverlayBlockstore {
             over: overlay,

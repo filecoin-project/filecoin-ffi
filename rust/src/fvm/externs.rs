@@ -11,6 +11,11 @@ use super::cgo::*;
 /// The error code returned by cgo if the externs handle isn't valid.
 const ERR_NO_EXTERN: i32 = -1;
 
+/// An implementation of [`fvm::externs::Externs`] that can call out to go. See the `cgo` directory
+/// in this repo for the go side.
+///
+/// Importantly, this allows Filecoin client written in go to expose chain randomness and consensus
+/// fault verification to the FVM.
 pub struct CgoExterns {
     handle: u64,
 }

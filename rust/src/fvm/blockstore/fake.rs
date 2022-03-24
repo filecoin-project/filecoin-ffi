@@ -9,6 +9,12 @@ use fvm_shared::blockstore::Blockstore;
 
 use super::OverlayBlockstore;
 
+/// A blockstore that allows putting blocks with "fake" (incorrect) CIDs. These "bad blocks" get
+/// stored in a separate in-memory map and will not be written to the underlying blockstore.
+///
+/// This blockstore can be converted to an [`OverlayBlockstore`] by calling
+/// `FakeBlockstore::finish()`, where the "fake" block map will become the `OverlayBlockstore`'s
+/// "overlay".
 pub struct FakeBlockstore<BS> {
     fake_blocks: RefCell<HashMap<Cid, Vec<u8>>>,
     base: BS,
