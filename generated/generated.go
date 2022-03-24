@@ -17,11 +17,11 @@ import (
 )
 
 // _GO__ function as declared in filecoin-ffi/<predefine>:36
-func _GO__(arg0 []byte) {
-	carg0, carg0AllocMap := copyPCharBytes((*sliceHeader)(unsafe.Pointer(&arg0)))
-	C.__GO__(carg0)
-	runtime.KeepAlive(carg0AllocMap)
-}
+// func _GO__(arg0 []byte) {
+// 	carg0, carg0AllocMap := copyPCharBytes((*sliceHeader)(unsafe.Pointer(&arg0)))
+// 	C.__GO__(carg0)
+// 	runtime.KeepAlive(carg0AllocMap)
+// }
 
 // DestroyGpuDeviceResponse function as declared in filecoin-ffi/filcrypto.h:74
 func DestroyGpuDeviceResponse(ptr []ResultArrayArrayUint8T) {
