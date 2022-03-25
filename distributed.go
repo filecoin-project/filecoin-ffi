@@ -1,267 +1,298 @@
-//+build cgo
+//go:build cgo
+// +build cgo
 
 package ffi
 
-import (
-	"github.com/filecoin-project/filecoin-ffi/generated"
-	"github.com/filecoin-project/go-state-types/abi"
-	"github.com/filecoin-project/specs-actors/v5/actors/runtime/proof"
-	"github.com/pkg/errors"
-)
+// import (
+// 	"unsafe"
 
-type FallbackChallenges struct {
-	Sectors    []abi.SectorNumber
-	Challenges map[abi.SectorNumber][]uint64
-}
+// 	"github.com/filecoin-project/filecoin-ffi/generated"
+// 	"github.com/filecoin-project/go-state-types/abi"
+// 	"github.com/filecoin-project/specs-actors/v5/actors/runtime/proof"
+// 	"github.com/pkg/errors"
+// )
 
-type VanillaProof []byte
+// type FallbackChallenges struct {
+// 	Sectors    []abi.SectorNumber
+// 	Challenges map[abi.SectorNumber][]uint64
+// }
 
-// GenerateWinningPoStSectorChallenge
-func GeneratePoStFallbackSectorChallenges(
-	proofType abi.RegisteredPoStProof,
-	minerID abi.ActorID,
-	randomness abi.PoStRandomness,
-	sectorIds []abi.SectorNumber,
-) (*FallbackChallenges, error) {
-	proverID, err := toProverID(minerID)
-	if err != nil {
-		return nil, err
-	}
+// type VanillaProof []byte
 
-	pp, err := toFilRegisteredPoStProof(proofType)
-	if err != nil {
-		return nil, err
-	}
+// /// UnsafeByteSlice converts the ptr into a byte slice without copying.
+// func UnsafeByteSlice(ptr unsafe.Pointer, len int) []byte {
+// 	// It is a workaround for non-copying-wrapping of native memory.
+// 	// C-encoder never pushes output block longer than ((2 << 25) + 502).
+// 	// TODO: use unsafe.Slice, when it becomes available in go 1.17 (see https://golang.org/issue/13656).
+// 	return (*[1 << 30]byte)(ptr)[:len:len]
+// }
 
-	secIds := make([]uint64, len(sectorIds))
-	for i, sid := range sectorIds {
-		secIds[i] = uint64(sid)
-	}
+// /// UnsafeString converts the ptr into a string without copying.
+// func UnsafeString(ptr unsafe.Pointer, len int) string {
+// 	return string(UnsafeByteSlice(ptr, len))
+// }
 
-	resp := generated.FilGenerateFallbackSectorChallenges(
-		pp, to32ByteArray(randomness), secIds, uint(len(secIds)),
-		proverID,
-	)
-	resp.Deref()
-	resp.IdsPtr = resp.IdsPtr[:resp.IdsLen]
-	resp.ChallengesPtr = resp.ChallengesPtr[:resp.ChallengesLen]
+// func CastToUint64Slice(ptr []generated.Uint64T, len generated.SizeT) []uint64 {
+// 	return (*[1 << 30]uint64)(unsafe.Pointer(&ptr[0]))[:len:len]
+// }
 
-	defer generated.FilDestroyGenerateFallbackSectorChallengesResponse(resp)
+// /// CheckErr returns `nil` if the `code` indicates success and an error otherwise.
+// func CheckErr(code generated.FCPResponseStatusT, msg *generated.SliceBoxedUint8T) error {
+// 	if code == generated.FCPRESPONSESTATUSNOERROR {
+// 		return nil
+// 	}
 
-	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-		return nil, errors.New(generated.RawString(resp.ErrorMsg).Copy())
-	}
+// 	return errors.New(UnsafeString(unsafe.Pointer(&msg.Ptr[0]), int(msg.Len)))
+// }
 
-	// copy from C memory space to Go
+// // GenerateWinningPoStSectorChallenge
+// func GeneratePoStFallbackSectorChallenges(
+// 	proofType abi.RegisteredPoStProof,
+// 	minerID abi.ActorID,
+// 	randomness abi.PoStRandomness,
+// 	sectorIds []abi.SectorNumber,
+// ) (*FallbackChallenges, error) {
+// 	proverID, err := toProverID(minerID)
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	var out FallbackChallenges
-	out.Sectors = make([]abi.SectorNumber, resp.IdsLen)
-	out.Challenges = make(map[abi.SectorNumber][]uint64)
-	stride := int(resp.ChallengesStride)
-	for idx := range resp.IdsPtr {
-		secNum := abi.SectorNumber(resp.IdsPtr[idx])
-		out.Sectors[idx] = secNum
-		out.Challenges[secNum] = append([]uint64{}, resp.ChallengesPtr[idx*stride:(idx+1)*stride]...)
-	}
+// 	pp, err := toFilRegisteredPoStProof(proofType)
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	return &out, nil
-}
+// 	var secIds generated.SliceRefUint64T
+// 	secIds.Len = generated.SizeT(len(sectorIds))
+// 	secIds.Ptr = *(*[]generated.Uint64T)(unsafe.Pointer(&sectorIds[0]))
 
-func GenerateSingleVanillaProof(
-	replica PrivateSectorInfo,
-	challange []uint64,
-) ([]byte, error) {
+// 	resp := generated.GenerateFallbackSectorChallenges(
+// 		pp, toByteArray32(randomness), secIds, proverID,
+// 	)
+// 	resp.Deref()
 
-	rep, free, err := toFilPrivateReplicaInfo(replica)
-	if err != nil {
-		return nil, err
-	}
-	defer free()
+// 	defer generated.DestroyGenerateFallbackSectorChallengesResponse(resp)
+// 	if err := CheckErr(resp.StatusCode, &resp.ErrorMsg); err != nil {
+// 		return nil, err
+// 	}
 
-	resp := generated.FilGenerateSingleVanillaProof(rep, challange, uint(len(challange)))
-	resp.Deref()
-	defer generated.FilDestroyGenerateSingleVanillaProofResponse(resp)
+// 	// copy from C memory space to Go
 
-	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-		return nil, errors.New(generated.RawString(resp.ErrorMsg).Copy())
-	}
+// 	ids := resp.Value.Ids.Ptr[:int(resp.Value.Ids.Len)]
+// 	challenges := CastToUint64Slice(resp.Value.Challenges.Ptr, resp.Value.Challenges.Len)
 
-	resp.VanillaProof.Deref()
+// 	var out FallbackChallenges
+// 	out.Sectors = make([]abi.SectorNumber, len(ids))
+// 	out.Challenges = make(map[abi.SectorNumber][]uint64)
+// 	stride := int(resp.Value.ChallengesStride)
+// 	for idx := range ids {
+// 		secNum := abi.SectorNumber(ids[idx])
+// 		out.Sectors[idx] = secNum
+// 		out.Challenges[secNum] = append([]uint64{}, challenges[idx*stride:(idx+1)*stride]...)
+// 	}
 
-	return copyBytes(resp.VanillaProof.ProofPtr, resp.VanillaProof.ProofLen), nil
-}
+// 	return &out, nil
+// }
 
-func GenerateWinningPoStWithVanilla(
-	proofType abi.RegisteredPoStProof,
-	minerID abi.ActorID,
-	randomness abi.PoStRandomness,
-	proofs [][]byte,
-) ([]proof.PoStProof, error) {
-	pp, err := toFilRegisteredPoStProof(proofType)
-	if err != nil {
-		return nil, err
-	}
+// func GenerateSingleVanillaProof(
+// 	replica PrivateSectorInfo,
+// 	challenges []uint64,
+// ) ([]byte, error) {
 
-	proverID, err := toProverID(minerID)
-	if err != nil {
-		return nil, err
-	}
-	fproofs, discard := toVanillaProofs(proofs)
-	defer discard()
+// 	rep, free, err := toFilPrivateReplicaInfo(replica)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	defer free()
 
-	resp := generated.FilGenerateWinningPostWithVanilla(
-		pp,
-		to32ByteArray(randomness),
-		proverID,
-		fproofs, uint(len(proofs)),
-	)
-	resp.Deref()
-	resp.ProofsPtr = make([]generated.FilPoStProof, resp.ProofsLen)
-	resp.Deref()
+// 	var challengesSlice generated.SliceRefUint64T
+// 	challengesSlice.Len = generated.SizeT(len(challenges))
+// 	challengesSlice.Ptr = (*[]generated.Uint64T)(unsafe.Pointer(&challenges[0]))
 
-	defer generated.FilDestroyGenerateWinningPostResponse(resp)
+// 	resp := generated.GenerateSingleVanillaProof(rep, challengesSlice)
+// 	resp.Deref()
+// 	defer generated.DestroyGenerateSingleVanillaProofResponse(resp)
 
-	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-		return nil, errors.New(generated.RawString(resp.ErrorMsg).Copy())
-	}
+// 	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
+// 		return nil, errors.New(generated.RawString(resp.ErrorMsg).Copy())
+// 	}
 
-	out, err := fromFilPoStProofs(resp.ProofsPtr)
-	if err != nil {
-		return nil, err
-	}
+// 	resp.VanillaProof.Deref()
 
-	return out, nil
-}
+// 	return copyBytes(resp.VanillaProof.ProofPtr, resp.VanillaProof.ProofLen), nil
+// }
 
-func GenerateWindowPoStWithVanilla(
-	proofType abi.RegisteredPoStProof,
-	minerID abi.ActorID,
-	randomness abi.PoStRandomness,
-	proofs [][]byte,
-) ([]proof.PoStProof, error) {
-	pp, err := toFilRegisteredPoStProof(proofType)
-	if err != nil {
-		return nil, err
-	}
+// func GenerateWinningPoStWithVanilla(
+// 	proofType abi.RegisteredPoStProof,
+// 	minerID abi.ActorID,
+// 	randomness abi.PoStRandomness,
+// 	proofs [][]byte,
+// ) ([]proof.PoStProof, error) {
+// 	pp, err := toFilRegisteredPoStProof(proofType)
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	proverID, err := toProverID(minerID)
-	if err != nil {
-		return nil, err
-	}
-	fproofs, discard := toVanillaProofs(proofs)
-	defer discard()
+// 	proverID, err := toProverID(minerID)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	fproofs, discard := toVanillaProofs(proofs)
+// 	defer discard()
 
-	resp := generated.FilGenerateWindowPostWithVanilla(
-		pp,
-		to32ByteArray(randomness),
-		proverID,
-		fproofs, uint(len(proofs)),
-	)
-	resp.Deref()
-	resp.ProofsPtr = make([]generated.FilPoStProof, resp.ProofsLen)
-	resp.Deref()
+// 	resp := generated.GenerateWinningPostWithVanilla(
+// 		pp,
+// 		toByteArray32(randomness),
+// 		proverID,
+// 		fproofs, uint(len(proofs)),
+// 	)
+// 	resp.Deref()
+// 	resp.ProofsPtr = make([]generated.PoStProof, resp.ProofsLen)
+// 	resp.Deref()
 
-	defer generated.FilDestroyGenerateWindowPostResponse(resp)
+// 	defer generated.DestroyGenerateWinningPostResponse(resp)
 
-	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-		return nil, errors.New(generated.RawString(resp.ErrorMsg).Copy())
-	}
+// 	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
+// 		return nil, errors.New(generated.RawString(resp.ErrorMsg).Copy())
+// 	}
 
-	out, err := fromFilPoStProofs(resp.ProofsPtr)
-	if err != nil {
-		return nil, err
-	}
+// 	out, err := fromFilPoStProofs(resp.ProofsPtr)
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	return out, nil
-}
+// 	return out, nil
+// }
 
-type PartitionProof proof.PoStProof
+// func GenerateWindowPoStWithVanilla(
+// 	proofType abi.RegisteredPoStProof,
+// 	minerID abi.ActorID,
+// 	randomness abi.PoStRandomness,
+// 	proofs [][]byte,
+// ) ([]proof.PoStProof, error) {
+// 	pp, err := toFilRegisteredPoStProof(proofType)
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-func GenerateSinglePartitionWindowPoStWithVanilla(
-	proofType abi.RegisteredPoStProof,
-	minerID abi.ActorID,
-	randomness abi.PoStRandomness,
-	proofs [][]byte,
-	partitionIndex uint,
-) (*PartitionProof, error) {
-	pp, err := toFilRegisteredPoStProof(proofType)
-	if err != nil {
-		return nil, err
-	}
+// 	proverID, err := toProverID(minerID)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	fproofs, discard := toVanillaProofs(proofs)
+// 	defer discard()
 
-	proverID, err := toProverID(minerID)
-	if err != nil {
-		return nil, err
-	}
-	fproofs, discard := toVanillaProofs(proofs)
-	defer discard()
+// 	resp := generated.GenerateWindowPostWithVanilla(
+// 		pp,
+// 		toByteArray32(randomness),
+// 		proverID,
+// 		fproofs, uint(len(proofs)),
+// 	)
+// 	resp.Deref()
+// 	resp.ProofsPtr = make([]generated.PoStProof, resp.ProofsLen)
+// 	resp.Deref()
 
-	resp := generated.FilGenerateSingleWindowPostWithVanilla(
-		pp,
-		to32ByteArray(randomness),
-		proverID,
-		fproofs, uint(len(proofs)),
-		partitionIndex,
-	)
-	resp.Deref()
-	resp.PartitionProof.Deref()
+// 	defer generated.DestroyGenerateWindowPostResponse(resp)
 
-	defer generated.FilDestroyGenerateSingleWindowPostWithVanillaResponse(resp)
+// 	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
+// 		return nil, errors.New(generated.RawString(resp.ErrorMsg).Copy())
+// 	}
 
-	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-		return nil, errors.New(generated.RawString(resp.ErrorMsg).Copy())
-	}
+// 	out, err := fromFilPoStProofs(resp.ProofsPtr)
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	dpp, err := fromFilRegisteredPoStProof(resp.PartitionProof.RegisteredProof)
-	if err != nil {
-		return nil, err
-	}
+// 	return out, nil
+// }
 
-	out := PartitionProof{
-		PoStProof:  dpp,
-		ProofBytes: copyBytes(resp.PartitionProof.ProofPtr, resp.PartitionProof.ProofLen),
-	}
+// type PartitionProof proof.PoStProof
 
-	return &out, nil
-}
+// func GenerateSinglePartitionWindowPoStWithVanilla(
+// 	proofType abi.RegisteredPoStProof,
+// 	minerID abi.ActorID,
+// 	randomness abi.PoStRandomness,
+// 	proofs [][]byte,
+// 	partitionIndex uint,
+// ) (*PartitionProof, error) {
+// 	pp, err := toFilRegisteredPoStProof(proofType)
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-func MergeWindowPoStPartitionProofs(
-	proofType abi.RegisteredPoStProof,
-	partitionProofs []PartitionProof,
-) (*proof.PoStProof, error) {
-	pp, err := toFilRegisteredPoStProof(proofType)
-	if err != nil {
-		return nil, err
-	}
+// 	proverID, err := toProverID(minerID)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	fproofs, discard := toVanillaProofs(proofs)
+// 	defer discard()
 
-	fproofs, discard, err := toPartitionProofs(partitionProofs)
-	defer discard()
-	if err != nil {
-		return nil, err
-	}
+// 	resp := generated.GenerateSingleWindowPostWithVanilla(
+// 		pp,
+// 		toByteArray32(randomness),
+// 		proverID,
+// 		fproofs, uint(len(proofs)),
+// 		partitionIndex,
+// 	)
+// 	resp.Deref()
+// 	resp.PartitionProof.Deref()
 
-	resp := generated.FilMergeWindowPostPartitionProofs(
-		pp,
-		fproofs, uint(len(fproofs)),
-	)
-	resp.Deref()
-	resp.Proof.Deref()
+// 	defer generated.DestroyGenerateSingleWindowPostWithVanillaResponse(resp)
 
-	defer generated.FilDestroyMergeWindowPostPartitionProofsResponse(resp)
+// 	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
+// 		return nil, errors.New(generated.RawString(resp.ErrorMsg).Copy())
+// 	}
 
-	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-		return nil, errors.New(generated.RawString(resp.ErrorMsg).Copy())
-	}
+// 	dpp, err := fromFilRegisteredPoStProof(resp.PartitionProof.RegisteredProof)
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	dpp, err := fromFilRegisteredPoStProof(resp.Proof.RegisteredProof)
-	if err != nil {
-		return nil, err
-	}
+// 	out := PartitionProof{
+// 		PoStProof:  dpp,
+// 		ProofBytes: copyBytes(resp.PartitionProof.ProofPtr, resp.PartitionProof.ProofLen),
+// 	}
 
-	out := proof.PoStProof{
-		PoStProof:  dpp,
-		ProofBytes: copyBytes(resp.Proof.ProofPtr, resp.Proof.ProofLen),
-	}
+// 	return &out, nil
+// }
 
-	return &out, nil
-}
+// func MergeWindowPoStPartitionProofs(
+// 	proofType abi.RegisteredPoStProof,
+// 	partitionProofs []PartitionProof,
+// ) (*proof.PoStProof, error) {
+// 	pp, err := toFilRegisteredPoStProof(proofType)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	fproofs, discard, err := toPartitionProofs(partitionProofs)
+// 	defer discard()
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	resp := generated.MergeWindowPostPartitionProofs(
+// 		pp,
+// 		fproofs, uint(len(fproofs)),
+// 	)
+// 	resp.Deref()
+// 	resp.Proof.Deref()
+
+// 	defer generated.DestroyMergeWindowPostPartitionProofsResponse(resp)
+
+// 	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
+// 		return nil, errors.New(generated.RawString(resp.ErrorMsg).Copy())
+// 	}
+
+// 	dpp, err := fromFilRegisteredPoStProof(resp.Proof.RegisteredProof)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	out := proof.PoStProof{
+// 		PoStProof:  dpp,
+// 		ProofBytes: copyBytes(resp.Proof.ProofPtr, resp.Proof.ProofLen),
+// 	}
+
+// 	return &out, nil
+// }
