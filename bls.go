@@ -8,13 +8,13 @@ package ffi
 // #include "./filcrypto.h"
 import "C"
 import (
-	"github.com/filecoin-project/filecoin-ffi/generated"
+	"github.com/filecoin-project/filecoin-ffi/cgo"
 )
 
 // Hash computes the digest of a message
 func Hash(message Message) *Digest {
-	messageC := generated.AsSliceRefUint8(message)
-	resp := generated.Hash(messageC)
+	messageC := cgo.AsSliceRefUint8(message)
+	resp := cgo.Hash(messageC)
 	if resp == nil {
 		return nil
 	}
@@ -39,10 +39,10 @@ func Verify(signature *Signature, digests []Digest, publicKeys []*PublicKey) boo
 		copy(flattenedPublicKeys[(PublicKeyBytes*idx):(PublicKeyBytes*(1+idx))], publicKey[:])
 	}
 
-	isValid := generated.Verify(
-		generated.AsSliceRefUint8(signature[:]),
-		generated.AsSliceRefUint8(flattenedDigests),
-		generated.AsSliceRefUint8(flattenedPublicKeys),
+	isValid := cgo.Verify(
+		cgo.AsSliceRefUint8(signature[:]),
+		cgo.AsSliceRefUint8(flattenedDigests),
+		cgo.AsSliceRefUint8(flattenedPublicKeys),
 	)
 
 	return isValid > 0
@@ -62,11 +62,11 @@ func HashVerify(signature *Signature, messages []Message, publicKeys []*PublicKe
 		copy(flattenedPublicKeys[(PublicKeyBytes*idx):(PublicKeyBytes*(1+idx))], publicKey[:])
 	}
 
-	isValid := generated.HashVerify(
-		generated.AsSliceRefUint8(signature[:]),
-		generated.AsSliceRefUint8(flattenedMessages),
-		generated.AsSliceRefUint(messagesSizes),
-		generated.AsSliceRefUint8(flattenedPublicKeys),
+	isValid := cgo.HashVerify(
+		cgo.AsSliceRefUint8(signature[:]),
+		cgo.AsSliceRefUint8(flattenedMessages),
+		cgo.AsSliceRefUint(messagesSizes),
+		cgo.AsSliceRefUint8(flattenedPublicKeys),
 	)
 
 	return isValid > 0
@@ -82,7 +82,7 @@ func Aggregate(signatures []*Signature) *Signature {
 		copy(flattenedSignatures[(SignatureBytes*idx):(SignatureBytes*(1+idx))], sig[:])
 	}
 
-	resp := generated.Aggregate(generated.AsSliceRefUint8(flattenedSignatures))
+	resp := cgo.Aggregate(cgo.AsSliceRefUint8(flattenedSignatures))
 	if resp == nil {
 		return nil
 	}
@@ -96,7 +96,7 @@ func Aggregate(signatures []*Signature) *Signature {
 
 // PrivateKeyGenerate generates a private key
 func PrivateKeyGenerate() *PrivateKey {
-	resp := generated.PrivateKeyGenerate()
+	resp := cgo.PrivateKeyGenerate()
 	if resp == nil {
 		return nil
 	}
@@ -110,8 +110,8 @@ func PrivateKeyGenerate() *PrivateKey {
 
 // PrivateKeyGenerate generates a private key in a predictable manner.
 func PrivateKeyGenerateWithSeed(seed PrivateKeyGenSeed) *PrivateKey {
-	ary := generated.AsByteArray32(seed[:])
-	resp := generated.PrivateKeyGenerateWithSeed(ary)
+	ary := cgo.AsByteArray32(seed[:])
+	resp := cgo.PrivateKeyGenerateWithSeed(ary)
 	if resp == nil {
 		return nil
 	}
@@ -125,7 +125,7 @@ func PrivateKeyGenerateWithSeed(seed PrivateKeyGenSeed) *PrivateKey {
 
 // PrivateKeySign signs a message
 func PrivateKeySign(privateKey *PrivateKey, message Message) *Signature {
-	resp := generated.PrivateKeySign(generated.AsSliceRefUint8(privateKey[:]), generated.AsSliceRefUint8(message))
+	resp := cgo.PrivateKeySign(cgo.AsSliceRefUint8(privateKey[:]), cgo.AsSliceRefUint8(message))
 	if resp == nil {
 		return nil
 	}
@@ -139,7 +139,7 @@ func PrivateKeySign(privateKey *PrivateKey, message Message) *Signature {
 
 // PrivateKeyPublicKey gets the public key for a private key
 func PrivateKeyPublicKey(privateKey *PrivateKey) *PublicKey {
-	resp := generated.PrivateKeyPublicKey(generated.AsSliceRefUint8(privateKey[:]))
+	resp := cgo.PrivateKeyPublicKey(cgo.AsSliceRefUint8(privateKey[:]))
 	if resp == nil {
 		return nil
 	}
@@ -153,7 +153,7 @@ func PrivateKeyPublicKey(privateKey *PrivateKey) *PublicKey {
 
 // CreateZeroSignature creates a zero signature, used as placeholder in filecoin.
 func CreateZeroSignature() *Signature {
-	resp := generated.CreateZeroSignature()
+	resp := cgo.CreateZeroSignature()
 	if resp == nil {
 		return nil
 	}

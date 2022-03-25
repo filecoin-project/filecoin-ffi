@@ -1,4 +1,4 @@
-package generated
+package cgo
 
 import (
 	"testing"
