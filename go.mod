@@ -1,19 +1,13 @@
 module github.com/filecoin-project/filecoin-ffi
 
-go 1.13
+go 1.17
+
+require github.com/stretchr/testify v1.7.0
 
 require (
-	github.com/filecoin-project/go-address v0.0.5
-	github.com/filecoin-project/go-fil-commcid v0.0.0-20200716160307-8f644712406f
-	github.com/filecoin-project/go-state-types v0.1.1
-	github.com/filecoin-project/specs-actors v0.9.13
-	github.com/filecoin-project/specs-actors/v5 v5.0.4
-	github.com/filecoin-project/specs-actors/v7 v7.0.0-20211117170924-fd07a4c7dff9
-	github.com/ipfs/go-cid v0.0.7
-	github.com/pkg/errors v0.9.1
-	github.com/stretchr/testify v1.7.0
-	github.com/xlab/c-for-go v0.0.0-20201112171043-ea6dce5809cb
-	golang.org/x/tools v0.0.0-20201112185108-eeaa07dd7696 // indirect
-	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1
-	modernc.org/golex v1.0.1 // indirect
+	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/kr/pretty v0.2.1 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
+	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
+	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c // indirect
 )

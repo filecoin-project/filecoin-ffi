@@ -120,12 +120,12 @@ pub fn aggregate(
 /// * `flattened_public_keys` - byte array containing public keys
 #[ffi_export]
 pub fn verify(
-    signature: &[u8; SIGNATURE_BYTES],
+    signature: c_slice::Ref<u8>,
     flattened_digests: c_slice::Ref<u8>,
     flattened_public_keys: c_slice::Ref<u8>,
 ) -> libc::c_int {
     // prep request
-    let signature = try_ffi!(Signature::from_bytes(signature), 0);
+    let signature = try_ffi!(Signature::from_bytes(&signature), 0);
 
     if flattened_digests.len() % DIGEST_BYTES != 0 {
         return 0;
@@ -175,13 +175,13 @@ pub fn verify(
 /// * `flattened_public_keys_len` - length of the array
 #[ffi_export]
 pub fn hash_verify(
-    signature: &[u8; SIGNATURE_BYTES],
+    signature: c_slice::Ref<u8>,
     flattened_messages: c_slice::Ref<u8>,
     message_sizes: c_slice::Ref<libc::size_t>,
     flattened_public_keys: c_slice::Ref<u8>,
 ) -> libc::c_int {
     // prep request
-    let signature = try_ffi!(Signature::from_bytes(signature), 0);
+    let signature = try_ffi!(Signature::from_bytes(&signature), 0);
 
     let flattened = flattened_messages;
     let chunk_sizes = message_sizes;
@@ -268,10 +268,10 @@ pub fn private_key_generate_with_seed(
 /// Returns `NULL` when passed invalid arguments.
 #[ffi_export]
 pub fn private_key_sign(
-    raw_private_key: &[u8; PRIVATE_KEY_BYTES],
+    raw_private_key: c_slice::Ref<u8>,
     message: c_slice::Ref<u8>,
 ) -> Option<repr_c::Box<types::PrivateKeySignResponse>> {
-    let private_key = try_ffi!(PrivateKey::from_bytes(raw_private_key), None);
+    let private_key = try_ffi!(PrivateKey::from_bytes(&raw_private_key), None);
 
     let mut raw_signature: [u8; SIGNATURE_BYTES] = [0; SIGNATURE_BYTES];
     PrivateKey::sign(&private_key, &message[..])
@@ -296,9 +296,9 @@ pub fn private_key_sign(
 /// Returns `NULL` when passed invalid arguments.
 #[ffi_export]
 pub fn private_key_public_key(
-    raw_private_key: &[u8; PRIVATE_KEY_BYTES],
+    raw_private_key: c_slice::Ref<u8>,
 ) -> Option<repr_c::Box<types::PrivateKeyPublicKeyResponse>> {
-    let private_key = try_ffi!(PrivateKey::from_bytes(raw_private_key), None);
+    let private_key = try_ffi!(PrivateKey::from_bytes(&raw_private_key), None);
 
     let mut raw_public_key: [u8; PUBLIC_KEY_BYTES] = [0; PUBLIC_KEY_BYTES];
     private_key
@@ -349,17 +349,21 @@ mod tests {
     #[test]
     fn key_verification() {
         let private_key = private_key_generate().private_key.inner;
-        let public_key = private_key_public_key(&private_key)
+        let public_key = private_key_public_key(private_key[..].into())
             .unwrap()
             .public_key
             .inner;
         let message = b"hello world";
         let digest = hash(message[..].into()).digest.inner;
-        let signature = private_key_sign(&private_key, message[..].into())
+        let signature = private_key_sign(private_key[..].into(), message[..].into())
             .unwrap()
             .signature
             .inner;
-        let verified = verify(&signature, digest[..].into(), public_key[..].into());
+        let verified = verify(
+            signature[..].into(),
+            digest[..].into(),
+            public_key[..].into(),
+        );
 
         assert_eq!(1, verified);
 
@@ -367,7 +371,7 @@ mod tests {
         let flattened_messages = message;
 
         let verified = hash_verify(
-            &signature,
+            signature[..].into(),
             flattened_messages[..].into(),
             message_sizes[..].into(),
             public_key[..].into(),
@@ -378,7 +382,7 @@ mod tests {
         let different_message = b"bye world";
         let different_digest = hash(different_message[..].into()).digest.inner;
         let not_verified = verify(
-            &signature,
+            signature[..].into(),
             different_digest[..].into(),
             public_key[..].into(),
         );
@@ -388,7 +392,7 @@ mod tests {
         // garbage verification
         let different_digest = vec![0, 1, 2, 3, 4];
         let not_verified = verify(
-            &signature,
+            signature[..].into(),
             different_digest[..].into(),
             public_key[..].into(),
         );
