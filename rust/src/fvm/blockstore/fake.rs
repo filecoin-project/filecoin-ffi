@@ -6,6 +6,7 @@ use cid::{
     Cid,
 };
 use fvm_shared::blockstore::Blockstore;
+use fvm_shared::IDENTITY_HASH;
 
 use super::OverlayBlockstore;
 
@@ -41,10 +42,12 @@ where
     }
 
     fn put_keyed(&self, k: &Cid, block: &[u8]) -> Result<()> {
-        if Code::try_from(k.hash().code())
-            .ok()
-            .map(|code| &code.digest(block) == k.hash())
-            .unwrap_or_default()
+        let code = k.hash().code();
+        if code != IDENTITY_HASH
+            && Code::try_from(code)
+                .ok()
+                .map(|code| &code.digest(block) == k.hash())
+                .unwrap_or_default()
         {
             self.base.put_keyed(k, block)
         } else {
