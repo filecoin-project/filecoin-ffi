@@ -177,3 +177,67 @@ func GenerateWindowPoSt(randomness *ByteArray32, replicas SliceRefPrivateReplica
 	proofs := resp.value.proofs.Copy()
 	return proofs, faults, nil
 }
+
+func GetGpuDevices() ([]string, error) {
+	resp := C.get_gpu_devices()
+	defer resp.Destroy()
+	if err := CheckErr(resp); err != nil {
+		return nil, err
+	}
+
+	return resp.value.CopyAsStrings(), nil
+}
+
+func GetSealVersion(registeredProof RegisteredSealProof) (string, error) {
+	resp := C.get_seal_version(registeredProof)
+	defer resp.Destroy()
+	if err := CheckErr(resp); err != nil {
+		return "", err
+	}
+
+	return string(resp.value.Copy()), nil
+}
+
+func GetPoStVersion(registeredProof RegisteredPoStProof) (string, error) {
+	resp := C.get_post_version(registeredProof)
+	defer resp.Destroy()
+	if err := CheckErr(resp); err != nil {
+		return "", err
+	}
+
+	return string(resp.value.Copy()), nil
+}
+
+func GetNumPartitionForFallbackPost(registeredProof RegisteredPoStProof, numSectors uint) (uint, error) {
+	resp := C.get_num_partition_for_fallback_post(registeredProof, C.size_t(numSectors))
+	defer resp.Destroy()
+	if err := CheckErr(resp); err != nil {
+		return 0, err
+	}
+
+	return uint(resp.value), nil
+}
+
+func ClearCache(sectorSize uint64, cacheDirPath SliceRefUint8) error {
+	resp := C.clear_cache(C.uint64_t(sectorSize), cacheDirPath)
+	defer resp.Destroy()
+	return CheckErr(resp)
+}
+
+func Fauxrep(registeredProf RegisteredSealProof, cacheDirPath SliceRefUint8, sealedSectorPath SliceRefUint8) ([]byte, error) {
+	resp := C.fauxrep(registeredProf, cacheDirPath, sealedSectorPath)
+	defer resp.Destroy()
+	if err := CheckErr(resp); err != nil {
+		return nil, err
+	}
+	return resp.value.Copy(), nil
+}
+
+func Fauxrep2(registeredProf RegisteredSealProof, cacheDirPath SliceRefUint8, existingPAuxPath SliceRefUint8) ([]byte, error) {
+	resp := C.fauxrep2(registeredProf, cacheDirPath, existingPAuxPath)
+	defer resp.Destroy()
+	if err := CheckErr(resp); err != nil {
+		return nil, err
+	}
+	return resp.value.Copy(), nil
+}

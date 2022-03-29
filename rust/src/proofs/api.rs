@@ -17,6 +17,16 @@ use crate::util::types::{
     as_path_buf, catch_panic_response, catch_panic_response_raw, FCPResponseStatus,
 };
 
+#[ffi_export]
+fn alloc_boxed_slice(size: usize) -> c_slice::Box<u8> {
+    vec![0u8; size].into_boxed_slice().into()
+}
+
+#[ffi_export]
+fn destroy_boxed_slice(ptr: c_slice::Box<u8>) {
+    drop(ptr);
+}
+
 // A byte serialized representation of a vanilla proof.
 pub type ApiVanillaProof = Vec<u8>;
 

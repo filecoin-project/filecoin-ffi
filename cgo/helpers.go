@@ -44,17 +44,15 @@ func AsSliceRefUint64(goBytes []uint64) SliceRefUint64 {
 	}
 }
 
-func AsSliceBoxedUint8(goBytes []byte) (SliceBoxedUint8, error) {
+func AllocSliceBoxedUint8(goBytes []byte) (SliceBoxedUint8, error) {
 	len := len(goBytes)
-
 	if len == 0 {
-		// must not be empty
 		return SliceBoxedUint8{}, errors.New("SlicedBoxedUint8 must not be empty")
 	}
-	return SliceBoxedUint8{
-		ptr: (*C.uint8_t)(unsafe.Pointer(&goBytes[0])),
-		len: C.size_t(len),
-	}, nil
+
+	ptr := C.alloc_boxed_slice(C.size_t(len))
+
+	return ptr, nil
 }
 
 func AsSliceRefUint(goSlice []uint) SliceRefUint {
@@ -195,8 +193,13 @@ func AsSliceRefSliceBoxedUint8(goSlice []SliceBoxedUint8) SliceRefSliceBoxedUint
 
 func AsByteArray32(goSlice []byte) ByteArray32 {
 	var ary ByteArray32
-	for idx := range goSlice[:32] {
-		ary.idx[idx] = C.uchar(goSlice[idx])
+	l := len(goSlice)
+	for idx := range goSlice {
+		if idx < l {
+			ary.idx[idx] = C.uchar(goSlice[idx])
+		} else {
+			ary.idx[idx] = 0
+		}
 	}
 	return ary
 }
@@ -223,14 +226,23 @@ func NewAggregationInputs(commR ByteArray32, commD ByteArray32, sectorId uint64,
 	}
 }
 
-func NewPrivateReplicaInfo(pp RegisteredPoStProof, cacheDirPath SliceBoxedUint8, commR ByteArray32, replicaPath SliceBoxedUint8, sectorId uint64) PrivateReplicaInfo {
+func NewPrivateReplicaInfo(pp RegisteredPoStProof, cacheDirPath string, commR ByteArray32, replicaPath string, sectorId uint64) (PrivateReplicaInfo, error) {
+	cacheDirPathBytes, err := AllocSliceBoxedUint8([]byte(cacheDirPath))
+	if err != nil {
+		return PrivateReplicaInfo{}, err
+	}
+	replicaPathBytes, err := AllocSliceBoxedUint8([]byte(replicaPath))
+	if err != nil {
+		return PrivateReplicaInfo{}, err
+	}
+
 	return PrivateReplicaInfo{
 		registered_proof: pp,
-		cache_dir_path:   cacheDirPath,
-		replica_path:     replicaPath,
+		cache_dir_path:   cacheDirPathBytes,
+		replica_path:     replicaPathBytes,
 		sector_id:        C.uint64_t(sectorId),
 		comm_r:           commR,
-	}
+	}, nil
 }
 
 func NewPublicReplicaInfo(pp RegisteredPoStProof, commR ByteArray32, sectorId uint64) PublicReplicaInfo {
@@ -241,11 +253,15 @@ func NewPublicReplicaInfo(pp RegisteredPoStProof, commR ByteArray32, sectorId ui
 	}
 }
 
-func NewPoStProof(pp RegisteredPoStProof, proof SliceBoxedUint8) PoStProof {
+func NewPoStProof(pp RegisteredPoStProof, proof []byte) (PoStProof, error) {
+	proofBytes, err := AllocSliceBoxedUint8(proof)
+	if err != nil {
+		return PoStProof{}, nil
+	}
 	return PoStProof{
 		registered_proof: pp,
-		proof:            proof,
-	}
+		proof:            proofBytes,
+	}, nil
 }
 
 func NewPublicPieceInfo(numBytes uint64, commP ByteArray32) PublicPieceInfo {

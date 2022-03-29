@@ -36,7 +36,7 @@ pub fn get_gpu_devices() -> repr_c::Box<GpuDeviceResponse> {
     catch_panic_response("get_gpu_devices", || {
         let devices = rust_gpu_tools::Device::all();
         let devices: Vec<_> = devices
-            .iter()
+            .into_iter()
             .map(|d| d.name().into_bytes().into_boxed_slice().into())
             .collect();
 

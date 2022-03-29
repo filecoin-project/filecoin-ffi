@@ -7,14 +7,33 @@ package cgo
 #include <stdlib.h>
 */
 import "C"
-import "unsafe"
+import (
+	"unsafe"
+)
 
 type FCPResponseStatus int64
 
 type SliceBoxedUint8 = C.struct_slice_boxed_uint8
 
-func (ptr *SliceBoxedUint8) Slice() []byte {
-	return unsafe.Slice((*byte)(unsafe.Pointer(&ptr.ptr)), int(ptr.len))
+func (ptr SliceBoxedUint8) Slice() []byte {
+	return unsafe.Slice((*byte)(ptr.ptr), int(ptr.len))
+}
+
+func (ptr SliceBoxedUint8) Copy() []byte {
+	if ptr.len == 0 {
+		return []byte{}
+	}
+
+	ref := ptr.Slice()
+	res := make([]byte, len(ref))
+	for i := range ref {
+		res[i] = ref[i]
+	}
+	return res
+}
+
+func (ptr SliceBoxedUint8) Destroy() {
+	C.destroy_boxed_slice(ptr)
 }
 
 type SliceRefUint8 = C.slice_ref_uint8_t
@@ -22,7 +41,7 @@ type SliceRefUint8 = C.slice_ref_uint8_t
 type BLSDigest = C.BLSDigest_t
 
 func (ptr *BLSDigest) Slice() []byte {
-	return unsafe.Slice((*byte)(unsafe.Pointer(&ptr.inner.idx[0])), 96)
+	return ptr.inner.Slice()
 }
 
 type HashResponse = C.HashResponse_t
@@ -34,7 +53,7 @@ func (ptr *HashResponse) Digest() []byte {
 type BLSSignature = C.BLSSignature_t
 
 func (ptr *BLSSignature) Slice() []byte {
-	return unsafe.Slice((*byte)(unsafe.Pointer(&ptr.inner.idx[0])), 96)
+	return ptr.inner.Slice()
 }
 
 type AggregateResponse = C.AggregateResponse_t
@@ -48,7 +67,7 @@ type SliceRefUint = C.slice_ref_size_t
 type BLSPrivateKey = C.BLSPrivateKey_t
 
 func (ptr *BLSPrivateKey) Slice() []byte {
-	return unsafe.Slice((*byte)(unsafe.Pointer(&ptr.inner.idx[0])), 32)
+	return ptr.inner.Slice()
 }
 
 type PrivateKeyGenerateResponse = C.PrivateKeyGenerateResponse_t
@@ -66,7 +85,7 @@ func (ptr *PrivateKeySignResponse) Signature() []byte {
 type BLSPublicKey = C.BLSPublicKey_t
 
 func (ptr *BLSPublicKey) Slice() []byte {
-	return unsafe.Slice((*byte)(unsafe.Pointer(&ptr.inner.idx[0])), 48)
+	return ptr.inner.Slice()
 }
 
 type PrivateKeyPublicKeyResponse = C.PrivateKeyPublicKeyResponse_t
@@ -114,6 +133,13 @@ type SliceRefAggregationInputs = C.slice_ref_AggregationInputs_t
 type PublicReplicaInfo = C.PublicReplicaInfo_t
 type PrivateReplicaInfo = C.PrivateReplicaInfo_t
 
+func (ptr *PrivateReplicaInfo) Destroy() {
+	if ptr != nil {
+		ptr.cache_dir_path.Destroy()
+		ptr.replica_path.Destroy()
+	}
+}
+
 type SliceRefPublicReplicaInfo = C.slice_ref_PublicReplicaInfo_t
 type SliceRefPrivateReplicaInfo = C.slice_ref_PrivateReplicaInfo_t
 
@@ -128,18 +154,34 @@ func (ptr *PoStProof) RegisteredProof() RegisteredPoStProof {
 	return ptr.registered_proof
 }
 
+func (ptr *PoStProof) Destroy() {
+	if ptr != nil {
+		ptr.proof.Destroy()
+	}
+}
+
+type ByteArray96 = C.uint8_96_array_t
+
+func (ptr ByteArray96) Slice() []byte {
+	return unsafe.Slice((*byte)(unsafe.Pointer(&ptr.idx[0])), 96)
+}
+
+type ByteArray48 = C.uint8_48_array_t
+
+func (ptr ByteArray48) Slice() []byte {
+	return unsafe.Slice((*byte)(unsafe.Pointer(&ptr.idx[0])), 48)
+}
+
 type ByteArray32 = C.uint8_32_array_t
 
-func (ptr *ByteArray32) Slice() []byte {
+func (ptr ByteArray32) Slice() []byte {
 	return unsafe.Slice((*byte)(unsafe.Pointer(&ptr.idx[0])), 32)
 }
 
-func (ptr *ByteArray32) Copy() []byte {
+func (ptr ByteArray32) Copy() []byte {
 	res := make([]byte, 32)
-	if ptr != nil {
-		for i := range res {
-			res[i] = byte(ptr.idx[i])
-		}
+	for i := range res {
+		res[i] = byte(ptr.idx[i])
 	}
 	return res
 }
@@ -251,20 +293,6 @@ func (ptr *ResultSealPreCommitPhase2) Destroy() {
 	}
 }
 
-func (ptr *SliceBoxedUint8) Copy() []byte {
-	if ptr == nil {
-		return []byte{}
-	}
-
-	ref := ptr.Slice()
-	res := make([]byte, len(ref))
-	for i := range ref {
-		res[i] = res[i]
-	}
-
-	return res
-}
-
 type SliceRefByteArray32 = C.slice_ref_uint8_32_array_t
 type SliceRefSliceBoxedUint8 = C.slice_ref_slice_boxed_uint8_t
 
@@ -287,19 +315,19 @@ func (ptr *ResultVoid) Destroy() {
 
 type SliceBoxedUint64 = C.struct_slice_boxed_uint64
 
-func (ptr *SliceBoxedUint64) Slice() []uint64 {
-	return unsafe.Slice((*uint64)(unsafe.Pointer(&ptr.ptr)), int(ptr.len))
+func (ptr SliceBoxedUint64) Slice() []uint64 {
+	return unsafe.Slice((*uint64)(unsafe.Pointer(ptr.ptr)), int(ptr.len))
 }
 
-func (ptr *SliceBoxedUint64) Copy() []uint64 {
-	if ptr == nil {
+func (ptr SliceBoxedUint64) Copy() []uint64 {
+	if ptr.len == 0 {
 		return []uint64{}
 	}
 
 	ref := ptr.Slice()
 	res := make([]uint64, len(ref))
 	for i := range ref {
-		res[i] = res[i]
+		res[i] = ref[i]
 	}
 
 	return res
@@ -324,19 +352,19 @@ func (ptr *ResultSliceBoxedUint64) Destroy() {
 
 type SliceBoxedPoStProof = C.struct_slice_boxed_PoStProof
 
-func (ptr *SliceBoxedPoStProof) Slice() []PoStProof {
-	return unsafe.Slice((*PoStProof)(unsafe.Pointer(&ptr.ptr)), int(ptr.len))
+func (ptr SliceBoxedPoStProof) Slice() []PoStProof {
+	return unsafe.Slice((*PoStProof)(unsafe.Pointer(ptr.ptr)), int(ptr.len))
 }
 
-func (ptr *SliceBoxedPoStProof) Copy() []PoStProof {
-	if ptr == nil {
+func (ptr SliceBoxedPoStProof) Copy() []PoStProof {
+	if ptr.len == 0 {
 		return []PoStProof{}
 	}
 
 	ref := ptr.Slice()
 	res := make([]PoStProof, len(ref))
 	for i := range ref {
-		res[i] = res[i]
+		res[i] = ref[i]
 	}
 
 	return res
@@ -372,5 +400,72 @@ func (ptr *ResultGenerateWindowPoSt) ErrorMsg() *SliceBoxedUint8 {
 func (ptr *ResultGenerateWindowPoSt) Destroy() {
 	if ptr != nil {
 		C.destroy_generate_window_post_response(ptr)
+	}
+}
+
+type SliceBoxedSliceBoxedUint8 = C.slice_boxed_slice_boxed_uint8_t
+
+func (ptr SliceBoxedSliceBoxedUint8) Slice() []SliceBoxedUint8 {
+	return unsafe.Slice((*SliceBoxedUint8)(unsafe.Pointer(ptr.ptr)), int(ptr.len))
+}
+
+func (ptr SliceBoxedSliceBoxedUint8) CopyAsBytes() [][]byte {
+	if ptr.len == 0 {
+		return [][]byte{}
+	}
+
+	ref := ptr.Slice()
+	res := make([][]byte, len(ref))
+	for i := range ref {
+		res[i] = ref[i].Copy()
+	}
+
+	return res
+}
+
+func (ptr SliceBoxedSliceBoxedUint8) CopyAsStrings() []string {
+	if ptr.len == 0 {
+		return []string{}
+	}
+	ref := ptr.Slice()
+	res := make([]string, int(ptr.len))
+	for i := range ref {
+		res[i] = string(ref[i].Copy())
+	}
+
+	return res
+}
+
+type ResultSliceBoxedSliceBoxedUint8 = C.Result_slice_boxed_slice_boxed_uint8_t
+
+func (ptr *ResultSliceBoxedSliceBoxedUint8) StatusCode() FCPResponseStatus {
+	return FCPResponseStatus(ptr.status_code)
+}
+
+func (ptr *ResultSliceBoxedSliceBoxedUint8) ErrorMsg() *SliceBoxedUint8 {
+	return &ptr.error_msg
+}
+
+func (ptr *ResultSliceBoxedSliceBoxedUint8) Destroy() {
+	if ptr != nil {
+		// TODO: naming
+		C.destroy_generate_empty_sector_update_partition_proof_response(ptr)
+	}
+}
+
+type ResultUint = C.Result_size_t
+
+func (ptr *ResultUint) StatusCode() FCPResponseStatus {
+	return FCPResponseStatus(ptr.status_code)
+}
+
+func (ptr *ResultUint) ErrorMsg() *SliceBoxedUint8 {
+	return &ptr.error_msg
+}
+
+func (ptr *ResultUint) Destroy() {
+	if ptr != nil {
+		// TODO: naming
+		C.destroy_get_num_partition_for_fallback_post_response(ptr)
 	}
 }

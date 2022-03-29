@@ -426,10 +426,11 @@ func AggregateSealProofs(aggregateInfo proof5.AggregateSealVerifyProofAndInfos, 
 
 	pfs := make([]cgo.SliceBoxedUint8, len(proofs))
 	for i := range proofs {
-		p, err := cgo.AsSliceBoxedUint8(proofs[i])
+		p, err := cgo.AllocSliceBoxedUint8(proofs[i])
 		if err != nil {
 			return nil, err
 		}
+		defer p.Destroy()
 		pfs[i] = p
 	}
 
@@ -549,6 +550,11 @@ func GenerateWinningPoSt(
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create private replica info array for FFI")
 	}
+	defer func() {
+		for i := range filReplicas {
+			filReplicas[i].Destroy()
+		}
+	}()
 
 	proverID, err := toProverID(minerID)
 	if err != nil {
@@ -578,6 +584,11 @@ func GenerateWindowPoSt(
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "failed to create private replica info array for FFI")
 	}
+	defer func() {
+		for i := range filReplicas {
+			filReplicas[i].Destroy()
+		}
+	}()
 
 	proverID, err := toProverID(minerID)
 	if err != nil {
@@ -603,127 +614,73 @@ func GenerateWindowPoSt(
 	return proofs, faultySectors, nil
 }
 
-// // GetGPUDevices produces a slice of strings, each representing the name of a
-// // detected GPU device.
-// func GetGPUDevices() ([]string, error) {
-// 	resp := cgo.GetGpuDevices()
-// 	resp.Deref()
-// 	resp.DevicesPtr = make([]string, resp.DevicesLen)
-// 	resp.Deref()
+// GetGPUDevices produces a slice of strings, each representing the name of a
+// detected GPU device.
+func GetGPUDevices() ([]string, error) {
+	return cgo.GetGpuDevices()
+}
 
-// 	defer cgo.DestroyGpuDeviceResponse(resp)
+// GetSealVersion
+func GetSealVersion(proofType abi.RegisteredSealProof) (string, error) {
+	sp, err := toFilRegisteredSealProof(proofType)
+	if err != nil {
+		return "", err
+	}
 
-// 	out := make([]string, len(resp.DevicesPtr))
-// 	for idx := range out {
-// 		out[idx] = cgo.RawString(resp.DevicesPtr[idx]).Copy()
-// 	}
+	return cgo.GetSealVersion(sp)
+}
 
-// 	return out, nil
-// }
+// GetPoStVersion
+func GetPoStVersion(proofType abi.RegisteredPoStProof) (string, error) {
+	pp, err := toFilRegisteredPoStProof(proofType)
+	if err != nil {
+		return "", err
+	}
 
-// // GetSealVersion
-// func GetSealVersion(proofType abi.RegisteredSealProof) (string, error) {
-// 	sp, err := toFilRegisteredSealProof(proofType)
-// 	if err != nil {
-// 		return "", err
-// 	}
+	return cgo.GetPoStVersion(pp)
+}
 
-// 	resp := cgo.GetSealVersion(sp)
-// 	resp.Deref()
+func GetNumPartitionForFallbackPost(proofType abi.RegisteredPoStProof, numSectors uint) (uint, error) {
+	pp, err := toFilRegisteredPoStProof(proofType)
+	if err != nil {
+		return 0, err
+	}
 
-// 	defer cgo.DestroyStringResponse(resp)
+	return cgo.GetNumPartitionForFallbackPost(pp, numSectors)
+}
 
-// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
-// 		return "", errors.New(cgo.RawString(resp.ErrorMsg).Copy())
-// 	}
+// ClearCache
+func ClearCache(sectorSize uint64, cacheDirPath string) error {
+	return cgo.ClearCache(sectorSize, cgo.AsSliceRefUint8([]byte(cacheDirPath)))
+}
 
-// 	return cgo.RawString(resp.StringVal).Copy(), nil
-// }
+func FauxRep(proofType abi.RegisteredSealProof, cacheDirPath string, sealedSectorPath string) (cid.Cid, error) {
+	sp, err := toFilRegisteredSealProof(proofType)
+	if err != nil {
+		return cid.Undef, err
+	}
 
-// // GetPoStVersion
-// func GetPoStVersion(proofType abi.RegisteredPoStProof) (string, error) {
-// 	pp, err := toFilRegisteredPoStProof(proofType)
-// 	if err != nil {
-// 		return "", err
-// 	}
+	rawCid, err := cgo.Fauxrep(sp, cgo.AsSliceRefUint8([]byte(cacheDirPath)), cgo.AsSliceRefUint8([]byte(sealedSectorPath)))
+	if err != nil {
+		return cid.Undef, err
+	}
 
-// 	resp := cgo.GetPostVersion(pp)
-// 	resp.Deref()
+	return commcid.ReplicaCommitmentV1ToCID(rawCid)
+}
 
-// 	defer cgo.DestroyStringResponse(resp)
+func FauxRep2(proofType abi.RegisteredSealProof, cacheDirPath string, existingPAuxPath string) (cid.Cid, error) {
+	sp, err := toFilRegisteredSealProof(proofType)
+	if err != nil {
+		return cid.Undef, err
+	}
 
-// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
-// 		return "", errors.New(cgo.RawString(resp.ErrorMsg).Copy())
-// 	}
+	rawCid, err := cgo.Fauxrep2(sp, cgo.AsSliceRefUint8([]byte(cacheDirPath)), cgo.AsSliceRefUint8([]byte(existingPAuxPath)))
+	if err != nil {
+		return cid.Undef, err
+	}
 
-// 	return cgo.RawString(resp.StringVal).Copy(), nil
-// }
-
-// func GetNumPartitionForFallbackPost(proofType abi.RegisteredPoStProof, numSectors uint) (uint, error) {
-// 	pp, err := toFilRegisteredPoStProof(proofType)
-// 	if err != nil {
-// 		return 0, err
-// 	}
-// 	resp := cgo.GetNumPartitionForFallbackPost(pp, numSectors)
-// 	resp.Deref()
-// 	defer cgo.DestroyGetNumPartitionForFallbackPostResponse(resp)
-
-// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
-// 		return 0, errors.New(cgo.RawString(resp.ErrorMsg).Copy())
-// 	}
-
-// 	return resp.NumPartition, nil
-// }
-
-// // ClearCache
-// func ClearCache(sectorSize uint64, cacheDirPath string) error {
-// 	resp := cgo.ClearCache(sectorSize, cacheDirPath)
-// 	resp.Deref()
-
-// 	defer cgo.DestroyClearCacheResponse(resp)
-
-// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
-// 		return errors.New(cgo.RawString(resp.ErrorMsg).Copy())
-// 	}
-
-// 	return nil
-// }
-
-// func FauxRep(proofType abi.RegisteredSealProof, cacheDirPath string, sealedSectorPath string) (cid.Cid, error) {
-// 	sp, err := toFilRegisteredSealProof(proofType)
-// 	if err != nil {
-// 		return cid.Undef, err
-// 	}
-
-// 	resp := cgo.Fauxrep(sp, cacheDirPath, sealedSectorPath)
-// 	resp.Deref()
-
-// 	defer cgo.DestroyFauxrepResponse(resp)
-
-// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
-// 		return cid.Undef, errors.New(cgo.RawString(resp.ErrorMsg).Copy())
-// 	}
-
-// 	return commcid.ReplicaCommitmentV1ToCID(resp.Commitment[:])
-// }
-
-// func FauxRep2(proofType abi.RegisteredSealProof, cacheDirPath string, existingPAuxPath string) (cid.Cid, error) {
-// 	sp, err := toFilRegisteredSealProof(proofType)
-// 	if err != nil {
-// 		return cid.Undef, err
-// 	}
-
-// 	resp := cgo.Fauxrep2(sp, cacheDirPath, existingPAuxPath)
-// 	resp.Deref()
-
-// 	defer cgo.DestroyFauxrepResponse(resp)
-
-// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
-// 		return cid.Undef, errors.New(cgo.RawString(resp.ErrorMsg).Copy())
-// 	}
-
-// 	return commcid.ReplicaCommitmentV1ToCID(resp.Commitment[:])
-// }
+	return commcid.ReplicaCommitmentV1ToCID(rawCid)
+}
 
 func toFilExistingPieceSizes(src []abi.UnpaddedPieceSize) []uint64 {
 	out := make([]uint64, len(src))
@@ -801,24 +758,13 @@ func toFilPrivateReplicaInfo(src PrivateSectorInfo) (cgo.PrivateReplicaInfo, err
 		return cgo.PrivateReplicaInfo{}, err
 	}
 
-	cacheDirPath, err := cgo.AsSliceBoxedUint8([]byte(src.CacheDirPath))
-	if err != nil {
-		return cgo.PrivateReplicaInfo{}, err
-	}
-	sealedSectorPath, err := cgo.AsSliceBoxedUint8([]byte(src.SealedSectorPath))
-	if err != nil {
-		return cgo.PrivateReplicaInfo{}, err
-	}
-
-	out := cgo.NewPrivateReplicaInfo(
+	return cgo.NewPrivateReplicaInfo(
 		pp,
-		cacheDirPath,
+		src.CacheDirPath,
 		commR,
-		sealedSectorPath,
+		src.SealedSectorPath,
 		uint64(src.SectorNumber),
 	)
-
-	return out, nil
 }
 
 func toFilPrivateReplicaInfos(src []PrivateSectorInfo, typ string) ([]cgo.PrivateReplicaInfo, error) {
@@ -835,22 +781,17 @@ func toFilPrivateReplicaInfos(src []PrivateSectorInfo, typ string) ([]cgo.Privat
 			return nil, err
 		}
 
-		cacheDirPath, err := cgo.AsSliceBoxedUint8([]byte(src[idx].CacheDirPath))
-		if err != nil {
-			return nil, err
-		}
-		sealedSectorPath, err := cgo.AsSliceBoxedUint8([]byte(src[idx].SealedSectorPath))
-		if err != nil {
-			return nil, err
-		}
-
-		out[idx] = cgo.NewPrivateReplicaInfo(
+		info, err := cgo.NewPrivateReplicaInfo(
 			pp,
-			cacheDirPath,
+			src[idx].CacheDirPath,
 			commR,
-			sealedSectorPath,
+			src[idx].SealedSectorPath,
 			uint64(src[idx].SectorNumber),
 		)
+		if err != nil {
+			return nil, err
+		}
+		out[idx] = info
 	}
 
 	return out, nil
@@ -891,11 +832,11 @@ func toFilPoStProofs(src []proof5.PoStProof) ([]cgo.PoStProof, error) {
 			return nil, err
 		}
 
-		proof, err := cgo.AsSliceBoxedUint8(src[idx].ProofBytes)
+		proof, err := cgo.NewPoStProof(pp, src[idx].ProofBytes)
 		if err != nil {
 			return nil, err
 		}
-		out[idx] = cgo.NewPoStProof(pp, proof)
+		out[idx] = proof
 	}
 
 	return out, nil
