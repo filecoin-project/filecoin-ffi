@@ -109,7 +109,7 @@ pub unsafe extern "C" fn fil_create_fvm_machine(
             base_circ_supply,
             network_version,
             state_root,
-            builtin_actors,
+            Some(builtin_actors),
             blockstore,
             externs,
         );
