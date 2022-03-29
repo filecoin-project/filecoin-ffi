@@ -131,3 +131,53 @@ type ByteArray32 = C.uint8_32_array_t
 func (ptr *ByteArray32) Slice() []byte {
 	return unsafe.Slice((*byte)(unsafe.Pointer(&ptr.idx[0])), 32)
 }
+
+func (ptr *ByteArray32) Copy() []byte {
+	res := make([]byte, 32)
+	if ptr != nil {
+		for i := range res {
+			res[i] = byte(ptr.idx[i])
+		}
+	}
+	return res
+}
+
+type ResultGeneratePieceCommitment = C.Result_GeneratePieceCommitment_t
+
+func (ptr *ResultGeneratePieceCommitment) StatusCode() FCPResponseStatus {
+	return FCPResponseStatus(ptr.status_code)
+}
+
+func (ptr *ResultGeneratePieceCommitment) ErrorMsg() *SliceBoxedUint8 {
+	return &ptr.error_msg
+}
+
+func (ptr *ResultGeneratePieceCommitment) Destroy() {
+	if ptr != nil {
+		C.destroy_generate_piece_commitment_response(ptr)
+	}
+}
+
+type ResultByteArray32 = C.Result_uint8_32_array_t
+
+func (ptr *ResultByteArray32) StatusCode() FCPResponseStatus {
+	return FCPResponseStatus(ptr.status_code)
+}
+
+func (ptr *ResultByteArray32) ErrorMsg() *SliceBoxedUint8 {
+	return &ptr.error_msg
+}
+
+func (ptr *ResultByteArray32) Destroy() {
+	if ptr != nil {
+		// TODO: better naming
+		C.destroy_generate_data_commitment_response(ptr)
+	}
+}
+
+func (ptr *ResultByteArray32) Value() ByteArray32 {
+	return ptr.value
+}
+
+type PublicPieceInfo = C.PublicPieceInfo_t
+type SliceRefPublicPieceInfo = C.slice_ref_PublicPieceInfo_t

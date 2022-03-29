@@ -50,3 +50,25 @@ func VerifyWindowPoSt(randomness *ByteArray32, replicas SliceRefPublicReplicaInf
 
 	return bool(resp.value), nil
 }
+
+func GeneratePieceCommitment(registeredProof RegisteredSealProof, pieceFdRaw int32, unpaddedPieceSize uint64) ([]byte, error) {
+	resp := C.generate_piece_commitment(registeredProof, C.int32_t(pieceFdRaw), C.uint64_t(unpaddedPieceSize))
+	defer resp.Destroy()
+
+	if err := CheckErr(resp); err != nil {
+		return nil, err
+	}
+
+	return resp.value.comm_p.Copy(), nil
+}
+
+func GenerateDataCommitment(registeredProof RegisteredSealProof, pieces SliceRefPublicPieceInfo) ([]byte, error) {
+	resp := C.generate_data_commitment(registeredProof, pieces)
+	defer resp.Destroy()
+
+	if err := CheckErr(resp); err != nil {
+		return nil, err
+	}
+
+	return resp.value.Copy(), nil
+}

@@ -126,6 +126,23 @@ func AsSliceRefPoStProof(goSlice []PoStProof) SliceRefPoStProof {
 	}
 }
 
+func AsSliceRefPublicPieceInfo(goSlice []PublicPieceInfo) SliceRefPublicPieceInfo {
+	len := len(goSlice)
+
+	if len == 0 {
+		// can't take element 0 of an empty slice
+		return SliceRefPublicPieceInfo{
+			ptr: (*C.PublicPieceInfo_t)(unsafe.Pointer(&goSlice)),
+			len: C.size_t(len),
+		}
+	}
+
+	return SliceRefPublicPieceInfo{
+		ptr: (*C.PublicPieceInfo_t)(unsafe.Pointer(&goSlice[0])),
+		len: C.size_t(len),
+	}
+}
+
 func AsByteArray32(goSlice []byte) ByteArray32 {
 	var ary ByteArray32
 	for idx := range goSlice[:32] {
@@ -178,5 +195,12 @@ func NewPoStProof(pp RegisteredPoStProof, proof SliceBoxedUint8) PoStProof {
 	return PoStProof{
 		registered_proof: pp,
 		proof:            proof,
+	}
+}
+
+func NewPublicPieceInfo(numBytes uint64, commP ByteArray32) PublicPieceInfo {
+	return PublicPieceInfo{
+		num_bytes: C.uint64_t(numBytes),
+		comm_p:    commP,
 	}
 }

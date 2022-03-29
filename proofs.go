@@ -8,6 +8,8 @@ package ffi
 // #include "./filcrypto.h"
 import "C"
 import (
+	"os"
+	"runtime"
 	"unsafe"
 
 	"github.com/ipfs/go-cid"
@@ -153,69 +155,60 @@ func VerifyWindowPoSt(info proof5.WindowPoStVerifyInfo) (bool, error) {
 	)
 }
 
-// // GeneratePieceCommitment produces a piece commitment for the provided data
-// // stored at a given path.
-// func GeneratePieceCID(proofType abi.RegisteredSealProof, piecePath string, pieceSize abi.UnpaddedPieceSize) (cid.Cid, error) {
-// 	pieceFile, err := os.Open(piecePath)
-// 	if err != nil {
-// 		return cid.Undef, err
-// 	}
+// GeneratePieceCommitment produces a piece commitment for the provided data
+// stored at a given path.
+func GeneratePieceCID(proofType abi.RegisteredSealProof, piecePath string, pieceSize abi.UnpaddedPieceSize) (cid.Cid, error) {
+	pieceFile, err := os.Open(piecePath)
+	if err != nil {
+		return cid.Undef, err
+	}
 
-// 	pcd, err := GeneratePieceCIDFromFile(proofType, pieceFile, pieceSize)
-// 	if err != nil {
-// 		return cid.Undef, pieceFile.Close()
-// 	}
+	pcd, err := GeneratePieceCIDFromFile(proofType, pieceFile, pieceSize)
+	if err != nil {
+		return cid.Undef, pieceFile.Close()
+	}
 
-// 	return pcd, pieceFile.Close()
-// }
+	return pcd, pieceFile.Close()
+}
 
-// // GenerateDataCommitment produces a commitment for the sector containing the
-// // provided pieces.
-// func GenerateUnsealedCID(proofType abi.RegisteredSealProof, pieces []abi.PieceInfo) (cid.Cid, error) {
-// 	sp, err := toFilRegisteredSealProof(proofType)
-// 	if err != nil {
-// 		return cid.Undef, err
-// 	}
+// GenerateDataCommitment produces a commitment for the sector containing the
+// provided pieces.
+func GenerateUnsealedCID(proofType abi.RegisteredSealProof, pieces []abi.PieceInfo) (cid.Cid, error) {
+	sp, err := toFilRegisteredSealProof(proofType)
+	if err != nil {
+		return cid.Undef, err
+	}
 
-// 	filPublicPieceInfos, filPublicPieceInfosLen, err := toFilPublicPieceInfos(pieces)
-// 	if err != nil {
-// 		return cid.Undef, err
-// 	}
+	filPublicPieceInfos, err := toFilPublicPieceInfos(pieces)
+	if err != nil {
+		return cid.Undef, err
+	}
 
-// 	resp := cgo.GenerateDataCommitment(sp, filPublicPieceInfos, filPublicPieceInfosLen)
-// 	resp.Deref()
+	resp, err := cgo.GenerateDataCommitment(sp, cgo.AsSliceRefPublicPieceInfo(filPublicPieceInfos))
+	if err != nil {
+		return cid.Undef, err
+	}
 
-// 	defer cgo.DestroyGenerateDataCommitmentResponse(resp)
+	return commcid.DataCommitmentV1ToCID(resp)
+}
 
-// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
-// 		return cid.Undef, errors.New(cgo.RawString(resp.ErrorMsg).Copy())
-// 	}
+// GeneratePieceCIDFromFile produces a piece CID for the provided data stored in a given file.
+func GeneratePieceCIDFromFile(proofType abi.RegisteredSealProof, pieceFile *os.File, pieceSize abi.UnpaddedPieceSize) (cid.Cid, error) {
+	sp, err := toFilRegisteredSealProof(proofType)
+	if err != nil {
+		return cid.Undef, err
+	}
 
-// 	return commcid.DataCommitmentV1ToCID(resp.CommD[:])
-// }
+	pieceFd := pieceFile.Fd()
+	defer runtime.KeepAlive(pieceFile)
 
-// // GeneratePieceCIDFromFile produces a piece CID for the provided data stored in
-// //a given file.
-// func GeneratePieceCIDFromFile(proofType abi.RegisteredSealProof, pieceFile *os.File, pieceSize abi.UnpaddedPieceSize) (cid.Cid, error) {
-// 	sp, err := toFilRegisteredSealProof(proofType)
-// 	if err != nil {
-// 		return cid.Undef, err
-// 	}
+	resp, err := cgo.GeneratePieceCommitment(sp, int32(pieceFd), uint64(pieceSize))
+	if err != nil {
+		return cid.Undef, err
+	}
 
-// 	pieceFd := pieceFile.Fd()
-// 	defer runtime.KeepAlive(pieceFile)
-
-// 	resp := cgo.GeneratePieceCommitment(sp, int32(pieceFd), uint64(pieceSize))
-// 	resp.Deref()
-
-// 	defer cgo.DestroyGeneratePieceCommitmentResponse(resp)
-
-// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
-// 		return cid.Undef, errors.New(cgo.RawString(resp.ErrorMsg).Copy())
-// 	}
-
-// 	return commcid.PieceCommitmentV1ToCID(resp.CommP[:])
-// }
+	return commcid.PieceCommitmentV1ToCID(resp)
+}
 
 // // WriteWithAlignment
 // func WriteWithAlignment(
@@ -781,33 +774,30 @@ func VerifyWindowPoSt(info proof5.WindowPoStVerifyInfo) (bool, error) {
 // 	return commcid.ReplicaCommitmentV1ToCID(resp.Commitment[:])
 // }
 
-// func toFilExistingPieceSizes(src []abi.UnpaddedPieceSize) ([]uint64, uint) {
-// 	out := make([]uint64, len(src))
+func toFilExistingPieceSizes(src []abi.UnpaddedPieceSize) ([]uint64, uint) {
+	out := make([]uint64, len(src))
 
-// 	for idx := range out {
-// 		out[idx] = uint64(src[idx])
-// 	}
+	for idx := range out {
+		out[idx] = uint64(src[idx])
+	}
 
-// 	return out, uint(len(out))
-// }
+	return out, uint(len(out))
+}
 
-// func toFilPublicPieceInfos(src []abi.PieceInfo) ([]cgo.PublicPieceInfoT, uint, error) {
-// 	out := make([]cgo.PublicPieceInfoT, len(src))
+func toFilPublicPieceInfos(src []abi.PieceInfo) ([]cgo.PublicPieceInfo, error) {
+	out := make([]cgo.PublicPieceInfo, len(src))
 
-// 	for idx := range out {
-// 		commP, err := to32ByteCommP(src[idx].PieceCID)
-// 		if err != nil {
-// 			return nil, 0, err
-// 		}
+	for idx := range out {
+		commP, err := to32ByteCommP(src[idx].PieceCID)
+		if err != nil {
+			return nil, err
+		}
 
-// 		out[idx] = cgo.PublicPieceInfoT{
-// 			NumBytes: uint64(src[idx].Size.Unpadded()),
-// 			CommP:    commP.Inner,
-// 		}
-// 	}
+		out[idx] = cgo.NewPublicPieceInfo(uint64(src[idx].Size.Unpadded()), commP)
+	}
 
-// 	return out, uint(len(out)), nil
-// }
+	return out, nil
+}
 
 func toFilPublicReplicaInfos(src []proof5.SectorInfo, typ string) ([]cgo.PublicReplicaInfo, error) {
 	out := make([]cgo.PublicReplicaInfo, len(src))
