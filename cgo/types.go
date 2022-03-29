@@ -13,6 +13,10 @@ type FCPResponseStatus int64
 
 type SliceBoxedUint8 = C.struct_slice_boxed_uint8
 
+func (ptr *SliceBoxedUint8) Slice() []byte {
+	return unsafe.Slice((*byte)(unsafe.Pointer(&ptr.ptr)), int(ptr.len))
+}
+
 type SliceRefUint8 = C.slice_ref_uint8_t
 
 type BLSDigest = C.BLSDigest_t
@@ -77,4 +81,29 @@ type ZeroSignatureResponse = C.ZeroSignatureResponse_t
 
 func (ptr *ZeroSignatureResponse) Signature() []byte {
 	return ptr.signature.Slice()
+}
+
+type RegisteredSealProof = C.RegisteredSealProof_t
+type RegisteredAggregationProof = C.RegisteredAggregationProof_t
+type RegisteredPoStProof = C.RegisteredPoStProof_t
+
+type Result interface {
+	StatusCode() FCPResponseStatus
+	ErrorMsg() *SliceBoxedUint8
+	Destroy()
+}
+
+type ResultBool = C.Result_bool_t
+
+func (ptr *ResultBool) StatusCode() FCPResponseStatus {
+	return FCPResponseStatus(ptr.status_code)
+}
+
+func (ptr *ResultBool) ErrorMsg() *SliceBoxedUint8 {
+	return &ptr.error_msg
+}
+
+func (ptr *ResultBool) Destroy() {
+	// TODO: correct naming
+	C.destroy_verify_seal_response(ptr)
 }

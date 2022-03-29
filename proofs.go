@@ -3,61 +3,47 @@
 
 package ffi
 
-// // #cgo LDFLAGS: ${SRCDIR}/libfilcrypto.a
-// // #cgo pkg-config: ${SRCDIR}/filcrypto.pc
-// // #include "./filcrypto.h"
-// import "C"
-// import (
-// 	"os"
-// 	"runtime"
-// 	"unsafe"
+// #cgo LDFLAGS: ${SRCDIR}/libfilcrypto.a
+// #cgo pkg-config: ${SRCDIR}/filcrypto.pc
+// #include "./filcrypto.h"
+import "C"
+import (
+	"github.com/ipfs/go-cid"
+	"github.com/pkg/errors"
 
-// 	"github.com/ipfs/go-cid"
-// 	"github.com/pkg/errors"
-// 	"golang.org/x/xerrors"
+	"github.com/filecoin-project/go-address"
+	commcid "github.com/filecoin-project/go-fil-commcid"
+	"github.com/filecoin-project/go-state-types/abi"
+	proof5 "github.com/filecoin-project/specs-actors/v5/actors/runtime/proof"
 
-// 	"github.com/filecoin-project/go-address"
-// 	commcid "github.com/filecoin-project/go-fil-commcid"
-// 	"github.com/filecoin-project/go-state-types/abi"
-// 	proof5 "github.com/filecoin-project/specs-actors/v5/actors/runtime/proof"
+	"github.com/filecoin-project/filecoin-ffi/cgo"
+)
 
-// 	"github.com/filecoin-project/filecoin-ffi/generated"
-// )
+// VerifySeal returns true if the sealing operation from which its inputs were
+// derived was valid, and false if not.
+func VerifySeal(info proof5.SealVerifyInfo) (bool, error) {
+	sp, err := toFilRegisteredSealProof(info.SealProof)
+	if err != nil {
+		return false, err
+	}
 
-// // VerifySeal returns true if the sealing operation from which its inputs were
-// // derived was valid, and false if not.
-// func VerifySeal(info proof5.SealVerifyInfo) (bool, error) {
-// 	sp, err := toFilRegisteredSealProof(info.SealProof)
-// 	if err != nil {
-// 		return false, err
-// 	}
+	commR, err := to32ByteCommR(info.SealedCID)
+	if err != nil {
+		return false, err
+	}
 
-// 	commR, err := to32ByteCommR(info.SealedCID)
-// 	if err != nil {
-// 		return false, err
-// 	}
+	commD, err := to32ByteCommD(info.UnsealedCID)
+	if err != nil {
+		return false, err
+	}
 
-// 	commD, err := to32ByteCommD(info.UnsealedCID)
-// 	if err != nil {
-// 		return false, err
-// 	}
+	proverID, err := toProverID(info.Miner)
+	if err != nil {
+		return false, err
+	}
 
-// 	proverID, err := toProverID(info.Miner)
-// 	if err != nil {
-// 		return false, err
-// 	}
-
-// 	resp := generated.VerifySeal(sp, commR, commD, proverID, toByteArray32(info.Randomness), toByteArray32(info.InteractiveRandomness), uint64(info.SectorID.Number), info.Proof, uint(len(info.Proof)))
-// 	resp.Deref()
-
-// 	defer generated.DestroyVerifySealResponse(resp)
-
-// 	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-// 		return false, errors.New(generated.RawString(resp.ErrorMsg).Copy())
-// 	}
-
-// 	return resp.IsValid, nil
-// }
+	return cgo.VerifySeal(sp, commR, commD, proverID, cgo.AsByteArray32(info.Randomness), cgo.AsByteArray32(info.InteractiveRandomness), uint64(info.SectorID.Number), cgo.AsSliceRefUint8(info.Proof))
+}
 
 // func VerifyAggregateSeals(aggregate proof5.AggregateSealVerifyProofAndInfos) (bool, error) {
 // 	if len(aggregate.Infos) == 0 {
@@ -65,7 +51,7 @@ package ffi
 // 	}
 
 // 	spt := aggregate.SealProof // todo assuming this needs to be the same for all sectors, potentially makes sense to put in AggregateSealVerifyProofAndInfos
-// 	inputs := make([]generated.AggregationInputs, len(aggregate.Infos))
+// 	inputs := make([]cgo.AggregationInputs, len(aggregate.Infos))
 
 // 	for i, info := range aggregate.Infos {
 // 		commR, err := to32ByteCommR(info.SealedCID)
@@ -78,7 +64,7 @@ package ffi
 // 			return false, err
 // 		}
 
-// 		inputs[i] = generated.AggregationInputs{
+// 		inputs[i] = cgo.AggregationInputs{
 // 			CommR:    commR,
 // 			CommD:    commD,
 // 			SectorId: uint64(info.Number),
@@ -102,13 +88,13 @@ package ffi
 // 		return false, err
 // 	}
 
-// 	resp := generated.VerifyAggregateSealProof(sp, rap, proverID, aggregate.Proof, uint(len(aggregate.Proof)), inputs, uint(len(inputs)))
+// 	resp := cgo.VerifyAggregateSealProof(sp, rap, proverID, aggregate.Proof, uint(len(aggregate.Proof)), inputs, uint(len(inputs)))
 // 	resp.Deref()
 
-// 	defer generated.DestroyVerifyAggregateSealResponse(resp)
+// 	defer cgo.DestroyVerifyAggregateSealResponse(resp)
 
-// 	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-// 		return false, errors.New(generated.RawString(resp.ErrorMsg).Copy())
+// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
+// 		return false, errors.New(cgo.RawString(resp.ErrorMsg).Copy())
 // 	}
 
 // 	return resp.IsValid, nil
@@ -133,7 +119,7 @@ package ffi
 // 		return false, err
 // 	}
 
-// 	resp := generated.VerifyWinningPost(
+// 	resp := cgo.VerifyWinningPost(
 // 		toByteArray32(info.Randomness),
 // 		filPublicReplicaInfos,
 // 		filPublicReplicaInfosLen,
@@ -143,10 +129,10 @@ package ffi
 // 	)
 // 	resp.Deref()
 
-// 	defer generated.DestroyVerifyWinningPostResponse(resp)
+// 	defer cgo.DestroyVerifyWinningPostResponse(resp)
 
-// 	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-// 		return false, errors.New(generated.RawString(resp.ErrorMsg).Copy())
+// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
+// 		return false, errors.New(cgo.RawString(resp.ErrorMsg).Copy())
 // 	}
 
 // 	return resp.IsValid, nil
@@ -171,7 +157,7 @@ package ffi
 // 		return false, err
 // 	}
 
-// 	resp := generated.VerifyWindowPost(
+// 	resp := cgo.VerifyWindowPost(
 // 		toByteArray32(info.Randomness),
 // 		filPublicReplicaInfos, filPublicReplicaInfosLen,
 // 		filPoStProofs, filPoStProofsLen,
@@ -179,10 +165,10 @@ package ffi
 // 	)
 // 	resp.Deref()
 
-// 	defer generated.DestroyVerifyWindowPostResponse(resp)
+// 	defer cgo.DestroyVerifyWindowPostResponse(resp)
 
-// 	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-// 		return false, errors.New(generated.RawString(resp.ErrorMsg).Copy())
+// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
+// 		return false, errors.New(cgo.RawString(resp.ErrorMsg).Copy())
 // 	}
 
 // 	return resp.IsValid, nil
@@ -217,13 +203,13 @@ package ffi
 // 		return cid.Undef, err
 // 	}
 
-// 	resp := generated.GenerateDataCommitment(sp, filPublicPieceInfos, filPublicPieceInfosLen)
+// 	resp := cgo.GenerateDataCommitment(sp, filPublicPieceInfos, filPublicPieceInfosLen)
 // 	resp.Deref()
 
-// 	defer generated.DestroyGenerateDataCommitmentResponse(resp)
+// 	defer cgo.DestroyGenerateDataCommitmentResponse(resp)
 
-// 	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-// 		return cid.Undef, errors.New(generated.RawString(resp.ErrorMsg).Copy())
+// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
+// 		return cid.Undef, errors.New(cgo.RawString(resp.ErrorMsg).Copy())
 // 	}
 
 // 	return commcid.DataCommitmentV1ToCID(resp.CommD[:])
@@ -240,13 +226,13 @@ package ffi
 // 	pieceFd := pieceFile.Fd()
 // 	defer runtime.KeepAlive(pieceFile)
 
-// 	resp := generated.GeneratePieceCommitment(sp, int32(pieceFd), uint64(pieceSize))
+// 	resp := cgo.GeneratePieceCommitment(sp, int32(pieceFd), uint64(pieceSize))
 // 	resp.Deref()
 
-// 	defer generated.DestroyGeneratePieceCommitmentResponse(resp)
+// 	defer cgo.DestroyGeneratePieceCommitmentResponse(resp)
 
-// 	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-// 		return cid.Undef, errors.New(generated.RawString(resp.ErrorMsg).Copy())
+// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
+// 		return cid.Undef, errors.New(cgo.RawString(resp.ErrorMsg).Copy())
 // 	}
 
 // 	return commcid.PieceCommitmentV1ToCID(resp.CommP[:])
@@ -273,13 +259,13 @@ package ffi
 
 // 	filExistingPieceSizes, filExistingPieceSizesLen := toFilExistingPieceSizes(existingPieceSizes)
 
-// 	resp := generated.WriteWithAlignment(sp, int32(pieceFd), uint64(pieceBytes), int32(stagedSectorFd), filExistingPieceSizes, filExistingPieceSizesLen)
+// 	resp := cgo.WriteWithAlignment(sp, int32(pieceFd), uint64(pieceBytes), int32(stagedSectorFd), filExistingPieceSizes, filExistingPieceSizesLen)
 // 	resp.Deref()
 
-// 	defer generated.DestroyWriteWithAlignmentResponse(resp)
+// 	defer cgo.DestroyWriteWithAlignmentResponse(resp)
 
-// 	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-// 		return 0, 0, cid.Undef, errors.New(generated.RawString(resp.ErrorMsg).Copy())
+// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
+// 		return 0, 0, cid.Undef, errors.New(cgo.RawString(resp.ErrorMsg).Copy())
 // 	}
 
 // 	commP, errCommpSize := commcid.PieceCommitmentV1ToCID(resp.CommP[:])
@@ -308,13 +294,13 @@ package ffi
 // 	stagedSectorFd := stagedSectorFile.Fd()
 // 	defer runtime.KeepAlive(stagedSectorFile)
 
-// 	resp := generated.WriteWithoutAlignment(sp, int32(pieceFd), uint64(pieceBytes), int32(stagedSectorFd))
+// 	resp := cgo.WriteWithoutAlignment(sp, int32(pieceFd), uint64(pieceBytes), int32(stagedSectorFd))
 // 	resp.Deref()
 
-// 	defer generated.DestroyWriteWithoutAlignmentResponse(resp)
+// 	defer cgo.DestroyWriteWithoutAlignmentResponse(resp)
 
-// 	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-// 		return 0, cid.Undef, errors.New(generated.RawString(resp.ErrorMsg).Copy())
+// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
+// 		return 0, cid.Undef, errors.New(cgo.RawString(resp.ErrorMsg).Copy())
 // 	}
 
 // 	commP, errCommpSize := commcid.PieceCommitmentV1ToCID(resp.CommP[:])
@@ -351,13 +337,13 @@ package ffi
 // 		return nil, err
 // 	}
 
-// 	resp := generated.SealPreCommitPhase1(sp, cacheDirPath, stagedSectorPath, sealedSectorPath, uint64(sectorNum), proverID, toByteArray32(ticket), filPublicPieceInfos, filPublicPieceInfosLen)
+// 	resp := cgo.SealPreCommitPhase1(sp, cacheDirPath, stagedSectorPath, sealedSectorPath, uint64(sectorNum), proverID, toByteArray32(ticket), filPublicPieceInfos, filPublicPieceInfosLen)
 // 	resp.Deref()
 
-// 	defer generated.DestroySealPreCommitPhase1Response(resp)
+// 	defer cgo.DestroySealPreCommitPhase1Response(resp)
 
-// 	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-// 		return nil, errors.New(generated.RawString(resp.ErrorMsg).Copy())
+// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
+// 		return nil, errors.New(cgo.RawString(resp.ErrorMsg).Copy())
 // 	}
 
 // 	return copyBytes(resp.SealPreCommitPhase1OutputPtr, resp.SealPreCommitPhase1OutputLen), nil
@@ -369,13 +355,13 @@ package ffi
 // 	cacheDirPath string,
 // 	sealedSectorPath string,
 // ) (sealedCID cid.Cid, unsealedCID cid.Cid, err error) {
-// 	resp := generated.SealPreCommitPhase2(phase1Output, uint(len(phase1Output)), cacheDirPath, sealedSectorPath)
+// 	resp := cgo.SealPreCommitPhase2(phase1Output, uint(len(phase1Output)), cacheDirPath, sealedSectorPath)
 // 	resp.Deref()
 
-// 	defer generated.DestroySealPreCommitPhase2Response(resp)
+// 	defer cgo.DestroySealPreCommitPhase2Response(resp)
 
-// 	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-// 		return cid.Undef, cid.Undef, errors.New(generated.RawString(resp.ErrorMsg).Copy())
+// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
+// 		return cid.Undef, cid.Undef, errors.New(cgo.RawString(resp.ErrorMsg).Copy())
 // 	}
 
 // 	commR, errCommrSize := commcid.ReplicaCommitmentV1ToCID(resp.CommR[:])
@@ -428,13 +414,13 @@ package ffi
 // 		return nil, err
 // 	}
 
-// 	resp := generated.SealCommitPhase1(sp, commR, commD, cacheDirPath, sealedSectorPath, uint64(sectorNum), proverID, toByteArray32(ticket), toByteArray32(seed), filPublicPieceInfos, filPublicPieceInfosLen)
+// 	resp := cgo.SealCommitPhase1(sp, commR, commD, cacheDirPath, sealedSectorPath, uint64(sectorNum), proverID, toByteArray32(ticket), toByteArray32(seed), filPublicPieceInfos, filPublicPieceInfosLen)
 // 	resp.Deref()
 
-// 	defer generated.DestroySealCommitPhase1Response(resp)
+// 	defer cgo.DestroySealCommitPhase1Response(resp)
 
-// 	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-// 		return nil, errors.New(generated.RawString(resp.ErrorMsg).Copy())
+// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
+// 		return nil, errors.New(cgo.RawString(resp.ErrorMsg).Copy())
 // 	}
 
 // 	return copyBytes(resp.SealCommitPhase1OutputPtr, resp.SealCommitPhase1OutputLen), nil
@@ -451,13 +437,13 @@ package ffi
 // 		return nil, err
 // 	}
 
-// 	resp := generated.SealCommitPhase2(phase1Output, uint(len(phase1Output)), uint64(sectorNum), proverID)
+// 	resp := cgo.SealCommitPhase2(phase1Output, uint(len(phase1Output)), uint64(sectorNum), proverID)
 // 	resp.Deref()
 
-// 	defer generated.DestroySealCommitPhase2Response(resp)
+// 	defer cgo.DestroySealCommitPhase2Response(resp)
 
-// 	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-// 		return nil, errors.New(generated.RawString(resp.ErrorMsg).Copy())
+// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
+// 		return nil, errors.New(cgo.RawString(resp.ErrorMsg).Copy())
 // 	}
 
 // 	return copyBytes(resp.ProofPtr, resp.ProofLen), nil
@@ -470,8 +456,8 @@ package ffi
 // 		return nil, err
 // 	}
 
-// 	commRs := make([]generated.ByteArray32, len(aggregateInfo.Infos))
-// 	seeds := make([]generated.ByteArray32, len(aggregateInfo.Infos))
+// 	commRs := make([]cgo.ByteArray32, len(aggregateInfo.Infos))
+// 	seeds := make([]cgo.ByteArray32, len(aggregateInfo.Infos))
 // 	for i, info := range aggregateInfo.Infos {
 // 		seeds[i] = toByteArray32(info.InteractiveRandomness)
 // 		commRs[i], err = to32ByteCommR(info.SealedCID)
@@ -480,9 +466,9 @@ package ffi
 // 		}
 // 	}
 
-// 	pfs := make([]generated.SealCommitPhase2Response, len(proofs))
+// 	pfs := make([]cgo.SealCommitPhase2Response, len(proofs))
 // 	for i := range proofs {
-// 		pfs[i] = generated.SealCommitPhase2Response{
+// 		pfs[i] = cgo.SealCommitPhase2Response{
 // 			ProofPtr: proofs[i],
 // 			ProofLen: uint(len(proofs[i])),
 // 		}
@@ -493,13 +479,13 @@ package ffi
 // 		return nil, err
 // 	}
 
-// 	resp := generated.AggregateSealProofs(sp, rap, commRs, uint(len(commRs)), seeds, uint(len(seeds)), pfs, uint(len(pfs)))
+// 	resp := cgo.AggregateSealProofs(sp, rap, commRs, uint(len(commRs)), seeds, uint(len(seeds)), pfs, uint(len(pfs)))
 // 	resp.Deref()
 
-// 	defer generated.DestroyAggregateProof(resp)
+// 	defer cgo.DestroyAggregateProof(resp)
 
-// 	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-// 		return nil, errors.New(generated.RawString(resp.ErrorMsg).Copy())
+// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
+// 		return nil, errors.New(cgo.RawString(resp.ErrorMsg).Copy())
 // 	}
 
 // 	return copyBytes(resp.ProofPtr, resp.ProofLen), nil
@@ -560,13 +546,13 @@ package ffi
 // 	unsealOutputFd := unsealOutput.Fd()
 // 	defer runtime.KeepAlive(unsealOutput)
 
-// 	resp := generated.UnsealRange(sp, cacheDirPath, int32(sealedSectorFd), int32(unsealOutputFd), uint64(sectorNum), proverID, toByteArray32(ticket), commD, unpaddedByteIndex, unpaddedBytesAmount)
+// 	resp := cgo.UnsealRange(sp, cacheDirPath, int32(sealedSectorFd), int32(unsealOutputFd), uint64(sectorNum), proverID, toByteArray32(ticket), commD, unpaddedByteIndex, unpaddedBytesAmount)
 // 	resp.Deref()
 
-// 	defer generated.DestroyUnsealRangeResponse(resp)
+// 	defer cgo.DestroyUnsealRangeResponse(resp)
 
-// 	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-// 		return errors.New(generated.RawString(resp.ErrorMsg).Copy())
+// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
+// 		return errors.New(cgo.RawString(resp.ErrorMsg).Copy())
 // 	}
 
 // 	return nil
@@ -589,7 +575,7 @@ package ffi
 // 		return nil, err
 // 	}
 
-// 	resp := generated.GenerateWinningPostSectorChallenge(
+// 	resp := cgo.GenerateWinningPostSectorChallenge(
 // 		pp, toByteArray32(randomness),
 // 		eligibleSectorsLen, proverID,
 // 	)
@@ -597,10 +583,10 @@ package ffi
 // 	resp.IdsPtr = make([]uint64, resp.IdsLen)
 // 	resp.Deref()
 
-// 	defer generated.DestroyGenerateWinningPostSectorChallenge(resp)
+// 	defer cgo.DestroyGenerateWinningPostSectorChallenge(resp)
 
-// 	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-// 		return nil, errors.New(generated.RawString(resp.ErrorMsg).Copy())
+// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
+// 		return nil, errors.New(cgo.RawString(resp.ErrorMsg).Copy())
 // 	}
 
 // 	// copy from C memory space to Go
@@ -629,19 +615,19 @@ package ffi
 // 		return nil, err
 // 	}
 
-// 	resp := generated.GenerateWinningPost(
+// 	resp := cgo.GenerateWinningPost(
 // 		toByteArray32(randomness),
 // 		filReplicas, filReplicasLen,
 // 		proverID,
 // 	)
 // 	resp.Deref()
-// 	resp.ProofsPtr = make([]generated.PoStProof, resp.ProofsLen)
+// 	resp.ProofsPtr = make([]cgo.PoStProof, resp.ProofsLen)
 // 	resp.Deref()
 
-// 	defer generated.DestroyGenerateWinningPostResponse(resp)
+// 	defer cgo.DestroyGenerateWinningPostResponse(resp)
 
-// 	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-// 		return nil, errors.New(generated.RawString(resp.ErrorMsg).Copy())
+// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
+// 		return nil, errors.New(cgo.RawString(resp.ErrorMsg).Copy())
 // 	}
 
 // 	proofs, err := fromFilPoStProofs(resp.ProofsPtr)
@@ -669,21 +655,21 @@ package ffi
 // 		return nil, nil, err
 // 	}
 
-// 	resp := generated.GenerateWindowPost(toByteArray32(randomness), filReplicas, filReplicasLen, proverID)
+// 	resp := cgo.GenerateWindowPost(toByteArray32(randomness), filReplicas, filReplicasLen, proverID)
 // 	resp.Deref()
-// 	resp.ProofsPtr = make([]generated.PoStProof, resp.ProofsLen)
+// 	resp.ProofsPtr = make([]cgo.PoStProof, resp.ProofsLen)
 // 	resp.Deref()
 // 	resp.FaultySectorsPtr = resp.FaultySectorsPtr[:resp.FaultySectorsLen]
 
-// 	defer generated.DestroyGenerateWindowPostResponse(resp)
+// 	defer cgo.DestroyGenerateWindowPostResponse(resp)
 
 // 	faultySectors, err := fromFilPoStFaultySectors(resp.FaultySectorsPtr, resp.FaultySectorsLen)
 // 	if err != nil {
 // 		return nil, nil, xerrors.Errorf("failed to parse faulty sectors list: %w", err)
 // 	}
 
-// 	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-// 		return nil, faultySectors, errors.New(generated.RawString(resp.ErrorMsg).Copy())
+// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
+// 		return nil, faultySectors, errors.New(cgo.RawString(resp.ErrorMsg).Copy())
 // 	}
 
 // 	proofs, err := fromFilPoStProofs(resp.ProofsPtr)
@@ -697,16 +683,16 @@ package ffi
 // // GetGPUDevices produces a slice of strings, each representing the name of a
 // // detected GPU device.
 // func GetGPUDevices() ([]string, error) {
-// 	resp := generated.GetGpuDevices()
+// 	resp := cgo.GetGpuDevices()
 // 	resp.Deref()
 // 	resp.DevicesPtr = make([]string, resp.DevicesLen)
 // 	resp.Deref()
 
-// 	defer generated.DestroyGpuDeviceResponse(resp)
+// 	defer cgo.DestroyGpuDeviceResponse(resp)
 
 // 	out := make([]string, len(resp.DevicesPtr))
 // 	for idx := range out {
-// 		out[idx] = generated.RawString(resp.DevicesPtr[idx]).Copy()
+// 		out[idx] = cgo.RawString(resp.DevicesPtr[idx]).Copy()
 // 	}
 
 // 	return out, nil
@@ -719,16 +705,16 @@ package ffi
 // 		return "", err
 // 	}
 
-// 	resp := generated.GetSealVersion(sp)
+// 	resp := cgo.GetSealVersion(sp)
 // 	resp.Deref()
 
-// 	defer generated.DestroyStringResponse(resp)
+// 	defer cgo.DestroyStringResponse(resp)
 
-// 	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-// 		return "", errors.New(generated.RawString(resp.ErrorMsg).Copy())
+// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
+// 		return "", errors.New(cgo.RawString(resp.ErrorMsg).Copy())
 // 	}
 
-// 	return generated.RawString(resp.StringVal).Copy(), nil
+// 	return cgo.RawString(resp.StringVal).Copy(), nil
 // }
 
 // // GetPoStVersion
@@ -738,16 +724,16 @@ package ffi
 // 		return "", err
 // 	}
 
-// 	resp := generated.GetPostVersion(pp)
+// 	resp := cgo.GetPostVersion(pp)
 // 	resp.Deref()
 
-// 	defer generated.DestroyStringResponse(resp)
+// 	defer cgo.DestroyStringResponse(resp)
 
-// 	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-// 		return "", errors.New(generated.RawString(resp.ErrorMsg).Copy())
+// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
+// 		return "", errors.New(cgo.RawString(resp.ErrorMsg).Copy())
 // 	}
 
-// 	return generated.RawString(resp.StringVal).Copy(), nil
+// 	return cgo.RawString(resp.StringVal).Copy(), nil
 // }
 
 // func GetNumPartitionForFallbackPost(proofType abi.RegisteredPoStProof, numSectors uint) (uint, error) {
@@ -755,12 +741,12 @@ package ffi
 // 	if err != nil {
 // 		return 0, err
 // 	}
-// 	resp := generated.GetNumPartitionForFallbackPost(pp, numSectors)
+// 	resp := cgo.GetNumPartitionForFallbackPost(pp, numSectors)
 // 	resp.Deref()
-// 	defer generated.DestroyGetNumPartitionForFallbackPostResponse(resp)
+// 	defer cgo.DestroyGetNumPartitionForFallbackPostResponse(resp)
 
-// 	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-// 		return 0, errors.New(generated.RawString(resp.ErrorMsg).Copy())
+// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
+// 		return 0, errors.New(cgo.RawString(resp.ErrorMsg).Copy())
 // 	}
 
 // 	return resp.NumPartition, nil
@@ -768,13 +754,13 @@ package ffi
 
 // // ClearCache
 // func ClearCache(sectorSize uint64, cacheDirPath string) error {
-// 	resp := generated.ClearCache(sectorSize, cacheDirPath)
+// 	resp := cgo.ClearCache(sectorSize, cacheDirPath)
 // 	resp.Deref()
 
-// 	defer generated.DestroyClearCacheResponse(resp)
+// 	defer cgo.DestroyClearCacheResponse(resp)
 
-// 	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-// 		return errors.New(generated.RawString(resp.ErrorMsg).Copy())
+// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
+// 		return errors.New(cgo.RawString(resp.ErrorMsg).Copy())
 // 	}
 
 // 	return nil
@@ -786,13 +772,13 @@ package ffi
 // 		return cid.Undef, err
 // 	}
 
-// 	resp := generated.Fauxrep(sp, cacheDirPath, sealedSectorPath)
+// 	resp := cgo.Fauxrep(sp, cacheDirPath, sealedSectorPath)
 // 	resp.Deref()
 
-// 	defer generated.DestroyFauxrepResponse(resp)
+// 	defer cgo.DestroyFauxrepResponse(resp)
 
-// 	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-// 		return cid.Undef, errors.New(generated.RawString(resp.ErrorMsg).Copy())
+// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
+// 		return cid.Undef, errors.New(cgo.RawString(resp.ErrorMsg).Copy())
 // 	}
 
 // 	return commcid.ReplicaCommitmentV1ToCID(resp.Commitment[:])
@@ -804,13 +790,13 @@ package ffi
 // 		return cid.Undef, err
 // 	}
 
-// 	resp := generated.Fauxrep2(sp, cacheDirPath, existingPAuxPath)
+// 	resp := cgo.Fauxrep2(sp, cacheDirPath, existingPAuxPath)
 // 	resp.Deref()
 
-// 	defer generated.DestroyFauxrepResponse(resp)
+// 	defer cgo.DestroyFauxrepResponse(resp)
 
-// 	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-// 		return cid.Undef, errors.New(generated.RawString(resp.ErrorMsg).Copy())
+// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
+// 		return cid.Undef, errors.New(cgo.RawString(resp.ErrorMsg).Copy())
 // 	}
 
 // 	return commcid.ReplicaCommitmentV1ToCID(resp.Commitment[:])
@@ -826,8 +812,8 @@ package ffi
 // 	return out, uint(len(out))
 // }
 
-// func toFilPublicPieceInfos(src []abi.PieceInfo) ([]generated.PublicPieceInfoT, uint, error) {
-// 	out := make([]generated.PublicPieceInfoT, len(src))
+// func toFilPublicPieceInfos(src []abi.PieceInfo) ([]cgo.PublicPieceInfoT, uint, error) {
+// 	out := make([]cgo.PublicPieceInfoT, len(src))
 
 // 	for idx := range out {
 // 		commP, err := to32ByteCommP(src[idx].PieceCID)
@@ -835,7 +821,7 @@ package ffi
 // 			return nil, 0, err
 // 		}
 
-// 		out[idx] = generated.PublicPieceInfoT{
+// 		out[idx] = cgo.PublicPieceInfoT{
 // 			NumBytes: uint64(src[idx].Size.Unpadded()),
 // 			CommP:    commP.Inner,
 // 		}
@@ -844,8 +830,8 @@ package ffi
 // 	return out, uint(len(out)), nil
 // }
 
-// func toFilPublicReplicaInfos(src []proof5.SectorInfo, typ string) ([]generated.PublicReplicaInfoT, uint, error) {
-// 	out := make([]generated.PublicReplicaInfoT, len(src))
+// func toFilPublicReplicaInfos(src []proof5.SectorInfo, typ string) ([]cgo.PublicReplicaInfoT, uint, error) {
+// 	out := make([]cgo.PublicReplicaInfoT, len(src))
 
 // 	for idx := range out {
 // 		commR, err := to32ByteCommR(src[idx].SealedCID)
@@ -853,7 +839,7 @@ package ffi
 // 			return nil, 0, err
 // 		}
 
-// 		out[idx] = generated.PublicReplicaInfoT{
+// 		out[idx] = cgo.PublicReplicaInfoT{
 // 			CommR:    commR.Inner,
 // 			SectorId: uint64(src[idx].SectorNumber),
 // 		}
@@ -885,18 +871,18 @@ package ffi
 // 	return out, uint(len(out)), nil
 // }
 
-// func toFilPrivateReplicaInfo(src PrivateSectorInfo) (generated.PrivateReplicaInfoT, func(), error) {
+// func toFilPrivateReplicaInfo(src PrivateSectorInfo) (cgo.PrivateReplicaInfoT, func(), error) {
 // 	commR, err := to32ByteCommR(src.SealedCID)
 // 	if err != nil {
-// 		return generated.PrivateReplicaInfoT{}, func() {}, err
+// 		return cgo.PrivateReplicaInfoT{}, func() {}, err
 // 	}
 
 // 	pp, err := toFilRegisteredPoStProof(src.PoStProofType)
 // 	if err != nil {
-// 		return generated.PrivateReplicaInfoT{}, func() {}, err
+// 		return cgo.PrivateReplicaInfoT{}, func() {}, err
 // 	}
 
-// 	out := generated.PrivateReplicaInfoT{
+// 	out := cgo.PrivateReplicaInfoT{
 // 		RegisteredProof: pp,
 // 		CacheDirPath:    src.CacheDirPath,
 // 		CommR:           commR.Inner,
@@ -907,10 +893,10 @@ package ffi
 // 	return out, allocs.Free, nil
 // }
 
-// func toFilPrivateReplicaInfos(src []PrivateSectorInfo, typ string) ([]generated.PrivateReplicaInfoT, uint, func(), error) {
+// func toFilPrivateReplicaInfos(src []PrivateSectorInfo, typ string) ([]cgo.PrivateReplicaInfoT, uint, func(), error) {
 // 	allocs := make([]AllocationManager, len(src))
 
-// 	out := make([]generated.PrivateReplicaInfoT, len(src))
+// 	out := make([]cgo.PrivateReplicaInfoT, len(src))
 
 // 	for idx := range out {
 // 		commR, err := to32ByteCommR(src[idx].SealedCID)
@@ -923,7 +909,7 @@ package ffi
 // 			return nil, 0, func() {}, err
 // 		}
 
-// 		out[idx] = generated.PrivateReplicaInfoT{
+// 		out[idx] = cgo.PrivateReplicaInfoT{
 // 			RegisteredProof: pp,
 // 			CacheDirPath:    src[idx].CacheDirPath,
 // 			CommR:           commR.Inner,
@@ -962,7 +948,7 @@ package ffi
 // 	return snums, nil
 // }
 
-// func fromFilPoStProofs(src []generated.PoStProofT) ([]proof5.PoStProof, error) {
+// func fromFilPoStProofs(src []cgo.PoStProofT) ([]proof5.PoStProof, error) {
 // 	out := make([]proof5.PoStProofT, len(src))
 
 // 	for idx := range out {
@@ -982,17 +968,17 @@ package ffi
 // 	return out, nil
 // }
 
-// func toFilPoStProofs(src []proof5.PoStProof) ([]generated.PoStProofT, uint, func(), error) {
+// func toFilPoStProofs(src []proof5.PoStProof) ([]cgo.PoStProofT, uint, func(), error) {
 // 	allocs := make([]AllocationManager, len(src))
 
-// 	out := make([]generated.PoStProof, len(src))
+// 	out := make([]cgo.PoStProof, len(src))
 // 	for idx := range out {
 // 		pp, err := toFilRegisteredPoStProof(src[idx].PoStProof)
 // 		if err != nil {
 // 			return nil, 0, func() {}, err
 // 		}
 
-// 		out[idx] = generated.PoStProof{
+// 		out[idx] = cgo.PoStProof{
 // 			RegisteredProof: pp,
 // 			ProofLen:        uint(len(src[idx].ProofBytes)),
 // 			ProofPtr:        src[idx].ProofBytes,
@@ -1008,140 +994,140 @@ package ffi
 // 	}, nil
 // }
 
-// func toByteArray32(in []byte) generated.ByteArray32T {
-// 	var out generated.ByteArray32T
+// func toByteArray32(in []byte) cgo.ByteArray32T {
+// 	var out cgo.ByteArray32T
 // 	copy(out.Inner[:], in)
 // 	return out
 // }
 
-// func toProverID(minerID abi.ActorID) (generated.ByteArray32T, error) {
-// 	maddr, err := address.NewIDAddress(uint64(minerID))
-// 	if err != nil {
-// 		return generated.ByteArray32T{}, errors.Wrap(err, "failed to convert ActorID to prover id ([32]byte) for FFI")
-// 	}
+func toProverID(minerID abi.ActorID) (cgo.ByteArray32, error) {
+	maddr, err := address.NewIDAddress(uint64(minerID))
+	if err != nil {
+		return cgo.ByteArray32{}, errors.Wrap(err, "failed to convert ActorID to prover id ([32]byte) for FFI")
+	}
 
-// 	return toByteArray32(maddr.Payload()), nil
-// }
+	return cgo.AsByteArray32(maddr.Payload()), nil
+}
 
-// func fromFilRegisteredPoStProof(p generated.RegisteredPoStProofT) (abi.RegisteredPoStProof, error) {
+// func fromFilRegisteredPoStProof(p cgo.RegisteredPoStProofT) (abi.RegisteredPoStProof, error) {
 // 	switch p {
-// 	case generated.RegisteredPoStProofStackedDrgWinning2KiBV1:
+// 	case cgo.RegisteredPoStProofStackedDrgWinning2KiBV1:
 // 		return abi.RegisteredPoStProof_StackedDrgWinning2KiBV1, nil
-// 	case generated.RegisteredPoStProofStackedDrgWinning8MiBV1:
+// 	case cgo.RegisteredPoStProofStackedDrgWinning8MiBV1:
 // 		return abi.RegisteredPoStProof_StackedDrgWinning8MiBV1, nil
-// 	case generated.RegisteredPoStProofStackedDrgWinning512MiBV1:
+// 	case cgo.RegisteredPoStProofStackedDrgWinning512MiBV1:
 // 		return abi.RegisteredPoStProof_StackedDrgWinning512MiBV1, nil
-// 	case generated.RegisteredPoStProofStackedDrgWinning32GiBV1:
+// 	case cgo.RegisteredPoStProofStackedDrgWinning32GiBV1:
 // 		return abi.RegisteredPoStProof_StackedDrgWinning32GiBV1, nil
-// 	case generated.RegisteredPoStProofStackedDrgWinning64GiBV1:
+// 	case cgo.RegisteredPoStProofStackedDrgWinning64GiBV1:
 // 		return abi.RegisteredPoStProof_StackedDrgWinning64GiBV1, nil
 
-// 	case generated.RegisteredPoStProofStackedDrgWindow2KiBV1:
+// 	case cgo.RegisteredPoStProofStackedDrgWindow2KiBV1:
 // 		return abi.RegisteredPoStProof_StackedDrgWindow2KiBV1, nil
-// 	case generated.RegisteredPoStProofStackedDrgWindow8MiBV1:
+// 	case cgo.RegisteredPoStProofStackedDrgWindow8MiBV1:
 // 		return abi.RegisteredPoStProof_StackedDrgWindow8MiBV1, nil
-// 	case generated.RegisteredPoStProofStackedDrgWindow512MiBV1:
+// 	case cgo.RegisteredPoStProofStackedDrgWindow512MiBV1:
 // 		return abi.RegisteredPoStProof_StackedDrgWindow512MiBV1, nil
-// 	case generated.RegisteredPoStProofStackedDrgWindow32GiBV1:
+// 	case cgo.RegisteredPoStProofStackedDrgWindow32GiBV1:
 // 		return abi.RegisteredPoStProof_StackedDrgWindow32GiBV1, nil
-// 	case generated.RegisteredPoStProofStackedDrgWindow64GiBV1:
+// 	case cgo.RegisteredPoStProofStackedDrgWindow64GiBV1:
 // 		return abi.RegisteredPoStProof_StackedDrgWindow64GiBV1, nil
 // 	default:
 // 		return 0, errors.Errorf("no mapping to abi.RegisteredPoStProof value available for: %v", p)
 // 	}
 // }
 
-// func toFilRegisteredPoStProof(p abi.RegisteredPoStProof) (generated.RegisteredPoStProofT, error) {
-// 	switch p {
-// 	case abi.RegisteredPoStProof_StackedDrgWinning2KiBV1:
-// 		return generated.RegisteredPoStProofStackedDrgWinning2KiBV1, nil
-// 	case abi.RegisteredPoStProof_StackedDrgWinning8MiBV1:
-// 		return generated.RegisteredPoStProofStackedDrgWinning8MiBV1, nil
-// 	case abi.RegisteredPoStProof_StackedDrgWinning512MiBV1:
-// 		return generated.RegisteredPoStProofStackedDrgWinning512MiBV1, nil
-// 	case abi.RegisteredPoStProof_StackedDrgWinning32GiBV1:
-// 		return generated.RegisteredPoStProofStackedDrgWinning32GiBV1, nil
-// 	case abi.RegisteredPoStProof_StackedDrgWinning64GiBV1:
-// 		return generated.RegisteredPoStProofStackedDrgWinning64GiBV1, nil
+func toFilRegisteredPoStProof(p abi.RegisteredPoStProof) (cgo.RegisteredPoStProof, error) {
+	switch p {
+	case abi.RegisteredPoStProof_StackedDrgWinning2KiBV1:
+		return cgo.RegisteredPoStProofStackedDrgWinning2KiBV1, nil
+	case abi.RegisteredPoStProof_StackedDrgWinning8MiBV1:
+		return cgo.RegisteredPoStProofStackedDrgWinning8MiBV1, nil
+	case abi.RegisteredPoStProof_StackedDrgWinning512MiBV1:
+		return cgo.RegisteredPoStProofStackedDrgWinning512MiBV1, nil
+	case abi.RegisteredPoStProof_StackedDrgWinning32GiBV1:
+		return cgo.RegisteredPoStProofStackedDrgWinning32GiBV1, nil
+	case abi.RegisteredPoStProof_StackedDrgWinning64GiBV1:
+		return cgo.RegisteredPoStProofStackedDrgWinning64GiBV1, nil
 
-// 	case abi.RegisteredPoStProof_StackedDrgWindow2KiBV1:
-// 		return generated.RegisteredPoStProofStackedDrgWindow2KiBV1, nil
-// 	case abi.RegisteredPoStProof_StackedDrgWindow8MiBV1:
-// 		return generated.RegisteredPoStProofStackedDrgWindow8MiBV1, nil
-// 	case abi.RegisteredPoStProof_StackedDrgWindow512MiBV1:
-// 		return generated.RegisteredPoStProofStackedDrgWindow512MiBV1, nil
-// 	case abi.RegisteredPoStProof_StackedDrgWindow32GiBV1:
-// 		return generated.RegisteredPoStProofStackedDrgWindow32GiBV1, nil
-// 	case abi.RegisteredPoStProof_StackedDrgWindow64GiBV1:
-// 		return generated.RegisteredPoStProofStackedDrgWindow64GiBV1, nil
-// 	default:
-// 		return 0, errors.Errorf("no mapping to abi.RegisteredPoStProof value available for: %v", p)
-// 	}
-// }
+	case abi.RegisteredPoStProof_StackedDrgWindow2KiBV1:
+		return cgo.RegisteredPoStProofStackedDrgWindow2KiBV1, nil
+	case abi.RegisteredPoStProof_StackedDrgWindow8MiBV1:
+		return cgo.RegisteredPoStProofStackedDrgWindow8MiBV1, nil
+	case abi.RegisteredPoStProof_StackedDrgWindow512MiBV1:
+		return cgo.RegisteredPoStProofStackedDrgWindow512MiBV1, nil
+	case abi.RegisteredPoStProof_StackedDrgWindow32GiBV1:
+		return cgo.RegisteredPoStProofStackedDrgWindow32GiBV1, nil
+	case abi.RegisteredPoStProof_StackedDrgWindow64GiBV1:
+		return cgo.RegisteredPoStProofStackedDrgWindow64GiBV1, nil
+	default:
+		return 0, errors.Errorf("no mapping to abi.RegisteredPoStProof value available for: %v", p)
+	}
+}
 
-// func toFilRegisteredSealProof(p abi.RegisteredSealProof) (generated.RegisteredSealProofT, error) {
-// 	switch p {
-// 	case abi.RegisteredSealProof_StackedDrg2KiBV1:
-// 		return generated.RegisteredSealProofStackedDrg2KiBV1, nil
-// 	case abi.RegisteredSealProof_StackedDrg8MiBV1:
-// 		return generated.RegisteredSealProofStackedDrg8MiBV1, nil
-// 	case abi.RegisteredSealProof_StackedDrg512MiBV1:
-// 		return generated.RegisteredSealProofStackedDrg512MiBV1, nil
-// 	case abi.RegisteredSealProof_StackedDrg32GiBV1:
-// 		return generated.RegisteredSealProofStackedDrg32GiBV1, nil
-// 	case abi.RegisteredSealProof_StackedDrg64GiBV1:
-// 		return generated.RegisteredSealProofStackedDrg64GiBV1, nil
+func toFilRegisteredSealProof(p abi.RegisteredSealProof) (cgo.RegisteredSealProof, error) {
+	switch p {
+	case abi.RegisteredSealProof_StackedDrg2KiBV1:
+		return cgo.RegisteredSealProofStackedDrg2KiBV1, nil
+	case abi.RegisteredSealProof_StackedDrg8MiBV1:
+		return cgo.RegisteredSealProofStackedDrg8MiBV1, nil
+	case abi.RegisteredSealProof_StackedDrg512MiBV1:
+		return cgo.RegisteredSealProofStackedDrg512MiBV1, nil
+	case abi.RegisteredSealProof_StackedDrg32GiBV1:
+		return cgo.RegisteredSealProofStackedDrg32GiBV1, nil
+	case abi.RegisteredSealProof_StackedDrg64GiBV1:
+		return cgo.RegisteredSealProofStackedDrg64GiBV1, nil
 
-// 	case abi.RegisteredSealProof_StackedDrg2KiBV1_1:
-// 		return generated.RegisteredSealProofStackedDrg2KiBV11, nil
-// 	case abi.RegisteredSealProof_StackedDrg8MiBV1_1:
-// 		return generated.RegisteredSealProofStackedDrg8MiBV11, nil
-// 	case abi.RegisteredSealProof_StackedDrg512MiBV1_1:
-// 		return generated.RegisteredSealProofStackedDrg512MiBV11, nil
-// 	case abi.RegisteredSealProof_StackedDrg32GiBV1_1:
-// 		return generated.RegisteredSealProofStackedDrg32GiBV11, nil
-// 	case abi.RegisteredSealProof_StackedDrg64GiBV1_1:
-// 		return generated.RegisteredSealProofStackedDrg64GiBV11, nil
-// 	default:
-// 		return 0, errors.Errorf("no mapping to C.FFIRegisteredSealProof value available for: %v", p)
-// 	}
-// }
+	case abi.RegisteredSealProof_StackedDrg2KiBV1_1:
+		return cgo.RegisteredSealProofStackedDrg2KiBV11, nil
+	case abi.RegisteredSealProof_StackedDrg8MiBV1_1:
+		return cgo.RegisteredSealProofStackedDrg8MiBV11, nil
+	case abi.RegisteredSealProof_StackedDrg512MiBV1_1:
+		return cgo.RegisteredSealProofStackedDrg512MiBV11, nil
+	case abi.RegisteredSealProof_StackedDrg32GiBV1_1:
+		return cgo.RegisteredSealProofStackedDrg32GiBV11, nil
+	case abi.RegisteredSealProof_StackedDrg64GiBV1_1:
+		return cgo.RegisteredSealProofStackedDrg64GiBV11, nil
+	default:
+		return 0, errors.Errorf("no mapping to C.FFIRegisteredSealProof value available for: %v", p)
+	}
+}
 
-// func toFilRegisteredAggregationProof(p abi.RegisteredAggregationProof) (generated.RegisteredAggregationProofT, error) {
-// 	switch p {
-// 	case abi.RegisteredAggregationProof_SnarkPackV1:
-// 		return generated.RegisteredAggregationProofSnarkPackV1, nil
-// 	default:
-// 		return 0, errors.Errorf("no mapping to abi.RegisteredAggregationProof value available for: %v", p)
-// 	}
-// }
+func toFilRegisteredAggregationProof(p abi.RegisteredAggregationProof) (cgo.RegisteredAggregationProof, error) {
+	switch p {
+	case abi.RegisteredAggregationProof_SnarkPackV1:
+		return cgo.RegisteredAggregationProofSnarkPackV1, nil
+	default:
+		return 0, errors.Errorf("no mapping to abi.RegisteredAggregationProof value available for: %v", p)
+	}
+}
 
-// func to32ByteCommD(unsealedCID cid.Cid) (generated.ByteArray32T, error) {
-// 	commD, err := commcid.CIDToDataCommitmentV1(unsealedCID)
-// 	if err != nil {
-// 		return generated.ByteArray32{}, errors.Wrap(err, "failed to transform sealed CID to CommD")
-// 	}
+func to32ByteCommD(unsealedCID cid.Cid) (cgo.ByteArray32, error) {
+	commD, err := commcid.CIDToDataCommitmentV1(unsealedCID)
+	if err != nil {
+		return cgo.ByteArray32{}, errors.Wrap(err, "failed to transform sealed CID to CommD")
+	}
 
-// 	return toByteArray32(commD), nil
-// }
+	return cgo.AsByteArray32(commD), nil
+}
 
-// func to32ByteCommR(sealedCID cid.Cid) (generated.ByteArray32T, error) {
-// 	commD, err := commcid.CIDToReplicaCommitmentV1(sealedCID)
-// 	if err != nil {
-// 		return generated.ByteArray32{}, errors.Wrap(err, "failed to transform sealed CID to CommR")
-// 	}
+func to32ByteCommR(sealedCID cid.Cid) (cgo.ByteArray32, error) {
+	commD, err := commcid.CIDToReplicaCommitmentV1(sealedCID)
+	if err != nil {
+		return cgo.ByteArray32{}, errors.Wrap(err, "failed to transform sealed CID to CommR")
+	}
 
-// 	return toByteArray32(commD), nil
-// }
+	return cgo.AsByteArray32(commD), nil
+}
 
-// func to32ByteCommP(pieceCID cid.Cid) (generated.ByteArray32T, error) {
-// 	commP, err := commcid.CIDToPieceCommitmentV1(pieceCID)
-// 	if err != nil {
-// 		return generated.ByteArray32{}, errors.Wrap(err, "failed to transform sealed CID to CommP")
-// 	}
+func to32ByteCommP(pieceCID cid.Cid) (cgo.ByteArray32, error) {
+	commP, err := commcid.CIDToPieceCommitmentV1(pieceCID)
+	if err != nil {
+		return cgo.ByteArray32{}, errors.Wrap(err, "failed to transform sealed CID to CommP")
+	}
 
-// 	return toByteArray32(commP), nil
-// }
+	return cgo.AsByteArray32(commP), nil
+}
 
 // func copyBytes(v []byte, vLen uint) []byte {
 // 	buf := make([]byte, vLen)
@@ -1160,7 +1146,7 @@ package ffi
 // func toVanillaProofs(src [][]byte) ([]Bytes, func()) {
 // 	allocs := make([]AllocationManager, len(src))
 
-// 	out := make([]generated.VanillaProof, len(src))
+// 	out := make([]cgo.VanillaProof, len(src))
 // 	for idx := range out {
 // 		out[idx] = Bytes{
 // 			ProofLen: uint(len(src[idx])),
@@ -1177,7 +1163,7 @@ package ffi
 // 	}
 // }
 
-// func toPartitionProofs(src []PartitionProof) ([]generated.PartitionSnarkProofT, func(), error) {
+// func toPartitionProofs(src []PartitionProof) ([]cgo.PartitionSnarkProofT, func(), error) {
 // 	allocs := make([]AllocationManager, len(src))
 // 	cleanup := func() {
 // 		for idx := range allocs {
@@ -1185,14 +1171,14 @@ package ffi
 // 		}
 // 	}
 
-// 	out := make([]generated.PartitionSnarkProof, len(src))
+// 	out := make([]cgo.PartitionSnarkProof, len(src))
 // 	for idx := range out {
 // 		rp, err := toFilRegisteredPoStProof(src[idx].PoStProof)
 // 		if err != nil {
 // 			return nil, cleanup, err
 // 		}
 
-// 		out[idx] = generated.PartitionSnarkProofT{
+// 		out[idx] = cgo.PartitionSnarkProofT{
 // 			RegisteredProof: rp,
 // 			ProofLen:        uint(len(src[idx].ProofBytes)),
 // 			ProofPtr:        src[idx].ProofBytes,

@@ -19,32 +19,6 @@ package ffi
 
 // type VanillaProof []byte
 
-// /// UnsafeByteSlice converts the ptr into a byte slice without copying.
-// func UnsafeByteSlice(ptr unsafe.Pointer, len int) []byte {
-// 	// It is a workaround for non-copying-wrapping of native memory.
-// 	// C-encoder never pushes output block longer than ((2 << 25) + 502).
-// 	// TODO: use unsafe.Slice, when it becomes available in go 1.17 (see https://golang.org/issue/13656).
-// 	return (*[1 << 30]byte)(ptr)[:len:len]
-// }
-
-// /// UnsafeString converts the ptr into a string without copying.
-// func UnsafeString(ptr unsafe.Pointer, len int) string {
-// 	return string(UnsafeByteSlice(ptr, len))
-// }
-
-// func CastToUint64Slice(ptr []generated.Uint64T, len generated.SizeT) []uint64 {
-// 	return (*[1 << 30]uint64)(unsafe.Pointer(&ptr[0]))[:len:len]
-// }
-
-// /// CheckErr returns `nil` if the `code` indicates success and an error otherwise.
-// func CheckErr(code generated.FCPResponseStatusT, msg *generated.SliceBoxedUint8T) error {
-// 	if code == generated.FCPRESPONSESTATUSNOERROR {
-// 		return nil
-// 	}
-
-// 	return errors.New(UnsafeString(unsafe.Pointer(&msg.Ptr[0]), int(msg.Len)))
-// }
-
 // // GenerateWinningPoStSectorChallenge
 // func GeneratePoStFallbackSectorChallenges(
 // 	proofType abi.RegisteredPoStProof,
