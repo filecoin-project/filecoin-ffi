@@ -147,3 +147,33 @@ func UnsealRange(registeredProof RegisteredSealProof, cacheDirPath SliceRefUint8
 	}
 	return nil
 }
+
+func GenerateWinningPoStSectorChallenge(registeredProof RegisteredPoStProof, randomness *ByteArray32, sectorSetLen uint64, proverId *ByteArray32) ([]uint64, error) {
+	resp := C.generate_winning_post_sector_challenge(registeredProof, randomness, C.uint64_t(sectorSetLen), proverId)
+	defer resp.Destroy()
+	if err := CheckErr(resp); err != nil {
+		return nil, err
+	}
+	return resp.value.Copy(), nil
+}
+
+func GenerateWinningPoSt(randomness *ByteArray32, replicas SliceRefPrivateReplicaInfo, proverId *ByteArray32) ([]PoStProof, error) {
+	resp := C.generate_winning_post(randomness, replicas, proverId)
+	defer resp.Destroy()
+	if err := CheckErr(resp); err != nil {
+		return nil, err
+	}
+	return resp.value.Copy(), nil
+}
+
+func GenerateWindowPoSt(randomness *ByteArray32, replicas SliceRefPrivateReplicaInfo, proverId *ByteArray32) ([]PoStProof, []uint64, error) {
+	resp := C.generate_window_post(randomness, replicas, proverId)
+	defer resp.Destroy()
+	faults := resp.value.faulty_sectors.Copy()
+
+	if err := CheckErr(resp); err != nil {
+		return nil, faults, err
+	}
+	proofs := resp.value.proofs.Copy()
+	return proofs, faults, nil
+}

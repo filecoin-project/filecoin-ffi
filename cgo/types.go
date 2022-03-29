@@ -284,3 +284,93 @@ func (ptr *ResultVoid) Destroy() {
 		C.destroy_unseal_range_response(ptr)
 	}
 }
+
+type SliceBoxedUint64 = C.struct_slice_boxed_uint64
+
+func (ptr *SliceBoxedUint64) Slice() []uint64 {
+	return unsafe.Slice((*uint64)(unsafe.Pointer(&ptr.ptr)), int(ptr.len))
+}
+
+func (ptr *SliceBoxedUint64) Copy() []uint64 {
+	if ptr == nil {
+		return []uint64{}
+	}
+
+	ref := ptr.Slice()
+	res := make([]uint64, len(ref))
+	for i := range ref {
+		res[i] = res[i]
+	}
+
+	return res
+}
+
+type ResultSliceBoxedUint64 = C.Result_slice_boxed_uint64_t
+
+func (ptr *ResultSliceBoxedUint64) StatusCode() FCPResponseStatus {
+	return FCPResponseStatus(ptr.status_code)
+}
+
+func (ptr *ResultSliceBoxedUint64) ErrorMsg() *SliceBoxedUint8 {
+	return &ptr.error_msg
+}
+
+func (ptr *ResultSliceBoxedUint64) Destroy() {
+	if ptr != nil {
+		// TODO: correct naming
+		C.destroy_generate_winning_post_sector_challenge(ptr)
+	}
+}
+
+type SliceBoxedPoStProof = C.struct_slice_boxed_PoStProof
+
+func (ptr *SliceBoxedPoStProof) Slice() []PoStProof {
+	return unsafe.Slice((*PoStProof)(unsafe.Pointer(&ptr.ptr)), int(ptr.len))
+}
+
+func (ptr *SliceBoxedPoStProof) Copy() []PoStProof {
+	if ptr == nil {
+		return []PoStProof{}
+	}
+
+	ref := ptr.Slice()
+	res := make([]PoStProof, len(ref))
+	for i := range ref {
+		res[i] = res[i]
+	}
+
+	return res
+}
+
+type ResultSliceBoxedPoStProof = C.Result_slice_boxed_PoStProof_t
+
+func (ptr *ResultSliceBoxedPoStProof) StatusCode() FCPResponseStatus {
+	return FCPResponseStatus(ptr.status_code)
+}
+
+func (ptr *ResultSliceBoxedPoStProof) ErrorMsg() *SliceBoxedUint8 {
+	return &ptr.error_msg
+}
+
+func (ptr *ResultSliceBoxedPoStProof) Destroy() {
+	if ptr != nil {
+		// TODO: correct naming
+		C.destroy_generate_winning_post_response(ptr)
+	}
+}
+
+type ResultGenerateWindowPoSt = C.Result_GenerateWindowPoSt_t
+
+func (ptr *ResultGenerateWindowPoSt) StatusCode() FCPResponseStatus {
+	return FCPResponseStatus(ptr.status_code)
+}
+
+func (ptr *ResultGenerateWindowPoSt) ErrorMsg() *SliceBoxedUint8 {
+	return &ptr.error_msg
+}
+
+func (ptr *ResultGenerateWindowPoSt) Destroy() {
+	if ptr != nil {
+		C.destroy_generate_window_post_response(ptr)
+	}
+}

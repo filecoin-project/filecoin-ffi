@@ -10,7 +10,6 @@ import "C"
 import (
 	"os"
 	"runtime"
-	"unsafe"
 
 	"github.com/ipfs/go-cid"
 	"github.com/pkg/errors"
@@ -518,127 +517,91 @@ func UnsealRange(
 	)
 }
 
-// // GenerateWinningPoStSectorChallenge
-// func GenerateWinningPoStSectorChallenge(
-// 	proofType abi.RegisteredPoStProof,
-// 	minerID abi.ActorID,
-// 	randomness abi.PoStRandomness,
-// 	eligibleSectorsLen uint64,
-// ) ([]uint64, error) {
-// 	proverID, err := toProverID(minerID)
-// 	if err != nil {
-// 		return nil, err
-// 	}
+// GenerateWinningPoStSectorChallenge
+func GenerateWinningPoStSectorChallenge(
+	proofType abi.RegisteredPoStProof,
+	minerID abi.ActorID,
+	randomness abi.PoStRandomness,
+	eligibleSectorsLen uint64,
+) ([]uint64, error) {
+	proverID, err := toProverID(minerID)
+	if err != nil {
+		return nil, err
+	}
 
-// 	pp, err := toFilRegisteredPoStProof(proofType)
-// 	if err != nil {
-// 		return nil, err
-// 	}
+	pp, err := toFilRegisteredPoStProof(proofType)
+	if err != nil {
+		return nil, err
+	}
 
-// 	resp := cgo.GenerateWinningPostSectorChallenge(
-// 		pp, toByteArray32(randomness),
-// 		eligibleSectorsLen, proverID,
-// 	)
-// 	resp.Deref()
-// 	resp.IdsPtr = make([]uint64, resp.IdsLen)
-// 	resp.Deref()
+	randomnessBytes := cgo.AsByteArray32(randomness)
 
-// 	defer cgo.DestroyGenerateWinningPostSectorChallenge(resp)
+	return cgo.GenerateWinningPoStSectorChallenge(pp, &randomnessBytes, eligibleSectorsLen, &proverID)
+}
 
-// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
-// 		return nil, errors.New(cgo.RawString(resp.ErrorMsg).Copy())
-// 	}
+// GenerateWinningPoSt
+func GenerateWinningPoSt(
+	minerID abi.ActorID,
+	privateSectorInfo SortedPrivateSectorInfo,
+	randomness abi.PoStRandomness,
+) ([]proof5.PoStProof, error) {
+	filReplicas, err := toFilPrivateReplicaInfos(privateSectorInfo.Values(), "winning")
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create private replica info array for FFI")
+	}
 
-// 	// copy from C memory space to Go
-// 	out := make([]uint64, resp.IdsLen)
-// 	for idx := range out {
-// 		out[idx] = resp.IdsPtr[idx]
-// 	}
+	proverID, err := toProverID(minerID)
+	if err != nil {
+		return nil, err
+	}
+	randomnessBytes := cgo.AsByteArray32(randomness)
+	rawProofs, err := cgo.GenerateWinningPoSt(&randomnessBytes, cgo.AsSliceRefPrivateReplicaInfo(filReplicas), &proverID)
+	if err != nil {
+		return nil, err
+	}
 
-// 	return out, nil
-// }
+	proofs, err := fromFilPoStProofs(rawProofs)
+	if err != nil {
+		return nil, err
+	}
 
-// // GenerateWinningPoSt
-// func GenerateWinningPoSt(
-// 	minerID abi.ActorID,
-// 	privateSectorInfo SortedPrivateSectorInfo,
-// 	randomness abi.PoStRandomness,
-// ) ([]proof5.PoStProof, error) {
-// 	filReplicas, filReplicasLen, free, err := toFilPrivateReplicaInfos(privateSectorInfo.Values(), "winning")
-// 	if err != nil {
-// 		return nil, errors.Wrap(err, "failed to create private replica info array for FFI")
-// 	}
-// 	defer free()
+	return proofs, nil
+}
 
-// 	proverID, err := toProverID(minerID)
-// 	if err != nil {
-// 		return nil, err
-// 	}
+// GenerateWindowPoSt
+func GenerateWindowPoSt(
+	minerID abi.ActorID,
+	privateSectorInfo SortedPrivateSectorInfo,
+	randomness abi.PoStRandomness,
+) ([]proof5.PoStProof, []abi.SectorNumber, error) {
+	filReplicas, err := toFilPrivateReplicaInfos(privateSectorInfo.Values(), "window")
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "failed to create private replica info array for FFI")
+	}
 
-// 	resp := cgo.GenerateWinningPost(
-// 		toByteArray32(randomness),
-// 		filReplicas, filReplicasLen,
-// 		proverID,
-// 	)
-// 	resp.Deref()
-// 	resp.ProofsPtr = make([]cgo.PoStProof, resp.ProofsLen)
-// 	resp.Deref()
+	proverID, err := toProverID(minerID)
+	if err != nil {
+		return nil, nil, err
+	}
 
-// 	defer cgo.DestroyGenerateWinningPostResponse(resp)
+	randomnessBytes := cgo.AsByteArray32(randomness)
+	proofsRaw, faultsRaw, err := cgo.GenerateWindowPoSt(&randomnessBytes, cgo.AsSliceRefPrivateReplicaInfo(filReplicas), &proverID)
+	faultySectors := fromFilPoStFaultySectors(faultsRaw)
+	if err != nil {
+		return nil, nil, xerrors.Errorf("failed to parse faulty sectors list: %w", err)
+	}
 
-// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
-// 		return nil, errors.New(cgo.RawString(resp.ErrorMsg).Copy())
-// 	}
+	if err != nil {
+		return nil, faultySectors, err
+	}
 
-// 	proofs, err := fromFilPoStProofs(resp.ProofsPtr)
-// 	if err != nil {
-// 		return nil, err
-// 	}
+	proofs, err := fromFilPoStProofs(proofsRaw)
+	if err != nil {
+		return nil, nil, err
+	}
 
-// 	return proofs, nil
-// }
-
-// // GenerateWindowPoSt
-// func GenerateWindowPoSt(
-// 	minerID abi.ActorID,
-// 	privateSectorInfo SortedPrivateSectorInfo,
-// 	randomness abi.PoStRandomness,
-// ) ([]proof5.PoStProof, []abi.SectorNumber, error) {
-// 	filReplicas, filReplicasLen, free, err := toFilPrivateReplicaInfos(privateSectorInfo.Values(), "window")
-// 	if err != nil {
-// 		return nil, nil, errors.Wrap(err, "failed to create private replica info array for FFI")
-// 	}
-// 	defer free()
-
-// 	proverID, err := toProverID(minerID)
-// 	if err != nil {
-// 		return nil, nil, err
-// 	}
-
-// 	resp := cgo.GenerateWindowPost(toByteArray32(randomness), filReplicas, filReplicasLen, proverID)
-// 	resp.Deref()
-// 	resp.ProofsPtr = make([]cgo.PoStProof, resp.ProofsLen)
-// 	resp.Deref()
-// 	resp.FaultySectorsPtr = resp.FaultySectorsPtr[:resp.FaultySectorsLen]
-
-// 	defer cgo.DestroyGenerateWindowPostResponse(resp)
-
-// 	faultySectors, err := fromFilPoStFaultySectors(resp.FaultySectorsPtr, resp.FaultySectorsLen)
-// 	if err != nil {
-// 		return nil, nil, xerrors.Errorf("failed to parse faulty sectors list: %w", err)
-// 	}
-
-// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
-// 		return nil, faultySectors, errors.New(cgo.RawString(resp.ErrorMsg).Copy())
-// 	}
-
-// 	proofs, err := fromFilPoStProofs(resp.ProofsPtr)
-// 	if err != nil {
-// 		return nil, nil, err
-// 	}
-
-// 	return proofs, faultySectors, nil
-// }
+	return proofs, faultySectors, nil
+}
 
 // // GetGPUDevices produces a slice of strings, each representing the name of a
 // // detected GPU device.
@@ -893,25 +856,13 @@ func toFilPrivateReplicaInfos(src []PrivateSectorInfo, typ string) ([]cgo.Privat
 	return out, nil
 }
 
-func fromFilPoStFaultySectors(ptr []uint64, l uint) ([]abi.SectorNumber, error) {
-	if l == 0 {
-		return nil, nil
-	}
-
-	type sliceHeader struct {
-		Data unsafe.Pointer
-		Len  int
-		Cap  int
-	}
-
-	(*sliceHeader)(unsafe.Pointer(&ptr)).Len = int(l) // don't worry about it
-
-	snums := make([]abi.SectorNumber, 0, l)
-	for i := uint(0); i < l; i++ {
+func fromFilPoStFaultySectors(ptr []uint64) []abi.SectorNumber {
+	snums := make([]abi.SectorNumber, len(ptr))
+	for i := range ptr {
 		snums = append(snums, abi.SectorNumber(ptr[i]))
 	}
 
-	return snums, nil
+	return snums
 }
 
 func fromFilPoStProofs(src []cgo.PoStProof) ([]proof5.PoStProof, error) {
