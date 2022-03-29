@@ -111,7 +111,7 @@ func PrivateKeyGenerate() *PrivateKey {
 // PrivateKeyGenerate generates a private key in a predictable manner.
 func PrivateKeyGenerateWithSeed(seed PrivateKeyGenSeed) *PrivateKey {
 	ary := cgo.AsByteArray32(seed[:])
-	resp := cgo.PrivateKeyGenerateWithSeed(ary)
+	resp := cgo.PrivateKeyGenerateWithSeed(&ary)
 	if resp == nil {
 		return nil
 	}

@@ -13,7 +13,6 @@ use rayon::prelude::*;
 use safer_ffi::prelude::*;
 
 use crate::bls::types;
-use crate::proofs::types::ByteArray32;
 
 pub const SIGNATURE_BYTES: usize = 96;
 pub const PRIVATE_KEY_BYTES: usize = 32;
@@ -240,9 +239,9 @@ pub fn private_key_generate() -> repr_c::Box<types::PrivateKeyGenerateResponse> 
 /// Returns `NULL` when passed a NULL pointer.
 #[ffi_export]
 pub fn private_key_generate_with_seed(
-    raw_seed: ByteArray32,
+    raw_seed: &[u8; 32],
 ) -> repr_c::Box<types::PrivateKeyGenerateResponse> {
-    let rng = &mut ChaChaRng::from_seed(raw_seed.inner);
+    let rng = &mut ChaChaRng::from_seed(*raw_seed);
 
     let mut raw_private_key: [u8; PRIVATE_KEY_BYTES] = [0; PRIVATE_KEY_BYTES];
     PrivateKey::generate(rng)
@@ -402,8 +401,8 @@ mod tests {
 
     #[test]
     fn private_key_with_seed() {
-        let seed = ByteArray32 { inner: [5u8; 32] };
-        let private_key = private_key_generate_with_seed(seed).private_key.inner;
+        let seed = [5u8; 32];
+        let private_key = private_key_generate_with_seed(&seed).private_key.inner;
         assert_eq!(
             [
                 56, 13, 181, 159, 37, 1, 12, 96, 45, 77, 254, 118, 103, 235, 218, 176, 220, 241,

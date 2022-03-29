@@ -118,8 +118,8 @@ fn seal_pre_commit_phase1(
     staged_sector_path: c_slice::Ref<u8>,
     sealed_sector_path: c_slice::Ref<u8>,
     sector_id: u64,
-    prover_id: ByteArray32,
-    ticket: ByteArray32,
+    prover_id: &[u8; 32],
+    ticket: &[u8; 32],
     pieces: c_slice::Ref<PublicPieceInfo>,
 ) -> repr_c::Box<SealPreCommitPhase1Response> {
     catch_panic_response("seal_pre_commit_phase1", || {
@@ -130,9 +130,9 @@ fn seal_pre_commit_phase1(
             as_path_buf(&cache_dir_path)?,
             as_path_buf(&staged_sector_path)?,
             as_path_buf(&sealed_sector_path)?,
-            prover_id.inner,
+            *prover_id,
             SectorId::from(sector_id),
-            ticket.inner,
+            *ticket,
             &public_pieces,
         )?;
         let result = serde_json::to_vec(&result)?;
@@ -169,21 +169,21 @@ fn seal_pre_commit_phase2(
 #[ffi_export]
 fn seal_commit_phase1(
     registered_proof: RegisteredSealProof,
-    comm_r: ByteArray32,
-    comm_d: ByteArray32,
+    comm_r: &[u8; 32],
+    comm_d: &[u8; 32],
     cache_dir_path: c_slice::Ref<u8>,
     replica_path: c_slice::Ref<u8>,
     sector_id: u64,
-    prover_id: ByteArray32,
-    ticket: ByteArray32,
-    seed: ByteArray32,
+    prover_id: &[u8; 32],
+    ticket: &[u8; 32],
+    seed: &[u8; 32],
     pieces: c_slice::Ref<PublicPieceInfo>,
 ) -> repr_c::Box<SealCommitPhase1Response> {
     catch_panic_response("seal_commit_phase1", || {
         let spcp2o = seal::SealPreCommitPhase2Output {
             registered_proof: registered_proof.into(),
-            comm_r: comm_r.inner,
-            comm_d: comm_d.inner,
+            comm_r: *comm_r,
+            comm_d: *comm_d,
         };
 
         let public_pieces: Vec<PieceInfo> = pieces.iter().map(Into::into).collect();
@@ -191,10 +191,10 @@ fn seal_commit_phase1(
         let output = seal::seal_commit_phase1(
             as_path_buf(&cache_dir_path)?,
             as_path_buf(&replica_path)?,
-            prover_id.inner,
+            *prover_id,
             SectorId::from(sector_id),
-            ticket.inner,
-            seed.inner,
+            *ticket,
+            *seed,
             spcp2o,
             &public_pieces,
         )?;
@@ -208,11 +208,11 @@ fn seal_commit_phase1(
 fn seal_commit_phase2(
     seal_commit_phase1_output: c_slice::Ref<u8>,
     sector_id: u64,
-    prover_id: ByteArray32,
+    prover_id: &[u8; 32],
 ) -> repr_c::Box<SealCommitPhase2Response> {
     catch_panic_response("seal_commit_phase2", || {
         let scp1o = serde_json::from_slice(&seal_commit_phase1_output)?;
-        let result = seal::seal_commit_phase2(scp1o, prover_id.inner, SectorId::from(sector_id))?;
+        let result = seal::seal_commit_phase2(scp1o, *prover_id, SectorId::from(sector_id))?;
 
         Ok(SealCommitPhase2 {
             proof: result.proof.into_boxed_slice().into(),
@@ -224,16 +224,13 @@ fn seal_commit_phase2(
 fn aggregate_seal_proofs(
     registered_proof: RegisteredSealProof,
     registered_aggregation: RegisteredAggregationProof,
-    comm_rs: c_slice::Box<ByteArray32>,
-    seeds: c_slice::Box<ByteArray32>,
+    comm_rs: c_slice::Ref<[u8; 32]>,
+    seeds: c_slice::Ref<[u8; 32]>,
     seal_commit_responses: c_slice::Ref<SealCommitPhase2>,
 ) -> repr_c::Box<AggregateProof> {
     catch_panic_response("aggregate_seal_proofs", || {
         let outputs: Vec<seal::SealCommitPhase2Output> =
             seal_commit_responses.iter().map(Into::into).collect();
-
-        let comm_rs: Vec<[u8; 32]> = comm_rs.iter().map(|x| x.inner).collect();
-        let seeds: Vec<[u8; 32]> = seeds.iter().map(|x| x.inner).collect();
 
         let result = seal::aggregate_seal_commit_proofs(
             registered_proof.into(),
@@ -250,17 +247,17 @@ fn aggregate_seal_proofs(
 /// Retrieves the seal inputs based on the provided input, used for aggregation verification.
 fn convert_aggregation_inputs(
     registered_proof: RegisteredSealProof,
-    prover_id: ByteArray32,
+    prover_id: &[u8; 32],
     input: &AggregationInputs,
 ) -> anyhow::Result<Vec<Vec<Fr>>> {
     seal::get_seal_inputs(
         registered_proof.into(),
-        input.comm_r.inner,
-        input.comm_d.inner,
-        prover_id.inner,
+        input.comm_r,
+        input.comm_d,
+        *prover_id,
         SectorId::from(input.sector_id),
-        input.ticket.inner,
-        input.seed.inner,
+        input.ticket,
+        input.seed,
     )
 }
 
@@ -269,7 +266,7 @@ fn convert_aggregation_inputs(
 fn verify_aggregate_seal_proof(
     registered_proof: RegisteredSealProof,
     registered_aggregation: RegisteredAggregationProof,
-    prover_id: ByteArray32,
+    prover_id: &[u8; 32],
     proof: c_slice::Ref<u8>,
     commit_inputs: c_slice::Ref<AggregationInputs>,
 ) -> repr_c::Box<VerifyAggregateSealProofResponse> {
@@ -284,11 +281,8 @@ fn verify_aggregate_seal_proof(
 
         let proof_bytes: Vec<u8> = proof.to_vec();
 
-        let comm_rs: Vec<[u8; 32]> = commit_inputs
-            .iter()
-            .map(|input| input.comm_r.inner)
-            .collect();
-        let seeds: Vec<[u8; 32]> = commit_inputs.iter().map(|input| input.seed.inner).collect();
+        let comm_rs: Vec<[u8; 32]> = commit_inputs.iter().map(|input| input.comm_r).collect();
+        let seeds: Vec<[u8; 32]> = commit_inputs.iter().map(|input| input.seed).collect();
 
         let result = seal::verify_aggregate_seal_commit_proofs(
             registered_proof.into(),
@@ -311,9 +305,9 @@ unsafe fn unseal_range(
     sealed_sector_fd_raw: libc::c_int,
     unseal_output_fd_raw: libc::c_int,
     sector_id: u64,
-    prover_id: ByteArray32,
-    ticket: ByteArray32,
-    comm_d: ByteArray32,
+    prover_id: &[u8; 32],
+    ticket: &[u8; 32],
+    comm_d: &[u8; 32],
     unpadded_byte_index: u64,
     unpadded_bytes_amount: u64,
 ) -> repr_c::Box<UnsealRangeResponse> {
@@ -329,10 +323,10 @@ unsafe fn unseal_range(
             as_path_buf(&cache_dir_path)?,
             sealed_sector.path().unwrap(),
             &mut unseal_output,
-            prover_id.inner,
+            *prover_id,
             SectorId::from(sector_id),
-            comm_d.inner,
-            ticket.inner,
+            *comm_d,
+            *ticket,
             UnpaddedByteIndex(unpadded_byte_index),
             UnpaddedBytesAmount(unpadded_bytes_amount),
         )?;
@@ -349,11 +343,11 @@ unsafe fn unseal_range(
 #[ffi_export]
 fn verify_seal(
     registered_proof: RegisteredSealProof,
-    comm_r: ByteArray32,
-    comm_d: ByteArray32,
-    prover_id: ByteArray32,
-    ticket: ByteArray32,
-    seed: ByteArray32,
+    comm_r: &[u8; 32],
+    comm_d: &[u8; 32],
+    prover_id: &[u8; 32],
+    ticket: &[u8; 32],
+    seed: &[u8; 32],
     sector_id: u64,
     proof: c_slice::Ref<u8>,
 ) -> repr_c::Box<super::types::VerifySealResponse> {
@@ -362,12 +356,12 @@ fn verify_seal(
 
         let result = seal::verify_seal(
             registered_proof.into(),
-            comm_r.inner,
-            comm_d.inner,
-            prover_id.inner,
+            *comm_r,
+            *comm_d,
+            *prover_id,
             SectorId::from(sector_id),
-            ticket.inner,
-            seed.inner,
+            *ticket,
+            *seed,
             &proof_bytes,
         )?;
 
@@ -379,16 +373,16 @@ fn verify_seal(
 #[ffi_export]
 fn generate_winning_post_sector_challenge(
     registered_proof: RegisteredPoStProof,
-    randomness: ByteArray32,
+    randomness: &[u8; 32],
     sector_set_len: u64,
-    prover_id: ByteArray32,
+    prover_id: &[u8; 32],
 ) -> repr_c::Box<GenerateWinningPoStSectorChallenge> {
     catch_panic_response("generate_winning_post_sector_challenge", || {
         let result = filecoin_proofs_api::post::generate_winning_post_sector_challenge(
             registered_proof.into(),
-            &randomness.inner,
+            &randomness,
             sector_set_len,
-            prover_id.inner,
+            *prover_id,
         )?;
 
         Ok(result
@@ -404,18 +398,18 @@ fn generate_winning_post_sector_challenge(
 #[ffi_export]
 fn generate_fallback_sector_challenges(
     registered_proof: RegisteredPoStProof,
-    randomness: ByteArray32,
+    randomness: &[u8; 32],
     sector_ids: c_slice::Ref<u64>,
-    prover_id: ByteArray32,
+    prover_id: &[u8; 32],
 ) -> repr_c::Box<GenerateFallbackSectorChallengesResponse> {
     catch_panic_response("generate_fallback_sector_challenges", || {
         let pub_sectors: Vec<SectorId> = sector_ids.iter().copied().map(Into::into).collect();
 
         let output = filecoin_proofs_api::post::generate_fallback_sector_challenges(
             registered_proof.into(),
-            &randomness.inner,
+            &randomness,
             &pub_sectors,
-            prover_id.inner,
+            *prover_id,
         )?;
 
         let sector_ids: Vec<u64> = output
@@ -488,8 +482,8 @@ fn generate_single_vanilla_proof(
 #[ffi_export]
 fn generate_winning_post_with_vanilla(
     registered_proof: RegisteredPoStProof,
-    randomness: ByteArray32,
-    prover_id: ByteArray32,
+    randomness: &[u8; 32],
+    prover_id: &[u8; 32],
     vanilla_proofs: c_slice::Ref<VanillaProof>,
 ) -> repr_c::Box<GenerateWinningPoStResponse> {
     catch_panic_response("generate_winning_post_with_vanilla", || {
@@ -500,8 +494,8 @@ fn generate_winning_post_with_vanilla(
 
         let result = filecoin_proofs_api::post::generate_winning_post_with_vanilla(
             registered_proof.into(),
-            &randomness.inner,
-            prover_id.inner,
+            &randomness,
+            *prover_id,
             &vanilla_proofs,
         )?;
 
@@ -520,17 +514,14 @@ fn generate_winning_post_with_vanilla(
 /// TODO: document
 #[ffi_export]
 fn generate_winning_post(
-    randomness: ByteArray32,
+    randomness: &[u8; 32],
     replicas: c_slice::Ref<PrivateReplicaInfo>,
-    prover_id: ByteArray32,
+    prover_id: &[u8; 32],
 ) -> repr_c::Box<GenerateWinningPoStResponse> {
     catch_panic_response("generate_winning_post", || {
         let replicas = to_private_replica_info_map(replicas)?;
-        let result = filecoin_proofs_api::post::generate_winning_post(
-            &randomness.inner,
-            &replicas,
-            prover_id.inner,
-        )?;
+        let result =
+            filecoin_proofs_api::post::generate_winning_post(&randomness, &replicas, *prover_id)?;
 
         let result = result
             .into_iter()
@@ -547,10 +538,10 @@ fn generate_winning_post(
 /// Verifies that a proof-of-spacetime is valid.
 #[ffi_export]
 fn verify_winning_post(
-    randomness: ByteArray32,
+    randomness: &[u8; 32],
     replicas: c_slice::Ref<PublicReplicaInfo>,
     proofs: c_slice::Ref<PoStProof>,
-    prover_id: ByteArray32,
+    prover_id: &[u8; 32],
 ) -> repr_c::Box<VerifyWinningPoStResponse> {
     catch_panic_response("verify_winning_post", || {
         let replicas = to_public_replica_info_map(replicas);
@@ -561,10 +552,10 @@ fn verify_winning_post(
             .collect();
 
         let result = filecoin_proofs_api::post::verify_winning_post(
-            &randomness.inner,
+            &randomness,
             &proofs,
             &replicas,
-            prover_id.inner,
+            *prover_id,
         )?;
 
         Ok(result)
@@ -575,8 +566,8 @@ fn verify_winning_post(
 #[ffi_export]
 fn generate_window_post_with_vanilla(
     registered_proof: RegisteredPoStProof,
-    randomness: ByteArray32,
-    prover_id: ByteArray32,
+    randomness: &[u8; 32],
+    prover_id: &[u8; 32],
     vanilla_proofs: c_slice::Ref<VanillaProof>,
 ) -> repr_c::Box<GenerateWindowPoStResponse> {
     catch_panic_response_raw("generate_window_post_with_vanilla", || {
@@ -587,8 +578,8 @@ fn generate_window_post_with_vanilla(
 
         let result = filecoin_proofs_api::post::generate_window_post_with_vanilla(
             registered_proof.into(),
-            &randomness.inner,
-            prover_id.inner,
+            &randomness,
+            *prover_id,
             &vanilla_proofs,
         );
 
@@ -632,17 +623,13 @@ fn generate_window_post_with_vanilla(
 /// TODO: document
 #[ffi_export]
 fn generate_window_post(
-    randomness: ByteArray32,
+    randomness: &[u8; 32],
     replicas: c_slice::Ref<PrivateReplicaInfo>,
-    prover_id: ByteArray32,
+    prover_id: &[u8; 32],
 ) -> repr_c::Box<GenerateWindowPoStResponse> {
     catch_panic_response_raw("generate_window_post", || {
         let result = to_private_replica_info_map(replicas).and_then(|replicas| {
-            filecoin_proofs_api::post::generate_window_post(
-                &randomness.inner,
-                &replicas,
-                prover_id.inner,
-            )
+            filecoin_proofs_api::post::generate_window_post(&randomness, &replicas, *prover_id)
         });
 
         let mut response = GenerateWindowPoStResponse::default();
@@ -684,10 +671,10 @@ fn generate_window_post(
 /// Verifies that a proof-of-spacetime is valid.
 #[ffi_export]
 fn verify_window_post(
-    randomness: ByteArray32,
+    randomness: &[u8; 32],
     replicas: c_slice::Ref<PublicReplicaInfo>,
     proofs: c_slice::Ref<PoStProof>,
-    prover_id: ByteArray32,
+    prover_id: &[u8; 32],
 ) -> repr_c::Box<VerifyWindowPoStResponse> {
     catch_panic_response("verify_window_post", || {
         let replicas = to_public_replica_info_map(replicas);
@@ -702,10 +689,10 @@ fn verify_window_post(
             .collect();
 
         let result = filecoin_proofs_api::post::verify_window_post(
-            &randomness.inner,
+            &randomness,
             &proofs,
             &replicas,
-            prover_id.inner,
+            *prover_id,
         )?;
 
         Ok(result)
@@ -755,8 +742,8 @@ fn get_num_partition_for_fallback_post(
 #[ffi_export]
 fn generate_single_window_post_with_vanilla(
     registered_proof: RegisteredPoStProof,
-    randomness: ByteArray32,
-    prover_id: ByteArray32,
+    randomness: &[u8; 32],
+    prover_id: &[u8; 32],
     vanilla_proofs: c_slice::Ref<VanillaProof>,
     partition_index: libc::size_t,
 ) -> repr_c::Box<GenerateSingleWindowPoStWithVanillaResponse> {
@@ -768,8 +755,8 @@ fn generate_single_window_post_with_vanilla(
 
         let result = filecoin_proofs_api::post::generate_single_window_post_with_vanilla(
             registered_proof.into(),
-            &randomness.inner,
-            prover_id.inner,
+            &randomness,
+            *prover_id,
             &vanilla_proofs,
             partition_index,
         );
@@ -848,7 +835,7 @@ fn empty_sector_update_decode_from(
     replica_path: c_slice::Ref<u8>,
     sector_key_path: c_slice::Ref<u8>,
     sector_key_cache_dir_path: c_slice::Ref<u8>,
-    comm_d_new: ByteArray32,
+    comm_d_new: &[u8; 32],
 ) -> repr_c::Box<EmptySectorUpdateDecodeFromResponse> {
     catch_panic_response("empty_sector_update_decode_from", || {
         update::empty_sector_update_decode_from(
@@ -857,7 +844,7 @@ fn empty_sector_update_decode_from(
             as_path_buf(&replica_path)?,
             as_path_buf(&sector_key_path)?,
             as_path_buf(&sector_key_cache_dir_path)?,
-            comm_d_new.inner,
+            *comm_d_new,
         )?;
 
         Ok(())
@@ -873,7 +860,7 @@ fn empty_sector_update_remove_encoded_data(
     replica_path: c_slice::Ref<u8>,
     replica_cache_path: c_slice::Ref<u8>,
     data_path: c_slice::Ref<u8>,
-    comm_d_new: ByteArray32,
+    comm_d_new: &[u8; 32],
 ) -> repr_c::Box<EmptySectorUpdateRemoveEncodedDataResponse> {
     catch_panic_response("empty_sector_update_remove_encoded_data", || {
         update::empty_sector_update_remove_encoded_data(
@@ -883,7 +870,7 @@ fn empty_sector_update_remove_encoded_data(
             as_path_buf(&replica_path)?,
             as_path_buf(&replica_cache_path)?,
             as_path_buf(&data_path)?,
-            comm_d_new.inner,
+            *comm_d_new,
         )?;
 
         Ok(())
@@ -894,9 +881,9 @@ fn empty_sector_update_remove_encoded_data(
 #[ffi_export]
 fn generate_empty_sector_update_partition_proofs(
     registered_proof: RegisteredUpdateProof,
-    comm_r_old: ByteArray32,
-    comm_r_new: ByteArray32,
-    comm_d_new: ByteArray32,
+    comm_r_old: &[u8; 32],
+    comm_r_new: &[u8; 32],
+    comm_d_new: &[u8; 32],
     sector_key_path: c_slice::Ref<u8>,
     sector_key_cache_dir_path: c_slice::Ref<u8>,
     replica_path: c_slice::Ref<u8>,
@@ -905,9 +892,9 @@ fn generate_empty_sector_update_partition_proofs(
     catch_panic_response("generate_empty_sector_update_partition_proofs", || {
         let output = update::generate_partition_proofs(
             registered_proof.into(),
-            comm_r_old.inner,
-            comm_r_new.inner,
-            comm_d_new.inner,
+            *comm_r_old,
+            *comm_r_new,
+            *comm_d_new,
             as_path_buf(&sector_key_path)?,
             as_path_buf(&sector_key_cache_dir_path)?,
             as_path_buf(&replica_path)?,
@@ -929,9 +916,9 @@ fn generate_empty_sector_update_partition_proofs(
 fn verify_empty_sector_update_partition_proofs(
     registered_proof: RegisteredUpdateProof,
     proofs: c_slice::Ref<ApiPartitionProof>,
-    comm_r_old: ByteArray32,
-    comm_r_new: ByteArray32,
-    comm_d_new: ByteArray32,
+    comm_r_old: &[u8; 32],
+    comm_r_new: &[u8; 32],
+    comm_d_new: &[u8; 32],
 ) -> repr_c::Box<VerifyPartitionProofResponse> {
     catch_panic_response("verify_empty_sector_update_partition_proofs", || {
         let proofs: Vec<api::PartitionProofBytes> = proofs
@@ -942,9 +929,9 @@ fn verify_empty_sector_update_partition_proofs(
         let result = update::verify_partition_proofs(
             registered_proof.into(),
             &proofs,
-            comm_r_old.inner,
-            comm_r_new.inner,
-            comm_d_new.inner,
+            *comm_r_old,
+            *comm_r_new,
+            *comm_d_new,
         )?;
 
         Ok(result)
@@ -956,9 +943,9 @@ fn verify_empty_sector_update_partition_proofs(
 fn generate_empty_sector_update_proof_with_vanilla(
     registered_proof: RegisteredUpdateProof,
     vanilla_proofs: c_slice::Ref<ApiPartitionProof>,
-    comm_r_old: ByteArray32,
-    comm_r_new: ByteArray32,
-    comm_d_new: ByteArray32,
+    comm_r_old: &[u8; 32],
+    comm_r_new: &[u8; 32],
+    comm_d_new: &[u8; 32],
 ) -> repr_c::Box<EmptySectorUpdateProofResponse> {
     catch_panic_response("generate_empty_sector_update_proof_with_vanilla", || {
         let partition_proofs: Vec<api::PartitionProofBytes> = vanilla_proofs
@@ -969,9 +956,9 @@ fn generate_empty_sector_update_proof_with_vanilla(
         let result = update::generate_empty_sector_update_proof_with_vanilla(
             registered_proof.into(),
             partition_proofs,
-            comm_r_old.inner,
-            comm_r_new.inner,
-            comm_d_new.inner,
+            *comm_r_old,
+            *comm_r_new,
+            *comm_d_new,
         )?;
 
         Ok(result.0.into_boxed_slice().into())
@@ -982,9 +969,9 @@ fn generate_empty_sector_update_proof_with_vanilla(
 #[ffi_export]
 fn generate_empty_sector_update_proof(
     registered_proof: RegisteredUpdateProof,
-    comm_r_old: ByteArray32,
-    comm_r_new: ByteArray32,
-    comm_d_new: ByteArray32,
+    comm_r_old: &[u8; 32],
+    comm_r_new: &[u8; 32],
+    comm_d_new: &[u8; 32],
     sector_key_path: c_slice::Ref<u8>,
     sector_key_cache_dir_path: c_slice::Ref<u8>,
     replica_path: c_slice::Ref<u8>,
@@ -993,9 +980,9 @@ fn generate_empty_sector_update_proof(
     catch_panic_response("generate_empty_sector_update_proof", || {
         let result = update::generate_empty_sector_update_proof(
             registered_proof.into(),
-            comm_r_old.inner,
-            comm_r_new.inner,
-            comm_d_new.inner,
+            *comm_r_old,
+            *comm_r_new,
+            *comm_d_new,
             as_path_buf(&sector_key_path)?,
             as_path_buf(&sector_key_cache_dir_path)?,
             as_path_buf(&replica_path)?,
@@ -1011,9 +998,9 @@ fn generate_empty_sector_update_proof(
 fn verify_empty_sector_update_proof(
     registered_proof: RegisteredUpdateProof,
     proof: c_slice::Ref<u8>,
-    comm_r_old: ByteArray32,
-    comm_r_new: ByteArray32,
-    comm_d_new: ByteArray32,
+    comm_r_old: &[u8; 32],
+    comm_r_new: &[u8; 32],
+    comm_d_new: &[u8; 32],
 ) -> repr_c::Box<VerifyEmptySectorUpdateProofResponse> {
     catch_panic_response("verify_empty_sector_update_proof", || {
         let proof_bytes: Vec<u8> = proof.to_vec();
@@ -1021,9 +1008,9 @@ fn verify_empty_sector_update_proof(
         let result = update::verify_empty_sector_update_proof(
             registered_proof.into(),
             &proof_bytes,
-            comm_r_old.inner,
-            comm_r_new.inner,
-            comm_d_new.inner,
+            *comm_r_old,
+            *comm_r_new,
+            *comm_d_new,
         )?;
 
         Ok(result)
@@ -1549,8 +1536,6 @@ pub mod tests {
     }
 
     fn test_sealing_inner(registered_proof_seal: RegisteredSealProof) -> Result<()> {
-        let wrap = |x| ByteArray32 { inner: x };
-
         // miscellaneous setup and shared values
         let registered_proof_winning_post = RegisteredPoStProof::StackedDrgWinning2KiBV1;
         let registered_proof_window_post = RegisteredPoStProof::StackedDrgWindow2KiBV1;
@@ -1559,12 +1544,12 @@ pub mod tests {
         let cache_dir_path = cache_dir.into_path();
         let cache_dir_path_ref = as_bytes(&cache_dir_path);
 
-        let prover_id = ByteArray32 { inner: [1u8; 32] };
-        let randomness = ByteArray32 { inner: [7u8; 32] };
+        let prover_id = [1u8; 32];
+        let randomness = [7u8; 32];
         let sector_id = 42;
         let sector_id2 = 43;
-        let seed = ByteArray32 { inner: [5u8; 32] };
-        let ticket = ByteArray32 { inner: [6u8; 32] };
+        let seed = [5u8; 32];
+        let ticket = [6u8; 32];
 
         // create a byte source (a user's piece)
         let mut rng = thread_rng();
@@ -1650,8 +1635,8 @@ pub mod tests {
                 staged_path_ref.into(),
                 sealed_path_ref.into(),
                 sector_id,
-                prover_id,
-                ticket,
+                &prover_id,
+                &ticket,
                 pieces[..].into(),
             );
 
@@ -1675,21 +1660,21 @@ pub mod tests {
             let pre_commit_comm_d: &[u8; 32] = &resp_b2.comm_d;
 
             assert_eq!(
-                format!("{:x?}", &pre_computed_comm_d),
-                format!("{:x?}", &pre_commit_comm_d),
+                format!("{:x?}", pre_computed_comm_d),
+                format!("{:x?}", pre_commit_comm_d),
                 "pre-computed CommD and pre-commit CommD don't match"
             );
 
             let resp_c1 = seal_commit_phase1(
                 registered_proof_seal,
-                wrap(resp_b2.comm_r),
-                wrap(resp_b2.comm_d),
+                &resp_b2.comm_r,
+                &resp_b2.comm_d,
                 cache_dir_path_ref.into(),
                 sealed_path_ref.into(),
                 sector_id,
-                prover_id,
-                ticket,
-                seed,
+                &prover_id,
+                &ticket,
+                &seed,
                 pieces[..].into(),
             );
 
@@ -1698,7 +1683,7 @@ pub mod tests {
                 panic!("seal_commit_phase1 failed: {:?}", msg);
             }
 
-            let resp_c2 = seal_commit_phase2(resp_c1.as_ref(), sector_id, prover_id);
+            let resp_c2 = seal_commit_phase2(resp_c1.as_ref(), sector_id, &prover_id);
 
             if resp_c2.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_c2.error_msg).unwrap();
@@ -1707,11 +1692,11 @@ pub mod tests {
 
             let resp_d = verify_seal(
                 registered_proof_seal,
-                wrap(resp_b2.comm_r),
-                wrap(resp_b2.comm_d),
-                prover_id,
-                ticket,
-                seed,
+                &resp_b2.comm_r,
+                &resp_b2.comm_d,
+                &prover_id,
+                &ticket,
+                &seed,
                 sector_id,
                 resp_c2.proof.as_ref(),
             );
@@ -1723,7 +1708,7 @@ pub mod tests {
 
             assert!(**resp_d, "proof was not valid");
 
-            let resp_c22 = seal_commit_phase2(resp_c1.as_ref(), sector_id, prover_id);
+            let resp_c22 = seal_commit_phase2(resp_c1.as_ref(), sector_id, &prover_id);
 
             if resp_c22.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_c22.error_msg).unwrap();
@@ -1732,11 +1717,11 @@ pub mod tests {
 
             let resp_d2 = verify_seal(
                 registered_proof_seal,
-                wrap(resp_b2.comm_r),
-                wrap(resp_b2.comm_d),
-                prover_id,
-                ticket,
-                seed,
+                &resp_b2.comm_r,
+                &resp_b2.comm_d,
+                &prover_id,
+                &ticket,
+                &seed,
                 sector_id,
                 resp_c22.proof.as_ref(),
             );
@@ -1872,9 +1857,9 @@ pub mod tests {
             // First generate all vanilla partition proofs
             let resp_partition_proofs = generate_empty_sector_update_partition_proofs(
                 registered_proof_empty_sector_update,
-                wrap(resp_b2.comm_r),
-                wrap(resp_encode.comm_r_new),
-                wrap(resp_encode.comm_d_new),
+                &resp_b2.comm_r,
+                &resp_encode.comm_r_new,
+                &resp_encode.comm_d_new,
                 sealed_path_ref.into(),
                 cache_dir_path_ref.into(),
                 new_sealed_path_ref.into(),
@@ -1890,9 +1875,9 @@ pub mod tests {
             let resp_verify_partition_proofs = verify_empty_sector_update_partition_proofs(
                 registered_proof_empty_sector_update,
                 resp_partition_proofs.as_ref(),
-                wrap(resp_b2.comm_r),
-                wrap(resp_encode.comm_r_new),
-                wrap(resp_encode.comm_d_new),
+                &resp_b2.comm_r,
+                &resp_encode.comm_r_new,
+                &resp_encode.comm_d_new,
             );
 
             if resp_verify_partition_proofs.status_code != FCPResponseStatus::NoError {
@@ -1904,9 +1889,9 @@ pub mod tests {
             let resp_empty_sector_update = generate_empty_sector_update_proof_with_vanilla(
                 registered_proof_empty_sector_update,
                 resp_partition_proofs.as_ref(),
-                wrap(resp_b2.comm_r),
-                wrap(resp_encode.comm_r_new),
-                wrap(resp_encode.comm_d_new),
+                &resp_b2.comm_r,
+                &resp_encode.comm_r_new,
+                &resp_encode.comm_d_new,
             );
 
             if resp_empty_sector_update.status_code != FCPResponseStatus::NoError {
@@ -1921,9 +1906,9 @@ pub mod tests {
             let resp_verify_empty_sector_update = verify_empty_sector_update_proof(
                 registered_proof_empty_sector_update,
                 resp_empty_sector_update.as_ref(),
-                wrap(resp_b2.comm_r),
-                wrap(resp_encode.comm_r_new),
-                wrap(resp_encode.comm_d_new),
+                &resp_b2.comm_r,
+                &resp_encode.comm_r_new,
+                &resp_encode.comm_d_new,
             );
 
             if resp_verify_empty_sector_update.status_code != FCPResponseStatus::NoError {
@@ -1934,9 +1919,9 @@ pub mod tests {
             // Now re-generate the empty sector update monolithically (the vanilla proofs are generated internally)
             let resp_empty_sector_update2 = generate_empty_sector_update_proof(
                 registered_proof_empty_sector_update,
-                wrap(resp_b2.comm_r),
-                wrap(resp_encode.comm_r_new),
-                wrap(resp_encode.comm_d_new),
+                &resp_b2.comm_r,
+                &resp_encode.comm_r_new,
+                &resp_encode.comm_d_new,
                 sealed_path_ref.into(),
                 cache_dir_path_ref.into(),
                 new_sealed_path_ref.into(),
@@ -1951,9 +1936,9 @@ pub mod tests {
             let resp_verify_empty_sector_update2 = verify_empty_sector_update_proof(
                 registered_proof_empty_sector_update,
                 resp_empty_sector_update2.as_ref(),
-                wrap(resp_b2.comm_r),
-                wrap(resp_encode.comm_r_new),
-                wrap(resp_encode.comm_d_new),
+                &resp_b2.comm_r,
+                &resp_encode.comm_r_new,
+                &resp_encode.comm_d_new,
             );
 
             if resp_verify_empty_sector_update2.status_code != FCPResponseStatus::NoError {
@@ -1977,7 +1962,7 @@ pub mod tests {
                 new_sealed_path_ref.into(),
                 sealed_path_ref.into(),
                 cache_dir_path_ref.into(),
-                wrap(resp_encode.comm_d_new),
+                &resp_encode.comm_d_new,
             );
 
             if resp_decode.status_code != FCPResponseStatus::NoError {
@@ -2005,7 +1990,7 @@ pub mod tests {
                 new_sealed_path_ref.into(), // new sealed file path
                 cache_dir_path_ref.into(),  // old replica dir path (for p_aux)
                 new_staged_path_ref.into(), // new staged file data path
-                wrap(resp_encode.comm_d_new),
+                &resp_encode.comm_d_new,
             );
 
             if resp_removed.status_code != FCPResponseStatus::NoError {
@@ -2060,9 +2045,9 @@ pub mod tests {
                     sealed_file.into_raw_fd(),
                     unseal_file.into_raw_fd(),
                     sector_id,
-                    prover_id,
-                    ticket,
-                    wrap(resp_b2.comm_d),
+                    &prover_id,
+                    &ticket,
+                    &resp_b2.comm_d,
                     0,
                     2032,
                 )
@@ -2103,9 +2088,9 @@ pub mod tests {
             let sectors = vec![sector_id];
             let resp_f = generate_winning_post_sector_challenge(
                 registered_proof_winning_post,
-                randomness,
+                &randomness,
                 sectors.len() as u64,
-                prover_id,
+                &prover_id,
             );
 
             if resp_f.status_code != FCPResponseStatus::NoError {
@@ -2132,7 +2117,8 @@ pub mod tests {
 
             // winning post
 
-            let resp_h = generate_winning_post(randomness, private_replicas[..].into(), prover_id);
+            let resp_h =
+                generate_winning_post(&randomness, private_replicas[..].into(), &prover_id);
 
             if resp_h.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_h.error_msg).unwrap();
@@ -2146,10 +2132,10 @@ pub mod tests {
             .into_boxed_slice();
 
             let resp_i = verify_winning_post(
-                randomness,
+                &randomness,
                 public_replicas[..].into(),
                 resp_h.as_ref(),
-                prover_id,
+                &prover_id,
             );
 
             if resp_i.status_code != FCPResponseStatus::NoError {
@@ -2173,9 +2159,9 @@ pub mod tests {
             // First generate sector challenges.
             let resp_sc = generate_fallback_sector_challenges(
                 registered_proof_winning_post,
-                randomness,
+                &randomness,
                 sectors[..].into(),
-                prover_id,
+                &prover_id,
             );
 
             if resp_sc.status_code != FCPResponseStatus::NoError {
@@ -2219,8 +2205,8 @@ pub mod tests {
 
             let resp_wpwv = generate_winning_post_with_vanilla(
                 registered_proof_winning_post,
-                randomness,
-                prover_id,
+                &randomness,
+                &prover_id,
                 vanilla_proofs[..].into(),
             );
 
@@ -2231,10 +2217,10 @@ pub mod tests {
 
             // Verify the second winning post (generated by the distributed post API)
             let resp_di = verify_winning_post(
-                randomness,
+                &randomness,
                 public_replicas[..].into(),
                 resp_wpwv.as_ref(),
-                prover_id,
+                &prover_id,
             );
 
             if resp_di.status_code != FCPResponseStatus::NoError {
@@ -2256,7 +2242,7 @@ pub mod tests {
                 sector_id,
             }];
 
-            let resp_j = generate_window_post(randomness, private_replicas[..].into(), prover_id);
+            let resp_j = generate_window_post(&randomness, private_replicas[..].into(), &prover_id);
 
             if resp_j.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_j.error_msg).unwrap();
@@ -2270,10 +2256,10 @@ pub mod tests {
             }];
 
             let resp_k = verify_window_post(
-                randomness,
+                &randomness,
                 public_replicas[..].into(),
                 resp_j.proofs.as_ref(),
-                prover_id,
+                &prover_id,
             );
 
             if resp_k.status_code != FCPResponseStatus::NoError {
@@ -2327,9 +2313,9 @@ pub mod tests {
             // Generate sector challenges.
             let resp_sc2 = generate_fallback_sector_challenges(
                 registered_proof_window_post,
-                randomness,
+                &randomness,
                 sectors[..].into(),
-                prover_id,
+                &prover_id,
             );
 
             if resp_sc2.status_code != FCPResponseStatus::NoError {
@@ -2374,8 +2360,8 @@ pub mod tests {
 
             let resp_wpwv2 = generate_window_post_with_vanilla(
                 registered_proof_window_post,
-                randomness,
-                prover_id,
+                &randomness,
+                &prover_id,
                 vanilla_proofs[..].into(),
             );
 
@@ -2385,10 +2371,10 @@ pub mod tests {
             }
 
             let resp_k2 = verify_window_post(
-                randomness,
+                &randomness,
                 public_replicas[..].into(),
                 resp_wpwv2.proofs.as_ref(),
-                prover_id,
+                &prover_id,
             );
 
             if resp_k2.status_code != FCPResponseStatus::NoError {
@@ -2447,8 +2433,8 @@ pub mod tests {
 
                 let single_partition_proof_resp = generate_single_window_post_with_vanilla(
                     registered_proof_window_post,
-                    randomness,
-                    prover_id,
+                    &randomness,
+                    &prover_id,
                     vanilla_proofs[..].into(),
                     partition_index,
                 );
@@ -2477,10 +2463,10 @@ pub mod tests {
             }
 
             let resp_k3 = verify_window_post(
-                randomness,
+                &randomness,
                 public_replicas[..].into(),
                 vec![merged_proof_resp.value.clone()][..].into(),
-                prover_id,
+                &prover_id,
             );
 
             if resp_k3.status_code != FCPResponseStatus::NoError {
@@ -2559,10 +2545,10 @@ pub mod tests {
         let cache_dir_path = cache_dir.into_path();
         let cache_dir_path_ref = as_bytes(&cache_dir_path);
 
-        let prover_id = ByteArray32 { inner: [1u8; 32] };
-        let randomness = ByteArray32 { inner: [7u8; 32] };
+        let prover_id = [1u8; 32];
+        let randomness = [7u8; 32];
         let sector_id = 42;
-        let ticket = ByteArray32 { inner: [6u8; 32] };
+        let ticket = [6u8; 32];
 
         // create a byte source (a user's piece)
         let mut rng = thread_rng();
@@ -2645,8 +2631,8 @@ pub mod tests {
                 staged_path_ref.into(),
                 sealed_path_ref.into(),
                 sector_id,
-                prover_id,
-                ticket,
+                &prover_id,
+                &ticket,
                 pieces[..].into(),
             );
 
@@ -2679,7 +2665,7 @@ pub mod tests {
                 sector_id,
             }];
 
-            let resp_j = generate_window_post(randomness, private_replicas[..].into(), prover_id);
+            let resp_j = generate_window_post(&randomness, private_replicas[..].into(), &prover_id);
 
             assert_eq!(
                 resp_j.status_code,
@@ -2733,17 +2719,15 @@ pub mod tests {
         registered_proof_seal: RegisteredSealProof,
         registered_aggregation: RegisteredAggregationProof,
     ) -> Result<()> {
-        let wrap = |x| ByteArray32 { inner: x };
-
         // miscellaneous setup and shared values
         let cache_dir = tempfile::tempdir()?;
         let cache_dir_path = cache_dir.into_path();
         let cache_dir_path_ref = as_bytes(&cache_dir_path);
 
-        let prover_id = ByteArray32 { inner: [1u8; 32] };
+        let prover_id = [1u8; 32];
         let sector_id = 42;
-        let seed = ByteArray32 { inner: [5u8; 32] };
-        let ticket = ByteArray32 { inner: [6u8; 32] };
+        let seed = [5u8; 32];
+        let ticket = [6u8; 32];
 
         // create a byte source (a user's piece)
         let mut rng = thread_rng();
@@ -2826,8 +2810,8 @@ pub mod tests {
                 staged_path_ref.into(),
                 sealed_path_ref.into(),
                 sector_id,
-                prover_id,
-                ticket,
+                &prover_id,
+                &ticket,
                 pieces[..].into(),
             );
 
@@ -2858,14 +2842,14 @@ pub mod tests {
 
             let resp_c1 = seal_commit_phase1(
                 registered_proof_seal,
-                wrap(resp_b2.comm_r),
-                wrap(resp_b2.comm_d),
+                &resp_b2.comm_r,
+                &resp_b2.comm_d,
                 cache_dir_path_ref.into(),
                 sealed_path_ref.into(),
                 sector_id,
-                prover_id,
-                ticket,
-                seed,
+                &prover_id,
+                &ticket,
+                &seed,
                 pieces[..].into(),
             );
 
@@ -2874,7 +2858,7 @@ pub mod tests {
                 panic!("seal_commit_phase1 failed: {:?}", msg);
             }
 
-            let resp_c2 = seal_commit_phase2(resp_c1.as_ref(), sector_id, prover_id);
+            let resp_c2 = seal_commit_phase2(resp_c1.as_ref(), sector_id, &prover_id);
 
             if resp_c2.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_c2.error_msg).unwrap();
@@ -2883,11 +2867,11 @@ pub mod tests {
 
             let resp_d = verify_seal(
                 registered_proof_seal,
-                wrap(resp_b2.comm_r),
-                wrap(resp_b2.comm_d),
-                prover_id,
-                ticket,
-                seed,
+                &resp_b2.comm_r,
+                &resp_b2.comm_d,
+                &prover_id,
+                &ticket,
+                &seed,
                 sector_id,
                 resp_c2.proof.as_ref(),
             );
@@ -2899,7 +2883,7 @@ pub mod tests {
 
             assert!(**resp_d, "proof was not valid");
 
-            let resp_c22 = seal_commit_phase2(resp_c1.as_ref(), sector_id, prover_id);
+            let resp_c22 = seal_commit_phase2(resp_c1.as_ref(), sector_id, &prover_id);
 
             if resp_c22.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_c22.error_msg).unwrap();
@@ -2908,11 +2892,11 @@ pub mod tests {
 
             let resp_d2 = verify_seal(
                 registered_proof_seal,
-                wrap(resp_b2.comm_r),
-                wrap(resp_b2.comm_d),
-                prover_id,
-                ticket,
-                seed,
+                &resp_b2.comm_r,
+                &resp_b2.comm_d,
+                &prover_id,
+                &ticket,
+                &seed,
                 sector_id,
                 resp_c22.proof.as_ref(),
             );
@@ -2927,20 +2911,13 @@ pub mod tests {
             let seal_commit_responses: Vec<SealCommitPhase2> =
                 vec![resp_c2.value.clone(), resp_c22.value.clone()];
 
-            let comm_rs = vec![
-                ByteArray32 {
-                    inner: resp_b2.comm_r,
-                },
-                ByteArray32 {
-                    inner: resp_b2.comm_r,
-                },
-            ];
+            let comm_rs = vec![resp_b2.comm_r, resp_b2.comm_r];
             let seeds = vec![seed, seed];
             let resp_aggregate_proof = aggregate_seal_proofs(
                 registered_proof_seal,
                 registered_aggregation,
-                comm_rs.into_boxed_slice().into(),
-                seeds.into_boxed_slice().into(),
+                comm_rs[..].into(),
+                seeds[..].into(),
                 seal_commit_responses[..].into(),
             );
 
@@ -2953,15 +2930,15 @@ pub mod tests {
 
             let inputs: Vec<AggregationInputs> = vec![
                 AggregationInputs {
-                    comm_r: wrap(resp_b2.comm_r),
-                    comm_d: wrap(resp_b2.comm_d),
+                    comm_r: resp_b2.comm_r,
+                    comm_d: resp_b2.comm_d,
                     sector_id,
                     ticket,
                     seed,
                 },
                 AggregationInputs {
-                    comm_r: wrap(resp_b2.comm_r),
-                    comm_d: wrap(resp_b2.comm_d),
+                    comm_r: resp_b2.comm_r,
+                    comm_d: resp_b2.comm_d,
                     sector_id,
                     ticket,
                     seed,
@@ -2971,7 +2948,7 @@ pub mod tests {
             let resp_ad = verify_aggregate_seal_proof(
                 registered_proof_seal,
                 registered_aggregation,
-                prover_id,
+                &prover_id,
                 resp_aggregate_proof.as_ref(),
                 inputs[..].into(),
             );

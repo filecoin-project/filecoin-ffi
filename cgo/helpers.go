@@ -129,7 +129,7 @@ func AsSliceRefPoStProof(goSlice []PoStProof) SliceRefPoStProof {
 func AsByteArray32(goSlice []byte) ByteArray32 {
 	var ary ByteArray32
 	for idx := range goSlice[:32] {
-		ary.inner.idx[idx] = C.uchar(goSlice[idx])
+		ary.idx[idx] = C.uchar(goSlice[idx])
 	}
 	return ary
 }
@@ -156,28 +156,22 @@ func NewAggregationInputs(commR ByteArray32, commD ByteArray32, sectorId uint64,
 	}
 }
 
-func NewPrivateReplicaInfo(pp RegisteredPoStProof, cacheDirPath SliceBoxedUint8, commR []byte, replicaPath SliceBoxedUint8, sectorId uint64) PrivateReplicaInfo {
-	var info PrivateReplicaInfo
-	info.registered_proof = pp
-	info.cache_dir_path = cacheDirPath
-	info.replica_path = replicaPath
-	info.sector_id = C.uint64_t(sectorId)
-
-	for idx := range commR[:32] {
-		info.comm_r.idx[idx] = C.uchar(commR[idx])
+func NewPrivateReplicaInfo(pp RegisteredPoStProof, cacheDirPath SliceBoxedUint8, commR ByteArray32, replicaPath SliceBoxedUint8, sectorId uint64) PrivateReplicaInfo {
+	return PrivateReplicaInfo{
+		registered_proof: pp,
+		cache_dir_path:   cacheDirPath,
+		replica_path:     replicaPath,
+		sector_id:        C.uint64_t(sectorId),
+		comm_r:           commR,
 	}
-	return info
 }
 
-func NewPublicReplicaInfo(pp RegisteredPoStProof, commR []byte, sectorId uint64) PublicReplicaInfo {
-	var info PublicReplicaInfo
-	info.registered_proof = pp
-	info.sector_id = C.uint64_t(sectorId)
-
-	for idx := range commR[:32] {
-		info.comm_r.idx[idx] = C.uchar(commR[idx])
+func NewPublicReplicaInfo(pp RegisteredPoStProof, commR ByteArray32, sectorId uint64) PublicReplicaInfo {
+	return PublicReplicaInfo{
+		registered_proof: pp,
+		sector_id:        C.uint64_t(sectorId),
+		comm_r:           commR,
 	}
-	return info
 }
 
 func NewPoStProof(pp RegisteredPoStProof, proof SliceBoxedUint8) PoStProof {

@@ -1,32 +1,10 @@
 use std::io::SeekFrom;
-use std::ops::Deref;
 
 use filecoin_proofs_api as api;
 use filecoin_proofs_api::seal::SealCommitPhase2Output;
 use safer_ffi::prelude::*;
 
 use crate::util::types::Result;
-
-#[derive_ReprC]
-#[repr(C)]
-#[derive(Default, Debug, Clone, Copy)]
-pub struct ByteArray32 {
-    pub inner: [u8; 32],
-}
-
-impl Deref for ByteArray32 {
-    type Target = [u8; 32];
-
-    fn deref(&self) -> &Self::Target {
-        &self.inner
-    }
-}
-
-impl From<[u8; 32]> for ByteArray32 {
-    fn from(val: [u8; 32]) -> Self {
-        Self { inner: val }
-    }
-}
 
 /// FileDescriptorRef does not drop its file descriptor when it is dropped. Its
 /// owner must manage the lifecycle of the file descriptor.
@@ -406,7 +384,7 @@ pub struct WriteWithoutAlignment {
 
 pub type SealPreCommitPhase1Response = Result<c_slice::Box<u8>>;
 
-pub type FauxRepResponse = Result<ByteArray32>;
+pub type FauxRepResponse = Result<[u8; 32]>;
 
 pub type SealPreCommitPhase2Response = Result<SealPreCommitPhase2>;
 
@@ -453,11 +431,11 @@ pub struct SealCommitPhase2 {
 #[repr(C)]
 #[derive(Clone, Default)]
 pub struct AggregationInputs {
-    pub comm_r: ByteArray32,
-    pub comm_d: ByteArray32,
+    pub comm_r: [u8; 32],
+    pub comm_d: [u8; 32],
     pub sector_id: u64,
-    pub ticket: ByteArray32,
-    pub seed: ByteArray32,
+    pub ticket: [u8; 32],
+    pub seed: [u8; 32],
 }
 
 pub type UnsealRangeResponse = Result<()>;
@@ -470,7 +448,7 @@ pub type VerifyWinningPoStResponse = Result<bool>;
 
 pub type VerifyWindowPoStResponse = Result<bool>;
 
-pub type FinalizeTicketResponse = Result<ByteArray32>;
+pub type FinalizeTicketResponse = Result<[u8; 32]>;
 
 pub type GeneratePieceCommitmentResponse = Result<GeneratePieceCommitment>;
 
@@ -484,7 +462,7 @@ pub struct GeneratePieceCommitment {
     pub num_bytes_aligned: u64,
 }
 
-pub type GenerateDataCommitmentResponse = Result<ByteArray32>;
+pub type GenerateDataCommitmentResponse = Result<[u8; 32]>;
 
 pub type StringResponse = Result<c_slice::Box<u8>>;
 

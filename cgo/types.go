@@ -57,8 +57,6 @@ func (ptr *PrivateKeyGenerateResponse) PrivateKey() []byte {
 	return ptr.private_key.Slice()
 }
 
-type ByteArray32 = C.ByteArray32_t
-
 type PrivateKeySignResponse = C.PrivateKeySignResponse_t
 
 func (ptr *PrivateKeySignResponse) Signature() []byte {
@@ -126,4 +124,10 @@ func (ptr *PoStProof) Proof() []byte {
 
 func (ptr *PoStProof) RegisteredProof() RegisteredPoStProof {
 	return ptr.registered_proof
+}
+
+type ByteArray32 = C.uint8_32_array_t
+
+func (ptr *ByteArray32) Slice() []byte {
+	return unsafe.Slice((*byte)(unsafe.Pointer(&ptr.idx[0])), 32)
 }

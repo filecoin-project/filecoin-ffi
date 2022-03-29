@@ -36,7 +36,7 @@ func PrivateKeyGenerate() *PrivateKeyGenerateResponse {
 	return C.private_key_generate()
 }
 
-func PrivateKeyGenerateWithSeed(rawSeed ByteArray32) *PrivateKeyGenerateResponse {
+func PrivateKeyGenerateWithSeed(rawSeed *ByteArray32) *PrivateKeyGenerateResponse {
 	return C.private_key_generate_with_seed(rawSeed)
 }
 

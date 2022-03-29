@@ -45,7 +45,10 @@ func VerifySeal(info proof5.SealVerifyInfo) (bool, error) {
 		return false, err
 	}
 
-	return cgo.VerifySeal(sp, commR, commD, proverID, cgo.AsByteArray32(info.Randomness), cgo.AsByteArray32(info.InteractiveRandomness), uint64(info.SectorID.Number), cgo.AsSliceRefUint8(info.Proof))
+	randomness := cgo.AsByteArray32(info.Randomness)
+	interactiveRandomness := cgo.AsByteArray32(info.InteractiveRandomness)
+
+	return cgo.VerifySeal(sp, &commR, &commD, &proverID, &randomness, &interactiveRandomness, uint64(info.SectorID.Number), cgo.AsSliceRefUint8(info.Proof))
 }
 
 func VerifyAggregateSeals(aggregate proof5.AggregateSealVerifyProofAndInfos) (bool, error) {
@@ -92,7 +95,7 @@ func VerifyAggregateSeals(aggregate proof5.AggregateSealVerifyProofAndInfos) (bo
 		return false, err
 	}
 
-	return cgo.VerifyAggregateSealProof(sp, rap, proverID, cgo.AsSliceRefUint8(aggregate.Proof), cgo.AsSliceRefAggregationInputs(inputs))
+	return cgo.VerifyAggregateSealProof(sp, rap, &proverID, cgo.AsSliceRefUint8(aggregate.Proof), cgo.AsSliceRefAggregationInputs(inputs))
 }
 
 // VerifyWinningPoSt returns true if the Winning PoSt-generation operation from which its
@@ -112,12 +115,13 @@ func VerifyWinningPoSt(info proof5.WinningPoStVerifyInfo) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+	randomness := cgo.AsByteArray32(info.Randomness)
 
 	return cgo.VerifyWinningPoSt(
-		cgo.AsByteArray32(info.Randomness),
+		&randomness,
 		cgo.AsSliceRefPublicReplicaInfo(filPublicReplicaInfos),
 		cgo.AsSliceRefPoStProof(filPoStProofs),
-		proverID,
+		&proverID,
 	)
 }
 
@@ -139,11 +143,13 @@ func VerifyWindowPoSt(info proof5.WindowPoStVerifyInfo) (bool, error) {
 		return false, err
 	}
 
+	randomness := cgo.AsByteArray32(info.Randomness)
+
 	return cgo.VerifyWindowPoSt(
-		cgo.AsByteArray32(info.Randomness),
+		&randomness,
 		cgo.AsSliceRefPublicReplicaInfo(filPublicReplicaInfos),
 		cgo.AsSliceRefPoStProof(filPoStProofs),
-		proverID,
+		&proverID,
 	)
 }
 
@@ -807,7 +813,7 @@ func toFilPublicReplicaInfos(src []proof5.SectorInfo, typ string) ([]cgo.PublicR
 	out := make([]cgo.PublicReplicaInfo, len(src))
 
 	for idx := range out {
-		commR, err := toCommRByteSlice(src[idx].SealedCID)
+		commR, err := to32ByteCommR(src[idx].SealedCID)
 		if err != nil {
 			return nil, err
 		}
@@ -844,7 +850,7 @@ func toFilPublicReplicaInfos(src []proof5.SectorInfo, typ string) ([]cgo.PublicR
 }
 
 func toFilPrivateReplicaInfo(src PrivateSectorInfo) (cgo.PrivateReplicaInfo, error) {
-	commR, err := toCommRByteSlice(src.SealedCID)
+	commR, err := to32ByteCommR(src.SealedCID)
 	if err != nil {
 		return cgo.PrivateReplicaInfo{}, err
 	}
@@ -878,7 +884,7 @@ func toFilPrivateReplicaInfos(src []PrivateSectorInfo, typ string) ([]cgo.Privat
 	out := make([]cgo.PrivateReplicaInfo, len(src))
 
 	for idx := range out {
-		commR, err := toCommRByteSlice(src[idx].SealedCID)
+		commR, err := to32ByteCommR(src[idx].SealedCID)
 		if err != nil {
 			return nil, err
 		}
@@ -1084,15 +1090,6 @@ func to32ByteCommR(sealedCID cid.Cid) (cgo.ByteArray32, error) {
 	}
 
 	return cgo.AsByteArray32(commR), nil
-}
-
-func toCommRByteSlice(sealedCID cid.Cid) ([]byte, error) {
-	commR, err := commcid.CIDToReplicaCommitmentV1(sealedCID)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to transform sealed CID to CommR")
-	}
-
-	return commR, nil
 }
 
 func to32ByteCommP(pieceCID cid.Cid) (cgo.ByteArray32, error) {
