@@ -159,6 +159,40 @@ func AsSliceRefPublicPieceInfo(goSlice []PublicPieceInfo) SliceRefPublicPieceInf
 	}
 }
 
+func AsSliceRefByteArray32(goSlice []ByteArray32) SliceRefByteArray32 {
+	len := len(goSlice)
+
+	if len == 0 {
+		// can't take element 0 of an empty slice
+		return SliceRefByteArray32{
+			ptr: (*C.uint8_32_array_t)(unsafe.Pointer(&goSlice)),
+			len: C.size_t(len),
+		}
+	}
+
+	return SliceRefByteArray32{
+		ptr: (*C.uint8_32_array_t)(unsafe.Pointer(&goSlice[0])),
+		len: C.size_t(len),
+	}
+}
+
+func AsSliceRefSliceBoxedUint8(goSlice []SliceBoxedUint8) SliceRefSliceBoxedUint8 {
+	len := len(goSlice)
+
+	if len == 0 {
+		// can't take element 0 of an empty slice
+		return SliceRefSliceBoxedUint8{
+			ptr: (*C.slice_boxed_uint8_t)(unsafe.Pointer(&goSlice)),
+			len: C.size_t(len),
+		}
+	}
+
+	return SliceRefSliceBoxedUint8{
+		ptr: (*C.slice_boxed_uint8_t)(unsafe.Pointer(&goSlice[0])),
+		len: C.size_t(len),
+	}
+}
+
 func AsByteArray32(goSlice []byte) ByteArray32 {
 	var ary ByteArray32
 	for idx := range goSlice[:32] {

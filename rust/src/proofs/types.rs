@@ -1,7 +1,6 @@
 use std::io::SeekFrom;
 
 use filecoin_proofs_api as api;
-use filecoin_proofs_api::seal::SealCommitPhase2Output;
 use safer_ffi::prelude::*;
 
 use crate::util::types::Result;
@@ -408,24 +407,7 @@ impl Default for SealPreCommitPhase2 {
 
 pub type SealCommitPhase1Response = Result<c_slice::Box<u8>>;
 
-pub type SealCommitPhase2Response = Result<SealCommitPhase2>;
-
-impl From<&SealCommitPhase2> for SealCommitPhase2Output {
-    fn from(other: &SealCommitPhase2) -> Self {
-        SealCommitPhase2Output {
-            proof: other.proof.to_vec(),
-        }
-    }
-}
-
-#[derive_ReprC]
-#[repr(C)]
-#[derive(Default, Clone)]
-pub struct SealCommitPhase2 {
-    pub proof: c_slice::Box<u8>,
-    // TODO: this is not actualy used?
-    // pub commit_inputs: c_slice::Box<AggregationInputs>,
-}
+pub type SealCommitPhase2Response = Result<c_slice::Box<u8>>;
 
 #[derive_ReprC]
 #[repr(C)]

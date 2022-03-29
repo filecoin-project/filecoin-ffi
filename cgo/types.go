@@ -251,22 +251,6 @@ func (ptr *ResultSealPreCommitPhase2) Destroy() {
 	}
 }
 
-type ResultSealCommitPhase2 = C.Result_SealCommitPhase2_t
-
-func (ptr *ResultSealCommitPhase2) StatusCode() FCPResponseStatus {
-	return FCPResponseStatus(ptr.status_code)
-}
-
-func (ptr *ResultSealCommitPhase2) ErrorMsg() *SliceBoxedUint8 {
-	return &ptr.error_msg
-}
-
-func (ptr *ResultSealCommitPhase2) Destroy() {
-	if ptr != nil {
-		C.destroy_seal_commit_phase2_response(ptr)
-	}
-}
-
 func (ptr *SliceBoxedUint8) Copy() []byte {
 	if ptr == nil {
 		return []byte{}
@@ -280,3 +264,6 @@ func (ptr *SliceBoxedUint8) Copy() []byte {
 
 	return res
 }
+
+type SliceRefByteArray32 = C.slice_ref_uint8_32_array_t
+type SliceRefSliceBoxedUint8 = C.slice_ref_slice_boxed_uint8_t

@@ -214,9 +214,7 @@ fn seal_commit_phase2(
         let scp1o = serde_json::from_slice(&seal_commit_phase1_output)?;
         let result = seal::seal_commit_phase2(scp1o, *prover_id, SectorId::from(sector_id))?;
 
-        Ok(SealCommitPhase2 {
-            proof: result.proof.into_boxed_slice().into(),
-        })
+        Ok(result.proof.into_boxed_slice().into())
     })
 }
 
@@ -226,11 +224,13 @@ fn aggregate_seal_proofs(
     registered_aggregation: RegisteredAggregationProof,
     comm_rs: c_slice::Ref<[u8; 32]>,
     seeds: c_slice::Ref<[u8; 32]>,
-    seal_commit_responses: c_slice::Ref<SealCommitPhase2>,
+    seal_commit_responses: c_slice::Ref<c_slice::Box<u8>>,
 ) -> repr_c::Box<AggregateProof> {
     catch_panic_response("aggregate_seal_proofs", || {
-        let outputs: Vec<seal::SealCommitPhase2Output> =
-            seal_commit_responses.iter().map(Into::into).collect();
+        let outputs: Vec<seal::SealCommitPhase2Output> = seal_commit_responses
+            .iter()
+            .map(|p| seal::SealCommitPhase2Output { proof: p.to_vec() })
+            .collect();
 
         let result = seal::aggregate_seal_commit_proofs(
             registered_proof.into(),
@@ -1698,7 +1698,7 @@ pub mod tests {
                 &ticket,
                 &seed,
                 sector_id,
-                resp_c2.proof.as_ref(),
+                resp_c2.as_ref(),
             );
 
             if resp_d.status_code != FCPResponseStatus::NoError {
@@ -1723,7 +1723,7 @@ pub mod tests {
                 &ticket,
                 &seed,
                 sector_id,
-                resp_c22.proof.as_ref(),
+                resp_c22.as_ref(),
             );
 
             if resp_d2.status_code != FCPResponseStatus::NoError {
@@ -2873,7 +2873,7 @@ pub mod tests {
                 &ticket,
                 &seed,
                 sector_id,
-                resp_c2.proof.as_ref(),
+                resp_c2.as_ref(),
             );
 
             if resp_d.status_code != FCPResponseStatus::NoError {
@@ -2898,7 +2898,7 @@ pub mod tests {
                 &ticket,
                 &seed,
                 sector_id,
-                resp_c22.proof.as_ref(),
+                resp_c22.as_ref(),
             );
 
             if resp_d2.status_code != FCPResponseStatus::NoError {
@@ -2908,8 +2908,7 @@ pub mod tests {
 
             assert!(**resp_d2, "proof was not valid");
 
-            let seal_commit_responses: Vec<SealCommitPhase2> =
-                vec![resp_c2.value.clone(), resp_c22.value.clone()];
+            let seal_commit_responses = vec![resp_c2.value.clone(), resp_c22.value.clone()];
 
             let comm_rs = vec![resp_b2.comm_r, resp_b2.comm_r];
             let seeds = vec![seed, seed];

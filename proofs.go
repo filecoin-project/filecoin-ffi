@@ -408,47 +408,45 @@ func SealCommitPhase2(
 	return cgo.SealCommitPhase2(cgo.AsSliceRefUint8(phase1Output), uint64(sectorNum), &proverID)
 }
 
-// // TODO AggregateSealProofs it only needs InteractiveRandomness out of the aggregateInfo.Infos
-// func AggregateSealProofs(aggregateInfo proof5.AggregateSealVerifyProofAndInfos, proofs [][]byte) (out []byte, err error) {
-// 	sp, err := toFilRegisteredSealProof(aggregateInfo.SealProof)
-// 	if err != nil {
-// 		return nil, err
-// 	}
+// TODO AggregateSealProofs it only needs InteractiveRandomness out of the aggregateInfo.Infos
+func AggregateSealProofs(aggregateInfo proof5.AggregateSealVerifyProofAndInfos, proofs [][]byte) (out []byte, err error) {
+	sp, err := toFilRegisteredSealProof(aggregateInfo.SealProof)
+	if err != nil {
+		return nil, err
+	}
 
-// 	commRs := make([]cgo.ByteArray32, len(aggregateInfo.Infos))
-// 	seeds := make([]cgo.ByteArray32, len(aggregateInfo.Infos))
-// 	for i, info := range aggregateInfo.Infos {
-// 		seeds[i] = toByteArray32(info.InteractiveRandomness)
-// 		commRs[i], err = to32ByteCommR(info.SealedCID)
-// 		if err != nil {
-// 			return nil, err
-// 		}
-// 	}
+	commRs := make([]cgo.ByteArray32, len(aggregateInfo.Infos))
+	seeds := make([]cgo.ByteArray32, len(aggregateInfo.Infos))
+	for i, info := range aggregateInfo.Infos {
+		seeds[i] = cgo.AsByteArray32(info.InteractiveRandomness)
+		commRs[i], err = to32ByteCommR(info.SealedCID)
+		if err != nil {
+			return nil, err
+		}
+	}
 
-// 	pfs := make([]cgo.SealCommitPhase2Response, len(proofs))
-// 	for i := range proofs {
-// 		pfs[i] = cgo.SealCommitPhase2Response{
-// 			ProofPtr: proofs[i],
-// 			ProofLen: uint(len(proofs[i])),
-// 		}
-// 	}
+	pfs := make([]cgo.SliceBoxedUint8, len(proofs))
+	for i := range proofs {
+		p, err := cgo.AsSliceBoxedUint8(proofs[i])
+		if err != nil {
+			return nil, err
+		}
+		pfs[i] = p
+	}
 
-// 	rap, err := toFilRegisteredAggregationProof(aggregateInfo.AggregateProof)
-// 	if err != nil {
-// 		return nil, err
-// 	}
+	rap, err := toFilRegisteredAggregationProof(aggregateInfo.AggregateProof)
+	if err != nil {
+		return nil, err
+	}
 
-// 	resp := cgo.AggregateSealProofs(sp, rap, commRs, uint(len(commRs)), seeds, uint(len(seeds)), pfs, uint(len(pfs)))
-// 	resp.Deref()
-
-// 	defer cgo.DestroyAggregateProof(resp)
-
-// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
-// 		return nil, errors.New(cgo.RawString(resp.ErrorMsg).Copy())
-// 	}
-
-// 	return copyBytes(resp.ProofPtr, resp.ProofLen), nil
-// }
+	return cgo.AggregateSealProofs(
+		sp,
+		rap,
+		cgo.AsSliceRefByteArray32(commRs),
+		cgo.AsSliceRefByteArray32(seeds),
+		cgo.AsSliceRefSliceBoxedUint8(pfs),
+	)
+}
 
 // // Unseal
 // func Unseal(

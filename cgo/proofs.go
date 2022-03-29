@@ -127,5 +127,14 @@ func SealCommitPhase2(sealCommitPhase1Output SliceRefUint8, sectorId uint64, pro
 	if err := CheckErr(resp); err != nil {
 		return nil, err
 	}
-	return resp.value.proof.Copy(), nil
+	return resp.value.Copy(), nil
+}
+
+func AggregateSealProofs(registeredProof RegisteredSealProof, registeredAggregation RegisteredAggregationProof, commRs SliceRefByteArray32, seeds SliceRefByteArray32, sealCommitResponses SliceRefSliceBoxedUint8) ([]byte, error) {
+	resp := C.aggregate_seal_proofs(registeredProof, registeredAggregation, commRs, seeds, sealCommitResponses)
+	defer resp.Destroy()
+	if err := CheckErr(resp); err != nil {
+		return nil, err
+	}
+	return resp.value.Copy(), nil
 }
