@@ -102,8 +102,10 @@ func (ptr *ResultBool) ErrorMsg() *SliceBoxedUint8 {
 }
 
 func (ptr *ResultBool) Destroy() {
-	// TODO: correct naming
-	C.destroy_verify_seal_response(ptr)
+	if ptr != nil {
+		// TODO: correct naming
+		C.destroy_verify_seal_response(ptr)
+	}
 }
 
 type AggregationInputs = C.AggregationInputs_t
@@ -181,3 +183,100 @@ func (ptr *ResultByteArray32) Value() ByteArray32 {
 
 type PublicPieceInfo = C.PublicPieceInfo_t
 type SliceRefPublicPieceInfo = C.slice_ref_PublicPieceInfo_t
+
+type SliceRefUint64 = C.slice_ref_uint64_t
+
+type ResultWriteWithAlignment = C.Result_WriteWithAlignment_t
+
+func (ptr *ResultWriteWithAlignment) StatusCode() FCPResponseStatus {
+	return FCPResponseStatus(ptr.status_code)
+}
+
+func (ptr *ResultWriteWithAlignment) ErrorMsg() *SliceBoxedUint8 {
+	return &ptr.error_msg
+}
+
+func (ptr *ResultWriteWithAlignment) Destroy() {
+	if ptr != nil {
+		C.destroy_write_with_alignment_response(ptr)
+	}
+}
+
+type ResultWriteWithoutAlignment = C.Result_WriteWithoutAlignment_t
+
+func (ptr *ResultWriteWithoutAlignment) StatusCode() FCPResponseStatus {
+	return FCPResponseStatus(ptr.status_code)
+}
+
+func (ptr *ResultWriteWithoutAlignment) ErrorMsg() *SliceBoxedUint8 {
+	return &ptr.error_msg
+}
+
+func (ptr *ResultWriteWithoutAlignment) Destroy() {
+	if ptr != nil {
+		C.destroy_write_without_alignment_response(ptr)
+	}
+}
+
+type ResultSliceBoxedUint8 = C.Result_slice_boxed_uint8_t
+
+func (ptr *ResultSliceBoxedUint8) StatusCode() FCPResponseStatus {
+	return FCPResponseStatus(ptr.status_code)
+}
+
+func (ptr *ResultSliceBoxedUint8) ErrorMsg() *SliceBoxedUint8 {
+	return &ptr.error_msg
+}
+
+func (ptr *ResultSliceBoxedUint8) Destroy() {
+	if ptr != nil {
+		// TODO: naming
+		C.destroy_seal_pre_commit_phase1_response(ptr)
+	}
+}
+
+type ResultSealPreCommitPhase2 = C.Result_SealPreCommitPhase2_t
+
+func (ptr *ResultSealPreCommitPhase2) StatusCode() FCPResponseStatus {
+	return FCPResponseStatus(ptr.status_code)
+}
+
+func (ptr *ResultSealPreCommitPhase2) ErrorMsg() *SliceBoxedUint8 {
+	return &ptr.error_msg
+}
+
+func (ptr *ResultSealPreCommitPhase2) Destroy() {
+	if ptr != nil {
+		C.destroy_seal_pre_commit_phase2_response(ptr)
+	}
+}
+
+type ResultSealCommitPhase2 = C.Result_SealCommitPhase2_t
+
+func (ptr *ResultSealCommitPhase2) StatusCode() FCPResponseStatus {
+	return FCPResponseStatus(ptr.status_code)
+}
+
+func (ptr *ResultSealCommitPhase2) ErrorMsg() *SliceBoxedUint8 {
+	return &ptr.error_msg
+}
+
+func (ptr *ResultSealCommitPhase2) Destroy() {
+	if ptr != nil {
+		C.destroy_seal_commit_phase2_response(ptr)
+	}
+}
+
+func (ptr *SliceBoxedUint8) Copy() []byte {
+	if ptr == nil {
+		return []byte{}
+	}
+
+	ref := ptr.Slice()
+	res := make([]byte, len(ref))
+	for i := range ref {
+		res[i] = res[i]
+	}
+
+	return res
+}

@@ -72,3 +72,60 @@ func GenerateDataCommitment(registeredProof RegisteredSealProof, pieces SliceRef
 
 	return resp.value.Copy(), nil
 }
+
+func WriteWithAlignment(registeredProof RegisteredSealProof, srcFd int32, srcSize uint64, dstFd int32, existingPieceSizes SliceRefUint64) (uint64, uint64, []byte, error) {
+	resp := C.write_with_alignment(registeredProof, C.int32_t(srcFd), C.uint64_t(srcSize), C.int32_t(dstFd), existingPieceSizes)
+	defer resp.Destroy()
+	if err := CheckErr(resp); err != nil {
+		return 0, 0, nil, err
+	}
+
+	return uint64(resp.value.left_alignment_unpadded), uint64(resp.value.total_write_unpadded), resp.value.comm_p.Copy(), nil
+}
+
+func WriteWithoutAlignment(registeredProof RegisteredSealProof, srcFd int32, srcSize uint64, dstFd int32) (uint64, []byte, error) {
+	resp := C.write_without_alignment(registeredProof, C.int32_t(srcFd), C.uint64_t(srcSize), C.int32_t(dstFd))
+	defer resp.Destroy()
+	if err := CheckErr(resp); err != nil {
+		return 0, nil, err
+	}
+
+	return uint64(resp.value.total_write_unpadded), resp.value.comm_p.Copy(), nil
+}
+
+func SealPreCommitPhase1(registeredProof RegisteredSealProof, cacheDirPath SliceRefUint8, stagedSectorPath SliceRefUint8, sealedSectorPath SliceRefUint8, sectorId uint64, proverId *ByteArray32, ticket *ByteArray32, pieces SliceRefPublicPieceInfo) ([]byte, error) {
+	resp := C.seal_pre_commit_phase1(registeredProof, cacheDirPath, stagedSectorPath, sealedSectorPath, C.uint64_t(sectorId), proverId, ticket, pieces)
+	defer resp.Destroy()
+	if err := CheckErr(resp); err != nil {
+		return nil, err
+	}
+	return resp.value.Copy(), nil
+}
+
+func SealPreCommitPhase2(sealPreCommitPhase1Output SliceRefUint8, cacheDirPath SliceRefUint8, sealedSectorPath SliceRefUint8) ([]byte, []byte, error) {
+	resp := C.seal_pre_commit_phase2(sealPreCommitPhase1Output, cacheDirPath, sealedSectorPath)
+	defer resp.Destroy()
+	if err := CheckErr(resp); err != nil {
+		return nil, nil, err
+	}
+	return resp.value.comm_r.Copy(), resp.value.comm_d.Copy(), nil
+}
+
+func SealCommitPhase1(registeredProof RegisteredSealProof, commR *ByteArray32, commD *ByteArray32, cacheDirPath SliceRefUint8, replicaPath SliceRefUint8, sectorId uint64, proverId *ByteArray32, ticket *ByteArray32, seed *ByteArray32, pieces SliceRefPublicPieceInfo) ([]byte, error) {
+	resp := C.seal_commit_phase1(registeredProof, commR, commD, cacheDirPath, replicaPath, C.uint64_t(sectorId), proverId, ticket, seed, pieces)
+	defer resp.Destroy()
+	if err := CheckErr(resp); err != nil {
+		return nil, err
+	}
+
+	return resp.value.Copy(), nil
+}
+
+func SealCommitPhase2(sealCommitPhase1Output SliceRefUint8, sectorId uint64, proverId *ByteArray32) ([]byte, error) {
+	resp := C.seal_commit_phase2(sealCommitPhase1Output, C.uint64_t(sectorId), proverId)
+	defer resp.Destroy()
+	if err := CheckErr(resp); err != nil {
+		return nil, err
+	}
+	return resp.value.proof.Copy(), nil
+}

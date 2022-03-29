@@ -28,6 +28,22 @@ func AsSliceRefUint8(goBytes []byte) SliceRefUint8 {
 	}
 }
 
+func AsSliceRefUint64(goBytes []uint64) SliceRefUint64 {
+	len := len(goBytes)
+
+	if len == 0 {
+		// can't take element 0 of an empty slice
+		return SliceRefUint64{
+			ptr: (*C.uint64_t)(unsafe.Pointer(&goBytes)),
+			len: C.size_t(len),
+		}
+	}
+	return SliceRefUint64{
+		ptr: (*C.uint64_t)(unsafe.Pointer(&goBytes[0])),
+		len: C.size_t(len),
+	}
+}
+
 func AsSliceBoxedUint8(goBytes []byte) (SliceBoxedUint8, error) {
 	len := len(goBytes)
 

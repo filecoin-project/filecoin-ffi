@@ -210,216 +210,203 @@ func GeneratePieceCIDFromFile(proofType abi.RegisteredSealProof, pieceFile *os.F
 	return commcid.PieceCommitmentV1ToCID(resp)
 }
 
-// // WriteWithAlignment
-// func WriteWithAlignment(
-// 	proofType abi.RegisteredSealProof,
-// 	pieceFile *os.File,
-// 	pieceBytes abi.UnpaddedPieceSize,
-// 	stagedSectorFile *os.File,
-// 	existingPieceSizes []abi.UnpaddedPieceSize,
-// ) (leftAlignment, total abi.UnpaddedPieceSize, pieceCID cid.Cid, retErr error) {
-// 	sp, err := toFilRegisteredSealProof(proofType)
-// 	if err != nil {
-// 		return 0, 0, cid.Undef, err
-// 	}
+// WriteWithAlignment
+func WriteWithAlignment(
+	proofType abi.RegisteredSealProof,
+	pieceFile *os.File,
+	pieceBytes abi.UnpaddedPieceSize,
+	stagedSectorFile *os.File,
+	existingPieceSizes []abi.UnpaddedPieceSize,
+) (leftAlignment, total abi.UnpaddedPieceSize, pieceCID cid.Cid, retErr error) {
+	sp, err := toFilRegisteredSealProof(proofType)
+	if err != nil {
+		return 0, 0, cid.Undef, err
+	}
 
-// 	pieceFd := pieceFile.Fd()
-// 	defer runtime.KeepAlive(pieceFile)
+	pieceFd := pieceFile.Fd()
+	defer runtime.KeepAlive(pieceFile)
 
-// 	stagedSectorFd := stagedSectorFile.Fd()
-// 	defer runtime.KeepAlive(stagedSectorFile)
+	stagedSectorFd := stagedSectorFile.Fd()
+	defer runtime.KeepAlive(stagedSectorFile)
 
-// 	filExistingPieceSizes, filExistingPieceSizesLen := toFilExistingPieceSizes(existingPieceSizes)
+	filExistingPieceSizes := toFilExistingPieceSizes(existingPieceSizes)
 
-// 	resp := cgo.WriteWithAlignment(sp, int32(pieceFd), uint64(pieceBytes), int32(stagedSectorFd), filExistingPieceSizes, filExistingPieceSizesLen)
-// 	resp.Deref()
+	leftAlignmentUnpadded, totalWriteUnpadded, commPRaw, err := cgo.WriteWithAlignment(sp, int32(pieceFd), uint64(pieceBytes), int32(stagedSectorFd), cgo.AsSliceRefUint64(filExistingPieceSizes))
+	if err != nil {
+		return 0, 0, cid.Undef, err
+	}
 
-// 	defer cgo.DestroyWriteWithAlignmentResponse(resp)
+	commP, errCommpSize := commcid.PieceCommitmentV1ToCID(commPRaw)
+	if errCommpSize != nil {
+		return 0, 0, cid.Undef, errCommpSize
+	}
 
-// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
-// 		return 0, 0, cid.Undef, errors.New(cgo.RawString(resp.ErrorMsg).Copy())
-// 	}
+	return abi.UnpaddedPieceSize(leftAlignmentUnpadded), abi.UnpaddedPieceSize(totalWriteUnpadded), commP, nil
+}
 
-// 	commP, errCommpSize := commcid.PieceCommitmentV1ToCID(resp.CommP[:])
-// 	if errCommpSize != nil {
-// 		return 0, 0, cid.Undef, errCommpSize
-// 	}
+// WriteWithoutAlignment
+func WriteWithoutAlignment(
+	proofType abi.RegisteredSealProof,
+	pieceFile *os.File,
+	pieceBytes abi.UnpaddedPieceSize,
+	stagedSectorFile *os.File,
+) (abi.UnpaddedPieceSize, cid.Cid, error) {
+	sp, err := toFilRegisteredSealProof(proofType)
+	if err != nil {
+		return 0, cid.Undef, err
+	}
 
-// 	return abi.UnpaddedPieceSize(resp.LeftAlignmentUnpadded), abi.UnpaddedPieceSize(resp.TotalWriteUnpadded), commP, nil
-// }
+	pieceFd := pieceFile.Fd()
+	defer runtime.KeepAlive(pieceFile)
 
-// // WriteWithoutAlignment
-// func WriteWithoutAlignment(
-// 	proofType abi.RegisteredSealProof,
-// 	pieceFile *os.File,
-// 	pieceBytes abi.UnpaddedPieceSize,
-// 	stagedSectorFile *os.File,
-// ) (abi.UnpaddedPieceSize, cid.Cid, error) {
-// 	sp, err := toFilRegisteredSealProof(proofType)
-// 	if err != nil {
-// 		return 0, cid.Undef, err
-// 	}
+	stagedSectorFd := stagedSectorFile.Fd()
+	defer runtime.KeepAlive(stagedSectorFile)
 
-// 	pieceFd := pieceFile.Fd()
-// 	defer runtime.KeepAlive(pieceFile)
+	totalWriteUnpadded, commPRaw, err := cgo.WriteWithoutAlignment(sp, int32(pieceFd), uint64(pieceBytes), int32(stagedSectorFd))
+	if err != nil {
+		return 0, cid.Undef, err
+	}
 
-// 	stagedSectorFd := stagedSectorFile.Fd()
-// 	defer runtime.KeepAlive(stagedSectorFile)
+	commP, errCommpSize := commcid.PieceCommitmentV1ToCID(commPRaw)
+	if errCommpSize != nil {
+		return 0, cid.Undef, errCommpSize
+	}
 
-// 	resp := cgo.WriteWithoutAlignment(sp, int32(pieceFd), uint64(pieceBytes), int32(stagedSectorFd))
-// 	resp.Deref()
+	return abi.UnpaddedPieceSize(totalWriteUnpadded), commP, nil
+}
 
-// 	defer cgo.DestroyWriteWithoutAlignmentResponse(resp)
+// SealPreCommitPhase1
+func SealPreCommitPhase1(
+	proofType abi.RegisteredSealProof,
+	cacheDirPath string,
+	stagedSectorPath string,
+	sealedSectorPath string,
+	sectorNum abi.SectorNumber,
+	minerID abi.ActorID,
+	ticket abi.SealRandomness,
+	pieces []abi.PieceInfo,
+) (phase1Output []byte, err error) {
+	sp, err := toFilRegisteredSealProof(proofType)
+	if err != nil {
+		return nil, err
+	}
 
-// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
-// 		return 0, cid.Undef, errors.New(cgo.RawString(resp.ErrorMsg).Copy())
-// 	}
+	proverID, err := toProverID(minerID)
+	if err != nil {
+		return nil, err
+	}
 
-// 	commP, errCommpSize := commcid.PieceCommitmentV1ToCID(resp.CommP[:])
-// 	if errCommpSize != nil {
-// 		return 0, cid.Undef, errCommpSize
-// 	}
+	filPublicPieceInfos, err := toFilPublicPieceInfos(pieces)
+	if err != nil {
+		return nil, err
+	}
 
-// 	return abi.UnpaddedPieceSize(resp.TotalWriteUnpadded), commP, nil
-// }
+	ticketBytes := cgo.AsByteArray32(ticket)
+	return cgo.SealPreCommitPhase1(
+		sp,
+		cgo.AsSliceRefUint8([]byte(cacheDirPath)),
+		cgo.AsSliceRefUint8([]byte(stagedSectorPath)),
+		cgo.AsSliceRefUint8([]byte(sealedSectorPath)),
+		uint64(sectorNum),
+		&proverID,
+		&ticketBytes,
+		cgo.AsSliceRefPublicPieceInfo(filPublicPieceInfos),
+	)
+}
 
-// // SealPreCommitPhase1
-// func SealPreCommitPhase1(
-// 	proofType abi.RegisteredSealProof,
-// 	cacheDirPath string,
-// 	stagedSectorPath string,
-// 	sealedSectorPath string,
-// 	sectorNum abi.SectorNumber,
-// 	minerID abi.ActorID,
-// 	ticket abi.SealRandomness,
-// 	pieces []abi.PieceInfo,
-// ) (phase1Output []byte, err error) {
-// 	sp, err := toFilRegisteredSealProof(proofType)
-// 	if err != nil {
-// 		return nil, err
-// 	}
+// SealPreCommitPhase2
+func SealPreCommitPhase2(
+	phase1Output []byte,
+	cacheDirPath string,
+	sealedSectorPath string,
+) (sealedCID cid.Cid, unsealedCID cid.Cid, err error) {
+	commRRaw, commDRaw, err := cgo.SealPreCommitPhase2(
+		cgo.AsSliceRefUint8(phase1Output),
+		cgo.AsSliceRefUint8([]byte(cacheDirPath)),
+		cgo.AsSliceRefUint8([]byte(sealedSectorPath)),
+	)
+	if err != nil {
+		return cid.Undef, cid.Undef, err
+	}
+	commR, errCommrSize := commcid.ReplicaCommitmentV1ToCID(commRRaw)
+	if errCommrSize != nil {
+		return cid.Undef, cid.Undef, errCommrSize
+	}
+	commD, errCommdSize := commcid.DataCommitmentV1ToCID(commDRaw)
+	if errCommdSize != nil {
+		return cid.Undef, cid.Undef, errCommdSize
+	}
 
-// 	proverID, err := toProverID(minerID)
-// 	if err != nil {
-// 		return nil, err
-// 	}
+	return commR, commD, nil
+}
 
-// 	filPublicPieceInfos, filPublicPieceInfosLen, err := toFilPublicPieceInfos(pieces)
-// 	if err != nil {
-// 		return nil, err
-// 	}
+// SealCommitPhase1
+func SealCommitPhase1(
+	proofType abi.RegisteredSealProof,
+	sealedCID cid.Cid,
+	unsealedCID cid.Cid,
+	cacheDirPath string,
+	sealedSectorPath string,
+	sectorNum abi.SectorNumber,
+	minerID abi.ActorID,
+	ticket abi.SealRandomness,
+	seed abi.InteractiveSealRandomness,
+	pieces []abi.PieceInfo,
+) (phase1Output []byte, err error) {
+	sp, err := toFilRegisteredSealProof(proofType)
+	if err != nil {
+		return nil, err
+	}
 
-// 	resp := cgo.SealPreCommitPhase1(sp, cacheDirPath, stagedSectorPath, sealedSectorPath, uint64(sectorNum), proverID, toByteArray32(ticket), filPublicPieceInfos, filPublicPieceInfosLen)
-// 	resp.Deref()
+	proverID, err := toProverID(minerID)
+	if err != nil {
+		return nil, err
+	}
 
-// 	defer cgo.DestroySealPreCommitPhase1Response(resp)
+	commR, err := to32ByteCommR(sealedCID)
+	if err != nil {
+		return nil, err
+	}
 
-// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
-// 		return nil, errors.New(cgo.RawString(resp.ErrorMsg).Copy())
-// 	}
+	commD, err := to32ByteCommD(unsealedCID)
+	if err != nil {
+		return nil, err
+	}
 
-// 	return copyBytes(resp.SealPreCommitPhase1OutputPtr, resp.SealPreCommitPhase1OutputLen), nil
-// }
+	filPublicPieceInfos, err := toFilPublicPieceInfos(pieces)
+	if err != nil {
+		return nil, err
+	}
+	ticketBytes := cgo.AsByteArray32(ticket)
+	seedBytes := cgo.AsByteArray32(seed)
 
-// // SealPreCommitPhase2
-// func SealPreCommitPhase2(
-// 	phase1Output []byte,
-// 	cacheDirPath string,
-// 	sealedSectorPath string,
-// ) (sealedCID cid.Cid, unsealedCID cid.Cid, err error) {
-// 	resp := cgo.SealPreCommitPhase2(phase1Output, uint(len(phase1Output)), cacheDirPath, sealedSectorPath)
-// 	resp.Deref()
+	return cgo.SealCommitPhase1(
+		sp,
+		&commR,
+		&commD,
+		cgo.AsSliceRefUint8([]byte(cacheDirPath)),
+		cgo.AsSliceRefUint8([]byte(sealedSectorPath)),
+		uint64(sectorNum),
+		&proverID,
+		&ticketBytes,
+		&seedBytes,
+		cgo.AsSliceRefPublicPieceInfo(filPublicPieceInfos),
+	)
+}
 
-// 	defer cgo.DestroySealPreCommitPhase2Response(resp)
+// SealCommitPhase2
+func SealCommitPhase2(
+	phase1Output []byte,
+	sectorNum abi.SectorNumber,
+	minerID abi.ActorID,
+) ([]byte, error) {
+	proverID, err := toProverID(minerID)
+	if err != nil {
+		return nil, err
+	}
 
-// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
-// 		return cid.Undef, cid.Undef, errors.New(cgo.RawString(resp.ErrorMsg).Copy())
-// 	}
-
-// 	commR, errCommrSize := commcid.ReplicaCommitmentV1ToCID(resp.CommR[:])
-// 	if errCommrSize != nil {
-// 		return cid.Undef, cid.Undef, errCommrSize
-// 	}
-// 	commD, errCommdSize := commcid.DataCommitmentV1ToCID(resp.CommD[:])
-// 	if errCommdSize != nil {
-// 		return cid.Undef, cid.Undef, errCommdSize
-// 	}
-
-// 	return commR, commD, nil
-// }
-
-// // SealCommitPhase1
-// func SealCommitPhase1(
-// 	proofType abi.RegisteredSealProof,
-// 	sealedCID cid.Cid,
-// 	unsealedCID cid.Cid,
-// 	cacheDirPath string,
-// 	sealedSectorPath string,
-// 	sectorNum abi.SectorNumber,
-// 	minerID abi.ActorID,
-// 	ticket abi.SealRandomness,
-// 	seed abi.InteractiveSealRandomness,
-// 	pieces []abi.PieceInfo,
-// ) (phase1Output []byte, err error) {
-// 	sp, err := toFilRegisteredSealProof(proofType)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	proverID, err := toProverID(minerID)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	commR, err := to32ByteCommR(sealedCID)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	commD, err := to32ByteCommD(unsealedCID)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	filPublicPieceInfos, filPublicPieceInfosLen, err := toFilPublicPieceInfos(pieces)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	resp := cgo.SealCommitPhase1(sp, commR, commD, cacheDirPath, sealedSectorPath, uint64(sectorNum), proverID, toByteArray32(ticket), toByteArray32(seed), filPublicPieceInfos, filPublicPieceInfosLen)
-// 	resp.Deref()
-
-// 	defer cgo.DestroySealCommitPhase1Response(resp)
-
-// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
-// 		return nil, errors.New(cgo.RawString(resp.ErrorMsg).Copy())
-// 	}
-
-// 	return copyBytes(resp.SealCommitPhase1OutputPtr, resp.SealCommitPhase1OutputLen), nil
-// }
-
-// // SealCommitPhase2
-// func SealCommitPhase2(
-// 	phase1Output []byte,
-// 	sectorNum abi.SectorNumber,
-// 	minerID abi.ActorID,
-// ) ([]byte, error) {
-// 	proverID, err := toProverID(minerID)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	resp := cgo.SealCommitPhase2(phase1Output, uint(len(phase1Output)), uint64(sectorNum), proverID)
-// 	resp.Deref()
-
-// 	defer cgo.DestroySealCommitPhase2Response(resp)
-
-// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
-// 		return nil, errors.New(cgo.RawString(resp.ErrorMsg).Copy())
-// 	}
-
-// 	return copyBytes(resp.ProofPtr, resp.ProofLen), nil
-// }
+	return cgo.SealCommitPhase2(cgo.AsSliceRefUint8(phase1Output), uint64(sectorNum), &proverID)
+}
 
 // // TODO AggregateSealProofs it only needs InteractiveRandomness out of the aggregateInfo.Infos
 // func AggregateSealProofs(aggregateInfo proof5.AggregateSealVerifyProofAndInfos, proofs [][]byte) (out []byte, err error) {
@@ -774,14 +761,14 @@ func GeneratePieceCIDFromFile(proofType abi.RegisteredSealProof, pieceFile *os.F
 // 	return commcid.ReplicaCommitmentV1ToCID(resp.Commitment[:])
 // }
 
-func toFilExistingPieceSizes(src []abi.UnpaddedPieceSize) ([]uint64, uint) {
+func toFilExistingPieceSizes(src []abi.UnpaddedPieceSize) []uint64 {
 	out := make([]uint64, len(src))
 
 	for idx := range out {
 		out[idx] = uint64(src[idx])
 	}
 
-	return out, uint(len(out))
+	return out
 }
 
 func toFilPublicPieceInfos(src []abi.PieceInfo) ([]cgo.PublicPieceInfo, error) {
