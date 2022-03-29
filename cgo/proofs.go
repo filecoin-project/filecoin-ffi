@@ -319,3 +319,15 @@ func VerifyEmptySectorUpdateProof(registeredProof RegisteredUpdateProof, proof S
 
 	return bool(resp.value), nil
 }
+
+// -- distributed
+
+func GenerateFallbackSectorChallenges(registeredProof RegisteredPoStProof, randomness *ByteArray32, sectorIds SliceRefUint64, proverId *ByteArray32) ([]uint64, [][]uint64, error) {
+	resp := C.generate_fallback_sector_challenges(registeredProof, randomness, sectorIds, proverId)
+	defer resp.Destroy()
+	if err := CheckErr(resp); err != nil {
+		return nil, nil, err
+	}
+
+	return resp.value.ids.Copy(), resp.value.challenges.Copy(), nil
+}

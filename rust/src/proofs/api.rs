@@ -1,13 +1,11 @@
 use std::fs;
 
-use anyhow::anyhow;
 use blstrs::Scalar as Fr;
 use filecoin_proofs_api::seal;
 use filecoin_proofs_api::{
     self as api, update, PieceInfo, SectorId, StorageProofsError, UnpaddedByteIndex,
     UnpaddedBytesAmount,
 };
-use log::error;
 use rayon::prelude::*;
 use safer_ffi::prelude::*;
 
@@ -427,35 +425,15 @@ fn generate_fallback_sector_challenges(
             .into_iter()
             .map(|(id, _)| u64::from(id))
             .collect();
-        let mut challenges_stride = 0;
-        let mut challenges_stride_mismatch = false;
-        let challenges: Vec<u64> = output
+
+        let challenges: Vec<c_slice::Box<u64>> = output
             .into_iter()
-            .flat_map(|(_id, challenges)| {
-                if challenges_stride == 0 {
-                    challenges_stride = challenges.len();
-                }
-
-                if !challenges_stride_mismatch && challenges_stride != challenges.len() {
-                    error!(
-                        "All challenge strides must be equal: {} != {}",
-                        challenges_stride,
-                        challenges.len()
-                    );
-                    challenges_stride_mismatch = true;
-                }
-
-                challenges
-            })
+            .map(|(_id, challenges)| challenges.into_boxed_slice().into())
             .collect();
 
-        if challenges_stride_mismatch {
-            return Err(anyhow!("Challenge stride mismatch"));
-        }
         Ok(GenerateFallbackSectorChallenges {
             ids: sector_ids.into_boxed_slice().into(),
             challenges: challenges.into_boxed_slice().into(),
-            challenges_stride,
         })
     })
 }
@@ -2180,29 +2158,25 @@ pub mod tests {
             }
 
             let sector_ids: Vec<u64> = resp_sc.ids.to_vec();
-            let sector_challenges: Vec<u64> = resp_sc.challenges.to_vec();
-            let challenges_stride = resp_sc.challenges_stride;
-            let challenge_iterations = sector_challenges.len() / challenges_stride;
+            let sector_challenges: Vec<_> = resp_sc.challenges.to_vec();
             assert_eq!(
                 sector_ids.len(),
-                challenge_iterations,
+                sector_challenges.len(),
                 "Challenge iterations must match the number of sector ids"
             );
 
             let mut vanilla_proofs: Vec<VanillaProof> = Vec::with_capacity(sector_ids.len());
 
             // Gather up all vanilla proofs.
-            for i in 0..challenge_iterations {
+            for (i, challenges) in sector_challenges.iter().enumerate() {
                 let sector_id = sector_ids[i];
-                let challenges = &sector_challenges
-                    [i * challenges_stride..i * challenges_stride + challenges_stride];
                 let private_replica = private_replicas
                     .iter()
                     .find(|&replica| replica.sector_id == sector_id)
                     .expect("failed to find private replica info")
                     .clone();
 
-                let resp_vp = generate_single_vanilla_proof(private_replica, challenges.into());
+                let resp_vp = generate_single_vanilla_proof(private_replica, challenges.as_ref());
 
                 if resp_vp.status_code != FCPResponseStatus::NoError {
                     let msg = str::from_utf8(&resp_vp.error_msg).unwrap();
@@ -2334,22 +2308,19 @@ pub mod tests {
             }
 
             let sector_ids: Vec<u64> = resp_sc2.ids.to_vec();
-            let sector_challenges: Vec<u64> = resp_sc2.challenges.to_vec();
-            let challenges_stride = resp_sc2.challenges_stride;
-            let challenge_iterations = sector_challenges.len() / challenges_stride;
+            let sector_challenges: Vec<_> = resp_sc2.challenges.to_vec();
+
             assert_eq!(
                 sector_ids.len(),
-                challenge_iterations,
+                sector_challenges.len(),
                 "Challenge iterations must match the number of sector ids"
             );
 
             let mut vanilla_proofs: Vec<VanillaProof> = Vec::with_capacity(sector_ids.len());
 
             // Gather up all vanilla proofs.
-            for i in 0..challenge_iterations {
+            for (i, challenges) in sector_challenges.iter().enumerate() {
                 let sector_id = sector_ids[i];
-                let challenges = &sector_challenges
-                    [i * challenges_stride..i * challenges_stride + challenges_stride];
 
                 let private_replica = private_replicas
                     .iter()
@@ -2357,7 +2328,7 @@ pub mod tests {
                     .expect("failed to find private replica info")
                     .clone();
 
-                let resp_vp = generate_single_vanilla_proof(private_replica, challenges.into());
+                let resp_vp = generate_single_vanilla_proof(private_replica, challenges.as_ref());
 
                 if resp_vp.status_code != FCPResponseStatus::NoError {
                     let msg = str::from_utf8(&resp_vp.error_msg).unwrap();
@@ -2418,11 +2389,9 @@ pub mod tests {
             let mut partition_proofs: Vec<PartitionSnarkProof> =
                 Vec::with_capacity(**num_partitions_resp);
             for partition_index in 0..**num_partitions_resp {
-                let mut vanilla_proofs = Vec::with_capacity(challenge_iterations);
-                for i in 0..challenge_iterations {
+                let mut vanilla_proofs = Vec::with_capacity(sector_challenges.len());
+                for (i, challenges) in sector_challenges.iter().enumerate() {
                     let sector_id = sector_ids[i];
-                    let challenges = &sector_challenges
-                        [i * challenges_stride..i * challenges_stride + challenges_stride];
 
                     let private_replica = private_replicas
                         .iter()
@@ -2430,7 +2399,8 @@ pub mod tests {
                         .expect("failed to find private replica info")
                         .clone();
 
-                    let resp_vp = generate_single_vanilla_proof(private_replica, challenges.into());
+                    let resp_vp =
+                        generate_single_vanilla_proof(private_replica, challenges.as_ref());
 
                     if resp_vp.status_code != FCPResponseStatus::NoError {
                         let msg = str::from_utf8(&resp_vp.error_msg).unwrap();

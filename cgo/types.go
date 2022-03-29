@@ -24,11 +24,8 @@ func (ptr SliceBoxedUint8) Copy() []byte {
 		return []byte{}
 	}
 
-	ref := ptr.Slice()
-	res := make([]byte, len(ref))
-	for i := range ref {
-		res[i] = ref[i]
-	}
+	res := make([]byte, int(ptr.len))
+	copy(res, ptr.Slice())
 	return res
 }
 
@@ -329,12 +326,8 @@ func (ptr SliceBoxedUint64) Copy() []uint64 {
 		return []uint64{}
 	}
 
-	ref := ptr.Slice()
-	res := make([]uint64, len(ref))
-	for i := range ref {
-		res[i] = ref[i]
-	}
-
+	res := make([]uint64, int(ptr.len))
+	copy(res, ptr.Slice())
 	return res
 }
 
@@ -497,5 +490,41 @@ func (ptr *ResultEmptySectorUpdateEncodeInto) ErrorMsg() *SliceBoxedUint8 {
 func (ptr *ResultEmptySectorUpdateEncodeInto) Destroy() {
 	if ptr != nil {
 		C.destroy_empty_sector_update_encode_into_response(ptr)
+	}
+}
+
+type SliceBoxedSliceBoxedUint64 = C.slice_boxed_slice_boxed_uint64_t
+
+func (ptr SliceBoxedSliceBoxedUint64) Slice() []SliceBoxedUint64 {
+	return unsafe.Slice((*SliceBoxedUint64)(unsafe.Pointer(ptr.ptr)), int(ptr.len))
+}
+
+func (ptr SliceBoxedSliceBoxedUint64) Copy() [][]uint64 {
+	if ptr.len == 0 {
+		return [][]uint64{}
+	}
+
+	ref := ptr.Slice()
+	res := make([][]uint64, int(ptr.len))
+	for i := range ref {
+		res[i] = ref[i].Copy()
+	}
+
+	return res
+}
+
+type ResultGenerateFallbackSectorChallenges = C.Result_GenerateFallbackSectorChallenges_t
+
+func (ptr *ResultGenerateFallbackSectorChallenges) StatusCode() FCPResponseStatus {
+	return FCPResponseStatus(ptr.status_code)
+}
+
+func (ptr *ResultGenerateFallbackSectorChallenges) ErrorMsg() *SliceBoxedUint8 {
+	return &ptr.error_msg
+}
+
+func (ptr *ResultGenerateFallbackSectorChallenges) Destroy() {
+	if ptr != nil {
+		C.destroy_generate_fallback_sector_challenges_response(ptr)
 	}
 }

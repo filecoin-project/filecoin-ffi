@@ -3,70 +3,61 @@
 
 package ffi
 
-// import (
-// 	"unsafe"
+import (
+	"github.com/filecoin-project/filecoin-ffi/cgo"
+	"github.com/filecoin-project/go-state-types/abi"
+	// "github.com/filecoin-project/specs-actors/v5/actors/runtime/proof"
+	// "github.com/pkg/errors"
+)
 
-// 	"github.com/filecoin-project/filecoin-ffi/generated"
-// 	"github.com/filecoin-project/go-state-types/abi"
-// 	"github.com/filecoin-project/specs-actors/v5/actors/runtime/proof"
-// 	"github.com/pkg/errors"
-// )
-
-// type FallbackChallenges struct {
-// 	Sectors    []abi.SectorNumber
-// 	Challenges map[abi.SectorNumber][]uint64
-// }
+type FallbackChallenges struct {
+	Sectors    []abi.SectorNumber
+	Challenges map[abi.SectorNumber][]uint64
+}
 
 // type VanillaProof []byte
 
-// // GenerateWinningPoStSectorChallenge
-// func GeneratePoStFallbackSectorChallenges(
-// 	proofType abi.RegisteredPoStProof,
-// 	minerID abi.ActorID,
-// 	randomness abi.PoStRandomness,
-// 	sectorIds []abi.SectorNumber,
-// ) (*FallbackChallenges, error) {
-// 	proverID, err := toProverID(minerID)
-// 	if err != nil {
-// 		return nil, err
-// 	}
+// GenerateWinningPoStSectorChallenge
+func GeneratePoStFallbackSectorChallenges(
+	proofType abi.RegisteredPoStProof,
+	minerID abi.ActorID,
+	randomness abi.PoStRandomness,
+	sectorIds []abi.SectorNumber,
+) (*FallbackChallenges, error) {
+	proverID, err := toProverID(minerID)
+	if err != nil {
+		return nil, err
+	}
 
-// 	pp, err := toFilRegisteredPoStProof(proofType)
-// 	if err != nil {
-// 		return nil, err
-// 	}
+	pp, err := toFilRegisteredPoStProof(proofType)
+	if err != nil {
+		return nil, err
+	}
 
-// 	var secIds generated.SliceRefUint64T
-// 	secIds.Len = generated.SizeT(len(sectorIds))
-// 	secIds.Ptr = *(*[]generated.Uint64T)(unsafe.Pointer(&sectorIds[0]))
+	// this should be a simple cast..
+	sectorIdsRaw := make([]uint64, len(sectorIds))
+	for i := range sectorIds {
+		sectorIdsRaw[i] = uint64(sectorIds[i])
+	}
 
-// 	resp := generated.GenerateFallbackSectorChallenges(
-// 		pp, toByteArray32(randomness), secIds, proverID,
-// 	)
-// 	resp.Deref()
+	randomnessBytes := cgo.AsByteArray32(randomness)
+	ids, challenges, err := cgo.GenerateFallbackSectorChallenges(pp, &randomnessBytes, cgo.AsSliceRefUint64(sectorIdsRaw), &proverID)
+	if err != nil {
+		return nil, err
+	}
 
-// 	defer generated.DestroyGenerateFallbackSectorChallengesResponse(resp)
-// 	if err := CheckErr(resp.StatusCode, &resp.ErrorMsg); err != nil {
-// 		return nil, err
-// 	}
+	out := FallbackChallenges{
+		Sectors:    make([]abi.SectorNumber, len(ids)),
+		Challenges: make(map[abi.SectorNumber][]uint64),
+	}
+	for idx := range ids {
+		secNum := abi.SectorNumber(ids[idx])
+		out.Sectors[idx] = secNum
+		out.Challenges[secNum] = challenges[idx]
+	}
 
-// 	// copy from C memory space to Go
-
-// 	ids := resp.Value.Ids.Ptr[:int(resp.Value.Ids.Len)]
-// 	challenges := CastToUint64Slice(resp.Value.Challenges.Ptr, resp.Value.Challenges.Len)
-
-// 	var out FallbackChallenges
-// 	out.Sectors = make([]abi.SectorNumber, len(ids))
-// 	out.Challenges = make(map[abi.SectorNumber][]uint64)
-// 	stride := int(resp.Value.ChallengesStride)
-// 	for idx := range ids {
-// 		secNum := abi.SectorNumber(ids[idx])
-// 		out.Sectors[idx] = secNum
-// 		out.Challenges[secNum] = append([]uint64{}, challenges[idx*stride:(idx+1)*stride]...)
-// 	}
-
-// 	return &out, nil
-// }
+	return &out, nil
+}
 
 // func GenerateSingleVanillaProof(
 // 	replica PrivateSectorInfo,
@@ -79,16 +70,16 @@ package ffi
 // 	}
 // 	defer free()
 
-// 	var challengesSlice generated.SliceRefUint64T
-// 	challengesSlice.Len = generated.SizeT(len(challenges))
-// 	challengesSlice.Ptr = (*[]generated.Uint64T)(unsafe.Pointer(&challenges[0]))
+// 	var challengesSlice cgo.SliceRefUint64T
+// 	challengesSlice.Len = cgo.SizeT(len(challenges))
+// 	challengesSlice.Ptr = (*[]cgo.Uint64T)(unsafe.Pointer(&challenges[0]))
 
-// 	resp := generated.GenerateSingleVanillaProof(rep, challengesSlice)
+// 	resp := cgo.GenerateSingleVanillaProof(rep, challengesSlice)
 // 	resp.Deref()
-// 	defer generated.DestroyGenerateSingleVanillaProofResponse(resp)
+// 	defer cgo.DestroyGenerateSingleVanillaProofResponse(resp)
 
-// 	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-// 		return nil, errors.New(generated.RawString(resp.ErrorMsg).Copy())
+// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
+// 		return nil, errors.New(cgo.RawString(resp.ErrorMsg).Copy())
 // 	}
 
 // 	resp.VanillaProof.Deref()
@@ -114,20 +105,20 @@ package ffi
 // 	fproofs, discard := toVanillaProofs(proofs)
 // 	defer discard()
 
-// 	resp := generated.GenerateWinningPostWithVanilla(
+// 	resp := cgo.GenerateWinningPostWithVanilla(
 // 		pp,
 // 		toByteArray32(randomness),
 // 		proverID,
 // 		fproofs, uint(len(proofs)),
 // 	)
 // 	resp.Deref()
-// 	resp.ProofsPtr = make([]generated.PoStProof, resp.ProofsLen)
+// 	resp.ProofsPtr = make([]cgo.PoStProof, resp.ProofsLen)
 // 	resp.Deref()
 
-// 	defer generated.DestroyGenerateWinningPostResponse(resp)
+// 	defer cgo.DestroyGenerateWinningPostResponse(resp)
 
-// 	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-// 		return nil, errors.New(generated.RawString(resp.ErrorMsg).Copy())
+// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
+// 		return nil, errors.New(cgo.RawString(resp.ErrorMsg).Copy())
 // 	}
 
 // 	out, err := fromFilPoStProofs(resp.ProofsPtr)
@@ -156,20 +147,20 @@ package ffi
 // 	fproofs, discard := toVanillaProofs(proofs)
 // 	defer discard()
 
-// 	resp := generated.GenerateWindowPostWithVanilla(
+// 	resp := cgo.GenerateWindowPostWithVanilla(
 // 		pp,
 // 		toByteArray32(randomness),
 // 		proverID,
 // 		fproofs, uint(len(proofs)),
 // 	)
 // 	resp.Deref()
-// 	resp.ProofsPtr = make([]generated.PoStProof, resp.ProofsLen)
+// 	resp.ProofsPtr = make([]cgo.PoStProof, resp.ProofsLen)
 // 	resp.Deref()
 
-// 	defer generated.DestroyGenerateWindowPostResponse(resp)
+// 	defer cgo.DestroyGenerateWindowPostResponse(resp)
 
-// 	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-// 		return nil, errors.New(generated.RawString(resp.ErrorMsg).Copy())
+// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
+// 		return nil, errors.New(cgo.RawString(resp.ErrorMsg).Copy())
 // 	}
 
 // 	out, err := fromFilPoStProofs(resp.ProofsPtr)
@@ -201,7 +192,7 @@ package ffi
 // 	fproofs, discard := toVanillaProofs(proofs)
 // 	defer discard()
 
-// 	resp := generated.GenerateSingleWindowPostWithVanilla(
+// 	resp := cgo.GenerateSingleWindowPostWithVanilla(
 // 		pp,
 // 		toByteArray32(randomness),
 // 		proverID,
@@ -211,10 +202,10 @@ package ffi
 // 	resp.Deref()
 // 	resp.PartitionProof.Deref()
 
-// 	defer generated.DestroyGenerateSingleWindowPostWithVanillaResponse(resp)
+// 	defer cgo.DestroyGenerateSingleWindowPostWithVanillaResponse(resp)
 
-// 	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-// 		return nil, errors.New(generated.RawString(resp.ErrorMsg).Copy())
+// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
+// 		return nil, errors.New(cgo.RawString(resp.ErrorMsg).Copy())
 // 	}
 
 // 	dpp, err := fromFilRegisteredPoStProof(resp.PartitionProof.RegisteredProof)
@@ -245,17 +236,17 @@ package ffi
 // 		return nil, err
 // 	}
 
-// 	resp := generated.MergeWindowPostPartitionProofs(
+// 	resp := cgo.MergeWindowPostPartitionProofs(
 // 		pp,
 // 		fproofs, uint(len(fproofs)),
 // 	)
 // 	resp.Deref()
 // 	resp.Proof.Deref()
 
-// 	defer generated.DestroyMergeWindowPostPartitionProofsResponse(resp)
+// 	defer cgo.DestroyMergeWindowPostPartitionProofsResponse(resp)
 
-// 	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-// 		return nil, errors.New(generated.RawString(resp.ErrorMsg).Copy())
+// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
+// 		return nil, errors.New(cgo.RawString(resp.ErrorMsg).Copy())
 // 	}
 
 // 	dpp, err := fromFilRegisteredPoStProof(resp.Proof.RegisteredProof)

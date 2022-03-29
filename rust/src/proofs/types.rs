@@ -328,8 +328,7 @@ pub type GenerateFallbackSectorChallengesResponse = Result<GenerateFallbackSecto
 #[derive(Default)]
 pub struct GenerateFallbackSectorChallenges {
     pub ids: c_slice::Box<u64>,
-    pub challenges: c_slice::Box<u64>,
-    pub challenges_stride: libc::size_t,
+    pub challenges: c_slice::Box<c_slice::Box<u64>>,
 }
 
 pub type GenerateSingleVanillaProofResponse = Result<VanillaProof>;
