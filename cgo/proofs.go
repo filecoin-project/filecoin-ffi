@@ -157,7 +157,7 @@ func GenerateWinningPoStSectorChallenge(registeredProof RegisteredPoStProof, ran
 	return resp.value.Copy(), nil
 }
 
-func GenerateWinningPoSt(randomness *ByteArray32, replicas SliceRefPrivateReplicaInfo, proverId *ByteArray32) ([]PoStProof, error) {
+func GenerateWinningPoSt(randomness *ByteArray32, replicas SliceRefPrivateReplicaInfo, proverId *ByteArray32) ([]PoStProofGo, error) {
 	resp := C.generate_winning_post(randomness, replicas, proverId)
 	defer resp.Destroy()
 	if err := CheckErr(resp); err != nil {
@@ -166,7 +166,7 @@ func GenerateWinningPoSt(randomness *ByteArray32, replicas SliceRefPrivateReplic
 	return resp.value.Copy(), nil
 }
 
-func GenerateWindowPoSt(randomness *ByteArray32, replicas SliceRefPrivateReplicaInfo, proverId *ByteArray32) ([]PoStProof, []uint64, error) {
+func GenerateWindowPoSt(randomness *ByteArray32, replicas SliceRefPrivateReplicaInfo, proverId *ByteArray32) ([]PoStProofGo, []uint64, error) {
 	resp := C.generate_window_post(randomness, replicas, proverId)
 	defer resp.Destroy()
 	faults := resp.value.faulty_sectors.Copy()

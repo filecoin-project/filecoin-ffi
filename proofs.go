@@ -806,18 +806,18 @@ func fromFilPoStFaultySectors(ptr []uint64) []abi.SectorNumber {
 	return snums
 }
 
-func fromFilPoStProofs(src []cgo.PoStProof) ([]proof5.PoStProof, error) {
+func fromFilPoStProofs(src []cgo.PoStProofGo) ([]proof5.PoStProof, error) {
 	out := make([]proof5.PoStProof, len(src))
 
 	for idx := range out {
-		pp, err := fromFilRegisteredPoStProof(src[idx].RegisteredProof())
+		pp, err := fromFilRegisteredPoStProof(src[idx].RegisteredProof)
 		if err != nil {
 			return nil, err
 		}
 
 		out[idx] = proof5.PoStProof{
 			PoStProof:  pp,
-			ProofBytes: copyBytes(src[idx].Proof(), uint(len(src[idx].Proof()))),
+			ProofBytes: src[idx].Proof,
 		}
 	}
 

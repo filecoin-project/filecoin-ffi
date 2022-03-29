@@ -62,5 +62,6 @@ func TestAllocSliceBoxedUint8(t *testing.T) {
 
 	boxed, err := AllocSliceBoxedUint8(foo)
 	assert.Nil(t, err)
+	defer boxed.Destroy()
 	assert.Equal(t, boxed.Slice(), foo)
 }

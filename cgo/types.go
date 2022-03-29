@@ -150,6 +150,10 @@ func (ptr *PoStProof) Proof() []byte {
 	return ptr.proof.Slice()
 }
 
+func (ptr *PoStProof) CopyProof() []byte {
+	return ptr.proof.Copy()
+}
+
 func (ptr *PoStProof) RegisteredProof() RegisteredPoStProof {
 	return ptr.registered_proof
 }
@@ -356,15 +360,24 @@ func (ptr SliceBoxedPoStProof) Slice() []PoStProof {
 	return unsafe.Slice((*PoStProof)(unsafe.Pointer(ptr.ptr)), int(ptr.len))
 }
 
-func (ptr SliceBoxedPoStProof) Copy() []PoStProof {
+// PoStProofGo is a go allocated version of `PoStProof`.
+type PoStProofGo struct {
+	RegisteredProof RegisteredPoStProof
+	Proof           []byte
+}
+
+func (ptr SliceBoxedPoStProof) Copy() []PoStProofGo {
 	if ptr.len == 0 {
-		return []PoStProof{}
+		return []PoStProofGo{}
 	}
 
 	ref := ptr.Slice()
-	res := make([]PoStProof, len(ref))
+	res := make([]PoStProofGo, len(ref))
 	for i := range ref {
-		res[i] = ref[i]
+		res[i] = PoStProofGo{
+			RegisteredProof: ref[i].registered_proof,
+			Proof:           ref[i].proof.Copy(),
+		}
 	}
 
 	return res
