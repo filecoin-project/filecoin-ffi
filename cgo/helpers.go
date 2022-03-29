@@ -51,6 +51,10 @@ func AllocSliceBoxedUint8(goBytes []byte) (SliceBoxedUint8, error) {
 	}
 
 	ptr := C.alloc_boxed_slice(C.size_t(len))
+	slice := ptr.Slice()
+	for i := range slice {
+		slice[i] = goBytes[i]
+	}
 
 	return ptr, nil
 }
