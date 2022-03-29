@@ -8,8 +8,11 @@ package ffi
 // #include "./filcrypto.h"
 import "C"
 import (
+	"unsafe"
+
 	"github.com/ipfs/go-cid"
 	"github.com/pkg/errors"
+	"golang.org/x/xerrors"
 
 	"github.com/filecoin-project/go-address"
 	commcid "github.com/filecoin-project/go-fil-commcid"
@@ -45,134 +48,104 @@ func VerifySeal(info proof5.SealVerifyInfo) (bool, error) {
 	return cgo.VerifySeal(sp, commR, commD, proverID, cgo.AsByteArray32(info.Randomness), cgo.AsByteArray32(info.InteractiveRandomness), uint64(info.SectorID.Number), cgo.AsSliceRefUint8(info.Proof))
 }
 
-// func VerifyAggregateSeals(aggregate proof5.AggregateSealVerifyProofAndInfos) (bool, error) {
-// 	if len(aggregate.Infos) == 0 {
-// 		return false, xerrors.New("no seal verify infos")
-// 	}
+func VerifyAggregateSeals(aggregate proof5.AggregateSealVerifyProofAndInfos) (bool, error) {
+	if len(aggregate.Infos) == 0 {
+		return false, xerrors.New("no seal verify infos")
+	}
 
-// 	spt := aggregate.SealProof // todo assuming this needs to be the same for all sectors, potentially makes sense to put in AggregateSealVerifyProofAndInfos
-// 	inputs := make([]cgo.AggregationInputs, len(aggregate.Infos))
+	// TODO: assuming this needs to be the same for all sectors, potentially makes sense to put in AggregateSealVerifyProofAndInfos
+	spt := aggregate.SealProof
+	inputs := make([]cgo.AggregationInputs, len(aggregate.Infos))
 
-// 	for i, info := range aggregate.Infos {
-// 		commR, err := to32ByteCommR(info.SealedCID)
-// 		if err != nil {
-// 			return false, err
-// 		}
+	for i, info := range aggregate.Infos {
+		commR, err := to32ByteCommR(info.SealedCID)
+		if err != nil {
+			return false, err
+		}
 
-// 		commD, err := to32ByteCommD(info.UnsealedCID)
-// 		if err != nil {
-// 			return false, err
-// 		}
+		commD, err := to32ByteCommD(info.UnsealedCID)
+		if err != nil {
+			return false, err
+		}
 
-// 		inputs[i] = cgo.AggregationInputs{
-// 			CommR:    commR,
-// 			CommD:    commD,
-// 			SectorId: uint64(info.Number),
-// 			Ticket:   toByteArray32(info.Randomness),
-// 			Seed:     toByteArray32(info.InteractiveRandomness),
-// 		}
-// 	}
+		inputs[i] = cgo.NewAggregationInputs(
+			commR,
+			commD,
+			uint64(info.Number),
+			cgo.AsByteArray32(info.Randomness),
+			cgo.AsByteArray32(info.InteractiveRandomness),
+		)
+	}
 
-// 	sp, err := toFilRegisteredSealProof(spt)
-// 	if err != nil {
-// 		return false, err
-// 	}
+	sp, err := toFilRegisteredSealProof(spt)
+	if err != nil {
+		return false, err
+	}
 
-// 	proverID, err := toProverID(aggregate.Miner)
-// 	if err != nil {
-// 		return false, err
-// 	}
+	proverID, err := toProverID(aggregate.Miner)
+	if err != nil {
+		return false, err
+	}
 
-// 	rap, err := toFilRegisteredAggregationProof(aggregate.AggregateProof)
-// 	if err != nil {
-// 		return false, err
-// 	}
+	rap, err := toFilRegisteredAggregationProof(aggregate.AggregateProof)
+	if err != nil {
+		return false, err
+	}
 
-// 	resp := cgo.VerifyAggregateSealProof(sp, rap, proverID, aggregate.Proof, uint(len(aggregate.Proof)), inputs, uint(len(inputs)))
-// 	resp.Deref()
+	return cgo.VerifyAggregateSealProof(sp, rap, proverID, cgo.AsSliceRefUint8(aggregate.Proof), cgo.AsSliceRefAggregationInputs(inputs))
+}
 
-// 	defer cgo.DestroyVerifyAggregateSealResponse(resp)
+// VerifyWinningPoSt returns true if the Winning PoSt-generation operation from which its
+// inputs were derived was valid, and false if not.
+func VerifyWinningPoSt(info proof5.WinningPoStVerifyInfo) (bool, error) {
+	filPublicReplicaInfos, err := toFilPublicReplicaInfos(info.ChallengedSectors, "winning")
+	if err != nil {
+		return false, errors.Wrap(err, "failed to create public replica info array for FFI")
+	}
 
-// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
-// 		return false, errors.New(cgo.RawString(resp.ErrorMsg).Copy())
-// 	}
+	filPoStProofs, err := toFilPoStProofs(info.Proofs)
+	if err != nil {
+		return false, errors.Wrap(err, "failed to create PoSt proofs array for FFI")
+	}
 
-// 	return resp.IsValid, nil
-// }
+	proverID, err := toProverID(info.Prover)
+	if err != nil {
+		return false, err
+	}
 
-// // VerifyWinningPoSt returns true if the Winning PoSt-generation operation from which its
-// // inputs were derived was valid, and false if not.
-// func VerifyWinningPoSt(info proof5.WinningPoStVerifyInfo) (bool, error) {
-// 	filPublicReplicaInfos, filPublicReplicaInfosLen, err := toFilPublicReplicaInfos(info.ChallengedSectors, "winning")
-// 	if err != nil {
-// 		return false, errors.Wrap(err, "failed to create public replica info array for FFI")
-// 	}
+	return cgo.VerifyWinningPoSt(
+		cgo.AsByteArray32(info.Randomness),
+		cgo.AsSliceRefPublicReplicaInfo(filPublicReplicaInfos),
+		cgo.AsSliceRefPoStProof(filPoStProofs),
+		proverID,
+	)
+}
 
-// 	filPoStProofs, filPoStProofsLen, free, err := toFilPoStProofs(info.Proofs)
-// 	if err != nil {
-// 		return false, errors.Wrap(err, "failed to create PoSt proofs array for FFI")
-// 	}
-// 	defer free()
+// VerifyWindowPoSt returns true if the Winning PoSt-generation operation from which its
+// inputs were derived was valid, and false if not.
+func VerifyWindowPoSt(info proof5.WindowPoStVerifyInfo) (bool, error) {
+	filPublicReplicaInfos, err := toFilPublicReplicaInfos(info.ChallengedSectors, "window")
+	if err != nil {
+		return false, errors.Wrap(err, "failed to create public replica info array for FFI")
+	}
 
-// 	proverID, err := toProverID(info.Prover)
-// 	if err != nil {
-// 		return false, err
-// 	}
+	filPoStProofs, err := toFilPoStProofs(info.Proofs)
+	if err != nil {
+		return false, errors.Wrap(err, "failed to create PoSt proofs array for FFI")
+	}
 
-// 	resp := cgo.VerifyWinningPost(
-// 		toByteArray32(info.Randomness),
-// 		filPublicReplicaInfos,
-// 		filPublicReplicaInfosLen,
-// 		filPoStProofs,
-// 		filPoStProofsLen,
-// 		proverID,
-// 	)
-// 	resp.Deref()
+	proverID, err := toProverID(info.Prover)
+	if err != nil {
+		return false, err
+	}
 
-// 	defer cgo.DestroyVerifyWinningPostResponse(resp)
-
-// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
-// 		return false, errors.New(cgo.RawString(resp.ErrorMsg).Copy())
-// 	}
-
-// 	return resp.IsValid, nil
-// }
-
-// // VerifyWindowPoSt returns true if the Winning PoSt-generation operation from which its
-// // inputs were derived was valid, and false if not.
-// func VerifyWindowPoSt(info proof5.WindowPoStVerifyInfo) (bool, error) {
-// 	filPublicReplicaInfos, filPublicReplicaInfosLen, err := toFilPublicReplicaInfos(info.ChallengedSectors, "window")
-// 	if err != nil {
-// 		return false, errors.Wrap(err, "failed to create public replica info array for FFI")
-// 	}
-
-// 	filPoStProofs, filPoStProofsLen, free, err := toFilPoStProofs(info.Proofs)
-// 	if err != nil {
-// 		return false, errors.Wrap(err, "failed to create PoSt proofs array for FFI")
-// 	}
-// 	defer free()
-
-// 	proverID, err := toProverID(info.Prover)
-// 	if err != nil {
-// 		return false, err
-// 	}
-
-// 	resp := cgo.VerifyWindowPost(
-// 		toByteArray32(info.Randomness),
-// 		filPublicReplicaInfos, filPublicReplicaInfosLen,
-// 		filPoStProofs, filPoStProofsLen,
-// 		proverID,
-// 	)
-// 	resp.Deref()
-
-// 	defer cgo.DestroyVerifyWindowPostResponse(resp)
-
-// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
-// 		return false, errors.New(cgo.RawString(resp.ErrorMsg).Copy())
-// 	}
-
-// 	return resp.IsValid, nil
-// }
+	return cgo.VerifyWindowPoSt(
+		cgo.AsByteArray32(info.Randomness),
+		cgo.AsSliceRefPublicReplicaInfo(filPublicReplicaInfos),
+		cgo.AsSliceRefPoStProof(filPoStProofs),
+		proverID,
+	)
+}
 
 // // GeneratePieceCommitment produces a piece commitment for the provided data
 // // stored at a given path.
@@ -830,175 +803,168 @@ func VerifySeal(info proof5.SealVerifyInfo) (bool, error) {
 // 	return out, uint(len(out)), nil
 // }
 
-// func toFilPublicReplicaInfos(src []proof5.SectorInfo, typ string) ([]cgo.PublicReplicaInfoT, uint, error) {
-// 	out := make([]cgo.PublicReplicaInfoT, len(src))
+func toFilPublicReplicaInfos(src []proof5.SectorInfo, typ string) ([]cgo.PublicReplicaInfo, error) {
+	out := make([]cgo.PublicReplicaInfo, len(src))
 
-// 	for idx := range out {
-// 		commR, err := to32ByteCommR(src[idx].SealedCID)
-// 		if err != nil {
-// 			return nil, 0, err
-// 		}
+	for idx := range out {
+		commR, err := toCommRByteSlice(src[idx].SealedCID)
+		if err != nil {
+			return nil, err
+		}
 
-// 		out[idx] = cgo.PublicReplicaInfoT{
-// 			CommR:    commR.Inner,
-// 			SectorId: uint64(src[idx].SectorNumber),
-// 		}
+		var pp cgo.RegisteredPoStProof
 
-// 		switch typ {
-// 		case "window":
-// 			p, err := src[idx].SealProof.RegisteredWindowPoStProof()
-// 			if err != nil {
-// 				return nil, 0, err
-// 			}
+		switch typ {
+		case "window":
+			p, err := src[idx].SealProof.RegisteredWindowPoStProof()
+			if err != nil {
+				return nil, err
+			}
 
-// 			out[idx].RegisteredProof, err = toFilRegisteredPoStProof(p)
-// 			if err != nil {
-// 				return nil, 0, err
-// 			}
-// 		case "winning":
-// 			p, err := src[idx].SealProof.RegisteredWinningPoStProof()
-// 			if err != nil {
-// 				return nil, 0, err
-// 			}
+			pp, err = toFilRegisteredPoStProof(p)
+			if err != nil {
+				return nil, err
+			}
+		case "winning":
+			p, err := src[idx].SealProof.RegisteredWinningPoStProof()
+			if err != nil {
+				return nil, err
+			}
 
-// 			out[idx].RegisteredProof, err = toFilRegisteredPoStProof(p)
-// 			if err != nil {
-// 				return nil, 0, err
-// 			}
-// 		}
-// 	}
+			pp, err = toFilRegisteredPoStProof(p)
+			if err != nil {
+				return nil, err
+			}
+		}
 
-// 	return out, uint(len(out)), nil
-// }
+		out[idx] = cgo.NewPublicReplicaInfo(pp, commR, uint64(src[idx].SectorNumber))
+	}
 
-// func toFilPrivateReplicaInfo(src PrivateSectorInfo) (cgo.PrivateReplicaInfoT, func(), error) {
-// 	commR, err := to32ByteCommR(src.SealedCID)
-// 	if err != nil {
-// 		return cgo.PrivateReplicaInfoT{}, func() {}, err
-// 	}
+	return out, nil
+}
 
-// 	pp, err := toFilRegisteredPoStProof(src.PoStProofType)
-// 	if err != nil {
-// 		return cgo.PrivateReplicaInfoT{}, func() {}, err
-// 	}
+func toFilPrivateReplicaInfo(src PrivateSectorInfo) (cgo.PrivateReplicaInfo, error) {
+	commR, err := toCommRByteSlice(src.SealedCID)
+	if err != nil {
+		return cgo.PrivateReplicaInfo{}, err
+	}
 
-// 	out := cgo.PrivateReplicaInfoT{
-// 		RegisteredProof: pp,
-// 		CacheDirPath:    src.CacheDirPath,
-// 		CommR:           commR.Inner,
-// 		ReplicaPath:     src.SealedSectorPath,
-// 		SectorId:        uint64(src.SectorNumber),
-// 	}
-// 	_, allocs := out.PassRef()
-// 	return out, allocs.Free, nil
-// }
+	pp, err := toFilRegisteredPoStProof(src.PoStProofType)
+	if err != nil {
+		return cgo.PrivateReplicaInfo{}, err
+	}
 
-// func toFilPrivateReplicaInfos(src []PrivateSectorInfo, typ string) ([]cgo.PrivateReplicaInfoT, uint, func(), error) {
-// 	allocs := make([]AllocationManager, len(src))
+	cacheDirPath, err := cgo.AsSliceBoxedUint8([]byte(src.CacheDirPath))
+	if err != nil {
+		return cgo.PrivateReplicaInfo{}, err
+	}
+	sealedSectorPath, err := cgo.AsSliceBoxedUint8([]byte(src.SealedSectorPath))
+	if err != nil {
+		return cgo.PrivateReplicaInfo{}, err
+	}
 
-// 	out := make([]cgo.PrivateReplicaInfoT, len(src))
+	out := cgo.NewPrivateReplicaInfo(
+		pp,
+		cacheDirPath,
+		commR,
+		sealedSectorPath,
+		uint64(src.SectorNumber),
+	)
 
-// 	for idx := range out {
-// 		commR, err := to32ByteCommR(src[idx].SealedCID)
-// 		if err != nil {
-// 			return nil, 0, func() {}, err
-// 		}
+	return out, nil
+}
 
-// 		pp, err := toFilRegisteredPoStProof(src[idx].PoStProofType)
-// 		if err != nil {
-// 			return nil, 0, func() {}, err
-// 		}
+func toFilPrivateReplicaInfos(src []PrivateSectorInfo, typ string) ([]cgo.PrivateReplicaInfo, error) {
+	out := make([]cgo.PrivateReplicaInfo, len(src))
 
-// 		out[idx] = cgo.PrivateReplicaInfoT{
-// 			RegisteredProof: pp,
-// 			CacheDirPath:    src[idx].CacheDirPath,
-// 			CommR:           commR.Inner,
-// 			ReplicaPath:     src[idx].SealedSectorPath,
-// 			SectorId:        uint64(src[idx].SectorNumber),
-// 		}
+	for idx := range out {
+		commR, err := toCommRByteSlice(src[idx].SealedCID)
+		if err != nil {
+			return nil, err
+		}
 
-// 		_, allocs[idx] = out[idx].PassRef()
-// 	}
+		pp, err := toFilRegisteredPoStProof(src[idx].PoStProofType)
+		if err != nil {
+			return nil, err
+		}
 
-// 	return out, uint(len(out)), func() {
-// 		for idx := range allocs {
-// 			allocs[idx].Free()
-// 		}
-// 	}, nil
-// }
+		cacheDirPath, err := cgo.AsSliceBoxedUint8([]byte(src[idx].CacheDirPath))
+		if err != nil {
+			return nil, err
+		}
+		sealedSectorPath, err := cgo.AsSliceBoxedUint8([]byte(src[idx].SealedSectorPath))
+		if err != nil {
+			return nil, err
+		}
 
-// func fromFilPoStFaultySectors(ptr []uint64, l uint) ([]abi.SectorNumber, error) {
-// 	if l == 0 {
-// 		return nil, nil
-// 	}
+		out[idx] = cgo.NewPrivateReplicaInfo(
+			pp,
+			cacheDirPath,
+			commR,
+			sealedSectorPath,
+			uint64(src[idx].SectorNumber),
+		)
+	}
 
-// 	type sliceHeader struct {
-// 		Data unsafe.Pointer
-// 		Len  int
-// 		Cap  int
-// 	}
+	return out, nil
+}
 
-// 	(*sliceHeader)(unsafe.Pointer(&ptr)).Len = int(l) // don't worry about it
+func fromFilPoStFaultySectors(ptr []uint64, l uint) ([]abi.SectorNumber, error) {
+	if l == 0 {
+		return nil, nil
+	}
 
-// 	snums := make([]abi.SectorNumber, 0, l)
-// 	for i := uint(0); i < l; i++ {
-// 		snums = append(snums, abi.SectorNumber(ptr[i]))
-// 	}
+	type sliceHeader struct {
+		Data unsafe.Pointer
+		Len  int
+		Cap  int
+	}
 
-// 	return snums, nil
-// }
+	(*sliceHeader)(unsafe.Pointer(&ptr)).Len = int(l) // don't worry about it
 
-// func fromFilPoStProofs(src []cgo.PoStProofT) ([]proof5.PoStProof, error) {
-// 	out := make([]proof5.PoStProofT, len(src))
+	snums := make([]abi.SectorNumber, 0, l)
+	for i := uint(0); i < l; i++ {
+		snums = append(snums, abi.SectorNumber(ptr[i]))
+	}
 
-// 	for idx := range out {
-// 		src[idx].Deref()
+	return snums, nil
+}
 
-// 		pp, err := fromFilRegisteredPoStProof(src[idx].RegisteredProof)
-// 		if err != nil {
-// 			return nil, err
-// 		}
+func fromFilPoStProofs(src []cgo.PoStProof) ([]proof5.PoStProof, error) {
+	out := make([]proof5.PoStProof, len(src))
 
-// 		out[idx] = proof5.PoStProofT{
-// 			PoStProof:  pp,
-// 			ProofBytes: copyBytes(src[idx].ProofPtr, src[idx].ProofLen),
-// 		}
-// 	}
+	for idx := range out {
+		pp, err := fromFilRegisteredPoStProof(src[idx].RegisteredProof())
+		if err != nil {
+			return nil, err
+		}
 
-// 	return out, nil
-// }
+		out[idx] = proof5.PoStProof{
+			PoStProof:  pp,
+			ProofBytes: copyBytes(src[idx].Proof(), uint(len(src[idx].Proof()))),
+		}
+	}
 
-// func toFilPoStProofs(src []proof5.PoStProof) ([]cgo.PoStProofT, uint, func(), error) {
-// 	allocs := make([]AllocationManager, len(src))
+	return out, nil
+}
 
-// 	out := make([]cgo.PoStProof, len(src))
-// 	for idx := range out {
-// 		pp, err := toFilRegisteredPoStProof(src[idx].PoStProof)
-// 		if err != nil {
-// 			return nil, 0, func() {}, err
-// 		}
+func toFilPoStProofs(src []proof5.PoStProof) ([]cgo.PoStProof, error) {
+	out := make([]cgo.PoStProof, len(src))
+	for idx := range out {
+		pp, err := toFilRegisteredPoStProof(src[idx].PoStProof)
+		if err != nil {
+			return nil, err
+		}
 
-// 		out[idx] = cgo.PoStProof{
-// 			RegisteredProof: pp,
-// 			ProofLen:        uint(len(src[idx].ProofBytes)),
-// 			ProofPtr:        src[idx].ProofBytes,
-// 		}
+		proof, err := cgo.AsSliceBoxedUint8(src[idx].ProofBytes)
+		if err != nil {
+			return nil, err
+		}
+		out[idx] = cgo.NewPoStProof(pp, proof)
+	}
 
-// 		_, allocs[idx] = out[idx].PassRef()
-// 	}
-
-// 	return out, uint(len(out)), func() {
-// 		for idx := range allocs {
-// 			allocs[idx].Free()
-// 		}
-// 	}, nil
-// }
-
-// func toByteArray32(in []byte) cgo.ByteArray32T {
-// 	var out cgo.ByteArray32T
-// 	copy(out.Inner[:], in)
-// 	return out
-// }
+	return out, nil
+}
 
 func toProverID(minerID abi.ActorID) (cgo.ByteArray32, error) {
 	maddr, err := address.NewIDAddress(uint64(minerID))
@@ -1009,33 +975,33 @@ func toProverID(minerID abi.ActorID) (cgo.ByteArray32, error) {
 	return cgo.AsByteArray32(maddr.Payload()), nil
 }
 
-// func fromFilRegisteredPoStProof(p cgo.RegisteredPoStProofT) (abi.RegisteredPoStProof, error) {
-// 	switch p {
-// 	case cgo.RegisteredPoStProofStackedDrgWinning2KiBV1:
-// 		return abi.RegisteredPoStProof_StackedDrgWinning2KiBV1, nil
-// 	case cgo.RegisteredPoStProofStackedDrgWinning8MiBV1:
-// 		return abi.RegisteredPoStProof_StackedDrgWinning8MiBV1, nil
-// 	case cgo.RegisteredPoStProofStackedDrgWinning512MiBV1:
-// 		return abi.RegisteredPoStProof_StackedDrgWinning512MiBV1, nil
-// 	case cgo.RegisteredPoStProofStackedDrgWinning32GiBV1:
-// 		return abi.RegisteredPoStProof_StackedDrgWinning32GiBV1, nil
-// 	case cgo.RegisteredPoStProofStackedDrgWinning64GiBV1:
-// 		return abi.RegisteredPoStProof_StackedDrgWinning64GiBV1, nil
+func fromFilRegisteredPoStProof(p cgo.RegisteredPoStProof) (abi.RegisteredPoStProof, error) {
+	switch p {
+	case cgo.RegisteredPoStProofStackedDrgWinning2KiBV1:
+		return abi.RegisteredPoStProof_StackedDrgWinning2KiBV1, nil
+	case cgo.RegisteredPoStProofStackedDrgWinning8MiBV1:
+		return abi.RegisteredPoStProof_StackedDrgWinning8MiBV1, nil
+	case cgo.RegisteredPoStProofStackedDrgWinning512MiBV1:
+		return abi.RegisteredPoStProof_StackedDrgWinning512MiBV1, nil
+	case cgo.RegisteredPoStProofStackedDrgWinning32GiBV1:
+		return abi.RegisteredPoStProof_StackedDrgWinning32GiBV1, nil
+	case cgo.RegisteredPoStProofStackedDrgWinning64GiBV1:
+		return abi.RegisteredPoStProof_StackedDrgWinning64GiBV1, nil
 
-// 	case cgo.RegisteredPoStProofStackedDrgWindow2KiBV1:
-// 		return abi.RegisteredPoStProof_StackedDrgWindow2KiBV1, nil
-// 	case cgo.RegisteredPoStProofStackedDrgWindow8MiBV1:
-// 		return abi.RegisteredPoStProof_StackedDrgWindow8MiBV1, nil
-// 	case cgo.RegisteredPoStProofStackedDrgWindow512MiBV1:
-// 		return abi.RegisteredPoStProof_StackedDrgWindow512MiBV1, nil
-// 	case cgo.RegisteredPoStProofStackedDrgWindow32GiBV1:
-// 		return abi.RegisteredPoStProof_StackedDrgWindow32GiBV1, nil
-// 	case cgo.RegisteredPoStProofStackedDrgWindow64GiBV1:
-// 		return abi.RegisteredPoStProof_StackedDrgWindow64GiBV1, nil
-// 	default:
-// 		return 0, errors.Errorf("no mapping to abi.RegisteredPoStProof value available for: %v", p)
-// 	}
-// }
+	case cgo.RegisteredPoStProofStackedDrgWindow2KiBV1:
+		return abi.RegisteredPoStProof_StackedDrgWindow2KiBV1, nil
+	case cgo.RegisteredPoStProofStackedDrgWindow8MiBV1:
+		return abi.RegisteredPoStProof_StackedDrgWindow8MiBV1, nil
+	case cgo.RegisteredPoStProofStackedDrgWindow512MiBV1:
+		return abi.RegisteredPoStProof_StackedDrgWindow512MiBV1, nil
+	case cgo.RegisteredPoStProofStackedDrgWindow32GiBV1:
+		return abi.RegisteredPoStProof_StackedDrgWindow32GiBV1, nil
+	case cgo.RegisteredPoStProofStackedDrgWindow64GiBV1:
+		return abi.RegisteredPoStProof_StackedDrgWindow64GiBV1, nil
+	default:
+		return 0, errors.Errorf("no mapping to abi.RegisteredPoStProof value available for: %v", p)
+	}
+}
 
 func toFilRegisteredPoStProof(p abi.RegisteredPoStProof) (cgo.RegisteredPoStProof, error) {
 	switch p {
@@ -1112,12 +1078,21 @@ func to32ByteCommD(unsealedCID cid.Cid) (cgo.ByteArray32, error) {
 }
 
 func to32ByteCommR(sealedCID cid.Cid) (cgo.ByteArray32, error) {
-	commD, err := commcid.CIDToReplicaCommitmentV1(sealedCID)
+	commR, err := commcid.CIDToReplicaCommitmentV1(sealedCID)
 	if err != nil {
 		return cgo.ByteArray32{}, errors.Wrap(err, "failed to transform sealed CID to CommR")
 	}
 
-	return cgo.AsByteArray32(commD), nil
+	return cgo.AsByteArray32(commR), nil
+}
+
+func toCommRByteSlice(sealedCID cid.Cid) ([]byte, error) {
+	commR, err := commcid.CIDToReplicaCommitmentV1(sealedCID)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to transform sealed CID to CommR")
+	}
+
+	return commR, nil
 }
 
 func to32ByteCommP(pieceCID cid.Cid) (cgo.ByteArray32, error) {
@@ -1129,14 +1104,14 @@ func to32ByteCommP(pieceCID cid.Cid) (cgo.ByteArray32, error) {
 	return cgo.AsByteArray32(commP), nil
 }
 
-// func copyBytes(v []byte, vLen uint) []byte {
-// 	buf := make([]byte, vLen)
-// 	if n := copy(buf, v[:vLen]); n != int(vLen) {
-// 		panic("partial read")
-// 	}
+func copyBytes(v []byte, vLen uint) []byte {
+	buf := make([]byte, vLen)
+	if n := copy(buf, v[:vLen]); n != int(vLen) {
+		panic("partial read")
+	}
 
-// 	return buf
-// }
+	return buf
+}
 
 // type stringHeader struct {
 // 	Data unsafe.Pointer

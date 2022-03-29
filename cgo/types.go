@@ -107,3 +107,23 @@ func (ptr *ResultBool) Destroy() {
 	// TODO: correct naming
 	C.destroy_verify_seal_response(ptr)
 }
+
+type AggregationInputs = C.AggregationInputs_t
+type SliceRefAggregationInputs = C.slice_ref_AggregationInputs_t
+
+type PublicReplicaInfo = C.PublicReplicaInfo_t
+type PrivateReplicaInfo = C.PrivateReplicaInfo_t
+
+type SliceRefPublicReplicaInfo = C.slice_ref_PublicReplicaInfo_t
+type SliceRefPrivateReplicaInfo = C.slice_ref_PrivateReplicaInfo_t
+
+type PoStProof = C.PoStProof_t
+type SliceRefPoStProof = C.slice_ref_PoStProof_t
+
+func (ptr *PoStProof) Proof() []byte {
+	return ptr.proof.Slice()
+}
+
+func (ptr *PoStProof) RegisteredProof() RegisteredPoStProof {
+	return ptr.registered_proof
+}
