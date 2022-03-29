@@ -103,6 +103,7 @@ func (ptr *ZeroSignatureResponse) Signature() []byte {
 type RegisteredSealProof = C.RegisteredSealProof_t
 type RegisteredAggregationProof = C.RegisteredAggregationProof_t
 type RegisteredPoStProof = C.RegisteredPoStProof_t
+type RegisteredUpdateProof = C.RegisteredUpdateProof_t
 
 type Result interface {
 	StatusCode() FCPResponseStatus
@@ -428,7 +429,7 @@ func (ptr SliceBoxedSliceBoxedUint8) CopyAsBytes() [][]byte {
 	}
 
 	ref := ptr.Slice()
-	res := make([][]byte, len(ref))
+	res := make([][]byte, int(ptr.len))
 	for i := range ref {
 		res[i] = ref[i].Copy()
 	}
@@ -480,5 +481,21 @@ func (ptr *ResultUint) Destroy() {
 	if ptr != nil {
 		// TODO: naming
 		C.destroy_get_num_partition_for_fallback_post_response(ptr)
+	}
+}
+
+type ResultEmptySectorUpdateEncodeInto = C.Result_EmptySectorUpdateEncodeInto_t
+
+func (ptr *ResultEmptySectorUpdateEncodeInto) StatusCode() FCPResponseStatus {
+	return FCPResponseStatus(ptr.status_code)
+}
+
+func (ptr *ResultEmptySectorUpdateEncodeInto) ErrorMsg() *SliceBoxedUint8 {
+	return &ptr.error_msg
+}
+
+func (ptr *ResultEmptySectorUpdateEncodeInto) Destroy() {
+	if ptr != nil {
+		C.destroy_empty_sector_update_encode_into_response(ptr)
 	}
 }

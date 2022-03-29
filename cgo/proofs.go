@@ -241,3 +241,81 @@ func Fauxrep2(registeredProf RegisteredSealProof, cacheDirPath SliceRefUint8, ex
 	}
 	return resp.value.Copy(), nil
 }
+
+// sector update
+
+func EmptySectorUpdateEncodeInto(registeredProof RegisteredUpdateProof, newReplicaPath SliceRefUint8, newCacheDirPath SliceRefUint8, sectorKeyPath SliceRefUint8, sectorKeyCacheDirPath SliceRefUint8, stagedDataPath SliceRefUint8, pieces SliceRefPublicPieceInfo) ([]byte, []byte, error) {
+	resp := C.empty_sector_update_encode_into(registeredProof, newReplicaPath, newCacheDirPath, sectorKeyPath, sectorKeyCacheDirPath, stagedDataPath, pieces)
+	defer resp.Destroy()
+	if err := CheckErr(resp); err != nil {
+		return nil, nil, err
+	}
+	return resp.value.comm_r_new.Copy(), resp.value.comm_d_new.Copy(), nil
+}
+
+func EmptySectorUpdateDecodeFrom(registeredProof RegisteredUpdateProof, outDataPath SliceRefUint8, replicaPath SliceRefUint8, sectorKeyPath SliceRefUint8, sectorKeyCacheDirPath SliceRefUint8, commDNew *ByteArray32) error {
+	resp := C.empty_sector_update_decode_from(registeredProof, outDataPath, replicaPath, sectorKeyPath, sectorKeyCacheDirPath, commDNew)
+	defer resp.Destroy()
+	if err := CheckErr(resp); err != nil {
+		return err
+	}
+	return nil
+}
+
+func EmptySectorUpdateRemoveEncodedData(registeredProof RegisteredUpdateProof, sectorKeyPath, sectorKeyCacheDirPath, replicaPath, replicaCachePath, dataPath SliceRefUint8, commDNew *ByteArray32) error {
+	resp := C.empty_sector_update_remove_encoded_data(registeredProof, sectorKeyPath, sectorKeyCacheDirPath, replicaPath, replicaCachePath, dataPath, commDNew)
+	defer resp.Destroy()
+	if err := CheckErr(resp); err != nil {
+		return err
+	}
+	return nil
+}
+
+func GenerateEmptySectorUpdatePartitionProofs(registeredProof RegisteredUpdateProof, commROld, commRNew, commDNew *ByteArray32, sectorKeyPath, sectorKeyCacheDirPath, replicaPath, replicaCachePath SliceRefUint8) ([][]byte, error) {
+	resp := C.generate_empty_sector_update_partition_proofs(registeredProof, commROld, commRNew, commDNew, sectorKeyPath, sectorKeyCacheDirPath, replicaPath, replicaCachePath)
+	defer resp.Destroy()
+	if err := CheckErr(resp); err != nil {
+		return nil, err
+	}
+	return resp.value.CopyAsBytes(), nil
+}
+
+func VerifyEmptySectorUpdatePartitionProofs(registeredProof RegisteredUpdateProof, proofs SliceRefSliceBoxedUint8, commROld, commRNew, commDNew *ByteArray32) (bool, error) {
+	resp := C.verify_empty_sector_update_partition_proofs(registeredProof, proofs, commROld, commRNew, commDNew)
+	defer resp.Destroy()
+	if err := CheckErr(resp); err != nil {
+		return false, err
+	}
+
+	return bool(resp.value), nil
+}
+
+func GenerateEmptySectorUpdateProofWithVanilla(registeredProof RegisteredUpdateProof, vanillaProofs SliceRefSliceBoxedUint8, commROld, commRNew, commDNew *ByteArray32) ([]byte, error) {
+	resp := C.generate_empty_sector_update_proof_with_vanilla(registeredProof, vanillaProofs, commROld, commRNew, commDNew)
+	defer resp.Destroy()
+	if err := CheckErr(resp); err != nil {
+		return nil, err
+	}
+
+	return resp.value.Copy(), nil
+}
+
+func GenerateEmptySectorUpdateProof(registeredProof RegisteredUpdateProof, commROld, commRNew, commDNew *ByteArray32, sectorKeyPath, sectorKeyCacheDirPath, replicaPath, replicaCachePath SliceRefUint8) ([]byte, error) {
+	resp := C.generate_empty_sector_update_proof(registeredProof, commROld, commRNew, commDNew, sectorKeyPath, sectorKeyCacheDirPath, replicaPath, replicaCachePath)
+	defer resp.Destroy()
+	if err := CheckErr(resp); err != nil {
+		return nil, err
+	}
+
+	return resp.value.Copy(), nil
+}
+
+func VerifyEmptySectorUpdateProof(registeredProof RegisteredUpdateProof, proof SliceRefUint8, commROld, commRNew, commDNew *ByteArray32) (bool, error) {
+	resp := C.verify_empty_sector_update_proof(registeredProof, proof, commROld, commRNew, commDNew)
+	defer resp.Destroy()
+	if err := CheckErr(resp); err != nil {
+		return false, err
+	}
+
+	return bool(resp.value), nil
+}
