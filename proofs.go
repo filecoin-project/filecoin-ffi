@@ -448,72 +448,75 @@ func AggregateSealProofs(aggregateInfo proof5.AggregateSealVerifyProofAndInfos, 
 	)
 }
 
-// // Unseal
-// func Unseal(
-// 	proofType abi.RegisteredSealProof,
-// 	cacheDirPath string,
-// 	sealedSector *os.File,
-// 	unsealOutput *os.File,
-// 	sectorNum abi.SectorNumber,
-// 	minerID abi.ActorID,
-// 	ticket abi.SealRandomness,
-// 	unsealedCID cid.Cid,
-// ) error {
-// 	sectorSize, err := proofType.SectorSize()
-// 	if err != nil {
-// 		return err
-// 	}
+// Unseal
+func Unseal(
+	proofType abi.RegisteredSealProof,
+	cacheDirPath string,
+	sealedSector *os.File,
+	unsealOutput *os.File,
+	sectorNum abi.SectorNumber,
+	minerID abi.ActorID,
+	ticket abi.SealRandomness,
+	unsealedCID cid.Cid,
+) error {
+	sectorSize, err := proofType.SectorSize()
+	if err != nil {
+		return err
+	}
 
-// 	unpaddedBytesAmount := abi.PaddedPieceSize(sectorSize).Unpadded()
+	unpaddedBytesAmount := abi.PaddedPieceSize(sectorSize).Unpadded()
 
-// 	return UnsealRange(proofType, cacheDirPath, sealedSector, unsealOutput, sectorNum, minerID, ticket, unsealedCID, 0, uint64(unpaddedBytesAmount))
-// }
+	return UnsealRange(proofType, cacheDirPath, sealedSector, unsealOutput, sectorNum, minerID, ticket, unsealedCID, 0, uint64(unpaddedBytesAmount))
+}
 
-// // UnsealRange
-// func UnsealRange(
-// 	proofType abi.RegisteredSealProof,
-// 	cacheDirPath string,
-// 	sealedSector *os.File,
-// 	unsealOutput *os.File,
-// 	sectorNum abi.SectorNumber,
-// 	minerID abi.ActorID,
-// 	ticket abi.SealRandomness,
-// 	unsealedCID cid.Cid,
-// 	unpaddedByteIndex uint64,
-// 	unpaddedBytesAmount uint64,
-// ) error {
-// 	sp, err := toFilRegisteredSealProof(proofType)
-// 	if err != nil {
-// 		return err
-// 	}
+// UnsealRange
+func UnsealRange(
+	proofType abi.RegisteredSealProof,
+	cacheDirPath string,
+	sealedSector *os.File,
+	unsealOutput *os.File,
+	sectorNum abi.SectorNumber,
+	minerID abi.ActorID,
+	ticket abi.SealRandomness,
+	unsealedCID cid.Cid,
+	unpaddedByteIndex uint64,
+	unpaddedBytesAmount uint64,
+) error {
+	sp, err := toFilRegisteredSealProof(proofType)
+	if err != nil {
+		return err
+	}
 
-// 	proverID, err := toProverID(minerID)
-// 	if err != nil {
-// 		return err
-// 	}
+	proverID, err := toProverID(minerID)
+	if err != nil {
+		return err
+	}
 
-// 	commD, err := to32ByteCommD(unsealedCID)
-// 	if err != nil {
-// 		return err
-// 	}
+	commD, err := to32ByteCommD(unsealedCID)
+	if err != nil {
+		return err
+	}
 
-// 	sealedSectorFd := sealedSector.Fd()
-// 	defer runtime.KeepAlive(sealedSector)
+	sealedSectorFd := sealedSector.Fd()
+	defer runtime.KeepAlive(sealedSector)
 
-// 	unsealOutputFd := unsealOutput.Fd()
-// 	defer runtime.KeepAlive(unsealOutput)
+	unsealOutputFd := unsealOutput.Fd()
+	defer runtime.KeepAlive(unsealOutput)
 
-// 	resp := cgo.UnsealRange(sp, cacheDirPath, int32(sealedSectorFd), int32(unsealOutputFd), uint64(sectorNum), proverID, toByteArray32(ticket), commD, unpaddedByteIndex, unpaddedBytesAmount)
-// 	resp.Deref()
-
-// 	defer cgo.DestroyUnsealRangeResponse(resp)
-
-// 	if resp.StatusCode != cgo.FCPResponseStatusFCPNoError {
-// 		return errors.New(cgo.RawString(resp.ErrorMsg).Copy())
-// 	}
-
-// 	return nil
-// }
+	ticketBytes := cgo.AsByteArray32(ticket)
+	return cgo.UnsealRange(
+		sp,
+		cgo.AsSliceRefUint8([]byte(cacheDirPath)),
+		int32(sealedSectorFd),
+		int32(unsealOutputFd),
+		uint64(sectorNum),
+		&proverID,
+		&ticketBytes,
+		&commD,
+		unpaddedByteIndex,
+		unpaddedBytesAmount,
+	)
+}
 
 // // GenerateWinningPoStSectorChallenge
 // func GenerateWinningPoStSectorChallenge(

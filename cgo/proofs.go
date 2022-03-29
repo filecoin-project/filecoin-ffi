@@ -138,3 +138,12 @@ func AggregateSealProofs(registeredProof RegisteredSealProof, registeredAggregat
 	}
 	return resp.value.Copy(), nil
 }
+
+func UnsealRange(registeredProof RegisteredSealProof, cacheDirPath SliceRefUint8, sealedSectorFdRaw int32, unsealOutputFdRaw int32, sectorId uint64, proverId *ByteArray32, ticket *ByteArray32, commD *ByteArray32, unpaddedByteIndex uint64, unpaddedBytesAmount uint64) error {
+	resp := C.unseal_range(registeredProof, cacheDirPath, C.int32_t(sealedSectorFdRaw), C.int32_t(unsealOutputFdRaw), C.uint64_t(sectorId), proverId, ticket, commD, C.uint64_t(unpaddedByteIndex), C.uint64_t(unpaddedBytesAmount))
+	defer resp.Destroy()
+	if err := CheckErr(resp); err != nil {
+		return err
+	}
+	return nil
+}

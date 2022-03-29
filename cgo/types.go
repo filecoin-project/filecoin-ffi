@@ -267,3 +267,20 @@ func (ptr *SliceBoxedUint8) Copy() []byte {
 
 type SliceRefByteArray32 = C.slice_ref_uint8_32_array_t
 type SliceRefSliceBoxedUint8 = C.slice_ref_slice_boxed_uint8_t
+
+type ResultVoid = C.Result_void_t
+
+func (ptr *ResultVoid) StatusCode() FCPResponseStatus {
+	return FCPResponseStatus(ptr.status_code)
+}
+
+func (ptr *ResultVoid) ErrorMsg() *SliceBoxedUint8 {
+	return &ptr.error_msg
+}
+
+func (ptr *ResultVoid) Destroy() {
+	if ptr != nil {
+		// TODO: correct naming
+		C.destroy_unseal_range_response(ptr)
+	}
+}
