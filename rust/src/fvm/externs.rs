@@ -8,9 +8,6 @@ use num_traits::FromPrimitive;
 
 use super::cgo::*;
 
-/// The error code returned by cgo if the externs handle isn't valid.
-const ERR_NO_EXTERN: i32 = -1;
-
 /// An implementation of [`fvm::externs::Externs`] that can call out to go. See the `cgo` directory
 /// in this repo for the go side.
 ///
@@ -46,7 +43,7 @@ impl Rand for CgoExterns {
             ) {
                 0 => Ok(buf),
                 r @ 1.. => panic!("invalid return value from has: {}", r),
-                ERR_NO_EXTERN => panic!("extern {} not registered", self.handle),
+                ERR_INVALID_HANDLE => panic!("extern {} not registered", self.handle),
                 e => Err(anyhow!(
                     "cgo extern 'get_chain_randomness' failed with error code {}",
                     e
@@ -73,7 +70,7 @@ impl Rand for CgoExterns {
             ) {
                 0 => Ok(buf),
                 r @ 1.. => panic!("invalid return value from has: {}", r),
-                ERR_NO_EXTERN => panic!("extern {} not registered", self.handle),
+                ERR_INVALID_HANDLE => panic!("extern {} not registered", self.handle),
                 e => Err(anyhow!(
                     "cgo extern 'get_beacon_randomness' failed with error code {}",
                     e
@@ -121,7 +118,7 @@ impl Consensus for CgoExterns {
                     gas_used,
                 )),
                 r @ 1.. => panic!("invalid return value from has: {}", r),
-                ERR_NO_EXTERN => panic!("extern {} not registered", self.handle),
+                ERR_INVALID_HANDLE => panic!("extern {} not registered", self.handle),
                 e => Err(anyhow!(
                     "cgo extern 'verify_consensus_fault' failed with error code {}",
                     e
