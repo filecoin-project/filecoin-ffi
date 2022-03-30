@@ -21,7 +21,7 @@ func (ptr SliceBoxedUint8) Slice() []byte {
 
 func (ptr SliceBoxedUint8) Copy() []byte {
 	if ptr.len == 0 {
-		return []byte{}
+		return nil
 	}
 
 	res := make([]byte, int(ptr.len))
@@ -368,13 +368,17 @@ func (ptr SliceBoxedPoStProof) Copy() []PoStProofGo {
 	ref := ptr.Slice()
 	res := make([]PoStProofGo, len(ref))
 	for i := range ref {
-		res[i] = PoStProofGo{
-			RegisteredProof: ref[i].registered_proof,
-			Proof:           ref[i].proof.Copy(),
-		}
+		res[i] = ref[i].Copy()
 	}
 
 	return res
+}
+
+func (proof PoStProof) Copy() PoStProofGo {
+	return PoStProofGo{
+		RegisteredProof: proof.registered_proof,
+		Proof:           proof.proof.Copy(),
+	}
 }
 
 type ResultSliceBoxedPoStProof = C.Result_slice_boxed_PoStProof_t
@@ -526,5 +530,50 @@ func (ptr *ResultGenerateFallbackSectorChallenges) ErrorMsg() *SliceBoxedUint8 {
 func (ptr *ResultGenerateFallbackSectorChallenges) Destroy() {
 	if ptr != nil {
 		C.destroy_generate_fallback_sector_challenges_response(ptr)
+	}
+}
+
+type PartitionSnarkProof = C.PartitionSnarkProof_t
+type PartitionSnarkProofGo struct {
+	RegisteredProof RegisteredPoStProof
+	Proof           []byte
+}
+
+func (proof PartitionSnarkProof) Copy() PartitionSnarkProofGo {
+	return PartitionSnarkProofGo{
+		RegisteredProof: proof.registered_proof,
+		Proof:           proof.proof.Copy(),
+	}
+}
+
+type ResultGenerateSingleWindowPoStWithVanilla = C.Result_GenerateSingleWindowPoStWithVanilla_t
+
+func (ptr *ResultGenerateSingleWindowPoStWithVanilla) StatusCode() FCPResponseStatus {
+	return FCPResponseStatus(ptr.status_code)
+}
+
+func (ptr *ResultGenerateSingleWindowPoStWithVanilla) ErrorMsg() *SliceBoxedUint8 {
+	return &ptr.error_msg
+}
+
+func (ptr *ResultGenerateSingleWindowPoStWithVanilla) Destroy() {
+	if ptr != nil {
+		C.destroy_generate_single_window_post_with_vanilla_response(ptr)
+	}
+}
+
+type ResultPoStProof = C.Result_PoStProof_t
+
+func (ptr *ResultPoStProof) StatusCode() FCPResponseStatus {
+	return FCPResponseStatus(ptr.status_code)
+}
+
+func (ptr *ResultPoStProof) ErrorMsg() *SliceBoxedUint8 {
+	return &ptr.error_msg
+}
+
+func (ptr *ResultPoStProof) Destroy() {
+	if ptr != nil {
+		C.destroy_merge_window_post_partition_proofs_response(ptr)
 	}
 }

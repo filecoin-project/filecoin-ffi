@@ -274,3 +274,14 @@ func NewPublicPieceInfo(numBytes uint64, commP ByteArray32) PublicPieceInfo {
 		comm_p:    commP,
 	}
 }
+
+func NewPartitionSnarkProof(pp RegisteredPoStProof, proof []byte) (PartitionSnarkProof, error) {
+	proofBytes, err := AllocSliceBoxedUint8(proof)
+	if err != nil {
+		return PartitionSnarkProof{}, err
+	}
+	return PartitionSnarkProof{
+		registered_proof: pp,
+		proof:            proofBytes,
+	}, nil
+}

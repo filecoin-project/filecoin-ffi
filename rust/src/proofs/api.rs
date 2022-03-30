@@ -691,12 +691,12 @@ fn verify_window_post(
 #[ffi_export]
 fn merge_window_post_partition_proofs(
     registered_proof: RegisteredPoStProof,
-    partition_proofs: c_slice::Ref<PartitionSnarkProof>,
+    partition_proofs: c_slice::Ref<c_slice::Box<u8>>,
 ) -> repr_c::Box<MergeWindowPoStPartitionProofsResponse> {
     catch_panic_response("merge_window_post_partition_proofs", || {
         let partition_proofs = partition_proofs
             .iter()
-            .map(|pp| api::PartitionSnarkProof(pp.proof.to_vec()))
+            .map(|proof| api::PartitionSnarkProof(proof.to_vec()))
             .collect::<Vec<_>>();
 
         let proof = filecoin_proofs_api::post::merge_window_post_partition_proofs(
@@ -2386,8 +2386,7 @@ pub mod tests {
                 panic!("get_num_partition_for_fallback_post failed: {:?}", msg);
             }
 
-            let mut partition_proofs: Vec<PartitionSnarkProof> =
-                Vec::with_capacity(**num_partitions_resp);
+            let mut partition_proofs = Vec::with_capacity(**num_partitions_resp);
             for partition_index in 0..**num_partitions_resp {
                 let mut vanilla_proofs = Vec::with_capacity(sector_challenges.len());
                 for (i, challenges) in sector_challenges.iter().enumerate() {
@@ -2424,7 +2423,7 @@ pub mod tests {
                     panic!("generate_single_window_post_with_vanilla failed: {:?}", msg);
                 }
 
-                partition_proofs.push(single_partition_proof_resp.partition_proof.clone());
+                partition_proofs.push(single_partition_proof_resp.partition_proof.proof.clone());
                 destroy_generate_single_window_post_with_vanilla_response(
                     single_partition_proof_resp,
                 );

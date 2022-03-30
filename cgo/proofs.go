@@ -331,3 +331,53 @@ func GenerateFallbackSectorChallenges(registeredProof RegisteredPoStProof, rando
 
 	return resp.value.ids.Copy(), resp.value.challenges.Copy(), nil
 }
+
+func GenerateSingleVanillaProof(replica PrivateReplicaInfo, challenges SliceRefUint64) ([]byte, error) {
+	resp := C.generate_single_vanilla_proof(replica, challenges)
+	defer resp.Destroy()
+	if err := CheckErr(resp); err != nil {
+		return nil, err
+	}
+
+	return resp.value.Copy(), nil
+}
+
+func GenerateWinningPoStWithVanilla(registeredProof RegisteredPoStProof, randomness, proverId *ByteArray32, vanillaProofs SliceRefSliceBoxedUint8) ([]PoStProofGo, error) {
+	resp := C.generate_winning_post_with_vanilla(registeredProof, randomness, proverId, vanillaProofs)
+	defer resp.Destroy()
+	if err := CheckErr(resp); err != nil {
+		return nil, err
+	}
+
+	return resp.value.Copy(), nil
+}
+
+func GenerateWindowPoStWithVanilla(registeredProof RegisteredPoStProof, randomness, proverId *ByteArray32, vanillaProofs SliceRefSliceBoxedUint8) ([]PoStProofGo, []uint64, error) {
+	resp := C.generate_window_post_with_vanilla(registeredProof, randomness, proverId, vanillaProofs)
+	defer resp.Destroy()
+	if err := CheckErr(resp); err != nil {
+		return nil, nil, err
+	}
+
+	return resp.value.proofs.Copy(), resp.value.faulty_sectors.Copy(), nil
+}
+
+func GenerateSingleWindowPoStWithVanilla(registeredProof RegisteredPoStProof, randomness, proverId *ByteArray32, vanillaProofs SliceRefSliceBoxedUint8, partitionIndex uint) (PartitionSnarkProofGo, []uint64, error) {
+	resp := C.generate_single_window_post_with_vanilla(registeredProof, randomness, proverId, vanillaProofs, C.size_t(partitionIndex))
+	defer resp.Destroy()
+	if err := CheckErr(resp); err != nil {
+		return PartitionSnarkProofGo{}, nil, err
+	}
+
+	return resp.value.partition_proof.Copy(), resp.value.faulty_sectors.Copy(), nil
+}
+
+func MergeWindowPoStPartitionProofs(registeredProof RegisteredPoStProof, partitionProofs SliceRefSliceBoxedUint8) (PoStProofGo, error) {
+	resp := C.merge_window_post_partition_proofs(registeredProof, partitionProofs)
+	defer resp.Destroy()
+	if err := CheckErr(resp); err != nil {
+		return PoStProofGo{}, err
+	}
+
+	return resp.value.Copy(), nil
+}

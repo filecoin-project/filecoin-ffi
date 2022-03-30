@@ -424,14 +424,10 @@ func AggregateSealProofs(aggregateInfo proof5.AggregateSealVerifyProofAndInfos, 
 		}
 	}
 
-	pfs := make([]cgo.SliceBoxedUint8, len(proofs))
-	for i := range proofs {
-		p, err := cgo.AllocSliceBoxedUint8(proofs[i])
-		if err != nil {
-			return nil, err
-		}
-		defer p.Destroy()
-		pfs[i] = p
+	pfs, cleaner, err := toVanillaProofs(proofs)
+	defer cleaner()
+	if err != nil {
+		return nil, err
 	}
 
 	rap, err := toFilRegisteredAggregationProof(aggregateInfo.AggregateProof)
@@ -546,15 +542,11 @@ func GenerateWinningPoSt(
 	privateSectorInfo SortedPrivateSectorInfo,
 	randomness abi.PoStRandomness,
 ) ([]proof5.PoStProof, error) {
-	filReplicas, err := toFilPrivateReplicaInfos(privateSectorInfo.Values(), "winning")
+	filReplicas, cleanup, err := toFilPrivateReplicaInfos(privateSectorInfo.Values(), "winning")
+	defer cleanup()
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create private replica info array for FFI")
 	}
-	defer func() {
-		for i := range filReplicas {
-			filReplicas[i].Destroy()
-		}
-	}()
 
 	proverID, err := toProverID(minerID)
 	if err != nil {
@@ -580,15 +572,11 @@ func GenerateWindowPoSt(
 	privateSectorInfo SortedPrivateSectorInfo,
 	randomness abi.PoStRandomness,
 ) ([]proof5.PoStProof, []abi.SectorNumber, error) {
-	filReplicas, err := toFilPrivateReplicaInfos(privateSectorInfo.Values(), "window")
+	filReplicas, cleanup, err := toFilPrivateReplicaInfos(privateSectorInfo.Values(), "window")
+	defer cleanup()
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "failed to create private replica info array for FFI")
 	}
-	defer func() {
-		for i := range filReplicas {
-			filReplicas[i].Destroy()
-		}
-	}()
 
 	proverID, err := toProverID(minerID)
 	if err != nil {
@@ -767,18 +755,26 @@ func toFilPrivateReplicaInfo(src PrivateSectorInfo) (cgo.PrivateReplicaInfo, err
 	)
 }
 
-func toFilPrivateReplicaInfos(src []PrivateSectorInfo, typ string) ([]cgo.PrivateReplicaInfo, error) {
+func makeCleanerPRI(src []cgo.PrivateReplicaInfo, limit int) func() {
+	return func() {
+		for i := 0; i < limit; i++ {
+			src[i].Destroy()
+		}
+	}
+}
+
+func toFilPrivateReplicaInfos(src []PrivateSectorInfo, typ string) ([]cgo.PrivateReplicaInfo, func(), error) {
 	out := make([]cgo.PrivateReplicaInfo, len(src))
 
 	for idx := range out {
 		commR, err := to32ByteCommR(src[idx].SealedCID)
 		if err != nil {
-			return nil, err
+			return nil, makeCleanerPRI(out, idx), err
 		}
 
 		pp, err := toFilRegisteredPoStProof(src[idx].PoStProofType)
 		if err != nil {
-			return nil, err
+			return nil, makeCleanerPRI(out, idx), err
 		}
 
 		info, err := cgo.NewPrivateReplicaInfo(
@@ -789,12 +785,12 @@ func toFilPrivateReplicaInfos(src []PrivateSectorInfo, typ string) ([]cgo.Privat
 			uint64(src[idx].SectorNumber),
 		)
 		if err != nil {
-			return nil, err
+			return nil, makeCleanerPRI(out, idx), err
 		}
 		out[idx] = info
 	}
 
-	return out, nil
+	return out, makeCleanerPRI(out, len(src)), nil
 }
 
 func fromFilPoStFaultySectors(ptr []uint64) []abi.SectorNumber {
@@ -980,54 +976,24 @@ func copyBytes(v []byte, vLen uint) []byte {
 	return buf
 }
 
-// type stringHeader struct {
-// 	Data unsafe.Pointer
-// 	Len  int
-// }
+func makeCleanerSBU(src []cgo.SliceBoxedUint8, limit int) func() {
+	return func() {
+		for i := 0; i < limit; i++ {
+			src[i].Destroy()
+		}
+	}
+}
 
-// func toVanillaProofs(src [][]byte) ([]Bytes, func()) {
-// 	allocs := make([]AllocationManager, len(src))
+func toVanillaProofs(src [][]byte) ([]cgo.SliceBoxedUint8, func(), error) {
+	out := make([]cgo.SliceBoxedUint8, len(src))
 
-// 	out := make([]cgo.VanillaProof, len(src))
-// 	for idx := range out {
-// 		out[idx] = Bytes{
-// 			ProofLen: uint(len(src[idx])),
-// 			ProofPtr: src[idx],
-// 		}
+	for i := range out {
+		p, err := cgo.AllocSliceBoxedUint8(src[i])
+		if err != nil {
+			return nil, makeCleanerSBU(out, i), err
+		}
+		out[i] = p
+	}
 
-// 		_, allocs[idx] = out[idx].PassRef()
-// 	}
-
-// 	return out, func() {
-// 		for idx := range allocs {
-// 			allocs[idx].Free()
-// 		}
-// 	}
-// }
-
-// func toPartitionProofs(src []PartitionProof) ([]cgo.PartitionSnarkProofT, func(), error) {
-// 	allocs := make([]AllocationManager, len(src))
-// 	cleanup := func() {
-// 		for idx := range allocs {
-// 			allocs[idx].Free()
-// 		}
-// 	}
-
-// 	out := make([]cgo.PartitionSnarkProof, len(src))
-// 	for idx := range out {
-// 		rp, err := toFilRegisteredPoStProof(src[idx].PoStProof)
-// 		if err != nil {
-// 			return nil, cleanup, err
-// 		}
-
-// 		out[idx] = cgo.PartitionSnarkProofT{
-// 			RegisteredProof: rp,
-// 			ProofLen:        uint(len(src[idx].ProofBytes)),
-// 			ProofPtr:        src[idx].ProofBytes,
-// 		}
-
-// 		_, allocs[idx] = out[idx].PassRef()
-// 	}
-
-// 	return out, cleanup, nil
-// }
+	return out, makeCleanerSBU(out, len(src)), nil
+}
