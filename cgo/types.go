@@ -514,7 +514,9 @@ func (ptr *resultPoStProof) destroy() {
 }
 
 func (ptr SliceBoxedUint8) Destroy() {
-	C.destroy_boxed_slice(ptr)
+	if ptr.ptr != nil {
+		C.destroy_boxed_slice(ptr)
+	}
 }
 
 func (ptr *PrivateReplicaInfo) Destroy() {
