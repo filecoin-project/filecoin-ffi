@@ -36,14 +36,14 @@ func TestByteArray32(t *testing.T) {
 		foo[i] = 1
 	}
 	ary := AsByteArray32(foo)
-	assert.Equal(t, ary.Slice(), foo)
+	assert.Equal(t, ary.slice(), foo)
 
-	ary2 := ary.Copy()
-	assert.Equal(t, ary.Slice(), ary2)
+	ary2 := ary.copy()
+	assert.Equal(t, ary.slice(), ary2)
 
 	// input too short
 	aryShort := AsByteArray32([]byte{0, 1, 2})
-	slice := aryShort.Slice()
+	slice := aryShort.slice()
 	for i := range slice {
 		if i == 0 {
 			assert.Equal(t, slice[i], byte(0))
@@ -63,5 +63,5 @@ func TestAllocSliceBoxedUint8(t *testing.T) {
 	boxed, err := AllocSliceBoxedUint8(foo)
 	assert.Nil(t, err)
 	defer boxed.Destroy()
-	assert.Equal(t, boxed.Slice(), foo)
+	assert.Equal(t, boxed.slice(), foo)
 }

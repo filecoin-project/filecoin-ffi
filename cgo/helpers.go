@@ -51,7 +51,7 @@ func AllocSliceBoxedUint8(goBytes []byte) (SliceBoxedUint8, error) {
 	}
 
 	ptr := C.alloc_boxed_slice(C.size_t(len))
-	slice := ptr.Slice()
+	slice := ptr.slice()
 	for i := range slice {
 		slice[i] = goBytes[i]
 	}
@@ -209,15 +209,15 @@ func AsByteArray32(goSlice []byte) ByteArray32 {
 }
 
 /// CheckErr returns `nil` if the `code` indicates success and an error otherwise.
-func CheckErr(resp Result) error {
+func CheckErr(resp result) error {
 	if resp == nil {
 		return errors.New("failed")
 	}
-	if resp.StatusCode() == FCPResponseStatusNoError {
+	if resp.statusCode() == FCPResponseStatusNoError {
 		return nil
 	}
 
-	return errors.New(string(resp.ErrorMsg().Slice()))
+	return errors.New(string(resp.errorMsg().slice()))
 }
 
 func NewAggregationInputs(commR ByteArray32, commD ByteArray32, sectorId uint64, ticket ByteArray32, seed ByteArray32) AggregationInputs {
