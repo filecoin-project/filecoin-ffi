@@ -6,10 +6,6 @@ use fvm_shared::blockstore::Blockstore;
 
 use super::super::cgo::*;
 
-/// The error code returned by cgo if the blockstore handle isn't valid.
-const ERR_NO_STORE: i32 = -1;
-/// The error code returned by the blockstore when the block isn't found.
-const ERR_NOT_FOUND: i32 = -2;
 /// The maximum amount of data to buffer in a batch before writing it to the underlying blockstore.
 const MAX_BUF_SIZE: usize = 4 << 20; // 4MiB
 /// The maximum number of blocks to buffer in a batch before before writing it to the underlying
@@ -44,7 +40,7 @@ impl Blockstore for CgoBlockstore {
                 r @ 2.. => panic!("invalid return value from has: {}", r),
                 // Panic if the store isn't registered. This means something _very_ unsafe is going
                 // on and there is a bug in the program.
-                ERR_NO_STORE => panic!("blockstore {} not registered", self.handle),
+                ERR_INVALID_HANDLE => panic!("blockstore {} not registered", self.handle),
                 // Otherwise, return "other". We should add error codes in the future.
                 e => Err(anyhow!("cgo blockstore 'has' failed with error code {}", e)),
             }
@@ -65,7 +61,7 @@ impl Blockstore for CgoBlockstore {
             ) {
                 0 => Ok(Some(Vec::from_raw_parts(buf, size as usize, size as usize))),
                 r @ 1.. => panic!("invalid return value from get: {}", r),
-                ERR_NO_STORE => panic!("blockstore {} not registered", self.handle),
+                ERR_INVALID_HANDLE => panic!("blockstore {} not registered", self.handle),
                 ERR_NOT_FOUND => Ok(None),
                 e => Err(anyhow!("cgo blockstore 'get' failed with error code {}", e)),
             }
@@ -96,7 +92,7 @@ impl Blockstore for CgoBlockstore {
                 match result {
                     0 => Ok(()),
                     r @ 1.. => panic!("invalid return value from put_many: {}", r),
-                    ERR_NO_STORE => panic!("blockstore {} not registered", handle),
+                    ERR_INVALID_HANDLE => panic!("blockstore {} not registered", handle),
                     // This error makes no sense.
                     ERR_NOT_FOUND => panic!("not found error on put"),
                     e => Err(anyhow!("cgo blockstore 'put' failed with error code {}", e)),
@@ -139,7 +135,7 @@ impl Blockstore for CgoBlockstore {
             ) {
                 0 => Ok(()),
                 r @ 1.. => panic!("invalid return value from put: {}", r),
-                ERR_NO_STORE => panic!("blockstore {} not registered", self.handle),
+                ERR_INVALID_HANDLE => panic!("blockstore {} not registered", self.handle),
                 // This error makes no sense.
                 ERR_NOT_FOUND => panic!("not found error on put"),
                 e => Err(anyhow!("cgo blockstore 'put' failed with error code {}", e)),
