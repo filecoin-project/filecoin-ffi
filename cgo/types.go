@@ -34,68 +34,7 @@ func (ptr SliceBoxedUint8) Destroy() {
 }
 
 type SliceRefUint8 = C.slice_ref_uint8_t
-
-type BLSDigest = C.BLSDigest_t
-
-func (ptr *BLSDigest) Slice() []byte {
-	return ptr.inner.Slice()
-}
-
-type HashResponse = C.HashResponse_t
-
-func (ptr *HashResponse) Digest() []byte {
-	return ptr.digest.Slice()
-}
-
-type BLSSignature = C.BLSSignature_t
-
-func (ptr *BLSSignature) Slice() []byte {
-	return ptr.inner.Slice()
-}
-
-type AggregateResponse = C.AggregateResponse_t
-
-func (ptr *AggregateResponse) Signature() []byte {
-	return ptr.signature.Slice()
-}
-
 type SliceRefUint = C.slice_ref_size_t
-
-type BLSPrivateKey = C.BLSPrivateKey_t
-
-func (ptr *BLSPrivateKey) Slice() []byte {
-	return ptr.inner.Slice()
-}
-
-type PrivateKeyGenerateResponse = C.PrivateKeyGenerateResponse_t
-
-func (ptr *PrivateKeyGenerateResponse) PrivateKey() []byte {
-	return ptr.private_key.Slice()
-}
-
-type PrivateKeySignResponse = C.PrivateKeySignResponse_t
-
-func (ptr *PrivateKeySignResponse) Signature() []byte {
-	return ptr.signature.Slice()
-}
-
-type BLSPublicKey = C.BLSPublicKey_t
-
-func (ptr *BLSPublicKey) Slice() []byte {
-	return ptr.inner.Slice()
-}
-
-type PrivateKeyPublicKeyResponse = C.PrivateKeyPublicKeyResponse_t
-
-func (ptr *PrivateKeyPublicKeyResponse) PublicKey() []byte {
-	return ptr.public_key.Slice()
-}
-
-type ZeroSignatureResponse = C.ZeroSignatureResponse_t
-
-func (ptr *ZeroSignatureResponse) Signature() []byte {
-	return ptr.signature.Slice()
-}
 
 type RegisteredSealProof = C.RegisteredSealProof_t
 type RegisteredAggregationProof = C.RegisteredAggregationProof_t
@@ -164,8 +103,23 @@ func (ptr *PoStProof) Destroy() {
 
 type ByteArray96 = C.uint8_96_array_t
 
+func (ptr *ByteArray96) Destroy() {
+	if ptr != nil {
+		C.destroy_box_bls_digest(ptr)
+	}
+}
+
 func (ptr ByteArray96) Slice() []byte {
 	return unsafe.Slice((*byte)(unsafe.Pointer(&ptr.idx[0])), 96)
+}
+
+func (ptr *ByteArray96) CopyAsArray() *[96]byte {
+	if ptr == nil {
+		return nil
+	}
+	var res [96]byte
+	copy(res[:], ptr.Slice())
+	return &res
 }
 
 type ByteArray48 = C.uint8_48_array_t
@@ -174,18 +128,48 @@ func (ptr ByteArray48) Slice() []byte {
 	return unsafe.Slice((*byte)(unsafe.Pointer(&ptr.idx[0])), 48)
 }
 
+func (ptr *ByteArray48) CopyAsArray() *[48]byte {
+	if ptr == nil {
+		return nil
+	}
+	var res [48]byte
+	copy(res[:], ptr.Slice())
+	return &res
+}
+
+func (ptr *ByteArray48) Destroy() {
+	if ptr != nil {
+		C.destroy_box_bls_public_key(ptr)
+	}
+}
+
 type ByteArray32 = C.uint8_32_array_t
 
 func (ptr ByteArray32) Slice() []byte {
 	return unsafe.Slice((*byte)(unsafe.Pointer(&ptr.idx[0])), 32)
 }
 
-func (ptr ByteArray32) Copy() []byte {
+func (ptr *ByteArray32) Copy() []byte {
 	res := make([]byte, 32)
-	for i := range res {
-		res[i] = byte(ptr.idx[i])
+	if ptr != nil {
+		copy(res, ptr.Slice())
 	}
 	return res
+}
+
+func (ptr *ByteArray32) CopyAsArray() *[32]byte {
+	if ptr == nil {
+		return nil
+	}
+	var res [32]byte
+	copy(res[:], ptr.Slice())
+	return &res
+}
+
+func (ptr *ByteArray32) Destroy() {
+	if ptr != nil {
+		C.destroy_box_bls_private_key(ptr)
+	}
 }
 
 type ResultGeneratePieceCommitment = C.Result_GeneratePieceCommitment_t

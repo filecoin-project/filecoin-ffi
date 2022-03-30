@@ -12,36 +12,15 @@ use rand_chacha::ChaChaRng;
 use rayon::prelude::*;
 use safer_ffi::prelude::*;
 
-use crate::bls::types;
-
 pub const SIGNATURE_BYTES: usize = 96;
 pub const PRIVATE_KEY_BYTES: usize = 32;
 pub const PUBLIC_KEY_BYTES: usize = 48;
 pub const DIGEST_BYTES: usize = 96;
 
-#[derive_ReprC]
-#[repr(C)]
-pub struct BLSSignature {
-    pub inner: [u8; SIGNATURE_BYTES],
-}
-
-#[derive_ReprC]
-#[repr(C)]
-pub struct BLSPrivateKey {
-    pub inner: [u8; PRIVATE_KEY_BYTES],
-}
-
-#[derive_ReprC]
-#[repr(C)]
-pub struct BLSPublicKey {
-    pub inner: [u8; PUBLIC_KEY_BYTES],
-}
-
-#[derive_ReprC]
-#[repr(C)]
-pub struct BLSDigest {
-    pub inner: [u8; DIGEST_BYTES],
-}
+pub type BLSSignature = [u8; SIGNATURE_BYTES];
+pub type BLSPrivateKey = [u8; PRIVATE_KEY_BYTES];
+pub type BLSPublicKey = [u8; PUBLIC_KEY_BYTES];
+pub type BLSDigest = [u8; DIGEST_BYTES];
 
 /// Unwraps or returns the passed in value.
 macro_rules! try_ffi {
@@ -53,25 +32,37 @@ macro_rules! try_ffi {
     }};
 }
 
+#[ffi_export]
+fn destroy_box_bls_digest(ptr: repr_c::Box<BLSDigest>) {
+    drop(ptr);
+}
+
+#[ffi_export]
+fn destroy_box_bls_private_key(ptr: repr_c::Box<BLSPrivateKey>) {
+    drop(ptr);
+}
+
+#[ffi_export]
+fn destroy_box_bls_public_key(ptr: repr_c::Box<BLSPublicKey>) {
+    drop(ptr);
+}
+#[ffi_export]
+fn destroy_box_bls_signature(ptr: repr_c::Box<BLSSignature>) {
+    drop(ptr);
+}
+
 /// Compute the digest of a message
 ///
 /// # Arguments
 ///
 /// * `message` - reference to a message byte array
 #[ffi_export]
-pub fn hash(message: c_slice::Ref<u8>) -> repr_c::Box<types::HashResponse> {
+pub fn hash(message: c_slice::Ref<u8>) -> repr_c::Box<BLSDigest> {
     // call method
-    let digest = hash_sig(&message);
+    let raw_digest = hash_sig(&message).to_bytes();
+    let digest: [u8; DIGEST_BYTES] = raw_digest.as_ref().try_into().expect("known size");
 
-    // prep response
-    let mut raw_digest: [u8; DIGEST_BYTES] = [0; DIGEST_BYTES];
-    raw_digest.copy_from_slice(digest.to_bytes().as_ref());
-
-    let response = types::HashResponse {
-        digest: BLSDigest { inner: raw_digest },
-    };
-
-    repr_c::Box::new(response)
+    repr_c::Box::new(digest)
 }
 
 /// Aggregate signatures together into a new signature
@@ -80,11 +71,9 @@ pub fn hash(message: c_slice::Ref<u8>) -> repr_c::Box<types::HashResponse> {
 ///
 /// * `flattened_signatures` - byte array containing signatures
 ///
-/// Returns `NULL` on error. Result must be freed using `destroy_aggregate_response`.
+/// Returns `None` on error. Result must be freed using `destroy_aggregate_response`.
 #[ffi_export]
-pub fn aggregate(
-    flattened_signatures: c_slice::Ref<u8>,
-) -> Option<repr_c::Box<types::AggregateResponse>> {
+pub fn aggregate(flattened_signatures: c_slice::Ref<u8>) -> Option<repr_c::Box<BLSSignature>> {
     // prep request
     let signatures = try_ffi!(
         flattened_signatures
@@ -94,27 +83,21 @@ pub fn aggregate(
         None
     );
 
-    let mut raw_signature: [u8; SIGNATURE_BYTES] = [0; SIGNATURE_BYTES];
+    let mut signature: [u8; SIGNATURE_BYTES] = [0; SIGNATURE_BYTES];
 
     let aggregated = try_ffi!(aggregate_sig(&signatures), None);
     aggregated
-        .write_bytes(&mut raw_signature.as_mut())
+        .write_bytes(&mut signature.as_mut())
         .expect("preallocated");
 
-    let response = types::AggregateResponse {
-        signature: BLSSignature {
-            inner: raw_signature,
-        },
-    };
-
-    Some(repr_c::Box::new(response))
+    Some(repr_c::Box::new(signature))
 }
 
 /// Verify that a signature is the aggregated signature of hashes - pubkeys
 ///
 /// # Arguments
 ///
-/// * `signature_ptr`             - pointer to a signature byte array (SIGNATURE_BYTES long)
+/// * `signature`             - signature byte array (SIGNATURE_BYTES long)
 /// * `flattened_digests`     - byte array containing digests
 /// * `flattened_public_keys` - byte array containing public keys
 #[ffi_export]
@@ -122,19 +105,19 @@ pub fn verify(
     signature: c_slice::Ref<u8>,
     flattened_digests: c_slice::Ref<u8>,
     flattened_public_keys: c_slice::Ref<u8>,
-) -> libc::c_int {
+) -> bool {
     // prep request
-    let signature = try_ffi!(Signature::from_bytes(&signature), 0);
+    let signature = try_ffi!(Signature::from_bytes(&signature), false);
 
     if flattened_digests.len() % DIGEST_BYTES != 0 {
-        return 0;
+        return false;
     }
     if flattened_public_keys.len() % PUBLIC_KEY_BYTES != 0 {
-        return 0;
+        return false;
     }
 
     if flattened_digests.len() / DIGEST_BYTES != flattened_public_keys.len() / PUBLIC_KEY_BYTES {
-        return 0;
+        return false;
     }
 
     let digests: Vec<_> = try_ffi!(
@@ -148,7 +131,7 @@ pub fn verify(
                 affine.map(Into::into).ok_or(Error::CurveDecode)
             })
             .collect::<Result<Vec<G2Projective>, Error>>(),
-        0
+        false
     );
 
     let public_keys: Vec<_> = try_ffi!(
@@ -156,76 +139,63 @@ pub fn verify(
             .par_chunks(PUBLIC_KEY_BYTES)
             .map(|item| { PublicKey::from_bytes(item) })
             .collect::<Result<_, _>>(),
-        0
+        false
     );
 
-    verify_sig(&signature, digests.as_slice(), public_keys.as_slice()) as libc::c_int
+    verify_sig(&signature, digests.as_slice(), public_keys.as_slice())
 }
 
 /// Verify that a signature is the aggregated signature of the hashed messages
 ///
 /// # Arguments
 ///
-/// * `signature`             - pointer to a signature byte array (SIGNATURE_BYTES long)
-/// * `messages`              - pointer to an array containing the pointers to the messages
-/// * `messages_sizes_ptr`        - pointer to an array containing the lengths of the messages
-/// * `messages_len`              - length of the two messages arrays
-/// * `flattened_public_keys_ptr` - pointer to a byte array containing public keys
-/// * `flattened_public_keys_len` - length of the array
+/// * `signature`             - signature byte array (SIGNATURE_BYTES long)
+/// * `messages`              - array containing the pointers to the messages
+/// * `messages_sizes`        - array containing the lengths of the messages
+/// * `messages_len`          - length of the two messages arrays
+/// * `flattened_public_keys` - byte array containing public keys
 #[ffi_export]
 pub fn hash_verify(
     signature: c_slice::Ref<u8>,
     flattened_messages: c_slice::Ref<u8>,
     message_sizes: c_slice::Ref<libc::size_t>,
     flattened_public_keys: c_slice::Ref<u8>,
-) -> libc::c_int {
+) -> bool {
     // prep request
-    let signature = try_ffi!(Signature::from_bytes(&signature), 0);
+    let signature = try_ffi!(Signature::from_bytes(&signature), false);
 
-    let flattened = flattened_messages;
-    let chunk_sizes = message_sizes;
-
-    // split the flattened message array into slices of individual messages to
-    // be hashed
-    let mut messages: Vec<&[u8]> = Vec::with_capacity(chunk_sizes.len());
+    // split the flattened message array into slices of individual messages to be hashed
+    let mut messages: Vec<&[u8]> = Vec::with_capacity(message_sizes.len());
     let mut offset = 0;
-    for chunk_size in chunk_sizes.iter() {
-        messages.push(&flattened[offset..offset + *chunk_size]);
+    for chunk_size in message_sizes.iter() {
+        messages.push(&flattened_messages[offset..offset + *chunk_size]);
         offset += *chunk_size
     }
 
-    let raw_public_keys = flattened_public_keys;
-
-    if raw_public_keys.len() % PUBLIC_KEY_BYTES != 0 {
-        return 0;
+    if flattened_public_keys.len() % PUBLIC_KEY_BYTES != 0 {
+        return false;
     }
 
     let public_keys: Vec<_> = try_ffi!(
-        raw_public_keys
+        flattened_public_keys
             .par_chunks(PUBLIC_KEY_BYTES)
             .map(|item| { PublicKey::from_bytes(item) })
             .collect::<Result<_, _>>(),
-        0
+        false
     );
 
-    verify_messages_sig(&signature, &messages, &public_keys) as libc::c_int
+    verify_messages_sig(&signature, &messages, &public_keys)
 }
 
 /// Generate a new private key
 #[ffi_export]
-pub fn private_key_generate() -> repr_c::Box<types::PrivateKeyGenerateResponse> {
+pub fn private_key_generate() -> repr_c::Box<BLSPrivateKey> {
     let mut raw_private_key: [u8; PRIVATE_KEY_BYTES] = [0; PRIVATE_KEY_BYTES];
     PrivateKey::generate(&mut OsRng)
         .write_bytes(&mut raw_private_key.as_mut())
         .expect("preallocated");
 
-    let response = types::PrivateKeyGenerateResponse {
-        private_key: BLSPrivateKey {
-            inner: raw_private_key,
-        },
-    };
-
-    repr_c::Box::new(response)
+    repr_c::Box::new(raw_private_key)
 }
 
 /// Generate a new private key with seed
@@ -235,12 +205,8 @@ pub fn private_key_generate() -> repr_c::Box<types::PrivateKeyGenerateResponse> 
 /// # Arguments
 ///
 /// * `raw_seed` - a seed byte array with 32 bytes
-///
-/// Returns `NULL` when passed a NULL pointer.
 #[ffi_export]
-pub fn private_key_generate_with_seed(
-    raw_seed: &[u8; 32],
-) -> repr_c::Box<types::PrivateKeyGenerateResponse> {
+pub fn private_key_generate_with_seed(raw_seed: &[u8; 32]) -> repr_c::Box<BLSPrivateKey> {
     let rng = &mut ChaChaRng::from_seed(*raw_seed);
 
     let mut raw_private_key: [u8; PRIVATE_KEY_BYTES] = [0; PRIVATE_KEY_BYTES];
@@ -248,28 +214,22 @@ pub fn private_key_generate_with_seed(
         .write_bytes(&mut raw_private_key.as_mut())
         .expect("preallocated");
 
-    let response = types::PrivateKeyGenerateResponse {
-        private_key: BLSPrivateKey {
-            inner: raw_private_key,
-        },
-    };
-
-    repr_c::Box::new(response)
+    repr_c::Box::new(raw_private_key)
 }
 
 /// Sign a message with a private key and return the signature
 ///
 /// # Arguments
 ///
-/// * `raw_private_key` - pointer to a private key byte array
-/// * `message` - pointer to a message byte array
+/// * `raw_private_key` - private key byte array
+/// * `message` - message byte array
 ///
-/// Returns `NULL` when passed invalid arguments.
+/// Returns `None` when passed invalid arguments.
 #[ffi_export]
 pub fn private_key_sign(
     raw_private_key: c_slice::Ref<u8>,
     message: c_slice::Ref<u8>,
-) -> Option<repr_c::Box<types::PrivateKeySignResponse>> {
+) -> Option<repr_c::Box<BLSSignature>> {
     let private_key = try_ffi!(PrivateKey::from_bytes(&raw_private_key), None);
 
     let mut raw_signature: [u8; SIGNATURE_BYTES] = [0; SIGNATURE_BYTES];
@@ -277,26 +237,20 @@ pub fn private_key_sign(
         .write_bytes(&mut raw_signature.as_mut())
         .expect("preallocated");
 
-    let response = types::PrivateKeySignResponse {
-        signature: BLSSignature {
-            inner: raw_signature,
-        },
-    };
-
-    Some(repr_c::Box::new(response))
+    Some(repr_c::Box::new(raw_signature))
 }
 
 /// Generate the public key for a private key
 ///
 /// # Arguments
 ///
-/// * `raw_private_key_ptr` - pointer to a private key byte array
+/// * `raw_private_key` - private key byte array
 ///
-/// Returns `NULL` when passed invalid arguments.
+/// Returns `None` when passed invalid arguments.
 #[ffi_export]
 pub fn private_key_public_key(
     raw_private_key: c_slice::Ref<u8>,
-) -> Option<repr_c::Box<types::PrivateKeyPublicKeyResponse>> {
+) -> Option<repr_c::Box<BLSPublicKey>> {
     let private_key = try_ffi!(PrivateKey::from_bytes(&raw_private_key), None);
 
     let mut raw_public_key: [u8; PUBLIC_KEY_BYTES] = [0; PUBLIC_KEY_BYTES];
@@ -305,20 +259,14 @@ pub fn private_key_public_key(
         .write_bytes(&mut raw_public_key.as_mut())
         .expect("preallocated");
 
-    let response = types::PrivateKeyPublicKeyResponse {
-        public_key: BLSPublicKey {
-            inner: raw_public_key,
-        },
-    };
-
-    Some(repr_c::Box::new(response))
+    Some(repr_c::Box::new(raw_public_key))
 }
 
 /// Returns a zero signature, used as placeholder in Filecoin.
 ///
 /// The return value is a pointer to a compressed signature in bytes, of length `SIGNATURE_BYTES`
 #[ffi_export]
-pub fn create_zero_signature() -> repr_c::Box<types::ZeroSignatureResponse> {
+pub fn create_zero_signature() -> repr_c::Box<BLSSignature> {
     let sig: Signature = G2Affine::identity().into();
 
     let mut raw_signature: [u8; SIGNATURE_BYTES] = [0; SIGNATURE_BYTES];
@@ -326,19 +274,7 @@ pub fn create_zero_signature() -> repr_c::Box<types::ZeroSignatureResponse> {
     sig.write_bytes(&mut raw_signature.as_mut())
         .expect("preallocated");
 
-    let response = types::ZeroSignatureResponse {
-        signature: BLSSignature {
-            inner: raw_signature,
-        },
-    };
-
-    repr_c::Box::new(response)
-}
-
-/// Frees the memory of the returned value of `create_zero_signature`.
-#[ffi_export]
-pub fn drop_signature(sig: repr_c::Box<types::ZeroSignatureResponse>) {
-    drop(sig);
+    repr_c::Box::new(raw_signature)
 }
 
 #[cfg(test)]
@@ -347,24 +283,18 @@ mod tests {
 
     #[test]
     fn key_verification() {
-        let private_key = private_key_generate().private_key.inner;
-        let public_key = private_key_public_key(private_key[..].into())
-            .unwrap()
-            .public_key
-            .inner;
+        let private_key = private_key_generate();
+        let public_key = private_key_public_key(private_key[..].into()).unwrap();
         let message = b"hello world";
-        let digest = hash(message[..].into()).digest.inner;
-        let signature = private_key_sign(private_key[..].into(), message[..].into())
-            .unwrap()
-            .signature
-            .inner;
+        let digest = hash(message[..].into());
+        let signature = private_key_sign(private_key[..].into(), message[..].into()).unwrap();
         let verified = verify(
             signature[..].into(),
             digest[..].into(),
             public_key[..].into(),
         );
 
-        assert_eq!(1, verified);
+        assert!(verified);
 
         let message_sizes = vec![message.len()];
         let flattened_messages = message;
@@ -376,17 +306,17 @@ mod tests {
             public_key[..].into(),
         );
 
-        assert_eq!(1, verified);
+        assert!(verified);
 
         let different_message = b"bye world";
-        let different_digest = hash(different_message[..].into()).digest.inner;
+        let different_digest = hash(different_message[..].into());
         let not_verified = verify(
             signature[..].into(),
             different_digest[..].into(),
             public_key[..].into(),
         );
 
-        assert_eq!(0, not_verified);
+        assert!(!not_verified);
 
         // garbage verification
         let different_digest = vec![0, 1, 2, 3, 4];
@@ -396,29 +326,27 @@ mod tests {
             public_key[..].into(),
         );
 
-        assert_eq!(0, not_verified);
+        assert!(!not_verified);
     }
 
     #[test]
     fn private_key_with_seed() {
         let seed = [5u8; 32];
-        let private_key = private_key_generate_with_seed(&seed).private_key.inner;
+        let private_key = private_key_generate_with_seed(&seed);
         assert_eq!(
-            [
+            &[
                 56, 13, 181, 159, 37, 1, 12, 96, 45, 77, 254, 118, 103, 235, 218, 176, 220, 241,
                 142, 119, 206, 233, 83, 35, 26, 15, 118, 198, 192, 120, 179, 52
             ],
-            private_key,
+            &private_key[..],
         );
     }
 
     #[test]
     fn test_zero_key() {
         let resp = create_zero_signature();
-        let sig = Signature::from_bytes(&(*resp).signature.inner).unwrap();
+        let sig = Signature::from_bytes(&(*resp)).unwrap();
 
         assert_eq!(sig, Signature::from(G2Affine::identity()));
-
-        types::destroy_zero_signature_response(resp);
     }
 }

@@ -8,66 +8,53 @@ package cgo
 */
 import "C"
 
-func Hash(message SliceRefUint8) *HashResponse {
-	return C.hash(message)
+func Hash(message SliceRefUint8) *[96]byte {
+	resp := C.hash(message)
+	defer resp.Destroy()
+	return resp.CopyAsArray()
 }
 
-func (ptr *HashResponse) Destroy() {
-	C.destroy_hash_response(ptr)
+func Aggregate(flattenedSignatures SliceRefUint8) *[96]byte {
+	resp := C.aggregate(flattenedSignatures)
+	defer resp.Destroy()
+	return resp.CopyAsArray()
 }
 
-func Aggregate(flattenedSignatures SliceRefUint8) *AggregateResponse {
-	return C.aggregate(flattenedSignatures)
+func Verify(signature SliceRefUint8, flattenedDigests SliceRefUint8, flattenedPublicKeys SliceRefUint8) bool {
+	resp := C.verify(signature, flattenedDigests, flattenedPublicKeys)
+	return bool(resp)
 }
 
-func (ptr *AggregateResponse) Destroy() {
-	C.destroy_aggregate_response(ptr)
+func HashVerify(signature SliceRefUint8, flattenedMessages SliceRefUint8, messageSizes SliceRefUint, flattenedPublicKeys SliceRefUint8) bool {
+	resp := C.hash_verify(signature, flattenedMessages, messageSizes, flattenedPublicKeys)
+	return bool(resp)
 }
 
-func Verify(signature SliceRefUint8, flattenedDigests SliceRefUint8, flattenedPublicKeys SliceRefUint8) C.int32_t {
-	return C.verify(signature, flattenedDigests, flattenedPublicKeys)
+func PrivateKeyGenerate() *[32]byte {
+	resp := C.private_key_generate()
+	defer resp.Destroy()
+	return resp.CopyAsArray()
 }
 
-func HashVerify(signature SliceRefUint8, flattenedMessages SliceRefUint8, messageSizes SliceRefUint, flattenedPublicKeys SliceRefUint8) C.int32_t {
-	return C.hash_verify(signature, flattenedMessages, messageSizes, flattenedPublicKeys)
+func PrivateKeyGenerateWithSeed(rawSeed *ByteArray32) *[32]byte {
+	resp := C.private_key_generate_with_seed(rawSeed)
+	defer resp.Destroy()
+	return resp.CopyAsArray()
 }
 
-func PrivateKeyGenerate() *PrivateKeyGenerateResponse {
-	return C.private_key_generate()
+func PrivateKeySign(rawPrivateKey SliceRefUint8, message SliceRefUint8) *[96]byte {
+	resp := C.private_key_sign(rawPrivateKey, message)
+	defer resp.Destroy()
+	return resp.CopyAsArray()
 }
 
-func PrivateKeyGenerateWithSeed(rawSeed *ByteArray32) *PrivateKeyGenerateResponse {
-	return C.private_key_generate_with_seed(rawSeed)
+func PrivateKeyPublicKey(rawPrivateKey SliceRefUint8) *[48]byte {
+	resp := C.private_key_public_key(rawPrivateKey)
+	defer resp.Destroy()
+	return resp.CopyAsArray()
 }
-
-func PrivateKeySign(rawPrivateKey SliceRefUint8, message SliceRefUint8) *PrivateKeySignResponse {
-	return C.private_key_sign(rawPrivateKey, message)
-}
-
-func (ptr *PrivateKeySignResponse) Destroy() {
-	C.destroy_private_key_sign_response(ptr)
-}
-
-func PrivateKeyPublicKey(rawPrivateKey SliceRefUint8) *PrivateKeyPublicKeyResponse {
-	return C.private_key_public_key(rawPrivateKey)
-}
-
-func (ptr *PrivateKeyPublicKeyResponse) Destroy() {
-	if ptr != nil {
-		C.destroy_private_key_public_key_response(ptr)
-	}
-}
-
-func CreateZeroSignature() *ZeroSignatureResponse {
-	return C.create_zero_signature()
-}
-
-func (ptr *ZeroSignatureResponse) Destroy() {
-	C.drop_signature(ptr)
-}
-
-func (ptr *PrivateKeyGenerateResponse) Destroy() {
-	if ptr != nil {
-		C.destroy_private_key_generate_response(ptr)
-	}
+func CreateZeroSignature() *[96]byte {
+	resp := C.create_zero_signature()
+	defer resp.Destroy()
+	return resp.CopyAsArray()
 }
