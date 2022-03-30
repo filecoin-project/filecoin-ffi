@@ -97,7 +97,7 @@ fn fauxrep(
             as_path_buf(&cache_dir_path)?,
             as_path_buf(&sealed_sector_path)?,
         )?;
-        Ok(res.into())
+        Ok(res)
     })
 }
 
@@ -114,7 +114,7 @@ fn fauxrep2(
             as_path_buf(&existing_p_aux_path)?,
         )?;
 
-        Ok(result.into())
+        Ok(result)
     })
 }
 
@@ -388,7 +388,7 @@ fn generate_winning_post_sector_challenge(
     catch_panic_response("generate_winning_post_sector_challenge", || {
         let result = filecoin_proofs_api::post::generate_winning_post_sector_challenge(
             registered_proof.into(),
-            &randomness,
+            randomness,
             sector_set_len,
             *prover_id,
         )?;
@@ -415,7 +415,7 @@ fn generate_fallback_sector_challenges(
 
         let output = filecoin_proofs_api::post::generate_fallback_sector_challenges(
             registered_proof.into(),
-            &randomness,
+            randomness,
             &pub_sectors,
             *prover_id,
         )?;
@@ -482,7 +482,7 @@ fn generate_winning_post_with_vanilla(
 
         let result = filecoin_proofs_api::post::generate_winning_post_with_vanilla(
             registered_proof.into(),
-            &randomness,
+            randomness,
             *prover_id,
             &vanilla_proofs,
         )?;
@@ -509,7 +509,7 @@ fn generate_winning_post(
     catch_panic_response("generate_winning_post", || {
         let replicas = to_private_replica_info_map(replicas)?;
         let result =
-            filecoin_proofs_api::post::generate_winning_post(&randomness, &replicas, *prover_id)?;
+            filecoin_proofs_api::post::generate_winning_post(randomness, &replicas, *prover_id)?;
 
         let result = result
             .into_iter()
@@ -540,10 +540,7 @@ fn verify_winning_post(
             .collect();
 
         let result = filecoin_proofs_api::post::verify_winning_post(
-            &randomness,
-            &proofs,
-            &replicas,
-            *prover_id,
+            randomness, &proofs, &replicas, *prover_id,
         )?;
 
         Ok(result)
@@ -566,7 +563,7 @@ fn generate_window_post_with_vanilla(
 
         let result = filecoin_proofs_api::post::generate_window_post_with_vanilla(
             registered_proof.into(),
-            &randomness,
+            randomness,
             *prover_id,
             &vanilla_proofs,
         );
@@ -617,7 +614,7 @@ fn generate_window_post(
 ) -> repr_c::Box<GenerateWindowPoStResponse> {
     catch_panic_response_raw("generate_window_post", || {
         let result = to_private_replica_info_map(replicas).and_then(|replicas| {
-            filecoin_proofs_api::post::generate_window_post(&randomness, &replicas, *prover_id)
+            filecoin_proofs_api::post::generate_window_post(randomness, &replicas, *prover_id)
         });
 
         let mut response = GenerateWindowPoStResponse::default();
@@ -677,10 +674,7 @@ fn verify_window_post(
             .collect();
 
         let result = filecoin_proofs_api::post::verify_window_post(
-            &randomness,
-            &proofs,
-            &replicas,
-            *prover_id,
+            randomness, &proofs, &replicas, *prover_id,
         )?;
 
         Ok(result)
@@ -743,7 +737,7 @@ fn generate_single_window_post_with_vanilla(
 
         let result = filecoin_proofs_api::post::generate_single_window_post_with_vanilla(
             registered_proof.into(),
-            &randomness,
+            randomness,
             *prover_id,
             &vanilla_proofs,
             partition_index,
@@ -1047,7 +1041,7 @@ fn generate_data_commitment(
         let public_pieces: Vec<PieceInfo> = pieces.iter().map(Into::into).collect();
         let result = seal::compute_comm_d(registered_proof.into(), &public_pieces)?;
 
-        Ok(result.into())
+        Ok(result)
     })
 }
 
