@@ -96,8 +96,8 @@ func CreateFVM(opts *FVMOpts) (*FVM, error) {
 func (f *FVM) ApplyMessage(msgBytes []byte, chainLen uint) (*ApplyRet, error) {
 	// NOTE: we need to call KeepAlive here (and below) because go doesn't guarantee that the
 	// receiver will live to the end of the function. If we don't do this, go _will_ garbage
-	// collecting the FVM, causing us to run the finalizer while we're in the middle of using
-	// the FVM.
+	// collect the FVM, causing us to run the finalizer while we're in the middle of using the
+	// FVM.
 	defer runtime.KeepAlive(f)
 	resp := generated.FilFvmMachineExecuteMessage(f.executor,
 		msgBytes,
