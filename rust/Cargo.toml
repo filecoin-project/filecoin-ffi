@@ -10,7 +10,8 @@ authors = [
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/filecoin-project/filecoin-ffi"
 readme = "README.md"
-edition = "2018"
+edition = "2021"
+resolver = "2"
 publish = false
 
 [lib]
@@ -38,15 +39,28 @@ memmap = "0.7"
 rust-gpu-tools = { version = "0.5", default-features = false }
 storage-proofs-porep = { version = "~11.0", default-features = false }
 fr32 = { version = "~4.0", default-features = false }
+fvm = { version = "0.4.0", default-features = false }
+fvm_ipld_car = "0.3.0"
+fvm_shared = "0.3.1"
+actors-v6 = { package = "fil_builtin_actors_bundle", version = "6.1.1" }
+actors-v7 = { package = "fil_builtin_actors_bundle", version = "7.1.1" }
+num-traits = "0.2.14"
+num-bigint = "0.4"
+cid = { version = "0.8.3", features = ["serde-codec"] }
+lazy_static = "1.4.0"
+once_cell = "1.9.0"
+serde = "1.0.117"
+serde_bytes = "0.11.5"
+serde_tuple = "0.5"
+futures = "0.3.5"
 
 [dependencies.filecoin-proofs-api]
 package = "filecoin-proofs-api"
 version = "11.0"
-git = "https://github.com/filecoin-project/rust-filecoin-proofs-api"
 default-features = false
 
 [build-dependencies]
-cbindgen = "= 0.14.0"
+cbindgen = "= 0.20.0"
 
 [dev-dependencies]
 tempfile = "3.0.8"
@@ -54,6 +68,10 @@ tempfile = "3.0.8"
 [features]
 default = ["opencl", "multicore-sdr" ]
 blst-portable = ["bls-signatures/blst-portable", "blstrs/portable"]
-opencl = ["filecoin-proofs-api/opencl", "bellperson/opencl", "storage-proofs-porep/opencl", "rust-gpu-tools/opencl"]
-cuda = ["filecoin-proofs-api/cuda", "bellperson/cuda", "storage-proofs-porep/cuda", "rust-gpu-tools/cuda"]
+opencl = ["filecoin-proofs-api/opencl", "bellperson/opencl", "storage-proofs-porep/opencl", "rust-gpu-tools/opencl", "fvm/opencl"]
+cuda = ["filecoin-proofs-api/cuda", "bellperson/cuda", "storage-proofs-porep/cuda", "rust-gpu-tools/cuda", "fvm/cuda"]
 multicore-sdr = ["storage-proofs-porep/multicore-sdr"]
+
+# Only enabled by cbindgen. When enabled, the cgo_* externs are disabled so as not to confuse
+# cbindgen.
+bindgen=[]

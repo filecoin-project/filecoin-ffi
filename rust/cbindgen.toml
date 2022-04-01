@@ -19,5 +19,8 @@ language = "C"
 parse_deps = true
 include = ["ffi-toolkit"]
 
+[parse.expand]
+features = ["bindgen"]
+
 [enum]
 prefix_with_name = true

@@ -862,25 +862,13 @@ impl Clone for fil_SealCommitPhase2Response {
 code_and_message_impl!(fil_SealCommitPhase2Response);
 
 #[repr(C)]
-#[derive(Clone, DropStructMacro)]
+#[derive(Clone, Default, DropStructMacro)]
 pub struct fil_AggregationInputs {
     pub comm_r: fil_32ByteArray,
     pub comm_d: fil_32ByteArray,
     pub sector_id: u64,
     pub ticket: fil_32ByteArray,
     pub seed: fil_32ByteArray,
-}
-
-impl Default for fil_AggregationInputs {
-    fn default() -> fil_AggregationInputs {
-        fil_AggregationInputs {
-            comm_r: fil_32ByteArray::default(),
-            comm_d: fil_32ByteArray::default(),
-            sector_id: 0,
-            ticket: fil_32ByteArray::default(),
-            seed: fil_32ByteArray::default(),
-        }
-    }
 }
 
 #[repr(C)]
