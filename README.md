@@ -1,4 +1,4 @@
-# Filecoin Proofs FFI
+# Filecoin FFI
 
 > C and CGO bindings for Filecoin's Rust libraries
 
