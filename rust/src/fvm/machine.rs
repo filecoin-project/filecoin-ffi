@@ -43,6 +43,8 @@ pub unsafe extern "C" fn fil_create_fvm_machine(
     network_version: u64,
     state_root_ptr: *const u8,
     state_root_len: libc::size_t,
+    manifest_cid_ptr: *const u8,
+    manifest_cid_len: libc::size_t,
     blockstore_id: u64,
     externs_id: u64,
 ) -> *mut fil_CreateFvmMachineResponse {
@@ -86,9 +88,20 @@ pub unsafe extern "C" fn fil_create_fvm_machine(
             }
         };
 
+        let manifest_cid_bytes: Vec<u8> =
+            std::slice::from_raw_parts(manifest_cid_ptr, manifest_cid_len).to_vec();
+        let manifest_cid = match Cid::try_from(manifest_cid_bytes) {
+            Ok(x) => x,
+            Err(err) => {
+                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                response.error_msg = rust_str_to_c_str(format!("invalid state root: {}", err));
+                return raw_ptr(response);
+            }
+        };
+
         let blockstore = FakeBlockstore::new(CgoBlockstore::new(blockstore_id));
 
-        let builtin_actors = match import_actors(&blockstore, network_version) {
+        let builtin_actors = match import_actors(&blockstore, manifest_cid, network_version) {
             Ok(x) => x,
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
@@ -263,11 +276,15 @@ pub unsafe extern "C" fn fil_destroy_fvm_machine_flush_response(
 
 fn import_actors(
     blockstore: &impl Blockstore,
+    manifest_cid: Cid,
     network_version: NetworkVersion,
 ) -> Result<Cid, &'static str> {
     let car = match network_version {
         NetworkVersion::V14 => Ok(actors_v6::BUNDLE_CAR),
         NetworkVersion::V15 => Ok(actors_v7::BUNDLE_CAR),
+        NetworkVersion::V16 => {
+            return Ok(manifest_cid);
+        }
         _ => Err("unsupported network version"),
     }?;
     let roots = block_on(async { load_car(blockstore, car).await.unwrap() });
