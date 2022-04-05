@@ -100,7 +100,13 @@ pub unsafe extern "C" fn fil_create_fvm_machine(
                 }
             }
         } else {
-            // handle cid.Undef for no manifest (< nv16)
+            // handle cid.Undef for no manifest
+            // this can mean two things:
+            // - for pre nv16, use the builtin bundles
+            // - for nv16 or higher, it means we have already migrated state for system
+            //   actor and we can pass None to the machine constructor to fish it from state.
+            // The presence of the manifest cid argument allows us to test with new bundles
+            // with minimum friction.
             Cid::default()
         };
 
@@ -127,7 +133,7 @@ pub unsafe extern "C" fn fil_create_fvm_machine(
             base_circ_supply,
             network_version,
             state_root,
-            Some(builtin_actors),
+            builtin_actors,
             blockstore,
             externs,
         );
@@ -283,16 +289,19 @@ fn import_actors(
     blockstore: &impl Blockstore,
     manifest_cid: Cid,
     network_version: NetworkVersion,
-) -> Result<Cid, &'static str> {
+) -> Result<Option<Cid>, &'static str> {
+    if manifest_cid != Cid::default() {
+        return Ok(Some(manifest_cid));
+    }
     let car = match network_version {
         NetworkVersion::V14 => Ok(actors_v6::BUNDLE_CAR),
         NetworkVersion::V15 => Ok(actors_v7::BUNDLE_CAR),
         NetworkVersion::V16 => {
-            return Ok(manifest_cid);
+            return Ok(None);
         }
         _ => Err("unsupported network version"),
     }?;
     let roots = block_on(async { load_car(blockstore, car).await.unwrap() });
     assert_eq!(roots.len(), 1);
-    Ok(roots[0])
+    Ok(Some(roots[0]))
 }
