@@ -8,8 +8,8 @@ use fvm::call_manager::DefaultCallManager;
 use fvm::executor::{ApplyKind, DefaultExecutor, Executor};
 use fvm::machine::DefaultMachine;
 use fvm::{Config, DefaultKernel};
+use fvm_ipld_blockstore::Blockstore;
 use fvm_ipld_car::load_car;
-use fvm_shared::blockstore::Blockstore;
 use fvm_shared::{clock::ChainEpoch, econ::TokenAmount, message::Message, version::NetworkVersion};
 use lazy_static::lazy_static;
 use log::info;
@@ -160,7 +160,7 @@ pub unsafe extern "C" fn fil_fvm_machine_execute_message(
         };
 
         let message_bytes = std::slice::from_raw_parts(message_ptr, message_len);
-        let message: Message = match fvm_shared::encoding::from_slice(message_bytes) {
+        let message: Message = match fvm_ipld_encoding::from_slice(message_bytes) {
             Ok(x) => x,
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;

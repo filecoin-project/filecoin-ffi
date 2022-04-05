@@ -2,7 +2,7 @@ use std::ptr;
 
 use anyhow::{anyhow, Result};
 use cid::Cid;
-use fvm_shared::blockstore::Blockstore;
+use fvm_ipld_blockstore::Blockstore;
 
 use super::super::cgo::*;
 
