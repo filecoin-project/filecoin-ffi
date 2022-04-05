@@ -92,7 +92,7 @@ pub unsafe extern "C" fn fil_create_fvm_machine(
             let manifest_cid_bytes: Vec<u8> =
                 std::slice::from_raw_parts(manifest_cid_ptr, manifest_cid_len).to_vec();
             match Cid::try_from(manifest_cid_bytes) {
-                Ok(x) => x,
+                Ok(x) => Some(x),
                 Err(err) => {
                     response.status_code = FCPResponseStatus::FCPUnclassifiedError;
                     response.error_msg = rust_str_to_c_str(format!("invalid manifest: {}", err));
@@ -107,7 +107,7 @@ pub unsafe extern "C" fn fil_create_fvm_machine(
             //   actor and we can pass None to the machine constructor to fish it from state.
             // The presence of the manifest cid argument allows us to test with new bundles
             // with minimum friction.
-            Cid::default()
+            None
         };
 
         let blockstore = FakeBlockstore::new(CgoBlockstore::new(blockstore_id));
@@ -287,11 +287,11 @@ pub unsafe extern "C" fn fil_destroy_fvm_machine_flush_response(
 
 fn import_actors(
     blockstore: &impl Blockstore,
-    manifest_cid: Cid,
+    manifest_cid: Option<Cid>,
     network_version: NetworkVersion,
 ) -> Result<Option<Cid>, &'static str> {
-    if manifest_cid != Cid::default() {
-        return Ok(Some(manifest_cid));
+    if manifest_cid.is_some() {
+        return Ok(manifest_cid);
     }
     let car = match network_version {
         NetworkVersion::V14 => Ok(actors_v6::BUNDLE_CAR),
