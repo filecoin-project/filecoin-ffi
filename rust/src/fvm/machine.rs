@@ -88,15 +88,20 @@ pub unsafe extern "C" fn fil_create_fvm_machine(
             }
         };
 
-        let manifest_cid_bytes: Vec<u8> =
-            std::slice::from_raw_parts(manifest_cid_ptr, manifest_cid_len).to_vec();
-        let manifest_cid = match Cid::try_from(manifest_cid_bytes) {
-            Ok(x) => x,
-            Err(err) => {
-                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("invalid state root: {}", err));
-                return raw_ptr(response);
+        let manifest_cid = if manifest_cid_len > 0 {
+            let manifest_cid_bytes: Vec<u8> =
+                std::slice::from_raw_parts(manifest_cid_ptr, manifest_cid_len).to_vec();
+            match Cid::try_from(manifest_cid_bytes) {
+                Ok(x) => x,
+                Err(err) => {
+                    response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                    response.error_msg = rust_str_to_c_str(format!("invalid manifest: {}", err));
+                    return raw_ptr(response);
+                }
             }
+        } else {
+            // handle cid.Undef for no manifest (< nv16)
+            Cid::default()
         };
 
         let blockstore = FakeBlockstore::new(CgoBlockstore::new(blockstore_id));
