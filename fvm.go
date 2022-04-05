@@ -42,6 +42,7 @@ type FVMOpts struct {
 	BaseCircSupply abi.TokenAmount
 	NetworkVersion network.Version
 	StateBase      cid.Cid
+	Manifest       cid.Cid
 }
 
 // CreateFVM creates a new FVM instance.
@@ -65,6 +66,8 @@ func CreateFVM(opts *FVMOpts) (*FVM, error) {
 		uint64(opts.NetworkVersion),
 		opts.StateBase.Bytes(),
 		uint(opts.StateBase.ByteLen()),
+		opts.Manifest.Bytes(),
+		uint(opts.Manifest.ByteLen()),
 		exHandle, exHandle,
 	)
 	resp.Deref()

@@ -43,6 +43,8 @@ pub unsafe extern "C" fn fil_create_fvm_machine(
     network_version: u64,
     state_root_ptr: *const u8,
     state_root_len: libc::size_t,
+    manifest_cid_ptr: *const u8,
+    manifest_cid_len: libc::size_t,
     blockstore_id: u64,
     externs_id: u64,
 ) -> *mut fil_CreateFvmMachineResponse {
@@ -86,9 +88,31 @@ pub unsafe extern "C" fn fil_create_fvm_machine(
             }
         };
 
+        let manifest_cid = if manifest_cid_len > 0 {
+            let manifest_cid_bytes: Vec<u8> =
+                std::slice::from_raw_parts(manifest_cid_ptr, manifest_cid_len).to_vec();
+            match Cid::try_from(manifest_cid_bytes) {
+                Ok(x) => Some(x),
+                Err(err) => {
+                    response.status_code = FCPResponseStatus::FCPUnclassifiedError;
+                    response.error_msg = rust_str_to_c_str(format!("invalid manifest: {}", err));
+                    return raw_ptr(response);
+                }
+            }
+        } else {
+            // handle cid.Undef for no manifest
+            // this can mean two things:
+            // - for pre nv16, use the builtin bundles
+            // - for nv16 or higher, it means we have already migrated state for system
+            //   actor and we can pass None to the machine constructor to fish it from state.
+            // The presence of the manifest cid argument allows us to test with new bundles
+            // with minimum friction.
+            None
+        };
+
         let blockstore = FakeBlockstore::new(CgoBlockstore::new(blockstore_id));
 
-        let builtin_actors = match import_actors(&blockstore, network_version) {
+        let builtin_actors = match import_actors(&blockstore, manifest_cid, network_version) {
             Ok(x) => x,
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
@@ -109,7 +133,7 @@ pub unsafe extern "C" fn fil_create_fvm_machine(
             base_circ_supply,
             network_version,
             state_root,
-            Some(builtin_actors),
+            builtin_actors,
             blockstore,
             externs,
         );
@@ -263,14 +287,21 @@ pub unsafe extern "C" fn fil_destroy_fvm_machine_flush_response(
 
 fn import_actors(
     blockstore: &impl Blockstore,
+    manifest_cid: Option<Cid>,
     network_version: NetworkVersion,
-) -> Result<Cid, &'static str> {
+) -> Result<Option<Cid>, &'static str> {
+    if manifest_cid.is_some() {
+        return Ok(manifest_cid);
+    }
     let car = match network_version {
         NetworkVersion::V14 => Ok(actors_v6::BUNDLE_CAR),
         NetworkVersion::V15 => Ok(actors_v7::BUNDLE_CAR),
+        NetworkVersion::V16 => {
+            return Ok(None);
+        }
         _ => Err("unsupported network version"),
     }?;
     let roots = block_on(async { load_car(blockstore, car).await.unwrap() });
     assert_eq!(roots.len(), 1);
-    Ok(roots[0])
+    Ok(Some(roots[0]))
 }
