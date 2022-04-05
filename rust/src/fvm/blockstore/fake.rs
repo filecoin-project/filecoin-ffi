@@ -5,7 +5,7 @@ use cid::{
     multihash::{Code, MultihashDigest},
     Cid,
 };
-use fvm_shared::blockstore::Blockstore;
+use fvm_ipld_blockstore::Blockstore;
 
 use super::OverlayBlockstore;
 
@@ -60,7 +60,7 @@ where
     fn put<D>(
         &self,
         mh_code: cid::multihash::Code,
-        block: &fvm_shared::blockstore::Block<D>,
+        block: &fvm_ipld_blockstore::Block<D>,
     ) -> Result<Cid>
     where
         Self: Sized,
@@ -73,7 +73,7 @@ where
     where
         Self: Sized,
         D: AsRef<[u8]>,
-        I: IntoIterator<Item = (cid::multihash::Code, fvm_shared::blockstore::Block<D>)>,
+        I: IntoIterator<Item = (cid::multihash::Code, fvm_ipld_blockstore::Block<D>)>,
     {
         self.base.put_many(blocks)
     }
