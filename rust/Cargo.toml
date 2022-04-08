@@ -18,7 +18,7 @@ publish = false
 crate-type = ["rlib", "staticlib"]
 
 [patch.crates-io]
-fvm = { git = 'https://github.com/filecoin-project/ref-fvm', rev = '78530c8' }
+fvm = { git = 'https://github.com/filecoin-project/ref-fvm', branch = 'vyzo/nv16-patch' }
 
 [dependencies]
 bls-signatures = { version = "0.11.0", default-features = false, features = ["blst"] }
