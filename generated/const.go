@@ -13,10 +13,10 @@ package generated
 */
 import "C"
 
-// FCPResponseStatus as declared in filecoin-ffi/filcrypto.h:51
+// FCPResponseStatus as declared in filecoin-ffi/filcrypto.h:56
 type FCPResponseStatus int32
 
-// FCPResponseStatus enumeration from filecoin-ffi/filcrypto.h:51
+// FCPResponseStatus enumeration from filecoin-ffi/filcrypto.h:56
 const (
 	FCPResponseStatusFCPNoError           FCPResponseStatus = C.FCPResponseStatus_FCPNoError
 	FCPResponseStatusFCPUnclassifiedError FCPResponseStatus = C.FCPResponseStatus_FCPUnclassifiedError
@@ -24,26 +24,26 @@ const (
 	FCPResponseStatusFCPReceiverError     FCPResponseStatus = C.FCPResponseStatus_FCPReceiverError
 )
 
-// FilFvmRegisteredVersion as declared in filecoin-ffi/filcrypto.h:55
+// FilFvmRegisteredVersion as declared in filecoin-ffi/filcrypto.h:60
 type FilFvmRegisteredVersion int32
 
-// FilFvmRegisteredVersion enumeration from filecoin-ffi/filcrypto.h:55
+// FilFvmRegisteredVersion enumeration from filecoin-ffi/filcrypto.h:60
 const (
 	FilFvmRegisteredVersionV1 FilFvmRegisteredVersion = C.fil_FvmRegisteredVersion_V1
 )
 
-// FilRegisteredAggregationProof as declared in filecoin-ffi/filcrypto.h:59
+// FilRegisteredAggregationProof as declared in filecoin-ffi/filcrypto.h:64
 type FilRegisteredAggregationProof int32
 
-// FilRegisteredAggregationProof enumeration from filecoin-ffi/filcrypto.h:59
+// FilRegisteredAggregationProof enumeration from filecoin-ffi/filcrypto.h:64
 const (
 	FilRegisteredAggregationProofSnarkPackV1 FilRegisteredAggregationProof = C.fil_RegisteredAggregationProof_SnarkPackV1
 )
 
-// FilRegisteredPoStProof as declared in filecoin-ffi/filcrypto.h:72
+// FilRegisteredPoStProof as declared in filecoin-ffi/filcrypto.h:77
 type FilRegisteredPoStProof int32
 
-// FilRegisteredPoStProof enumeration from filecoin-ffi/filcrypto.h:72
+// FilRegisteredPoStProof enumeration from filecoin-ffi/filcrypto.h:77
 const (
 	FilRegisteredPoStProofStackedDrgWinning2KiBV1   FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrgWinning2KiBV1
 	FilRegisteredPoStProofStackedDrgWinning8MiBV1   FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrgWinning8MiBV1
@@ -57,10 +57,10 @@ const (
 	FilRegisteredPoStProofStackedDrgWindow64GiBV1   FilRegisteredPoStProof = C.fil_RegisteredPoStProof_StackedDrgWindow64GiBV1
 )
 
-// FilRegisteredSealProof as declared in filecoin-ffi/filcrypto.h:85
+// FilRegisteredSealProof as declared in filecoin-ffi/filcrypto.h:90
 type FilRegisteredSealProof int32
 
-// FilRegisteredSealProof enumeration from filecoin-ffi/filcrypto.h:85
+// FilRegisteredSealProof enumeration from filecoin-ffi/filcrypto.h:90
 const (
 	FilRegisteredSealProofStackedDrg2KiBV1    FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg2KiBV1
 	FilRegisteredSealProofStackedDrg8MiBV1    FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg8MiBV1
@@ -74,10 +74,10 @@ const (
 	FilRegisteredSealProofStackedDrg64GiBV11  FilRegisteredSealProof = C.fil_RegisteredSealProof_StackedDrg64GiBV1_1
 )
 
-// FilRegisteredUpdateProof as declared in filecoin-ffi/filcrypto.h:93
+// FilRegisteredUpdateProof as declared in filecoin-ffi/filcrypto.h:98
 type FilRegisteredUpdateProof int32
 
-// FilRegisteredUpdateProof enumeration from filecoin-ffi/filcrypto.h:93
+// FilRegisteredUpdateProof enumeration from filecoin-ffi/filcrypto.h:98
 const (
 	FilRegisteredUpdateProofStackedDrg2KiBV1   FilRegisteredUpdateProof = C.fil_RegisteredUpdateProof_StackedDrg2KiBV1
 	FilRegisteredUpdateProofStackedDrg8MiBV1   FilRegisteredUpdateProof = C.fil_RegisteredUpdateProof_StackedDrg8MiBV1

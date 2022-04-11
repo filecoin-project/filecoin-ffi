@@ -14,3 +14,6 @@ pub const ERR_IO: i32 = -3;
 
 /// The error code returned by cgo when an argument is invalid.
 pub const ERR_INVALID_ARGUMENT: i32 = -4;
+
+/// The error code returned by cgo when the application panics.
+pub const ERR_PANIC: i32 = -5;
