@@ -19,7 +19,14 @@ func cgo_extern_get_chain_randomness(
 	handle C.uint64_t, pers C.int64_t, round C.int64_t,
 	entropy C.buf_t, entropyLen C.int32_t,
 	output C.buf_t,
-) C.int32_t {
+) (res C.int32_t) {
+	defer func() {
+		if rerr := recover(); rerr != nil {
+			logPanic(rerr)
+			res = ErrPanic
+		}
+	}()
+
 	out := (*[32]byte)(unsafe.Pointer(output))
 	externs, ctx := Lookup(uint64(handle))
 	if externs == nil {
@@ -42,7 +49,14 @@ func cgo_extern_get_beacon_randomness(
 	handle C.uint64_t, pers C.int64_t, round C.int64_t,
 	entropy C.buf_t, entropyLen C.int32_t,
 	output C.buf_t,
-) C.int32_t {
+) (res C.int32_t) {
+	defer func() {
+		if rerr := recover(); rerr != nil {
+			logPanic(rerr)
+			res = ErrPanic
+		}
+	}()
+
 	out := (*[32]byte)(unsafe.Pointer(output))
 	externs, ctx := Lookup(uint64(handle))
 	if externs == nil {
@@ -70,7 +84,14 @@ func cgo_extern_verify_consensus_fault(
 	epochOut *C.int64_t,
 	faultOut *C.int64_t,
 	gasUsedOut *C.int64_t,
-) C.int32_t {
+) (res C.int32_t) {
+	defer func() {
+		if rerr := recover(); rerr != nil {
+			logPanic(rerr)
+			res = ErrPanic
+		}
+	}()
+
 	externs, ctx := Lookup(uint64(handle))
 	if externs == nil {
 		return ErrInvalidHandle
@@ -80,16 +101,16 @@ func cgo_extern_verify_consensus_fault(
 	h2Go := C.GoBytes(unsafe.Pointer(h2), h2Len)
 	extraGo := C.GoBytes(unsafe.Pointer(extra), extraLen)
 
-	res, gas := externs.VerifyConsensusFault(ctx, h1Go, h2Go, extraGo)
+	faultRes, gas := externs.VerifyConsensusFault(ctx, h1Go, h2Go, extraGo)
 	*gasUsedOut = C.int64_t(gas)
-	*faultOut = C.int64_t(res.Type)
+	*faultOut = C.int64_t(faultRes.Type)
 
-	if res.Type != ConsensusFaultNone {
-		id, err := address.IDFromAddress(res.Target)
+	if faultRes.Type != ConsensusFaultNone {
+		id, err := address.IDFromAddress(faultRes.Target)
 		if err != nil {
 			return ErrIO
 		}
-		*epochOut = C.int64_t(res.Epoch)
+		*epochOut = C.int64_t(faultRes.Epoch)
 		*minerIdOut = C.uint64_t(id)
 	}
 

@@ -24,7 +24,14 @@ func toCid(k C.buf_t, kLen C.int32_t) cid.Cid {
 }
 
 //export cgo_blockstore_get
-func cgo_blockstore_get(handle C.uint64_t, k C.buf_t, kLen C.int32_t, block **C.uint8_t, size *C.int32_t) C.int32_t {
+func cgo_blockstore_get(handle C.uint64_t, k C.buf_t, kLen C.int32_t, block **C.uint8_t, size *C.int32_t) (res C.int32_t) {
+	defer func() {
+		if rerr := recover(); rerr != nil {
+			logPanic(rerr)
+			res = ErrPanic
+		}
+	}()
+
 	c := toCid(k, kLen)
 	externs, ctx := Lookup(uint64(handle))
 	if externs == nil {
@@ -48,7 +55,14 @@ func cgo_blockstore_get(handle C.uint64_t, k C.buf_t, kLen C.int32_t, block **C.
 }
 
 //export cgo_blockstore_put
-func cgo_blockstore_put(handle C.uint64_t, k C.buf_t, kLen C.int32_t, block C.buf_t, blockLen C.int32_t) C.int32_t {
+func cgo_blockstore_put(handle C.uint64_t, k C.buf_t, kLen C.int32_t, block C.buf_t, blockLen C.int32_t) (res C.int32_t) {
+	defer func() {
+		if rerr := recover(); rerr != nil {
+			logPanic(rerr)
+			res = ErrPanic
+		}
+	}()
+
 	c := toCid(k, kLen)
 	externs, ctx := Lookup(uint64(handle))
 	if externs == nil {
@@ -62,7 +76,13 @@ func cgo_blockstore_put(handle C.uint64_t, k C.buf_t, kLen C.int32_t, block C.bu
 }
 
 //export cgo_blockstore_put_many
-func cgo_blockstore_put_many(handle C.uint64_t, lengths *C.int32_t, lengthsLen C.int32_t, blockBuf C.buf_t) C.int32_t {
+func cgo_blockstore_put_many(handle C.uint64_t, lengths *C.int32_t, lengthsLen C.int32_t, blockBuf C.buf_t) (res C.int32_t) {
+	defer func() {
+		if rerr := recover(); rerr != nil {
+			logPanic(rerr)
+			res = ErrPanic
+		}
+	}()
 	externs, ctx := Lookup(uint64(handle))
 	if externs == nil {
 		return ErrInvalidHandle
@@ -108,7 +128,14 @@ func cgo_blockstore_put_many(handle C.uint64_t, lengths *C.int32_t, lengthsLen C
 }
 
 //export cgo_blockstore_has
-func cgo_blockstore_has(handle C.uint64_t, k C.buf_t, kLen C.int32_t) C.int32_t {
+func cgo_blockstore_has(handle C.uint64_t, k C.buf_t, kLen C.int32_t) (res C.int32_t) {
+	defer func() {
+		if rerr := recover(); rerr != nil {
+			logPanic(rerr)
+			res = ErrPanic
+		}
+	}()
+
 	c := toCid(k, kLen)
 	externs, ctx := Lookup(uint64(handle))
 	if externs == nil {
