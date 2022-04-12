@@ -1240,6 +1240,14 @@ func (x *FilFvmMachineExecuteResponse) PassRef() (*C.fil_FvmMachineExecuteRespon
 	ref88f63595.exec_trace_len, cexec_trace_len_allocs = (C.size_t)(x.ExecTraceLen), cgoAllocsUnknown
 	allocs88f63595.Borrow(cexec_trace_len_allocs)
 
+	var cfailure_info_ptr_allocs *cgoAllocMap
+	ref88f63595.failure_info_ptr, cfailure_info_ptr_allocs = copyPUint8TBytes((*sliceHeader)(unsafe.Pointer(&x.FailureInfoPtr)))
+	allocs88f63595.Borrow(cfailure_info_ptr_allocs)
+
+	var cfailure_info_len_allocs *cgoAllocMap
+	ref88f63595.failure_info_len, cfailure_info_len_allocs = (C.size_t)(x.FailureInfoLen), cgoAllocsUnknown
+	allocs88f63595.Borrow(cfailure_info_len_allocs)
+
 	x.ref88f63595 = ref88f63595
 	x.allocs88f63595 = allocs88f63595
 	return ref88f63595, allocs88f63595
@@ -1281,6 +1289,12 @@ func (x *FilFvmMachineExecuteResponse) Deref() {
 	// hxf95e7c8.Len = ?
 
 	x.ExecTraceLen = (uint)(x.ref88f63595.exec_trace_len)
+	hxff2234b := (*sliceHeader)(unsafe.Pointer(&x.FailureInfoPtr))
+	hxff2234b.Data = unsafe.Pointer(x.ref88f63595.failure_info_ptr)
+	hxff2234b.Cap = 0x7fffffff
+	// hxff2234b.Len = ?
+
+	x.FailureInfoLen = (uint)(x.ref88f63595.failure_info_len)
 }
 
 // allocFilFvmMachineFlushResponseMemory allocates memory for type C.fil_FvmMachineFlushResponse in C.
@@ -1375,10 +1389,10 @@ func (x *FilFvmMachineFlushResponse) Deref() {
 	}
 	x.ErrorMsg = packPCharString(x.ref9eb3b4f4.error_msg)
 	x.StatusCode = (FCPResponseStatus)(x.ref9eb3b4f4.status_code)
-	hxff2234b := (*sliceHeader)(unsafe.Pointer(&x.StateRootPtr))
-	hxff2234b.Data = unsafe.Pointer(x.ref9eb3b4f4.state_root_ptr)
-	hxff2234b.Cap = 0x7fffffff
-	// hxff2234b.Len = ?
+	hxff73280 := (*sliceHeader)(unsafe.Pointer(&x.StateRootPtr))
+	hxff73280.Data = unsafe.Pointer(x.ref9eb3b4f4.state_root_ptr)
+	hxff73280.Cap = 0x7fffffff
+	// hxff73280.Len = ?
 
 	x.StateRootLen = (uint)(x.ref9eb3b4f4.state_root_len)
 }
@@ -1763,10 +1777,10 @@ func (x *FilSealPreCommitPhase1Response) Deref() {
 	}
 	x.ErrorMsg = packPCharString(x.ref132bbfd8.error_msg)
 	x.StatusCode = (FCPResponseStatus)(x.ref132bbfd8.status_code)
-	hxff73280 := (*sliceHeader)(unsafe.Pointer(&x.SealPreCommitPhase1OutputPtr))
-	hxff73280.Data = unsafe.Pointer(x.ref132bbfd8.seal_pre_commit_phase1_output_ptr)
-	hxff73280.Cap = 0x7fffffff
-	// hxff73280.Len = ?
+	hxfa9955c := (*sliceHeader)(unsafe.Pointer(&x.SealPreCommitPhase1OutputPtr))
+	hxfa9955c.Data = unsafe.Pointer(x.ref132bbfd8.seal_pre_commit_phase1_output_ptr)
+	hxfa9955c.Cap = 0x7fffffff
+	// hxfa9955c.Len = ?
 
 	x.SealPreCommitPhase1OutputLen = (uint)(x.ref132bbfd8.seal_pre_commit_phase1_output_len)
 }
@@ -2050,10 +2064,10 @@ func (x *FilSealCommitPhase1Response) Deref() {
 	}
 	x.StatusCode = (FCPResponseStatus)(x.ref61ed8561.status_code)
 	x.ErrorMsg = packPCharString(x.ref61ed8561.error_msg)
-	hxfa9955c := (*sliceHeader)(unsafe.Pointer(&x.SealCommitPhase1OutputPtr))
-	hxfa9955c.Data = unsafe.Pointer(x.ref61ed8561.seal_commit_phase1_output_ptr)
-	hxfa9955c.Cap = 0x7fffffff
-	// hxfa9955c.Len = ?
+	hxfa3f05c := (*sliceHeader)(unsafe.Pointer(&x.SealCommitPhase1OutputPtr))
+	hxfa3f05c.Data = unsafe.Pointer(x.ref61ed8561.seal_commit_phase1_output_ptr)
+	hxfa3f05c.Cap = 0x7fffffff
+	// hxfa3f05c.Len = ?
 
 	x.SealCommitPhase1OutputLen = (uint)(x.ref61ed8561.seal_commit_phase1_output_len)
 }
@@ -2311,10 +2325,10 @@ func (x *FilSealCommitPhase2Response) Deref() {
 	}
 	x.StatusCode = (FCPResponseStatus)(x.ref5860b9a4.status_code)
 	x.ErrorMsg = packPCharString(x.ref5860b9a4.error_msg)
-	hxfa3f05c := (*sliceHeader)(unsafe.Pointer(&x.ProofPtr))
-	hxfa3f05c.Data = unsafe.Pointer(x.ref5860b9a4.proof_ptr)
-	hxfa3f05c.Cap = 0x7fffffff
-	// hxfa3f05c.Len = ?
+	hxf0d18b7 := (*sliceHeader)(unsafe.Pointer(&x.ProofPtr))
+	hxf0d18b7.Data = unsafe.Pointer(x.ref5860b9a4.proof_ptr)
+	hxf0d18b7.Cap = 0x7fffffff
+	// hxf0d18b7.Len = ?
 
 	x.ProofLen = (uint)(x.ref5860b9a4.proof_len)
 	packSFilAggregationInputs(x.CommitInputsPtr, x.ref5860b9a4.commit_inputs_ptr)
@@ -2414,10 +2428,10 @@ func (x *FilAggregateProof) Deref() {
 	x.StatusCode = (FCPResponseStatus)(x.ref22b6c4f6.status_code)
 	x.ErrorMsg = packPCharString(x.ref22b6c4f6.error_msg)
 	x.ProofLen = (uint)(x.ref22b6c4f6.proof_len)
-	hxf0d18b7 := (*sliceHeader)(unsafe.Pointer(&x.ProofPtr))
-	hxf0d18b7.Data = unsafe.Pointer(x.ref22b6c4f6.proof_ptr)
-	hxf0d18b7.Cap = 0x7fffffff
-	// hxf0d18b7.Len = ?
+	hxf2fab0d := (*sliceHeader)(unsafe.Pointer(&x.ProofPtr))
+	hxf2fab0d.Data = unsafe.Pointer(x.ref22b6c4f6.proof_ptr)
+	hxf2fab0d.Cap = 0x7fffffff
+	// hxf2fab0d.Len = ?
 
 }
 
@@ -2810,10 +2824,10 @@ func (x *FilGenerateWinningPoStSectorChallenge) Deref() {
 	}
 	x.ErrorMsg = packPCharString(x.ref69d2a405.error_msg)
 	x.StatusCode = (FCPResponseStatus)(x.ref69d2a405.status_code)
-	hxf2fab0d := (*sliceHeader)(unsafe.Pointer(&x.IdsPtr))
-	hxf2fab0d.Data = unsafe.Pointer(x.ref69d2a405.ids_ptr)
-	hxf2fab0d.Cap = 0x7fffffff
-	// hxf2fab0d.Len = ?
+	hxf69fe70 := (*sliceHeader)(unsafe.Pointer(&x.IdsPtr))
+	hxf69fe70.Data = unsafe.Pointer(x.ref69d2a405.ids_ptr)
+	hxf69fe70.Cap = 0x7fffffff
+	// hxf69fe70.Len = ?
 
 	x.IdsLen = (uint)(x.ref69d2a405.ids_len)
 }
@@ -2922,16 +2936,16 @@ func (x *FilGenerateFallbackSectorChallengesResponse) Deref() {
 	}
 	x.ErrorMsg = packPCharString(x.ref7047a3fa.error_msg)
 	x.StatusCode = (FCPResponseStatus)(x.ref7047a3fa.status_code)
-	hxf69fe70 := (*sliceHeader)(unsafe.Pointer(&x.IdsPtr))
-	hxf69fe70.Data = unsafe.Pointer(x.ref7047a3fa.ids_ptr)
-	hxf69fe70.Cap = 0x7fffffff
-	// hxf69fe70.Len = ?
-
-	x.IdsLen = (uint)(x.ref7047a3fa.ids_len)
-	hxf65bf54 := (*sliceHeader)(unsafe.Pointer(&x.ChallengesPtr))
-	hxf65bf54.Data = unsafe.Pointer(x.ref7047a3fa.challenges_ptr)
+	hxf65bf54 := (*sliceHeader)(unsafe.Pointer(&x.IdsPtr))
+	hxf65bf54.Data = unsafe.Pointer(x.ref7047a3fa.ids_ptr)
 	hxf65bf54.Cap = 0x7fffffff
 	// hxf65bf54.Len = ?
+
+	x.IdsLen = (uint)(x.ref7047a3fa.ids_len)
+	hxf3b8dbd := (*sliceHeader)(unsafe.Pointer(&x.ChallengesPtr))
+	hxf3b8dbd.Data = unsafe.Pointer(x.ref7047a3fa.challenges_ptr)
+	hxf3b8dbd.Cap = 0x7fffffff
+	// hxf3b8dbd.Len = ?
 
 	x.ChallengesLen = (uint)(x.ref7047a3fa.challenges_len)
 	x.ChallengesStride = (uint)(x.ref7047a3fa.challenges_stride)
@@ -3020,10 +3034,10 @@ func (x *FilVanillaProof) Deref() {
 		return
 	}
 	x.ProofLen = (uint)(x.refb3e7638c.proof_len)
-	hxf3b8dbd := (*sliceHeader)(unsafe.Pointer(&x.ProofPtr))
-	hxf3b8dbd.Data = unsafe.Pointer(x.refb3e7638c.proof_ptr)
-	hxf3b8dbd.Cap = 0x7fffffff
-	// hxf3b8dbd.Len = ?
+	hxf7a6dff := (*sliceHeader)(unsafe.Pointer(&x.ProofPtr))
+	hxf7a6dff.Data = unsafe.Pointer(x.refb3e7638c.proof_ptr)
+	hxf7a6dff.Cap = 0x7fffffff
+	// hxf7a6dff.Len = ?
 
 }
 
@@ -3307,10 +3321,10 @@ func (x *FilPoStProof) Deref() {
 	}
 	x.RegisteredProof = (FilRegisteredPoStProof)(x.ref3451bfa.registered_proof)
 	x.ProofLen = (uint)(x.ref3451bfa.proof_len)
-	hxf7a6dff := (*sliceHeader)(unsafe.Pointer(&x.ProofPtr))
-	hxf7a6dff.Data = unsafe.Pointer(x.ref3451bfa.proof_ptr)
-	hxf7a6dff.Cap = 0x7fffffff
-	// hxf7a6dff.Len = ?
+	hxfe48d67 := (*sliceHeader)(unsafe.Pointer(&x.ProofPtr))
+	hxfe48d67.Data = unsafe.Pointer(x.ref3451bfa.proof_ptr)
+	hxfe48d67.Cap = 0x7fffffff
+	// hxfe48d67.Len = ?
 
 }
 
@@ -3744,10 +3758,10 @@ func (x *FilGenerateWindowPoStResponse) Deref() {
 	x.ProofsLen = (uint)(x.ref2a5f3ba8.proofs_len)
 	packSFilPoStProof(x.ProofsPtr, x.ref2a5f3ba8.proofs_ptr)
 	x.FaultySectorsLen = (uint)(x.ref2a5f3ba8.faulty_sectors_len)
-	hxfe48d67 := (*sliceHeader)(unsafe.Pointer(&x.FaultySectorsPtr))
-	hxfe48d67.Data = unsafe.Pointer(x.ref2a5f3ba8.faulty_sectors_ptr)
-	hxfe48d67.Cap = 0x7fffffff
-	// hxfe48d67.Len = ?
+	hxf4171bf := (*sliceHeader)(unsafe.Pointer(&x.FaultySectorsPtr))
+	hxf4171bf.Data = unsafe.Pointer(x.ref2a5f3ba8.faulty_sectors_ptr)
+	hxf4171bf.Cap = 0x7fffffff
+	// hxf4171bf.Len = ?
 
 	x.StatusCode = (FCPResponseStatus)(x.ref2a5f3ba8.status_code)
 }
@@ -4022,10 +4036,10 @@ func (x *FilPartitionSnarkProof) Deref() {
 	}
 	x.RegisteredProof = (FilRegisteredPoStProof)(x.ref4de03739.registered_proof)
 	x.ProofLen = (uint)(x.ref4de03739.proof_len)
-	hxf4171bf := (*sliceHeader)(unsafe.Pointer(&x.ProofPtr))
-	hxf4171bf.Data = unsafe.Pointer(x.ref4de03739.proof_ptr)
-	hxf4171bf.Cap = 0x7fffffff
-	// hxf4171bf.Len = ?
+	hxf058b18 := (*sliceHeader)(unsafe.Pointer(&x.ProofPtr))
+	hxf058b18.Data = unsafe.Pointer(x.ref4de03739.proof_ptr)
+	hxf058b18.Cap = 0x7fffffff
+	// hxf058b18.Len = ?
 
 }
 
@@ -4217,10 +4231,10 @@ func (x *FilGenerateSingleWindowPoStWithVanillaResponse) Deref() {
 	x.ErrorMsg = packPCharString(x.ref96c012c3.error_msg)
 	x.PartitionProof = *NewFilPartitionSnarkProofRef(unsafe.Pointer(&x.ref96c012c3.partition_proof))
 	x.FaultySectorsLen = (uint)(x.ref96c012c3.faulty_sectors_len)
-	hxf058b18 := (*sliceHeader)(unsafe.Pointer(&x.FaultySectorsPtr))
-	hxf058b18.Data = unsafe.Pointer(x.ref96c012c3.faulty_sectors_ptr)
-	hxf058b18.Cap = 0x7fffffff
-	// hxf058b18.Len = ?
+	hxff6bc57 := (*sliceHeader)(unsafe.Pointer(&x.FaultySectorsPtr))
+	hxff6bc57.Data = unsafe.Pointer(x.ref96c012c3.faulty_sectors_ptr)
+	hxff6bc57.Cap = 0x7fffffff
+	// hxff6bc57.Len = ?
 
 	x.StatusCode = (FCPResponseStatus)(x.ref96c012c3.status_code)
 }
@@ -4581,10 +4595,10 @@ func (x *FilPartitionProof) Deref() {
 		return
 	}
 	x.ProofLen = (uint)(x.ref566a2be6.proof_len)
-	hxff6bc57 := (*sliceHeader)(unsafe.Pointer(&x.ProofPtr))
-	hxff6bc57.Data = unsafe.Pointer(x.ref566a2be6.proof_ptr)
-	hxff6bc57.Cap = 0x7fffffff
-	// hxff6bc57.Len = ?
+	hxf5fa529 := (*sliceHeader)(unsafe.Pointer(&x.ProofPtr))
+	hxf5fa529.Data = unsafe.Pointer(x.ref566a2be6.proof_ptr)
+	hxf5fa529.Cap = 0x7fffffff
+	// hxf5fa529.Len = ?
 
 }
 
@@ -4918,10 +4932,10 @@ func (x *FilEmptySectorUpdateProofResponse) Deref() {
 	x.StatusCode = (FCPResponseStatus)(x.ref5c2faef.status_code)
 	x.ErrorMsg = packPCharString(x.ref5c2faef.error_msg)
 	x.ProofLen = (uint)(x.ref5c2faef.proof_len)
-	hxf5fa529 := (*sliceHeader)(unsafe.Pointer(&x.ProofPtr))
-	hxf5fa529.Data = unsafe.Pointer(x.ref5c2faef.proof_ptr)
-	hxf5fa529.Cap = 0x7fffffff
-	// hxf5fa529.Len = ?
+	hxf21690b := (*sliceHeader)(unsafe.Pointer(&x.ProofPtr))
+	hxf21690b.Data = unsafe.Pointer(x.ref5c2faef.proof_ptr)
+	hxf21690b.Cap = 0x7fffffff
+	// hxf21690b.Len = ?
 
 }
 
