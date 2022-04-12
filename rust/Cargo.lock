@@ -2217,7 +2217,7 @@ dependencies = [
 [[package]]
 name = "fvm"
 version = "0.5.1"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=experimental/fvm-m2#623052620e3cf81252149f580d6d06a8adce5533"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=experimental/fvm-m2#cb7bb507ede812d5b4f02ee199f320164ae43fe3"
 dependencies = [
  "ahash",
  "anyhow",
@@ -2285,7 +2285,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_amt"
 version = "0.4.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=experimental/fvm-m2#623052620e3cf81252149f580d6d06a8adce5533"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=experimental/fvm-m2#cb7bb507ede812d5b4f02ee199f320164ae43fe3"
 dependencies = [
  "anyhow",
  "cid",
@@ -2325,7 +2325,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_blockstore"
 version = "0.1.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=experimental/fvm-m2#623052620e3cf81252149f580d6d06a8adce5533"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=experimental/fvm-m2#cb7bb507ede812d5b4f02ee199f320164ae43fe3"
 dependencies = [
  "anyhow",
  "cid",
@@ -2348,7 +2348,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_car"
 version = "0.4.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=experimental/fvm-m2#623052620e3cf81252149f580d6d06a8adce5533"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=experimental/fvm-m2#cb7bb507ede812d5b4f02ee199f320164ae43fe3"
 dependencies = [
  "cid",
  "futures",
@@ -2362,7 +2362,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_encoding"
 version = "0.1.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=experimental/fvm-m2#623052620e3cf81252149f580d6d06a8adce5533"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=experimental/fvm-m2#cb7bb507ede812d5b4f02ee199f320164ae43fe3"
 dependencies = [
  "anyhow",
  "cid",
@@ -2418,7 +2418,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_hamt"
 version = "0.4.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=experimental/fvm-m2#623052620e3cf81252149f580d6d06a8adce5533"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=experimental/fvm-m2#cb7bb507ede812d5b4f02ee199f320164ae43fe3"
 dependencies = [
  "anyhow",
  "byteorder 1.4.3",
@@ -2528,7 +2528,7 @@ dependencies = [
 [[package]]
 name = "fvm_shared"
 version = "0.5.1"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=experimental/fvm-m2#623052620e3cf81252149f580d6d06a8adce5533"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=experimental/fvm-m2#cb7bb507ede812d5b4f02ee199f320164ae43fe3"
 dependencies = [
  "anyhow",
  "bimap",
@@ -2850,9 +2850,9 @@ dependencies = [
 
 [[package]]
 name = "libc"
-version = "0.2.122"
+version = "0.2.123"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ec647867e2bf0772e28c8bcde4f0d19a9216916e890543b5a03ed8ef27b8f259"
+checksum = "cb691a747a7ab48abc15c5b42066eaafde10dc427e3b6ee2a1cf43db04c763bd"
 
 [[package]]
 name = "libipld-core"
