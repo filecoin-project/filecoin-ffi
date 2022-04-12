@@ -1,7 +1,7 @@
-use std::convert::{TryFrom, TryInto};
+use std::convert::TryFrom;
 use std::sync::Mutex;
 
-use anyhow::anyhow;
+use anyhow::{anyhow, bail};
 use cid::Cid;
 use futures::executor::block_on;
 use fvm::call_manager::{DefaultCallManager, InvocationResult};
@@ -25,7 +25,7 @@ use super::blockstore::{CgoBlockstore, FakeBlockstore, OverlayBlockstore};
 use super::externs::CgoExterns;
 use super::types::*;
 use crate::destructor;
-use crate::util::types::{catch_panic_response, Result};
+use crate::util::types::{catch_panic_response, catch_panic_response_no_default, Result};
 
 pub type CgoExecutor = DefaultExecutor<
     DefaultKernel<DefaultCallManager<DefaultMachine<OverlayBlockstore<CgoBlockstore>, CgoExterns>>>,
@@ -53,217 +53,180 @@ fn create_fvm_machine(
     tracing: bool,
     blockstore_id: u64,
     externs_id: u64,
-) -> repr_c::Box<Result<FvmMachine>> {
-    catch_panic_response("create_fvm_machine", || {
-        use fvm::machine::NetworkConfig;
+) -> repr_c::Box<Result<repr_c::Box<FvmMachine>>> {
+    use fvm::machine::NetworkConfig;
+    unsafe {
+        catch_panic_response_no_default("create_fvm_machine", || {
+            match fvm_version {
+                FvmRegisteredVersion::V1 => info!("using FVM V1"),
+                //_ => panic!("unsupported FVM Registered Version")
+            }
 
-        match fvm_version {
-            FvmRegisteredVersion::V1 => info!("using FVM V1"),
-            //_ => panic!("unsupported FVM Registered Version")
-        }
+            let chain_epoch = chain_epoch as ChainEpoch;
 
-        let chain_epoch = chain_epoch as ChainEpoch;
+            let base_circ_supply = TokenAmount::from(
+                ((base_circ_supply_hi as u128) << u64::BITS) | base_circ_supply_lo as u128,
+            );
+            let base_fee =
+                TokenAmount::from(((base_fee_hi as u128) << u64::BITS) | base_fee_lo as u128);
 
-        let base_circ_supply = TokenAmount::from(
-            ((base_circ_supply_hi as u128) << u64::BITS) | base_circ_supply_lo as u128,
-        );
-        let base_fee =
-            TokenAmount::from(((base_fee_hi as u128) << u64::BITS) | base_fee_lo as u128);
+            let network_version = NetworkVersion::try_from(network_version as u32)
+                .map_err(|_| anyhow!("unsupported network version: {}", network_version))?;
+            let state_root = Cid::try_from(&state_root[..])
+                .map_err(|err| anyhow!("invalid state root: {}", err))?;
 
-        let network_version = NetworkVersion::try_from(network_version as u32)
-            .map_err(|_| format!("unsupported network version: {}", network_version))?;
-        let state_root =
-            Cid::try_from(&state_root).map_err(|err| format!("invalid state root: {}", err))?;
+            let manifest_cid = if !manifest_cid.is_empty() {
+                let cid = Cid::try_from(&manifest_cid[..])
+                    .map_err(|err| anyhow!("invalid manifest: {}", err))?;
+                Some(cid)
+            } else {
+                // handle cid.Undef for no manifest
+                // this can mean two things:
+                // - for pre nv16, use the builtin bundles
+                // - for nv16 or higher, it means we have already migrated state for system
+                //   actor and we can pass None to the machine constructor to fish it from state.
+                // The presence of the manifest cid argument allows us to test with new bundles
+                // with minimum friction.
+                None
+            };
 
-        let manifest_cid = if !manifest_cid.is_empty() {
-            let cid =
-                Cid::try_from(&manifest_cid).map_err(|err| format!("invalid manifest: {}", err))?;
-            Some(cid)
-        } else {
-            // handle cid.Undef for no manifest
-            // this can mean two things:
-            // - for pre nv16, use the builtin bundles
-            // - for nv16 or higher, it means we have already migrated state for system
-            //   actor and we can pass None to the machine constructor to fish it from state.
-            // The presence of the manifest cid argument allows us to test with new bundles
-            // with minimum friction.
-            None
-        };
+            let blockstore = FakeBlockstore::new(CgoBlockstore::new(blockstore_id));
 
-        let blockstore = FakeBlockstore::new(CgoBlockstore::new(blockstore_id));
+            let mut network_config = NetworkConfig::new(network_version);
+            match import_actors(&blockstore, manifest_cid, network_version) {
+                Ok(Some(manifest)) => {
+                    network_config.override_actors(manifest);
+                }
+                Ok(None) => {}
+                Err(err) => bail!("couldn't load builtin actors: {}", err),
+            }
+            let mut machine_context = network_config.for_epoch(chain_epoch, state_root);
 
-        let mut network_config = NetworkConfig::new(network_version)
-            .map_err(|err| format!("couldn't load builtin actors: {}", err))?;
+            machine_context
+                .set_base_fee(base_fee)
+                .set_circulating_supply(base_circ_supply);
 
-        let mut machine_context = network_config.for_epoch(chain_epoch, state_root);
+            if tracing {
+                machine_context.enable_tracing();
+            }
+            let blockstore = blockstore.finish();
 
-        machine_context
-            .set_base_fee(base_fee)
-            .set_circulating_supply(base_circ_supply);
+            let externs = CgoExterns::new(externs_id);
 
-        if tracing {
-            machine_context.enable_tracing();
-        }
-        let blockstore = blockstore.finish();
+            let machine =
+                fvm::machine::DefaultMachine::new(&ENGINE, &machine_context, blockstore, externs)
+                    .map_err(|err| anyhow!("failed to create machine: {}", err))?;
 
-        let externs = CgoExterns::new(externs_id);
-
-        let machine =
-            fvm::machine::DefaultMachine::new(&ENGINE, &machine_context, blockstore, externs)
-                .map_err(|err| format!("failed to create machine: {}", err))?;
-
-        Ok(FvmMachine {
-            machine: Mutex::new(CgoExecutor::new(machine)),
+            Ok(repr_c::Box::new(FvmMachine {
+                machine: Some(Mutex::new(CgoExecutor::new(machine))),
+            }))
         })
-    })
+    }
 }
-
-destructor!(drop_fvm_machine, Result<FvmMachine>);
 
 #[ffi_export]
 fn fvm_machine_execute_message(
-    executor: *mut libc::c_void,
-    message_ptr: *const u8,
-    message_len: libc::size_t,
+    executor: &'_ FvmMachine,
+    message: c_slice::Ref<u8>,
     chain_len: u64,
     apply_kind: u64, /* 0: Explicit, _: Implicit */
-) -> *mut fil_FvmMachineExecuteResponse {
-    catch_panic_response(|| {
-        init_log();
-
-        info!("fil_fvm_machine_execute_message: start");
-
-        let mut response = fil_FvmMachineExecuteResponse::default();
-
+) -> repr_c::Box<Result<FvmMachineExecuteResponse>> {
+    catch_panic_response("fvm_machine_execute_message", || {
         let apply_kind = if apply_kind == 0 {
             ApplyKind::Explicit
         } else {
             ApplyKind::Implicit
         };
 
-        let message_bytes = std::slice::from_raw_parts(message_ptr, message_len);
-        let message: Message = match fvm_ipld_encoding::from_slice(message_bytes) {
-            Ok(x) => x,
-            Err(err) => {
-                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
-                return raw_ptr(response);
-            }
-        };
+        let message: Message = fvm_ipld_encoding::from_slice(&message)?;
 
-        let mut executor = unsafe { &*(executor as *mut Mutex<CgoExecutor>) }
+        let mut executor = executor
+            .machine
+            .as_ref()
+            .expect("missing executor")
             .lock()
             .unwrap();
-        let apply_ret = match executor.execute_message(message, apply_kind, chain_len as usize) {
-            Ok(x) => x,
-            Err(err) => {
-                response.status_code = FCPResponseStatus::FCPUnclassifiedError;
-                response.error_msg = rust_str_to_c_str(format!("{:?}", err));
-                return raw_ptr(response);
-            }
-        };
+        let apply_ret = executor.execute_message(message, apply_kind, chain_len as usize)?;
 
-        if !apply_ret.exec_trace.is_empty() {
+        let exec_trace = if !apply_ret.exec_trace.is_empty() {
             let mut trace_iter = apply_ret.exec_trace.into_iter();
-            if let Ok(Ok(lotus_t_bytes)) = build_lotus_trace(
+            build_lotus_trace(
                 &trace_iter
                     .next()
                     .expect("already checked trace for emptiness"),
                 &mut trace_iter,
             )
-            .map(|lotus_trace| to_vec(&lotus_trace).map(|v| v.into_boxed_slice()))
-            {
-                response.exec_trace_ptr = lotus_t_bytes.as_ptr();
-                response.exec_trace_len = lotus_t_bytes.len();
-                Box::leak(lotus_t_bytes);
-            }
-        }
+            .ok()
+            .and_then(|t| to_vec(&t).ok())
+            .map(|trace| trace.into_boxed_slice().into())
+        } else {
+            None
+        };
 
         // TODO: use the non-bigint token amount everywhere in the FVM
         let penalty: u128 = apply_ret.penalty.try_into().unwrap();
         let miner_tip: u128 = apply_ret.miner_tip.try_into().unwrap();
 
-        // Only do this if the return data is non-empty. The empty vec pointer is non-null and not
-        // valid in go.
-        if !apply_ret.msg_receipt.return_data.is_empty() {
-            let return_bytes = Vec::from(apply_ret.msg_receipt.return_data).into_boxed_slice();
-            response.return_ptr = return_bytes.as_ptr();
-            response.return_len = return_bytes.len();
-            Box::leak(return_bytes);
-        }
+        let Receipt {
+            exit_code,
+            return_data,
+            gas_used,
+        } = apply_ret.msg_receipt;
+
+        let return_val = if return_data.is_empty() {
+            None
+        } else {
+            let bytes: Vec<u8> = return_data.into();
+            Some(bytes.into_boxed_slice().into())
+        };
 
         // TODO: Do something with the backtrace.
-        response.status_code = FCPResponseStatus::FCPNoError;
-        response.exit_code = apply_ret.msg_receipt.exit_code.value() as u64;
-        response.gas_used = apply_ret.msg_receipt.gas_used as u64;
-        response.penalty_hi = (penalty >> u64::BITS) as u64;
-        response.penalty_lo = penalty as u64;
-        response.miner_tip_hi = (miner_tip >> u64::BITS) as u64;
-        response.miner_tip_lo = miner_tip as u64;
-
-        info!("fil_fvm_machine_execute_message: end");
-
-        raw_ptr(response)
+        Ok(FvmMachineExecuteResponse {
+            exit_code: exit_code.value() as u64,
+            return_val,
+            gas_used: gas_used as u64,
+            penalty_hi: (penalty >> u64::BITS) as u64,
+            penalty_lo: penalty as u64,
+            miner_tip_hi: (miner_tip >> u64::BITS) as u64,
+            miner_tip_lo: miner_tip as u64,
+            exec_trace,
+        })
     })
 }
 
-#[no_mangle]
-pub unsafe extern "C" fn fil_fvm_machine_flush(
-    executor: *mut libc::c_void,
-) -> *mut fil_FvmMachineFlushResponse {
-    catch_panic_response(|| {
-        init_log();
-
-        info!("fil_fvm_machine_flush: start");
-
-        let mut executor = unsafe { &*(executor as *mut Mutex<CgoExecutor>) }
+#[ffi_export]
+fn fil_fvm_machine_flush(executor: &'_ FvmMachine) -> repr_c::Box<Result<c_slice::Box<u8>>> {
+    catch_panic_response("fvm_machine_flush", || {
+        let mut executor = executor
+            .machine
+            .as_ref()
+            .expect("missing executor")
             .lock()
             .unwrap();
-        let mut response = fil_FvmMachineFlushResponse::default();
-        match executor.flush() {
-            Ok(cid) => {
-                let bytes = cid.to_bytes().into_boxed_slice();
-                response.state_root_ptr = bytes.as_ptr();
-                response.state_root_len = bytes.len();
-                Box::leak(bytes);
-            }
-            Err(e) => {
-                response.status_code = FCPResponseStatus::FCPReceiverError;
-                response.error_msg = rust_str_to_c_str(e.to_string());
-            }
-        }
-        info!("fil_fvm_machine_flush: end");
+        let cid = executor.flush()?;
 
-        raw_ptr(response)
+        Ok(cid.to_bytes().into_boxed_slice().into())
     })
 }
 
-#[no_mangle]
-pub unsafe extern "C" fn fil_destroy_create_fvm_machine_response(
-    ptr: *mut fil_CreateFvmMachineResponse,
-) {
-    let _ = Box::from_raw(ptr);
-}
+destructor!(drop_fvm_machine, FvmMachine);
+destructor!(
+    destroy_create_fvm_machine_response,
+    Result<repr_c::Box<FvmMachine>>
+);
 
-#[no_mangle]
-pub unsafe extern "C" fn fil_destroy_fvm_machine_execute_response(
-    ptr: *mut fil_FvmMachineExecuteResponse,
-) {
-    let _ = Box::from_raw(ptr);
-}
+destructor!(
+    destroy_fvm_machine_execute_response,
+    Result<FvmMachineExecuteResponse>
+);
 
-#[no_mangle]
-pub unsafe extern "C" fn fil_destroy_fvm_machine_flush_response(
-    ptr: *mut fil_FvmMachineFlushResponse,
-) {
-    let _ = Box::from_raw(ptr);
-}
+destructor!(destroy_fvm_machine_flush_response, Result<c_slice::Box<u8>>);
 
 fn import_actors(
     blockstore: &impl Blockstore,
     manifest_cid: Option<Cid>,
     network_version: NetworkVersion,
-) -> Result<Option<Cid>, &'static str> {
+) -> std::result::Result<Option<Cid>, &'static str> {
     if manifest_cid.is_some() {
         return Ok(manifest_cid);
     }
