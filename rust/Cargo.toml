@@ -17,6 +17,13 @@ publish = false
 [lib]
 crate-type = ["rlib", "staticlib"]
 
+[patch.crates-io]
+fvm = { git = "https://github.com/filecoin-project/ref-fvm", branch = "experimental/fvm-m2" }
+fvm_ipld_car = { git = "https://github.com/filecoin-project/ref-fvm", branch = "experimental/fvm-m2" }
+fvm_shared = { git = "https://github.com/filecoin-project/ref-fvm", branch = "experimental/fvm-m2" }
+fvm_ipld_blockstore = { git = "https://github.com/filecoin-project/ref-fvm", branch = "experimental/fvm-m2" }
+fvm_ipld_encoding = { git = "https://github.com/filecoin-project/ref-fvm", branch = "experimental/fvm-m2" }
+
 [dependencies]
 bls-signatures = { version = "0.11.0", default-features = false, features = ["blst"] }
 blstrs = "0.4"
@@ -41,7 +48,7 @@ fvm = { version = "0.7.1", default-features = false }
 fvm_ipld_car = "0.4.0"
 fvm_shared = "0.6.0"
 fvm_ipld_blockstore = "0.1.0"
-fvm_ipld_encoding = "0.1.0"
+fvm_ipld_encoding = "0.2.0"
 actors-v6 = { package = "fil_builtin_actors_bundle", version = "6.2.0" }
 actors-v7 = { package = "fil_builtin_actors_bundle", version = "7.2.0" }
 num-traits = "0.2.14"
