@@ -220,7 +220,7 @@ pub unsafe extern "C" fn fil_fvm_machine_execute_message(
 
         // TODO: Do something with the backtrace.
         response.status_code = FCPResponseStatus::FCPNoError;
-        response.exit_code = apply_ret.msg_receipt.exit_code as u64;
+        response.exit_code = apply_ret.msg_receipt.exit_code.value() as u64;
         response.gas_used = apply_ret.msg_receipt.gas_used as u64;
         response.penalty_hi = (penalty >> u64::BITS) as u64;
         response.penalty_lo = penalty as u64;

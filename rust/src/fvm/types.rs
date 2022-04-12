@@ -3,8 +3,6 @@ use std::ptr;
 use drop_struct_macro_derive::DropStructMacro;
 use ffi_toolkit::{code_and_message_impl, free_c_str, CodeAndMessage, FCPResponseStatus};
 
-use fvm_shared::error::ExitCode;
-
 #[repr(C)]
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum fil_FvmRegisteredVersion {
@@ -59,7 +57,7 @@ impl Default for fil_FvmMachineExecuteResponse {
         fil_FvmMachineExecuteResponse {
             error_msg: ptr::null(),
             status_code: FCPResponseStatus::FCPNoError,
-            exit_code: ExitCode::Ok as u64,
+            exit_code: 0,
             return_ptr: ptr::null(),
             return_len: 0,
             gas_used: 0,
