@@ -16,7 +16,7 @@ const (
 	ErrNotFound        = C.ERR_NOT_FOUND
 	ErrIO              = C.ERR_IO
 	ErrInvalidArgument = C.ERR_INVALID_ARGUMENT
-	ErrPanic           = C.ERR_PANIC
+	ErrPanic           = -5
 )
 
 func logPanic(err interface{}) {
