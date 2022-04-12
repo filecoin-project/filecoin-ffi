@@ -41,7 +41,7 @@ main() {
 
         # copy build assets into root of filecoin-ffi
         #
-        find -L "${__tmp_dir}" -type f -name filcrypto.h -exec cp -- "{}" . \;
+        cp rust/filcrypto.h .
         find -L "${__tmp_dir}" -type f -name libfilcrypto.a -exec cp -- "{}" . \;
         find -L "${__tmp_dir}" -type f -name filcrypto.pc -exec cp -- "{}" . \;
 
