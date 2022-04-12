@@ -12,7 +12,7 @@ use fvm_ipld_blockstore::Blockstore;
 use fvm_ipld_car::load_car;
 use fvm_shared::{clock::ChainEpoch, econ::TokenAmount, message::Message, version::NetworkVersion};
 use lazy_static::lazy_static;
-use log::info;
+use log::{info, warn};
 
 use super::blockstore::{CgoBlockstore, FakeBlockstore, OverlayBlockstore};
 use super::externs::CgoExterns;
@@ -204,6 +204,10 @@ pub unsafe extern "C" fn fil_fvm_machine_execute_message(
                 return raw_ptr(response);
             }
         };
+
+        if let Some(info) = apply_ret.failure_info {
+            warn!("message failed with {}", info);
+        }
 
         // TODO: use the non-bigint token amount everywhere in the FVM
         let penalty: u128 = apply_ret.penalty.try_into().unwrap();
