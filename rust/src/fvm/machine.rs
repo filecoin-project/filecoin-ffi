@@ -233,6 +233,13 @@ pub unsafe extern "C" fn fil_fvm_machine_execute_message(
             }
         }
 
+        if let Some(info) = apply_ret.failure_info {
+            let info_bytes = info.to_string().into_boxed_str().into_boxed_bytes();
+            response.failure_info_ptr = info_bytes.as_ptr();
+            response.failure_info_len = info_bytes.len();
+            Box::leak(info_bytes);
+        }
+
         // TODO: use the non-bigint token amount everywhere in the FVM
         let penalty: u128 = apply_ret.penalty.try_into().unwrap();
         let miner_tip: u128 = apply_ret.miner_tip.try_into().unwrap();
