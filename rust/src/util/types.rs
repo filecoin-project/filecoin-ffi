@@ -1,4 +1,4 @@
-use std::{fmt::Display, ops::Deref, panic, path::PathBuf, str::Utf8Error};
+use std::{fmt::Display, mem::MaybeUninit, ops::Deref, panic, path::PathBuf, str::Utf8Error};
 
 use safer_ffi::prelude::*;
 
@@ -114,6 +114,15 @@ impl<T: Sized> Result<T> {
             value,
         }
     }
+
+    /// Safety: value must not be accessed.
+    pub unsafe fn err_no_default(err: impl Into<c_slice::Box<u8>>) -> Self {
+        Result {
+            status_code: FCPResponseStatus::UnclassifiedError,
+            error_msg: err.into(),
+            value: MaybeUninit::zeroed().assume_init(),
+        }
+    }
 }
 
 impl<T: Sized + Default> Result<T> {
@@ -156,23 +165,61 @@ where
     T: Sized + Default,
     F: FnOnce() -> Result<T> + std::panic::UnwindSafe,
 {
-    match panic::catch_unwind(|| {
+    let result = match panic::catch_unwind(|| {
         init_log();
         log::info!("{}: start", name);
         let res = callback();
         log::info!("{}: end", name);
         res
     }) {
-        Ok(t) => repr_c::Box::new(t),
+        Ok(t) => t,
         Err(panic) => {
             let error_msg = match panic.downcast_ref::<&'static str>() {
                 Some(message) => message,
                 _ => "no unwind information",
             };
 
-            repr_c::Box::new(Result::from(Err(format!("Rust panic: {}", error_msg))))
+            Result::from(Err(format!("Rust panic: {}", error_msg)))
         }
-    }
+    };
+
+    repr_c::Box::new(result)
+}
+
+pub unsafe fn catch_panic_response_no_default<F, T>(
+    name: &str,
+    callback: F,
+) -> repr_c::Box<Result<T>>
+where
+    T: Sized,
+    F: FnOnce() -> anyhow::Result<T> + std::panic::UnwindSafe,
+{
+    let result = match panic::catch_unwind(|| {
+        init_log();
+        log::info!("{}: start", name);
+        let res = callback();
+        log::info!("{}: end", name);
+        res
+    }) {
+        Ok(t) => match t {
+            Ok(t) => Result::ok(t),
+            Err(err) => Result::err_no_default(err.to_string().into_bytes().into_boxed_slice()),
+        },
+        Err(panic) => {
+            let error_msg = match panic.downcast_ref::<&'static str>() {
+                Some(message) => message,
+                _ => "no unwind information",
+            };
+
+            Result::err_no_default(
+                format!("Rust panic: {}", error_msg)
+                    .into_bytes()
+                    .into_boxed_slice(),
+            )
+        }
+    };
+
+    repr_c::Box::new(result)
 }
 
 /// Generate a destructor for the given type wrapped in a `repr_c::Box`.
