@@ -64,6 +64,10 @@ main() {
         find . -type f -name "lib$1.a"
     fi
 
+    # generate filcrypto.h
+    RUSTFLAGS="${__rust_flags}" HEADER_DIR="." \
+        cargo test build_headers --features c-headers 
+
     # generate pkg-config
     #
     sed -e "s;@VERSION@;$(git rev-parse HEAD);" \

@@ -1,9 +1,10 @@
-//+build cgo
+//go:build cgo
+// +build cgo
 
 package ffi
 
 import (
-	"github.com/filecoin-project/filecoin-ffi/generated"
+	"github.com/filecoin-project/filecoin-ffi/cgo"
 	commcid "github.com/filecoin-project/go-fil-commcid"
 	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/filecoin-project/specs-actors/v7/actors/runtime/proof"
@@ -12,35 +13,35 @@ import (
 	"golang.org/x/xerrors"
 )
 
-func toFilRegisteredUpdateProof(p abi.RegisteredUpdateProof) (generated.FilRegisteredUpdateProof, error) {
+func toFilRegisteredUpdateProof(p abi.RegisteredUpdateProof) (cgo.RegisteredUpdateProof, error) {
 	switch p {
 	case abi.RegisteredUpdateProof_StackedDrg2KiBV1:
-		return generated.FilRegisteredUpdateProofStackedDrg2KiBV1, nil
+		return cgo.RegisteredUpdateProofStackedDrg2KiBV1, nil
 	case abi.RegisteredUpdateProof_StackedDrg8MiBV1:
-		return generated.FilRegisteredUpdateProofStackedDrg8MiBV1, nil
+		return cgo.RegisteredUpdateProofStackedDrg8MiBV1, nil
 	case abi.RegisteredUpdateProof_StackedDrg512MiBV1:
-		return generated.FilRegisteredUpdateProofStackedDrg512MiBV1, nil
+		return cgo.RegisteredUpdateProofStackedDrg512MiBV1, nil
 	case abi.RegisteredUpdateProof_StackedDrg32GiBV1:
-		return generated.FilRegisteredUpdateProofStackedDrg32GiBV1, nil
+		return cgo.RegisteredUpdateProofStackedDrg32GiBV1, nil
 	case abi.RegisteredUpdateProof_StackedDrg64GiBV1:
-		return generated.FilRegisteredUpdateProofStackedDrg64GiBV1, nil
+		return cgo.RegisteredUpdateProofStackedDrg64GiBV1, nil
 	default:
 		return 0, errors.Errorf("no mapping to abi.RegisteredUpdateProof value available for: %v", p)
 	}
 }
 
 //nolint:deadcode,unused
-func fromFilRegisteredUpdateProof(p generated.FilRegisteredUpdateProof) (abi.RegisteredUpdateProof, error) {
+func fromFilRegisteredUpdateProof(p cgo.RegisteredUpdateProof) (abi.RegisteredUpdateProof, error) {
 	switch p {
-	case generated.FilRegisteredUpdateProofStackedDrg2KiBV1:
+	case cgo.RegisteredUpdateProofStackedDrg2KiBV1:
 		return abi.RegisteredUpdateProof_StackedDrg2KiBV1, nil
-	case generated.FilRegisteredUpdateProofStackedDrg8MiBV1:
+	case cgo.RegisteredUpdateProofStackedDrg8MiBV1:
 		return abi.RegisteredUpdateProof_StackedDrg8MiBV1, nil
-	case generated.FilRegisteredUpdateProofStackedDrg512MiBV1:
+	case cgo.RegisteredUpdateProofStackedDrg512MiBV1:
 		return abi.RegisteredUpdateProof_StackedDrg512MiBV1, nil
-	case generated.FilRegisteredUpdateProofStackedDrg32GiBV1:
+	case cgo.RegisteredUpdateProofStackedDrg32GiBV1:
 		return abi.RegisteredUpdateProof_StackedDrg32GiBV1, nil
-	case generated.FilRegisteredUpdateProofStackedDrg64GiBV1:
+	case cgo.RegisteredUpdateProofStackedDrg64GiBV1:
 		return abi.RegisteredUpdateProof_StackedDrg64GiBV1, nil
 	default:
 		return 0, errors.Errorf("no mapping to abi.RegisteredUpdateProof value available for: %v", p)
@@ -65,32 +66,29 @@ func (FunctionsSectorUpdate) EncodeInto(
 		return cid.Undef, cid.Undef, err
 	}
 
-	filPublicPieceInfos, filPublicPieceInfosLen, err := toFilPublicPieceInfos(pieces)
+	filPublicPieceInfos, err := toFilPublicPieceInfos(pieces)
 	if err != nil {
 		return cid.Undef, cid.Undef, err
 	}
 
-	resp := generated.FilEmptySectorUpdateEncodeInto(
+	commRRaw, commDRaw, err := cgo.EmptySectorUpdateEncodeInto(
 		up,
-		newReplicaPath,
-		newReplicaCachePath,
-		sectorKeyPath,
-		sectorKeyCachePath,
-		stagedDataPath,
-		filPublicPieceInfos, filPublicPieceInfosLen,
+		cgo.AsSliceRefUint8([]byte(newReplicaPath)),
+		cgo.AsSliceRefUint8([]byte(newReplicaCachePath)),
+		cgo.AsSliceRefUint8([]byte(sectorKeyPath)),
+		cgo.AsSliceRefUint8([]byte(sectorKeyCachePath)),
+		cgo.AsSliceRefUint8([]byte(stagedDataPath)),
+		cgo.AsSliceRefPublicPieceInfo(filPublicPieceInfos),
 	)
-	resp.Deref()
-	defer generated.FilDestroyEmptySectorUpdateEncodeIntoResponse(resp)
-
-	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-		return cid.Undef, cid.Undef, errors.New(generated.RawString(resp.ErrorMsg).Copy())
+	if err != nil {
+		return cid.Undef, cid.Undef, err
 	}
 
-	commR, errCommrSize := commcid.ReplicaCommitmentV1ToCID(resp.CommRNew[:])
+	commR, errCommrSize := commcid.ReplicaCommitmentV1ToCID(commRRaw)
 	if errCommrSize != nil {
 		return cid.Undef, cid.Undef, errCommrSize
 	}
-	commD, errCommdSize := commcid.DataCommitmentV1ToCID(resp.CommDNew[:])
+	commD, errCommdSize := commcid.DataCommitmentV1ToCID(commDRaw)
 	if errCommdSize != nil {
 		return cid.Undef, cid.Undef, errCommdSize
 	}
@@ -116,22 +114,14 @@ func (FunctionsSectorUpdate) DecodeFrom(
 		return err
 	}
 
-	resp := generated.FilEmptySectorUpdateDecodeFrom(
+	return cgo.EmptySectorUpdateDecodeFrom(
 		up,
-		outDataPath,
-		replicaPath,
-		sectorKeyPath,
-		sectorKeyCachePath,
-		commD,
+		cgo.AsSliceRefUint8([]byte(outDataPath)),
+		cgo.AsSliceRefUint8([]byte(replicaPath)),
+		cgo.AsSliceRefUint8([]byte(sectorKeyPath)),
+		cgo.AsSliceRefUint8([]byte(sectorKeyCachePath)),
+		&commD,
 	)
-	resp.Deref()
-	defer generated.FilDestroyEmptySectorUpdateDecodeFromResponse(resp)
-
-	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-		return errors.New(generated.RawString(resp.ErrorMsg).Copy())
-	}
-
-	return nil
 }
 
 func (FunctionsSectorUpdate) RemoveData(
@@ -153,23 +143,15 @@ func (FunctionsSectorUpdate) RemoveData(
 		return err
 	}
 
-	resp := generated.FilEmptySectorUpdateRemoveEncodedData(
+	return cgo.EmptySectorUpdateRemoveEncodedData(
 		up,
-		sectorKeyPath,
-		sectorKeyCachePath,
-		replicaPath,
-		replicaCachePath,
-		dataPath,
-		commD,
+		cgo.AsSliceRefUint8([]byte(sectorKeyPath)),
+		cgo.AsSliceRefUint8([]byte(sectorKeyCachePath)),
+		cgo.AsSliceRefUint8([]byte(replicaPath)),
+		cgo.AsSliceRefUint8([]byte(replicaCachePath)),
+		cgo.AsSliceRefUint8([]byte(dataPath)),
+		&commD,
 	)
-	resp.Deref()
-	defer generated.FilDestroyEmptySectorUpdateRemoveEncodedDataResponse(resp)
-
-	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-		return errors.New(generated.RawString(resp.ErrorMsg).Copy())
-	}
-
-	return nil
 }
 
 func (FunctionsSectorUpdate) GenerateUpdateVanillaProofs(
@@ -200,33 +182,16 @@ func (FunctionsSectorUpdate) GenerateUpdateVanillaProofs(
 		return nil, xerrors.Errorf("transforming new CommD: %w", err)
 	}
 
-	resp := generated.FilGenerateEmptySectorUpdatePartitionProofs(
+	return cgo.GenerateEmptySectorUpdatePartitionProofs(
 		up,
-		commRold,
-		commRnew,
-		commD,
-		sectorKeyPath,
-		sectorKeyCachePath,
-		newReplicaPath,
-		newReplicaCachePath,
+		&commRold,
+		&commRnew,
+		&commD,
+		cgo.AsSliceRefUint8([]byte(sectorKeyPath)),
+		cgo.AsSliceRefUint8([]byte(sectorKeyCachePath)),
+		cgo.AsSliceRefUint8([]byte(newReplicaPath)),
+		cgo.AsSliceRefUint8([]byte(newReplicaCachePath)),
 	)
-	resp.Deref()
-	defer generated.FilDestroyGenerateEmptySectorUpdatePartitionProofResponse(resp)
-
-	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-		return nil, errors.New(generated.RawString(resp.ErrorMsg).Copy())
-	}
-	resp.ProofsPtr = make([]generated.FilPartitionProof, resp.ProofsLen)
-	resp.Deref() // deref again after initializing length
-
-	proofs := make([][]byte, resp.ProofsLen)
-	for i, v := range resp.ProofsPtr {
-		v.Deref()
-
-		proofs[i] = copyBytes(v.ProofPtr, v.ProofLen)
-	}
-
-	return proofs, nil
 }
 
 func (FunctionsSectorUpdate) VerifyVanillaProofs(
@@ -254,24 +219,19 @@ func (FunctionsSectorUpdate) VerifyVanillaProofs(
 		return false, xerrors.Errorf("transorming new CommD: %w", err)
 	}
 
-	proofs, cleanup := toUpdateVanillaProofs(vanillaProofs)
+	proofs, cleanup, err := toUpdateVanillaProofs(vanillaProofs)
 	defer cleanup()
-
-	resp := generated.FilVerifyEmptySectorUpdatePartitionProofs(
-		up,
-		uint(len(proofs)),
-		proofs, // swapped, gotcha
-		commRold,
-		commRnew,
-		commD,
-	)
-	resp.Deref()
-	defer generated.FilDestroyVerifyEmptySectorUpdatePartitionProofResponse(resp)
-
-	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-		return false, errors.New(generated.RawString(resp.ErrorMsg).Copy())
+	if err != nil {
+		return false, nil
 	}
-	return resp.IsValid, nil
+
+	return cgo.VerifyEmptySectorUpdatePartitionProofs(
+		up,
+		cgo.AsSliceRefSliceBoxedUint8(proofs),
+		&commRold,
+		&commRnew,
+		&commD,
+	)
 }
 
 func (FunctionsSectorUpdate) GenerateUpdateProofWithVanilla(
@@ -299,44 +259,36 @@ func (FunctionsSectorUpdate) GenerateUpdateProofWithVanilla(
 		return nil, xerrors.Errorf("transorming new CommD: %w", err)
 	}
 
-	proofs, cleanup := toUpdateVanillaProofs(vanillaProofs)
+	proofs, cleanup, err := toUpdateVanillaProofs(vanillaProofs)
 	defer cleanup()
-
-	resp := generated.FilGenerateEmptySectorUpdateProofWithVanilla(
-		up,
-		proofs,
-		uint(len(proofs)),
-		commRold,
-		commRnew,
-		commD,
-	)
-	resp.Deref()
-	defer generated.FilDestroyEmptySectorUpdateGenerateProofResponse(resp)
-
-	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-		return nil, errors.New(generated.RawString(resp.ErrorMsg).Copy())
+	if err != nil {
+		return nil, err
 	}
-	return copyBytes(resp.ProofPtr, resp.ProofLen), nil
+
+	return cgo.GenerateEmptySectorUpdateProofWithVanilla(
+		up,
+		cgo.AsSliceRefSliceBoxedUint8(proofs),
+		&commRold,
+		&commRnew,
+		&commD,
+	)
 }
 
-func toUpdateVanillaProofs(src [][]byte) ([]generated.FilPartitionProof, func()) {
-	allocs := make([]AllocationManager, len(src))
-
-	out := make([]generated.FilPartitionProof, len(src))
+func toUpdateVanillaProofs(src [][]byte) ([]cgo.SliceBoxedUint8, func(), error) {
+	out := make([]cgo.SliceBoxedUint8, len(src))
 	for idx := range out {
-		out[idx] = generated.FilPartitionProof{
-			ProofLen: uint(len(src[idx])),
-			ProofPtr: src[idx],
+		b, err := cgo.AllocSliceBoxedUint8(src[idx])
+		if err != nil {
+			return nil, nil, err
 		}
-
-		_, allocs[idx] = out[idx].PassRef()
+		out[idx] = b
 	}
 
 	return out, func() {
-		for idx := range allocs {
-			allocs[idx].Free()
+		for idx := range out {
+			out[idx].Destroy()
 		}
-	}
+	}, nil
 }
 
 func (FunctionsSectorUpdate) GenerateUpdateProof(
@@ -367,23 +319,16 @@ func (FunctionsSectorUpdate) GenerateUpdateProof(
 		return nil, xerrors.Errorf("transorming new CommD: %w", err)
 	}
 
-	resp := generated.FilGenerateEmptySectorUpdateProof(
+	return cgo.GenerateEmptySectorUpdateProof(
 		up,
-		commRold,
-		commRnew,
-		commD,
-		sectorKeyPath,
-		sectorKeyCachePath,
-		newReplicaPath,
-		newReplicaCachePath,
+		&commRold,
+		&commRnew,
+		&commD,
+		cgo.AsSliceRefUint8([]byte(sectorKeyPath)),
+		cgo.AsSliceRefUint8([]byte(sectorKeyCachePath)),
+		cgo.AsSliceRefUint8([]byte(newReplicaPath)),
+		cgo.AsSliceRefUint8([]byte(newReplicaCachePath)),
 	)
-	resp.Deref()
-	defer generated.FilDestroyEmptySectorUpdateGenerateProofResponse(resp)
-
-	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-		return nil, errors.New(generated.RawString(resp.ErrorMsg).Copy())
-	}
-	return copyBytes(resp.ProofPtr, resp.ProofLen), nil
 }
 
 func (FunctionsSectorUpdate) VerifyUpdateProof(info proof.ReplicaUpdateInfo) (bool, error) {
@@ -405,19 +350,11 @@ func (FunctionsSectorUpdate) VerifyUpdateProof(info proof.ReplicaUpdateInfo) (bo
 		return false, xerrors.Errorf("transforming new CommD: %w", err)
 	}
 
-	resp := generated.FilVerifyEmptySectorUpdateProof(
+	return cgo.VerifyEmptySectorUpdateProof(
 		up,
-		info.Proof,
-		uint(len(info.Proof)),
-		commRold,
-		commRnew,
-		commD,
+		cgo.AsSliceRefUint8(info.Proof),
+		&commRold,
+		&commRnew,
+		&commD,
 	)
-	resp.Deref()
-	defer generated.FilDestroyEmptySectorUpdateVerifyProofResponse(resp)
-
-	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-		return false, errors.New(generated.RawString(resp.ErrorMsg).Copy())
-	}
-	return resp.IsValid, nil
 }

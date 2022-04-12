@@ -7,7 +7,7 @@ orbs:
 executors:
   golang:
     docker:
-      - image: circleci/golang:1.16.4
+      - image: circleci/golang:1.17
     resource_class: 2xlarge
   rust:
     docker:
@@ -32,7 +32,7 @@ jobs:
       - go/mod-download
       - go/install-golangci-lint:
           gobin: $HOME/.local/bin
-          version: 1.44.2
+          version: 1.45.2
       - run:
           command: make go-lint
 
@@ -73,7 +73,6 @@ jobs:
       - run: cd rust && cargo install cargo-lipo
       - build_project
       - compile_tests
-      - ensure_generated_cgo_up_to_date
   publish_linux_staticlib:
     executor: golang
     steps:
@@ -211,7 +210,7 @@ commands:
             - run:
                 name: Install Go
                 command: |
-                  curl https://dl.google.com/go/go1.16.4.darwin-amd64.pkg -o /tmp/go.pkg && \
+                  curl https://dl.google.com/go/go1.17.8.darwin-amd64.pkg -o /tmp/go.pkg && \
                   sudo installer -pkg /tmp/go.pkg -target /
                   go version
             - run:
@@ -314,13 +313,6 @@ commands:
           name: Build project without CGO
           command: env CGO_ENABLED=0 go build .
 
-  ensure_generated_cgo_up_to_date:
-    steps:
-      - run:
-          name: Generate CGO bindings (using forked c-for-go) and compare with what's tracked by Git
-          command: |
-            make cgo-gen
-            git diff --exit-code ./generated/
   run_tests:
     parameters:
       run_leak_detector:

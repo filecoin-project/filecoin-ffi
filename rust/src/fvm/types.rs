@@ -1,21 +1,23 @@
-use std::ptr;
-
-use drop_struct_macro_derive::DropStructMacro;
-use ffi_toolkit::{code_and_message_impl, free_c_str, CodeAndMessage, FCPResponseStatus};
+use std::{ptr, sync::Mutex};
 
 use fvm_shared::error::ExitCode;
+use safer_ffi::prelude::*;
 
-#[repr(C)]
+use crate::util::types::Result;
+
+use super::machine::CgoExecutor;
+
+#[derive_ReprC]
+#[repr(u8)]
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub enum fil_FvmRegisteredVersion {
+pub enum FvmRegisteredVersion {
     V1,
 }
 
-#[repr(C)]
-pub struct fil_CreateFvmMachineResponse {
-    pub error_msg: *const libc::c_char,
-    pub status_code: FCPResponseStatus,
-    pub executor: *mut libc::c_void,
+#[derive_ReprC]
+#[ReprC::opaque]
+pub struct FvmMachine {
+    pub(crate) machine: Mutex<CgoExecutor>,
 }
 
 impl Drop for fil_CreateFvmMachineResponse {
