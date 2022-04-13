@@ -59,7 +59,10 @@ pub unsafe extern "C" fn fil_create_fvm_machine(
             //_ => panic!("unsupported FVM Registered Version")
         }
 
-        let config = Config{ debug: true, ..Default::default() };
+        let config = Config {
+            debug: true,
+            ..Default::default()
+        };
         let chain_epoch = chain_epoch as ChainEpoch;
 
         let base_circ_supply = TokenAmount::from(
