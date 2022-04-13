@@ -53,6 +53,7 @@ func PrivateKeyPublicKey(rawPrivateKey SliceRefUint8) *[48]byte {
 	defer resp.destroy()
 	return resp.copyAsArray()
 }
+
 func CreateZeroSignature() *[96]byte {
 	resp := C.create_zero_signature()
 	defer resp.destroy()
