@@ -18,6 +18,8 @@ type RegisteredAggregationProof = C.RegisteredAggregationProof_t
 type RegisteredPoStProof = C.RegisteredPoStProof_t
 type RegisteredUpdateProof = C.RegisteredUpdateProof_t
 
+type FvmRegisteredVersion = C.FvmRegisteredVersion_t
+
 type AggregationInputs = C.AggregationInputs_t
 
 type PublicReplicaInfo = C.PublicReplicaInfo_t
@@ -47,6 +49,9 @@ type ByteArray32 = C.uint8_32_array_t
 type ByteArray48 = C.uint8_48_array_t
 type ByteArray96 = C.uint8_96_array_t
 
+type FvmMachine = C.FvmMachine_t
+type FvmMachineExecuteResponse = C.FvmMachineExecuteResponse_t
+
 type resultBool = C.Result_bool_t
 type resultGeneratePieceCommitment = C.Result_GeneratePieceCommitment_t
 type resultWriteWithAlignment = C.Result_WriteWithAlignment_t
@@ -65,6 +70,9 @@ type resultGenerateFallbackSectorChallenges = C.Result_GenerateFallbackSectorCha
 type resultGenerateSingleWindowPoStWithVanilla = C.Result_GenerateSingleWindowPoStWithVanilla_t
 type resultPoStProof = C.Result_PoStProof_t
 
+type resultFvmMachine = C.Result_FvmMachine_ptr_t
+type resultFvmMachineExecuteResponse = C.Result_FvmMachineExecuteResponse_t
+
 type result interface {
 	statusCode() FCPResponseStatus
 	errorMsg() *SliceBoxedUint8
@@ -81,6 +89,17 @@ type PartitionSnarkProofGo struct {
 type PoStProofGo struct {
 	RegisteredProof RegisteredPoStProof
 	Proof           []byte
+}
+
+/// FvmMachineExecuteResponse is a go allocated version of `FvmMachineExecuteResponse`.
+type FvmMachineExecuteResponseGo struct {
+	ExitCode   uint64
+	ReturnVal  []byte
+	GasUsed    uint64
+	PenaltyHi  uint64
+	PenaltyLo  uint64
+	MinerTipHi uint64
+	MinerTipLo uint64
 }
 
 func (ptr SliceBoxedUint8) slice() []byte {
@@ -523,5 +542,51 @@ func (ptr *PrivateReplicaInfo) Destroy() {
 	if ptr != nil {
 		ptr.cache_dir_path.Destroy()
 		ptr.replica_path.Destroy()
+	}
+}
+
+func (ptr *resultFvmMachineExecuteResponse) statusCode() FCPResponseStatus {
+	return FCPResponseStatus(ptr.status_code)
+}
+
+func (ptr *resultFvmMachineExecuteResponse) errorMsg() *SliceBoxedUint8 {
+	return &ptr.error_msg
+}
+
+func (ptr *resultFvmMachineExecuteResponse) destroy() {
+	if ptr != nil {
+		C.destroy_fvm_machine_execute_response(ptr)
+	}
+}
+
+func (ptr *resultFvmMachine) statusCode() FCPResponseStatus {
+	return FCPResponseStatus(ptr.status_code)
+}
+
+func (ptr *resultFvmMachine) errorMsg() *SliceBoxedUint8 {
+	return &ptr.error_msg
+}
+
+func (ptr *resultFvmMachine) destroy() {
+	if ptr != nil {
+		C.destroy_create_fvm_machine_response(ptr)
+	}
+}
+
+func (ptr *FvmMachine) Destroy() {
+	if ptr != nil {
+		C.drop_fvm_machine(ptr)
+	}
+}
+
+func (r FvmMachineExecuteResponse) copy() FvmMachineExecuteResponseGo {
+	return FvmMachineExecuteResponseGo{
+		ExitCode:   uint64(r.exit_code),
+		ReturnVal:  r.return_val.copy(),
+		GasUsed:    uint64(r.gas_used),
+		PenaltyHi:  uint64(r.penalty_hi),
+		PenaltyLo:  uint64(r.penalty_lo),
+		MinerTipHi: uint64(r.miner_tip_hi),
+		MinerTipLo: uint64(r.miner_tip_lo),
 	}
 }

@@ -12,11 +12,11 @@ import (
 )
 
 const (
-	ErrInvalidHandle   = C.ERR_INVALID_HANDLE
-	ErrNotFound        = C.ERR_NOT_FOUND
-	ErrIO              = C.ERR_IO
-	ErrInvalidArgument = C.ERR_INVALID_ARGUMENT
-	ErrPanic           = C.ERR_PANIC
+	ErrInvalidHandle   = C.FVM_ERROR_INVALID_HANDLE
+	ErrNotFound        = C.FVM_ERROR_NOT_FOUND
+	ErrIO              = C.FVM_ERROR_IO
+	ErrInvalidArgument = C.FVM_ERROR_INVALID_ARGUMENT
+	ErrPanic           = C.FVM_ERROR_PANIC
 )
 
 func logPanic(err interface{}) {

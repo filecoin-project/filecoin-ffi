@@ -169,7 +169,7 @@ fn fvm_machine_execute_message(
 }
 
 #[ffi_export]
-fn fil_fvm_machine_flush(executor: &'_ FvmMachine) -> repr_c::Box<Result<c_slice::Box<u8>>> {
+fn fvm_machine_flush(executor: &'_ FvmMachine) -> repr_c::Box<Result<c_slice::Box<u8>>> {
     catch_panic_response("fvm_machine_flush", || {
         let mut executor = executor
             .machine
