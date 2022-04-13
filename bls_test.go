@@ -48,33 +48,33 @@ func TestBLSSigningAndVerification(t *testing.T) {
 	barSignature := PrivateKeySign(barPrivateKey, barMessage)
 
 	// get the aggregateSign
-	aggregateSign := Aggregate([]*Signature{fooSignature, barSignature})
+	aggregateSign := Aggregate([]Signature{*fooSignature, *barSignature})
 
 	// assert the foo message was signed with the foo key
-	assert.True(t, Verify(fooSignature, []Digest{*fooDigest}, []*PublicKey{fooPublicKey}))
+	assert.True(t, Verify(fooSignature, []Digest{fooDigest}, []PublicKey{*fooPublicKey}))
 
 	// assert the bar message was signed with the bar key
-	assert.True(t, Verify(barSignature, []Digest{*barDigest}, []*PublicKey{barPublicKey}))
+	assert.True(t, Verify(barSignature, []Digest{barDigest}, []PublicKey{*barPublicKey}))
 
 	// assert the foo message was signed with the foo key
-	assert.True(t, HashVerify(fooSignature, []Message{fooMessage}, []*PublicKey{fooPublicKey}))
+	assert.True(t, HashVerify(fooSignature, []Message{fooMessage}, []PublicKey{*fooPublicKey}))
 
 	// assert the bar message was signed with the bar key
-	assert.True(t, HashVerify(barSignature, []Message{barMessage}, []*PublicKey{barPublicKey}))
+	assert.True(t, HashVerify(barSignature, []Message{barMessage}, []PublicKey{*barPublicKey}))
 
 	// assert the foo message was not signed by the bar key
-	assert.False(t, Verify(fooSignature, []Digest{*fooDigest}, []*PublicKey{barPublicKey}))
+	assert.False(t, Verify(fooSignature, []Digest{fooDigest}, []PublicKey{*barPublicKey}))
 
 	// assert the bar/foo message was not signed by the foo/bar key
-	assert.False(t, Verify(barSignature, []Digest{*barDigest}, []*PublicKey{fooPublicKey}))
-	assert.False(t, Verify(barSignature, []Digest{*fooDigest}, []*PublicKey{barPublicKey}))
-	assert.False(t, Verify(fooSignature, []Digest{*barDigest}, []*PublicKey{fooPublicKey}))
+	assert.False(t, Verify(barSignature, []Digest{barDigest}, []PublicKey{*fooPublicKey}))
+	assert.False(t, Verify(barSignature, []Digest{fooDigest}, []PublicKey{*barPublicKey}))
+	assert.False(t, Verify(fooSignature, []Digest{barDigest}, []PublicKey{*fooPublicKey}))
 
 	//assert the foo and bar message was signed with the foo and bar key
-	assert.True(t, HashVerify(aggregateSign, []Message{fooMessage, barMessage}, []*PublicKey{fooPublicKey, barPublicKey}))
+	assert.True(t, HashVerify(aggregateSign, []Message{fooMessage, barMessage}, []PublicKey{*fooPublicKey, *barPublicKey}))
 
 	//assert the bar and foo message was not signed by the foo and bar key
-	assert.False(t, HashVerify(aggregateSign, []Message{fooMessage, barMessage}, []*PublicKey{fooPublicKey}))
+	assert.False(t, HashVerify(aggregateSign, []Message{fooMessage, barMessage}, []PublicKey{*fooPublicKey}))
 }
 
 func BenchmarkBLSVerify(b *testing.B) {
@@ -90,7 +90,7 @@ func BenchmarkBLSVerify(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		if !Verify(sig, []Digest{*digest}, []*PublicKey{pubk}) {
+		if !Verify(sig, []Digest{digest}, []PublicKey{*pubk}) {
 			b.Fatal("failed to verify")
 		}
 	}
@@ -98,7 +98,7 @@ func BenchmarkBLSVerify(b *testing.B) {
 
 func TestBlsAggregateErrors(t *testing.T) {
 	t.Run("no signatures", func(t *testing.T) {
-		var empty []*Signature
+		var empty []Signature
 		out := Aggregate(empty)
 		require.Nil(t, out)
 	})
@@ -122,17 +122,17 @@ func benchmarkBLSVerifyBatchSize(size int) func(b *testing.B) {
 	return func(b *testing.B) {
 		var digests []Digest
 		var msgs []Message
-		var sigs []*Signature
-		var pubks []*PublicKey
+		var sigs []Signature
+		var pubks []PublicKey
 		for i := 0; i < size; i++ {
 			msg := Message(fmt.Sprintf("cats cats cats cats %d %d %d dogs", i, i, i))
 			msgs = append(msgs, msg)
-			digests = append(digests, *Hash(msg))
+			digests = append(digests, Hash(msg))
 			priv := PrivateKeyGenerate()
 			sig := PrivateKeySign(priv, msg)
-			sigs = append(sigs, sig)
+			sigs = append(sigs, *sig)
 			pubk := PrivateKeyPublicKey(priv)
-			pubks = append(pubks, pubk)
+			pubks = append(pubks, *pubk)
 		}
 
 		t := time.Now()
@@ -161,7 +161,7 @@ func BenchmarkBLSHashAndVerify(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		digest := Hash(msg)
-		if !Verify(sig, []Digest{*digest}, []*PublicKey{pubk}) {
+		if !Verify(sig, []Digest{digest}, []PublicKey{*pubk}) {
 			b.Fatal("failed to verify")
 		}
 	}
@@ -179,7 +179,7 @@ func BenchmarkBLSHashVerify(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		if !HashVerify(sig, []Message{msg}, []*PublicKey{pubk}) {
+		if !HashVerify(sig, []Message{msg}, []PublicKey{*pubk}) {
 			b.Fatal("failed to verify")
 		}
 	}

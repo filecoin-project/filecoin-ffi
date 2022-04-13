@@ -13,12 +13,16 @@ import (
 )
 
 // Hash computes the digest of a message
-func Hash(message Message) *Digest {
-	return cgo.Hash(cgo.AsSliceRefUint8(message))
+func Hash(message Message) Digest {
+	digest := cgo.Hash(cgo.AsSliceRefUint8(message))
+	if digest == nil {
+		return Digest{}
+	}
+	return *digest
 }
 
 // Verify verifies that a signature is the aggregated signature of digests - pubkeys
-func Verify(signature *Signature, digests []Digest, publicKeys []*PublicKey) bool {
+func Verify(signature *Signature, digests []Digest, publicKeys []PublicKey) bool {
 	// prep data
 	flattenedDigests := make([]byte, DigestBytes*len(digests))
 	for idx, digest := range digests {
@@ -38,7 +42,7 @@ func Verify(signature *Signature, digests []Digest, publicKeys []*PublicKey) boo
 }
 
 // HashVerify verifies that a signature is the aggregated signature of hashed messages.
-func HashVerify(signature *Signature, messages []Message, publicKeys []*PublicKey) bool {
+func HashVerify(signature *Signature, messages []Message, publicKeys []PublicKey) bool {
 	var flattenedMessages []byte
 	messagesSizes := make([]uint, len(messages))
 	for idx := range messages {
@@ -62,7 +66,7 @@ func HashVerify(signature *Signature, messages []Message, publicKeys []*PublicKe
 // Aggregate aggregates signatures together into a new signature. If the
 // provided signatures cannot be aggregated (due to invalid input or an
 // an operational error), Aggregate will return nil.
-func Aggregate(signatures []*Signature) *Signature {
+func Aggregate(signatures []Signature) *Signature {
 	// prep data
 	flattenedSignatures := make([]byte, SignatureBytes*len(signatures))
 	for idx, sig := range signatures {
@@ -73,27 +77,39 @@ func Aggregate(signatures []*Signature) *Signature {
 }
 
 // PrivateKeyGenerate generates a private key
-func PrivateKeyGenerate() *PrivateKey {
-	return cgo.PrivateKeyGenerate()
+func PrivateKeyGenerate() PrivateKey {
+	key := cgo.PrivateKeyGenerate()
+	if key == nil {
+		return PrivateKey{}
+	}
+	return *key
 }
 
 // PrivateKeyGenerate generates a private key in a predictable manner.
-func PrivateKeyGenerateWithSeed(seed PrivateKeyGenSeed) *PrivateKey {
+func PrivateKeyGenerateWithSeed(seed PrivateKeyGenSeed) PrivateKey {
 	ary := cgo.AsByteArray32(seed[:])
-	return cgo.PrivateKeyGenerateWithSeed(&ary)
+	key := cgo.PrivateKeyGenerateWithSeed(&ary)
+	if key == nil {
+		return PrivateKey{}
+	}
+	return *key
 }
 
 // PrivateKeySign signs a message
-func PrivateKeySign(privateKey *PrivateKey, message Message) *Signature {
+func PrivateKeySign(privateKey PrivateKey, message Message) *Signature {
 	return cgo.PrivateKeySign(cgo.AsSliceRefUint8(privateKey[:]), cgo.AsSliceRefUint8(message))
 }
 
 // PrivateKeyPublicKey gets the public key for a private key
-func PrivateKeyPublicKey(privateKey *PrivateKey) *PublicKey {
+func PrivateKeyPublicKey(privateKey PrivateKey) *PublicKey {
 	return cgo.PrivateKeyPublicKey(cgo.AsSliceRefUint8(privateKey[:]))
 }
 
 // CreateZeroSignature creates a zero signature, used as placeholder in filecoin.
-func CreateZeroSignature() *Signature {
-	return cgo.CreateZeroSignature()
+func CreateZeroSignature() Signature {
+	signature := cgo.CreateZeroSignature()
+	if signature == nil {
+		return Signature{}
+	}
+	return *signature
 }
