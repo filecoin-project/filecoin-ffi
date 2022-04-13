@@ -2217,7 +2217,7 @@ dependencies = [
 [[package]]
 name = "fvm"
 version = "0.5.1"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=experimental/fvm-m2#cb7bb507ede812d5b4f02ee199f320164ae43fe3"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=experimental/fvm-m2#8cf1cb0958fc3c5349ca322393c6405208465057"
 dependencies = [
  "ahash",
  "anyhow",
@@ -2285,7 +2285,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_amt"
 version = "0.4.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=experimental/fvm-m2#cb7bb507ede812d5b4f02ee199f320164ae43fe3"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=experimental/fvm-m2#8cf1cb0958fc3c5349ca322393c6405208465057"
 dependencies = [
  "anyhow",
  "cid",
@@ -2325,7 +2325,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_blockstore"
 version = "0.1.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=experimental/fvm-m2#cb7bb507ede812d5b4f02ee199f320164ae43fe3"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=experimental/fvm-m2#8cf1cb0958fc3c5349ca322393c6405208465057"
 dependencies = [
  "anyhow",
  "cid",
@@ -2348,7 +2348,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_car"
 version = "0.4.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=experimental/fvm-m2#cb7bb507ede812d5b4f02ee199f320164ae43fe3"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=experimental/fvm-m2#8cf1cb0958fc3c5349ca322393c6405208465057"
 dependencies = [
  "cid",
  "futures",
@@ -2362,7 +2362,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_encoding"
 version = "0.1.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=experimental/fvm-m2#cb7bb507ede812d5b4f02ee199f320164ae43fe3"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=experimental/fvm-m2#8cf1cb0958fc3c5349ca322393c6405208465057"
 dependencies = [
  "anyhow",
  "cid",
@@ -2418,7 +2418,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_hamt"
 version = "0.4.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=experimental/fvm-m2#cb7bb507ede812d5b4f02ee199f320164ae43fe3"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=experimental/fvm-m2#8cf1cb0958fc3c5349ca322393c6405208465057"
 dependencies = [
  "anyhow",
  "byteorder 1.4.3",
@@ -2528,7 +2528,7 @@ dependencies = [
 [[package]]
 name = "fvm_shared"
 version = "0.5.1"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=experimental/fvm-m2#cb7bb507ede812d5b4f02ee199f320164ae43fe3"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=experimental/fvm-m2#8cf1cb0958fc3c5349ca322393c6405208465057"
 dependencies = [
  "anyhow",
  "bimap",
