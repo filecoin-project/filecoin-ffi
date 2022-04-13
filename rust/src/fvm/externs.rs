@@ -43,7 +43,9 @@ impl Rand for CgoExterns {
             ) {
                 0 => Ok(buf),
                 r @ 1.. => panic!("invalid return value from has: {}", r),
-                ERR_INVALID_HANDLE => panic!("extern {} not registered", self.handle),
+                x if x == FvmError::InvalidHandle as i32 => {
+                    panic!("extern {} not registered", self.handle)
+                }
                 e => Err(anyhow!(
                     "cgo extern 'get_chain_randomness' failed with error code {}",
                     e
@@ -70,7 +72,9 @@ impl Rand for CgoExterns {
             ) {
                 0 => Ok(buf),
                 r @ 1.. => panic!("invalid return value from has: {}", r),
-                ERR_INVALID_HANDLE => panic!("extern {} not registered", self.handle),
+                x if x == FvmError::InvalidHandle as i32 => {
+                    panic!("extern {} not registered", self.handle)
+                }
                 e => Err(anyhow!(
                     "cgo extern 'get_beacon_randomness' failed with error code {}",
                     e
@@ -118,7 +122,9 @@ impl Consensus for CgoExterns {
                     gas_used,
                 )),
                 r @ 1.. => panic!("invalid return value from has: {}", r),
-                ERR_INVALID_HANDLE => panic!("extern {} not registered", self.handle),
+                x if x == FvmError::InvalidHandle as i32 => {
+                    panic!("extern {} not registered", self.handle)
+                }
                 e => Err(anyhow!(
                     "cgo extern 'verify_consensus_fault' failed with error code {}",
                     e

@@ -968,15 +968,6 @@ func to32ByteCommP(pieceCID cid.Cid) (cgo.ByteArray32, error) {
 	return cgo.AsByteArray32(commP), nil
 }
 
-func copyBytes(v []byte, vLen uint) []byte {
-	buf := make([]byte, vLen)
-	if n := copy(buf, v[:vLen]); n != int(vLen) {
-		panic("partial read")
-	}
-
-	return buf
-}
-
 func makeCleanerSBU(src []cgo.SliceBoxedUint8, limit int) func() {
 	return func() {
 		for i := 0; i < limit; i++ {
