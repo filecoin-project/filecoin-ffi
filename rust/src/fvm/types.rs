@@ -59,7 +59,7 @@ impl Default for fil_FvmMachineExecuteResponse {
         fil_FvmMachineExecuteResponse {
             error_msg: ptr::null(),
             status_code: FCPResponseStatus::FCPNoError,
-            exit_code: ExitCode::Ok as u64,
+            exit_code: ExitCode::OK.value() as u64,
             return_ptr: ptr::null(),
             return_len: 0,
             gas_used: 0,

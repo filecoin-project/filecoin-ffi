@@ -7,7 +7,7 @@ use futures::executor::block_on;
 use fvm::call_manager::DefaultCallManager;
 use fvm::executor::{ApplyKind, DefaultExecutor, Executor};
 use fvm::machine::DefaultMachine;
-use fvm::{Config, DefaultKernel};
+use fvm::DefaultKernel;
 use fvm_ipld_blockstore::Blockstore;
 use fvm_ipld_car::load_car;
 use fvm_shared::{clock::ChainEpoch, econ::TokenAmount, message::Message, version::NetworkVersion};
@@ -48,6 +48,8 @@ pub unsafe extern "C" fn fil_create_fvm_machine(
     blockstore_id: u64,
     externs_id: u64,
 ) -> *mut fil_CreateFvmMachineResponse {
+    use fvm::machine::NetworkConfig;
+
     catch_panic_response(|| {
         init_log();
 
@@ -59,7 +61,6 @@ pub unsafe extern "C" fn fil_create_fvm_machine(
             //_ => panic!("unsupported FVM Registered Version")
         }
 
-        let config = Config::default();
         let chain_epoch = chain_epoch as ChainEpoch;
 
         let base_circ_supply = TokenAmount::from(
@@ -112,28 +113,29 @@ pub unsafe extern "C" fn fil_create_fvm_machine(
 
         let blockstore = FakeBlockstore::new(CgoBlockstore::new(blockstore_id));
 
-        let builtin_actors = match import_actors(&blockstore, manifest_cid, network_version) {
-            Ok(x) => x,
+        let mut network_config = NetworkConfig::new(network_version);
+        match import_actors(&blockstore, manifest_cid, network_version) {
+            Ok(Some(manifest)) => {
+                network_config.override_actors(manifest);
+            }
+            Ok(None) => {}
             Err(err) => {
                 response.status_code = FCPResponseStatus::FCPUnclassifiedError;
                 response.error_msg =
                     rust_str_to_c_str(format!("couldn't load builtin actors: {}", err));
                 return raw_ptr(response);
             }
-        };
+        }
 
         let blockstore = blockstore.finish();
 
         let externs = CgoExterns::new(externs_id);
         let machine = fvm::machine::DefaultMachine::new(
-            config,
-            ENGINE.clone(),
-            chain_epoch,
-            base_fee,
-            base_circ_supply,
-            network_version,
-            state_root,
-            builtin_actors,
+            &ENGINE,
+            network_config
+                .for_epoch(chain_epoch, state_root)
+                .set_base_fee(base_fee)
+                .set_circulating_supply(base_circ_supply),
             blockstore,
             externs,
         );
@@ -220,7 +222,7 @@ pub unsafe extern "C" fn fil_fvm_machine_execute_message(
 
         // TODO: Do something with the backtrace.
         response.status_code = FCPResponseStatus::FCPNoError;
-        response.exit_code = apply_ret.msg_receipt.exit_code as u64;
+        response.exit_code = apply_ret.msg_receipt.exit_code.value() as u64;
         response.gas_used = apply_ret.msg_receipt.gas_used as u64;
         response.penalty_hi = (penalty >> u64::BITS) as u64;
         response.penalty_lo = penalty as u64;
