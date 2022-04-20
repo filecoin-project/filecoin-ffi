@@ -151,6 +151,7 @@ func (f *FVM) ApplyImplicitMessage(msgBytes []byte) (*ApplyRet, error) {
 		GasUsed:      int64(resp.GasUsed),
 		MinerPenalty: reformBigInt(resp.PenaltyHi, resp.PenaltyLo),
 		MinerTip:     reformBigInt(resp.MinerTipHi, resp.MinerTipLo),
+		FailureInfo:  string(copyBytes(resp.FailureInfoPtr, resp.FailureInfoLen)),
 	}, nil
 }
 
