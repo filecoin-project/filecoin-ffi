@@ -1,13 +1,12 @@
 version: 2.1
 
 orbs:
-  go: gotest/tools@0.0.9
   shellcheck: circleci/shellcheck@1.3.15
 
 executors:
   golang:
     docker:
-      - image: circleci/golang:1.16.4
+      - image: cimg/go:1.17.9
     resource_class: 2xlarge
   rust:
     docker:
@@ -20,7 +19,6 @@ jobs:
     steps:
       - configure_environment_variables
       - prepare
-      - go/mod-download
       - run:
           command: "! go fmt ./... 2>&1 | read"
   go_lint:
@@ -29,10 +27,6 @@ jobs:
     steps:
       - configure_environment_variables
       - prepare
-      - go/mod-download
-      - go/install-golangci-lint:
-          gobin: $HOME/.local/bin
-          version: 1.44.2
       - run:
           command: make go-lint
 
@@ -199,9 +193,6 @@ commands:
       - when:
           condition: << parameters.linux >>
           steps:
-            - go/install-ssh
-            - go/install: {package: git}
-            - run: sudo apt update
             - run: sudo apt-get update
             - run: sudo apt-get install -y jq valgrind ocl-icd-opencl-dev clang libssl-dev libhwloc-dev
             - run: curl https://sh.rustup.rs -sSf | sh -s -- -y
@@ -211,7 +202,7 @@ commands:
             - run:
                 name: Install Go
                 command: |
-                  curl https://dl.google.com/go/go1.16.4.darwin-amd64.pkg -o /tmp/go.pkg && \
+                  curl https://dl.google.com/go/go1.17.9.darwin-amd64.pkg -o /tmp/go.pkg && \
                   sudo installer -pkg /tmp/go.pkg -target /
                   go version
             - run:
