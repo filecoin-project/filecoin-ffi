@@ -1,13 +1,13 @@
 version: 2.1
 
 orbs:
-  go: gotest/tools@0.0.9
+  go: gotest/tools@0.0.14
   shellcheck: circleci/shellcheck@1.3.15
 
 executors:
   golang:
     docker:
-      - image: circleci/golang:1.16.4
+      - image: cimg/golang:1.17.9
     resource_class: 2xlarge
   rust:
     docker:
@@ -32,7 +32,7 @@ jobs:
       - go/mod-download
       - go/install-golangci-lint:
           gobin: $HOME/.local/bin
-          version: 1.44.2
+          version: 1.45.2
       - run:
           command: make go-lint
 
