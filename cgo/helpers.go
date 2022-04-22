@@ -12,13 +12,26 @@ import (
 	"unsafe"
 )
 
+var (
+	emptyUint8              C.uint8_t              = 0
+	emptyUint64             C.uint64_t             = 0
+	emptyUint               C.size_t               = 0
+	emptyAggregationInputs  C.AggregationInputs_t  = C.AggregationInputs_t{}
+	emptyPublicReplicaInfo  C.PublicReplicaInfo_t  = C.PublicReplicaInfo_t{}
+	emptyPrivateReplicaInfo C.PrivateReplicaInfo_t = C.PrivateReplicaInfo_t{}
+	emptyPoStProof          C.PoStProof_t          = C.PoStProof_t{}
+	emptyPublicPieceInfo    C.PublicPieceInfo_t    = C.PublicPieceInfo_t{}
+	emptyByteArray32        C.uint8_32_array_t     = C.uint8_32_array_t{}
+	emptySliceBoxedUint8    C.slice_boxed_uint8_t  = C.slice_boxed_uint8_t{}
+)
+
 func AsSliceRefUint8(goBytes []byte) SliceRefUint8 {
 	len := len(goBytes)
 
 	if len == 0 {
 		// can't take element 0 of an empty slice
 		return SliceRefUint8{
-			ptr: (*C.uint8_t)(unsafe.Pointer(&goBytes)),
+			ptr: &emptyUint8,
 			len: C.size_t(len),
 		}
 	}
@@ -34,7 +47,7 @@ func AsSliceRefUint64(goBytes []uint64) SliceRefUint64 {
 	if len == 0 {
 		// can't take element 0 of an empty slice
 		return SliceRefUint64{
-			ptr: (*C.uint64_t)(unsafe.Pointer(&goBytes)),
+			ptr: &emptyUint64,
 			len: C.size_t(len),
 		}
 	}
@@ -65,7 +78,7 @@ func AsSliceRefUint(goSlice []uint) SliceRefUint {
 	if len == 0 {
 		// can't take element 0 of an empty slice
 		return SliceRefUint{
-			ptr: (*C.size_t)(unsafe.Pointer(&goSlice)),
+			ptr: &emptyUint,
 			len: C.size_t(len),
 		}
 	}
@@ -82,7 +95,7 @@ func AsSliceRefAggregationInputs(goSlice []AggregationInputs) SliceRefAggregatio
 	if len == 0 {
 		// can't take element 0 of an empty slice
 		return SliceRefAggregationInputs{
-			ptr: (*C.AggregationInputs_t)(unsafe.Pointer(&goSlice)),
+			ptr: &emptyAggregationInputs,
 			len: C.size_t(len),
 		}
 	}
@@ -99,7 +112,7 @@ func AsSliceRefPublicReplicaInfo(goSlice []PublicReplicaInfo) SliceRefPublicRepl
 	if len == 0 {
 		// can't take element 0 of an empty slice
 		return SliceRefPublicReplicaInfo{
-			ptr: (*C.PublicReplicaInfo_t)(unsafe.Pointer(&goSlice)),
+			ptr: &emptyPublicReplicaInfo,
 			len: C.size_t(len),
 		}
 	}
@@ -116,7 +129,7 @@ func AsSliceRefPrivateReplicaInfo(goSlice []PrivateReplicaInfo) SliceRefPrivateR
 	if len == 0 {
 		// can't take element 0 of an empty slice
 		return SliceRefPrivateReplicaInfo{
-			ptr: (*C.PrivateReplicaInfo_t)(unsafe.Pointer(&goSlice)),
+			ptr: &emptyPrivateReplicaInfo,
 			len: C.size_t(len),
 		}
 	}
@@ -133,7 +146,7 @@ func AsSliceRefPoStProof(goSlice []PoStProof) SliceRefPoStProof {
 	if len == 0 {
 		// can't take element 0 of an empty slice
 		return SliceRefPoStProof{
-			ptr: (*C.PoStProof_t)(unsafe.Pointer(&goSlice)),
+			ptr: &emptyPoStProof,
 			len: C.size_t(len),
 		}
 	}
@@ -150,7 +163,7 @@ func AsSliceRefPublicPieceInfo(goSlice []PublicPieceInfo) SliceRefPublicPieceInf
 	if len == 0 {
 		// can't take element 0 of an empty slice
 		return SliceRefPublicPieceInfo{
-			ptr: (*C.PublicPieceInfo_t)(unsafe.Pointer(&goSlice)),
+			ptr: &emptyPublicPieceInfo,
 			len: C.size_t(len),
 		}
 	}
@@ -167,7 +180,7 @@ func AsSliceRefByteArray32(goSlice []ByteArray32) SliceRefByteArray32 {
 	if len == 0 {
 		// can't take element 0 of an empty slice
 		return SliceRefByteArray32{
-			ptr: (*C.uint8_32_array_t)(unsafe.Pointer(&goSlice)),
+			ptr: &emptyByteArray32,
 			len: C.size_t(len),
 		}
 	}
@@ -184,7 +197,7 @@ func AsSliceRefSliceBoxedUint8(goSlice []SliceBoxedUint8) SliceRefSliceBoxedUint
 	if len == 0 {
 		// can't take element 0 of an empty slice
 		return SliceRefSliceBoxedUint8{
-			ptr: (*C.slice_boxed_uint8_t)(unsafe.Pointer(&goSlice)),
+			ptr: &emptySliceBoxedUint8,
 			len: C.size_t(len),
 		}
 	}
