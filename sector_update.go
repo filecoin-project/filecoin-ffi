@@ -1,4 +1,5 @@
-//+build cgo
+//go:build cgo
+// +build cgo
 
 package ffi
 
@@ -6,7 +7,7 @@ import (
 	"github.com/filecoin-project/filecoin-ffi/generated"
 	commcid "github.com/filecoin-project/go-fil-commcid"
 	"github.com/filecoin-project/go-state-types/abi"
-	"github.com/filecoin-project/specs-actors/v7/actors/runtime/proof"
+	"github.com/filecoin-project/go-state-types/builtin/v8/miner"
 	"github.com/ipfs/go-cid"
 	"github.com/pkg/errors"
 	"golang.org/x/xerrors"
@@ -386,7 +387,7 @@ func (FunctionsSectorUpdate) GenerateUpdateProof(
 	return copyBytes(resp.ProofPtr, resp.ProofLen), nil
 }
 
-func (FunctionsSectorUpdate) VerifyUpdateProof(info proof.ReplicaUpdateInfo) (bool, error) {
+func (FunctionsSectorUpdate) VerifyUpdateProof(info miner.ReplicaUpdateInfo) (bool, error) {
 	up, err := toFilRegisteredUpdateProof(info.UpdateProofType)
 	if err != nil {
 		return false, err

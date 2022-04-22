@@ -1,11 +1,12 @@
-//+build cgo
+//go:build cgo
+// +build cgo
 
 package ffi
 
 import (
 	"github.com/filecoin-project/filecoin-ffi/generated"
 	"github.com/filecoin-project/go-state-types/abi"
-	"github.com/filecoin-project/specs-actors/v5/actors/runtime/proof"
+	"github.com/filecoin-project/go-state-types/builtin/v8/miner"
 	"github.com/pkg/errors"
 )
 
@@ -96,7 +97,7 @@ func GenerateWinningPoStWithVanilla(
 	minerID abi.ActorID,
 	randomness abi.PoStRandomness,
 	proofs [][]byte,
-) ([]proof.PoStProof, error) {
+) ([]miner.PoStProof, error) {
 	pp, err := toFilRegisteredPoStProof(proofType)
 	if err != nil {
 		return nil, err
@@ -138,7 +139,7 @@ func GenerateWindowPoStWithVanilla(
 	minerID abi.ActorID,
 	randomness abi.PoStRandomness,
 	proofs [][]byte,
-) ([]proof.PoStProof, error) {
+) ([]miner.PoStProof, error) {
 	pp, err := toFilRegisteredPoStProof(proofType)
 	if err != nil {
 		return nil, err
@@ -175,7 +176,7 @@ func GenerateWindowPoStWithVanilla(
 	return out, nil
 }
 
-type PartitionProof proof.PoStProof
+type PartitionProof miner.PoStProof
 
 func GenerateSinglePartitionWindowPoStWithVanilla(
 	proofType abi.RegisteredPoStProof,
@@ -228,7 +229,7 @@ func GenerateSinglePartitionWindowPoStWithVanilla(
 func MergeWindowPoStPartitionProofs(
 	proofType abi.RegisteredPoStProof,
 	partitionProofs []PartitionProof,
-) (*proof.PoStProof, error) {
+) (*miner.PoStProof, error) {
 	pp, err := toFilRegisteredPoStProof(proofType)
 	if err != nil {
 		return nil, err
@@ -258,7 +259,7 @@ func MergeWindowPoStPartitionProofs(
 		return nil, err
 	}
 
-	out := proof.PoStProof{
+	out := miner.PoStProof{
 		PoStProof:  dpp,
 		ProofBytes: copyBytes(resp.Proof.ProofPtr, resp.Proof.ProofLen),
 	}
