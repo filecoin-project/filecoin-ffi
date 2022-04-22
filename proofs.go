@@ -588,16 +588,12 @@ func GenerateWindowPoSt(
 	proofsRaw, faultsRaw, err := cgo.GenerateWindowPoSt(&randomnessBytes, cgo.AsSliceRefPrivateReplicaInfo(filReplicas), &proverID)
 	faultySectors := fromFilPoStFaultySectors(faultsRaw)
 	if err != nil {
-		return nil, nil, xerrors.Errorf("failed to parse faulty sectors list: %w", err)
-	}
-
-	if err != nil {
 		return nil, faultySectors, err
 	}
 
 	proofs, err := fromFilPoStProofs(proofsRaw)
 	if err != nil {
-		return nil, nil, err
+		return nil, faultySectors, err
 	}
 
 	return proofs, faultySectors, nil

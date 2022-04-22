@@ -129,6 +129,7 @@ func (ptr *resultBool) destroy() {
 	if ptr != nil {
 		// TODO: correct naming
 		C.destroy_verify_seal_response(ptr)
+		ptr = nil
 	}
 }
 
@@ -139,12 +140,14 @@ func (ptr *PoStProof) registeredProof() RegisteredPoStProof {
 func (ptr *PoStProof) destroy() {
 	if ptr != nil {
 		ptr.proof.Destroy()
+		ptr = nil
 	}
 }
 
 func (ptr *ByteArray96) destroy() {
 	if ptr != nil {
 		C.destroy_box_bls_digest(ptr)
+		ptr = nil
 	}
 }
 
@@ -177,6 +180,7 @@ func (ptr *ByteArray48) copyAsArray() *[48]byte {
 func (ptr *ByteArray48) destroy() {
 	if ptr != nil {
 		C.destroy_box_bls_public_key(ptr)
+		ptr = nil
 	}
 }
 
@@ -204,6 +208,7 @@ func (ptr *ByteArray32) copyAsArray() *[32]byte {
 func (ptr *ByteArray32) destroy() {
 	if ptr != nil {
 		C.destroy_box_bls_private_key(ptr)
+		ptr = nil
 	}
 }
 
@@ -218,6 +223,7 @@ func (ptr *resultGeneratePieceCommitment) errorMsg() *SliceBoxedUint8 {
 func (ptr *resultGeneratePieceCommitment) destroy() {
 	if ptr != nil {
 		C.destroy_generate_piece_commitment_response(ptr)
+		ptr = nil
 	}
 }
 
@@ -233,6 +239,7 @@ func (ptr *resultByteArray32) destroy() {
 	if ptr != nil {
 		// TODO: better naming
 		C.destroy_generate_data_commitment_response(ptr)
+		ptr = nil
 	}
 }
 
@@ -247,6 +254,7 @@ func (ptr *resultWriteWithAlignment) errorMsg() *SliceBoxedUint8 {
 func (ptr *resultWriteWithAlignment) destroy() {
 	if ptr != nil {
 		C.destroy_write_with_alignment_response(ptr)
+		ptr = nil
 	}
 }
 
@@ -261,6 +269,7 @@ func (ptr *resultWriteWithoutAlignment) errorMsg() *SliceBoxedUint8 {
 func (ptr *resultWriteWithoutAlignment) destroy() {
 	if ptr != nil {
 		C.destroy_write_without_alignment_response(ptr)
+		ptr = nil
 	}
 }
 
@@ -276,6 +285,7 @@ func (ptr *resultSliceBoxedUint8) destroy() {
 	if ptr != nil {
 		// TODO: naming
 		C.destroy_seal_pre_commit_phase1_response(ptr)
+		ptr = nil
 	}
 }
 
@@ -290,6 +300,7 @@ func (ptr *resultSealPreCommitPhase2) errorMsg() *SliceBoxedUint8 {
 func (ptr *resultSealPreCommitPhase2) destroy() {
 	if ptr != nil {
 		C.destroy_seal_pre_commit_phase2_response(ptr)
+		ptr = nil
 	}
 }
 
@@ -305,6 +316,7 @@ func (ptr *resultVoid) destroy() {
 	if ptr != nil {
 		// TODO: correct naming
 		C.destroy_unseal_range_response(ptr)
+		ptr = nil
 	}
 }
 
@@ -334,6 +346,7 @@ func (ptr *resultSliceBoxedUint64) destroy() {
 	if ptr != nil {
 		// TODO: correct naming
 		C.destroy_generate_winning_post_sector_challenge(ptr)
+		ptr = nil
 	}
 }
 
@@ -374,6 +387,7 @@ func (ptr *resultSliceBoxedPoStProof) destroy() {
 	if ptr != nil {
 		// TODO: correct naming
 		C.destroy_generate_winning_post_response(ptr)
+		ptr = nil
 	}
 }
 
@@ -388,6 +402,7 @@ func (ptr *resultGenerateWindowPoSt) errorMsg() *SliceBoxedUint8 {
 func (ptr *resultGenerateWindowPoSt) destroy() {
 	if ptr != nil {
 		C.destroy_generate_window_post_response(ptr)
+		ptr = nil
 	}
 }
 
@@ -434,6 +449,7 @@ func (ptr *resultSliceBoxedSliceBoxedUint8) destroy() {
 	if ptr != nil {
 		// TODO: naming
 		C.destroy_generate_empty_sector_update_partition_proof_response(ptr)
+		ptr = nil
 	}
 }
 
@@ -449,6 +465,7 @@ func (ptr *resultUint) destroy() {
 	if ptr != nil {
 		// TODO: naming
 		C.destroy_get_num_partition_for_fallback_post_response(ptr)
+		ptr = nil
 	}
 }
 
@@ -463,6 +480,7 @@ func (ptr *resultEmptySectorUpdateEncodeInto) errorMsg() *SliceBoxedUint8 {
 func (ptr *resultEmptySectorUpdateEncodeInto) destroy() {
 	if ptr != nil {
 		C.destroy_empty_sector_update_encode_into_response(ptr)
+		ptr = nil
 	}
 }
 
@@ -495,6 +513,7 @@ func (ptr *resultGenerateFallbackSectorChallenges) errorMsg() *SliceBoxedUint8 {
 func (ptr *resultGenerateFallbackSectorChallenges) destroy() {
 	if ptr != nil {
 		C.destroy_generate_fallback_sector_challenges_response(ptr)
+		ptr = nil
 	}
 }
 
@@ -516,6 +535,7 @@ func (ptr *resultGenerateSingleWindowPoStWithVanilla) errorMsg() *SliceBoxedUint
 func (ptr *resultGenerateSingleWindowPoStWithVanilla) destroy() {
 	if ptr != nil {
 		C.destroy_generate_single_window_post_with_vanilla_response(ptr)
+		ptr = nil
 	}
 }
 
@@ -530,12 +550,14 @@ func (ptr *resultPoStProof) errorMsg() *SliceBoxedUint8 {
 func (ptr *resultPoStProof) destroy() {
 	if ptr != nil {
 		C.destroy_merge_window_post_partition_proofs_response(ptr)
+		ptr = nil
 	}
 }
 
 func (ptr SliceBoxedUint8) Destroy() {
 	if ptr.ptr != nil {
 		C.destroy_boxed_slice(ptr)
+		ptr.ptr = nil
 	}
 }
 
@@ -543,6 +565,7 @@ func (ptr *PrivateReplicaInfo) Destroy() {
 	if ptr != nil {
 		ptr.cache_dir_path.Destroy()
 		ptr.replica_path.Destroy()
+		ptr = nil
 	}
 }
 
@@ -557,6 +580,7 @@ func (ptr *resultFvmMachineExecuteResponse) errorMsg() *SliceBoxedUint8 {
 func (ptr *resultFvmMachineExecuteResponse) destroy() {
 	if ptr != nil {
 		C.destroy_fvm_machine_execute_response(ptr)
+		ptr = nil
 	}
 }
 
@@ -571,12 +595,14 @@ func (ptr *resultFvmMachine) errorMsg() *SliceBoxedUint8 {
 func (ptr *resultFvmMachine) destroy() {
 	if ptr != nil {
 		C.destroy_create_fvm_machine_response(ptr)
+		ptr = nil
 	}
 }
 
 func (ptr *FvmMachine) Destroy() {
 	if ptr != nil {
 		C.drop_fvm_machine(ptr)
+		ptr = nil
 	}
 }
 
