@@ -6,7 +6,7 @@ package ffi
 import (
 	"github.com/filecoin-project/filecoin-ffi/cgo"
 	"github.com/filecoin-project/go-state-types/abi"
-	"github.com/filecoin-project/specs-actors/v5/actors/runtime/proof"
+	"github.com/filecoin-project/go-state-types/proof"
 )
 
 type FallbackChallenges struct {
