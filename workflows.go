@@ -1,4 +1,5 @@
-//+build cgo
+//go:build cgo
+// +build cgo
 
 package ffi
 
@@ -14,8 +15,9 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/filecoin-project/go-state-types/builtin/v8/miner"
+
 	"github.com/filecoin-project/go-state-types/abi"
-	prf "github.com/filecoin-project/specs-actors/actors/runtime/proof"
 	"github.com/ipfs/go-cid"
 )
 
@@ -137,7 +139,7 @@ func WorkflowProofsLifecycle(t TestHelper) {
 	t.RequireNoError(err)
 
 	// verify the 'ole proofy
-	isValid, err := VerifySeal(prf.SealVerifyInfo{
+	isValid, err := VerifySeal(miner.SealVerifyInfo{
 		SectorID: abi.SectorID{
 			Miner:  minerID,
 			Number: sectorNum,
@@ -217,7 +219,7 @@ func WorkflowProofsLifecycle(t TestHelper) {
 	// generate a PoSt over the proving set before importing, just to exercise
 	// the new API
 	privateInfo := NewSortedPrivateSectorInfo(PrivateSectorInfo{
-		SectorInfo: prf.SectorInfo{
+		SectorInfo: miner.SectorInfo{
 			SectorNumber: sectorNum,
 			SealedCID:    sealedCID,
 		},
@@ -226,7 +228,7 @@ func WorkflowProofsLifecycle(t TestHelper) {
 		SealedSectorPath: sealedSectorFile.Name(),
 	})
 
-	provingSet := []prf.SectorInfo{{
+	provingSet := []miner.SectorInfo{{
 		SealProof:    sealProofType,
 		SectorNumber: sectorNum,
 		SealedCID:    sealedCID,
@@ -236,7 +238,7 @@ func WorkflowProofsLifecycle(t TestHelper) {
 	indicesInProvingSet, err := GenerateWinningPoStSectorChallenge(winningPostProofType, minerID, randomness[:], uint64(len(provingSet)))
 	t.RequireNoError(err)
 
-	var challengedSectors []prf.SectorInfo
+	var challengedSectors []miner.SectorInfo
 	for idx := range indicesInProvingSet {
 		challengedSectors = append(challengedSectors, provingSet[indicesInProvingSet[idx]])
 	}
@@ -244,7 +246,7 @@ func WorkflowProofsLifecycle(t TestHelper) {
 	proofs, err := GenerateWinningPoSt(minerID, privateInfo, randomness[:])
 	t.RequireNoError(err)
 
-	isValid, err = VerifyWinningPoSt(prf.WinningPoStVerifyInfo{
+	isValid, err = VerifyWinningPoSt(miner.WinningPoStVerifyInfo{
 		Randomness:        randomness[:],
 		Proofs:            proofs,
 		ChallengedSectors: challengedSectors,

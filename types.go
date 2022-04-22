@@ -6,8 +6,9 @@ import (
 	"encoding/json"
 	"sort"
 
+	"github.com/filecoin-project/go-state-types/builtin/v8/miner"
+
 	"github.com/filecoin-project/go-state-types/abi"
-	"github.com/filecoin-project/specs-actors/actors/runtime/proof"
 	"github.com/ipfs/go-cid"
 )
 
@@ -128,7 +129,7 @@ type publicSectorInfo struct {
 }
 
 type PrivateSectorInfo struct {
-	proof.SectorInfo
+	miner.SectorInfo
 	CacheDirPath     string
 	PoStProofType    abi.RegisteredPoStProof
 	SealedSectorPath string

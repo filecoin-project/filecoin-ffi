@@ -8,7 +8,6 @@ require (
 	github.com/filecoin-project/go-fil-commcid v0.1.0
 	github.com/filecoin-project/go-state-types v0.1.3
 	github.com/filecoin-project/specs-actors v0.9.14
-	github.com/filecoin-project/specs-actors/v5 v5.0.4
 	github.com/filecoin-project/specs-actors/v7 v7.0.0-rc1.0.20220118005651-2470cb39827e
 	github.com/ipfs/go-block-format v0.0.3
 	github.com/ipfs/go-cid v0.1.0
@@ -34,3 +33,5 @@ require (
 	lukechampine.com/blake3 v1.1.7 // indirect
 	modernc.org/golex v1.0.1 // indirect
 )
+
+replace github.com/filecoin-project/specs-storage => ../../../../specs-storage
