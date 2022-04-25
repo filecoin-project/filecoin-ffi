@@ -617,6 +617,6 @@ func (r FvmMachineExecuteResponse) copy() FvmMachineExecuteResponseGo {
 		MinerTipHi:  uint64(r.miner_tip_hi),
 		MinerTipLo:  uint64(r.miner_tip_lo),
 		ExecTrace:   r.exec_trace.copy(),
-		FailureInfo: string(r.failure_info.copy()),
+		FailureInfo: string(r.failure_info.slice()),
 	}
 }
