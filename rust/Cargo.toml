@@ -77,3 +77,10 @@ multicore-sdr = ["storage-proofs-porep/multicore-sdr"]
 # Only enabled by cbindgen. When enabled, the cgo_* externs are disabled so as not to confuse
 # cbindgen.
 bindgen=[]
+
+[patch.crates-io]
+filecoin-proofs = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "many-group-sdr" }
+filecoin-hashers = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "many-group-sdr" }
+storage-proofs-core = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "many-group-sdr" }
+storage-proofs-porep = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "many-group-sdr" }
+storage-proofs-post = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "many-group-sdr" }
