@@ -93,14 +93,15 @@ type PoStProofGo struct {
 
 /// FvmMachineExecuteResponse is a go allocated version of `FvmMachineExecuteResponse`.
 type FvmMachineExecuteResponseGo struct {
-	ExitCode   uint64
-	ReturnVal  []byte
-	GasUsed    uint64
-	PenaltyHi  uint64
-	PenaltyLo  uint64
-	MinerTipHi uint64
-	MinerTipLo uint64
-	ExecTrace  []byte
+	ExitCode    uint64
+	ReturnVal   []byte
+	GasUsed     uint64
+	PenaltyHi   uint64
+	PenaltyLo   uint64
+	MinerTipHi  uint64
+	MinerTipLo  uint64
+	ExecTrace   []byte
+	FailureInfo string
 }
 
 func (ptr SliceBoxedUint8) slice() []byte {
@@ -608,13 +609,14 @@ func (ptr *FvmMachine) Destroy() {
 
 func (r FvmMachineExecuteResponse) copy() FvmMachineExecuteResponseGo {
 	return FvmMachineExecuteResponseGo{
-		ExitCode:   uint64(r.exit_code),
-		ReturnVal:  r.return_val.copy(),
-		GasUsed:    uint64(r.gas_used),
-		PenaltyHi:  uint64(r.penalty_hi),
-		PenaltyLo:  uint64(r.penalty_lo),
-		MinerTipHi: uint64(r.miner_tip_hi),
-		MinerTipLo: uint64(r.miner_tip_lo),
-		ExecTrace:  r.exec_trace.copy(),
+		ExitCode:    uint64(r.exit_code),
+		ReturnVal:   r.return_val.copy(),
+		GasUsed:     uint64(r.gas_used),
+		PenaltyHi:   uint64(r.penalty_hi),
+		PenaltyLo:   uint64(r.penalty_lo),
+		MinerTipHi:  uint64(r.miner_tip_hi),
+		MinerTipLo:  uint64(r.miner_tip_lo),
+		ExecTrace:   r.exec_trace.copy(),
+		FailureInfo: r.failure_info.copy(),
 	}
 }

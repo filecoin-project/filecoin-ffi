@@ -30,4 +30,5 @@ pub struct FvmMachineExecuteResponse {
     pub miner_tip_hi: u64,
     pub miner_tip_lo: u64,
     pub exec_trace: Option<c_slice::Box<u8>>,
+    pub failure_info: Option<str::Box>,
 }

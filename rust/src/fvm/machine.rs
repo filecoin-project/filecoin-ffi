@@ -163,6 +163,10 @@ fn fvm_machine_execute_message(
             None
         };
 
+        let failure_info = apply_ret
+            .failure_info
+            .map(|info| info.to_string().into_boxed_str().into());
+
         // TODO: use the non-bigint token amount everywhere in the FVM
         let penalty: u128 = apply_ret.penalty.try_into().unwrap();
         let miner_tip: u128 = apply_ret.miner_tip.try_into().unwrap();
@@ -190,6 +194,7 @@ fn fvm_machine_execute_message(
             miner_tip_hi: (miner_tip >> u64::BITS) as u64,
             miner_tip_lo: miner_tip as u64,
             exec_trace,
+            failure_info,
         })
     })
 }

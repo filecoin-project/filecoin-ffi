@@ -113,6 +113,7 @@ func (f *FVM) ApplyMessage(msgBytes []byte, chainLen uint) (*ApplyRet, error) {
 		MinerPenalty:   reformBigInt(resp.PenaltyHi, resp.PenaltyLo),
 		MinerTip:       reformBigInt(resp.MinerTipHi, resp.MinerTipLo),
 		ExecTraceBytes: resp.ExecTrace,
+		FailureInfo:    resp.FailureInfo,
 	}, nil
 }
 
@@ -134,6 +135,7 @@ func (f *FVM) ApplyImplicitMessage(msgBytes []byte) (*ApplyRet, error) {
 		GasUsed:      int64(resp.GasUsed),
 		MinerPenalty: reformBigInt(resp.PenaltyHi, resp.PenaltyLo),
 		MinerTip:     reformBigInt(resp.MinerTipHi, resp.MinerTipLo),
+		FailureInfo:  resp.FailureInfo,
 	}, nil
 }
 
@@ -154,6 +156,7 @@ type ApplyRet struct {
 	MinerPenalty   abi.TokenAmount
 	MinerTip       abi.TokenAmount
 	ExecTraceBytes []byte
+	FailureInfo    string
 }
 
 // NOTE: We only support 64bit platforms
