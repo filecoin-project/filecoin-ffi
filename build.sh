@@ -11,5 +11,4 @@ cargo update -p "filecoin-proofs-api"
 cargo install cargo-lipo
 cd ..
 FFI_BUILD_FROM_SOURCE=1 make
-make cgo-gen
 go mod tidy
