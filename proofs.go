@@ -426,10 +426,10 @@ func AggregateSealProofs(aggregateInfo proof5.AggregateSealVerifyProofAndInfos, 
 	}
 
 	pfs, cleaner, err := toVanillaProofs(proofs)
-	defer cleaner()
 	if err != nil {
 		return nil, err
 	}
+	defer cleaner()
 
 	rap, err := toFilRegisteredAggregationProof(aggregateInfo.AggregateProof)
 	if err != nil {
@@ -544,10 +544,10 @@ func GenerateWinningPoSt(
 	randomness abi.PoStRandomness,
 ) ([]proof5.PoStProof, error) {
 	filReplicas, cleanup, err := toFilPrivateReplicaInfos(privateSectorInfo.Values(), "winning")
-	defer cleanup()
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create private replica info array for FFI")
 	}
+	defer cleanup()
 
 	proverID, err := toProverID(minerID)
 	if err != nil {
@@ -574,10 +574,10 @@ func GenerateWindowPoSt(
 	randomness abi.PoStRandomness,
 ) ([]proof5.PoStProof, []abi.SectorNumber, error) {
 	filReplicas, cleanup, err := toFilPrivateReplicaInfos(privateSectorInfo.Values(), "window")
-	defer cleanup()
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "failed to create private replica info array for FFI")
 	}
+	defer cleanup()
 
 	proverID, err := toProverID(minerID)
 	if err != nil {
@@ -766,12 +766,14 @@ func toFilPrivateReplicaInfos(src []PrivateSectorInfo, typ string) ([]cgo.Privat
 	for idx := range out {
 		commR, err := to32ByteCommR(src[idx].SealedCID)
 		if err != nil {
-			return nil, makeCleanerPRI(out, idx), err
+			makeCleanerPRI(out, idx)()
+			return nil, nil, err
 		}
 
 		pp, err := toFilRegisteredPoStProof(src[idx].PoStProofType)
 		if err != nil {
-			return nil, makeCleanerPRI(out, idx), err
+			makeCleanerPRI(out, idx)()
+			return nil, nil, err
 		}
 
 		info, err := cgo.NewPrivateReplicaInfo(
@@ -782,7 +784,8 @@ func toFilPrivateReplicaInfos(src []PrivateSectorInfo, typ string) ([]cgo.Privat
 			uint64(src[idx].SectorNumber),
 		)
 		if err != nil {
-			return nil, makeCleanerPRI(out, idx), err
+			makeCleanerPRI(out, idx)()
+			return nil, nil, err
 		}
 		out[idx] = info
 	}
@@ -978,7 +981,8 @@ func toVanillaProofs(src [][]byte) ([]cgo.SliceBoxedUint8, func(), error) {
 	for i := range out {
 		p, err := cgo.AllocSliceBoxedUint8(src[i])
 		if err != nil {
-			return nil, makeCleanerSBU(out, i), err
+			makeCleanerSBU(out, i)()
+			return nil, nil, err
 		}
 		out[i] = p
 	}

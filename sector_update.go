@@ -279,6 +279,10 @@ func toUpdateVanillaProofs(src [][]byte) ([]cgo.SliceBoxedUint8, func(), error) 
 	for idx := range out {
 		b, err := cgo.AllocSliceBoxedUint8(src[idx])
 		if err != nil {
+			// only deallocate allocated ones
+			for i := 0; idx < i; i++ {
+				out[i].Destroy()
+			}
 			return nil, nil, err
 		}
 		out[idx] = b

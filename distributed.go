@@ -7,15 +7,12 @@ import (
 	"github.com/filecoin-project/filecoin-ffi/cgo"
 	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/filecoin-project/specs-actors/v5/actors/runtime/proof"
-	// "github.com/pkg/errors"
 )
 
 type FallbackChallenges struct {
 	Sectors    []abi.SectorNumber
 	Challenges map[abi.SectorNumber][]uint64
 }
-
-// type VanillaProof []byte
 
 // GenerateWinningPoStSectorChallenge
 func GeneratePoStFallbackSectorChallenges(
@@ -89,10 +86,10 @@ func GenerateWinningPoStWithVanilla(
 		return nil, err
 	}
 	fproofs, cleanup, err := toVanillaProofs(proofs)
-	defer cleanup()
 	if err != nil {
 		return nil, err
 	}
+	defer cleanup()
 
 	randomnessBytes := cgo.AsByteArray32(randomness)
 	resp, err := cgo.GenerateWinningPoStWithVanilla(pp, &randomnessBytes, &proverID, cgo.AsSliceRefSliceBoxedUint8(fproofs))
@@ -124,10 +121,11 @@ func GenerateWindowPoStWithVanilla(
 		return nil, err
 	}
 	fproofs, cleaner, err := toVanillaProofs(proofs)
-	defer cleaner()
 	if err != nil {
 		return nil, err
 	}
+	defer cleaner()
+
 	randomnessBytes := cgo.AsByteArray32(randomness)
 	rawProofs, _, err := cgo.GenerateWindowPoStWithVanilla(pp, &randomnessBytes, &proverID, cgo.AsSliceRefSliceBoxedUint8(fproofs))
 	if err != nil {
@@ -161,10 +159,10 @@ func GenerateSinglePartitionWindowPoStWithVanilla(
 		return nil, err
 	}
 	fproofs, cleaner, err := toVanillaProofs(proofs)
-	defer cleaner()
 	if err != nil {
 		return nil, err
 	}
+	defer cleaner()
 
 	randomnessBytes := cgo.AsByteArray32(randomness)
 	resp, _, err := cgo.GenerateSingleWindowPoStWithVanilla(
@@ -201,10 +199,10 @@ func MergeWindowPoStPartitionProofs(
 	}
 
 	fproofs, cleaner, err := toPartitionProofs(partitionProofs)
-	defer cleaner()
 	if err != nil {
 		return nil, err
 	}
+	defer cleaner()
 
 	resp, err := cgo.MergeWindowPoStPartitionProofs(pp, cgo.AsSliceRefSliceBoxedUint8(fproofs))
 	if err != nil {

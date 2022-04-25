@@ -64,10 +64,7 @@ func AllocSliceBoxedUint8(goBytes []byte) (SliceBoxedUint8, error) {
 	}
 
 	ptr := C.alloc_boxed_slice(C.size_t(len))
-	slice := ptr.slice()
-	for i := range slice {
-		slice[i] = goBytes[i]
-	}
+	copy(ptr.slice(), goBytes)
 
 	return ptr, nil
 }
@@ -214,14 +211,12 @@ func AsByteArray32(goSlice []byte) ByteArray32 {
 	for idx := range goSlice {
 		if idx < l {
 			ary.idx[idx] = C.uchar(goSlice[idx])
-		} else {
-			ary.idx[idx] = 0
 		}
 	}
 	return ary
 }
 
-/// CheckErr returns `nil` if the `code` indicates success and an error otherwise.
+// CheckErr returns `nil` if the `code` indicates success and an error otherwise.
 func CheckErr(resp result) error {
 	if resp == nil {
 		return errors.New("failed")
