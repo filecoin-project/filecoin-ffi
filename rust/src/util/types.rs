@@ -160,18 +160,20 @@ where
     })
 }
 
-pub fn catch_panic_response_raw<F, T>(name: &str, callback: F) -> repr_c::Box<Result<T>>
+pub fn catch_panic_response_no_log<F, T>(callback: F) -> repr_c::Box<Result<T>>
+where
+    T: Sized + Default,
+    F: FnOnce() -> anyhow::Result<T> + std::panic::UnwindSafe,
+{
+    catch_panic_response_raw_no_log(|| Result::from(callback().map_err(|err| err.to_string())))
+}
+
+pub fn catch_panic_response_raw_no_log<F, T>(callback: F) -> repr_c::Box<Result<T>>
 where
     T: Sized + Default,
     F: FnOnce() -> Result<T> + std::panic::UnwindSafe,
 {
-    let result = match panic::catch_unwind(|| {
-        init_log();
-        log::info!("{}: start", name);
-        let res = callback();
-        log::info!("{}: end", name);
-        res
-    }) {
+    let result = match panic::catch_unwind(callback) {
         Ok(t) => t,
         Err(panic) => {
             let error_msg = match panic.downcast_ref::<&'static str>() {
@@ -184,6 +186,20 @@ where
     };
 
     repr_c::Box::new(result)
+}
+
+pub fn catch_panic_response_raw<F, T>(name: &str, callback: F) -> repr_c::Box<Result<T>>
+where
+    T: Sized + Default,
+    F: FnOnce() -> Result<T> + std::panic::UnwindSafe,
+{
+    catch_panic_response_raw_no_log(|| {
+        init_log();
+        log::info!("{}: start", name);
+        let res = callback();
+        log::info!("{}: end", name);
+        res
+    })
 }
 
 pub unsafe fn catch_panic_response_no_default<F, T>(

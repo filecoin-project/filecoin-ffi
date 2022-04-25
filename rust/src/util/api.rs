@@ -5,7 +5,9 @@ use std::sync::Once;
 use anyhow::anyhow;
 use safer_ffi::prelude::*;
 
-use super::types::{catch_panic_response, GpuDeviceResponse, InitLogFdResponse};
+use super::types::{
+    catch_panic_response, catch_panic_response_no_log, GpuDeviceResponse, InitLogFdResponse,
+};
 
 /// Protects the init off the logger.
 static LOG_INIT: Once = Once::new();
@@ -53,7 +55,7 @@ pub fn get_gpu_devices() -> repr_c::Box<GpuDeviceResponse> {
 /// be initializes implicitely and log to stderr.
 #[ffi_export]
 pub fn init_log_fd(log_fd: libc::c_int) -> repr_c::Box<InitLogFdResponse> {
-    catch_panic_response("init_log_fd", || {
+    catch_panic_response_no_log(|| {
         let file = unsafe { File::from_raw_fd(log_fd) };
 
         if init_log_with_file(file).is_none() {

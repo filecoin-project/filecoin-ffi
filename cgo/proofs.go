@@ -169,13 +169,13 @@ func GenerateWinningPoSt(randomness *ByteArray32, replicas SliceRefPrivateReplic
 func GenerateWindowPoSt(randomness *ByteArray32, replicas SliceRefPrivateReplicaInfo, proverId *ByteArray32) ([]PoStProofGo, []uint64, error) {
 	resp := C.generate_window_post(randomness, replicas, proverId)
 	defer resp.destroy()
-	faults := resp.value.faulty_sectors.copy()
-
 	if err := CheckErr(resp); err != nil {
+		faults := resp.value.faulty_sectors.copy()
 		return nil, faults, err
 	}
+
 	proofs := resp.value.proofs.copy()
-	return proofs, faults, nil
+	return proofs, []uint64{}, nil
 }
 
 func GetGpuDevices() ([]string, error) {

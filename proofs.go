@@ -586,17 +586,17 @@ func GenerateWindowPoSt(
 
 	randomnessBytes := cgo.AsByteArray32(randomness)
 	proofsRaw, faultsRaw, err := cgo.GenerateWindowPoSt(&randomnessBytes, cgo.AsSliceRefPrivateReplicaInfo(filReplicas), &proverID)
-	faultySectors := fromFilPoStFaultySectors(faultsRaw)
 	if err != nil {
+		faultySectors := fromFilPoStFaultySectors(faultsRaw)
 		return nil, faultySectors, err
 	}
 
 	proofs, err := fromFilPoStProofs(proofsRaw)
 	if err != nil {
-		return nil, faultySectors, err
+		return nil, nil, err
 	}
 
-	return proofs, faultySectors, nil
+	return proofs, nil, nil
 }
 
 // GetGPUDevices produces a slice of strings, each representing the name of a
@@ -796,7 +796,7 @@ func toFilPrivateReplicaInfos(src []PrivateSectorInfo, typ string) ([]cgo.Privat
 func fromFilPoStFaultySectors(ptr []uint64) []abi.SectorNumber {
 	snums := make([]abi.SectorNumber, len(ptr))
 	for i := range ptr {
-		snums = append(snums, abi.SectorNumber(ptr[i]))
+		snums[i] = abi.SectorNumber(ptr[i])
 	}
 
 	return snums
