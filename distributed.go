@@ -62,7 +62,6 @@ func GenerateSingleVanillaProof(
 ) ([]byte, error) {
 
 	rep, err := toFilPrivateReplicaInfo(replica)
-	defer rep.Destroy()
 	if err != nil {
 		return nil, err
 	}
