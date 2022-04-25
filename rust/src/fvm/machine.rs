@@ -53,7 +53,7 @@ fn create_fvm_machine(
     tracing: bool,
     blockstore_id: u64,
     externs_id: u64,
-) -> repr_c::Box<Result<repr_c::Box<FvmMachine>>> {
+) -> repr_c::Box<Result<FvmMachine>> {
     use fvm::machine::NetworkConfig;
     unsafe {
         catch_panic_response_no_default("create_fvm_machine", || {
@@ -117,16 +117,16 @@ fn create_fvm_machine(
                 fvm::machine::DefaultMachine::new(&ENGINE, &machine_context, blockstore, externs)
                     .map_err(|err| anyhow!("failed to create machine: {}", err))?;
 
-            Ok(repr_c::Box::new(FvmMachine {
+            Ok(Some(repr_c::Box::new(InnerFvmMachine {
                 machine: Some(Mutex::new(CgoExecutor::new(machine))),
-            }))
+            })))
         })
     }
 }
 
 #[ffi_export]
 fn fvm_machine_execute_message(
-    executor: &'_ FvmMachine,
+    executor: &'_ InnerFvmMachine,
     message: c_slice::Ref<u8>,
     chain_len: u64,
     apply_kind: u64, /* 0: Explicit, _: Implicit */
@@ -200,7 +200,7 @@ fn fvm_machine_execute_message(
 }
 
 #[ffi_export]
-fn fvm_machine_flush(executor: &'_ FvmMachine) -> repr_c::Box<Result<c_slice::Box<u8>>> {
+fn fvm_machine_flush(executor: &'_ InnerFvmMachine) -> repr_c::Box<Result<c_slice::Box<u8>>> {
     catch_panic_response("fvm_machine_flush", || {
         let mut executor = executor
             .machine
@@ -214,11 +214,8 @@ fn fvm_machine_flush(executor: &'_ FvmMachine) -> repr_c::Box<Result<c_slice::Bo
     })
 }
 
-destructor!(drop_fvm_machine, FvmMachine);
-destructor!(
-    destroy_create_fvm_machine_response,
-    Result<repr_c::Box<FvmMachine>>
-);
+destructor!(drop_fvm_machine, InnerFvmMachine);
+destructor!(destroy_create_fvm_machine_response, Result<FvmMachine>);
 
 destructor!(
     destroy_fvm_machine_execute_response,

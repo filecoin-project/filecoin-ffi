@@ -14,9 +14,11 @@ pub enum FvmRegisteredVersion {
 #[derive_ReprC]
 #[ReprC::opaque]
 #[derive(Default)]
-pub struct FvmMachine {
+pub struct InnerFvmMachine {
     pub(crate) machine: Option<Mutex<CgoExecutor>>,
 }
+
+pub type FvmMachine = Option<repr_c::Box<InnerFvmMachine>>;
 
 #[derive_ReprC]
 #[repr(C)]

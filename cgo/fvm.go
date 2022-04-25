@@ -23,13 +23,16 @@ func CreateFvmMachine(fvmVersion FvmRegisteredVersion, chainEpoch, baseFeeHi, ba
 		C.uint64_t(blockstoreId),
 		C.uint64_t(externsId),
 	)
+	// take out the pointer from the result to ensure it doesn't get freed
+	executor := resp.value
+	resp.value = nil
 	defer resp.destroy()
 
 	if err := CheckErr(resp); err != nil {
 		return nil, err
 	}
 
-	return resp.value, nil
+	return executor, nil
 }
 
 func FvmMachineExecuteMessage(executor *FvmMachine, message SliceRefUint8, chainLen, applyKind uint64) (FvmMachineExecuteResponseGo, error) {

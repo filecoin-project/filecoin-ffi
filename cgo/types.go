@@ -49,7 +49,7 @@ type ByteArray32 = C.uint8_32_array_t
 type ByteArray48 = C.uint8_48_array_t
 type ByteArray96 = C.uint8_96_array_t
 
-type FvmMachine = C.FvmMachine_t
+type FvmMachine = C.InnerFvmMachine_t
 type FvmMachineExecuteResponse = C.FvmMachineExecuteResponse_t
 
 type resultBool = C.Result_bool_t
@@ -70,7 +70,7 @@ type resultGenerateFallbackSectorChallenges = C.Result_GenerateFallbackSectorCha
 type resultGenerateSingleWindowPoStWithVanilla = C.Result_GenerateSingleWindowPoStWithVanilla_t
 type resultPoStProof = C.Result_PoStProof_t
 
-type resultFvmMachine = C.Result_FvmMachine_ptr_t
+type resultFvmMachine = C.Result_InnerFvmMachine_ptr_t
 type resultFvmMachineExecuteResponse = C.Result_FvmMachineExecuteResponse_t
 
 type result interface {
