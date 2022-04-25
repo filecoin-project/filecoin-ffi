@@ -555,9 +555,9 @@ func (ptr *resultPoStProof) destroy() {
 	}
 }
 
-func (ptr SliceBoxedUint8) Destroy() {
+func (ptr *SliceBoxedUint8) Destroy() {
 	if ptr.ptr != nil {
-		C.destroy_boxed_slice(ptr)
+		C.destroy_boxed_slice(*ptr)
 		ptr.ptr = nil
 	}
 }
