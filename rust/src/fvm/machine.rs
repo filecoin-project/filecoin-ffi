@@ -13,7 +13,7 @@ use fvm::call_manager::{DefaultCallManager, InvocationResult};
 use fvm::executor::{ApplyKind, DefaultExecutor, Executor};
 use fvm::machine::{DefaultMachine, Machine};
 use fvm::trace::ExecutionEvent;
-use fvm::{Config, DefaultKernel};
+use fvm::DefaultKernel;
 use fvm_ipld_blockstore::Blockstore;
 use fvm_ipld_car::load_car;
 use fvm_ipld_encoding::tuple::{Deserialize_tuple, Serialize_tuple};

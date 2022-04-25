@@ -79,6 +79,8 @@ multicore-sdr = ["storage-proofs-porep/multicore-sdr"]
 bindgen=[]
 
 [patch.crates-io]
-fvm = { git = "https://github.com/filecoin-project/ref-fvm", branch = "steb/fuel" }
-fvm_ipld_car = { git = "https://github.com/filecoin-project/ref-fvm", branch = "steb/fuel" }
-fvm_shared = { git = "https://github.com/filecoin-project/ref-fvm", branch = "steb/fuel" }
+fvm = { git = "https://github.com/filecoin-project/ref-fvm", branch = "kub/detailed-gas-tracing" }
+fvm_ipld_encoding = { git = "https://github.com/filecoin-project/ref-fvm", branch = "kub/detailed-gas-tracing" }
+fvm_ipld_blockstore = { git = "https://github.com/filecoin-project/ref-fvm", branch = "kub/detailed-gas-tracing" }
+fvm_ipld_car = { git = "https://github.com/filecoin-project/ref-fvm", branch = "kub/detailed-gas-tracing" }
+fvm_shared = { git = "https://github.com/filecoin-project/ref-fvm", branch = "kub/detailed-gas-tracing" }
