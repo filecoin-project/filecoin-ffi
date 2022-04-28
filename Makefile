@@ -34,10 +34,6 @@ cgo-leakdetect: runner
 	valgrind --leak-check=full --show-leak-kinds=definite ./runner
 .PHONY: cgo-leakdetect
 
-cgo-gen: $(DEPS)
-	go run github.com/xlab/c-for-go --nostamp filcrypto.yml
-.PHONY: cgo-gen
-
 runner: $(DEPS)
 	rm -f ./runner
 	go build -o ./runner ./cgoleakdetect/

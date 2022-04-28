@@ -13,10 +13,8 @@ import (
 	"context"
 	gobig "math/big"
 	"runtime"
-	"unsafe"
 
 	"github.com/filecoin-project/filecoin-ffi/cgo"
-	"github.com/filecoin-project/filecoin-ffi/generated"
 	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/filecoin-project/go-state-types/big"
 	"github.com/filecoin-project/go-state-types/network"
@@ -25,7 +23,7 @@ import (
 )
 
 type FVM struct {
-	executor unsafe.Pointer
+	executor *cgo.FvmMachine
 }
 
 const (
@@ -58,30 +56,24 @@ func CreateFVM(opts *FVMOpts) (*FVM, error) {
 	}
 
 	exHandle := cgo.Register(context.TODO(), opts.Externs)
-	resp := generated.FilCreateFvmMachine(generated.FilFvmRegisteredVersion(opts.FVMVersion),
+	executor, err := cgo.CreateFvmMachine(cgo.FvmRegisteredVersion(opts.FVMVersion),
 		uint64(opts.Epoch),
 		baseFeeHi,
 		baseFeeLo,
 		baseCircSupplyHi,
 		baseCircSupplyLo,
 		uint64(opts.NetworkVersion),
-		opts.StateBase.Bytes(),
-		uint(opts.StateBase.ByteLen()),
-		opts.Manifest.Bytes(),
-		uint(opts.Manifest.ByteLen()),
+		cgo.AsSliceRefUint8(opts.StateBase.Bytes()),
+		cgo.AsSliceRefUint8(opts.Manifest.Bytes()),
 		opts.Tracing,
 		exHandle, exHandle,
 	)
-	resp.Deref()
-
-	defer generated.FilDestroyCreateFvmMachineResponse(resp)
-
-	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-		return nil, xerrors.New(generated.RawString(resp.ErrorMsg).Copy())
+	if err != nil {
+		return nil, err
 	}
 
 	fvm := &FVM{
-		executor: resp.Executor,
+		executor: executor,
 	}
 	runtime.SetFinalizer(fvm, func(f *FVM) {
 		// Just to be extra safe
@@ -91,7 +83,7 @@ func CreateFVM(opts *FVMOpts) (*FVM, error) {
 
 		executor := f.executor
 		f.executor = nil
-		generated.FilDropFvmMachine(executor)
+		executor.Destroy()
 		cgo.Unregister(exHandle)
 	})
 
@@ -104,70 +96,57 @@ func (f *FVM) ApplyMessage(msgBytes []byte, chainLen uint) (*ApplyRet, error) {
 	// collect the FVM, causing us to run the finalizer while we're in the middle of using the
 	// FVM.
 	defer runtime.KeepAlive(f)
-	resp := generated.FilFvmMachineExecuteMessage(f.executor,
-		msgBytes,
-		uint(len(msgBytes)),
+	resp, err := cgo.FvmMachineExecuteMessage(
+		f.executor,
+		cgo.AsSliceRefUint8(msgBytes),
 		uint64(chainLen),
 		applyExplicit,
 	)
-	resp.Deref()
-
-	defer generated.FilDestroyFvmMachineExecuteResponse(resp)
-
-	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-		return nil, xerrors.New(generated.RawString(resp.ErrorMsg).Copy())
+	if err != nil {
+		return nil, err
 	}
 
 	return &ApplyRet{
-		Return:         copyBytes(resp.ReturnPtr, resp.ReturnLen),
+		Return:         resp.ReturnVal,
 		ExitCode:       resp.ExitCode,
 		GasUsed:        int64(resp.GasUsed),
 		MinerPenalty:   reformBigInt(resp.PenaltyHi, resp.PenaltyLo),
 		MinerTip:       reformBigInt(resp.MinerTipHi, resp.MinerTipLo),
-		ExecTraceBytes: copyBytes(resp.ExecTracePtr, resp.ExecTraceLen),
-		FailureInfo:    string(copyBytes(resp.FailureInfoPtr, resp.FailureInfoLen)),
+		ExecTraceBytes: resp.ExecTrace,
+		FailureInfo:    resp.FailureInfo,
 	}, nil
 }
 
 func (f *FVM) ApplyImplicitMessage(msgBytes []byte) (*ApplyRet, error) {
 	defer runtime.KeepAlive(f)
-	resp := generated.FilFvmMachineExecuteMessage(f.executor,
-		msgBytes,
-		uint(len(msgBytes)),
+	resp, err := cgo.FvmMachineExecuteMessage(
+		f.executor,
+		cgo.AsSliceRefUint8(msgBytes),
 		0, // this isn't an on-chain message, so it has no chain length.
 		applyImplicit,
 	)
-	resp.Deref()
-
-	defer generated.FilDestroyFvmMachineExecuteResponse(resp)
-
-	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-		return nil, xerrors.New(generated.RawString(resp.ErrorMsg).Copy())
+	if err != nil {
+		return nil, err
 	}
 
 	return &ApplyRet{
-		Return:       copyBytes(resp.ReturnPtr, resp.ReturnLen),
+		Return:       resp.ReturnVal,
 		ExitCode:     resp.ExitCode,
 		GasUsed:      int64(resp.GasUsed),
 		MinerPenalty: reformBigInt(resp.PenaltyHi, resp.PenaltyLo),
 		MinerTip:     reformBigInt(resp.MinerTipHi, resp.MinerTipLo),
-		FailureInfo:  string(copyBytes(resp.FailureInfoPtr, resp.FailureInfoLen)),
+		FailureInfo:  resp.FailureInfo,
 	}, nil
 }
 
 func (f *FVM) Flush() (cid.Cid, error) {
 	defer runtime.KeepAlive(f)
-	resp := generated.FilFvmMachineFlush(f.executor)
-	resp.Deref()
-
-	defer generated.FilDestroyFvmMachineFlushResponse(resp)
-
-	if resp.StatusCode != generated.FCPResponseStatusFCPNoError {
-		return cid.Undef, xerrors.New(generated.RawString(resp.ErrorMsg).Copy())
+	stateRoot, err := cgo.FvmMachineFlush(f.executor)
+	if err != nil {
+		return cid.Undef, err
 	}
 
-	// cast will copy internally.
-	return cid.Cast(resp.StateRootPtr[:resp.StateRootLen])
+	return cid.Cast(stateRoot)
 }
 
 type ApplyRet struct {

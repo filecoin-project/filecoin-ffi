@@ -34,13 +34,16 @@ impl Blockstore for CgoBlockstore {
             match cgo_blockstore_has(self.handle, k_bytes.as_ptr(), k_bytes.len() as i32) {
                 // We shouldn't get an "error not found" here, but there's no reason to be strict
                 // about it.
-                0 | ERR_NOT_FOUND => Ok(false),
+                0 => Ok(false),
+                x if x == FvmError::NotFound as i32 => Ok(false),
                 1 => Ok(true),
                 // Panic on unknown values. There's a bug in the program.
                 r @ 2.. => panic!("invalid return value from has: {}", r),
                 // Panic if the store isn't registered. This means something _very_ unsafe is going
                 // on and there is a bug in the program.
-                ERR_INVALID_HANDLE => panic!("blockstore {} not registered", self.handle),
+                x if x == FvmError::InvalidHandle as i32 => {
+                    panic!("blockstore {} not registered", self.handle)
+                }
                 // Otherwise, return "other". We should add error codes in the future.
                 e => Err(anyhow!("cgo blockstore 'has' failed with error code {}", e)),
             }
@@ -61,8 +64,10 @@ impl Blockstore for CgoBlockstore {
             ) {
                 0 => Ok(Some(Vec::from_raw_parts(buf, size as usize, size as usize))),
                 r @ 1.. => panic!("invalid return value from get: {}", r),
-                ERR_INVALID_HANDLE => panic!("blockstore {} not registered", self.handle),
-                ERR_NOT_FOUND => Ok(None),
+                x if x == FvmError::InvalidHandle as i32 => {
+                    panic!("blockstore {} not registered", self.handle)
+                }
+                x if x == FvmError::NotFound as i32 => Ok(None),
                 e => Err(anyhow!("cgo blockstore 'get' failed with error code {}", e)),
             }
         }
@@ -92,9 +97,11 @@ impl Blockstore for CgoBlockstore {
                 match result {
                     0 => Ok(()),
                     r @ 1.. => panic!("invalid return value from put_many: {}", r),
-                    ERR_INVALID_HANDLE => panic!("blockstore {} not registered", handle),
+                    x if x == FvmError::InvalidHandle as i32 => {
+                        panic!("blockstore {} not registered", handle)
+                    }
                     // This error makes no sense.
-                    ERR_NOT_FOUND => panic!("not found error on put"),
+                    x if x == FvmError::NotFound as i32 => panic!("not found error on put"),
                     e => Err(anyhow!("cgo blockstore 'put' failed with error code {}", e)),
                 }
             }
@@ -135,9 +142,11 @@ impl Blockstore for CgoBlockstore {
             ) {
                 0 => Ok(()),
                 r @ 1.. => panic!("invalid return value from put: {}", r),
-                ERR_INVALID_HANDLE => panic!("blockstore {} not registered", self.handle),
+                x if x == FvmError::InvalidHandle as i32 => {
+                    panic!("blockstore {} not registered", self.handle)
+                }
                 // This error makes no sense.
-                ERR_NOT_FOUND => panic!("not found error on put"),
+                x if x == FvmError::NotFound as i32 => panic!("not found error on put"),
                 e => Err(anyhow!("cgo blockstore 'put' failed with error code {}", e)),
             }
         }
