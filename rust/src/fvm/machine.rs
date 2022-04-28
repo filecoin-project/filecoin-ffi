@@ -6,7 +6,7 @@ use cid::Cid;
 use futures::executor::block_on;
 use fvm::call_manager::{DefaultCallManager, InvocationResult};
 use fvm::executor::{ApplyKind, DefaultExecutor, Executor};
-use fvm::machine::DefaultMachine;
+use fvm::machine::{DefaultMachine, Engine};
 use fvm::trace::ExecutionEvent;
 use fvm::DefaultKernel;
 use fvm_ipld_blockstore::Blockstore;
@@ -32,7 +32,8 @@ pub type CgoExecutor = DefaultExecutor<
 >;
 
 lazy_static! {
-    static ref ENGINE: fvm::machine::Engine = fvm::machine::Engine::default();
+    static ref ENGINES: Mutex<BTreeMap<NetworkVersion, fvm::machine::Engine>> =
+        Mutex::new(BTreeMap::new());
 }
 
 /// Note: the incoming args as u64 and odd conversions to i32/i64
@@ -111,11 +112,21 @@ fn create_fvm_machine(
             }
             let blockstore = blockstore.finish();
 
-            let externs = CgoExterns::new(externs_id);
+        let externs = CgoExterns::new(externs_id);
+
+            let mut engines = ENGINES
+                .lock()
+                .map_err(|_| anyhow::Error::msg("engines lock is poisoned"))?;
+
+            let engine = match engines.entry(network_config.network_version) {
+                Occupied(entry) => entry.into_mut(),
+                Vacant(entry) => entry.insert(fvm::machine::Engine::new_default(network_config)?),
+            };
+
+
 
             let machine =
-                fvm::machine::DefaultMachine::new(&ENGINE, &machine_context, blockstore, externs)
-                    .map_err(|err| anyhow!("failed to create machine: {}", err))?;
+                fvm::machine::DefaultMachine::new(&engine, &machine_context, blockstore, externs);
 
             Ok(Some(repr_c::Box::new(InnerFvmMachine {
                 machine: Some(Mutex::new(CgoExecutor::new(machine))),
