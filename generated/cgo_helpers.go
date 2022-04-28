@@ -12,12 +12,6 @@ package generated
 #include "cgo_helpers.h"
 */
 import "C"
-import (
-	"fmt"
-	"runtime"
-	"sync"
-	"unsafe"
-)
 
 // cgoAllocMap stores pointers to C allocated memory for future reference.
 type cgoAllocMap struct {

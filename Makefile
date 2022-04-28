@@ -10,12 +10,12 @@ all: $(DEPS)
 $(DEPS): .install-filcrypto  ;
 
 .install-filcrypto: rust
-	go clean -cache -testcache .
+	go clean -mod=mod -cache -testcache .
 	./install-filcrypto
 	@touch $@
 
 clean:
-	go clean -cache -testcache .
+	go clean -mod=mod -cache -testcache .
 	rm -rf $(DEPS) .install-filcrypto
 	rm -f ./runner
 	cd rust && cargo clean && cd ..
@@ -35,10 +35,10 @@ cgo-leakdetect: runner
 .PHONY: cgo-leakdetect
 
 cgo-gen: $(DEPS)
-	go run github.com/xlab/c-for-go --nostamp filcrypto.yml
+	go run -mod=mod github.com/xlab/c-for-go --nostamp filcrypto.yml
 .PHONY: cgo-gen
 
 runner: $(DEPS)
 	rm -f ./runner
-	go build -o ./runner ./cgoleakdetect/
+	go build -mod=mod -o ./runner ./cgoleakdetect/
 .PHONY: runner
