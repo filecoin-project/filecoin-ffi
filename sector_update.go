@@ -219,11 +219,8 @@ func (FunctionsSectorUpdate) VerifyVanillaProofs(
 		return false, xerrors.Errorf("transorming new CommD: %w", err)
 	}
 
-	proofs, cleanup, err := toUpdateVanillaProofs(vanillaProofs)
+	proofs, cleanup := toUpdateVanillaProofs(vanillaProofs)
 	defer cleanup()
-	if err != nil {
-		return false, nil
-	}
 
 	return cgo.VerifyEmptySectorUpdatePartitionProofs(
 		up,
@@ -259,11 +256,8 @@ func (FunctionsSectorUpdate) GenerateUpdateProofWithVanilla(
 		return nil, xerrors.Errorf("transorming new CommD: %w", err)
 	}
 
-	proofs, cleanup, err := toUpdateVanillaProofs(vanillaProofs)
+	proofs, cleanup := toUpdateVanillaProofs(vanillaProofs)
 	defer cleanup()
-	if err != nil {
-		return nil, err
-	}
 
 	return cgo.GenerateEmptySectorUpdateProofWithVanilla(
 		up,
@@ -274,25 +268,17 @@ func (FunctionsSectorUpdate) GenerateUpdateProofWithVanilla(
 	)
 }
 
-func toUpdateVanillaProofs(src [][]byte) ([]cgo.SliceBoxedUint8, func(), error) {
+func toUpdateVanillaProofs(src [][]byte) ([]cgo.SliceBoxedUint8, func()) {
 	out := make([]cgo.SliceBoxedUint8, len(src))
 	for idx := range out {
-		b, err := cgo.AllocSliceBoxedUint8(src[idx])
-		if err != nil {
-			// only deallocate allocated ones
-			for i := 0; idx < i; i++ {
-				out[i].Destroy()
-			}
-			return nil, nil, err
-		}
-		out[idx] = b
+		out[idx] = cgo.AllocSliceBoxedUint8(src[idx])
 	}
 
 	return out, func() {
 		for idx := range out {
 			out[idx].Destroy()
 		}
-	}, nil
+	}
 }
 
 func (FunctionsSectorUpdate) GenerateUpdateProof(

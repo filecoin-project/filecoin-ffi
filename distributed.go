@@ -84,10 +84,7 @@ func GenerateWinningPoStWithVanilla(
 	if err != nil {
 		return nil, err
 	}
-	fproofs, cleanup, err := toVanillaProofs(proofs)
-	if err != nil {
-		return nil, err
-	}
+	fproofs, cleanup := toVanillaProofs(proofs)
 	defer cleanup()
 
 	randomnessBytes := cgo.AsByteArray32(randomness)
@@ -119,10 +116,7 @@ func GenerateWindowPoStWithVanilla(
 	if err != nil {
 		return nil, err
 	}
-	fproofs, cleaner, err := toVanillaProofs(proofs)
-	if err != nil {
-		return nil, err
-	}
+	fproofs, cleaner := toVanillaProofs(proofs)
 	defer cleaner()
 
 	randomnessBytes := cgo.AsByteArray32(randomness)
@@ -157,10 +151,7 @@ func GenerateSinglePartitionWindowPoStWithVanilla(
 	if err != nil {
 		return nil, err
 	}
-	fproofs, cleaner, err := toVanillaProofs(proofs)
-	if err != nil {
-		return nil, err
-	}
+	fproofs, cleaner := toVanillaProofs(proofs)
 	defer cleaner()
 
 	randomnessBytes := cgo.AsByteArray32(randomness)
@@ -197,10 +188,7 @@ func MergeWindowPoStPartitionProofs(
 		return nil, err
 	}
 
-	fproofs, cleaner, err := toPartitionProofs(partitionProofs)
-	if err != nil {
-		return nil, err
-	}
+	fproofs, cleaner := toPartitionProofs(partitionProofs)
 	defer cleaner()
 
 	resp, err := cgo.MergeWindowPoStPartitionProofs(pp, cgo.AsSliceRefSliceBoxedUint8(fproofs))
@@ -221,15 +209,11 @@ func MergeWindowPoStPartitionProofs(
 	return &out, nil
 }
 
-func toPartitionProofs(src []PartitionProof) ([]cgo.SliceBoxedUint8, func(), error) {
+func toPartitionProofs(src []PartitionProof) ([]cgo.SliceBoxedUint8, func()) {
 	out := make([]cgo.SliceBoxedUint8, len(src))
 	for idx := range out {
-		psp, err := cgo.AllocSliceBoxedUint8(src[idx].ProofBytes)
-		if err != nil {
-			return nil, makeCleanerSBU(out, idx), err
-		}
-		out[idx] = psp
+		out[idx] = cgo.AllocSliceBoxedUint8(src[idx].ProofBytes)
 	}
 
-	return out, makeCleanerSBU(out, len(src)), nil
+	return out, makeCleanerSBU(out, len(src))
 }

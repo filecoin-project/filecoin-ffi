@@ -57,16 +57,13 @@ func AsSliceRefUint64(goBytes []uint64) SliceRefUint64 {
 	}
 }
 
-func AllocSliceBoxedUint8(goBytes []byte) (SliceBoxedUint8, error) {
+func AllocSliceBoxedUint8(goBytes []byte) SliceBoxedUint8 {
 	len := len(goBytes)
-	if len == 0 {
-		return SliceBoxedUint8{}, errors.New("SlicedBoxedUint8 must not be empty")
-	}
 
 	ptr := C.alloc_boxed_slice(C.size_t(len))
 	copy(ptr.slice(), goBytes)
 
-	return ptr, nil
+	return ptr
 }
 
 func AsSliceRefUint(goSlice []uint) SliceRefUint {
@@ -219,7 +216,7 @@ func AsByteArray32(goSlice []byte) ByteArray32 {
 // CheckErr returns `nil` if the `code` indicates success and an error otherwise.
 func CheckErr(resp result) error {
 	if resp == nil {
-		return errors.New("failed")
+		return errors.New("nil result from Filecoin FFI")
 	}
 	if resp.statusCode() == FCPResponseStatusNoError {
 		return nil
@@ -238,23 +235,14 @@ func NewAggregationInputs(commR ByteArray32, commD ByteArray32, sectorId uint64,
 	}
 }
 
-func NewPrivateReplicaInfo(pp RegisteredPoStProof, cacheDirPath string, commR ByteArray32, replicaPath string, sectorId uint64) (PrivateReplicaInfo, error) {
-	cacheDirPathBytes, err := AllocSliceBoxedUint8([]byte(cacheDirPath))
-	if err != nil {
-		return PrivateReplicaInfo{}, err
-	}
-	replicaPathBytes, err := AllocSliceBoxedUint8([]byte(replicaPath))
-	if err != nil {
-		return PrivateReplicaInfo{}, err
-	}
-
+func NewPrivateReplicaInfo(pp RegisteredPoStProof, cacheDirPath string, commR ByteArray32, replicaPath string, sectorId uint64) PrivateReplicaInfo {
 	return PrivateReplicaInfo{
 		registered_proof: pp,
-		cache_dir_path:   cacheDirPathBytes,
-		replica_path:     replicaPathBytes,
+		cache_dir_path:   AllocSliceBoxedUint8([]byte(cacheDirPath)),
+		replica_path:     AllocSliceBoxedUint8([]byte(replicaPath)),
 		sector_id:        C.uint64_t(sectorId),
 		comm_r:           commR,
-	}, nil
+	}
 }
 
 func NewPublicReplicaInfo(pp RegisteredPoStProof, commR ByteArray32, sectorId uint64) PublicReplicaInfo {
@@ -265,15 +253,11 @@ func NewPublicReplicaInfo(pp RegisteredPoStProof, commR ByteArray32, sectorId ui
 	}
 }
 
-func NewPoStProof(pp RegisteredPoStProof, proof []byte) (PoStProof, error) {
-	proofBytes, err := AllocSliceBoxedUint8(proof)
-	if err != nil {
-		return PoStProof{}, nil
-	}
+func NewPoStProof(pp RegisteredPoStProof, proof []byte) PoStProof {
 	return PoStProof{
 		registered_proof: pp,
-		proof:            proofBytes,
-	}, nil
+		proof:            AllocSliceBoxedUint8(proof),
+	}
 }
 
 func NewPublicPieceInfo(numBytes uint64, commP ByteArray32) PublicPieceInfo {
@@ -283,13 +267,9 @@ func NewPublicPieceInfo(numBytes uint64, commP ByteArray32) PublicPieceInfo {
 	}
 }
 
-func NewPartitionSnarkProof(pp RegisteredPoStProof, proof []byte) (PartitionSnarkProof, error) {
-	proofBytes, err := AllocSliceBoxedUint8(proof)
-	if err != nil {
-		return PartitionSnarkProof{}, err
-	}
+func NewPartitionSnarkProof(pp RegisteredPoStProof, proof []byte) PartitionSnarkProof {
 	return PartitionSnarkProof{
 		registered_proof: pp,
-		proof:            proofBytes,
-	}, nil
+		proof:            AllocSliceBoxedUint8(proof),
+	}
 }

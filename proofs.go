@@ -425,10 +425,7 @@ func AggregateSealProofs(aggregateInfo proof5.AggregateSealVerifyProofAndInfos, 
 		}
 	}
 
-	pfs, cleaner, err := toVanillaProofs(proofs)
-	if err != nil {
-		return nil, err
-	}
+	pfs, cleaner := toVanillaProofs(proofs)
 	defer cleaner()
 
 	rap, err := toFilRegisteredAggregationProof(aggregateInfo.AggregateProof)
@@ -749,7 +746,7 @@ func toFilPrivateReplicaInfo(src PrivateSectorInfo) (cgo.PrivateReplicaInfo, err
 		commR,
 		src.SealedSectorPath,
 		uint64(src.SectorNumber),
-	)
+	), nil
 }
 
 func makeCleanerPRI(src []cgo.PrivateReplicaInfo, limit int) func() {
@@ -776,18 +773,13 @@ func toFilPrivateReplicaInfos(src []PrivateSectorInfo, typ string) ([]cgo.Privat
 			return nil, nil, err
 		}
 
-		info, err := cgo.NewPrivateReplicaInfo(
+		out[idx] = cgo.NewPrivateReplicaInfo(
 			pp,
 			src[idx].CacheDirPath,
 			commR,
 			src[idx].SealedSectorPath,
 			uint64(src[idx].SectorNumber),
 		)
-		if err != nil {
-			makeCleanerPRI(out, idx)()
-			return nil, nil, err
-		}
-		out[idx] = info
 	}
 
 	return out, makeCleanerPRI(out, len(src)), nil
@@ -828,11 +820,7 @@ func toFilPoStProofs(src []proof5.PoStProof) ([]cgo.PoStProof, error) {
 			return nil, err
 		}
 
-		proof, err := cgo.NewPoStProof(pp, src[idx].ProofBytes)
-		if err != nil {
-			return nil, err
-		}
-		out[idx] = proof
+		out[idx] = cgo.NewPoStProof(pp, src[idx].ProofBytes)
 	}
 
 	return out, nil
@@ -975,17 +963,12 @@ func makeCleanerSBU(src []cgo.SliceBoxedUint8, limit int) func() {
 	}
 }
 
-func toVanillaProofs(src [][]byte) ([]cgo.SliceBoxedUint8, func(), error) {
+func toVanillaProofs(src [][]byte) ([]cgo.SliceBoxedUint8, func()) {
 	out := make([]cgo.SliceBoxedUint8, len(src))
 
 	for i := range out {
-		p, err := cgo.AllocSliceBoxedUint8(src[i])
-		if err != nil {
-			makeCleanerSBU(out, i)()
-			return nil, nil, err
-		}
-		out[i] = p
+		out[i] = cgo.AllocSliceBoxedUint8(src[i])
 	}
 
-	return out, makeCleanerSBU(out, len(src)), nil
+	return out, makeCleanerSBU(out, len(src))
 }

@@ -60,8 +60,7 @@ func TestByteArray32(t *testing.T) {
 func TestAllocSliceBoxedUint8(t *testing.T) {
 	foo := []byte("hello world")
 
-	boxed, err := AllocSliceBoxedUint8(foo)
-	assert.Nil(t, err)
+	boxed := AllocSliceBoxedUint8(foo)
 	defer boxed.Destroy()
 	assert.Equal(t, boxed.slice(), foo)
 }
