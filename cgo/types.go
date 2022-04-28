@@ -105,12 +105,17 @@ type FvmMachineExecuteResponseGo struct {
 }
 
 func (ptr SliceBoxedUint8) slice() []byte {
+	if ptr.ptr == nil {
+		return nil
+	}
 	return unsafe.Slice((*byte)(ptr.ptr), int(ptr.len))
 }
 
 func (ptr SliceBoxedUint8) copy() []byte {
-	if ptr.len == 0 {
+	if ptr.ptr == nil {
 		return nil
+	} else if ptr.len == 0 {
+		return []byte{}
 	}
 
 	res := make([]byte, int(ptr.len))
@@ -322,11 +327,16 @@ func (ptr *resultVoid) destroy() {
 }
 
 func (ptr SliceBoxedUint64) slice() []uint64 {
+	if ptr.ptr == nil {
+		return nil
+	}
 	return unsafe.Slice((*uint64)(unsafe.Pointer(ptr.ptr)), int(ptr.len))
 }
 
 func (ptr SliceBoxedUint64) copy() []uint64 {
-	if ptr.len == 0 {
+	if ptr.ptr == nil {
+		return nil
+	} else if ptr.len == 0 {
 		return []uint64{}
 	}
 
@@ -352,11 +362,16 @@ func (ptr *resultSliceBoxedUint64) destroy() {
 }
 
 func (ptr SliceBoxedPoStProof) slice() []PoStProof {
+	if ptr.ptr == nil {
+		return nil
+	}
 	return unsafe.Slice((*PoStProof)(unsafe.Pointer(ptr.ptr)), int(ptr.len))
 }
 
 func (ptr SliceBoxedPoStProof) copy() []PoStProofGo {
-	if ptr.len == 0 {
+	if ptr.ptr == nil {
+		return nil
+	} else if ptr.len == 0 {
 		return []PoStProofGo{}
 	}
 
@@ -408,11 +423,16 @@ func (ptr *resultGenerateWindowPoSt) destroy() {
 }
 
 func (ptr SliceBoxedSliceBoxedUint8) slice() []SliceBoxedUint8 {
+	if ptr.ptr == nil {
+		return nil
+	}
 	return unsafe.Slice((*SliceBoxedUint8)(unsafe.Pointer(ptr.ptr)), int(ptr.len))
 }
 
 func (ptr SliceBoxedSliceBoxedUint8) copyAsBytes() [][]byte {
-	if ptr.len == 0 {
+	if ptr.ptr == nil {
+		return nil
+	} else if ptr.len == 0 {
 		return [][]byte{}
 	}
 
@@ -426,7 +446,9 @@ func (ptr SliceBoxedSliceBoxedUint8) copyAsBytes() [][]byte {
 }
 
 func (ptr SliceBoxedSliceBoxedUint8) copyAsStrings() []string {
-	if ptr.len == 0 {
+	if ptr.ptr == nil {
+		return nil
+	} else if ptr.len == 0 {
 		return []string{}
 	}
 	ref := ptr.slice()
@@ -486,11 +508,16 @@ func (ptr *resultEmptySectorUpdateEncodeInto) destroy() {
 }
 
 func (ptr SliceBoxedSliceBoxedUint64) slice() []SliceBoxedUint64 {
+	if ptr.ptr == nil {
+		return nil
+	}
 	return unsafe.Slice((*SliceBoxedUint64)(unsafe.Pointer(ptr.ptr)), int(ptr.len))
 }
 
 func (ptr SliceBoxedSliceBoxedUint64) copy() [][]uint64 {
-	if ptr.len == 0 {
+	if ptr.ptr == nil {
+		return nil
+	} else if ptr.len == 0 {
 		return [][]uint64{}
 	}
 
