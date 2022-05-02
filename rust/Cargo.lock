@@ -1932,9 +1932,9 @@ dependencies = [
 
 [[package]]
 name = "fil_logger"
-version = "0.1.4"
+version = "0.1.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7f22fe6c8b8d2ecaf2ef4560a7898455b815987cbe5c67b8f3a85986c609a01a"
+checksum = "599d1b83dc76b9db1a1cf1982659e787dc667c358dae3381e806473ba5faf53a"
 dependencies = [
  "atty",
  "flexi_logger",
