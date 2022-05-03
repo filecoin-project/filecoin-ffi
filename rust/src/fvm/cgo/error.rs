@@ -1,19 +1,26 @@
 //! Error codes used by the cgo bridge (blockstore/externs). These are used by both rust and go, so
 //! don't remove them even if they seem dead.
 
-#![allow(dead_code)]
+use safer_ffi::prelude::*;
 
-/// The error code returned by cgo if the blockstore handle isn't valid.
-pub const ERR_INVALID_HANDLE: i32 = -1;
+#[derive_ReprC]
+#[repr(i32)]
+#[derive(PartialEq, Debug, Copy, Clone)]
+pub enum FvmError {
+    /// The error code returned by cgo if the blockstore handle isn't valid.
+    InvalidHandle = -1,
+    /// The error code returned by cgo when the block isn't found.
+    NotFound = -2,
+    /// The error code returned by cgo when there's some underlying system error.
+    Io = -3,
+    /// The error code returned by cgo when an argument is invalid.
+    InvalidArgument = -4,
+    /// The error code returned by cgo when the application panics.
+    Panic = -5,
+}
 
-/// The error code returned by cgo when the block isn't found.
-pub const ERR_NOT_FOUND: i32 = -2;
-
-/// The error code returned by cgo when there's some underlying system error.
-pub const ERR_IO: i32 = -3;
-
-/// The error code returned by cgo when an argument is invalid.
-pub const ERR_INVALID_ARGUMENT: i32 = -4;
-
-/// The error code returned by cgo when the application panics.
-pub const ERR_PANIC: i32 = -5;
+// Dummy to make safer-ffi export the error enum
+#[ffi_export]
+fn dummy(_error: FvmError) {
+    panic!("Don't call me");
+}

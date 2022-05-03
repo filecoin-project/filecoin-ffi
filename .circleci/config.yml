@@ -67,7 +67,6 @@ jobs:
       - run: cd rust && cargo install cargo-lipo
       - build_project
       - compile_tests
-      - ensure_generated_cgo_up_to_date
   publish_linux_staticlib:
     executor: golang
     steps:
@@ -305,13 +304,6 @@ commands:
           name: Build project without CGO
           command: env CGO_ENABLED=0 go build .
 
-  ensure_generated_cgo_up_to_date:
-    steps:
-      - run:
-          name: Generate CGO bindings (using forked c-for-go) and compare with what's tracked by Git
-          command: |
-            make cgo-gen
-            git diff --exit-code ./generated/
   run_tests:
     parameters:
       run_leak_detector:
