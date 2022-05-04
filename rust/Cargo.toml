@@ -19,11 +19,11 @@ crate-type = ["rlib", "staticlib"]
 
 # TODO remove once ref-fvm#526 has merged
 [patch.crates-io]
-fvm = { git = 'https://github.com/filecoin-project/ref-fvm', branch = 'fix/issue-523' }
-fvm_ipld_car = { git = 'https://github.com/filecoin-project/ref-fvm', branch = 'fix/issue-523' }
-fvm_shared = { git = 'https://github.com/filecoin-project/ref-fvm', branch = 'fix/issue-523' }
-fvm_ipld_blockstore = { git = 'https://github.com/filecoin-project/ref-fvm', branch = 'fix/issue-523' }
-fvm_ipld_encoding = { git = 'https://github.com/filecoin-project/ref-fvm', branch = 'fix/issue-523' }
+fvm = { git = 'https://github.com/filecoin-project/ref-fvm' }
+fvm_ipld_car = { git = 'https://github.com/filecoin-project/ref-fvm' }
+fvm_shared = { git = 'https://github.com/filecoin-project/ref-fvm' }
+fvm_ipld_blockstore = { git = 'https://github.com/filecoin-project/ref-fvm' }
+fvm_ipld_encoding = { git = 'https://github.com/filecoin-project/ref-fvm' }
 
 [dependencies]
 bls-signatures = { version = "0.11.0", default-features = false, features = ["blst"] }
