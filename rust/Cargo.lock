@@ -2215,7 +2215,7 @@ dependencies = [
 [[package]]
 name = "fvm"
 version = "0.7.1"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=fix/issue-523#d7af8b89c871b78a8091eec18775b1a497114dc7"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=fix/issue-523#21717136718a77b07d41e48a0c06c980fef5def0"
 dependencies = [
  "ahash",
  "anyhow",
@@ -2267,7 +2267,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_amt"
 version = "0.4.1"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=fix/issue-523#d7af8b89c871b78a8091eec18775b1a497114dc7"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=fix/issue-523#21717136718a77b07d41e48a0c06c980fef5def0"
 dependencies = [
  "anyhow",
  "cid",
@@ -2295,7 +2295,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_blockstore"
 version = "0.1.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=fix/issue-523#d7af8b89c871b78a8091eec18775b1a497114dc7"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=fix/issue-523#21717136718a77b07d41e48a0c06c980fef5def0"
 dependencies = [
  "anyhow",
  "cid",
@@ -2305,7 +2305,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_car"
 version = "0.4.1"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=fix/issue-523#d7af8b89c871b78a8091eec18775b1a497114dc7"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=fix/issue-523#21717136718a77b07d41e48a0c06c980fef5def0"
 dependencies = [
  "cid",
  "futures",
@@ -2319,7 +2319,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_encoding"
 version = "0.2.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=fix/issue-523#d7af8b89c871b78a8091eec18775b1a497114dc7"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=fix/issue-523#21717136718a77b07d41e48a0c06c980fef5def0"
 dependencies = [
  "anyhow",
  "cid",
@@ -2357,7 +2357,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_hamt"
 version = "0.5.1"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=fix/issue-523#d7af8b89c871b78a8091eec18775b1a497114dc7"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=fix/issue-523#21717136718a77b07d41e48a0c06c980fef5def0"
 dependencies = [
  "anyhow",
  "byteorder 1.4.3",
@@ -2392,7 +2392,7 @@ dependencies = [
 [[package]]
 name = "fvm_shared"
 version = "0.6.1"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=fix/issue-523#d7af8b89c871b78a8091eec18775b1a497114dc7"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=fix/issue-523#21717136718a77b07d41e48a0c06c980fef5def0"
 dependencies = [
  "anyhow",
  "bimap",
