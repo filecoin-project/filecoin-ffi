@@ -116,7 +116,8 @@ fn create_fvm_machine_generic(
 
             machine_context
                 .set_base_fee(base_fee)
-                .set_circulating_supply(base_circ_supply);
+                .set_circulating_supply(base_circ_supply)
+                .enable_actor_debugging();
 
             if tracing {
                 machine_context.enable_tracing();
