@@ -32,7 +32,7 @@ pub type CgoExecutor = DefaultExecutor<
 >;
 
 lazy_static! {
-    static ref ENGINE: fvm::machine::Engine = fvm::machine::Engine::default();
+    static ref ENGINE: fvm::machine::MultiEngine = fvm::machine::MultiEngine::new();
 }
 
 /// Note: the incoming args as u64 and odd conversions to i32/i64
@@ -114,9 +114,13 @@ fn create_fvm_machine(
 
             let externs = CgoExterns::new(externs_id);
 
-            let machine =
-                fvm::machine::DefaultMachine::new(&ENGINE, &machine_context, blockstore, externs)
-                    .map_err(|err| anyhow!("failed to create machine: {}", err))?;
+            let machine = fvm::machine::DefaultMachine::new(
+                &ENGINE.get(&network_config).unwrap(),
+                &machine_context,
+                blockstore,
+                externs,
+            )
+            .map_err(|err| anyhow!("failed to create machine: {}", err))?;
 
             Ok(Some(repr_c::Box::new(InnerFvmMachine {
                 machine: Some(Mutex::new(CgoExecutor::new(machine))),
