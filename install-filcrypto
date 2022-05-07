@@ -158,10 +158,14 @@ build_from_source() {
     # For building on Darwin, we try to use cargo-lipo instead of cargo build.
     # Note that the cross compile works on x86_64 for m1, but doesn't work on m1.
     # For m1, we will build natively if building from source.
+    echo "$(uname -s)"
     if [ "$(uname -s)" = "Darwin" ] && [ "$(uname -m)" = "x86_64" ]; then
         build="lipo"
         additional_flags="--targets x86_64-apple-darwin,aarch64-apple-darwin "
-    else
+    elif [ "$(uname -m)" = "arm64" ]; then
+        build="build"
+        additional_flags="--target aarch64-unknown-linux-gnu "
+    else 
         build="build"
     fi
 
