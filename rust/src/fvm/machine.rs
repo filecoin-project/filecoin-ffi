@@ -111,12 +111,12 @@ fn create_fvm_machine(
             }
             let blockstore = blockstore.finish();
 
-        let externs = CgoExterns::new(externs_id);
+            let externs = CgoExterns::new(externs_id);
 
-        let engine = match ENGINES.get(&network_config) {
-            Ok(e) => e,
-            Err(err) => bail!("failed to create engine: {}", err),
-        };
+            let engine = match ENGINES.get(&network_config) {
+                Ok(e) => e,
+                Err(err) => bail!("failed to create engine: {}", err),
+            };
 
             let machine =
                 fvm::machine::DefaultMachine::new(&engine, &machine_context, blockstore, externs)?;
