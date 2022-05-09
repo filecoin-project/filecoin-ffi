@@ -174,6 +174,11 @@ fn fvm_machine_execute_message(
         // TODO: use the non-bigint token amount everywhere in the FVM
         let penalty: u128 = apply_ret.penalty.try_into().unwrap();
         let miner_tip: u128 = apply_ret.miner_tip.try_into().unwrap();
+        let base_fee_burn: u128 = apply_ret.base_fee_burn.try_into().unwrap();
+        let over_estimation_burn: u128 = apply_ret.over_estimation_burn.try_into().unwrap();
+        let refund: u128 = apply_ret.refund.try_into().unwrap();
+        let gas_refund = apply_ret.gas_refund;
+        let gas_burned = apply_ret.gas_burned;
 
         let Receipt {
             exit_code,
@@ -197,6 +202,14 @@ fn fvm_machine_execute_message(
             penalty_lo: penalty as u64,
             miner_tip_hi: (miner_tip >> u64::BITS) as u64,
             miner_tip_lo: miner_tip as u64,
+            base_fee_burn_hi: (base_fee_burn >> u64::BITS) as u64,
+            base_fee_burn_lo: base_fee_burn as u64,
+            over_estimation_burn_hi: (over_estimation_burn >> u64::BITS) as u64,
+            over_estimation_burn_lo: over_estimation_burn as u64,
+            refund_hi: (refund >> u64::BITS) as u64,
+            refund_lo: refund as u64,
+            gas_refund,
+            gas_burned,
             exec_trace,
             failure_info,
         })
