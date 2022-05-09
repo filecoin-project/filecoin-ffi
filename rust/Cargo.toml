@@ -17,14 +17,6 @@ publish = false
 [lib]
 crate-type = ["rlib", "staticlib"]
 
-# TODO remove once ref-fvm#526 has merged
-[patch.crates-io]
-fvm = { git = 'https://github.com/filecoin-project/ref-fvm' }
-fvm_ipld_car = { git = 'https://github.com/filecoin-project/ref-fvm' }
-fvm_shared = { git = 'https://github.com/filecoin-project/ref-fvm' }
-fvm_ipld_blockstore = { git = 'https://github.com/filecoin-project/ref-fvm' }
-fvm_ipld_encoding = { git = 'https://github.com/filecoin-project/ref-fvm' }
-
 [dependencies]
 bls-signatures = { version = "0.11.0", default-features = false, features = ["blst"] }
 blstrs = "0.4"
@@ -45,7 +37,7 @@ memmap = "0.7"
 rust-gpu-tools = { version = "0.5", default-features = false }
 storage-proofs-porep = { version = "~11.0", default-features = false }
 fr32 = { version = "~4.0", default-features = false }
-fvm = { version = "0.7.1", default-features = false }
+fvm = { version = "0.7.2", default-features = false }
 fvm_ipld_car = "0.4.0"
 fvm_shared = "0.6.0"
 fvm_ipld_blockstore = "0.1.0"
