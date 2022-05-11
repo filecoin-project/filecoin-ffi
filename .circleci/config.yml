@@ -6,7 +6,7 @@ orbs:
 executors:
   golang:
     docker:
-      - image: cimg/go:1.17.9-stretch
+      - image: cimg/go:1.17.9
     resource_class: 2xlarge
   rust:
     docker:
@@ -188,10 +188,6 @@ commands:
         default: false
         description: is a darwin build environment?
         type: boolean
-      arm:
-        default: false
-        description: is a arm build environment?
-        type: boolean
     steps:
       - checkout
       - when:
@@ -217,13 +213,6 @@ commands:
                 command: |
                   curl https://sh.rustup.rs -sSf | sh -s -- -y
                   rustc --version
-      - when:
-          condition: << parameters.arm >>
-          steps:
-            - run: sudo apt-get update
-            - run: apt-get install -y wget jq hwloc ocl-icd-opencl-dev git libhwloc-dev pkg-config make
-            - run: apt-get install -y cargo golang-go
-            - run: curl https://sh.rustup.rs -sSf | sh -s -- -y
       - run:
           name: Ensure appropriate toolchain is installed
           command: |
@@ -280,10 +269,6 @@ commands:
         default: false
         description: is a Darwin build environment?
         type: boolean
-      arm:
-        default: false
-        description: is a ARM build environment?
-        type: boolean
     steps:
       - run:
           name: Configure environment variables
@@ -295,10 +280,7 @@ commands:
             echo 'export RUST_LOG=info' >> $BASH_ENV
             echo 'export CIRCLE_ARTIFACTS="/tmp"' >> $BASH_ENV
       - when:
-          condition: 
-            or: 
-              - << parameters.darwin >>
-              - << parameters.arm >>
+          condition: << parameters.darwin >>
           steps:
             - run:
                 name: Add a few more environment variables
