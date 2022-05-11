@@ -1,6 +1,6 @@
 # filecoin-ffi build workaround
 
-As of this writing, .circleci doens't support arm based images and as a workaround we need to try and build the filecoin-ffi in a containerized environment.This means that we need to create a docker image using an ARM64 based operating system and build the binaries there.
+As of this writing, .circleci does not support arm based images and as a workaround we need to try and build the filecoin-ffi in a containerized environment. The workaround is to create a docker image using an ARM64 based operating system and build the binaries in the image. We can then pull (`cp`) the binaries to the host.
 
 ## Pre-requisites
 - docker
