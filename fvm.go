@@ -107,13 +107,18 @@ func (f *FVM) ApplyMessage(msgBytes []byte, chainLen uint) (*ApplyRet, error) {
 	}
 
 	return &ApplyRet{
-		Return:         resp.ReturnVal,
-		ExitCode:       resp.ExitCode,
-		GasUsed:        int64(resp.GasUsed),
-		MinerPenalty:   reformBigInt(resp.PenaltyHi, resp.PenaltyLo),
-		MinerTip:       reformBigInt(resp.MinerTipHi, resp.MinerTipLo),
-		ExecTraceBytes: resp.ExecTrace,
-		FailureInfo:    resp.FailureInfo,
+		Return:             resp.ReturnVal,
+		ExitCode:           resp.ExitCode,
+		GasUsed:            int64(resp.GasUsed),
+		MinerPenalty:       reformBigInt(resp.PenaltyHi, resp.PenaltyLo),
+		MinerTip:           reformBigInt(resp.MinerTipHi, resp.MinerTipLo),
+		BaseFeeBurn:        reformBigInt(resp.BaseFeeBurnHi, resp.BaseFeeBurnLo),
+		OverEstimationBurn: reformBigInt(resp.OverEstimationBurnHi, resp.OverEstimationBurnLo),
+		Refund:             reformBigInt(resp.RefundHi, resp.RefundLo),
+		GasRefund:          int64(resp.GasRefund),
+		GasBurned:          int64(resp.GasBurned),
+		ExecTraceBytes:     resp.ExecTrace,
+		FailureInfo:        resp.FailureInfo,
 	}, nil
 }
 
@@ -130,12 +135,17 @@ func (f *FVM) ApplyImplicitMessage(msgBytes []byte) (*ApplyRet, error) {
 	}
 
 	return &ApplyRet{
-		Return:       resp.ReturnVal,
-		ExitCode:     resp.ExitCode,
-		GasUsed:      int64(resp.GasUsed),
-		MinerPenalty: reformBigInt(resp.PenaltyHi, resp.PenaltyLo),
-		MinerTip:     reformBigInt(resp.MinerTipHi, resp.MinerTipLo),
-		FailureInfo:  resp.FailureInfo,
+		Return:             resp.ReturnVal,
+		ExitCode:           resp.ExitCode,
+		GasUsed:            int64(resp.GasUsed),
+		MinerPenalty:       reformBigInt(resp.PenaltyHi, resp.PenaltyLo),
+		MinerTip:           reformBigInt(resp.MinerTipHi, resp.MinerTipLo),
+		BaseFeeBurn:        reformBigInt(resp.BaseFeeBurnHi, resp.BaseFeeBurnLo),
+		OverEstimationBurn: reformBigInt(resp.OverEstimationBurnHi, resp.OverEstimationBurnLo),
+		Refund:             reformBigInt(resp.RefundHi, resp.RefundLo),
+		GasRefund:          int64(resp.GasRefund),
+		GasBurned:          int64(resp.GasBurned),
+		FailureInfo:        resp.FailureInfo,
 	}, nil
 }
 
@@ -150,13 +160,18 @@ func (f *FVM) Flush() (cid.Cid, error) {
 }
 
 type ApplyRet struct {
-	Return         []byte
-	ExitCode       uint64
-	GasUsed        int64
-	MinerPenalty   abi.TokenAmount
-	MinerTip       abi.TokenAmount
-	ExecTraceBytes []byte
-	FailureInfo    string
+	Return             []byte
+	ExitCode           uint64
+	GasUsed            int64
+	MinerPenalty       abi.TokenAmount
+	MinerTip           abi.TokenAmount
+	BaseFeeBurn        abi.TokenAmount
+	OverEstimationBurn abi.TokenAmount
+	Refund             abi.TokenAmount
+	GasRefund          int64
+	GasBurned          int64
+	ExecTraceBytes     []byte
+	FailureInfo        string
 }
 
 // NOTE: We only support 64bit platforms

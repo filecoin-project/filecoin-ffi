@@ -93,15 +93,23 @@ type PoStProofGo struct {
 
 /// FvmMachineExecuteResponse is a go allocated version of `FvmMachineExecuteResponse`.
 type FvmMachineExecuteResponseGo struct {
-	ExitCode    uint64
-	ReturnVal   []byte
-	GasUsed     uint64
-	PenaltyHi   uint64
-	PenaltyLo   uint64
-	MinerTipHi  uint64
-	MinerTipLo  uint64
-	ExecTrace   []byte
-	FailureInfo string
+	ExitCode             uint64
+	ReturnVal            []byte
+	GasUsed              uint64
+	PenaltyHi            uint64
+	PenaltyLo            uint64
+	MinerTipHi           uint64
+	MinerTipLo           uint64
+	BaseFeeBurnHi        uint64
+	BaseFeeBurnLo        uint64
+	OverEstimationBurnHi uint64
+	OverEstimationBurnLo uint64
+	RefundHi             uint64
+	RefundLo             uint64
+	GasRefund            int64
+	GasBurned            int64
+	ExecTrace            []byte
+	FailureInfo          string
 }
 
 func (ptr SliceBoxedUint8) slice() []byte {
@@ -636,14 +644,22 @@ func (ptr *FvmMachine) Destroy() {
 
 func (r FvmMachineExecuteResponse) copy() FvmMachineExecuteResponseGo {
 	return FvmMachineExecuteResponseGo{
-		ExitCode:    uint64(r.exit_code),
-		ReturnVal:   r.return_val.copy(),
-		GasUsed:     uint64(r.gas_used),
-		PenaltyHi:   uint64(r.penalty_hi),
-		PenaltyLo:   uint64(r.penalty_lo),
-		MinerTipHi:  uint64(r.miner_tip_hi),
-		MinerTipLo:  uint64(r.miner_tip_lo),
-		ExecTrace:   r.exec_trace.copy(),
-		FailureInfo: string(r.failure_info.slice()),
+		ExitCode:             uint64(r.exit_code),
+		ReturnVal:            r.return_val.copy(),
+		GasUsed:              uint64(r.gas_used),
+		PenaltyHi:            uint64(r.penalty_hi),
+		PenaltyLo:            uint64(r.penalty_lo),
+		MinerTipHi:           uint64(r.miner_tip_hi),
+		MinerTipLo:           uint64(r.miner_tip_lo),
+		BaseFeeBurnHi:        uint64(r.base_fee_burn_hi),
+		BaseFeeBurnLo:        uint64(r.base_fee_burn_lo),
+		OverEstimationBurnHi: uint64(r.over_estimation_burn_hi),
+		OverEstimationBurnLo: uint64(r.over_estimation_burn_lo),
+		RefundHi:             uint64(r.refund_hi),
+		RefundLo:             uint64(r.refund_lo),
+		GasRefund:            int64(r.gas_refund),
+		GasBurned:            int64(r.gas_burned),
+		ExecTrace:            r.exec_trace.copy(),
+		FailureInfo:          string(r.failure_info.slice()),
 	}
 }
