@@ -3,8 +3,10 @@ FROM ubuntu:latest
 #FROM rust:slim-buster@sha256:5b0c5f6cd5aa84f6dd3f2188ac84aa0e0d602b514ccc14e9d1ebd5b865aa7849
 #FROM golang:1.17.9-stretch
 
+ARG DEBIAN_FRONTEND=noninteractive
+
 RUN apt-get update && \
-    apt-get install -y wget jq hwloc ocl-icd-opencl-dev git libhwloc-dev pkg-config make  && \
+    apt-get install -y wget jq hwloc ocl-icd-opencl-dev git libhwloc-dev pkg-config make curl  && \
     apt-get install -y cargo golang-go
 WORKDIR /filecoin-ffi/
 COPY . /filecoin-ffi/
@@ -17,4 +19,3 @@ RUN rustup +nightly target add aarch64-unknown-linux-gnu
 RUN RUST_BACKTRACE=1 RUSTFLAGS="-C target-cpu=native -g" FFI_BUILD_FROM_SOURCE=1 make
 #RUN git clone https://github.com/alvin-reyes/filecoin-ffi.git . && \
 #   RUSTFLAGS="-C target-cpu=native -g" FFI_BUILD_FROM_SOURCE=1 make
-    
