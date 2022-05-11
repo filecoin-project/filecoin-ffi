@@ -1,4 +1,4 @@
-use std::convert::TryFrom;
+use std::convert::{TryFrom, TryInto};
 use std::sync::Mutex;
 
 use anyhow::{anyhow, bail};
@@ -6,7 +6,7 @@ use cid::Cid;
 use futures::executor::block_on;
 use fvm::call_manager::{DefaultCallManager, InvocationResult};
 use fvm::executor::{ApplyKind, DefaultExecutor, Executor};
-use fvm::machine::DefaultMachine;
+use fvm::machine::{DefaultMachine, MultiEngine};
 use fvm::trace::ExecutionEvent;
 use fvm::DefaultKernel;
 use fvm_ipld_blockstore::Blockstore;
@@ -32,7 +32,7 @@ pub type CgoExecutor = DefaultExecutor<
 >;
 
 lazy_static! {
-    static ref ENGINE: fvm::machine::Engine = fvm::machine::Engine::default();
+    static ref ENGINES: MultiEngine = MultiEngine::new();
 }
 
 /// Note: the incoming args as u64 and odd conversions to i32/i64
@@ -113,9 +113,13 @@ fn create_fvm_machine(
 
             let externs = CgoExterns::new(externs_id);
 
+            let engine = match ENGINES.get(&network_config) {
+                Ok(e) => e,
+                Err(err) => bail!("failed to create engine: {}", err),
+            };
+
             let machine =
-                fvm::machine::DefaultMachine::new(&ENGINE, &machine_context, blockstore, externs)
-                    .map_err(|err| anyhow!("failed to create machine: {}", err))?;
+                fvm::machine::DefaultMachine::new(&engine, &machine_context, blockstore, externs)?;
 
             Ok(Some(repr_c::Box::new(InnerFvmMachine {
                 machine: Some(Mutex::new(CgoExecutor::new(machine))),
@@ -170,6 +174,11 @@ fn fvm_machine_execute_message(
         // TODO: use the non-bigint token amount everywhere in the FVM
         let penalty: u128 = apply_ret.penalty.try_into().unwrap();
         let miner_tip: u128 = apply_ret.miner_tip.try_into().unwrap();
+        let base_fee_burn: u128 = apply_ret.base_fee_burn.try_into().unwrap();
+        let over_estimation_burn: u128 = apply_ret.over_estimation_burn.try_into().unwrap();
+        let refund: u128 = apply_ret.refund.try_into().unwrap();
+        let gas_refund = apply_ret.gas_refund;
+        let gas_burned = apply_ret.gas_burned;
 
         let Receipt {
             exit_code,
@@ -193,6 +202,14 @@ fn fvm_machine_execute_message(
             penalty_lo: penalty as u64,
             miner_tip_hi: (miner_tip >> u64::BITS) as u64,
             miner_tip_lo: miner_tip as u64,
+            base_fee_burn_hi: (base_fee_burn >> u64::BITS) as u64,
+            base_fee_burn_lo: base_fee_burn as u64,
+            over_estimation_burn_hi: (over_estimation_burn >> u64::BITS) as u64,
+            over_estimation_burn_lo: over_estimation_burn as u64,
+            refund_hi: (refund >> u64::BITS) as u64,
+            refund_lo: refund as u64,
+            gas_refund,
+            gas_burned,
             exec_trace,
             failure_info,
         })
