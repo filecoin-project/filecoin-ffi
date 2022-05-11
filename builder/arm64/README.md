@@ -17,7 +17,7 @@ There are 2 files in this repo:
 ```
 
 
-## Trial and error
+## Builders
 We can use some of these images as builders. They are all arm64 based.
 ```
 FROM --platform=arm64 golang@sha256:96e888160bd68f54a1165b23c66318aea4ff6a4726cb854276d6d776c14b8978 as builder
