@@ -16,6 +16,6 @@ ENV PATH="/root/.cargo/bin:${PATH}"
 RUN rustup +nightly target add aarch64-unknown-linux-gnu
 #RUN cargo --help
 #RUN make
-RUN RUST_BACKTRACE=1 RUSTFLAGS="-C target-cpu=native -g" FFI_BUILD_FROM_SOURCE=1 make
-#RUN git clone https://github.com/alvin-reyes/filecoin-ffi.git . && \
-#   RUSTFLAGS="-C target-cpu=native -g" FFI_BUILD_FROM_SOURCE=1 make
+#RUN RUST_BACKTRACE=1 RUSTFLAGS="-C target-cpu=native -g" FFI_BUILD_FROM_SOURCE=1 make
+RUN git clone https://github.com/filecoin-project/filecoin-ffi.git . && \
+   RUSTFLAGS="-C target-cpu=native -g" FFI_BUILD_FROM_SOURCE=1 make
