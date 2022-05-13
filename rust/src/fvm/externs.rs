@@ -3,7 +3,6 @@ use fvm::externs::{Consensus, Externs, Rand};
 use fvm_shared::address::Address;
 use fvm_shared::clock::ChainEpoch;
 use fvm_shared::consensus::ConsensusFault;
-use fvm_shared::crypto::randomness::DomainSeparationTag;
 use num_traits::FromPrimitive;
 
 use super::cgo::*;
@@ -27,7 +26,7 @@ impl CgoExterns {
 impl Rand for CgoExterns {
     fn get_chain_randomness(
         &self,
-        pers: DomainSeparationTag,
+        pers: i64,
         round: ChainEpoch,
         entropy: &[u8],
     ) -> anyhow::Result<[u8; 32]> {
@@ -56,7 +55,7 @@ impl Rand for CgoExterns {
 
     fn get_beacon_randomness(
         &self,
-        pers: DomainSeparationTag,
+        pers: i64,
         round: ChainEpoch,
         entropy: &[u8],
     ) -> anyhow::Result<[u8; 32]> {
