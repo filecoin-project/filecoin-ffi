@@ -1052,9 +1052,7 @@ fn clear_cache(
     cache_dir_path: c_slice::Ref<u8>,
 ) -> repr_c::Box<ClearCacheResponse> {
     catch_panic_response("clear_cache", || {
-        let result = seal::clear_cache(sector_size, &as_path_buf(&cache_dir_path)?)?;
-
-        Ok(result)
+        seal::clear_cache(sector_size, &as_path_buf(&cache_dir_path)?)
     })
 }
 

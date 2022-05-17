@@ -4,8 +4,8 @@ use std::sync::Mutex;
 use anyhow::{anyhow, bail};
 use cid::Cid;
 use futures::executor::block_on;
-use fvm::call_manager::{DefaultCallManager, InvocationResult};
-use fvm::executor::{ApplyKind, DefaultExecutor, Executor};
+use fvm::call_manager::DefaultCallManager;
+use fvm::executor::{ApplyKind, DefaultExecutor, Executor, ThreadedExecutor};
 use fvm::machine::{DefaultMachine, MultiEngine};
 use fvm::trace::ExecutionEvent;
 use fvm::DefaultKernel;
@@ -27,9 +27,14 @@ use super::types::*;
 use crate::destructor;
 use crate::util::types::{catch_panic_response, catch_panic_response_no_default, Result};
 
-pub type CgoExecutor = DefaultExecutor<
-    DefaultKernel<DefaultCallManager<DefaultMachine<OverlayBlockstore<CgoBlockstore>, CgoExterns>>>,
->;
+type CgoMachine = DefaultMachine<OverlayBlockstore<CgoBlockstore>, CgoExterns>;
+type BaseExecutor = DefaultExecutor<DefaultKernel<DefaultCallManager<CgoMachine>>>;
+
+pub type CgoExecutor = ThreadedExecutor<BaseExecutor>;
+
+fn new_executor(machine: CgoMachine) -> CgoExecutor {
+    ThreadedExecutor(BaseExecutor::new(machine))
+}
 
 lazy_static! {
     static ref ENGINES: MultiEngine = MultiEngine::new();
@@ -118,11 +123,10 @@ fn create_fvm_machine(
                 Err(err) => bail!("failed to create engine: {}", err),
             };
 
-            let machine =
-                fvm::machine::DefaultMachine::new(&engine, &machine_context, blockstore, externs)?;
+            let machine = CgoMachine::new(&engine, &machine_context, blockstore, externs)?;
 
             Ok(Some(repr_c::Box::new(InnerFvmMachine {
-                machine: Some(Mutex::new(CgoExecutor::new(machine))),
+                machine: Some(Mutex::new(new_executor(machine))),
             })))
         })
     }
@@ -225,7 +229,7 @@ fn fvm_machine_flush(executor: &'_ InnerFvmMachine) -> repr_c::Box<Result<c_slic
             .expect("missing executor")
             .lock()
             .unwrap();
-        let cid = executor.flush()?;
+        let cid = executor.0.flush()?;
 
         Ok(cid.to_bytes().into_boxed_slice().into())
     })
@@ -250,7 +254,6 @@ fn import_actors(
         return Ok(manifest_cid);
     }
     let car = match network_version {
-        NetworkVersion::V14 => Ok(actors_v6::BUNDLE_CAR),
         NetworkVersion::V15 => Ok(actors_v7::BUNDLE_CAR),
         NetworkVersion::V16 => {
             return Ok(None);
@@ -276,14 +279,20 @@ fn build_lotus_trace(
 ) -> anyhow::Result<LotusTrace> {
     let mut new_trace = LotusTrace {
         msg: match new_call {
-            ExecutionEvent::Call(send_params) => Message {
+            ExecutionEvent::Call {
+                from,
+                to,
+                method,
+                params,
+                value,
+            } => Message {
                 version: 0,
-                from: Address::new_id(send_params.from),
-                to: send_params.to,
+                from: Address::new_id(*from),
+                to: *to,
                 sequence: 0,
-                value: send_params.value.clone(),
-                method_num: send_params.method,
-                params: send_params.params.clone(),
+                value: value.clone(),
+                method_num: *method,
+                params: params.clone(),
                 gas_limit: 0,
                 gas_fee_cap: TokenAmount::default(),
                 gas_premium: TokenAmount::default(),
@@ -303,57 +312,46 @@ fn build_lotus_trace(
 
     while let Some(trace) = trace_iter.next() {
         match trace {
-            ExecutionEvent::Return(res) => {
-                new_trace.msg_receipt = match res {
-                    Ok(InvocationResult::Return(return_data)) => Receipt {
-                        exit_code: ExitCode::OK,
-                        return_data,
-                        gas_used: 0,
-                    },
-                    Ok(InvocationResult::Failure(exit_code)) => {
-                        if exit_code.is_success() {
-                            return Err(anyhow!("actor failed with status OK"));
-                        }
-                        Receipt {
-                            exit_code,
-                            return_data: Default::default(),
-                            gas_used: 0,
-                        }
-                    }
-                    Err(syscall_err) => {
-                        // Errors indicate the message couldn't be dispatched at all
-                        // (as opposed to failing during execution of the receiving actor).
-                        // These errors are mapped to exit codes that persist on chain.
-                        let exit_code = match syscall_err.1 {
-                            ErrorNumber::InsufficientFunds => ExitCode::SYS_INSUFFICIENT_FUNDS,
-                            ErrorNumber::NotFound => ExitCode::SYS_INVALID_RECEIVER,
-
-                            ErrorNumber::IllegalArgument => ExitCode::SYS_ASSERTION_FAILED,
-                            ErrorNumber::IllegalOperation => ExitCode::SYS_ASSERTION_FAILED,
-                            ErrorNumber::LimitExceeded => ExitCode::SYS_ASSERTION_FAILED,
-                            ErrorNumber::AssertionFailed => ExitCode::SYS_ASSERTION_FAILED,
-                            ErrorNumber::InvalidHandle => ExitCode::SYS_ASSERTION_FAILED,
-                            ErrorNumber::IllegalCid => ExitCode::SYS_ASSERTION_FAILED,
-                            ErrorNumber::IllegalCodec => ExitCode::SYS_ASSERTION_FAILED,
-                            ErrorNumber::Serialization => ExitCode::SYS_ASSERTION_FAILED,
-                            ErrorNumber::Forbidden => ExitCode::SYS_ASSERTION_FAILED,
-                        };
-
-                        Receipt {
-                            exit_code,
-                            return_data: Default::default(),
-                            gas_used: 0,
-                        }
-                    }
-                };
-
-                return Ok(new_trace);
-            }
-
-            _ => {
+            ExecutionEvent::Call { .. } => {
                 new_trace
                     .subcalls
                     .push(build_lotus_trace(&trace, trace_iter)?);
+            }
+            ExecutionEvent::CallReturn(return_data) => {
+                new_trace.msg_receipt = Receipt {
+                    exit_code: ExitCode::OK,
+                    return_data,
+                    gas_used: 0,
+                };
+                return Ok(new_trace);
+            }
+            ExecutionEvent::CallAbort(exit_code) => {
+                if exit_code.is_success() {
+                    return Err(anyhow!("actor failed with status OK"));
+                }
+                new_trace.msg_receipt = Receipt {
+                    exit_code,
+                    return_data: Default::default(),
+                    gas_used: 0,
+                };
+                return Ok(new_trace);
+            }
+            ExecutionEvent::CallError(syscall_err) => {
+                // Errors indicate the message couldn't be dispatched at all
+                // (as opposed to failing during execution of the receiving actor).
+                // These errors are mapped to exit codes that persist on chain.
+                let exit_code = match syscall_err.1 {
+                    ErrorNumber::InsufficientFunds => ExitCode::SYS_INSUFFICIENT_FUNDS,
+                    ErrorNumber::NotFound => ExitCode::SYS_INVALID_RECEIVER,
+                    _ => ExitCode::SYS_ASSERTION_FAILED,
+                };
+
+                new_trace.msg_receipt = Receipt {
+                    exit_code,
+                    return_data: Default::default(),
+                    gas_used: 0,
+                };
+                return Ok(new_trace);
             }
         };
     }
@@ -365,7 +363,7 @@ fn build_lotus_trace(
 mod test {
     use crate::fvm::machine::build_lotus_trace;
     use fvm::kernel::SyscallError;
-    use fvm::trace::{ExecutionEvent, SendParams};
+    use fvm::trace::ExecutionEvent;
     use fvm_ipld_encoding::RawBytes;
     use fvm_shared::address::Address;
     use fvm_shared::econ::TokenAmount;
@@ -374,15 +372,15 @@ mod test {
 
     #[test]
     fn test_lotus_trace() {
-        let call_event = ExecutionEvent::Call(SendParams {
+        let call_event = ExecutionEvent::Call {
             from: ActorID::default(),
             method: 0,
             params: RawBytes::default(),
             to: Address::new_id(0),
             value: TokenAmount::default(),
-        });
+        };
         let return_result =
-            ExecutionEvent::Return(Err(SyscallError::new(IllegalArgument, "illegal")));
+            ExecutionEvent::CallError(SyscallError::new(IllegalArgument, "illegal"));
         let trace = vec![
             call_event.clone(),
             call_event.clone(),
