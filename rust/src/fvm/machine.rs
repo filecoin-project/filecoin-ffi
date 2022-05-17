@@ -363,7 +363,7 @@ fn build_lotus_trace(
 mod test {
     use crate::fvm::machine::build_lotus_trace;
     use fvm::kernel::SyscallError;
-    use fvm::trace::{ExecutionEvent, SendParams};
+    use fvm::trace::ExecutionEvent;
     use fvm_ipld_encoding::RawBytes;
     use fvm_shared::address::Address;
     use fvm_shared::econ::TokenAmount;
@@ -372,15 +372,15 @@ mod test {
 
     #[test]
     fn test_lotus_trace() {
-        let call_event = ExecutionEvent::Call(SendParams {
+        let call_event = ExecutionEvent::Call {
             from: ActorID::default(),
             method: 0,
             params: RawBytes::default(),
             to: Address::new_id(0),
             value: TokenAmount::default(),
-        });
+        };
         let return_result =
-            ExecutionEvent::Return(Err(SyscallError::new(IllegalArgument, "illegal")));
+            ExecutionEvent::CallError(SyscallError::new(IllegalArgument, "illegal"));
         let trace = vec![
             call_event.clone(),
             call_event.clone(),
