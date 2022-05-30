@@ -1008,7 +1008,7 @@ unsafe fn generate_piece_commitment(
     piece_fd_raw: libc::c_int,
     unpadded_piece_size: u64,
 ) -> repr_c::Box<GeneratePieceCommitmentResponse> {
-    catch_panic_response("generate_piece_commitment", || {
+    catch_panic_response_no_log("generate_piece_commitment", || {
         use std::os::unix::io::{FromRawFd, IntoRawFd};
 
         let mut piece_file = fs::File::from_raw_fd(piece_fd_raw);
