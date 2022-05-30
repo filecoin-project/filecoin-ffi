@@ -3,6 +3,7 @@ use std::ptr;
 use anyhow::{anyhow, Result};
 use cid::Cid;
 use fvm_ipld_blockstore::Blockstore;
+use fvm_shared::MAX_CID_LEN;
 
 use super::super::cgo::*;
 
@@ -11,10 +12,6 @@ const MAX_BUF_SIZE: usize = 4 << 20; // 4MiB
 /// The maximum number of blocks to buffer in a batch before before writing it to the underlying
 /// blockstore.
 const MAX_BLOCK_BATCH: usize = 1024;
-
-/// A rough estimate of the CID size, used to estimate the maximum amount of space much space we'll
-/// need in the batch buffer to store a CID.
-const EST_MAX_CID_LEN: usize = 100;
 
 pub struct CgoBlockstore {
     handle: u64,
@@ -116,7 +113,7 @@ impl Blockstore for CgoBlockstore {
             // bounding the maximum number of blocks means we can allocate the vector up-front and
             // avoids any re-allocation, copying, etc.
             if lengths.len() >= MAX_BLOCK_BATCH
-                || EST_MAX_CID_LEN + block.len() + buf.len() > MAX_BUF_SIZE
+                || MAX_CID_LEN + block.len() + buf.len() > MAX_BUF_SIZE
             {
                 flush_buffered(self.handle, &mut lengths, &mut buf)?;
             }
