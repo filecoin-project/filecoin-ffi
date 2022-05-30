@@ -13,7 +13,8 @@ use super::helpers::{to_private_replica_info_map, to_public_replica_info_map};
 use super::types::*;
 use crate::destructor;
 use crate::util::types::{
-    as_path_buf, catch_panic_response, catch_panic_response_no_log, catch_panic_response_raw, FCPResponseStatus,
+    as_path_buf, catch_panic_response, catch_panic_response_no_log, catch_panic_response_raw,
+    FCPResponseStatus,
 };
 
 #[ffi_export]
