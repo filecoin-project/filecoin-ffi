@@ -156,7 +156,7 @@ where
     F: FnOnce() -> anyhow::Result<T> + std::panic::UnwindSafe,
 {
     catch_panic_response_raw(name, || {
-        Result::from(callback().map_err(|err| err.to_string()))
+        Result::from(callback().map_err(|err| format!("{err:?}")))
     })
 }
 
@@ -165,7 +165,7 @@ where
     T: Sized + Default,
     F: FnOnce() -> anyhow::Result<T> + std::panic::UnwindSafe,
 {
-    catch_panic_response_raw_no_log(|| Result::from(callback().map_err(|err| err.to_string())))
+    catch_panic_response_raw_no_log(|| Result::from(callback().map_err(|err| format!("{err:?}"))))
 }
 
 pub fn catch_panic_response_raw_no_log<F, T>(callback: F) -> repr_c::Box<Result<T>>
@@ -219,7 +219,7 @@ where
     }) {
         Ok(t) => match t {
             Ok(t) => Result::ok(t),
-            Err(err) => Result::err_no_default(err.to_string().into_bytes().into_boxed_slice()),
+            Err(err) => Result::err_no_default(format!("{err:?}").into_bytes().into_boxed_slice()),
         },
         Err(panic) => {
             let error_msg = match panic.downcast_ref::<&'static str>() {
