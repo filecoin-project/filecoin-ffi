@@ -79,3 +79,13 @@ c-headers = ["safer-ffi/headers"]
 #fvm_ipld_bitfield = { path = "../../ref-fvm/ipld/bitfield"}
 #fvm_ipld_encoding = { path = "../../ref-fvm/ipld/encoding"}
 #fvm_ipld_blockstore = { path = "../../ref-fvm/ipld/blockstore"}
+
+[patch.crates-io]
+fvm = { git = "https://github.com/filecoin-project/ref-fvm" }
+fvm_shared = { git = "https://github.com/filecoin-project/ref-fvm" }
+fvm_sdk = { git = "https://github.com/filecoin-project/ref-fvm" }
+fvm_ipld_hamt = { git = "https://github.com/filecoin-project/ref-fvm" }
+fvm_ipld_amt = { git = "https://github.com/filecoin-project/ref-fvm" }
+fvm_ipld_bitfield = { git = "https://github.com/filecoin-project/ref-fvm" }
+fvm_ipld_encoding = { git = "https://github.com/filecoin-project/ref-fvm" }
+fvm_ipld_blockstore = { git = "https://github.com/filecoin-project/ref-fvm" }
