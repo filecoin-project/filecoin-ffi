@@ -70,12 +70,11 @@ cuda = ["filecoin-proofs-api/cuda", "bellperson/cuda", "storage-proofs-porep/cud
 multicore-sdr = ["storage-proofs-porep/multicore-sdr"]
 c-headers = ["safer-ffi/headers"]
 
-#[patch.crates-io]
-#fvm = { path = "../../ref-fvm/fvm" }
-#fvm_shared = { path = "../../ref-fvm/shared" }
-#fvm_sdk = { path = "../../ref-fvm/sdk" }
-#fvm_ipld_hamt = { path = "../../ref-fvm/ipld/hamt" }
-#fvm_ipld_amt = { path = "../../ref-fvm/ipld/amt" }
-#fvm_ipld_bitfield = { path = "../../ref-fvm/ipld/bitfield"}
-#fvm_ipld_encoding = { path = "../../ref-fvm/ipld/encoding"}
-#fvm_ipld_blockstore = { path = "../../ref-fvm/ipld/blockstore"}
+[patch.crates-io]
+bellperson = { git = "https://github.com/filecoin-project/bellman", branch = "v0-18-release-branch" }
+filecoin-proofs-v1 = { package = "filecoin-proofs", git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "releases/v11-branch" }
+filecoin-hashers = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "releases/v11-branch" }
+fr32 = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "releases/v11-branch" }
+storage-proofs-core = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "releases/v11-branch" }
+storage-proofs-porep = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "releases/v11-branch" }
+filecoin-proofs-api = { git = "https://github.com/filecoin-project/rust-filecoin-proofs-api", branch = "releases/v11-branch" }

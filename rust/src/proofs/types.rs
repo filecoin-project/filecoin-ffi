@@ -151,12 +151,14 @@ impl From<RegisteredPoStProof> for api::RegisteredPoStProof {
 #[derive(Debug, Clone, Copy)]
 pub enum RegisteredAggregationProof {
     SnarkPackV1,
+    SnarkPackV2,
 }
 
 impl From<api::RegisteredAggregationProof> for RegisteredAggregationProof {
     fn from(other: api::RegisteredAggregationProof) -> Self {
         match other {
             api::RegisteredAggregationProof::SnarkPackV1 => RegisteredAggregationProof::SnarkPackV1,
+            api::RegisteredAggregationProof::SnarkPackV2 => RegisteredAggregationProof::SnarkPackV2,
         }
     }
 }
@@ -165,6 +167,7 @@ impl From<RegisteredAggregationProof> for api::RegisteredAggregationProof {
     fn from(other: RegisteredAggregationProof) -> Self {
         match other {
             RegisteredAggregationProof::SnarkPackV1 => api::RegisteredAggregationProof::SnarkPackV1,
+            RegisteredAggregationProof::SnarkPackV2 => api::RegisteredAggregationProof::SnarkPackV2,
         }
     }
 }
