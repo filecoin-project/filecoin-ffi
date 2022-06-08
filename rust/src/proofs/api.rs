@@ -1497,14 +1497,20 @@ pub mod tests {
 
     #[test]
     #[allow(clippy::cognitive_complexity)]
-    fn test_sealing_v1() -> Result<()> {
-        test_sealing_inner(RegisteredSealProof::StackedDrg2KiBV1)
-    }
+    fn test_sealing_versions() -> Result<()> {
+        let versions = vec![
+            RegisteredSealProof::StackedDrg2KiBV1,
+            RegisteredSealProof::StackedDrg2KiBV1_1,
+        ];
+        for version in versions {
+            info!("test_sealing_versions[{:?}", version);
+            ensure!(
+                test_sealing_inner(version).is_ok(),
+                format!("failed to seal at version {:?}", version)
+            );
+        }
 
-    #[test]
-    #[allow(clippy::cognitive_complexity)]
-    fn test_sealing_v1_1() -> Result<()> {
-        test_sealing_inner(RegisteredSealProof::StackedDrg2KiBV1_1)
+        Ok(())
     }
 
     fn test_sealing_inner(registered_proof_seal: RegisteredSealProof) -> Result<()> {
@@ -2662,20 +2668,30 @@ pub mod tests {
 
     #[test]
     #[ignore]
-    fn test_sealing_aggregation_v1() -> Result<()> {
-        test_sealing_aggregation(
-            RegisteredSealProof::StackedDrg2KiBV1,
-            RegisteredAggregationProof::SnarkPackV1,
-        )
-    }
+    fn test_sealing_aggregation_versions() -> Result<()> {
+        let versions = vec![
+            (
+                RegisteredSealProof::StackedDrg2KiBV1,
+                RegisteredAggregationProof::SnarkPackV1,
+            ),
+            (
+                RegisteredSealProof::StackedDrg2KiBV1_1,
+                RegisteredAggregationProof::SnarkPackV1,
+            ),
+            (
+                RegisteredSealProof::StackedDrg2KiBV1_1,
+                RegisteredAggregationProof::SnarkPackV2,
+            ),
+        ];
+        for version in versions {
+            info!("test_sealing_aggregation_versions[{:?}]", version);
+            ensure!(
+                test_sealing_aggregation(version.0, version.1).is_ok(),
+                format!("failed to seal aggregation at version {:?}", version)
+            );
+        }
 
-    #[test]
-    #[ignore]
-    fn test_sealing_aggregation_v1_1() -> Result<()> {
-        test_sealing_aggregation(
-            RegisteredSealProof::StackedDrg2KiBV1_1,
-            RegisteredAggregationProof::SnarkPackV1,
-        )
+        Ok(())
     }
 
     fn test_sealing_aggregation(
@@ -2922,6 +2938,36 @@ pub mod tests {
 
             assert!(**resp_ad, "aggregated proof was not valid");
 
+            // This test ensures that if we used conflicting
+            // registered proof seals for aggregation that they don't
+            // match across versions (as expected).
+            let conflicting_registered_aggregation = match registered_aggregation {
+                RegisteredAggregationProof::SnarkPackV1 => RegisteredAggregationProof::SnarkPackV2,
+                RegisteredAggregationProof::SnarkPackV2 => RegisteredAggregationProof::SnarkPackV1,
+            };
+            let resp_ad2 = verify_aggregate_seal_proof(
+                registered_proof_seal,
+                conflicting_registered_aggregation,
+                &prover_id,
+                resp_aggregate_proof.as_ref(),
+                inputs[..].into(),
+            );
+
+            // This should cause an error, as the versions intentionally mis-match
+            let msg = str::from_utf8(&resp_ad2.error_msg).unwrap();
+            if resp_ad2.status_code != FCPResponseStatus::NoError
+                && resp_ad2.status_code != FCPResponseStatus::UnclassifiedError
+            {
+                panic!("verify_aggregate_seal_proof failed: {:?}", msg);
+            } else {
+                info!("verify_aggregate_seal_proof should fail here: {}", msg);
+            }
+
+            assert!(
+                !**resp_ad2,
+                "aggregated proof was supposed to fail but is valid"
+            );
+
             destroy_write_without_alignment_response(resp_a1);
             destroy_write_with_alignment_response(resp_a2);
             destroy_generate_data_commitment_response(resp_x);
@@ -2937,6 +2983,7 @@ pub mod tests {
             destroy_verify_seal_response(resp_d2);
 
             destroy_verify_aggregate_seal_response(resp_ad);
+            destroy_verify_aggregate_seal_response(resp_ad2);
 
             destroy_aggregate_proof(resp_aggregate_proof);
 
