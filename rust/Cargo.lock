@@ -259,8 +259,9 @@ checksum = "904dfeac50f3cdaba28fc6f57fdcddb75f49ed61346676a78c4ffe55877802fd"
 
 [[package]]
 name = "bellperson"
-version = "0.18.2"
-source = "git+https://github.com/filecoin-project/bellman?branch=v0-18-release-branch#ff5f39e43cc62481cc575adae628cb7d1124bce8"
+version = "0.21.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "196c778787177b5d621bac0985e6de63ba04da16a119d42b384a1f3e1d67daa1"
 dependencies = [
  "bincode",
  "bitvec 0.22.3",
@@ -623,9 +624,9 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "3.1.18"
+version = "3.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d2dbdf4bdacb33466e854ce889eee8dfd5729abf7ccd7664d0a2d60cd384440b"
+checksum = "a836566fa5f52f7ddf909a8a2f9029b9f78ca584cd95cf7e87f8073110f4c5c9"
 dependencies = [
  "atty",
  "bitflags 1.3.2",
@@ -640,9 +641,9 @@ dependencies = [
 
 [[package]]
 name = "clap_derive"
-version = "3.1.18"
+version = "3.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "25320346e922cffe59c0bbc5410c8d8784509efb321488971081313cb1e1a33c"
+checksum = "986fd75d1dfd2c34eb8c9275ae38ad87ea9478c9b79e87f1801f7d866dfb1e37"
 dependencies = [
  "heck",
  "proc-macro-error",
@@ -653,9 +654,9 @@ dependencies = [
 
 [[package]]
 name = "clap_lex"
-version = "0.2.0"
+version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a37c35f1112dad5e6e0b1adaff798507497a18fceeb30cceb3bae7d1427b9213"
+checksum = "5538cd660450ebeb4234cfecf8f2284b844ffc4c50531e66d584ad5b91293613"
 dependencies = [
  "os_str_bytes",
 ]
@@ -1630,8 +1631,9 @@ dependencies = [
 
 [[package]]
 name = "filecoin-hashers"
-version = "6.0.2"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=releases/v11-branch#6e6bc8242d69cbb6f5572772495c9056f38754fa"
+version = "6.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5459189a6cd4eff6e425be7295e5e083dee3c9b1508291b955869f3b6b24f0cd"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1649,8 +1651,9 @@ dependencies = [
 
 [[package]]
 name = "filecoin-proofs"
-version = "11.0.2"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=releases/v11-branch#6e6bc8242d69cbb6f5572772495c9056f38754fa"
+version = "11.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2993a1de1b2cff6c7212da3a4fd53ab91936c4ab6bfd00b09a19a79dfbf6d47a"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1689,8 +1692,9 @@ dependencies = [
 
 [[package]]
 name = "filecoin-proofs-api"
-version = "11.0.0"
-source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=releases/v11-branch#9a721400622fc0cf55da1dae2e6c72bdd04ccc3a"
+version = "11.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "eaa9392762913cd43b5746b3628cfaa5d9988b69303ff09c5dee44bea533cb55"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1734,9 +1738,9 @@ dependencies = [
 
 [[package]]
 name = "flume"
-version = "0.10.12"
+version = "0.10.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "843c03199d0c0ca54bc1ea90ac0d507274c28abcc4f691ae8b4eaa375087c76a"
+checksum = "1ceeb589a3157cac0ab8cc585feb749bd2cea5cb55a6ee802ad72d9fd38303da"
 dependencies = [
  "spin",
 ]
@@ -1759,8 +1763,9 @@ dependencies = [
 
 [[package]]
 name = "fr32"
-version = "4.0.2"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=releases/v11-branch#6e6bc8242d69cbb6f5572772495c9056f38754fa"
+version = "4.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "355338c73ad12186e0f99c563f2e5666f837d5c04edfd4302e7b89b356b8c86e"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1947,7 +1952,8 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_amt"
 version = "0.4.1"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=asr/proof-bump#42b31134acc82d0bc500c06dac611585f06da07f"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3bbe1fb55191eec39304eccc690e94bfe2462a829dbc0a227559d2bf1c33b4dc"
 dependencies = [
  "ahash",
  "anyhow",
@@ -1963,7 +1969,8 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_bitfield"
 version = "0.5.2"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=asr/proof-bump#42b31134acc82d0bc500c06dac611585f06da07f"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "af1587207c7455ea70a762d4360f502b6728ea6e2dfbec2b66b6d4d943ee29ae"
 dependencies = [
  "cs_serde_bytes",
  "fvm_ipld_encoding",
@@ -1975,7 +1982,8 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_blockstore"
 version = "0.1.1"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=asr/proof-bump#42b31134acc82d0bc500c06dac611585f06da07f"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "688239a96199577f6705a3f9689abfd795f867f91f5847bc7e236017cc672df7"
 dependencies = [
  "anyhow",
  "cid",
@@ -2000,7 +2008,8 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_encoding"
 version = "0.2.1"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=asr/proof-bump#42b31134acc82d0bc500c06dac611585f06da07f"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "39a5b85beb7f0c612abbe36ce013d50fd4c5304098f7b439a32c82526d7d800a"
 dependencies = [
  "anyhow",
  "cid",
@@ -2017,7 +2026,8 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_hamt"
 version = "0.5.1"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=asr/proof-bump#42b31134acc82d0bc500c06dac611585f06da07f"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "65b5c939897aa1bfd63e7cb9c458ba10689371af3278ff20d66c6f8ca152c6c0"
 dependencies = [
  "anyhow",
  "byteorder 1.4.3",
@@ -2037,7 +2047,8 @@ dependencies = [
 [[package]]
 name = "fvm_sdk"
 version = "1.0.0-rc.2"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=asr/proof-bump#42b31134acc82d0bc500c06dac611585f06da07f"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5823623e85fa75b779c12ac793485a01d6f3a420b2b96eabeef26e1ce1aa3fc8"
 dependencies = [
  "cid",
  "fvm_ipld_encoding",
@@ -2051,7 +2062,8 @@ dependencies = [
 [[package]]
 name = "fvm_shared"
 version = "0.7.1"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=asr/proof-bump#42b31134acc82d0bc500c06dac611585f06da07f"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "282f5fb4f2eb9f916badd253aa4898d7ba20bdda3e76a2f94d42ee67acb6ba2e"
 dependencies = [
  "anyhow",
  "bimap",
@@ -2625,9 +2637,9 @@ dependencies = [
 
 [[package]]
 name = "neptune"
-version = "5.1.0"
+version = "5.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4d4dfea4e31f0c2efdde6428997a395eec130fd42554b68f5c9844301db4911a"
+checksum = "45f91e8bfce021d30c9d576440d6e79ef87564cafcd50cb47714ddbe2b21bb1a"
 dependencies = [
  "bellperson",
  "blake2s_simd 0.5.11",
@@ -3297,7 +3309,7 @@ version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bfa0f585226d2e68097d4f95d113b15b83a82e819ab25717ec0590d9584ef366"
 dependencies = [
- "semver 1.0.9",
+ "semver 1.0.10",
 ]
 
 [[package]]
@@ -3369,9 +3381,9 @@ dependencies = [
 
 [[package]]
 name = "semver"
-version = "1.0.9"
+version = "1.0.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8cb243bdfdb5936c8dc3c45762a19d12ab4550cdc753bc247637d4ec35a040fd"
+checksum = "a41d061efea015927ac527063765e73601444cdc344ba855bc7bd44578b25e1c"
 
 [[package]]
 name = "semver-parser"
@@ -3523,8 +3535,9 @@ dependencies = [
 
 [[package]]
 name = "sha2raw"
-version = "6.0.2"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=releases/v11-branch#6e6bc8242d69cbb6f5572772495c9056f38754fa"
+version = "6.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fc780bf01fa69500c5e0555d1a444bb05e5789bcad81c88e3eb96d9c51e3d395"
 dependencies = [
  "block-buffer 0.9.0",
  "byteorder 1.4.3",
@@ -3597,8 +3610,9 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
 name = "storage-proofs-core"
-version = "11.0.2"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=releases/v11-branch#6e6bc8242d69cbb6f5572772495c9056f38754fa"
+version = "11.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b46f91043e71be271bbe34d4d22916e2ba55a0d128d5a18bd4dcfff44f4bc3ec"
 dependencies = [
  "aes",
  "anyhow",
@@ -3637,8 +3651,9 @@ dependencies = [
 
 [[package]]
 name = "storage-proofs-porep"
-version = "11.0.2"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=releases/v11-branch#6e6bc8242d69cbb6f5572772495c9056f38754fa"
+version = "11.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "343b7faebb6376e20a44f91a34ee3e9c1533069434b6a1a05ed1c7b95c53c1d3"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -3679,8 +3694,9 @@ dependencies = [
 
 [[package]]
 name = "storage-proofs-post"
-version = "11.0.2"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=releases/v11-branch#6e6bc8242d69cbb6f5572772495c9056f38754fa"
+version = "11.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "741f7f1bcae57dcc449dd8189eb6984f3332b73d214ab7945a5c3f6c9a05a8ad"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -3707,8 +3723,9 @@ dependencies = [
 
 [[package]]
 name = "storage-proofs-update"
-version = "11.0.2"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=releases/v11-branch#6e6bc8242d69cbb6f5572772495c9056f38754fa"
+version = "11.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "734fae4ec0920273ba044ffad9d55c6214f15dffd914d35f15540ec15632a91b"
 dependencies = [
  "anyhow",
  "bellperson",
