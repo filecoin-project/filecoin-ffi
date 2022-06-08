@@ -31,12 +31,12 @@ rand = "0.8"
 rand_chacha = "0.3.1"
 rayon = "1.2.1"
 anyhow = "1.0.23"
-bellperson = { version = "0.18", default-features = false }
+bellperson = { version = "0.21", default-features = false }
 serde_json = "1.0.46"
 memmap = "0.7"
 rust-gpu-tools = { version = "0.5", default-features = false }
-storage-proofs-porep = { version = "~11.0", default-features = false }
-fr32 = { version = "~4.0", default-features = false }
+storage-proofs-porep = { version = "~11.1", default-features = false }
+fr32 = { version = "~4.1", default-features = false }
 fvm = { version = "1.0.0-rc.2", default-features = false }
 fvm_ipld_car = "0.4.1"
 fvm_shared = "0.7.1"
@@ -56,7 +56,7 @@ safer-ffi = { version = "0.0.7", features = ["proc_macros"] }
 
 [dependencies.filecoin-proofs-api]
 package = "filecoin-proofs-api"
-version = "11.0"
+version = "11.1"
 default-features = false
 
 [dev-dependencies]
@@ -72,27 +72,3 @@ c-headers = ["safer-ffi/headers"]
 
 [patch.crates-io]
 wasmtime = { git = "https://github.com/filecoin-project/wasmtime", branch = "fix/sse-feature" }
-
-#fvm = { path = "../../ref-fvm/fvm" }
-#fvm_shared = { path = "../../ref-fvm/shared" }
-#fvm_sdk = { path = "../../ref-fvm/sdk" }
-#fvm_ipld_hamt = { path = "../../ref-fvm/ipld/hamt" }
-#fvm_ipld_amt = { path = "../../ref-fvm/ipld/amt" }
-#fvm_ipld_bitfield = { path = "../../ref-fvm/ipld/bitfield"}
-#fvm_ipld_encoding = { path = "../../ref-fvm/ipld/encoding"}
-#fvm_ipld_blockstore = { path = "../../ref-fvm/ipld/blockstore"}
-bellperson = { git = "https://github.com/filecoin-project/bellman", branch = "v0-18-release-branch" }
-filecoin-proofs-v1 = { package = "filecoin-proofs", git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "releases/v11-branch" }
-filecoin-hashers = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "releases/v11-branch" }
-fr32 = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "releases/v11-branch" }
-storage-proofs-core = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "releases/v11-branch" }
-storage-proofs-porep = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "releases/v11-branch" }
-filecoin-proofs-api = { git = "https://github.com/filecoin-project/rust-filecoin-proofs-api", branch = "releases/v11-branch" }
-fvm_shared = { git = "https://github.com/filecoin-project/ref-fvm", branch = "asr/proof-bump"}
-fvm_sdk = { git = "https://github.com/filecoin-project/ref-fvm", branch = "asr/proof-bump" }
-fvm_ipld_hamt = { git = "https://github.com/filecoin-project/ref-fvm", branch = "asr/proof-bump" }
-fvm_ipld_amt = { git = "https://github.com/filecoin-project/ref-fvm", branch = "asr/proof-bump" }
-fvm_ipld_bitfield = { git = "https://github.com/filecoin-project/ref-fvm", branch = "asr/proof-bump" }
-fvm_ipld_encoding = { git = "https://github.com/filecoin-project/ref-fvm", branch = "asr/proof-bump" }
-fvm_ipld_blockstore = { git = "https://github.com/filecoin-project/ref-fvm", branch = "asr/proof-bump" }
-
