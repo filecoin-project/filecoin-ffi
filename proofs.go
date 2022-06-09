@@ -924,6 +924,8 @@ func toFilRegisteredAggregationProof(p abi.RegisteredAggregationProof) (cgo.Regi
 	switch p {
 	case abi.RegisteredAggregationProof_SnarkPackV1:
 		return cgo.RegisteredAggregationProofSnarkPackV1, nil
+	case abi.RegisteredAggregationProof_SnarkPackV2:
+		return cgo.RegisteredAggregationProofSnarkPackV2, nil
 	default:
 		return 0, errors.Errorf("no mapping to abi.RegisteredAggregationProof value available for: %v", p)
 	}
