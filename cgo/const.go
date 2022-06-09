@@ -30,6 +30,7 @@ const (
 
 const (
 	RegisteredAggregationProofSnarkPackV1 = C.REGISTERED_AGGREGATION_PROOF_SNARK_PACK_V1
+	RegisteredAggregationProofSnarkPackV2 = C.REGISTERED_AGGREGATION_PROOF_SNARK_PACK_V2
 )
 
 const (
