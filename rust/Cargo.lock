@@ -740,8 +740,7 @@ checksum = "8aebca1129a03dc6dc2b127edd729435bbc4a37e1d5f4d7513165089ceb02634"
 [[package]]
 name = "cranelift-bforest"
 version = "0.84.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2fa7c3188913c2d11a361e0431e135742372a2709a99b103e79758e11a0a797e"
+source = "git+https://github.com/filecoin-project/wasmtime?branch=fix/sse-feature#cbb8a3de28d7ff120b671af6a135879316b78688"
 dependencies = [
  "cranelift-entity",
 ]
@@ -749,8 +748,7 @@ dependencies = [
 [[package]]
 name = "cranelift-codegen"
 version = "0.84.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "29285f70fd396a8f64455a15a6e1d390322e4a5f5186de513141313211b0a23e"
+source = "git+https://github.com/filecoin-project/wasmtime?branch=fix/sse-feature#cbb8a3de28d7ff120b671af6a135879316b78688"
 dependencies = [
  "cranelift-bforest",
  "cranelift-codegen-meta",
@@ -766,8 +764,7 @@ dependencies = [
 [[package]]
 name = "cranelift-codegen-meta"
 version = "0.84.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "057eac2f202ec95aebfd8d495e88560ac085f6a415b3c6c28529dc5eb116a141"
+source = "git+https://github.com/filecoin-project/wasmtime?branch=fix/sse-feature#cbb8a3de28d7ff120b671af6a135879316b78688"
 dependencies = [
  "cranelift-codegen-shared",
 ]
@@ -775,14 +772,12 @@ dependencies = [
 [[package]]
 name = "cranelift-codegen-shared"
 version = "0.84.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "75d93869efd18874a9341cfd8ad66bcb08164e86357a694a0e939d29e87410b9"
+source = "git+https://github.com/filecoin-project/wasmtime?branch=fix/sse-feature#cbb8a3de28d7ff120b671af6a135879316b78688"
 
 [[package]]
 name = "cranelift-entity"
 version = "0.84.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7e34bd7a1fefa902c90a921b36323f17a398b788fa56a75f07a29d83b6e28808"
+source = "git+https://github.com/filecoin-project/wasmtime?branch=fix/sse-feature#cbb8a3de28d7ff120b671af6a135879316b78688"
 dependencies = [
  "serde",
 ]
@@ -790,8 +785,7 @@ dependencies = [
 [[package]]
 name = "cranelift-frontend"
 version = "0.84.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "457018dd2d6ee300953978f63215b5edf3ae42dbdf8c7c038972f10394599f72"
+source = "git+https://github.com/filecoin-project/wasmtime?branch=fix/sse-feature#cbb8a3de28d7ff120b671af6a135879316b78688"
 dependencies = [
  "cranelift-codegen",
  "log",
@@ -802,8 +796,7 @@ dependencies = [
 [[package]]
 name = "cranelift-native"
 version = "0.84.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bba027cc41bf1d0eee2ddf16caba2ee1be682d0214520fff0129d2c6557fda89"
+source = "git+https://github.com/filecoin-project/wasmtime?branch=fix/sse-feature#cbb8a3de28d7ff120b671af6a135879316b78688"
 dependencies = [
  "cranelift-codegen",
  "libc",
@@ -813,8 +806,7 @@ dependencies = [
 [[package]]
 name = "cranelift-wasm"
 version = "0.84.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9b17639ced10b9916c9be120d38c872ea4f9888aa09248568b10056ef0559bfa"
+source = "git+https://github.com/filecoin-project/wasmtime?branch=fix/sse-feature#cbb8a3de28d7ff120b671af6a135879316b78688"
 dependencies = [
  "cranelift-codegen",
  "cranelift-entity",
@@ -4065,8 +4057,7 @@ dependencies = [
 [[package]]
 name = "wasmtime"
 version = "0.37.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dfdd1101bdfa0414a19018ec0a091951a20b695d4d04f858d49f6c4cc53cd8dd"
+source = "git+https://github.com/filecoin-project/wasmtime?branch=fix/sse-feature#cbb8a3de28d7ff120b671af6a135879316b78688"
 dependencies = [
  "anyhow",
  "bincode",
@@ -4094,8 +4085,7 @@ dependencies = [
 [[package]]
 name = "wasmtime-cranelift"
 version = "0.37.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "16e78edcfb0daa9a9579ac379d00e2d5a5b2a60c0d653c8c95e8412f2166acb9"
+source = "git+https://github.com/filecoin-project/wasmtime?branch=fix/sse-feature#cbb8a3de28d7ff120b671af6a135879316b78688"
 dependencies = [
  "anyhow",
  "cranelift-codegen",
@@ -4116,8 +4106,7 @@ dependencies = [
 [[package]]
 name = "wasmtime-environ"
 version = "0.37.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4201389132ec467981980549574b33fc70d493b40f2c045c8ce5c7b54fbad97e"
+source = "git+https://github.com/filecoin-project/wasmtime?branch=fix/sse-feature#cbb8a3de28d7ff120b671af6a135879316b78688"
 dependencies = [
  "anyhow",
  "cranelift-entity",
@@ -4136,8 +4125,7 @@ dependencies = [
 [[package]]
 name = "wasmtime-jit"
 version = "0.37.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1587ca7752d00862faa540d00fd28e5ccf1ac61ba19756449193f1153cb2b127"
+source = "git+https://github.com/filecoin-project/wasmtime?branch=fix/sse-feature#cbb8a3de28d7ff120b671af6a135879316b78688"
 dependencies = [
  "addr2line",
  "anyhow",
@@ -4161,8 +4149,7 @@ dependencies = [
 [[package]]
 name = "wasmtime-jit-debug"
 version = "0.37.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b27233ab6c8934b23171c64f215f902ef19d18c1712b46a0674286d1ef28d5dd"
+source = "git+https://github.com/filecoin-project/wasmtime?branch=fix/sse-feature#cbb8a3de28d7ff120b671af6a135879316b78688"
 dependencies = [
  "lazy_static",
 ]
@@ -4170,8 +4157,7 @@ dependencies = [
 [[package]]
 name = "wasmtime-runtime"
 version = "0.37.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "47d3b0b8f13db47db59d616e498fe45295819d04a55f9921af29561827bdb816"
+source = "git+https://github.com/filecoin-project/wasmtime?branch=fix/sse-feature#cbb8a3de28d7ff120b671af6a135879316b78688"
 dependencies = [
  "anyhow",
  "cc",
@@ -4194,8 +4180,7 @@ dependencies = [
 [[package]]
 name = "wasmtime-types"
 version = "0.37.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1630d9dca185299bec7f557a7e73b28742fe5590caf19df001422282a0a98ad1"
+source = "git+https://github.com/filecoin-project/wasmtime?branch=fix/sse-feature#cbb8a3de28d7ff120b671af6a135879316b78688"
 dependencies = [
  "cranelift-entity",
  "serde",
