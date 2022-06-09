@@ -70,6 +70,9 @@ cuda = ["filecoin-proofs-api/cuda", "bellperson/cuda", "storage-proofs-porep/cud
 multicore-sdr = ["storage-proofs-porep/multicore-sdr"]
 c-headers = ["safer-ffi/headers"]
 
+[patch.crates-io]
+wasmtime = { git = "https://github.com/filecoin-project/wasmtime", branch = "fix/sse-feature" }
+
 #[patch.crates-io]
 #fvm = { path = "../../ref-fvm/fvm" }
 #fvm_shared = { path = "../../ref-fvm/shared" }
