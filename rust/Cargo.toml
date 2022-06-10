@@ -72,3 +72,11 @@ c-headers = ["safer-ffi/headers"]
 
 [patch.crates-io]
 wasmtime = { git = "https://github.com/filecoin-project/wasmtime", branch = "fix/sse-feature" }
+fvm = { git = "https://github.com/filecoin-project/ref-fvm", branch = "release/v1.1" }
+fvm_shared = { git = "https://github.com/filecoin-project/ref-fvm", branch = "release/v1.1" }
+fvm_sdk = { git = "https://github.com/filecoin-project/ref-fvm", branch = "release/v1.1" }
+fvm_ipld_hamt = { git = "https://github.com/filecoin-project/ref-fvm", branch = "release/v1.1" }
+fvm_ipld_amt = { git = "https://github.com/filecoin-project/ref-fvm", branch = "release/v1.1" }
+fvm_ipld_bitfield = { git = "https://github.com/filecoin-project/ref-fvm", branch = "release/v1.1" }
+fvm_ipld_encoding = { git = "https://github.com/filecoin-project/ref-fvm", branch = "release/v1.1" }
+fvm_ipld_blockstore = { git = "https://github.com/filecoin-project/ref-fvm", branch = "release/v1.1" }

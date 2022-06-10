@@ -35,6 +35,33 @@ func CreateFvmMachine(fvmVersion FvmRegisteredVersion, chainEpoch, baseFeeHi, ba
 	return executor, nil
 }
 
+func CreateFvmDebugMachine(fvmVersion FvmRegisteredVersion, chainEpoch, baseFeeHi, baseFeeLo, baseCircSupplyHi, baseCircSupplyLo, networkVersion uint64, stateRoot SliceRefUint8, actorRedirect SliceRefUint8, tracing bool, blockstoreId, externsId uint64) (*FvmMachine, error) {
+	resp := C.create_fvm_debug_machine(
+		fvmVersion,
+		C.uint64_t(chainEpoch),
+		C.uint64_t(baseFeeHi),
+		C.uint64_t(baseFeeLo),
+		C.uint64_t(baseCircSupplyHi),
+		C.uint64_t(baseCircSupplyLo),
+		C.uint64_t(networkVersion),
+		stateRoot,
+		actorRedirect,
+		C.bool(tracing),
+		C.uint64_t(blockstoreId),
+		C.uint64_t(externsId),
+	)
+	// take out the pointer from the result to ensure it doesn't get freed
+	executor := resp.value
+	resp.value = nil
+	defer resp.destroy()
+
+	if err := CheckErr(resp); err != nil {
+		return nil, err
+	}
+
+	return executor, nil
+}
+
 func FvmMachineExecuteMessage(executor *FvmMachine, message SliceRefUint8, chainLen, applyKind uint64) (FvmMachineExecuteResponseGo, error) {
 	resp := C.fvm_machine_execute_message(
 		executor,
