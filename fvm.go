@@ -10,9 +10,11 @@ package ffi
 // #include "./filcrypto.h"
 import "C"
 import (
+	"bytes"
 	"context"
 	gobig "math/big"
 	"runtime"
+	"sort"
 
 	"github.com/filecoin-project/filecoin-ffi/cgo"
 	"github.com/filecoin-project/go-state-types/abi"
@@ -77,9 +79,9 @@ func CreateFVM(opts *FVMOpts) (*FVM, error) {
 		var mappings []cgo.CidMapping
 
 		if len(opts.ActorRedirect) > 0 {
-			type redirect struct{ from, to Cid.Cid }
+			type redirect struct{ from, to cid.Cid }
 
-			redirects = make([]redirect, len(opts.ActorRedirect))
+			redirects := make([]redirect, len(opts.ActorRedirect))
 			for from, to := range opts.ActorRedirect {
 				redirects = append(redirects, redirect{from: from, to: to})
 			}
@@ -90,7 +92,9 @@ func CreateFVM(opts *FVMOpts) (*FVM, error) {
 			mappings = make([]cgo.CidMapping, 0, len(redirects))
 			for _, r := range redirects {
 				mappings = append(mappings,
-					cgo.AsCidMapping(cgo.AsSliceRefUint8(r.from), cgo.AsSliceRefUint8(r.to)))
+					cgo.AsCidMapping(
+						cgo.AsSliceBoxedUint8(r.from.Bytes()),
+						cgo.AsSliceBoxedUint8(r.to.Bytes())))
 			}
 		}
 
