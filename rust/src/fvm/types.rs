@@ -42,11 +42,3 @@ pub struct FvmMachineExecuteResponse {
     pub exec_trace: Option<c_slice::Box<u8>>,
     pub failure_info: Option<str::Box>,
 }
-
-#[derive_ReprC]
-#[repr(C)]
-#[derive(Default)]
-pub struct CidMapping {
-    pub from: c_slice::Box<u8>,
-    pub to: c_slice::Box<u8>,
-}

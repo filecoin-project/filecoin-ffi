@@ -12,7 +12,7 @@ use fvm::DefaultKernel;
 use fvm_ipld_blockstore::Blockstore;
 use fvm_ipld_car::load_car;
 use fvm_ipld_encoding::tuple::{Deserialize_tuple, Serialize_tuple};
-use fvm_ipld_encoding::{to_vec, RawBytes};
+use fvm_ipld_encoding::{to_vec, RawBytes, CborStore};
 use fvm_shared::address::Address;
 use fvm_shared::error::{ErrorNumber, ExitCode};
 use fvm_shared::receipt::Receipt;
@@ -142,7 +142,7 @@ fn create_fvm_debug_machine(
     base_circ_supply_lo: u64,
     network_version: u64,
     state_root: c_slice::Ref<u8>,
-    actor_redirect: c_slice::Ref<CidMapping>,
+    actor_redirect: c_slice::Ref<u8>,
     tracing: bool,
     blockstore_id: u64,
     externs_id: u64,
@@ -168,18 +168,21 @@ fn create_fvm_debug_machine(
             let state_root = Cid::try_from(&state_root[..])
                 .map_err(|err| anyhow!("invalid state root: {}", err))?;
 
+            let blockstore = FakeBlockstore::new(CgoBlockstore::new(blockstore_id)).finish();
+            let externs = CgoExterns::new(externs_id);
+
             let mut network_config = NetworkConfig::new(network_version);
 
             network_config.enable_actor_debugging();
             if !actor_redirect.is_empty() {
-                let mut redirect = Vec::with_capacity(actor_redirect.len());
-                for i in 0..actor_redirect.len() {
-                    let from = Cid::try_from(&actor_redirect[i].from[..])
-                        .map_err(|err| anyhow!("invalid cid: {}", err))?;
-                    let to = Cid::try_from(&actor_redirect[i].to[..])
-                        .map_err(|err| anyhow!("invalid cid: {}", err))?;
-                    redirect.push((from, to));
-                }
+                let actor_redirect_cid = Cid::try_from(&actor_redirect[..])
+                    .map_err(|err| anyhow!("invalid redirect CID: {}", err))?;
+                let redirect: Vec<(Cid, Cid)> = match blockstore.get_cbor(&actor_redirect_cid)
+                    .map_err(|err| anyhow!("invalid redirect cid: {}", err))?
+                {
+                    Some(v) => v,
+                    None => bail!("failed to create engine: missing redirect vector"),
+                };
                 network_config.redirect_actors(redirect);
             }
 
@@ -192,9 +195,6 @@ fn create_fvm_debug_machine(
             if tracing {
                 machine_context.enable_tracing();
             }
-
-            let blockstore = FakeBlockstore::new(CgoBlockstore::new(blockstore_id)).finish();
-            let externs = CgoExterns::new(externs_id);
 
             let engine = match ENGINES.get(&network_config) {
                 Ok(e) => e,

@@ -45,9 +45,6 @@ type SliceBoxedSliceBoxedUint8 = C.slice_boxed_slice_boxed_uint8_t
 type SliceBoxedSliceBoxedUint64 = C.slice_boxed_slice_boxed_uint64_t
 type SliceBoxedUint8 = C.struct_slice_boxed_uint8
 
-type SliceRefCidMapping = C.slice_ref_CidMapping_t
-type CidMapping = C.struct_CidMapping
-
 type ByteArray32 = C.uint8_32_array_t
 type ByteArray48 = C.uint8_48_array_t
 type ByteArray96 = C.uint8_96_array_t

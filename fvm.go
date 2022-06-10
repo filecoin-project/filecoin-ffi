@@ -46,7 +46,7 @@ type FVMOpts struct {
 	Tracing        bool
 
 	Debug         bool
-	ActorRedirect map[cid.Cid]cid.Cid
+	ActorRedirect cid.Cid
 }
 
 // CreateFVM creates a new FVM instance.
@@ -76,25 +76,6 @@ func CreateFVM(opts *FVMOpts) (*FVM, error) {
 			exHandle, exHandle,
 		)
 	} else {
-		var mappings []cgo.CidMapping
-
-		if len(opts.ActorRedirect) > 0 {
-			type redirect struct{ from, to cid.Cid }
-
-			redirects := make([]redirect, len(opts.ActorRedirect))
-			for from, to := range opts.ActorRedirect {
-				redirects = append(redirects, redirect{from: from, to: to})
-			}
-			sort.Slice(redirects, func(i, j int) bool {
-				return bytes.Compare(redirects[i].from.Bytes(), redirects[j].from.Bytes()) < 0
-			})
-
-			mappings = make([]cgo.CidMapping, 0, len(redirects))
-			for _, r := range redirects {
-				mappings = append(mappings, cgo.AsCidMapping(r.from.Bytes(), r.to.Bytes()))
-			}
-		}
-
 		executor, err = cgo.CreateFvmDebugMachine(cgo.FvmRegisteredVersion(opts.FVMVersion),
 			uint64(opts.Epoch),
 			baseFeeHi,
@@ -103,7 +84,7 @@ func CreateFVM(opts *FVMOpts) (*FVM, error) {
 			baseCircSupplyLo,
 			uint64(opts.NetworkVersion),
 			cgo.AsSliceRefUint8(opts.StateBase.Bytes()),
-			cgo.AsSliceRefCidMapping(mappings),
+			cgo.AsSliceRefUint8(ActorRedirect.Bytes()),
 			opts.Tracing,
 			exHandle, exHandle,
 		)

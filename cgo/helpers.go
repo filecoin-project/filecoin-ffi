@@ -5,18 +5,6 @@ package cgo
 #cgo pkg-config: ${SRCDIR}/../filcrypto.pc
 #include "../filcrypto.h"
 #include <stdlib.h>
-#include <string.h>
-
-void *make_cid_mapping_ptr(void *p, size_t len) {
-  size_t sz = len * sizeof(struct CidMapping);
-  void *r = malloc(sz);
-  memcpy(r, p, sz);
-  return r;
-}
-
-void *nullptr() {
-  return NULL;
-}
 */
 import "C"
 import (
@@ -210,36 +198,6 @@ func AsSliceRefSliceBoxedUint8(goSlice []SliceBoxedUint8) SliceRefSliceBoxedUint
 
 	return SliceRefSliceBoxedUint8{
 		ptr: (*C.slice_boxed_uint8_t)(unsafe.Pointer(&goSlice[0])),
-		len: C.size_t(len),
-	}
-}
-
-func AsCidMapping(from, to []byte) CidMapping {
-	fromPtr := C.alloc_boxed_slice(C.size_t(len(from)))
-	copy(fromPtr.slice(), from)
-
-	toPtr := C.alloc_boxed_slice(C.size_t(len(to)))
-	copy(toPtr.slice(), to)
-
-	return CidMapping{
-		from: fromPtr,
-		to:   toPtr,
-	}
-}
-
-func AsSliceRefCidMapping(goSlice []CidMapping) SliceRefCidMapping {
-	len := len(goSlice)
-
-	if len == 0 {
-		return SliceRefCidMapping{
-			ptr: (*C.struct_CidMapping)(C.nullptr()),
-			len: C.size_t(len),
-		}
-	}
-
-	ptr := C.make_cid_mapping_ptr(unsafe.Pointer(&goSlice[0]), C.size_t(len))
-	return SliceRefCidMapping{
-		ptr: (*C.struct_CidMapping)(ptr),
 		len: C.size_t(len),
 	}
 }
