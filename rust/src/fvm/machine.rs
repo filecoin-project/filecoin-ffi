@@ -133,6 +133,83 @@ fn create_fvm_machine(
 }
 
 #[ffi_export]
+fn create_fvm_debug_machine(
+    fvm_version: FvmRegisteredVersion,
+    chain_epoch: u64,
+    base_fee_hi: u64,
+    base_fee_lo: u64,
+    base_circ_supply_hi: u64,
+    base_circ_supply_lo: u64,
+    network_version: u64,
+    state_root: c_slice::Ref<u8>,
+    actor_redirect: c_slice::Ref<CidMapping>,
+    tracing: bool,
+    blockstore_id: u64,
+    externs_id: u64,
+) -> repr_c::Box<Result<FvmMachine>> {
+    use fvm::machine::NetworkConfig;
+    unsafe {
+        catch_panic_response_no_default("create_fvm_machine", || {
+            match fvm_version {
+                FvmRegisteredVersion::V1 => info!("using FVM V1"),
+                //_ => panic!("unsupported FVM Registered Version")
+            }
+
+            let chain_epoch = chain_epoch as ChainEpoch;
+
+            let base_circ_supply = TokenAmount::from(
+                ((base_circ_supply_hi as u128) << u64::BITS) | base_circ_supply_lo as u128,
+            );
+            let base_fee =
+                TokenAmount::from(((base_fee_hi as u128) << u64::BITS) | base_fee_lo as u128);
+
+            let network_version = NetworkVersion::try_from(network_version as u32)
+                .map_err(|_| anyhow!("unsupported network version: {}", network_version))?;
+            let state_root = Cid::try_from(&state_root[..])
+                .map_err(|err| anyhow!("invalid state root: {}", err))?;
+
+            let mut network_config = NetworkConfig::new(network_version);
+
+            network_config.enable_actor_debugging();
+            if !actor_redirect.is_empty() {
+                let mut redirect = Vec::with_capacity(actor_redirect.len());
+                for i in 0..actor_redirect.len() {
+                    let from = Cid::try_from(&actor_redirect[i].from[..]).map_err(|err| anyhow!("invalid cid: {}", err))?;
+                    let to = Cid::try_from(&actor_redirect[i].to[..]).map_err(|err| anyhow!("invalid cid: {}", err))?;
+                    redirect.push((from, to));
+                }
+                network_config.redirect_actors(redirect);
+            }
+
+            let mut machine_context = network_config.for_epoch(chain_epoch, state_root);
+
+            machine_context
+                .set_base_fee(base_fee)
+                .set_circulating_supply(base_circ_supply);
+
+            if tracing {
+                machine_context.enable_tracing();
+            }
+
+            let blockstore = FakeBlockstore::new(CgoBlockstore::new(blockstore_id)).finish();
+            let externs = CgoExterns::new(externs_id);
+
+            let engine = match ENGINES.get(&network_config) {
+                Ok(e) => e,
+                Err(err) => bail!("failed to create engine: {}", err),
+            };
+
+            let machine = CgoMachine::new(&engine, &machine_context, blockstore, externs)?;
+
+            Ok(Some(repr_c::Box::new(InnerFvmMachine {
+                machine: Some(Mutex::new(new_executor(machine))),
+            })))
+        })
+    }
+}
+
+
+#[ffi_export]
 fn fvm_machine_execute_message(
     executor: &'_ InnerFvmMachine,
     message: c_slice::Ref<u8>,

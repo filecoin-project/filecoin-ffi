@@ -23,6 +23,7 @@ var (
 	emptyPublicPieceInfo    C.PublicPieceInfo_t    = C.PublicPieceInfo_t{}
 	emptyByteArray32        C.uint8_32_array_t     = C.uint8_32_array_t{}
 	emptySliceBoxedUint8    C.slice_boxed_uint8_t  = C.slice_boxed_uint8_t{}
+	emptyCidMapping         C.struct_cid_mapping_t = C.struct_cid_mapping_t{}
 )
 
 func AsSliceRefUint8(goBytes []byte) SliceRefUint8 {
@@ -198,6 +199,29 @@ func AsSliceRefSliceBoxedUint8(goSlice []SliceBoxedUint8) SliceRefSliceBoxedUint
 
 	return SliceRefSliceBoxedUint8{
 		ptr: (*C.slice_boxed_uint8_t)(unsafe.Pointer(&goSlice[0])),
+		len: C.size_t(len),
+	}
+}
+
+func AsCidMapping(from, to SliceBoxUnit8) CidMapping {
+	return CidMapping{
+		from: AsSliceRefUint8(from),
+		to:   AsSliceRefUint8(to),
+	}
+}
+
+func AsSliceRefCidMapping(goSlice []CidMapping) SliceRefCidMapping {
+	len := en(goSlice)
+
+	if len == 0 {
+		return SliceRefCidMapping{
+			ptr: &emptyCidMapping,
+			len: C.size_t(len),
+		}
+	}
+
+	return SliceRefCidMapping{
+		ptr: (*C.slice_cid_mapping_t)(unsafe.Pointer(&goSlice[0])),
 		len: C.size_t(len),
 	}
 }

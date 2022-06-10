@@ -42,6 +42,9 @@ type FVMOpts struct {
 	StateBase      cid.Cid
 	Manifest       cid.Cid
 	Tracing        bool
+
+	Debug         bool
+	ActorRedirect map[cid.Cid]cid.Cid
 }
 
 // CreateFVM creates a new FVM instance.
@@ -56,18 +59,55 @@ func CreateFVM(opts *FVMOpts) (*FVM, error) {
 	}
 
 	exHandle := cgo.Register(context.TODO(), opts.Externs)
-	executor, err := cgo.CreateFvmMachine(cgo.FvmRegisteredVersion(opts.FVMVersion),
-		uint64(opts.Epoch),
-		baseFeeHi,
-		baseFeeLo,
-		baseCircSupplyHi,
-		baseCircSupplyLo,
-		uint64(opts.NetworkVersion),
-		cgo.AsSliceRefUint8(opts.StateBase.Bytes()),
-		cgo.AsSliceRefUint8(opts.Manifest.Bytes()),
-		opts.Tracing,
-		exHandle, exHandle,
-	)
+	var executor *cgo.FvmMachine
+	if !opts.Debug {
+		executor, err = cgo.CreateFvmMachine(cgo.FvmRegisteredVersion(opts.FVMVersion),
+			uint64(opts.Epoch),
+			baseFeeHi,
+			baseFeeLo,
+			baseCircSupplyHi,
+			baseCircSupplyLo,
+			uint64(opts.NetworkVersion),
+			cgo.AsSliceRefUint8(opts.StateBase.Bytes()),
+			cgo.AsSliceRefUint8(opts.Manifest.Bytes()),
+			opts.Tracing,
+			exHandle, exHandle,
+		)
+	} else {
+		var mappings []cgo.CidMapping
+
+		if len(opts.ActorRedirect) > 0 {
+			type redirect struct{ from, to Cid.Cid }
+
+			redirects = make([]redirect, len(opts.ActorRedirect))
+			for from, to := range opts.ActorRedirect {
+				redirects = append(redirects, redirect{from: from, to: to})
+			}
+			sort.Slice(redirects, func(i, j int) bool {
+				return bytes.Compare(redirects[i].from.Bytes(), redirects[j].from.Bytes()) < 0
+			})
+
+			mappings = make([]cgo.CidMapping, 0, len(redirects))
+			for _, r := range redirects {
+				mappings = append(mappings,
+					cgo.AsCidMapping(cgo.AsSliceRefUint8(r.from), cgo.AsSliceRefUint8(r.to)))
+			}
+		}
+
+		executor, err = cgo.CreateFvmDebugMachine(cgo.FvmRegisteredVersion(opts.FVMVersion),
+			uint64(opts.Epoch),
+			baseFeeHi,
+			baseFeeLo,
+			baseCircSupplyHi,
+			baseCircSupplyLo,
+			uint64(opts.NetworkVersion),
+			cgo.AsSliceRefUint8(opts.StateBase.Bytes()),
+			cgo.AsSliceRefCidMapping(mappings),
+			opts.Tracing,
+			exHandle, exHandle,
+		)
+	}
+
 	if err != nil {
 		return nil, err
 	}
