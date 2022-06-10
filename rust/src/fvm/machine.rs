@@ -174,8 +174,10 @@ fn create_fvm_debug_machine(
             if !actor_redirect.is_empty() {
                 let mut redirect = Vec::with_capacity(actor_redirect.len());
                 for i in 0..actor_redirect.len() {
-                    let from = Cid::try_from(&actor_redirect[i].from[..]).map_err(|err| anyhow!("invalid cid: {}", err))?;
-                    let to = Cid::try_from(&actor_redirect[i].to[..]).map_err(|err| anyhow!("invalid cid: {}", err))?;
+                    let from = Cid::try_from(&actor_redirect[i].from[..])
+                        .map_err(|err| anyhow!("invalid cid: {}", err))?;
+                    let to = Cid::try_from(&actor_redirect[i].to[..])
+                        .map_err(|err| anyhow!("invalid cid: {}", err))?;
                     redirect.push((from, to));
                 }
                 network_config.redirect_actors(redirect);
@@ -207,7 +209,6 @@ fn create_fvm_debug_machine(
         })
     }
 }
-
 
 #[ffi_export]
 fn fvm_machine_execute_message(
