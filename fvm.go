@@ -82,7 +82,7 @@ func CreateFVM(opts *FVMOpts) (*FVM, error) {
 			baseCircSupplyLo,
 			uint64(opts.NetworkVersion),
 			cgo.AsSliceRefUint8(opts.StateBase.Bytes()),
-			cgo.AsSliceRefUint8(ActorRedirect.Bytes()),
+			cgo.AsSliceRefUint8(opts.ActorRedirect.Bytes()),
 			opts.Tracing,
 			exHandle, exHandle,
 		)
