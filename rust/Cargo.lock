@@ -1912,7 +1912,7 @@ dependencies = [
 [[package]]
 name = "fvm"
 version = "1.0.0-rc.2"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=feat/debug-execution#6693ebad057ed772fb4941b49431dc625c268e2a"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=feat/debug-execution#45a9e9ecb697b5079cebe889920073db1ce3f3ef"
 dependencies = [
  "anyhow",
  "anymap",
@@ -1957,7 +1957,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_amt"
 version = "0.4.1"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=feat/debug-execution#6693ebad057ed772fb4941b49431dc625c268e2a"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=feat/debug-execution#45a9e9ecb697b5079cebe889920073db1ce3f3ef"
 dependencies = [
  "ahash",
  "anyhow",
@@ -1973,7 +1973,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_bitfield"
 version = "0.5.2"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=feat/debug-execution#6693ebad057ed772fb4941b49431dc625c268e2a"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=feat/debug-execution#45a9e9ecb697b5079cebe889920073db1ce3f3ef"
 dependencies = [
  "cs_serde_bytes",
  "fvm_ipld_encoding",
@@ -1985,7 +1985,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_blockstore"
 version = "0.1.1"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=feat/debug-execution#6693ebad057ed772fb4941b49431dc625c268e2a"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=feat/debug-execution#45a9e9ecb697b5079cebe889920073db1ce3f3ef"
 dependencies = [
  "anyhow",
  "cid",
@@ -2010,7 +2010,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_encoding"
 version = "0.2.1"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=feat/debug-execution#6693ebad057ed772fb4941b49431dc625c268e2a"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=feat/debug-execution#45a9e9ecb697b5079cebe889920073db1ce3f3ef"
 dependencies = [
  "anyhow",
  "cid",
@@ -2027,7 +2027,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_hamt"
 version = "0.5.1"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=feat/debug-execution#6693ebad057ed772fb4941b49431dc625c268e2a"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=feat/debug-execution#45a9e9ecb697b5079cebe889920073db1ce3f3ef"
 dependencies = [
  "anyhow",
  "byteorder 1.4.3",
@@ -2047,7 +2047,7 @@ dependencies = [
 [[package]]
 name = "fvm_sdk"
 version = "1.0.0-rc.2"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=feat/debug-execution#6693ebad057ed772fb4941b49431dc625c268e2a"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=feat/debug-execution#45a9e9ecb697b5079cebe889920073db1ce3f3ef"
 dependencies = [
  "cid",
  "fvm_ipld_encoding",
@@ -2061,7 +2061,7 @@ dependencies = [
 [[package]]
 name = "fvm_shared"
 version = "0.7.1"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=feat/debug-execution#6693ebad057ed772fb4941b49431dc625c268e2a"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=feat/debug-execution#45a9e9ecb697b5079cebe889920073db1ce3f3ef"
 dependencies = [
  "anyhow",
  "bimap",
