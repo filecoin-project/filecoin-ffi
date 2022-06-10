@@ -12,7 +12,7 @@ use fvm::DefaultKernel;
 use fvm_ipld_blockstore::Blockstore;
 use fvm_ipld_car::load_car;
 use fvm_ipld_encoding::tuple::{Deserialize_tuple, Serialize_tuple};
-use fvm_ipld_encoding::{to_vec, RawBytes, CborStore};
+use fvm_ipld_encoding::{to_vec, CborStore, RawBytes};
 use fvm_shared::address::Address;
 use fvm_shared::error::{ErrorNumber, ExitCode};
 use fvm_shared::receipt::Receipt;
@@ -177,7 +177,8 @@ fn create_fvm_debug_machine(
             if !actor_redirect.is_empty() {
                 let actor_redirect_cid = Cid::try_from(&actor_redirect[..])
                     .map_err(|err| anyhow!("invalid redirect CID: {}", err))?;
-                let redirect: Vec<(Cid, Cid)> = match blockstore.get_cbor(&actor_redirect_cid)
+                let redirect: Vec<(Cid, Cid)> = match blockstore
+                    .get_cbor(&actor_redirect_cid)
                     .map_err(|err| anyhow!("invalid redirect cid: {}", err))?
                 {
                     Some(v) => v,
