@@ -35,7 +35,7 @@ func CreateFvmMachine(fvmVersion FvmRegisteredVersion, chainEpoch, baseFeeHi, ba
 	return executor, nil
 }
 
-func CreateFvmDebugMachine(fvmVersion FvmRegisteredVersion, chainEpoch, baseFeeHi, baseFeeLo, baseCircSupplyHi, baseCircSupplyLo, networkVersion uint64, stateRoot SliceRefUint8, actorRedirect SliceRefCidMapping, tracing bool, blockstoreId, externsId uint64) (*FvmMachine, error) {
+func CreateFvmDebugMachine(fvmVersion FvmRegisteredVersion, chainEpoch, baseFeeHi, baseFeeLo, baseCircSupplyHi, baseCircSupplyLo, networkVersion uint64, stateRoot SliceRefUint8, actorRedirect SliceRefUint8, tracing bool, blockstoreId, externsId uint64) (*FvmMachine, error) {
 	resp := C.create_fvm_debug_machine(
 		fvmVersion,
 		C.uint64_t(chainEpoch),

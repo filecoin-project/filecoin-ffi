@@ -10,11 +10,9 @@ package ffi
 // #include "./filcrypto.h"
 import "C"
 import (
-	"bytes"
 	"context"
 	gobig "math/big"
 	"runtime"
-	"sort"
 
 	"github.com/filecoin-project/filecoin-ffi/cgo"
 	"github.com/filecoin-project/go-state-types/abi"
