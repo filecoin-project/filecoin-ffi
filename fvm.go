@@ -91,10 +91,7 @@ func CreateFVM(opts *FVMOpts) (*FVM, error) {
 
 			mappings = make([]cgo.CidMapping, 0, len(redirects))
 			for _, r := range redirects {
-				mappings = append(mappings,
-					cgo.AsCidMapping(
-						cgo.AsSliceBoxedUint8(r.from.Bytes()),
-						cgo.AsSliceBoxedUint8(r.to.Bytes())))
+				mappings = append(mappings, cgo.AsCidMapping(r.from.Bytes(), r.to.Bytes()))
 			}
 		}
 
