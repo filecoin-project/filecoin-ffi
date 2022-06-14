@@ -8,7 +8,7 @@ pub mod proofs;
 pub mod util;
 
 // Generates the headers.
-// Run `HEADER_DIR=<dir> cargo test build_headers --features c-headers` to build
+// Run `HEADER_DIR=<dir> cargo test --locked build_headers --features c-headers` to build
 #[safer_ffi::cfg_headers]
 #[test]
 fn build_headers() -> std::io::Result<()> {
