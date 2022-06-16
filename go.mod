@@ -5,7 +5,7 @@ go 1.17
 require (
 	github.com/filecoin-project/go-address v0.0.6
 	github.com/filecoin-project/go-fil-commcid v0.1.0
-	github.com/filecoin-project/go-state-types v0.1.4
+	github.com/filecoin-project/go-state-types v0.1.8
 	github.com/ipfs/go-block-format v0.0.3
 	github.com/ipfs/go-cid v0.1.0
 	github.com/ipfs/go-ipfs-blockstore v1.1.2

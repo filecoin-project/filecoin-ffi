@@ -231,7 +231,7 @@ commands:
             RELEASE_NAME="${CIRCLE_PROJECT_REPONAME}-$(uname)-standard"
 
             # Note: the blst dependency uses the portable configuration for maximum compatibility
-            ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) build --verbose --locked --no-default-features --features multicore-sdr,opencl,blst-portable
+            ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) build --verbose --no-default-features --features multicore-sdr,opencl,blst-portable
             ./scripts/package-release.sh $TARBALL_PATH
             ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
       - run:
@@ -242,7 +242,7 @@ commands:
             TARBALL_PATH="/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-optimized.tar.gz"
             RUSTFLAGS="-C target-feature=$(cat rustc-target-features-optimized.json | jq -r '.[].rustc_target_feature' | tr '\n' ',')"
 
-            ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) build --verbose --locked --no-default-features --features multicore-sdr,opencl
+            ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) build --verbose --no-default-features --features multicore-sdr,opencl
             ./scripts/package-release.sh $TARBALL_PATH
 
   publish_darwin_release:
@@ -256,7 +256,7 @@ commands:
             TARBALL_PATH="/tmp/${RELEASE_NAME}.tar.gz"
 
             # Note: the blst dependency uses the portable configuration for maximum compatibility
-            ./scripts/build-release.sh filcrypto $(cat rust-toolchain) lipo --targets x86_64-apple-darwin,aarch64-apple-darwin --verbose --locked --no-default-features --features multicore-sdr,opencl,blst-portable
+            ./scripts/build-release.sh filcrypto $(cat rust-toolchain) lipo --targets x86_64-apple-darwin,aarch64-apple-darwin --verbose --no-default-features --features multicore-sdr,opencl,blst-portable
             ./scripts/package-release.sh $TARBALL_PATH
             ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
   configure_environment_variables:
