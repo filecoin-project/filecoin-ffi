@@ -145,6 +145,7 @@ func (f *FVM) ApplyImplicitMessage(msgBytes []byte) (*ApplyRet, error) {
 		Refund:             reformBigInt(resp.RefundHi, resp.RefundLo),
 		GasRefund:          int64(resp.GasRefund),
 		GasBurned:          int64(resp.GasBurned),
+		ExecTraceBytes:     resp.ExecTrace,
 		FailureInfo:        resp.FailureInfo,
 	}, nil
 }
