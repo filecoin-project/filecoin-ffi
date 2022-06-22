@@ -1,7 +1,7 @@
 use std::convert::{TryFrom, TryInto};
 use std::sync::Mutex;
 
-use anyhow::{anyhow, bail};
+use anyhow::{anyhow, bail, Context};
 use cid::Cid;
 use futures::executor::block_on;
 use fvm::call_manager::DefaultCallManager;
@@ -78,21 +78,17 @@ fn create_fvm_machine_generic(
             let state_root = Cid::try_from(&state_root[..])
                 .map_err(|err| anyhow!("invalid state root: {}", err))?;
 
-            let manifest_cid = match manifest_cid {
-                Some(manifest_cid) => {
-                    let cid = Cid::try_from(&manifest_cid[..])
-                        .map_err(|err| anyhow!("invalid manifest: {}", err))?;
-                    Some(cid)
-                }
-                // handle cid.Undef for no manifest
-                // this can mean two things:
-                // - for pre nv16, use the builtin bundles
-                // - for nv16 or higher, it means we have already migrated state for system
-                //   actor and we can pass None to the machine constructor to fish it from state.
-                // The presence of the manifest cid argument allows us to test with new bundles
-                // with minimum friction.
-                None => None,
-            };
+            // There may be no manifest CID:
+            // - for pre nv16, use the builtin bundles
+            // - for nv16 or higher, it means we have already migrated state for system
+            //   actor and we can pass None to the machine constructor to fish it from state.
+            // The presence of the manifest cid argument allows us to test with new bundles
+            // with minimum friction.
+            let manifest_cid = manifest_cid
+                .as_deref() // into a slice
+                .map(Cid::try_from) // into a cid
+                .transpose() // Option<Result<Cid>> -> Result<Option<Cid>>
+                .context("invalid manifest")?;
 
             let blockstore = FakeBlockstore::new(CgoBlockstore::new(blockstore_id));
 
