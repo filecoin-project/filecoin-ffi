@@ -40,6 +40,7 @@ lazy_static! {
     static ref ENGINES: MultiEngine = MultiEngine::new();
 }
 
+#[allow(clippy::too_many_arguments)]
 fn create_fvm_machine_generic(
     fvm_version: FvmRegisteredVersion,
     chain_epoch: u64,
