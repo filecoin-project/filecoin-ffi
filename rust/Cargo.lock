@@ -1904,9 +1904,9 @@ dependencies = [
 
 [[package]]
 name = "fvm"
-version = "1.0.0-rc.3"
+version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "82209c76fa405128e5f1406fe4c7bd58754f582835923c09b36782a3fe779301"
+checksum = "421fbf0d613c3a286f98ed103f35f8544c4fa06b6d41b9a591d22d4a405d392c"
 dependencies = [
  "anyhow",
  "anymap",
