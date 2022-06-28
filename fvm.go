@@ -42,6 +42,9 @@ type FVMOpts struct {
 	StateBase      cid.Cid
 	Manifest       cid.Cid
 	Tracing        bool
+
+	Debug         bool
+	ActorRedirect cid.Cid
 }
 
 // CreateFVM creates a new FVM instance.
@@ -56,18 +59,35 @@ func CreateFVM(opts *FVMOpts) (*FVM, error) {
 	}
 
 	exHandle := cgo.Register(context.TODO(), opts.Externs)
-	executor, err := cgo.CreateFvmMachine(cgo.FvmRegisteredVersion(opts.FVMVersion),
-		uint64(opts.Epoch),
-		baseFeeHi,
-		baseFeeLo,
-		baseCircSupplyHi,
-		baseCircSupplyLo,
-		uint64(opts.NetworkVersion),
-		cgo.AsSliceRefUint8(opts.StateBase.Bytes()),
-		cgo.AsSliceRefUint8(opts.Manifest.Bytes()),
-		opts.Tracing,
-		exHandle, exHandle,
-	)
+	var executor *cgo.FvmMachine
+	if !opts.Debug {
+		executor, err = cgo.CreateFvmMachine(cgo.FvmRegisteredVersion(opts.FVMVersion),
+			uint64(opts.Epoch),
+			baseFeeHi,
+			baseFeeLo,
+			baseCircSupplyHi,
+			baseCircSupplyLo,
+			uint64(opts.NetworkVersion),
+			cgo.AsSliceRefUint8(opts.StateBase.Bytes()),
+			cgo.AsSliceRefUint8(opts.Manifest.Bytes()),
+			opts.Tracing,
+			exHandle, exHandle,
+		)
+	} else {
+		executor, err = cgo.CreateFvmDebugMachine(cgo.FvmRegisteredVersion(opts.FVMVersion),
+			uint64(opts.Epoch),
+			baseFeeHi,
+			baseFeeLo,
+			baseCircSupplyHi,
+			baseCircSupplyLo,
+			uint64(opts.NetworkVersion),
+			cgo.AsSliceRefUint8(opts.StateBase.Bytes()),
+			cgo.AsSliceRefUint8(opts.ActorRedirect.Bytes()),
+			opts.Tracing,
+			exHandle, exHandle,
+		)
+	}
+
 	if err != nil {
 		return nil, err
 	}
