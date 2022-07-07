@@ -5,8 +5,7 @@ extern "C" {
         store: u64,
         k: *const u8,
         k_len: i32,
-        block: *mut *mut u8,
-        size: *mut i32,
+        v: *mut libc::c_void,
     ) -> i32;
 
     pub fn cgo_blockstore_put(

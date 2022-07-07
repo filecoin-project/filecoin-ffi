@@ -11,6 +11,7 @@ import (
 /*
 #include <stdint.h>
 typedef const uint8_t* buf_t;
+extern void rust_vec_extend_func(const uint8_t* data, int32_t len, void* vec);
 */
 import "C"
 
@@ -24,7 +25,7 @@ func toCid(k C.buf_t, kLen C.int32_t) cid.Cid {
 }
 
 //export cgo_blockstore_get
-func cgo_blockstore_get(handle C.uint64_t, k C.buf_t, kLen C.int32_t, block **C.uint8_t, size *C.int32_t) (res C.int32_t) {
+func cgo_blockstore_get(handle C.uint64_t, k C.buf_t, kLen C.int32_t, v* C.void) (res C.int32_t) {
 	defer func() {
 		if rerr := recover(); rerr != nil {
 			logPanic(rerr)
@@ -39,8 +40,7 @@ func cgo_blockstore_get(handle C.uint64_t, k C.buf_t, kLen C.int32_t, block **C.
 	}
 
 	err := externs.View(ctx, c, func(data []byte) error {
-		*block = (C.buf_t)(C.CBytes(data))
-		*size = C.int32_t(len(data))
+		C.rust_vec_extend_func((*C.uint8_t)(&data[0]), C.int32_t(len(data)), unsafe.Pointer(v))
 		return nil
 	})
 

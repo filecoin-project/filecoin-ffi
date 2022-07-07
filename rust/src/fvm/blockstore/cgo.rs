@@ -1,4 +1,4 @@
-use std::ptr;
+//use std::ptr;
 
 use anyhow::{anyhow, Result};
 use cid::Cid;
@@ -7,11 +7,23 @@ use fvm_shared::MAX_CID_LEN;
 
 use super::super::cgo::*;
 
+// for ffi_export marco
+use safer_ffi::prelude::*;
+
 /// The maximum amount of data to buffer in a batch before writing it to the underlying blockstore.
 const MAX_BUF_SIZE: usize = 4 << 20; // 4MiB
 /// The maximum number of blocks to buffer in a batch before before writing it to the underlying
 /// blockstore.
 const MAX_BLOCK_BATCH: usize = 1024;
+
+#[ffi_export]
+pub fn data_vec_extend_func(d: *const u8, size: i32, vptr: *mut libc::c_void) {
+   unsafe {
+       let s = std::slice::from_raw_parts(d, size as usize);
+       let v = vptr as *mut Vec<u8>;
+       (*v).extend_from_slice(s);
+   }
+}
 
 pub struct CgoBlockstore {
     handle: u64,
@@ -50,16 +62,16 @@ impl Blockstore for CgoBlockstore {
     fn get(&self, k: &Cid) -> Result<Option<Vec<u8>>> {
         let k_bytes = k.to_bytes();
         unsafe {
-            let mut buf: *mut u8 = ptr::null_mut();
-            let mut size: i32 = 0;
+            let mut v = Vec::new();
+            let vptr: *mut Vec<u8>  = &mut v;
+            let vptr = vptr as *mut libc::c_void;
             match cgo_blockstore_get(
                 self.handle,
                 k_bytes.as_ptr(),
                 k_bytes.len() as i32,
-                &mut buf,
-                &mut size,
+                vptr,
             ) {
-                0 => Ok(Some(Vec::from_raw_parts(buf, size as usize, size as usize))),
+                0 => Ok(Some(v)),
                 r @ 1.. => panic!("invalid return value from get: {}", r),
                 x if x == FvmError::InvalidHandle as i32 => {
                     panic!("blockstore {} not registered", self.handle)
