@@ -83,7 +83,7 @@ func CreateFVM(opts *FVMOpts) (*FVM, error) {
 			uint64(opts.NetworkVersion),
 			cgo.AsSliceRefUint8(opts.StateBase.Bytes()),
 			cgo.AsSliceRefUint8(opts.ActorRedirect.Bytes()),
-			opts.Tracing,
+			true,
 			exHandle, exHandle,
 		)
 	}
