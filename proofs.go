@@ -820,7 +820,7 @@ func toFilPoStProofs(src []proof.PoStProof) ([]cgo.PoStProof, func(), error) {
 	for idx := range out {
 		pp, err := toFilRegisteredPoStProof(src[idx].PoStProof)
 		if err != nil {
-			makeCleanerPRO(out, idx)()
+			makeCleanerPOST(out, idx)()
 			return nil, nil, err
 		}
 
