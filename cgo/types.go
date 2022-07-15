@@ -605,6 +605,14 @@ func (ptr *PrivateReplicaInfo) Destroy() {
 	}
 }
 
+func (ptr *PoStProof) Destroy() {
+	if ptr != nil {
+		ptr.proof.Destroy()
+		ptr = nil
+	}
+}
+
+
 func (ptr *resultFvmMachineExecuteResponse) statusCode() FCPResponseStatus {
 	return FCPResponseStatus(ptr.status_code)
 }
