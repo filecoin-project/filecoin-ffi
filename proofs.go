@@ -109,10 +109,11 @@ func VerifyWinningPoSt(info proof.WinningPoStVerifyInfo) (bool, error) {
 		return false, errors.Wrap(err, "failed to create public replica info array for FFI")
 	}
 
-	filPoStProofs, err := toFilPoStProofs(info.Proofs)
+	filPoStProofs, cleanup, err := toFilPoStProofs(info.Proofs)
 	if err != nil {
 		return false, errors.Wrap(err, "failed to create PoSt proofs array for FFI")
 	}
+	defer cleanup()
 
 	proverID, err := toProverID(info.Prover)
 	if err != nil {
@@ -136,10 +137,11 @@ func VerifyWindowPoSt(info proof.WindowPoStVerifyInfo) (bool, error) {
 		return false, errors.Wrap(err, "failed to create public replica info array for FFI")
 	}
 
-	filPoStProofs, err := toFilPoStProofs(info.Proofs)
+	filPoStProofs, cleanup, err := toFilPoStProofs(info.Proofs)
 	if err != nil {
 		return false, errors.Wrap(err, "failed to create PoSt proofs array for FFI")
 	}
+	defer cleanup()
 
 	proverID, err := toProverID(info.Prover)
 	if err != nil {
@@ -813,18 +815,27 @@ func fromFilPoStProofs(src []cgo.PoStProofGo) ([]proof.PoStProof, error) {
 	return out, nil
 }
 
-func toFilPoStProofs(src []proof.PoStProof) ([]cgo.PoStProof, error) {
+func toFilPoStProofs(src []proof.PoStProof) ([]cgo.PoStProof, func(), error) {
 	out := make([]cgo.PoStProof, len(src))
 	for idx := range out {
 		pp, err := toFilRegisteredPoStProof(src[idx].PoStProof)
 		if err != nil {
-			return nil, err
+			makeCleanerPRO(out, idx)()
+			return nil, nil, err
 		}
 
 		out[idx] = cgo.NewPoStProof(pp, src[idx].ProofBytes)
 	}
 
-	return out, nil
+	return out, makeCleanerPOST(out, len(src)),nil
+}
+
+func makeCleanerPOST(src []cgo.PoStProof, limit int) func() {
+	return func() {
+		for i := 0; i < limit; i++ {
+			src[i].Destroy()
+		}
+	}
 }
 
 func toProverID(minerID abi.ActorID) (cgo.ByteArray32, error) {
