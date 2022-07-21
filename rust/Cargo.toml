@@ -34,7 +34,7 @@ anyhow = "1.0.23"
 bellperson = { version = "0.21", default-features = false }
 serde_json = "1.0.46"
 memmap = "0.7"
-rust-gpu-tools = { version = "0.5", default-features = false }
+rust-gpu-tools = { version = "0.5", optional = true, default-features = false }
 storage-proofs-porep = { version = "~11.1", default-features = false }
 fr32 = { version = "~4.1", default-features = false }
 fvm = { version = "1.1.0", default-features = false }
