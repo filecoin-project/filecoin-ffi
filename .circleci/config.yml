@@ -166,13 +166,6 @@ workflows:
       - go_lint
       - build_and_test_linux_cgo_bindings:
           run_leak_detector: false
-      - build_and_test_linux_cgo_bindings:
-          filters:
-            branches:
-              ignore:
-                - master
-          run_leak_detector: false
-
       - publish_linux_staticlib
       - build_darwin_cgo_bindings
       - publish_darwin_staticlib
