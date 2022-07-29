@@ -166,13 +166,6 @@ workflows:
       - go_lint
       - build_and_test_linux_cgo_bindings:
           run_leak_detector: false
-      - build_and_test_linux_cgo_bindings:
-          filters:
-            branches:
-              ignore:
-                - master
-          run_leak_detector: false
-
       - publish_linux_staticlib
       - build_darwin_cgo_bindings
       - publish_darwin_staticlib
@@ -291,9 +284,8 @@ commands:
       - run: |
           DIR=$(pwd)
           cd $(mktemp -d)
-          GOPATH=/tmp GO111MODULE=off go get github.com/filecoin-project/go-paramfetch/paramfetch
-          GOPATH=/tmp GO111MODULE=off go build -o go-paramfetch github.com/filecoin-project/go-paramfetch/paramfetch
-          ./go-paramfetch 2048 "${DIR}/parameters.json" "${DIR}/srs-inner-product.json"
+          go install github.com/filecoin-project/go-paramfetch/paramfetch@latest
+          $GOPATH/bin/paramfetch 2048 "${DIR}/parameters.json" "${DIR}/srs-inner-product.json"
 
   build_project:
     steps:
