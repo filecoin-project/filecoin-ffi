@@ -283,7 +283,9 @@ commands:
     steps:
       - run: |
           DIR=$(pwd)
+          echo "obtain_filecoin_params from ${DIR}"
           cd $(mktemp -d)
+          echo $(pwd)
           GOPATH=/tmp GO111MODULE=off go get github.com/filecoin-project/go-paramfetch/paramfetch
           GOPATH=/tmp GO111MODULE=off go build -o go-paramfetch github.com/filecoin-project/go-paramfetch/paramfetch
           ./go-paramfetch 2048 "${DIR}/parameters.json" "${DIR}/srs-inner-product.json"
