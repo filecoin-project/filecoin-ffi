@@ -283,9 +283,7 @@ commands:
     steps:
       - run: |
           DIR=$(pwd)
-          echo "obtain_filecoin_params from ${DIR}"
           cd $(mktemp -d)
-          echo $(pwd)
           go install github.com/filecoin-project/go-paramfetch/paramfetch@latest
           $GOPATH/bin/paramfetch 2048 "${DIR}/parameters.json" "${DIR}/srs-inner-product.json"
 
