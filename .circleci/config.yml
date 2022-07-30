@@ -210,6 +210,7 @@ commands:
           name: Ensure appropriate toolchain is installed
           command: |
             rustup install $(cat ./rust/rust-toolchain)
+      - run: rustup target add wasm32-unknown-unknown
       - run: git submodule sync
       - run: git submodule update --init
 
