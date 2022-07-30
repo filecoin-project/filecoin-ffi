@@ -18,11 +18,6 @@ publish = false
 crate-type = ["rlib", "staticlib"]
 
 [patch.crates-io]
-fvm = { git = "https://github.com/filecoin-project/ref-fvm", branch = "experimental/fvm-m2" }
-fvm_ipld_car = { git = "https://github.com/filecoin-project/ref-fvm", branch = "experimental/fvm-m2" }
-fvm_shared = { git = "https://github.com/filecoin-project/ref-fvm", branch = "experimental/fvm-m2" }
-fvm_ipld_blockstore = { git = "https://github.com/filecoin-project/ref-fvm", branch = "experimental/fvm-m2" }
-fvm_ipld_encoding = { git = "https://github.com/filecoin-project/ref-fvm", branch = "experimental/fvm-m2" }
 wasmtime = { git = "https://github.com/filecoin-project/wasmtime", branch = "fix/sse-feature" }
 
 [dependencies]
@@ -45,11 +40,13 @@ memmap = "0.7"
 rust-gpu-tools = { version = "0.5", default-features = false }
 storage-proofs-porep = { version = "~11.1", default-features = false }
 fr32 = { version = "~4.1", default-features = false }
-fvm = { version = "1.1.0", default-features = false }
-fvm_ipld_car = "0.4.1"
-fvm_shared = "0.8.0"
-fvm_ipld_blockstore = "0.1.1"
-fvm_ipld_encoding = "0.2.2"
+
+fvm = { git = "https://github.com/filecoin-project/ref-fvm", branch = "master", features = ["m2-native"] }
+fvm_ipld_car = { git = "https://github.com/filecoin-project/ref-fvm", branch = "master" }
+fvm_shared = { git = "https://github.com/filecoin-project/ref-fvm", branch = "master" }
+fvm_ipld_blockstore = { git = "https://github.com/filecoin-project/ref-fvm", branch = "master" }
+fvm_ipld_encoding = { git = "https://github.com/filecoin-project/ref-fvm", branch = "master" }
+
 actors-v7 = { package = "fil_builtin_actors_bundle", version = "~7.5.1" }
 num-traits = "0.2.14"
 num-bigint = "0.4"
