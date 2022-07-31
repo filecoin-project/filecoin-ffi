@@ -6,6 +6,8 @@ typedef const uint8_t* buf_t;
 */
 import "C"
 import (
+	"fmt"
+	"os"
 	"unsafe"
 
 	"github.com/filecoin-project/go-address"
@@ -40,6 +42,7 @@ func cgo_extern_get_chain_randomness(
 		copy(out[:], rand)
 		return 0
 	default:
+		_, _ = fmt.Fprintf(os.Stderr, "GetChainRandomness extern failed: %s\n", err)
 		return ErrIO
 	}
 }
@@ -64,12 +67,12 @@ func cgo_extern_get_beacon_randomness(
 	}
 
 	rand, err := externs.GetBeaconRandomness(ctx, crypto.DomainSeparationTag(pers), abi.ChainEpoch(round), C.GoBytes(unsafe.Pointer(entropy), entropyLen))
-
 	switch err {
 	case nil:
 		copy(out[:], rand)
 		return 0
 	default:
+		_, _ = fmt.Fprintf(os.Stderr, "GetBeaconRandomness extern failed: %s\n", err)
 		return ErrIO
 	}
 }
