@@ -108,6 +108,7 @@ jobs:
       - run: cd rust && rustup component add clippy
       - run: cd rust && cargo fetch
       - run: cd rust && rustc +$(cat rust-toolchain) --version
+      - run: cd rust && rustup show
       - persist_to_workspace:
           root: "."
           paths:
