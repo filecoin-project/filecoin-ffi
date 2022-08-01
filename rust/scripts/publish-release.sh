@@ -53,21 +53,20 @@ main() {
                 --header "Content-Type: application/json" \
                 --data "$RELEASE_DATA" \
                 "https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/releases"
-        `
+
+        __release_upload_url=`echo $__release_response | jq -r '.upload_url' | cut -d'{' -f1`
+
+        curl \
+            --request POST \
+            --header "Authorization: token $GITHUB_TOKEN" \
+            --header "Content-Type: application/octet-stream" \
+            --data-binary "@$__release_file" \
+            "$__release_upload_url?name=$(basename $__release_file)"
+
+        (>&2 echo '[publish-release/main] release file uploaded')        `
     else
         (>&2 echo '[publish-release/main] release already exists')
     fi
-
-    __release_upload_url=`echo $__release_response | jq -r '.upload_url' | cut -d'{' -f1`
-
-    curl \
-        --request POST \
-        --header "Authorization: token $GITHUB_TOKEN" \
-        --header "Content-Type: application/octet-stream" \
-        --data-binary "@$__release_file" \
-        "$__release_upload_url?name=$(basename $__release_file)"
-
-    (>&2 echo '[publish-release/main] release file uploaded')
 }
 
 main "$@"; exit
