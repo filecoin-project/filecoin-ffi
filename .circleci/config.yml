@@ -167,6 +167,8 @@ workflows:
       - go_lint
       - build_and_test_linux_cgo_bindings:
           run_leak_detector: false
+          requires:
+            - cargo_fetch
       - publish_linux_staticlib
       - build_darwin_cgo_bindings
       - publish_darwin_staticlib
@@ -211,7 +213,6 @@ commands:
           name: Ensure appropriate toolchain is installed
           command: |
             rustup install $(cat ./rust/rust-toolchain)
-      - run: rustup target add wasm32-unknown-unknown
       - run: git submodule sync
       - run: git submodule update --init
 
