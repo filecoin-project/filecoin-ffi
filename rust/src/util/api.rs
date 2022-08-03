@@ -4,6 +4,7 @@ use std::sync::Once;
 
 use anyhow::anyhow;
 use safer_ffi::prelude::*;
+use safer_ffi::slice::slice_boxed;
 
 use super::types::{
     catch_panic_response, catch_panic_response_no_log, GpuDeviceResponse, InitLogFdResponse,
@@ -32,16 +33,28 @@ pub fn init_log_with_file(file: File) -> Option<()> {
     }
 }
 
+/// Serialize the GPU device names into a vector
+#[cfg(any(feature = "opencl", feature = "cuda"))]
+fn get_gpu_devices_internal() -> Vec<slice_boxed<u8>> {
+    let devices = rust_gpu_tools::Device::all();
+
+    devices
+        .into_iter()
+        .map(|d| d.name().into_bytes().into_boxed_slice().into())
+        .collect()
+}
+
+// Return empty vector for GPU devices if cuda and opencl are disabled
+#[cfg(not(any(feature = "opencl", feature = "cuda")))]
+fn get_gpu_devices_internal() -> Vec<slice_boxed<u8>> {
+    Vec::new()
+}
+
 /// Returns an array of strings containing the device names that can be used.
 #[ffi_export]
 pub fn get_gpu_devices() -> repr_c::Box<GpuDeviceResponse> {
     catch_panic_response("get_gpu_devices", || {
-        let devices = rust_gpu_tools::Device::all();
-        let devices: Vec<_> = devices
-            .into_iter()
-            .map(|d| d.name().into_bytes().into_boxed_slice().into())
-            .collect();
-
+        let devices = get_gpu_devices_internal();
         Ok(devices.into_boxed_slice().into())
     })
 }
@@ -68,12 +81,13 @@ pub fn init_log_fd(log_fd: libc::c_int) -> repr_c::Box<InitLogFdResponse> {
 #[cfg(test)]
 mod tests {
 
-    use crate::util::api::get_gpu_devices;
-    use crate::util::types::destroy_gpu_device_response;
-
+    #[cfg(any(feature = "opencl", feature = "cuda"))]
     #[test]
     #[allow(clippy::needless_collect)]
     fn test_get_gpu_devices() {
+        use crate::util::api::get_gpu_devices;
+        use crate::util::types::destroy_gpu_device_response;
+
         let resp = get_gpu_devices();
         assert!(resp.error_msg.is_empty());
 
