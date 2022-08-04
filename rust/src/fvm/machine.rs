@@ -3,14 +3,11 @@ use std::sync::Mutex;
 
 use anyhow::{anyhow, bail, Context};
 use cid::Cid;
-use futures::executor::block_on;
 use fvm::call_manager::DefaultCallManager;
 use fvm::executor::{ApplyKind, DefaultExecutor, Executor, ThreadedExecutor};
 use fvm::machine::{DefaultMachine, MultiEngine};
 use fvm::trace::ExecutionEvent;
 use fvm::DefaultKernel;
-use fvm_ipld_blockstore::Blockstore;
-use fvm_ipld_car::load_car;
 use fvm_ipld_encoding::tuple::{Deserialize_tuple, Serialize_tuple};
 use fvm_ipld_encoding::{to_vec, CborStore, RawBytes};
 use fvm_shared::address::Address;
@@ -93,12 +90,8 @@ fn create_fvm_machine_generic(
             let blockstore = FakeBlockstore::new(CgoBlockstore::new(blockstore_id));
 
             let mut network_config = NetworkConfig::new(network_version);
-            match import_actors(&blockstore, manifest_cid, network_version) {
-                Ok(Some(manifest)) => {
-                    network_config.override_actors(manifest);
-                }
-                Ok(None) => (),
-                Err(err) => bail!("couldn't load builtin actors: {}", err),
+            if let Some(manifest) = manifest_cid {
+                network_config.override_actors(manifest);
             }
 
             if actor_debug {
@@ -334,26 +327,6 @@ destructor!(
 );
 
 destructor!(destroy_fvm_machine_flush_response, Result<c_slice::Box<u8>>);
-
-fn import_actors(
-    blockstore: &impl Blockstore,
-    manifest_cid: Option<Cid>,
-    network_version: NetworkVersion,
-) -> std::result::Result<Option<Cid>, &'static str> {
-    if manifest_cid.is_some() {
-        return Ok(manifest_cid);
-    }
-    let car = match network_version {
-        NetworkVersion::V15 => Ok(actors_v7::BUNDLE_CAR),
-        NetworkVersion::V16 => {
-            return Ok(None);
-        }
-        _ => Err("unsupported network version"),
-    }?;
-    let roots = block_on(async { load_car(blockstore, car).await.unwrap() });
-    assert_eq!(roots.len(), 1);
-    Ok(Some(roots[0]))
-}
 
 #[derive(Clone, Debug, Serialize_tuple, Deserialize_tuple)]
 struct LotusTrace {
