@@ -1,3 +1,4 @@
+use std::borrow::Cow;
 use std::convert::{TryFrom, TryInto};
 use std::sync::Mutex;
 
@@ -5,6 +6,7 @@ use anyhow::{anyhow, bail, Context};
 use cid::Cid;
 use fvm::call_manager::DefaultCallManager;
 use fvm::executor::{ApplyKind, DefaultExecutor, Executor, ThreadedExecutor};
+use fvm::gas::GasCharge;
 use fvm::machine::{DefaultMachine, MultiEngine};
 use fvm::trace::ExecutionEvent;
 use fvm::DefaultKernel;
@@ -242,7 +244,9 @@ fn fvm_machine_execute_message(
         let exec_trace = if !apply_ret.exec_trace.is_empty() {
             let mut trace_iter = apply_ret.exec_trace.into_iter();
             build_lotus_trace(
-                &trace_iter
+                &(&mut trace_iter)
+                    // Skip gas charges before the first call, if any. Lotus can't handle them.
+                    .skip_while(|item| matches!(item, &ExecutionEvent::GasCharge(_)))
                     .next()
                     .expect("already checked trace for emptiness"),
                 &mut trace_iter,
@@ -329,10 +333,19 @@ destructor!(
 destructor!(destroy_fvm_machine_flush_response, Result<c_slice::Box<u8>>);
 
 #[derive(Clone, Debug, Serialize_tuple, Deserialize_tuple)]
+struct LotusGasCharge {
+    pub name: Cow<'static, str>,
+    pub total_gas: i64,
+    pub compute_gas: i64,
+    pub storage_gas: i64,
+}
+
+#[derive(Clone, Debug, Serialize_tuple, Deserialize_tuple)]
 struct LotusTrace {
     pub msg: Message,
     pub msg_receipt: Receipt,
     pub error: String,
+    pub gas_charges: Vec<LotusGasCharge>,
     pub subcalls: Vec<LotusTrace>,
 }
 
@@ -371,6 +384,7 @@ fn build_lotus_trace(
         },
         error: String::new(),
         subcalls: vec![],
+        gas_charges: vec![],
     };
 
     while let Some(trace) = trace_iter.next() {
@@ -379,6 +393,18 @@ fn build_lotus_trace(
                 new_trace
                     .subcalls
                     .push(build_lotus_trace(&trace, trace_iter)?);
+            }
+            ExecutionEvent::GasCharge(GasCharge {
+                name,
+                compute_gas,
+                storage_gas,
+            }) => {
+                new_trace.gas_charges.push(LotusGasCharge {
+                    name,
+                    total_gas: (compute_gas + storage_gas).round_up(),
+                    compute_gas: compute_gas.round_up(),
+                    storage_gas: storage_gas.round_up(),
+                });
             }
             ExecutionEvent::CallReturn(return_data) => {
                 new_trace.msg_receipt = Receipt {

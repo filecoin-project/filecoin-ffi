@@ -1308,8 +1308,7 @@ checksum = "1847abb9cb65d566acd5942e94aea9c8f547ad02c98e1649326fc0e8910b8b1e"
 [[package]]
 name = "fvm"
 version = "1.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "88e2259f1b04e50b269bf228d87b4d54a1fdeb97589c4245e974322bef8af05b"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=feat/gas-tracing#897d731d5d8297f5cd96a6b0fe1452dfd18b1918"
 dependencies = [
  "anyhow",
  "anymap",
@@ -1354,8 +1353,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_amt"
 version = "0.4.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "48d09e5aa7de45452676d18fcb70b750acd65faae7a4fe18fe784b4c85f869fb"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=feat/gas-tracing#897d731d5d8297f5cd96a6b0fe1452dfd18b1918"
 dependencies = [
  "anyhow",
  "cid",
@@ -1370,8 +1368,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_blockstore"
 version = "0.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "688239a96199577f6705a3f9689abfd795f867f91f5847bc7e236017cc672df7"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=feat/gas-tracing#897d731d5d8297f5cd96a6b0fe1452dfd18b1918"
 dependencies = [
  "anyhow",
  "cid",
@@ -1381,8 +1378,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_encoding"
 version = "0.2.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ce9cfcb4ae444801009182fded790dd56aff9c9a567e54510e2ccf14fb9daf8e"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=feat/gas-tracing#897d731d5d8297f5cd96a6b0fe1452dfd18b1918"
 dependencies = [
  "anyhow",
  "cid",
@@ -1399,8 +1395,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_hamt"
 version = "0.5.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "65b5c939897aa1bfd63e7cb9c458ba10689371af3278ff20d66c6f8ca152c6c0"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=feat/gas-tracing#897d731d5d8297f5cd96a6b0fe1452dfd18b1918"
 dependencies = [
  "anyhow",
  "byteorder 1.4.3",
@@ -1420,8 +1415,7 @@ dependencies = [
 [[package]]
 name = "fvm_shared"
 version = "0.8.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "94c2485c563703b730df0502e2e8fcea86bc183b7018a080c6a5b15b7a29c5d0"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=feat/gas-tracing#897d731d5d8297f5cd96a6b0fe1452dfd18b1918"
 dependencies = [
  "anyhow",
  "bimap",
