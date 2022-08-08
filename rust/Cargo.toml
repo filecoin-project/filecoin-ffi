@@ -18,7 +18,7 @@ publish = false
 crate-type = ["rlib", "staticlib"]
 
 [dependencies]
-bls-signatures = { version = "0.11.0", default-features = false, features = ["blst"] }
+bls-signatures = { version = "0.12.0", default-features = false, features = ["blst"] }
 blstrs = "0.5"
 byteorder = "1.4.3"
 ff = "0.12.0"
@@ -37,8 +37,8 @@ memmap = "0.7"
 rust-gpu-tools = { version = "0.5", optional = true, default-features = false }
 storage-proofs-porep = { version = "~12.0", default-features = false }
 fr32 = { version = "~5.0", default-features = false }
-fvm = { version = "1.1.0", default-features = false }
-fvm_shared = "0.8.0"
+fvm = { version = "1.2.0", default-features = false }
+fvm_shared = "0.9.0"
 fvm_ipld_blockstore = "0.1.1"
 fvm_ipld_encoding = "0.2.2"
 num-traits = "0.2.14"
