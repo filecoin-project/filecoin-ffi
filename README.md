@@ -1,6 +1,6 @@
 # Filecoin FFI
 
-> C and CGO bindings for Filecoin's Rust libraries
+> C and CGO bindings for Filecoin's Rust libraries, i.e: [proofs](https://github.com/filecoin-project/rust-fil-proofs) and [ref-fvm](https://github.com/filecoin-project/ref-fvm). This repository is built to enable the reference implementation of Filecoin, [Lotus](https://github.com/filecoin-project/lotus), to consume the Rust libraries that are needed.
 
 ## Building
 
@@ -93,6 +93,37 @@ Run it like so:
 ```shell
 ./mkreleaselog v0.25.0 v0.26.0 > /tmp/v0.26.0.notes.txt
 ```
+
+## Contribution 
+
+### Maintainers
+
+The core maintainers of this repository are:
+- @nemo, @vmx & @shawnrader, from the fil-crypto team
+- @lotus-maintainers
+- @stebalien, from the FVM team 
+
+Maintainers are not only the contributors of this repository, but also exercise a range of editorial responsibilities to keep the repository organized for the OSS contributors, that includes triage the issues, review and merge/close PRs, publish releases and so on.
+
+### Development Guidelines (WIP)
+
+#### Branches
+
+`master` is considered as the development branch of this repository. Changes being introduced to master must be tested (programmable and/or manual). The head of the master will be tagged and released upon the merge of each PR automatically.
+
+We will cooperates with the [lotus' releases and it's testing flows](https://github.com/filecoin-project/lotus/blob/0c91b0dc1012c3e54b305a76bb25fb68390adf9d/LOTUS_RELEASE_FLOW.md?plain=1#L50) to confirm whether a tagged release is production ready:
+
+*Non-consensus breaking changes*
+- All PRs introduce non-consensus breaking changes can be merged to master as long they have maintainers' approvals.
+- Roughly on a monthly basis, lotus will integrate ffi's head in `master` branch, for it's new feature release, and carry it through the testing flows.
+  - `release/lotus-vX` will be created to determine the commit that lotus integrates in the corresponding release.
+- If any bug is found during the testing, the fix should land in master then get backported to `release/lotus-vX`. The updated commit should be integrated into lotus and getting tested. Repeat the steps until it can be considered as stable.
+
+#Consensus breaking changes*
+- Consensus breaking changes should be developed in it's own branch (let's call them feature branches `feat/`). A new feature branch should be created and contributors are responsible to rebase the branch onto master as needed.
+- FFI maintainers should coordinate with @lotus-maintainers closely, and have required `feat/` merged into master, when the changes are scoped into a lotus mandatory release.
+    -  lotus mandatory releases are mostly scoped base on network upgrades.
+
 
 ## License
 
