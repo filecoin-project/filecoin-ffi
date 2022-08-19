@@ -417,6 +417,7 @@ fn build_lotus_trace(
                 };
                 return Ok(new_trace);
             }
+            _ => {}
         };
     }
 
