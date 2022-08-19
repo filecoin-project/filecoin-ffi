@@ -18,11 +18,6 @@ publish = false
 crate-type = ["rlib", "staticlib"]
 
 [patch.crates-io]
-fvm = { git = "https://github.com/filecoin-project/ref-fvm", branch = "experimental/fvm-m2" }
-fvm_ipld_car = { git = "https://github.com/filecoin-project/ref-fvm", branch = "experimental/fvm-m2" }
-fvm_shared = { git = "https://github.com/filecoin-project/ref-fvm", branch = "experimental/fvm-m2" }
-fvm_ipld_blockstore = { git = "https://github.com/filecoin-project/ref-fvm", branch = "experimental/fvm-m2" }
-fvm_ipld_encoding = { git = "https://github.com/filecoin-project/ref-fvm", branch = "experimental/fvm-m2" }
 wasmtime = { git = "https://github.com/filecoin-project/wasmtime", branch = "fix/sse-feature" }
 
 [dependencies]
@@ -75,6 +70,3 @@ opencl = ["filecoin-proofs-api/opencl", "bellperson/opencl", "storage-proofs-por
 cuda = ["filecoin-proofs-api/cuda", "bellperson/cuda", "storage-proofs-porep/cuda", "rust-gpu-tools/cuda", "fvm/cuda"]
 multicore-sdr = ["storage-proofs-porep/multicore-sdr"]
 c-headers = ["safer-ffi/headers"]
-
-[patch.crates-io]
-wasmtime = { git = "https://github.com/filecoin-project/wasmtime", branch = "fix/sse-feature" }
