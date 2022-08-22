@@ -1,18 +1,15 @@
 use std::convert::{TryFrom, TryInto};
 use std::sync::Mutex;
 
-use anyhow::{anyhow, bail};
+use anyhow::{anyhow, bail, Context};
 use cid::Cid;
-use futures::executor::block_on;
 use fvm::call_manager::DefaultCallManager;
 use fvm::executor::{ApplyKind, DefaultExecutor, Executor, ThreadedExecutor};
 use fvm::machine::{DefaultMachine, MultiEngine};
 use fvm::trace::ExecutionEvent;
 use fvm::DefaultKernel;
-use fvm_ipld_blockstore::Blockstore;
-use fvm_ipld_car::load_car;
 use fvm_ipld_encoding::tuple::{Deserialize_tuple, Serialize_tuple};
-use fvm_ipld_encoding::{to_vec, RawBytes};
+use fvm_ipld_encoding::{to_vec, CborStore, RawBytes};
 use fvm_shared::address::Address;
 use fvm_shared::error::{ErrorNumber, ExitCode};
 use fvm_shared::receipt::Receipt;
@@ -40,12 +37,8 @@ lazy_static! {
     static ref ENGINES: MultiEngine = MultiEngine::new();
 }
 
-/// Note: the incoming args as u64 and odd conversions to i32/i64
-/// for some types is due to the generated bindings not liking the
-/// 32bit types as incoming args
-///
-#[ffi_export]
-fn create_fvm_machine(
+#[allow(clippy::too_many_arguments)]
+fn create_fvm_machine_generic(
     fvm_version: FvmRegisteredVersion,
     chain_epoch: u64,
     base_fee_hi: u64,
@@ -54,7 +47,9 @@ fn create_fvm_machine(
     base_circ_supply_lo: u64,
     network_version: u64,
     state_root: c_slice::Ref<u8>,
-    manifest_cid: c_slice::Ref<u8>,
+    manifest_cid: Option<c_slice::Ref<u8>>,
+    actor_redirect: Option<c_slice::Ref<u8>>,
+    actor_debug: bool,
     tracing: bool,
     blockstore_id: u64,
     externs_id: u64,
@@ -80,31 +75,43 @@ fn create_fvm_machine(
             let state_root = Cid::try_from(&state_root[..])
                 .map_err(|err| anyhow!("invalid state root: {}", err))?;
 
-            let manifest_cid = if !manifest_cid.is_empty() {
-                let cid = Cid::try_from(&manifest_cid[..])
-                    .map_err(|err| anyhow!("invalid manifest: {}", err))?;
-                Some(cid)
-            } else {
-                // handle cid.Undef for no manifest
-                // this can mean two things:
-                // - for pre nv16, use the builtin bundles
-                // - for nv16 or higher, it means we have already migrated state for system
-                //   actor and we can pass None to the machine constructor to fish it from state.
-                // The presence of the manifest cid argument allows us to test with new bundles
-                // with minimum friction.
-                None
-            };
+            // There may be no manifest CID:
+            // - for pre nv16, use the builtin bundles
+            // - for nv16 or higher, it means we have already migrated state for system
+            //   actor and we can pass None to the machine constructor to fish it from state.
+            // The presence of the manifest cid argument allows us to test with new bundles
+            // with minimum friction.
+            let manifest_cid = manifest_cid
+                .as_deref() // into a slice
+                .map(Cid::try_from) // into a cid
+                .transpose() // Option<Result<Cid>> -> Result<Option<Cid>>
+                .context("invalid manifest")?;
 
             let blockstore = FakeBlockstore::new(CgoBlockstore::new(blockstore_id));
 
             let mut network_config = NetworkConfig::new(network_version);
-            match import_actors(&blockstore, manifest_cid, network_version) {
-                Ok(Some(manifest)) => {
-                    network_config.override_actors(manifest);
-                }
-                Ok(None) => {}
-                Err(err) => bail!("couldn't load builtin actors: {}", err),
+            if let Some(manifest) = manifest_cid {
+                network_config.override_actors(manifest);
             }
+
+            if actor_debug {
+                network_config.enable_actor_debugging();
+            }
+
+            let blockstore = blockstore.finish();
+            if let Some(ar) = actor_redirect {
+                let actor_redirect_cid = Cid::try_from(&ar[..])
+                    .map_err(|err| anyhow!("invalid redirect CID: {}", err))?;
+                let redirect: Vec<(Cid, Cid)> = match blockstore
+                    .get_cbor(&actor_redirect_cid)
+                    .map_err(|err| anyhow!("invalid redirect cid: {}", err))?
+                {
+                    Some(v) => v,
+                    None => bail!("failed to create engine: missing redirect vector"),
+                };
+                network_config.redirect_actors(redirect);
+            }
+
             let mut machine_context = network_config.for_epoch(chain_epoch, state_root);
 
             machine_context
@@ -114,7 +121,6 @@ fn create_fvm_machine(
             if tracing {
                 machine_context.enable_tracing();
             }
-            let blockstore = blockstore.finish();
 
             let externs = CgoExterns::new(externs_id);
 
@@ -130,6 +136,83 @@ fn create_fvm_machine(
             })))
         })
     }
+}
+/// Note: the incoming args as u64 and odd conversions to i32/i64
+/// for some types is due to the generated bindings not liking the
+/// 32bit types as incoming args
+///
+#[ffi_export]
+fn create_fvm_machine(
+    fvm_version: FvmRegisteredVersion,
+    chain_epoch: u64,
+    base_fee_hi: u64,
+    base_fee_lo: u64,
+    base_circ_supply_hi: u64,
+    base_circ_supply_lo: u64,
+    network_version: u64,
+    state_root: c_slice::Ref<u8>,
+    manifest_cid: c_slice::Ref<u8>,
+    tracing: bool,
+    blockstore_id: u64,
+    externs_id: u64,
+) -> repr_c::Box<Result<FvmMachine>> {
+    create_fvm_machine_generic(
+        fvm_version,
+        chain_epoch,
+        base_fee_hi,
+        base_fee_lo,
+        base_circ_supply_hi,
+        base_circ_supply_lo,
+        network_version,
+        state_root,
+        if manifest_cid.is_empty() {
+            None
+        } else {
+            Some(manifest_cid)
+        },
+        None,
+        false,
+        tracing,
+        blockstore_id,
+        externs_id,
+    )
+}
+
+#[ffi_export]
+fn create_fvm_debug_machine(
+    fvm_version: FvmRegisteredVersion,
+    chain_epoch: u64,
+    base_fee_hi: u64,
+    base_fee_lo: u64,
+    base_circ_supply_hi: u64,
+    base_circ_supply_lo: u64,
+    network_version: u64,
+    state_root: c_slice::Ref<u8>,
+    actor_redirect: c_slice::Ref<u8>,
+    tracing: bool,
+    blockstore_id: u64,
+    externs_id: u64,
+) -> repr_c::Box<Result<FvmMachine>> {
+    create_fvm_machine_generic(
+        fvm_version,
+        chain_epoch,
+        base_fee_hi,
+        base_fee_lo,
+        base_circ_supply_hi,
+        base_circ_supply_lo,
+        network_version,
+        state_root,
+        None,
+        if actor_redirect.is_empty() {
+            None
+        } else {
+            Some(actor_redirect)
+        },
+        true,
+        tracing,
+        blockstore_id,
+        externs_id,
+    )
 }
 
 #[ffi_export]
@@ -244,26 +327,6 @@ destructor!(
 );
 
 destructor!(destroy_fvm_machine_flush_response, Result<c_slice::Box<u8>>);
-
-fn import_actors(
-    blockstore: &impl Blockstore,
-    manifest_cid: Option<Cid>,
-    network_version: NetworkVersion,
-) -> std::result::Result<Option<Cid>, &'static str> {
-    if manifest_cid.is_some() {
-        return Ok(manifest_cid);
-    }
-    let car = match network_version {
-        NetworkVersion::V15 => Ok(actors_v7::BUNDLE_CAR),
-        NetworkVersion::V16 => {
-            return Ok(None);
-        }
-        _ => Err("unsupported network version"),
-    }?;
-    let roots = block_on(async { load_car(blockstore, car).await.unwrap() });
-    assert_eq!(roots.len(), 1);
-    Ok(Some(roots[0]))
-}
 
 #[derive(Clone, Debug, Serialize_tuple, Deserialize_tuple)]
 struct LotusTrace {
