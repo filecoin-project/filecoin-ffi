@@ -311,6 +311,8 @@ commands:
                 name: Run leak detector
                 command: |
                   printenv
+                  go version
+                  rustc --version
                   make cgo-leakdetect
                 no_output_timeout: 90m
       - run:
