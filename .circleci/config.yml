@@ -166,7 +166,7 @@ workflows:
       - gofmt
       - go_lint
       - build_and_test_linux_cgo_bindings:
-          run_leak_detector: false
+          run_leak_detector: true
       - publish_linux_staticlib
       - build_darwin_cgo_bindings
       - publish_darwin_staticlib
@@ -302,7 +302,7 @@ commands:
     parameters:
       run_leak_detector:
         type: boolean
-        default: false
+        default: true
     steps:
       - when:
           condition: <<parameters.run_leak_detector>>
