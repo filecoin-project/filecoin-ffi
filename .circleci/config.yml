@@ -309,7 +309,9 @@ commands:
           steps:
             - run:
                 name: Run leak detector
-                command: make cgo-leakdetect
+                command: |
+                  printenv
+                  make cgo-leakdetect
                 no_output_timeout: 90m
       - run:
           name: Run the Rust tests
