@@ -66,11 +66,11 @@ fn create_fvm_machine_generic(
 
             let chain_epoch = chain_epoch as ChainEpoch;
 
-            let base_circ_supply = TokenAmount::from(
+            let base_circ_supply = TokenAmount::from_atto(
                 ((base_circ_supply_hi as u128) << u64::BITS) | base_circ_supply_lo as u128,
             );
             let base_fee =
-                TokenAmount::from(((base_fee_hi as u128) << u64::BITS) | base_fee_lo as u128);
+                TokenAmount::from_atto(((base_fee_hi as u128) << u64::BITS) | base_fee_lo as u128);
 
             let network_version = NetworkVersion::try_from(network_version as u32)
                 .map_err(|_| anyhow!("unsupported network version: {}", network_version))?;
@@ -263,11 +263,11 @@ fn fvm_machine_execute_message(
             .map(|info| info.to_string().into_boxed_str().into());
 
         // TODO: use the non-bigint token amount everywhere in the FVM
-        let penalty: u128 = apply_ret.penalty.try_into().unwrap();
-        let miner_tip: u128 = apply_ret.miner_tip.try_into().unwrap();
-        let base_fee_burn: u128 = apply_ret.base_fee_burn.try_into().unwrap();
-        let over_estimation_burn: u128 = apply_ret.over_estimation_burn.try_into().unwrap();
-        let refund: u128 = apply_ret.refund.try_into().unwrap();
+        let penalty: u128 = apply_ret.penalty.atto().try_into().unwrap();
+        let miner_tip: u128 = apply_ret.miner_tip.atto().try_into().unwrap();
+        let base_fee_burn: u128 = apply_ret.base_fee_burn.atto().try_into().unwrap();
+        let over_estimation_burn: u128 = apply_ret.over_estimation_burn.atto().try_into().unwrap();
+        let refund: u128 = apply_ret.refund.atto().try_into().unwrap();
         let gas_refund = apply_ret.gas_refund;
         let gas_burned = apply_ret.gas_burned;
 
