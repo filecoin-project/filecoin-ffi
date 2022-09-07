@@ -1,3 +1,5 @@
+[![Build Status][circleci-image]][circleci-link]
+
 # Filecoin FFI
 
 > C and CGO bindings for Filecoin's Rust libraries
@@ -99,3 +101,6 @@ Run it like so:
 MIT or Apache 2.0
 
 [1]: https://github.com/filecoin-project/rust-filecoin-proofs-api/commit/61fde0e581cc38abc4e13dbe96145c9ad2f1f0f5
+
+[circleci-image]: https://circleci.com/gh/filecoin-project/filecoin-ffi.svg?branch=master&style=shield
+[circleci-link]: https://app.circleci.com/pipelines/github/filecoin-project/filecoin-ffi?branch=master
