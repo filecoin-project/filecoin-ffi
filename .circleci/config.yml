@@ -50,7 +50,7 @@ jobs:
 
   build_darwin_cgo_bindings:
     macos:
-      xcode: "12.5.0"
+      xcode: "12.5.1"
     working_directory: ~/go/src/github.com/filecoin-project/filecoin-ffi
     resource_class: large
     steps:
@@ -76,7 +76,7 @@ jobs:
       - publish_release
   publish_darwin_staticlib:
     macos:
-      xcode: "12.5.0"
+      xcode: "12.5.1"
     working_directory: ~/crate
     resource_class: large
     steps:
