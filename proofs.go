@@ -827,7 +827,7 @@ func toFilPoStProofs(src []proof.PoStProof) ([]cgo.PoStProof, func(), error) {
 		out[idx] = cgo.NewPoStProof(pp, src[idx].ProofBytes)
 	}
 
-	return out, makeCleanerPOST(out, len(src)),nil
+	return out, makeCleanerPOST(out, len(src)), nil
 }
 
 func makeCleanerPOST(src []cgo.PoStProof, limit int) func() {

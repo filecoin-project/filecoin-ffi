@@ -78,6 +78,22 @@ func FvmMachineExecuteMessage(executor *FvmMachine, message SliceRefUint8, chain
 	return resp.value.copy(), nil
 }
 
+func FvmMachineValidateMessage(executor *FvmMachine, message SliceRefUint8, signature SliceRefUint8) (FvmMachineValidateResponseGo, error) {
+	resp := C.fvm_machine_validate_message(
+		executor,
+		message,
+		signature,
+	)
+	defer resp.destroy()
+
+	if err := CheckErr(resp); err != nil {
+		return FvmMachineValidateResponseGo{}, err
+	}
+
+	return resp.value.copy(), nil
+
+}
+
 func FvmMachineFlush(executor *FvmMachine) ([]byte, error) {
 	resp := C.fvm_machine_flush(executor)
 	defer resp.destroy()

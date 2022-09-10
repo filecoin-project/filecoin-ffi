@@ -322,6 +322,15 @@ fn fvm_machine_flush(executor: &'_ InnerFvmMachine) -> repr_c::Box<Result<c_slic
     })
 }
 
+#[ffi_export]
+fn fvm_machine_validate_message(
+    executor: &'_ InnerFvmMachine,
+    message: c_slice::Ref<u8>,
+    signature: c_slice::Ref<u8>,
+) -> repr_c::Box<Result<c_slice::Box<u8>>> {
+    catch_panic_response("fvm_machine_validate_message", || todo!())
+}
+
 destructor!(drop_fvm_machine, InnerFvmMachine);
 destructor!(destroy_create_fvm_machine_response, Result<FvmMachine>);
 

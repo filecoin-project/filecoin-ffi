@@ -112,6 +112,12 @@ type FvmMachineExecuteResponseGo struct {
 	FailureInfo          string
 }
 
+/// WIP
+type FvmMachineValidateResponseGo struct {
+	ExitCode uint64
+	GasUsed  int64
+}
+
 func (ptr SliceBoxedUint8) slice() []byte {
 	if ptr.ptr == nil {
 		return nil
@@ -611,7 +617,6 @@ func (ptr *PoStProof) Destroy() {
 		ptr = nil
 	}
 }
-
 
 func (ptr *resultFvmMachineExecuteResponse) statusCode() FCPResponseStatus {
 	return FCPResponseStatus(ptr.status_code)
