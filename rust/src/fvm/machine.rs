@@ -1,3 +1,4 @@
+use std::borrow::Cow;
 use std::convert::{TryFrom, TryInto};
 use std::sync::Mutex;
 
@@ -5,6 +6,7 @@ use anyhow::{anyhow, bail, Context};
 use cid::Cid;
 use fvm::call_manager::DefaultCallManager;
 use fvm::executor::{ApplyKind, DefaultExecutor, Executor, ThreadedExecutor};
+use fvm::gas::GasCharge;
 use fvm::machine::{DefaultMachine, MultiEngine};
 use fvm::trace::ExecutionEvent;
 use fvm::DefaultKernel;
@@ -64,11 +66,11 @@ fn create_fvm_machine_generic(
 
             let chain_epoch = chain_epoch as ChainEpoch;
 
-            let base_circ_supply = TokenAmount::from(
+            let base_circ_supply = TokenAmount::from_atto(
                 ((base_circ_supply_hi as u128) << u64::BITS) | base_circ_supply_lo as u128,
             );
             let base_fee =
-                TokenAmount::from(((base_fee_hi as u128) << u64::BITS) | base_fee_lo as u128);
+                TokenAmount::from_atto(((base_fee_hi as u128) << u64::BITS) | base_fee_lo as u128);
 
             let network_version = NetworkVersion::try_from(network_version as u32)
                 .map_err(|_| anyhow!("unsupported network version: {}", network_version))?;
@@ -137,6 +139,7 @@ fn create_fvm_machine_generic(
         })
     }
 }
+
 /// Note: the incoming args as u64 and odd conversions to i32/i64
 /// for some types is due to the generated bindings not liking the
 /// 32bit types as incoming args
@@ -242,8 +245,9 @@ fn fvm_machine_execute_message(
         let exec_trace = if !apply_ret.exec_trace.is_empty() {
             let mut trace_iter = apply_ret.exec_trace.into_iter();
             build_lotus_trace(
-                &trace_iter
-                    .next()
+                &(&mut trace_iter)
+                    // Skip gas charges before the first call, if any. Lotus can't handle them.
+                    .find(|item| !matches!(item, &ExecutionEvent::GasCharge(_)))
                     .expect("already checked trace for emptiness"),
                 &mut trace_iter,
             )
@@ -259,11 +263,11 @@ fn fvm_machine_execute_message(
             .map(|info| info.to_string().into_boxed_str().into());
 
         // TODO: use the non-bigint token amount everywhere in the FVM
-        let penalty: u128 = apply_ret.penalty.try_into().unwrap();
-        let miner_tip: u128 = apply_ret.miner_tip.try_into().unwrap();
-        let base_fee_burn: u128 = apply_ret.base_fee_burn.try_into().unwrap();
-        let over_estimation_burn: u128 = apply_ret.over_estimation_burn.try_into().unwrap();
-        let refund: u128 = apply_ret.refund.try_into().unwrap();
+        let penalty: u128 = apply_ret.penalty.atto().try_into().unwrap();
+        let miner_tip: u128 = apply_ret.miner_tip.atto().try_into().unwrap();
+        let base_fee_burn: u128 = apply_ret.base_fee_burn.atto().try_into().unwrap();
+        let over_estimation_burn: u128 = apply_ret.over_estimation_burn.atto().try_into().unwrap();
+        let refund: u128 = apply_ret.refund.atto().try_into().unwrap();
         let gas_refund = apply_ret.gas_refund;
         let gas_burned = apply_ret.gas_burned;
 
@@ -329,10 +333,19 @@ destructor!(
 destructor!(destroy_fvm_machine_flush_response, Result<c_slice::Box<u8>>);
 
 #[derive(Clone, Debug, Serialize_tuple, Deserialize_tuple)]
+struct LotusGasCharge {
+    pub name: Cow<'static, str>,
+    pub total_gas: i64,
+    pub compute_gas: i64,
+    pub storage_gas: i64,
+}
+
+#[derive(Clone, Debug, Serialize_tuple, Deserialize_tuple)]
 struct LotusTrace {
     pub msg: Message,
     pub msg_receipt: Receipt,
     pub error: String,
+    pub gas_charges: Vec<LotusGasCharge>,
     pub subcalls: Vec<LotusTrace>,
 }
 
@@ -370,6 +383,7 @@ fn build_lotus_trace(
             gas_used: 0,
         },
         error: String::new(),
+        gas_charges: vec![],
         subcalls: vec![],
     };
 
@@ -416,6 +430,19 @@ fn build_lotus_trace(
                 };
                 return Ok(new_trace);
             }
+            ExecutionEvent::GasCharge(GasCharge {
+                name,
+                compute_gas,
+                storage_gas,
+            }) => {
+                new_trace.gas_charges.push(LotusGasCharge {
+                    name,
+                    total_gas: (compute_gas + storage_gas).round_up(),
+                    compute_gas: compute_gas.round_up(),
+                    storage_gas: storage_gas.round_up(),
+                });
+            }
+            _ => (), // ignore unknown events.
         };
     }
 
