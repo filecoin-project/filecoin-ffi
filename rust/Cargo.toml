@@ -37,10 +37,10 @@ memmap = "0.7"
 rust-gpu-tools = { version = "0.5", optional = true, default-features = false }
 storage-proofs-porep = { version = "~12.0", default-features = false }
 fr32 = { version = "~5.0", default-features = false }
-fvm = { git = "https://github.com/filecoin-project/ref-fvm", branch = "asr/nv17-release/v2" }
-fvm_shared = { git = "https://github.com/filecoin-project/ref-fvm", branch = "asr/nv17-release/v2" }
-fvm_ipld_blockstore = { git = "https://github.com/filecoin-project/ref-fvm", branch = "asr/nv17-release/v2" }
-fvm_ipld_encoding = { git = "https://github.com/filecoin-project/ref-fvm", branch = "asr/nv17-release/v2" }
+fvm = { version = "2.0.0-alpha.3", default-features = false }
+fvm_shared = "2.0.0-alpha.4"
+fvm_ipld_blockstore = "0.1.1"
+fvm_ipld_encoding = "0.2.2"
 num-traits = "0.2.14"
 num-bigint = "0.4"
 cid = { version = "0.8.5", features = ["serde-codec"] }
