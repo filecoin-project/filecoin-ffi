@@ -2,8 +2,8 @@ use std::ptr;
 
 use anyhow::{anyhow, Result};
 use cid::Cid;
+use fvm3_shared::MAX_CID_LEN;
 use fvm_ipld_blockstore::Blockstore;
-use fvm_shared::MAX_CID_LEN;
 
 use super::super::cgo::*;
 

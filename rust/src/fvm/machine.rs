@@ -1,21 +1,32 @@
 use std::borrow::Cow;
+use std::cell::RefCell;
+use std::collections::HashMap;
 use std::convert::{TryFrom, TryInto};
+use std::rc::Rc;
 use std::sync::Mutex;
 
 use anyhow::{anyhow, bail, Context};
 use cid::Cid;
-use fvm::call_manager::DefaultCallManager;
-use fvm::executor::{ApplyKind, DefaultExecutor, Executor, ThreadedExecutor};
-use fvm::gas::GasCharge;
-use fvm::machine::{DefaultMachine, MultiEngine};
-use fvm::trace::ExecutionEvent;
-use fvm::DefaultKernel;
-use fvm_ipld_encoding::tuple::{Deserialize_tuple, Serialize_tuple};
-use fvm_ipld_encoding::{to_vec, CborStore, RawBytes};
-use fvm_shared::address::Address;
-use fvm_shared::error::{ErrorNumber, ExitCode};
-use fvm_shared::receipt::Receipt;
-use fvm_shared::{clock::ChainEpoch, econ::TokenAmount, message::Message, version::NetworkVersion};
+use fvm3::call_manager::DefaultCallManager as DefaultCallManager3;
+use fvm3::executor::{
+    ApplyKind as ApplyKind3, ApplyRet as ApplyRet3, DefaultExecutor as DefaultExecutor3,
+    ThreadedExecutor as ThreadedExecutor3,
+};
+use fvm3::gas::GasCharge;
+use fvm3::machine::{
+    DefaultMachine as DefaultMachine3, MachineContext as MachineContext3,
+    MultiEngine as MultiEngine3, NetworkConfig as NetworkConfig3,
+};
+use fvm3::trace::ExecutionEvent;
+use fvm3::DefaultKernel as DefaultKernel3;
+use fvm3_ipld_encoding::tuple::{Deserialize_tuple, Serialize_tuple};
+use fvm3_ipld_encoding::{to_vec, CborStore, RawBytes};
+use fvm3_shared::address::Address;
+use fvm3_shared::error::{ErrorNumber, ExitCode};
+use fvm3_shared::receipt::Receipt;
+use fvm3_shared::{
+    clock::ChainEpoch, econ::TokenAmount, message::Message, version::NetworkVersion,
+};
 use lazy_static::lazy_static;
 use log::info;
 use safer_ffi::prelude::*;
@@ -26,23 +37,122 @@ use super::types::*;
 use crate::destructor;
 use crate::util::types::{catch_panic_response, catch_panic_response_no_default, Result};
 
-type CgoMachine = DefaultMachine<OverlayBlockstore<CgoBlockstore>, CgoExterns>;
-type BaseExecutor = DefaultExecutor<DefaultKernel<DefaultCallManager<CgoMachine>>>;
+type CgoMachine3 = DefaultMachine3<OverlayBlockstore<CgoBlockstore>, CgoExterns>;
+type BaseExecutor3 = DefaultExecutor3<DefaultKernel3<DefaultCallManager3<CgoMachine3>>>;
 
-pub type CgoExecutor = ThreadedExecutor<BaseExecutor>;
+pub type CgoExecutor3 = ThreadedExecutor3<BaseExecutor3>;
 
-fn new_executor(machine: CgoMachine) -> CgoExecutor {
-    ThreadedExecutor(BaseExecutor::new(machine))
+fn new_executor3(machine: CgoMachine3) -> CgoExecutor3 {
+    ThreadedExecutor3(BaseExecutor3::new(machine))
+}
+
+pub trait CgoExecutor {
+    fn execute_message(
+        &mut self,
+        msg: Message,
+        apply_kind: ApplyKind3,
+        raw_length: usize,
+    ) -> anyhow::Result<ApplyRet3>;
+
+    fn flush(&mut self) -> anyhow::Result<Cid>;
+}
+
+impl CgoExecutor for CgoExecutor3 {
+    fn execute_message(
+        &mut self,
+        msg: Message,
+        apply_kind: ApplyKind3,
+        raw_length: usize,
+    ) -> anyhow::Result<ApplyRet3> {
+        use fvm3::executor::Executor;
+        self.0.execute_message(msg, apply_kind, raw_length)
+    }
+
+    fn flush(&mut self) -> anyhow::Result<Cid> {
+        use fvm3::executor::Executor;
+        self.0.flush()
+    }
+}
+
+trait AbstractMultiEngine {
+    fn new_executor(
+        &self,
+        ncfg: NetworkConfig3,
+        mctx: MachineContext3,
+        blockstore: OverlayBlockstore<CgoBlockstore>,
+        externs: CgoExterns,
+    ) -> InnerFvmMachine;
+}
+
+impl AbstractMultiEngine for MultiEngine3 {
+    fn new_executor(
+        &self,
+        cfg: NetworkConfig3,
+        ctx: MachineContext3,
+        blockstore: OverlayBlockstore<CgoBlockstore>,
+        externs: CgoExterns,
+    ) -> InnerFvmMachine {
+        let engine = match self.get(&cfg) {
+            Ok(e) => e,
+            Err(err) => panic!("failed to create engine: {}", err),
+        };
+
+        let machine = CgoMachine3::new(&engine, &ctx, blockstore, externs).unwrap();
+        InnerFvmMachine {
+            machine: Some(Mutex::new(Box::new(new_executor3(machine)))),
+        }
+    }
+}
+
+struct MultiEngineContainer {
+    // XXX do we need to mutex protect this?
+    engines: RefCell<HashMap<u32, Rc<dyn AbstractMultiEngine + 'static>>>,
+}
+
+unsafe impl Sync for MultiEngineContainer {}
+
+impl MultiEngineContainer {
+    fn new() -> MultiEngineContainer {
+        MultiEngineContainer {
+            engines: RefCell::new(HashMap::new()),
+        }
+    }
+
+    fn get(&self, nv: NetworkVersion) -> Rc<dyn AbstractMultiEngine + 'static> {
+        let nv32 = nv as u32;
+        if self.engines.borrow().contains_key(&nv32) {
+            self.engines.borrow().get(&nv32).unwrap().clone()
+        } else {
+            match nv {
+                // NetworkVersion::V16 | NetworkVersion::V17 => {
+                //     let ngn = Box::new(MultiEngine2::new());
+                //     self.engines.put(nv, ngn);
+                //     ngn
+                // }
+                NetworkVersion::V18 => {
+                    let ngin = Rc::new(MultiEngine3::new());
+                    self.engines
+                        .borrow_mut()
+                        .insert(nv as u32, ngin as Rc<dyn AbstractMultiEngine + 'static>);
+                    self.engines.borrow().get(&nv32).unwrap().clone()
+                }
+                _ => {
+                    panic!("unknown network version {}", nv);
+                }
+            }
+        }
+    }
 }
 
 lazy_static! {
-    static ref ENGINES: MultiEngine = MultiEngine::new();
+    static ref ENGINES: MultiEngineContainer = MultiEngineContainer::new();
 }
 
 #[allow(clippy::too_many_arguments)]
 fn create_fvm_machine_generic(
     fvm_version: FvmRegisteredVersion,
     chain_epoch: u64,
+    chain_timestamp: u64,
     base_fee_hi: u64,
     base_fee_lo: u64,
     base_circ_supply_hi: u64,
@@ -56,7 +166,7 @@ fn create_fvm_machine_generic(
     blockstore_id: u64,
     externs_id: u64,
 ) -> repr_c::Box<Result<FvmMachine>> {
-    use fvm::machine::NetworkConfig;
+    use fvm3::machine::{NetworkConfig, NetworkContext};
     unsafe {
         catch_panic_response_no_default("create_fvm_machine", || {
             match fvm_version {
@@ -114,11 +224,15 @@ fn create_fvm_machine_generic(
                 network_config.redirect_actors(redirect);
             }
 
-            let mut machine_context = network_config.for_epoch(chain_epoch, state_root);
+            let net_ctx = NetworkContext {
+                epoch: chain_epoch,
+                timestamp: chain_timestamp,
+                tipsets: vec![], // TODO pass last finality tipset CIDs
+                base_fee,
+            };
+            let mut machine_context = network_config.for_network_context(net_ctx, state_root);
 
-            machine_context
-                .set_base_fee(base_fee)
-                .set_circulating_supply(base_circ_supply);
+            machine_context.set_circulating_supply(base_circ_supply);
 
             if tracing {
                 machine_context.enable_tracing();
@@ -126,16 +240,13 @@ fn create_fvm_machine_generic(
 
             let externs = CgoExterns::new(externs_id);
 
-            let engine = match ENGINES.get(&network_config) {
-                Ok(e) => e,
-                Err(err) => bail!("failed to create engine: {}", err),
-            };
-
-            let machine = CgoMachine::new(&engine, &machine_context, blockstore, externs)?;
-
-            Ok(Some(repr_c::Box::new(InnerFvmMachine {
-                machine: Some(Mutex::new(new_executor(machine))),
-            })))
+            let engine = ENGINES.get(network_version);
+            Ok(Some(repr_c::Box::new(engine.new_executor(
+                network_config,
+                machine_context,
+                blockstore,
+                externs,
+            ))))
         })
     }
 }
@@ -148,6 +259,7 @@ fn create_fvm_machine_generic(
 fn create_fvm_machine(
     fvm_version: FvmRegisteredVersion,
     chain_epoch: u64,
+    chain_timestamp: u64,
     base_fee_hi: u64,
     base_fee_lo: u64,
     base_circ_supply_hi: u64,
@@ -162,6 +274,7 @@ fn create_fvm_machine(
     create_fvm_machine_generic(
         fvm_version,
         chain_epoch,
+        chain_timestamp,
         base_fee_hi,
         base_fee_lo,
         base_circ_supply_hi,
@@ -185,6 +298,7 @@ fn create_fvm_machine(
 fn create_fvm_debug_machine(
     fvm_version: FvmRegisteredVersion,
     chain_epoch: u64,
+    chain_timestamp: u64,
     base_fee_hi: u64,
     base_fee_lo: u64,
     base_circ_supply_hi: u64,
@@ -199,6 +313,7 @@ fn create_fvm_debug_machine(
     create_fvm_machine_generic(
         fvm_version,
         chain_epoch,
+        chain_timestamp,
         base_fee_hi,
         base_fee_lo,
         base_circ_supply_hi,
@@ -227,12 +342,12 @@ fn fvm_machine_execute_message(
 ) -> repr_c::Box<Result<FvmMachineExecuteResponse>> {
     catch_panic_response("fvm_machine_execute_message", || {
         let apply_kind = if apply_kind == 0 {
-            ApplyKind::Explicit
+            ApplyKind3::Explicit
         } else {
-            ApplyKind::Implicit
+            ApplyKind3::Implicit
         };
 
-        let message: Message = fvm_ipld_encoding::from_slice(&message)?;
+        let message: Message = fvm3_ipld_encoding::from_slice(&message)?;
 
         let mut executor = executor
             .machine
@@ -316,7 +431,7 @@ fn fvm_machine_flush(executor: &'_ InnerFvmMachine) -> repr_c::Box<Result<c_slic
             .expect("missing executor")
             .lock()
             .unwrap();
-        let cid = executor.0.flush()?;
+        let cid = executor.flush()?;
 
         Ok(cid.to_bytes().into_boxed_slice().into())
     })
@@ -451,14 +566,14 @@ fn build_lotus_trace(
 
 #[cfg(test)]
 mod test {
-    use crate::fvm::machine::build_lotus_trace;
-    use fvm::kernel::SyscallError;
-    use fvm::trace::ExecutionEvent;
+    use crate::fvm3::machine::build_lotus_trace;
+    use fvm3::kernel::SyscallError;
+    use fvm3::trace::ExecutionEvent;
+    use fvm3_shared::address::Address;
+    use fvm3_shared::econ::TokenAmount;
+    use fvm3_shared::error::ErrorNumber::IllegalArgument;
+    use fvm3_shared::ActorID;
     use fvm_ipld_encoding::RawBytes;
-    use fvm_shared::address::Address;
-    use fvm_shared::econ::TokenAmount;
-    use fvm_shared::error::ErrorNumber::IllegalArgument;
-    use fvm_shared::ActorID;
 
     #[test]
     fn test_lotus_trace() {
