@@ -1,8 +1,8 @@
 use anyhow::{anyhow, Context};
-use fvm::externs::{Consensus, Externs, Rand};
-use fvm_shared::address::Address;
-use fvm_shared::clock::ChainEpoch;
-use fvm_shared::consensus::ConsensusFault;
+use fvm3::externs::{Consensus, Externs, Rand};
+use fvm3_shared::address::Address;
+use fvm3_shared::clock::ChainEpoch;
+use fvm3_shared::consensus::ConsensusFault;
 use num_traits::FromPrimitive;
 
 use super::cgo::*;
