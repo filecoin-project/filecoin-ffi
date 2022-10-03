@@ -43,6 +43,7 @@ lazy_static! {
 fn create_fvm_machine_generic(
     fvm_version: FvmRegisteredVersion,
     chain_epoch: u64,
+    chain_timestamp: u64,
     base_fee_hi: u64,
     base_fee_lo: u64,
     base_circ_supply_hi: u64,
@@ -56,7 +57,7 @@ fn create_fvm_machine_generic(
     blockstore_id: u64,
     externs_id: u64,
 ) -> repr_c::Box<Result<FvmMachine>> {
-    use fvm::machine::NetworkConfig;
+    use fvm::machine::{NetworkConfig, NetworkContext};
     unsafe {
         catch_panic_response_no_default("create_fvm_machine", || {
             match fvm_version {
@@ -114,11 +115,15 @@ fn create_fvm_machine_generic(
                 network_config.redirect_actors(redirect);
             }
 
-            let mut machine_context = network_config.for_epoch(chain_epoch, state_root);
+            let net_ctx = NetworkContext {
+                epoch: chain_epoch,
+                timestamp: chain_timestamp,
+                tipsets: vec![], // TODO pass last finality tipset CIDs
+                base_fee,
+            };
+            let mut machine_context = network_config.for_network_context(net_ctx, state_root);
 
-            machine_context
-                .set_base_fee(base_fee)
-                .set_circulating_supply(base_circ_supply);
+            machine_context.set_circulating_supply(base_circ_supply);
 
             if tracing {
                 machine_context.enable_tracing();
@@ -148,6 +153,7 @@ fn create_fvm_machine_generic(
 fn create_fvm_machine(
     fvm_version: FvmRegisteredVersion,
     chain_epoch: u64,
+    chain_timestamp: u64,
     base_fee_hi: u64,
     base_fee_lo: u64,
     base_circ_supply_hi: u64,
@@ -162,6 +168,7 @@ fn create_fvm_machine(
     create_fvm_machine_generic(
         fvm_version,
         chain_epoch,
+        chain_timestamp,
         base_fee_hi,
         base_fee_lo,
         base_circ_supply_hi,
@@ -185,6 +192,7 @@ fn create_fvm_machine(
 fn create_fvm_debug_machine(
     fvm_version: FvmRegisteredVersion,
     chain_epoch: u64,
+    chain_timestamp: u64,
     base_fee_hi: u64,
     base_fee_lo: u64,
     base_circ_supply_hi: u64,
@@ -199,6 +207,7 @@ fn create_fvm_debug_machine(
     create_fvm_machine_generic(
         fvm_version,
         chain_epoch,
+        chain_timestamp,
         base_fee_hi,
         base_fee_lo,
         base_circ_supply_hi,
