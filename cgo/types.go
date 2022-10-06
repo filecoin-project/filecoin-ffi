@@ -633,6 +633,21 @@ func (ptr *resultFvmMachineExecuteResponse) destroy() {
 		C.destroy_fvm_machine_execute_response(ptr)
 		ptr = nil
 	}
+
+}
+func (ptr *resultFvmMachineValidateResponse) statusCode() FCPResponseStatus {
+	return FCPResponseStatus(ptr.status_code)
+}
+
+func (ptr *resultFvmMachineValidateResponse) errorMsg() *SliceBoxedUint8 {
+	return &ptr.error_msg
+}
+
+func (ptr *resultFvmMachineValidateResponse) destroy() {
+	if ptr != nil {
+		C.destroy_fvm_machine_validate_response(ptr)
+		ptr = nil
+	}
 }
 
 func (ptr *resultFvmMachine) statusCode() FCPResponseStatus {
