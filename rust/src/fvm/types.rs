@@ -48,6 +48,6 @@ pub struct FvmMachineExecuteResponse {
 #[derive(Default)]
 pub struct FvmMachineValidateResponse {
     pub exit_code: u64,
-    pub return_val: Option<c_slice::Box<u8>>,
+    pub gas_used: i64,
     
 }

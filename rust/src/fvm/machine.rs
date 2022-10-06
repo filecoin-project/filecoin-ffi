@@ -5,7 +5,7 @@ use std::sync::Mutex;
 use anyhow::{anyhow, bail, Context};
 use cid::Cid;
 use fvm::call_manager::DefaultCallManager;
-use fvm::executor::{ApplyKind, DefaultExecutor, Executor, ThreadedExecutor};
+use fvm::executor::{ApplyKind, DefaultExecutor, Executor, ThreadedExecutor, DefaultValidateExecutor, ValidateExecutor};
 use fvm::gas::GasCharge;
 use fvm::machine::{DefaultMachine, MultiEngine};
 use fvm::trace::ExecutionEvent;
@@ -27,12 +27,12 @@ use crate::destructor;
 use crate::util::types::{catch_panic_response, catch_panic_response_no_default, Result};
 
 type CgoMachine = DefaultMachine<OverlayBlockstore<CgoBlockstore>, CgoExterns>;
-type BaseExecutor = DefaultExecutor<DefaultKernel<DefaultCallManager<CgoMachine>>>;
+type BaseExecutor = DefaultValidateExecutor<DefaultKernel<DefaultCallManager<CgoMachine>>>;
 
 pub type CgoExecutor = ThreadedExecutor<BaseExecutor>;
 
 fn new_executor(machine: CgoMachine) -> CgoExecutor {
-    ThreadedExecutor(BaseExecutor::new(machine))
+    ThreadedExecutor(DefaultValidateExecutor(DefaultExecutor::new(machine)))
 }
 
 lazy_static! {
@@ -327,8 +327,24 @@ fn fvm_machine_validate_message(
     executor: &'_ InnerFvmMachine,
     message: c_slice::Ref<u8>,
     signature: c_slice::Ref<u8>,
-) -> repr_c::Box<Result<c_slice::Box<u8>>> {
-    catch_panic_response("fvm_machine_validate_message", || todo!())
+) -> repr_c::Box<Result<FvmMachineValidateResponse>> {
+    catch_panic_response("fvm_machine_validate_message", || {
+        let message: Message = fvm_ipld_encoding::from_slice(&message)?;
+        let signature = signature.to_vec();
+
+        let mut executor = executor
+            .machine
+            .as_ref()
+            .expect("missing executor")
+            .lock()
+            .unwrap();
+        
+        let validate_ret = executor.validate_message(message, signature)?;
+
+        // TODO actual exit code maybe?
+        // TODO FVM needs to return gas used by validate
+        Ok(FvmMachineValidateResponse { exit_code: validate_ret as u64, gas_used: 0 })
+    })
 }
 
 destructor!(drop_fvm_machine, InnerFvmMachine);
@@ -337,6 +353,11 @@ destructor!(destroy_create_fvm_machine_response, Result<FvmMachine>);
 destructor!(
     destroy_fvm_machine_execute_response,
     Result<FvmMachineExecuteResponse>
+);
+
+destructor!(
+    destroy_fvm_machine_validate_response,
+    Result<FvmMachineValidateResponse>
 );
 
 destructor!(destroy_fvm_machine_flush_response, Result<c_slice::Box<u8>>);

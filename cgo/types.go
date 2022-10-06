@@ -51,6 +51,7 @@ type ByteArray96 = C.uint8_96_array_t
 
 type FvmMachine = C.InnerFvmMachine_t
 type FvmMachineExecuteResponse = C.FvmMachineExecuteResponse_t
+type FvmMachineValidateResponse = C.FvmMachineValidateResponse_t
 
 type resultBool = C.Result_bool_t
 type resultGeneratePieceCommitment = C.Result_GeneratePieceCommitment_t
@@ -72,6 +73,7 @@ type resultPoStProof = C.Result_PoStProof_t
 
 type resultFvmMachine = C.Result_InnerFvmMachine_ptr_t
 type resultFvmMachineExecuteResponse = C.Result_FvmMachineExecuteResponse_t
+type resultFvmMachineValidateResponse = C.Result_FvmMachineValidateResponse_t
 
 type result interface {
 	statusCode() FCPResponseStatus
@@ -674,5 +676,14 @@ func (r FvmMachineExecuteResponse) copy() FvmMachineExecuteResponseGo {
 		GasBurned:            int64(r.gas_burned),
 		ExecTrace:            r.exec_trace.copy(),
 		FailureInfo:          string(r.failure_info.slice()),
+	}
+}
+
+func (r FvmMachineValidateResponse) copy() FvmMachineValidateResponseGo {
+	return FvmMachineValidateResponseGo{
+		ExitCode: uint64(r.exit_code),
+		GasUsed:  int64(r.gas_used),
+		// ExecTrace:            r.exec_trace.copy(),
+		// FailureInfo:          string(r.failure_info.slice()),
 	}
 }
