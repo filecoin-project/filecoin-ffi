@@ -5,7 +5,10 @@ use std::sync::Mutex;
 use anyhow::{anyhow, bail, Context};
 use cid::Cid;
 use fvm::call_manager::DefaultCallManager;
-use fvm::executor::{ApplyKind, DefaultExecutor, Executor, ThreadedExecutor, DefaultValidateExecutor, ValidateExecutor};
+use fvm::executor::{
+    ApplyKind, DefaultExecutor, DefaultValidateExecutor, Executor, ThreadedExecutor,
+    ValidateExecutor,
+};
 use fvm::gas::GasCharge;
 use fvm::machine::{DefaultMachine, MultiEngine};
 use fvm::trace::ExecutionEvent;
@@ -338,12 +341,12 @@ fn fvm_machine_validate_message(
             .expect("missing executor")
             .lock()
             .unwrap();
-        
+
         let validate_ret = executor.validate_message(message, signature)?;
 
         // TODO actual exit code maybe?
         // TODO FVM needs to return gas used by validate
-        Ok(FvmMachineValidateResponse { exit_code: validate_ret as u64, gas_used: 0 })
+        Ok(validate_ret.into())
     })
 }
 

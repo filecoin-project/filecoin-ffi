@@ -3,6 +3,7 @@ use std::sync::Mutex;
 use safer_ffi::prelude::*;
 
 use super::machine::CgoExecutor;
+use fvm::executor::ValidateRet;
 
 #[derive_ReprC]
 #[repr(u8)]
@@ -49,5 +50,13 @@ pub struct FvmMachineExecuteResponse {
 pub struct FvmMachineValidateResponse {
     pub exit_code: u64,
     pub gas_used: i64,
-    
+}
+
+impl From<ValidateRet> for FvmMachineValidateResponse {
+    fn from(src: ValidateRet) -> Self {
+        Self {
+            exit_code: src.exit_code.value() as u64,
+            gas_used: src.gas_used,
+        }
+    }
 }
