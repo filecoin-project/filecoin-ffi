@@ -2,7 +2,7 @@ use std::sync::Mutex;
 
 use safer_ffi::prelude::*;
 
-use super::machine::CgoExecutor;
+use super::engine::CgoExecutor;
 
 #[derive_ReprC]
 #[repr(u8)]
