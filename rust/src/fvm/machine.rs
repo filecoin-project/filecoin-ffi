@@ -1,9 +1,8 @@
 use std::borrow::Cow;
-use std::cell::RefCell;
+use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::convert::{TryFrom, TryInto};
-use std::rc::Rc;
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex};
 
 use anyhow::{anyhow, bail, Context};
 use cid::Cid;
@@ -74,7 +73,7 @@ impl CgoExecutor for CgoExecutor3 {
     }
 }
 
-trait AbstractMultiEngine {
+trait AbstractMultiEngine: Send + Sync {
     fn new_executor(
         &self,
         ncfg: NetworkConfig3,
@@ -105,42 +104,32 @@ impl AbstractMultiEngine for MultiEngine3 {
 }
 
 struct MultiEngineContainer {
-    // XXX do we need to mutex protect this?
-    engines: RefCell<HashMap<u32, Rc<dyn AbstractMultiEngine + 'static>>>,
+    engines: Mutex<HashMap<u32, Arc<dyn AbstractMultiEngine + 'static>>>,
 }
-
-unsafe impl Sync for MultiEngineContainer {}
 
 impl MultiEngineContainer {
     fn new() -> MultiEngineContainer {
         MultiEngineContainer {
-            engines: RefCell::new(HashMap::new()),
+            engines: Mutex::new(HashMap::new()),
         }
     }
 
-    fn get(&self, nv: NetworkVersion) -> Rc<dyn AbstractMultiEngine + 'static> {
-        let nv32 = nv as u32;
-        if self.engines.borrow().contains_key(&nv32) {
-            self.engines.borrow().get(&nv32).unwrap().clone()
-        } else {
-            match nv {
-                // NetworkVersion::V16 | NetworkVersion::V17 => {
-                //     let ngn = Box::new(MultiEngine2::new());
-                //     self.engines.put(nv, ngn);
-                //     ngn
-                // }
-                NetworkVersion::V18 => {
-                    let ngin = Rc::new(MultiEngine3::new());
-                    self.engines
-                        .borrow_mut()
-                        .insert(nv as u32, ngin as Rc<dyn AbstractMultiEngine + 'static>);
-                    self.engines.borrow().get(&nv32).unwrap().clone()
-                }
-                _ => {
-                    panic!("unknown network version {}", nv);
-                }
-            }
-        }
+    fn get(&self, nv: NetworkVersion) -> anyhow::Result<Arc<dyn AbstractMultiEngine + 'static>> {
+        let mut locked = self.engines.lock().unwrap();
+        Ok(match locked.entry(nv as u32) {
+            Entry::Occupied(v) => v.get().clone(),
+            Entry::Vacant(v) => v
+                .insert(match nv {
+                    //NetworkVersion::V16 | NetworkVersion::V17 => {
+                    //    Arc::new(MultiEngine2::new()) as Arc<dyn AbstractMultiEngine + 'static>
+                    //}
+                    NetworkVersion::V18 => {
+                        Arc::new(MultiEngine3::new()) as Arc<dyn AbstractMultiEngine + 'static>
+                    }
+                    _ => return Err(anyhow!("network version not supported")),
+                })
+                .clone(),
+        })
     }
 }
 
@@ -240,7 +229,7 @@ fn create_fvm_machine_generic(
 
             let externs = CgoExterns::new(externs_id);
 
-            let engine = ENGINES.get(network_version);
+            let engine = ENGINES.get(network_version)?;
             Ok(Some(repr_c::Box::new(engine.new_executor(
                 network_config,
                 machine_context,
