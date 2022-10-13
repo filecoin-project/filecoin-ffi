@@ -447,7 +447,7 @@ fn build_lotus_trace(
 
 #[cfg(test)]
 mod test {
-    use crate::fvm3::machine::build_lotus_trace;
+    use crate::fvm::machine::build_lotus_trace;
     use fvm3::kernel::SyscallError;
     use fvm3::trace::ExecutionEvent;
     use fvm3_ipld_encoding::RawBytes;
