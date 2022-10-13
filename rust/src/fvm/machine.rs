@@ -19,11 +19,11 @@ use log::info;
 use safer_ffi::prelude::*;
 
 use super::blockstore::{CgoBlockstore, FakeBlockstore};
+use super::engine::*;
 use super::externs::CgoExterns;
 use super::types::*;
 use crate::destructor;
 use crate::util::types::{catch_panic_response, catch_panic_response_no_default, Result};
-use super::engine::*;
 
 lazy_static! {
     static ref ENGINES: MultiEngineContainer = MultiEngineContainer::new();
@@ -450,11 +450,11 @@ mod test {
     use crate::fvm3::machine::build_lotus_trace;
     use fvm3::kernel::SyscallError;
     use fvm3::trace::ExecutionEvent;
+    use fvm3_ipld_encoding::RawBytes;
     use fvm3_shared::address::Address;
     use fvm3_shared::econ::TokenAmount;
     use fvm3_shared::error::ErrorNumber::IllegalArgument;
     use fvm3_shared::ActorID;
-    use fvm_ipld_encoding::RawBytes;
 
     #[test]
     fn test_lotus_trace() {
