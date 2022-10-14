@@ -12,7 +12,7 @@ use fvm2_shared::consensus::{
     ConsensusFault as ConsensusFault2, ConsensusFaultType as ConsensusFaultType2,
 };
 use fvm3_shared::consensus::{
-    ConsensusFault as ConsensusFault3, ConsensusFaultType as ConsensusFaultType3,
+    ConsensusFault as ConsensusFault3
 };
 
 use num_traits::FromPrimitive;
@@ -178,11 +178,7 @@ impl Consensus2 for CgoExterns {
                 Some(ConsensusFault2 {
                     target: Address2::from_bytes(&res.target.to_bytes()).unwrap(),
                     epoch: res.epoch,
-                    fault_type: unsafe {
-                        std::mem::transmute::<ConsensusFaultType3, ConsensusFaultType2>(
-                            res.fault_type,
-                        )
-                    },
+                    fault_type: ConsensusFaultType2::from_u8(res.fault_type as u8).unwrap(),
                 }),
                 x,
             )),
