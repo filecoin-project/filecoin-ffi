@@ -110,7 +110,10 @@ impl CgoExecutor for CgoExecutor2 {
                 gas_fee_cap: TokenAmount2::from_atto(msg.gas_fee_cap.atto().clone()),
                 gas_premium: TokenAmount2::from_atto(msg.gas_premium.atto().clone()),
             },
-            unsafe { std::mem::transmute::<ApplyKind, ApplyKind2>(apply_kind) },
+            match apply_kind {
+                ApplyKind::Explicit => ApplyKind2::Explicit,
+                ApplyKind::Implicit => ApplyKind2::Implicit,
+            },
             raw_length,
         );
         match res {
