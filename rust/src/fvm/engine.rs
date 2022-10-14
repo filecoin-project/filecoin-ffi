@@ -300,6 +300,7 @@ impl AbstractMultiEngine for MultiEngine2 {
     }
 }
 
+#[allow(clippy::new_without_default)]
 pub struct MultiEngineContainer {
     engines: Mutex<HashMap<u32, Arc<dyn AbstractMultiEngine + 'static>>>,
 }
