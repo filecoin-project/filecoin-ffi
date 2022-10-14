@@ -39,9 +39,6 @@ use fvm3::machine::{
 use fvm2::DefaultKernel as DefaultKernel2;
 use fvm3::DefaultKernel as DefaultKernel3;
 
-use fvm2::gas::PriceList as PriceList2;
-use fvm3::gas::PriceList as PriceList3;
-
 use fvm3_shared::{
     address::Address, econ::TokenAmount, error::ErrorNumber, error::ExitCode, message::Message,
     receipt::Receipt, version::NetworkVersion,
@@ -271,13 +268,14 @@ impl AbstractMultiEngine for MultiEngine2 {
         blockstore: OverlayBlockstore<CgoBlockstore>,
         externs: CgoExterns,
     ) -> InnerFvmMachine {
+        let ver = NetworkVersion2::try_from(cfg.network_version as u32).unwrap();
         let cfg = NetworkConfig2 {
-            network_version: NetworkVersion2::try_from(cfg.network_version as u32).unwrap(),
+            network_version: ver,
             max_call_depth: cfg.max_call_depth,
             max_wasm_stack: cfg.max_wasm_stack,
             builtin_actors_override: cfg.builtin_actors_override,
             actor_debugging: cfg.actor_debugging,
-            price_list: unsafe { std::mem::transmute::<&PriceList3, &PriceList2>(cfg.price_list) },
+            price_list: fvm2::gas::price_list_by_network_version(ver),
             actor_redirect: cfg.actor_redirect,
         };
 
