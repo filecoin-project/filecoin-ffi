@@ -272,9 +272,7 @@ impl AbstractMultiEngine for MultiEngine2 {
         externs: CgoExterns,
     ) -> InnerFvmMachine {
         let cfg = NetworkConfig2 {
-            network_version: unsafe {
-                std::mem::transmute::<NetworkVersion, NetworkVersion2>(cfg.network_version)
-            },
+            network_version: NetworkVersion2::try_from(cfg.network_version as u32).unwrap(),
             max_call_depth: cfg.max_call_depth,
             max_wasm_stack: cfg.max_wasm_stack,
             builtin_actors_override: cfg.builtin_actors_override,
