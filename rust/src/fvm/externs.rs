@@ -11,9 +11,7 @@ use fvm3_shared::clock::ChainEpoch;
 use fvm2_shared::consensus::{
     ConsensusFault as ConsensusFault2, ConsensusFaultType as ConsensusFaultType2,
 };
-use fvm3_shared::consensus::{
-    ConsensusFault as ConsensusFault3
-};
+use fvm3_shared::consensus::ConsensusFault as ConsensusFault3;
 
 use num_traits::FromPrimitive;
 
