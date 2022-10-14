@@ -2,18 +2,44 @@ use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
+use num_traits::FromPrimitive;
 use anyhow::anyhow;
 use cid::Cid;
 
-use fvm2::call_manager::DefaultCallManager as DefaultCallManager2;
-use fvm3::call_manager::DefaultCallManager as DefaultCallManager3;
+use fvm2::call_manager::{
+    DefaultCallManager as DefaultCallManager2,
+    backtrace::Cause as Cause2,
+};
+use fvm3::call_manager::{
+    DefaultCallManager as DefaultCallManager3,
+    backtrace::Cause,
+    backtrace::Backtrace,
+    backtrace::Frame,
+};
+
+use fvm2::trace::{
+    ExecutionEvent as ExecutionEvent2,
+};
+use fvm3::trace::{
+    ExecutionEvent,
+};
+
+use fvm3::gas::{
+    Gas,
+    GasCharge,
+};
+
+use fvm3::kernel::{
+    SyscallError
+};
+
 
 use fvm2::executor::{
-    ApplyKind as ApplyKind2, ApplyRet as ApplyRet2, DefaultExecutor as DefaultExecutor2,
+    ApplyKind as ApplyKind2, ApplyFailure as ApplyFailure2, DefaultExecutor as DefaultExecutor2,
     ThreadedExecutor as ThreadedExecutor2,
 };
 use fvm3::executor::{
-    ApplyKind, ApplyRet, DefaultExecutor as DefaultExecutor3, ThreadedExecutor as ThreadedExecutor3,
+    ApplyKind, ApplyRet, ApplyFailure, DefaultExecutor as DefaultExecutor3, ThreadedExecutor as ThreadedExecutor3,
 };
 
 use fvm2::machine::{
@@ -30,15 +56,24 @@ use fvm3::DefaultKernel as DefaultKernel3;
 use fvm2::gas::PriceList as PriceList2;
 use fvm3::gas::PriceList as PriceList3;
 
-use fvm3_shared::{message::Message, version::NetworkVersion};
+use fvm3_shared::{
+    message::Message,
+    receipt::Receipt,
+    version::NetworkVersion,
+    error::ExitCode,
+    error::ErrorNumber,
+    econ::TokenAmount,
+    address::Address,
+};
 
 use fvm2_shared::{
     econ::TokenAmount as TokenAmount2, message::Message as Message2,
     version::NetworkVersion as NetworkVersion2,
+    address::Address as Address2,
 };
 
-use fvm2_shared::address::Address as Address2;
 
+use fvm3_ipld_encoding::RawBytes;
 use fvm2_ipld_encoding::RawBytes as RawBytes2;
 
 use super::blockstore::{CgoBlockstore, OverlayBlockstore};
@@ -117,7 +152,65 @@ impl CgoExecutor for CgoExecutor2 {
             raw_length,
         );
         match res {
-            Ok(ret) => Ok(unsafe { std::mem::transmute::<ApplyRet2, ApplyRet>(ret) }),
+            Ok(ret) => Ok(
+                ApplyRet {
+                    msg_receipt: Receipt {
+                        exit_code: ExitCode::new(ret.msg_receipt.exit_code.value()),
+                        return_data: RawBytes::from(ret.msg_receipt.return_data.to_vec()),
+                        gas_used: ret.msg_receipt.gas_used,
+                    },
+                    penalty: TokenAmount::from_atto(ret.penalty.atto().clone()),
+                    miner_tip: TokenAmount::from_atto(ret.miner_tip.atto().clone()),
+                    base_fee_burn: TokenAmount::from_atto(ret.base_fee_burn.atto().clone()),
+                    over_estimation_burn: TokenAmount::from_atto(ret.over_estimation_burn.atto().clone()),
+                    refund: TokenAmount::from_atto(ret.refund.atto().clone()),
+                    gas_refund: ret.gas_refund,
+                    gas_burned: ret.gas_burned,
+                    failure_info: ret.failure_info.map(|failure| {
+                        match failure {
+                            ApplyFailure2::MessageBacktrace(bt) => ApplyFailure::MessageBacktrace(
+                                Backtrace {
+                                    frames: bt.frames.iter().map(|f| Frame {
+                                        source: f.source,
+                                        method: f.method,
+                                        code: ExitCode::new(f.code.value()),
+                                        message: f.message.clone(),
+                                    }).collect(),
+                                    cause: bt.cause.map(|cause| {
+                                        match cause {
+                                            Cause2::Syscall { module, function, error,message } => Cause::Syscall { module, function, error: ErrorNumber::from_u32(error as u32).unwrap(),  message },
+                                            Cause2::Fatal { error_msg, backtrace } => Cause::Fatal { error_msg, backtrace },
+                                        }
+                                    }),
+                                },
+                            ),
+                            ApplyFailure2::PreValidation(s) => ApplyFailure::PreValidation(s),
+                        }
+                    }),
+                    exec_trace: ret.exec_trace.iter().filter_map(|tr| match tr {
+                        ExecutionEvent2::GasCharge(charge) => Some(
+                            ExecutionEvent::GasCharge(GasCharge {
+                                name: charge.name.clone(),
+                            compute_gas: Gas::from_milligas(charge.compute_gas.as_milligas()),
+                            storage_gas: Gas::from_milligas(charge.storage_gas.as_milligas()),
+                        })),
+                        ExecutionEvent2::Call{from, to, method, params, value} => Some(
+                            ExecutionEvent::Call {
+                            from: *from,
+                            to: Address::from_bytes(&to.to_bytes()).unwrap(),
+                            method: *method,
+                            params: RawBytes::from(params.to_vec()),
+                            value: TokenAmount::from_atto(value.atto().clone()),
+                            }),
+                        ExecutionEvent2::CallReturn(ret) => Some(
+                            ExecutionEvent::CallReturn(RawBytes::from(ret.to_vec()))),
+                        ExecutionEvent2::CallAbort(ec) => Some(
+                            ExecutionEvent::CallAbort(ExitCode::new(ec.value()))),
+                        ExecutionEvent2::CallError(err) => Some(
+                            ExecutionEvent::CallError(SyscallError(err.0.clone(), ErrorNumber::from_u32(err.1 as u32).unwrap()))),
+                        _ => None,
+                    }).collect(),
+                }),
             Err(x) => Err(x),
         }
     }
