@@ -71,6 +71,12 @@ impl MultiEngineContainer {
     }
 }
 
+impl Default for MultiEngineContainer {
+    fn default() -> MultiEngineContainer {
+        MultiEngineContainer::new()
+    }
+}
+
 // fvm v3 implementation
 mod v3 {
     use cid::Cid;
