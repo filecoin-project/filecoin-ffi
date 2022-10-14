@@ -40,7 +40,6 @@ use fvm2_shared::{
 use fvm2_shared::address::Address as Address2;
 
 use fvm2_ipld_encoding::RawBytes as RawBytes2;
-use fvm3_ipld_encoding::RawBytes as RawBytes3;
 
 use super::blockstore::{CgoBlockstore, OverlayBlockstore};
 use super::externs::CgoExterns;
@@ -106,7 +105,7 @@ impl CgoExecutor for CgoExecutor2 {
                 sequence: msg.sequence,
                 value: TokenAmount2::from_atto(msg.value.atto().clone()),
                 method_num: msg.method_num,
-                params: unsafe { std::mem::transmute::<RawBytes3, RawBytes2>(msg.params) },
+                params: RawBytes2::from(msg.params.to_vec()),
                 gas_limit: msg.gas_limit,
                 gas_fee_cap: TokenAmount2::from_atto(msg.gas_fee_cap.atto().clone()),
                 gas_premium: TokenAmount2::from_atto(msg.gas_premium.atto().clone()),
