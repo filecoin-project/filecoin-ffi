@@ -30,7 +30,7 @@ use fvm3::DefaultKernel as DefaultKernel3;
 use fvm2::gas::PriceList as PriceList2;
 use fvm3::gas::PriceList as PriceList3;
 
-use fvm3_shared::{econ::TokenAmount as TokenAmount3, message::Message, version::NetworkVersion};
+use fvm3_shared::{message::Message, version::NetworkVersion};
 
 use fvm2_shared::{
     econ::TokenAmount as TokenAmount2, message::Message as Message2,
@@ -104,16 +104,12 @@ impl CgoExecutor for CgoExecutor2 {
                 from: Address2::from_bytes(&msg.from.to_bytes()).unwrap(),
                 to: Address2::from_bytes(&msg.to.to_bytes()).unwrap(),
                 sequence: msg.sequence,
-                value: unsafe { std::mem::transmute::<TokenAmount3, TokenAmount2>(msg.value) },
+                value: TokenAmount2::from_atto(msg.value.atto().clone()),
                 method_num: msg.method_num,
                 params: unsafe { std::mem::transmute::<RawBytes3, RawBytes2>(msg.params) },
                 gas_limit: msg.gas_limit,
-                gas_fee_cap: unsafe {
-                    std::mem::transmute::<TokenAmount3, TokenAmount2>(msg.gas_fee_cap)
-                },
-                gas_premium: unsafe {
-                    std::mem::transmute::<TokenAmount3, TokenAmount2>(msg.gas_premium)
-                },
+                gas_fee_cap: TokenAmount2::from_atto(msg.gas_fee_cap.atto().clone()),
+                gas_premium: TokenAmount2::from_atto(msg.gas_premium.atto().clone()),
             },
             unsafe { std::mem::transmute::<ApplyKind, ApplyKind2>(apply_kind) },
             raw_length,
@@ -189,12 +185,8 @@ impl AbstractMultiEngine for MultiEngine2 {
             network: cfg,
             epoch: ctx.network_context.epoch,
             initial_state_root: ctx.initial_state_root,
-            base_fee: unsafe {
-                std::mem::transmute::<TokenAmount3, TokenAmount2>(ctx.network_context.base_fee)
-            },
-            circ_supply: unsafe {
-                std::mem::transmute::<TokenAmount3, TokenAmount2>(ctx.circ_supply)
-            },
+            base_fee: TokenAmount2::from_atto(ctx.network_context.base_fee.atto().clone()),
+            circ_supply: TokenAmount2::from_atto(ctx.circ_supply.atto().clone()),
             tracing: ctx.tracing,
         };
 
