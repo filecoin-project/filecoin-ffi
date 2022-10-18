@@ -34,7 +34,7 @@ pub trait AbstractMultiEngine: Send + Sync {
         mctx: MachineContext,
         blockstore: OverlayBlockstore<CgoBlockstore>,
         externs: CgoExterns,
-    ) -> InnerFvmMachine;
+    ) -> anyhow::Result<InnerFvmMachine>;
 }
 
 // The generic engine container
@@ -131,22 +131,19 @@ mod v3 {
             ctx: MachineContext,
             blockstore: OverlayBlockstore<CgoBlockstore>,
             externs: CgoExterns,
-        ) -> InnerFvmMachine {
-            let engine = match self.get(&cfg) {
-                Ok(e) => e,
-                Err(err) => panic!("failed to create engine: {}", err),
-            };
-
-            let machine = CgoMachine3::new(&engine, &ctx, blockstore, externs).unwrap();
-            InnerFvmMachine {
+        ) -> anyhow::Result<InnerFvmMachine> {
+            let engine = self.get(&cfg)?;
+            let machine = CgoMachine3::new(&engine, &ctx, blockstore, externs)?;
+            Ok(InnerFvmMachine {
                 machine: Some(Mutex::new(Box::new(new_executor(machine)))),
-            }
+            })
         }
     }
 }
 
 // fvm v2 implementation
 mod v2 {
+    use anyhow::anyhow;
     use cid::Cid;
     use num_traits::FromPrimitive;
     use std::sync::Mutex;
@@ -259,7 +256,8 @@ mod v2 {
                                     } => Cause::Syscall {
                                         module,
                                         function,
-                                        error: ErrorNumber::from_u32(error as u32).unwrap(),
+                                        error: ErrorNumber::from_u32(error as u32)
+                                            .unwrap_or(ErrorNumber::AssertionFailed),
                                         message,
                                     },
                                     Cause2::Fatal {
@@ -308,9 +306,13 @@ mod v2 {
                             ExecutionEvent2::CallAbort(ec) => {
                                 Some(ExecutionEvent::CallAbort(ExitCode::new(ec.value())))
                             }
-                            ExecutionEvent2::CallError(err) => Some(ExecutionEvent::CallError(
-                                SyscallError(err.0, ErrorNumber::from_u32(err.1 as u32).unwrap()),
-                            )),
+                            ExecutionEvent2::CallError(err) => {
+                                Some(ExecutionEvent::CallError(SyscallError(
+                                    err.0,
+                                    ErrorNumber::from_u32(err.1 as u32)
+                                        .unwrap_or(ErrorNumber::AssertionFailed),
+                                )))
+                            }
                             _ => None,
                         })
                         .collect(),
@@ -332,8 +334,9 @@ mod v2 {
             ctx: MachineContext,
             blockstore: OverlayBlockstore<CgoBlockstore>,
             externs: CgoExterns,
-        ) -> InnerFvmMachine {
-            let ver = NetworkVersion2::try_from(cfg.network_version as u32).unwrap();
+        ) -> anyhow::Result<InnerFvmMachine> {
+            let ver = NetworkVersion2::try_from(cfg.network_version as u32)
+                .map_err(|nv| anyhow!("unsupported network version {nv}"))?;
             let cfg = NetworkConfig2 {
                 network_version: ver,
                 max_call_depth: cfg.max_call_depth,
@@ -358,10 +361,10 @@ mod v2 {
                 tracing: ctx.tracing,
             };
 
-            let machine = CgoMachine2::new(&engine, &ctx, blockstore, externs).unwrap();
-            InnerFvmMachine {
+            let machine = CgoMachine2::new(&engine, &ctx, blockstore, externs)?;
+            Ok(InnerFvmMachine {
                 machine: Some(Mutex::new(Box::new(new_executor(machine)))),
-            }
+            })
         }
     }
 }
