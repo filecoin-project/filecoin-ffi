@@ -210,7 +210,7 @@ mod v2 {
                     sequence: msg.sequence,
                     value: TokenAmount2::from_atto(msg.value.atto().clone()),
                     method_num: msg.method_num,
-                    params: RawBytes2::from(msg.params.to_vec()),
+                    params: RawBytes2::new(msg.params.into()),
                     gas_limit: msg.gas_limit,
                     gas_fee_cap: TokenAmount2::from_atto(msg.gas_fee_cap.atto().clone()),
                     gas_premium: TokenAmount2::from_atto(msg.gas_premium.atto().clone()),
@@ -225,7 +225,7 @@ mod v2 {
                 Ok(ret) => Ok(ApplyRet {
                     msg_receipt: Receipt {
                         exit_code: ExitCode::new(ret.msg_receipt.exit_code.value()),
-                        return_data: RawBytes::from(ret.msg_receipt.return_data.to_vec()),
+                        return_data: RawBytes::new(ret.msg_receipt.return_data.into()),
                         gas_used: ret.msg_receipt.gas_used,
                     },
                     penalty: TokenAmount::from_atto(ret.penalty.atto().clone()),
@@ -276,11 +276,11 @@ mod v2 {
                     }),
                     exec_trace: ret
                         .exec_trace
-                        .iter()
+                        .into_iter()
                         .filter_map(|tr| match tr {
                             ExecutionEvent2::GasCharge(charge) => {
                                 Some(ExecutionEvent::GasCharge(GasCharge {
-                                    name: charge.name.clone(),
+                                    name: charge.name,
                                     compute_gas: Gas::from_milligas(
                                         charge.compute_gas.as_milligas(),
                                     ),
@@ -296,24 +296,21 @@ mod v2 {
                                 params,
                                 value,
                             } => Some(ExecutionEvent::Call {
-                                from: *from,
+                                from,
                                 to: Address::from_bytes(&to.to_bytes()).unwrap(),
-                                method: *method,
-                                params: RawBytes::from(params.to_vec()),
+                                method,
+                                params: RawBytes::new(params.into()),
                                 value: TokenAmount::from_atto(value.atto().clone()),
                             }),
                             ExecutionEvent2::CallReturn(ret) => {
-                                Some(ExecutionEvent::CallReturn(RawBytes::from(ret.to_vec())))
+                                Some(ExecutionEvent::CallReturn(RawBytes::new(ret.into())))
                             }
                             ExecutionEvent2::CallAbort(ec) => {
                                 Some(ExecutionEvent::CallAbort(ExitCode::new(ec.value())))
                             }
-                            ExecutionEvent2::CallError(err) => {
-                                Some(ExecutionEvent::CallError(SyscallError(
-                                    err.0.clone(),
-                                    ErrorNumber::from_u32(err.1 as u32).unwrap(),
-                                )))
-                            }
+                            ExecutionEvent2::CallError(err) => Some(ExecutionEvent::CallError(
+                                SyscallError(err.0, ErrorNumber::from_u32(err.1 as u32).unwrap()),
+                            )),
                             _ => None,
                         })
                         .collect(),
