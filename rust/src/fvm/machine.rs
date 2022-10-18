@@ -127,7 +127,7 @@ fn create_fvm_machine_generic(
                 machine_context,
                 blockstore,
                 externs,
-            ))))
+            )?)))
         })
     }
 }
