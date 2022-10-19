@@ -196,7 +196,7 @@ mod v2 {
             apply_kind: ApplyKind,
             raw_length: usize,
         ) -> anyhow::Result<ApplyRet> {
-            fvm2::executor::Executor::execute_message(
+            let res = fvm2::executor::Executor::execute_message(
                 self,
                 Message2 {
                     version: msg.version,
