@@ -109,7 +109,7 @@ impl Rand2 for CgoExterns {
         round: ChainEpoch,
         entropy: &[u8],
     ) -> anyhow::Result<[u8; 32]> {
-        Rand3::get_chain_randomness(self, pers, round, entropy)
+        Rand3::get_beacon_randomness(self, pers, round, entropy)
     }
 }
 
