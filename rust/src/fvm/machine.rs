@@ -230,13 +230,22 @@ fn fvm_machine_execute_message(
 
         let message: Message = fvm3_ipld_encoding::from_slice(&message)?;
 
+        log::error!("executing message {:?}", message);
+
+        let from = message.from;
+        let nonce = message.sequence;
+
         let mut executor = executor
             .machine
             .as_ref()
             .expect("missing executor")
             .lock()
             .unwrap();
-        let apply_ret = executor.execute_message(message, apply_kind, chain_len as usize)?;
+        let apply_res = executor.execute_message(message, apply_kind, chain_len as usize);
+
+        log::error!("result ({}:{}) {:?}", from, nonce, apply_res);
+
+        let apply_ret = apply_res?;
 
         let exec_trace = if !apply_ret.exec_trace.is_empty() {
             let mut trace_iter = apply_ret.exec_trace.into_iter();
