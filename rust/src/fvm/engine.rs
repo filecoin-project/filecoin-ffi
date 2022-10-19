@@ -357,6 +357,7 @@ mod v2 {
                 circ_supply: TokenAmount2::from_atto(ctx.circ_supply.atto().clone()),
                 tracing: ctx.tracing,
             };
+            log::error!("constructing machine {:?}", ctx);
 
             let machine = CgoMachine2::new(&engine, &ctx, blockstore, externs)?;
             Ok(InnerFvmMachine {
