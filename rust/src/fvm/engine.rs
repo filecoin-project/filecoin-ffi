@@ -114,13 +114,11 @@ mod v3 {
             apply_kind: ApplyKind,
             raw_length: usize,
         ) -> anyhow::Result<ApplyRet> {
-            use fvm3::executor::Executor;
-            self.0.execute_message(msg, apply_kind, raw_length)
+            fvm3::executor::Executor::execute_message(self, msg, apply_kind, raw_length)
         }
 
         fn flush(&mut self) -> anyhow::Result<Cid> {
-            use fvm3::executor::Executor;
-            self.0.flush()
+            fvm3::executor::Executor::flush(self)
         }
     }
 
@@ -198,8 +196,8 @@ mod v2 {
             apply_kind: ApplyKind,
             raw_length: usize,
         ) -> anyhow::Result<ApplyRet> {
-            use fvm2::executor::Executor;
-            let res = self.0.execute_message(
+            fvm2::executor::Executor::execute_message(
+                self,
                 Message2 {
                     version: msg.version,
                     from: Address2::from_bytes(&msg.from.to_bytes()).unwrap(),
@@ -322,8 +320,7 @@ mod v2 {
         }
 
         fn flush(&mut self) -> anyhow::Result<Cid> {
-            use fvm2::executor::Executor;
-            self.0.flush()
+            fvm2::executor::Executor::flush(self)
         }
     }
 
