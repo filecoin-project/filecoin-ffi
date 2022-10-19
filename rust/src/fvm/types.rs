@@ -2,7 +2,7 @@ use std::sync::Mutex;
 
 use safer_ffi::prelude::*;
 
-use super::machine::CgoExecutor;
+use super::engine::CgoExecutor;
 
 #[derive_ReprC]
 #[repr(u8)]
@@ -15,7 +15,7 @@ pub enum FvmRegisteredVersion {
 #[ReprC::opaque]
 #[derive(Default)]
 pub struct InnerFvmMachine {
-    pub(crate) machine: Option<Mutex<CgoExecutor>>,
+    pub(crate) machine: Option<Mutex<Box<dyn CgoExecutor>>>,
 }
 
 pub type FvmMachine = Option<repr_c::Box<InnerFvmMachine>>;

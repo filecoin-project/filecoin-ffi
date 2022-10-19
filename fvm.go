@@ -36,6 +36,7 @@ type FVMOpts struct {
 	Externs    cgo.Externs
 
 	Epoch          abi.ChainEpoch
+	Timestamp      uint64
 	BaseFee        abi.TokenAmount
 	BaseCircSupply abi.TokenAmount
 	NetworkVersion network.Version
@@ -63,6 +64,7 @@ func CreateFVM(opts *FVMOpts) (*FVM, error) {
 	if !opts.Debug {
 		executor, err = cgo.CreateFvmMachine(cgo.FvmRegisteredVersion(opts.FVMVersion),
 			uint64(opts.Epoch),
+			opts.Timestamp,
 			baseFeeHi,
 			baseFeeLo,
 			baseCircSupplyHi,
@@ -76,6 +78,7 @@ func CreateFVM(opts *FVMOpts) (*FVM, error) {
 	} else {
 		executor, err = cgo.CreateFvmDebugMachine(cgo.FvmRegisteredVersion(opts.FVMVersion),
 			uint64(opts.Epoch),
+			opts.Timestamp,
 			baseFeeHi,
 			baseFeeLo,
 			baseCircSupplyHi,
