@@ -1424,8 +1424,7 @@ dependencies = [
 [[package]]
 name = "fvm"
 version = "3.0.0-alpha.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5ad5e0c264fd38d4fae9559ef8d706be38b6df03d09dc03f9b3c5832692b07b5"
+source = "git+https://github.com/filecoin-project/ref-fvm#566a06e34817d4dc0256b9dfdb9c333418e4f8ef"
 dependencies = [
  "anyhow",
  "blake2b_simd",
@@ -1486,8 +1485,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_amt"
 version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "21efabb8ae696f1cfd90b176a3600176010bd6ad3fb9919b16a24b43ba866b3d"
+source = "git+https://github.com/filecoin-project/ref-fvm#566a06e34817d4dc0256b9dfdb9c333418e4f8ef"
 dependencies = [
  "anyhow",
  "cid",
@@ -1502,8 +1500,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_blockstore"
 version = "0.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "688239a96199577f6705a3f9689abfd795f867f91f5847bc7e236017cc672df7"
+source = "git+https://github.com/filecoin-project/ref-fvm#566a06e34817d4dc0256b9dfdb9c333418e4f8ef"
 dependencies = [
  "anyhow",
  "cid",
@@ -1531,8 +1528,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_encoding"
 version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cf531c59e7c9a4c9044a34d1b44c9d544fab1eb0ba50aaa18121fe698d4fec35"
+source = "git+https://github.com/filecoin-project/ref-fvm#566a06e34817d4dc0256b9dfdb9c333418e4f8ef"
 dependencies = [
  "anyhow",
  "cid",
@@ -1569,8 +1565,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_hamt"
 version = "0.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e48ac0db0c676fe9663f34782d448320b0c71d5e0afb7df38914983ae4d46faa"
+source = "git+https://github.com/filecoin-project/ref-fvm#566a06e34817d4dc0256b9dfdb9c333418e4f8ef"
 dependencies = [
  "anyhow",
  "byteorder",
@@ -1621,8 +1616,7 @@ dependencies = [
 [[package]]
 name = "fvm_shared"
 version = "3.0.0-alpha.8"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d9f0722cf399cfde0e2c01f9069d74da758ed01aa859c2f8be0e153bd557ecc9"
+source = "git+https://github.com/filecoin-project/ref-fvm#566a06e34817d4dc0256b9dfdb9c333418e4f8ef"
 dependencies = [
  "anyhow",
  "blake2b_simd",
