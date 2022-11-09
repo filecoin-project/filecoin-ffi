@@ -222,6 +222,7 @@ mod v2 {
                         exit_code: ExitCode::new(ret.msg_receipt.exit_code.value()),
                         return_data: RawBytes::new(ret.msg_receipt.return_data.into()),
                         gas_used: ret.msg_receipt.gas_used,
+                        events_root: None,
                     },
                     penalty: TokenAmount::from_atto(ret.penalty.atto().clone()),
                     miner_tip: TokenAmount::from_atto(ret.miner_tip.atto().clone()),
@@ -314,6 +315,7 @@ mod v2 {
                             _ => None,
                         })
                         .collect(),
+                    events: vec![],
                 }),
                 Err(x) => Err(x),
             }
