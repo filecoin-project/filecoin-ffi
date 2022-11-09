@@ -271,6 +271,7 @@ fn fvm_machine_execute_message(
             exit_code,
             return_data,
             gas_used,
+            events_root,
         } = apply_ret.msg_receipt;
 
         let return_val = if return_data.is_empty() {
@@ -279,6 +280,17 @@ fn fvm_machine_execute_message(
             let bytes: Vec<u8> = return_data.into();
             Some(bytes.into_boxed_slice().into())
         };
+
+        let events = if apply_ret.events.is_empty() {
+            None
+        } else {
+            // This field is informational, if for whatever reason we fail to serialize
+            // return a None and move on. What's important for consensus is the
+            // events_root in the receipt.
+            to_vec(&apply_ret.events).ok().and_then(|evts| Some(evts.into_boxed_slice().into()))
+        };
+
+        let events_root = events_root.map(|cid| cid.to_bytes().into_boxed_slice().into());
 
         // TODO: Do something with the backtrace.
         Ok(FvmMachineExecuteResponse {
@@ -299,6 +311,8 @@ fn fvm_machine_execute_message(
             gas_burned,
             exec_trace,
             failure_info,
+            events,
+            events_root,
         })
     })
 }
@@ -377,6 +391,7 @@ fn build_lotus_trace(
             exit_code: ExitCode::OK,
             return_data: RawBytes::default(),
             gas_used: 0,
+            events_root: None,
         },
         error: String::new(),
         gas_charges: vec![],
@@ -395,6 +410,7 @@ fn build_lotus_trace(
                     exit_code: ExitCode::OK,
                     return_data,
                     gas_used: 0,
+                    events_root: None,
                 };
                 return Ok(new_trace);
             }
@@ -406,6 +422,7 @@ fn build_lotus_trace(
                     exit_code,
                     return_data: Default::default(),
                     gas_used: 0,
+                    events_root: None,
                 };
                 return Ok(new_trace);
             }
@@ -423,6 +440,7 @@ fn build_lotus_trace(
                     exit_code,
                     return_data: Default::default(),
                     gas_used: 0,
+                    events_root: None,
                 };
                 return Ok(new_trace);
             }

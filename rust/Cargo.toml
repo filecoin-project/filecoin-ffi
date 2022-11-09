@@ -69,3 +69,10 @@ opencl = ["filecoin-proofs-api/opencl", "bellperson/opencl", "storage-proofs-por
 cuda = ["filecoin-proofs-api/cuda", "bellperson/cuda", "storage-proofs-porep/cuda", "rust-gpu-tools/cuda", "fvm3/cuda", "fvm2/cuda"]
 multicore-sdr = ["storage-proofs-porep/multicore-sdr"]
 c-headers = ["safer-ffi/headers"]
+
+
+[patch.crates-io]
+fvm3 = { package = "fvm", path = "../../fvm/ref-fvm/fvm" }
+fvm3_shared = { package = "fvm_shared", path = "../../fvm/ref-fvm/shared" }
+fvm3_ipld_encoding = { package = "fvm_ipld_encoding", path = "../../fvm/ref-fvm/ipld/encoding" }
+fvm_ipld_blockstore = { path = "../../fvm/ref-fvm/ipld/blockstore" }
