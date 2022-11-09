@@ -110,6 +110,8 @@ type FvmMachineExecuteResponseGo struct {
 	GasBurned            int64
 	ExecTrace            []byte
 	FailureInfo          string
+	Events               []byte
+	EventsRoot           []byte
 }
 
 func (ptr SliceBoxedUint8) slice() []byte {
@@ -612,7 +614,6 @@ func (ptr *PoStProof) Destroy() {
 	}
 }
 
-
 func (ptr *resultFvmMachineExecuteResponse) statusCode() FCPResponseStatus {
 	return FCPResponseStatus(ptr.status_code)
 }
@@ -669,5 +670,7 @@ func (r FvmMachineExecuteResponse) copy() FvmMachineExecuteResponseGo {
 		GasBurned:            int64(r.gas_burned),
 		ExecTrace:            r.exec_trace.copy(),
 		FailureInfo:          string(r.failure_info.slice()),
+		Events:               r.events.copy(),
+		EventsRoot:           r.events_root.copy(),
 	}
 }

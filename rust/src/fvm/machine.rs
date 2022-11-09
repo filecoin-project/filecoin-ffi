@@ -287,7 +287,9 @@ fn fvm_machine_execute_message(
             // This field is informational, if for whatever reason we fail to serialize
             // return a None and move on. What's important for consensus is the
             // events_root in the receipt.
-            to_vec(&apply_ret.events).ok().and_then(|evts| Some(evts.into_boxed_slice().into()))
+            to_vec(&apply_ret.events)
+                .ok()
+                .and_then(|evts| Some(evts.into_boxed_slice().into()))
         };
 
         let events_root = events_root.map(|cid| cid.to_bytes().into_boxed_slice().into());
