@@ -72,7 +72,7 @@ c-headers = ["safer-ffi/headers"]
 
 
 [patch.crates-io]
-fvm3 = { package = "fvm", path = "../../fvm/ref-fvm/fvm" }
-fvm3_shared = { package = "fvm_shared", path = "../../fvm/ref-fvm/shared" }
-fvm3_ipld_encoding = { package = "fvm_ipld_encoding", path = "../../fvm/ref-fvm/ipld/encoding" }
-fvm_ipld_blockstore = { path = "../../fvm/ref-fvm/ipld/blockstore" }
+fvm3 = { package = "fvm", git = "https://github.com/filecoin-project/ref-fvm", branch = "raulk/events" }
+fvm3_shared = { package = "fvm_shared", git = "https://github.com/filecoin-project/ref-fvm", branch = "raulk/events" }
+fvm3_ipld_encoding = { package = "fvm_ipld_encoding", git = "https://github.com/filecoin-project/ref-fvm", branch = "raulk/events" }
+fvm_ipld_blockstore = { git = "https://github.com/filecoin-project/ref-fvm", branch = "raulk/events" }

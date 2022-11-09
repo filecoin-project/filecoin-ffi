@@ -11,6 +11,7 @@ package ffi
 import "C"
 import (
 	"context"
+	"fmt"
 	gobig "math/big"
 	"runtime"
 
@@ -129,6 +130,15 @@ func (f *FVM) ApplyMessage(msgBytes []byte, chainLen uint) (*ApplyRet, error) {
 		return nil, err
 	}
 
+	var eventsRootCid = cid.Undef
+	if len(resp.EventsRoot) > 0 {
+		var err error
+		eventsRootCid, err = cid.Cast(resp.EventsRoot)
+		if err != nil {
+			return nil, fmt.Errorf("failed to cast events root CID: %w", err)
+		}
+	}
+
 	return &ApplyRet{
 		Return:             resp.ReturnVal,
 		ExitCode:           resp.ExitCode,
@@ -142,6 +152,8 @@ func (f *FVM) ApplyMessage(msgBytes []byte, chainLen uint) (*ApplyRet, error) {
 		GasBurned:          int64(resp.GasBurned),
 		ExecTraceBytes:     resp.ExecTrace,
 		FailureInfo:        resp.FailureInfo,
+		Events:             eventsRootCid,
+		EventsBytes:        resp.Events,
 	}, nil
 }
 
@@ -196,6 +208,8 @@ type ApplyRet struct {
 	GasBurned          int64
 	ExecTraceBytes     []byte
 	FailureInfo        string
+	Events             cid.Cid
+	EventsBytes        []byte
 }
 
 // NOTE: We only support 64bit platforms
