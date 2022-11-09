@@ -37,8 +37,8 @@ memmap = "0.7"
 rust-gpu-tools = { version = "0.5", optional = true, default-features = false }
 storage-proofs-porep = { version = "~12.0", default-features = false }
 fr32 = { version = "~5.0", default-features = false }
-fvm3 = { package = "fvm", version = "3.0.0-alpha.5", default-features = false, features = ["m2-native", "f4-as-account"] }
-fvm3_shared = { package = "fvm_shared", version = "3.0.0-alpha.8" }
+fvm3 = { package = "fvm", version = "3.0.0-alpha.6", default-features = false, features = ["f4-as-account"] }
+fvm3_shared = { package = "fvm_shared", version = "3.0.0-alpha.9" }
 fvm3_ipld_encoding = { package = "fvm_ipld_encoding", version = "0.3.0" }
 fvm2 = { package = "fvm", version = "2.1.0", default-features = false }
 fvm2_shared = { package = "fvm_shared", version = "2.0.0" }
