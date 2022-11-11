@@ -289,7 +289,7 @@ fn fvm_machine_execute_message(
             // events_root in the receipt.
             to_vec(&apply_ret.events)
                 .ok()
-                .and_then(|evts| Some(evts.into_boxed_slice().into()))
+                .map(|evts| evts.into_boxed_slice().into())
         };
 
         let events_root = events_root.map(|cid| cid.to_bytes().into_boxed_slice().into());
