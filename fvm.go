@@ -130,6 +130,25 @@ func (f *FVM) ApplyMessage(msgBytes []byte, chainLen uint) (*ApplyRet, error) {
 		return nil, err
 	}
 
+	return buildResponse(resp)
+}
+
+func (f *FVM) ApplyImplicitMessage(msgBytes []byte) (*ApplyRet, error) {
+	defer runtime.KeepAlive(f)
+	resp, err := cgo.FvmMachineExecuteMessage(
+		f.executor,
+		cgo.AsSliceRefUint8(msgBytes),
+		0, // this isn't an on-chain message, so it has no chain length.
+		applyImplicit,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return buildResponse(resp)
+}
+
+func buildResponse(resp cgo.FvmMachineExecuteResponseGo) (*ApplyRet, error) {
 	var eventsRoot *cid.Cid
 	if len(resp.EventsRoot) > 0 {
 		if eventsRootCid, err := cid.Cast(resp.EventsRoot); err != nil {
@@ -154,34 +173,6 @@ func (f *FVM) ApplyMessage(msgBytes []byte, chainLen uint) (*ApplyRet, error) {
 		FailureInfo:        resp.FailureInfo,
 		EventsRoot:         eventsRoot,
 		EventsBytes:        resp.Events,
-	}, nil
-}
-
-func (f *FVM) ApplyImplicitMessage(msgBytes []byte) (*ApplyRet, error) {
-	defer runtime.KeepAlive(f)
-	resp, err := cgo.FvmMachineExecuteMessage(
-		f.executor,
-		cgo.AsSliceRefUint8(msgBytes),
-		0, // this isn't an on-chain message, so it has no chain length.
-		applyImplicit,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	return &ApplyRet{
-		Return:             resp.ReturnVal,
-		ExitCode:           resp.ExitCode,
-		GasUsed:            int64(resp.GasUsed),
-		MinerPenalty:       reformBigInt(resp.PenaltyHi, resp.PenaltyLo),
-		MinerTip:           reformBigInt(resp.MinerTipHi, resp.MinerTipLo),
-		BaseFeeBurn:        reformBigInt(resp.BaseFeeBurnHi, resp.BaseFeeBurnLo),
-		OverEstimationBurn: reformBigInt(resp.OverEstimationBurnHi, resp.OverEstimationBurnLo),
-		Refund:             reformBigInt(resp.RefundHi, resp.RefundLo),
-		GasRefund:          int64(resp.GasRefund),
-		GasBurned:          int64(resp.GasBurned),
-		ExecTraceBytes:     resp.ExecTrace,
-		FailureInfo:        resp.FailureInfo,
 	}, nil
 }
 
