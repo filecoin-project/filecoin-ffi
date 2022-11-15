@@ -288,6 +288,10 @@ fn fvm_machine_execute_message(
             // return a None and move on. What's important for consensus is the
             // events_root in the receipt.
             to_vec(&apply_ret.events)
+                .map_err(|err| {
+                    log::warn!("failed to serialize events: {}", err);
+                    err
+                })
                 .ok()
                 .map(|evts| evts.into_boxed_slice().into())
         };
