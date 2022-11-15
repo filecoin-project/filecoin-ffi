@@ -289,7 +289,7 @@ fn fvm_machine_execute_message(
             // events_root in the receipt.
             to_vec(&apply_ret.events)
                 .map_err(|err| {
-                    log::warn!("failed to serialize events: {}", err);
+                    log::warn!("[UNEXPECTED] failed to serialize events: {}", err);
                     err
                 })
                 .ok()

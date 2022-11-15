@@ -37,8 +37,8 @@ memmap = "0.7"
 rust-gpu-tools = { version = "0.5", optional = true, default-features = false }
 storage-proofs-porep = { version = "~12.0", default-features = false }
 fr32 = { version = "~5.0", default-features = false }
-fvm3 = { package = "fvm", version = "3.0.0-alpha.7", default-features = false, features = ["f4-as-account"] }
-fvm3_shared = { package = "fvm_shared", version = "3.0.0-alpha.10" }
+fvm3 = { package = "fvm", version = "3.0.0-alpha.8", default-features = false, features = ["f4-as-account"] }
+fvm3_shared = { package = "fvm_shared", version = "3.0.0-alpha.11" }
 fvm3_ipld_encoding = { package = "fvm_ipld_encoding", version = "0.3.0" }
 fvm2 = { package = "fvm", version = "2.1.0", default-features = false }
 fvm2_shared = { package = "fvm_shared", version = "2.0.0" }
@@ -69,10 +69,3 @@ opencl = ["filecoin-proofs-api/opencl", "bellperson/opencl", "storage-proofs-por
 cuda = ["filecoin-proofs-api/cuda", "bellperson/cuda", "storage-proofs-porep/cuda", "rust-gpu-tools/cuda", "fvm3/cuda", "fvm2/cuda"]
 multicore-sdr = ["storage-proofs-porep/multicore-sdr"]
 c-headers = ["safer-ffi/headers"]
-
-
-[patch.crates-io]
-fvm3 = { package = "fvm", git = "https://github.com/filecoin-project/ref-fvm", branch = "raulk/events" }
-fvm3_shared = { package = "fvm_shared", git = "https://github.com/filecoin-project/ref-fvm", branch = "raulk/events" }
-fvm3_ipld_encoding = { package = "fvm_ipld_encoding", git = "https://github.com/filecoin-project/ref-fvm", branch = "raulk/events" }
-fvm_ipld_blockstore = { git = "https://github.com/filecoin-project/ref-fvm", branch = "raulk/events" }
