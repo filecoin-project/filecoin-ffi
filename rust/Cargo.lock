@@ -1198,7 +1198,7 @@ dependencies = [
  "filepath",
  "fr32",
  "fvm 2.1.0",
- "fvm 3.0.0-alpha.8",
+ "fvm 3.0.0-alpha.9",
  "fvm_ipld_blockstore",
  "fvm_ipld_encoding 0.2.2",
  "fvm_ipld_encoding 0.3.0",
@@ -1423,9 +1423,9 @@ dependencies = [
 
 [[package]]
 name = "fvm"
-version = "3.0.0-alpha.8"
+version = "3.0.0-alpha.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d558a9216545732649d0cc0d2d4c703b330103367f1f5353a27fa77309effb2f"
+checksum = "289d9b8bd8fefa72de124c59fb66136af5147696a5aa714a4ae6ed0674dfa663"
 dependencies = [
  "anyhow",
  "blake2b_simd",
