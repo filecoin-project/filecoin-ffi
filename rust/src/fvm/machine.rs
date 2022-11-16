@@ -359,10 +359,17 @@ struct LotusGasCharge {
 #[derive(Clone, Debug, Serialize_tuple, Deserialize_tuple)]
 struct LotusTrace {
     pub msg: Message,
-    pub msg_receipt: Receipt,
+    pub msg_receipt: LotusReceipt,
     pub error: String,
     pub gas_charges: Vec<LotusGasCharge>,
     pub subcalls: Vec<LotusTrace>,
+}
+
+#[derive(Serialize_tuple, Deserialize_tuple, Debug, PartialEq, Eq, Clone)]
+pub struct LotusReceipt {
+    pub exit_code: ExitCode,
+    pub return_data: RawBytes,
+    pub gas_used: i64,
 }
 
 fn build_lotus_trace(
@@ -393,11 +400,10 @@ fn build_lotus_trace(
                 return Err(anyhow!("expected ExecutionEvent of type Call"));
             }
         },
-        msg_receipt: Receipt {
+        msg_receipt: LotusReceipt {
             exit_code: ExitCode::OK,
             return_data: RawBytes::default(),
             gas_used: 0,
-            events_root: None,
         },
         error: String::new(),
         gas_charges: vec![],
@@ -412,11 +418,10 @@ fn build_lotus_trace(
                     .push(build_lotus_trace(&trace, trace_iter)?);
             }
             ExecutionEvent::CallReturn(return_data) => {
-                new_trace.msg_receipt = Receipt {
+                new_trace.msg_receipt = LotusReceipt {
                     exit_code: ExitCode::OK,
                     return_data,
                     gas_used: 0,
-                    events_root: None,
                 };
                 return Ok(new_trace);
             }
@@ -424,11 +429,10 @@ fn build_lotus_trace(
                 if exit_code.is_success() {
                     return Err(anyhow!("actor failed with status OK"));
                 }
-                new_trace.msg_receipt = Receipt {
+                new_trace.msg_receipt = LotusReceipt {
                     exit_code,
                     return_data: Default::default(),
                     gas_used: 0,
-                    events_root: None,
                 };
                 return Ok(new_trace);
             }
@@ -442,11 +446,10 @@ fn build_lotus_trace(
                     _ => ExitCode::SYS_ASSERTION_FAILED,
                 };
 
-                new_trace.msg_receipt = Receipt {
+                new_trace.msg_receipt = LotusReceipt {
                     exit_code,
                     return_data: Default::default(),
                     gas_used: 0,
-                    events_root: None,
                 };
                 return Ok(new_trace);
             }
