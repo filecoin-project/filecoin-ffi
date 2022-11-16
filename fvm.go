@@ -11,6 +11,7 @@ package ffi
 import "C"
 import (
 	"context"
+	"fmt"
 	gobig "math/big"
 	"runtime"
 
@@ -129,20 +130,7 @@ func (f *FVM) ApplyMessage(msgBytes []byte, chainLen uint) (*ApplyRet, error) {
 		return nil, err
 	}
 
-	return &ApplyRet{
-		Return:             resp.ReturnVal,
-		ExitCode:           resp.ExitCode,
-		GasUsed:            int64(resp.GasUsed),
-		MinerPenalty:       reformBigInt(resp.PenaltyHi, resp.PenaltyLo),
-		MinerTip:           reformBigInt(resp.MinerTipHi, resp.MinerTipLo),
-		BaseFeeBurn:        reformBigInt(resp.BaseFeeBurnHi, resp.BaseFeeBurnLo),
-		OverEstimationBurn: reformBigInt(resp.OverEstimationBurnHi, resp.OverEstimationBurnLo),
-		Refund:             reformBigInt(resp.RefundHi, resp.RefundLo),
-		GasRefund:          int64(resp.GasRefund),
-		GasBurned:          int64(resp.GasBurned),
-		ExecTraceBytes:     resp.ExecTrace,
-		FailureInfo:        resp.FailureInfo,
-	}, nil
+	return buildResponse(resp)
 }
 
 func (f *FVM) ApplyImplicitMessage(msgBytes []byte) (*ApplyRet, error) {
@@ -155,6 +143,19 @@ func (f *FVM) ApplyImplicitMessage(msgBytes []byte) (*ApplyRet, error) {
 	)
 	if err != nil {
 		return nil, err
+	}
+
+	return buildResponse(resp)
+}
+
+func buildResponse(resp cgo.FvmMachineExecuteResponseGo) (*ApplyRet, error) {
+	var eventsRoot *cid.Cid
+	if len(resp.EventsRoot) > 0 {
+		if eventsRootCid, err := cid.Cast(resp.EventsRoot); err != nil {
+			return nil, fmt.Errorf("failed to cast events root CID: %w", err)
+		} else {
+			eventsRoot = &eventsRootCid
+		}
 	}
 
 	return &ApplyRet{
@@ -170,6 +171,8 @@ func (f *FVM) ApplyImplicitMessage(msgBytes []byte) (*ApplyRet, error) {
 		GasBurned:          int64(resp.GasBurned),
 		ExecTraceBytes:     resp.ExecTrace,
 		FailureInfo:        resp.FailureInfo,
+		EventsRoot:         eventsRoot,
+		EventsBytes:        resp.Events,
 	}, nil
 }
 
@@ -196,6 +199,8 @@ type ApplyRet struct {
 	GasBurned          int64
 	ExecTraceBytes     []byte
 	FailureInfo        string
+	EventsRoot         *cid.Cid
+	EventsBytes        []byte
 }
 
 // NOTE: We only support 64bit platforms

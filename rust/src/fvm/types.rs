@@ -41,4 +41,6 @@ pub struct FvmMachineExecuteResponse {
     pub gas_burned: i64,
     pub exec_trace: Option<c_slice::Box<u8>>,
     pub failure_info: Option<str::Box>,
+    pub events: Option<c_slice::Box<u8>>,
+    pub events_root: Option<c_slice::Box<u8>>,
 }

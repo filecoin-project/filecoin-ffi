@@ -1198,12 +1198,12 @@ dependencies = [
  "filepath",
  "fr32",
  "fvm 2.1.0",
- "fvm 3.0.0-alpha.7",
+ "fvm 3.0.0-alpha.8",
  "fvm_ipld_blockstore",
  "fvm_ipld_encoding 0.2.2",
  "fvm_ipld_encoding 0.3.0",
  "fvm_shared 2.0.0",
- "fvm_shared 3.0.0-alpha.10",
+ "fvm_shared 3.0.0-alpha.11",
  "group",
  "lazy_static",
  "libc",
@@ -1423,9 +1423,9 @@ dependencies = [
 
 [[package]]
 name = "fvm"
-version = "3.0.0-alpha.7"
+version = "3.0.0-alpha.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "93a57bb5c5c8d22801a445bb53a165b9e78bf53163090f571ed60e0fe920b88f"
+checksum = "d558a9216545732649d0cc0d2d4c703b330103367f1f5353a27fa77309effb2f"
 dependencies = [
  "anyhow",
  "blake2b_simd",
@@ -1440,7 +1440,7 @@ dependencies = [
  "fvm_ipld_blockstore",
  "fvm_ipld_encoding 0.3.0",
  "fvm_ipld_hamt 0.6.1",
- "fvm_shared 3.0.0-alpha.10",
+ "fvm_shared 3.0.0-alpha.11",
  "lazy_static",
  "log",
  "multihash",
@@ -1621,11 +1621,12 @@ dependencies = [
 
 [[package]]
 name = "fvm_shared"
-version = "3.0.0-alpha.10"
+version = "3.0.0-alpha.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fcd5f36e5c1628da1a002931f96a8cc3ea8fc517a6984e8d42457786528b88f0"
+checksum = "d66b85f8971273def3bb366008319f8dc855be3172210c3b83b7b20353709b29"
 dependencies = [
  "anyhow",
+ "bitflags 1.3.2",
  "blake2b_simd",
  "bls-signatures",
  "byteorder",
@@ -1924,9 +1925,12 @@ dependencies = [
 
 [[package]]
 name = "keccak"
-version = "0.1.2"
+version = "0.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f9b7d56ba4a8344d6be9729995e6b06f928af29998cdf79fe390cbf6b1fee838"
+checksum = "3afef3b6eff9ce9d8ff9b3601125eec7f0c8cbac7abd14f355d053fa56c98768"
+dependencies = [
+ "cpufeatures",
+]
 
 [[package]]
 name = "kernel32-sys"
