@@ -27,7 +27,7 @@ func cgo_extern_get_chain_randomness(
 		}
 	}()
 
-	out := (*[32]byte)(unsafe.Pointer(output))
+	out := unsafe.Slice((*byte)(unsafe.Pointer(output)), 32)
 	externs, ctx := Lookup(uint64(handle))
 	if externs == nil {
 		return ErrInvalidHandle
@@ -57,7 +57,7 @@ func cgo_extern_get_beacon_randomness(
 		}
 	}()
 
-	out := (*[32]byte)(unsafe.Pointer(output))
+	out := unsafe.Slice((*byte)(unsafe.Pointer(output)), 32)
 	externs, ctx := Lookup(uint64(handle))
 	if externs == nil {
 		return ErrInvalidHandle

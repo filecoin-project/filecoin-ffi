@@ -93,14 +93,14 @@ func cgo_blockstore_put_many(handle C.uint64_t, lengths *C.int32_t, lengthsLen C
 		return ErrInvalidArgument
 	}
 
-	lengthsGo := (*[MAX_LEN]C.int32_t)(unsafe.Pointer(lengths))[:lengthsLen:lengthsLen]
+	lengthsGo := unsafe.Slice(lengths, lengthsLen)
 	blocksGo := make([]blocks.Block, 0, lengthsLen)
 	for _, length := range lengthsGo {
 		if length > MAX_LEN {
 			return ErrInvalidArgument
 		}
 		// get the next buffer. We could use C.GoBytes, but that copies.
-		buf := (*[MAX_LEN]byte)(unsafe.Pointer(blockBuf))[:length:length]
+		buf := unsafe.Slice((*byte)(unsafe.Pointer(blockBuf)), length)
 
 		// read the CID. This function will copy the CID internally.
 		cidLen, k, err := cid.CidFromBytes(buf)
