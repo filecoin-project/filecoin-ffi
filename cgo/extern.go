@@ -138,7 +138,7 @@ func cgo_extern_get_tipset_cid(
 
 	out := unsafe.Slice((*byte)(unsafe.Pointer(output)), outputLen)
 
-	k, err := externs.TipsetCid(ctx, int64(epoch))
+	k, err := externs.TipsetCid(ctx, abi.ChainEpoch(epoch))
 	if err != nil {
 		return ErrIO
 	}
