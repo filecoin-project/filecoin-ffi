@@ -47,7 +47,7 @@ fn create_fvm_machine_generic(
     blockstore_id: u64,
     externs_id: u64,
 ) -> repr_c::Box<Result<FvmMachine>> {
-    use fvm3::machine::{NetworkConfig, NetworkContext};
+    use fvm3::machine::NetworkConfig;
     unsafe {
         catch_panic_response_no_default("create_fvm_machine", || {
             match fvm_version {
@@ -105,14 +105,10 @@ fn create_fvm_machine_generic(
                 network_config.redirect_actors(redirect);
             }
 
-            let net_ctx = NetworkContext {
-                epoch: chain_epoch,
-                timestamp: chain_timestamp,
-                tipsets: vec![], // TODO pass last finality tipset CIDs
-                base_fee,
-            };
-            let mut machine_context = network_config.for_network_context(net_ctx, state_root);
+            let mut machine_context =
+                network_config.for_epoch(chain_epoch, chain_timestamp, state_root);
 
+            machine_context.set_base_fee(base_fee);
             machine_context.set_circulating_supply(base_circ_supply);
 
             if tracing {

@@ -1198,12 +1198,12 @@ dependencies = [
  "filepath",
  "fr32",
  "fvm 2.1.0",
- "fvm 3.0.0-alpha.9",
+ "fvm 3.0.0-alpha.11",
  "fvm_ipld_blockstore",
  "fvm_ipld_encoding 0.2.2",
  "fvm_ipld_encoding 0.3.0",
  "fvm_shared 2.0.0",
- "fvm_shared 3.0.0-alpha.11",
+ "fvm_shared 3.0.0-alpha.12",
  "group",
  "lazy_static",
  "libc",
@@ -1423,9 +1423,9 @@ dependencies = [
 
 [[package]]
 name = "fvm"
-version = "3.0.0-alpha.9"
+version = "3.0.0-alpha.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "289d9b8bd8fefa72de124c59fb66136af5147696a5aa714a4ae6ed0674dfa663"
+checksum = "de38a816066a43ad42dc90eb8e9450fd3ecfe6466756822c0d3f3b5466170428"
 dependencies = [
  "anyhow",
  "blake2b_simd",
@@ -1440,7 +1440,7 @@ dependencies = [
  "fvm_ipld_blockstore",
  "fvm_ipld_encoding 0.3.0",
  "fvm_ipld_hamt 0.6.1",
- "fvm_shared 3.0.0-alpha.11",
+ "fvm_shared 3.0.0-alpha.12",
  "lazy_static",
  "log",
  "multihash",
@@ -1456,6 +1456,7 @@ dependencies = [
  "thiserror",
  "wasmtime",
  "wasmtime-environ",
+ "wasmtime-runtime",
  "yastl",
 ]
 
@@ -1621,9 +1622,9 @@ dependencies = [
 
 [[package]]
 name = "fvm_shared"
-version = "3.0.0-alpha.11"
+version = "3.0.0-alpha.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d66b85f8971273def3bb366008319f8dc855be3172210c3b83b7b20353709b29"
+checksum = "9d9fcc1caa8878cffebb092aeeab04bf559e03fe4d8e5c3c2d7805b589669da7"
 dependencies = [
  "anyhow",
  "bitflags 1.3.2",

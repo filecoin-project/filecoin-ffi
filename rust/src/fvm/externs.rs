@@ -1,7 +1,7 @@
 use anyhow::{anyhow, Context};
 
 use fvm2::externs::{Consensus as Consensus2, Externs as Externs2, Rand as Rand2};
-use fvm3::externs::{Consensus as Consensus3, Externs as Externs3, Rand as Rand3};
+use fvm3::externs::{Chain as Chain3, Consensus as Consensus3, Externs as Externs3, Rand as Rand3};
 
 use fvm2_shared::address::Address as Address2;
 use fvm3_shared::address::Address;
@@ -182,6 +182,26 @@ impl Consensus2 for CgoExterns {
             )),
             Ok((None, x)) => Ok((None, x)),
             Err(x) => Err(x),
+        }
+    }
+}
+
+impl Chain3 for CgoExterns {
+    fn get_tipset_cid(&self, epoch: ChainEpoch) -> anyhow::Result<cid::Cid> {
+        unsafe {
+            let mut buf = [0; fvm3_shared::MAX_CID_LEN];
+            match cgo_extern_get_tipset_cid(self.handle, epoch, buf.as_mut_ptr(), buf.len() as i32)
+            {
+                0 => Ok(buf[..].try_into()?),
+                r @ 1.. => panic!("invalid return value from has: {}", r),
+                x if x == FvmError::InvalidHandle as i32 => {
+                    panic!("extern {} not registered", self.handle)
+                }
+                e => Err(anyhow!(
+                    "cgo extern 'verify_consensus_fault' failed with error code {}",
+                    e
+                )),
+            }
         }
     }
 }
