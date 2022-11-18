@@ -299,12 +299,14 @@ mod v2 {
                                 params: RawBytes::new(params.into()),
                                 value: TokenAmount::from_atto(value.atto().clone()),
                             }),
-                            ExecutionEvent2::CallReturn(ret) => {
-                                Some(ExecutionEvent::CallReturn(RawBytes::new(ret.into())))
-                            }
-                            ExecutionEvent2::CallAbort(ec) => {
-                                Some(ExecutionEvent::CallAbort(ExitCode::new(ec.value())))
-                            }
+                            ExecutionEvent2::CallReturn(ret) => Some(ExecutionEvent::CallReturn(
+                                ExitCode::OK,
+                                RawBytes::new(ret.into()),
+                            )),
+                            ExecutionEvent2::CallAbort(ec) => Some(ExecutionEvent::CallReturn(
+                                ExitCode::new(ec.value()),
+                                RawBytes::default(),
+                            )),
                             ExecutionEvent2::CallError(err) => {
                                 Some(ExecutionEvent::CallError(SyscallError(
                                     err.0,

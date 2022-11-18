@@ -413,21 +413,10 @@ fn build_lotus_trace(
                     .subcalls
                     .push(build_lotus_trace(&trace, trace_iter)?);
             }
-            ExecutionEvent::CallReturn(return_data) => {
-                new_trace.msg_receipt = LotusReceipt {
-                    exit_code: ExitCode::OK,
-                    return_data,
-                    gas_used: 0,
-                };
-                return Ok(new_trace);
-            }
-            ExecutionEvent::CallAbort(exit_code) => {
-                if exit_code.is_success() {
-                    return Err(anyhow!("actor failed with status OK"));
-                }
+            ExecutionEvent::CallReturn(exit_code, return_data) => {
                 new_trace.msg_receipt = LotusReceipt {
                     exit_code,
-                    return_data: Default::default(),
+                    return_data,
                     gas_used: 0,
                 };
                 return Ok(new_trace);
