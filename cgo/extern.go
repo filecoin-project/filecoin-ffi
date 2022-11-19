@@ -116,3 +116,35 @@ func cgo_extern_verify_consensus_fault(
 
 	return 0
 }
+
+//export cgo_extern_get_tipset_cid
+func cgo_extern_get_tipset_cid(
+	handle C.uint64_t,
+	epoch C.int64_t,
+	output C.buf_t,
+	outputLen C.int32_t,
+) (res C.int32_t) {
+	defer func() {
+		if rerr := recover(); rerr != nil {
+			logPanic(rerr)
+			res = ErrPanic
+		}
+	}()
+
+	externs, ctx := Lookup(uint64(handle))
+	if externs == nil {
+		return ErrInvalidHandle
+	}
+
+	out := unsafe.Slice((*byte)(unsafe.Pointer(output)), outputLen)
+
+	k, err := externs.TipsetCid(ctx, abi.ChainEpoch(epoch))
+	if err != nil {
+		return ErrIO
+	}
+	if k.ByteLen() > int(outputLen) {
+		return ErrInvalidArgument
+	}
+	copy(out, k.Bytes())
+	return 0
+}

@@ -299,12 +299,14 @@ mod v2 {
                                 params: RawBytes::new(params.into()),
                                 value: TokenAmount::from_atto(value.atto().clone()),
                             }),
-                            ExecutionEvent2::CallReturn(ret) => {
-                                Some(ExecutionEvent::CallReturn(RawBytes::new(ret.into())))
-                            }
-                            ExecutionEvent2::CallAbort(ec) => {
-                                Some(ExecutionEvent::CallAbort(ExitCode::new(ec.value())))
-                            }
+                            ExecutionEvent2::CallReturn(ret) => Some(ExecutionEvent::CallReturn(
+                                ExitCode::OK,
+                                RawBytes::new(ret.into()),
+                            )),
+                            ExecutionEvent2::CallAbort(ec) => Some(ExecutionEvent::CallReturn(
+                                ExitCode::new(ec.value()),
+                                RawBytes::default(),
+                            )),
                             ExecutionEvent2::CallError(err) => {
                                 Some(ExecutionEvent::CallError(SyscallError(
                                     err.0,
@@ -350,9 +352,9 @@ mod v2 {
 
             let ctx = MachineContext2 {
                 network: cfg,
-                epoch: ctx.network_context.epoch,
+                epoch: ctx.epoch,
                 initial_state_root: ctx.initial_state_root,
-                base_fee: TokenAmount2::from_atto(ctx.network_context.base_fee.atto().clone()),
+                base_fee: TokenAmount2::from_atto(ctx.base_fee.atto().clone()),
                 circ_supply: TokenAmount2::from_atto(ctx.circ_supply.atto().clone()),
                 tracing: ctx.tracing,
             };

@@ -57,4 +57,11 @@ extern "C" {
         fault: *mut i64,
         gas_used: *mut i64,
     ) -> i32;
+
+    pub fn cgo_extern_get_tipset_cid(
+        handle: u64,
+        epoch: i64,
+        output: *mut u8,
+        output_len: i32,
+    ) -> i32;
 }
