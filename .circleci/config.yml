@@ -36,8 +36,6 @@ jobs:
     resource_class: arm.large
     working_directory: ~/go/src/github.com/filecoin-project/filecoin-ffi
     steps:
-      - run: uname -a
-      - run: echo "Hello, Arm!"
       - configure_environment_variables
       - prepare
       - build_project
@@ -45,7 +43,6 @@ jobs:
       - obtain_filecoin_parameters
       - save_parameter_cache
       - run: cd rust && rustup target add wasm32-unknown-unknown
-      - publish_release
 
   build_and_test_linux_cgo_bindings:
     parameters:
@@ -85,8 +82,16 @@ jobs:
       - run: cd rust && cargo install cargo-lipo
       - build_project
       - compile_tests
-  publish_linux_staticlib:
+  publish_linux_x86_64_staticlib:
     executor: golang
+    steps:
+      - configure_environment_variables
+      - prepare
+      - publish_release
+  publish_linux_aarch64_staticlib:
+    machine:
+      image: ubuntu-2004:current
+    resource_class: arm.large
     steps:
       - configure_environment_variables
       - prepare
@@ -185,7 +190,8 @@ workflows:
       - build_and_test_linux_cgo_bindings:
           run_leak_detector: false
       - build_and_test_aarch64_linux_cgo_bindings
-      - publish_linux_staticlib
+      - publish_linux_x86_64_staticlib
+      - publish_linux_aarch64_staticlib
       - build_darwin_cgo_bindings
       - publish_darwin_staticlib
 
