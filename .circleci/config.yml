@@ -30,6 +30,25 @@ jobs:
       - run:
           command: make go-lint
 
+  build_and_test_aarch64_linux_cgo_bindings:
+    parameters:
+      run_leak_detector:
+        type: boolean
+        default: true
+    machine:
+      image: ubuntu-2004:current
+    resource_class: arm.large
+    working_directory: ~/go/src/github.com/filecoin-project/filecoin-ffi
+    steps:
+      - configure_environment_variables
+      - prepare
+      - build_project
+      - restore_parameter_cache
+      - obtain_filecoin_parameters
+      - save_parameter_cache
+      - run: cd rust && rustup target add wasm32-unknown-unknown
+      - run_tests
+
   build_and_test_linux_cgo_bindings:
     parameters:
       run_leak_detector:
@@ -68,8 +87,16 @@ jobs:
       - run: cd rust && cargo install cargo-lipo
       - build_project
       - compile_tests
-  publish_linux_staticlib:
+  publish_linux_x86_64_staticlib:
     executor: golang
+    steps:
+      - configure_environment_variables
+      - prepare
+      - publish_release
+  publish_linux_aarch64_staticlib:
+    machine:
+      image: ubuntu-2004:current
+    resource_class: arm.large
     steps:
       - configure_environment_variables
       - prepare
@@ -167,7 +194,9 @@ workflows:
       - go_lint
       - build_and_test_linux_cgo_bindings:
           run_leak_detector: false
-      - publish_linux_staticlib
+      - build_and_test_aarch64_linux_cgo_bindings
+      - publish_linux_x86_64_staticlib
+      - publish_linux_aarch64_staticlib
       - build_darwin_cgo_bindings
       - publish_darwin_staticlib
 
@@ -221,8 +250,8 @@ commands:
           command: |
             cd rust
 
-            TARBALL_PATH="/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-standard.tar.gz"
-            RELEASE_NAME="${CIRCLE_PROJECT_REPONAME}-$(uname)-standard"
+            TARBALL_PATH="/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-$(uname -m)-standard.tar.gz"
+            RELEASE_NAME="${CIRCLE_PROJECT_REPONAME}-$(uname)-$(uname -m)-standard"
 
             # Note: the blst dependency uses the portable configuration for maximum compatibility
             ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) build --verbose --no-default-features --features multicore-sdr,opencl,blst-portable
@@ -233,7 +262,7 @@ commands:
           command: |
             cd rust
 
-            TARBALL_PATH="/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-optimized.tar.gz"
+            TARBALL_PATH="/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-$(uname -m)-optimized.tar.gz"
             RUSTFLAGS="-C target-feature=$(cat rustc-target-features-optimized.json | jq -r '.[].rustc_target_feature' | tr '\n' ',')"
 
             ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) build --verbose --no-default-features --features multicore-sdr,opencl
