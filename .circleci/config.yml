@@ -45,6 +45,7 @@ jobs:
       - obtain_filecoin_parameters
       - save_parameter_cache
       - run: cd rust && rustup target add wasm32-unknown-unknown
+      - publish_release
 
   build_and_test_linux_cgo_bindings:
     parameters:
@@ -238,8 +239,8 @@ commands:
           command: |
             cd rust
 
-            TARBALL_PATH="/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-standard.tar.gz"
-            RELEASE_NAME="${CIRCLE_PROJECT_REPONAME}-$(uname)-standard"
+            TARBALL_PATH="/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)$(uname -m)-standard.tar.gz"
+            RELEASE_NAME="${CIRCLE_PROJECT_REPONAME}-$(uname)$(uname -m)-standard"
 
             # Note: the blst dependency uses the portable configuration for maximum compatibility
             ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) build --verbose --no-default-features --features multicore-sdr,opencl,blst-portable
@@ -250,7 +251,7 @@ commands:
           command: |
             cd rust
 
-            TARBALL_PATH="/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-optimized.tar.gz"
+            TARBALL_PATH="/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)$(uname -m)-optimized.tar.gz"
             RUSTFLAGS="-C target-feature=$(cat rustc-target-features-optimized.json | jq -r '.[].rustc_target_feature' | tr '\n' ',')"
 
             ./scripts/build-release.sh filcrypto $(cat ./rust-toolchain) build --verbose --no-default-features --features multicore-sdr,opencl
