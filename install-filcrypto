@@ -92,7 +92,7 @@ download_release_tarball() {
     # names are constructed. Marginally less-bad would be to require that this
     # function's caller provide the release name.
     #
-    if [ "$(uname -s)" = "Darwin" ] then
+    if [ "$(uname -s)" = "Darwin" ]; then
         # For MacOS a universal library is used so naming convention is different
         local __release_name="${__repo_name}-$(uname)-${release_flag_name}"
     else
