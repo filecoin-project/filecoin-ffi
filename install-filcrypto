@@ -92,7 +92,7 @@ download_release_tarball() {
     # names are constructed. Marginally less-bad would be to require that this
     # function's caller provide the release name.
     #
-    local __release_name="${__repo_name}-$(uname)-${release_flag_name}"
+    local __release_name="${__repo_name}-$(uname)-$(uname -m)-${release_flag_name}"
 
     (>&2 echo "[download_release_tarball] acquiring release @ ${__release_tag}")
 
