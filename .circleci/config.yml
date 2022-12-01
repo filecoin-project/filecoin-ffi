@@ -277,21 +277,18 @@ commands:
             RELEASE_NAME="${CIRCLE_PROJECT_REPONAME}-$(uname)-universal-standard"
             TARBALL_PATH="/tmp/${RELEASE_NAME}.tar.gz"
             tar -czf $TARBALL_PATH ./filcrypto.h ./filcrypto.pc ./target/universal/release/libfilcrypto.a
-            ./scripts/package-release.sh $TARBALL_PATH
             ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
 
             echo "Packaging Darwin arm64 library"
             RELEASE_NAME="${CIRCLE_PROJECT_REPONAME}-$(uname)-arm64-standard"
             TARBALL_PATH="/tmp/${RELEASE_NAME}.tar.gz"
             tar -czf $TARBALL_PATH ./filcrypto.h ./filcrypto.pc ./target/aarch64-apple-darwin/release/libfilcrypto.a
-            ./scripts/package-release.sh $TARBALL_PATH
             ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
 
             echo "Packaging Darwin x86_64 library"
             RELEASE_NAME="${CIRCLE_PROJECT_REPONAME}-$(uname)-x86_64-standard"
             TARBALL_PATH="/tmp/${RELEASE_NAME}.tar.gz"
             tar -czf $TARBALL_PATH ./filcrypto.h ./filcrypto.pc ./target/x86_64-apple-darwin/release/libfilcrypto.a
-            ./scripts/package-release.sh $TARBALL_PATH
             ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
 
   configure_environment_variables:
