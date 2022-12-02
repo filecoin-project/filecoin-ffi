@@ -1187,12 +1187,10 @@ name = "filcrypto"
 version = "0.7.5"
 dependencies = [
  "anyhow",
- "bellperson",
  "bls-signatures",
  "blstrs",
  "byteorder",
  "cid",
- "ff",
  "fil_logger",
  "filecoin-proofs-api",
  "filepath",
@@ -1209,19 +1207,15 @@ dependencies = [
  "libc",
  "log",
  "memmap",
- "num-bigint",
  "num-traits",
- "once_cell",
  "rand",
  "rand_chacha",
  "rayon",
  "rust-gpu-tools 0.5.0",
  "safer-ffi",
  "serde",
- "serde_bytes",
  "serde_json",
  "serde_tuple",
- "storage-proofs-porep",
  "tempfile",
 ]
 
