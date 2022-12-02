@@ -120,9 +120,10 @@ We will cooperates with the [lotus' releases and it's testing flows](https://git
 - If any bug is found during the testing, the fix should land in master then get backported to `release/lotus-vX`. The updated commit should be integrated into lotus and getting tested. Repeat the steps until it can be considered as stable.
 
 #Consensus breaking changes*
-- Consensus breaking changes should be developed in it's own branch (let's call them feature branches `feat/`). A new feature branch should be created and contributors are responsible to rebase the branch onto master as needed.
-- FFI maintainers should coordinate with @lotus-maintainers closely, and have required `feat/` merged into master, when the changes are scoped into a lotus mandatory release.
-    -  lotus mandatory releases are mostly scoped base on network upgrades.
+- Consensus breaking changes should be developed in it's own branch, (branch name is suggested to be: feature branches `feat/` or bug fix branches `bug/`). 
+- Consensus breaking changes that are scoped into the next immediate network upgrade shall land in `next` branch first. The maintainers are responsible to coordinate on when to land `next` to `master` according to lotus mandatory(network upgrade) release schedules.
+- A new dev branch should be created and contributors are responsible to rebase the branch onto `master`/`next` as needed.
+
 
 
 ## License
