@@ -5,6 +5,8 @@ use anyhow::{anyhow, bail, Context};
 use cid::Cid;
 use fvm3::executor::ApplyKind as ApplyKind3;
 use fvm3::gas::GasCharge;
+// TODO: this is moving to shared
+use fvm3::machine::ChainID;
 use fvm3::trace::ExecutionEvent;
 use fvm3_ipld_encoding::tuple::{Deserialize_tuple, Serialize_tuple};
 use fvm3_ipld_encoding::{to_vec, CborStore, RawBytes};
@@ -34,6 +36,7 @@ fn create_fvm_machine_generic(
     fvm_version: FvmRegisteredVersion,
     chain_epoch: u64,
     chain_timestamp: u64,
+    chain_id: u64,
     base_fee_hi: u64,
     base_fee_lo: u64,
     base_circ_supply_hi: u64,
@@ -83,6 +86,7 @@ fn create_fvm_machine_generic(
             let blockstore = FakeBlockstore::new(CgoBlockstore::new(blockstore_id));
 
             let mut network_config = NetworkConfig::new(network_version);
+            network_config.chain_id(ChainID::from(chain_id));
             if let Some(manifest) = manifest_cid {
                 network_config.override_actors(manifest);
             }
@@ -137,6 +141,7 @@ fn create_fvm_machine(
     fvm_version: FvmRegisteredVersion,
     chain_epoch: u64,
     chain_timestamp: u64,
+    chain_id: u64,
     base_fee_hi: u64,
     base_fee_lo: u64,
     base_circ_supply_hi: u64,
@@ -152,6 +157,7 @@ fn create_fvm_machine(
         fvm_version,
         chain_epoch,
         chain_timestamp,
+        chain_id,
         base_fee_hi,
         base_fee_lo,
         base_circ_supply_hi,
@@ -176,6 +182,7 @@ fn create_fvm_debug_machine(
     fvm_version: FvmRegisteredVersion,
     chain_epoch: u64,
     chain_timestamp: u64,
+    chain_id: u64,
     base_fee_hi: u64,
     base_fee_lo: u64,
     base_circ_supply_hi: u64,
@@ -191,6 +198,7 @@ fn create_fvm_debug_machine(
         fvm_version,
         chain_epoch,
         chain_timestamp,
+        chain_id,
         base_fee_hi,
         base_fee_lo,
         base_circ_supply_hi,
