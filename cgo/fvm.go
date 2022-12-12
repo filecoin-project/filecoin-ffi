@@ -8,11 +8,12 @@ package cgo
 */
 import "C"
 
-func CreateFvmMachine(fvmVersion FvmRegisteredVersion, chainEpoch, chainTimestamp, baseFeeHi, baseFeeLo, baseCircSupplyHi, baseCircSupplyLo, networkVersion uint64, stateRoot SliceRefUint8, manifestCid SliceRefUint8, tracing bool, blockstoreId, externsId uint64) (*FvmMachine, error) {
+func CreateFvmMachine(fvmVersion FvmRegisteredVersion, chainEpoch, chainTimestamp, chainId, baseFeeHi, baseFeeLo, baseCircSupplyHi, baseCircSupplyLo, networkVersion uint64, stateRoot SliceRefUint8, manifestCid SliceRefUint8, tracing bool, blockstoreId, externsId uint64) (*FvmMachine, error) {
 	resp := C.create_fvm_machine(
 		fvmVersion,
 		C.uint64_t(chainEpoch),
 		C.uint64_t(chainTimestamp),
+		C.uint64_t(chainId),
 		C.uint64_t(baseFeeHi),
 		C.uint64_t(baseFeeLo),
 		C.uint64_t(baseCircSupplyHi),
@@ -36,11 +37,12 @@ func CreateFvmMachine(fvmVersion FvmRegisteredVersion, chainEpoch, chainTimestam
 	return executor, nil
 }
 
-func CreateFvmDebugMachine(fvmVersion FvmRegisteredVersion, chainEpoch, chainTimestamp, baseFeeHi, baseFeeLo, baseCircSupplyHi, baseCircSupplyLo, networkVersion uint64, stateRoot SliceRefUint8, actorRedirect SliceRefUint8, tracing bool, blockstoreId, externsId uint64) (*FvmMachine, error) {
+func CreateFvmDebugMachine(fvmVersion FvmRegisteredVersion, chainEpoch, chainTimestamp, chainId, baseFeeHi, baseFeeLo, baseCircSupplyHi, baseCircSupplyLo, networkVersion uint64, stateRoot SliceRefUint8, actorRedirect SliceRefUint8, tracing bool, blockstoreId, externsId uint64) (*FvmMachine, error) {
 	resp := C.create_fvm_debug_machine(
 		fvmVersion,
 		C.uint64_t(chainEpoch),
 		C.uint64_t(chainTimestamp),
+		C.uint64_t(chainId),
 		C.uint64_t(baseFeeHi),
 		C.uint64_t(baseFeeLo),
 		C.uint64_t(baseCircSupplyHi),
