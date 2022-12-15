@@ -449,6 +449,7 @@ fn build_lotus_trace(
                 name,
                 compute_gas,
                 storage_gas,
+                elapsed: _, // TODO: thread timing through to lotus.
             }) => {
                 new_trace.gas_charges.push(LotusGasCharge {
                     name,

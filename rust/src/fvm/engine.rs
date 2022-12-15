@@ -6,8 +6,9 @@ use anyhow::anyhow;
 use cid::Cid;
 
 use fvm2::machine::MultiEngine as MultiEngine2;
+use fvm3::engine::MultiEngine as MultiEngine3;
 use fvm3::executor::{ApplyKind, ApplyRet};
-use fvm3::machine::{MachineContext, MultiEngine as MultiEngine3, NetworkConfig};
+use fvm3::machine::{MachineContext, NetworkConfig};
 use fvm3_shared::{message::Message, version::NetworkVersion};
 
 use super::blockstore::{CgoBlockstore, OverlayBlockstore};
@@ -39,6 +40,7 @@ pub trait AbstractMultiEngine: Send + Sync {
 
 // The generic engine container
 pub struct MultiEngineContainer {
+    concurrency: u32,
     engines: Mutex<HashMap<u32, Arc<dyn AbstractMultiEngine + 'static>>>,
 }
 
@@ -46,6 +48,9 @@ impl MultiEngineContainer {
     pub fn new() -> MultiEngineContainer {
         MultiEngineContainer {
             engines: Mutex::new(HashMap::new()),
+            // The number of messages that can be executed simultaniously on any given engine (i.e.,
+            // on any given network version/config).
+            concurrency: 1,
         }
     }
 
@@ -61,9 +66,8 @@ impl MultiEngineContainer {
                     NetworkVersion::V16 | NetworkVersion::V17 => {
                         Arc::new(MultiEngine2::new()) as Arc<dyn AbstractMultiEngine + 'static>
                     }
-                    NetworkVersion::V18 => {
-                        Arc::new(MultiEngine3::new()) as Arc<dyn AbstractMultiEngine + 'static>
-                    }
+                    NetworkVersion::V18 => Arc::new(MultiEngine3::new(self.concurrency))
+                        as Arc<dyn AbstractMultiEngine + 'static>,
                     _ => return Err(anyhow!("network version not supported")),
                 })
                 .clone(),
@@ -83,14 +87,12 @@ mod v3 {
     use std::sync::Mutex;
 
     use fvm3::call_manager::DefaultCallManager as DefaultCallManager3;
+    use fvm3::engine::{EnginePool as EnginePool3, MultiEngine as MultiEngine3};
     use fvm3::executor::{
         ApplyKind, ApplyRet, DefaultExecutor as DefaultExecutor3,
         ThreadedExecutor as ThreadedExecutor3,
     };
-    use fvm3::machine::{
-        DefaultMachine as DefaultMachine3, MachineContext, MultiEngine as MultiEngine3,
-        NetworkConfig,
-    };
+    use fvm3::machine::{DefaultMachine as DefaultMachine3, MachineContext, NetworkConfig};
     use fvm3::DefaultKernel as DefaultKernel3;
     use fvm3_shared::message::Message;
 
@@ -103,8 +105,11 @@ mod v3 {
     type BaseExecutor3 = DefaultExecutor3<DefaultKernel3<DefaultCallManager3<CgoMachine3>>>;
     type CgoExecutor3 = ThreadedExecutor3<BaseExecutor3>;
 
-    fn new_executor(machine: CgoMachine3) -> CgoExecutor3 {
-        ThreadedExecutor3(BaseExecutor3::new(machine))
+    fn new_executor(
+        engine_pool: EnginePool3,
+        machine: CgoMachine3,
+    ) -> anyhow::Result<CgoExecutor3> {
+        Ok(ThreadedExecutor3(BaseExecutor3::new(engine_pool, machine)?))
     }
 
     impl CgoExecutor for CgoExecutor3 {
@@ -131,9 +136,9 @@ mod v3 {
             externs: CgoExterns,
         ) -> anyhow::Result<InnerFvmMachine> {
             let engine = self.get(&cfg)?;
-            let machine = CgoMachine3::new(&engine, &ctx, blockstore, externs)?;
+            let machine = CgoMachine3::new(&ctx, blockstore, externs)?;
             Ok(InnerFvmMachine {
-                machine: Some(Mutex::new(Box::new(new_executor(machine)))),
+                machine: Some(Mutex::new(Box::new(new_executor(engine, machine)?))),
             })
         }
     }
@@ -284,6 +289,7 @@ mod v2 {
                                     storage_gas: Gas::from_milligas(
                                         charge.storage_gas.as_milligas(),
                                     ),
+                                    elapsed: Default::default(), // no timing information for v2.
                                 }))
                             }
                             ExecutionEvent2::Call {
