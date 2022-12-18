@@ -5,7 +5,6 @@ import (
 
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-state-types/abi"
-	"github.com/filecoin-project/go-state-types/crypto"
 	"github.com/ipfs/go-cid"
 	blockstore "github.com/ipfs/go-ipfs-blockstore"
 )
@@ -29,8 +28,8 @@ const (
 )
 
 type Externs interface {
-	GetChainRandomness(ctx context.Context, personalization crypto.DomainSeparationTag, epoch abi.ChainEpoch, entropy []byte) ([]byte, error)
-	GetBeaconRandomness(ctx context.Context, personalization crypto.DomainSeparationTag, epoch abi.ChainEpoch, entropy []byte) ([]byte, error)
+	GetChainRandomness(ctx context.Context, epoch abi.ChainEpoch) ([]byte, error)
+	GetBeaconRandomness(ctx context.Context, epoch abi.ChainEpoch) ([]byte, error)
 	VerifyConsensusFault(ctx context.Context, h1, h2, extra []byte) (*ConsensusFault, int64)
 	TipsetCid(ctx context.Context, epoch abi.ChainEpoch) (cid.Cid, error)
 
