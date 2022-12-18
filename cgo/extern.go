@@ -11,14 +11,14 @@ import (
 	"github.com/filecoin-project/go-address"
 
 	"github.com/filecoin-project/go-state-types/abi"
-	"github.com/filecoin-project/go-state-types/crypto"
 )
 
 //export cgo_extern_get_chain_randomness
 func cgo_extern_get_chain_randomness(
-	handle C.uint64_t, pers C.int64_t, round C.int64_t,
-	entropy C.buf_t, entropyLen C.int32_t,
+	handle C.uint64_t,
+	round C.int64_t,
 	output C.buf_t,
+	outputLen C.int32_t,
 ) (res C.int32_t) {
 	defer func() {
 		if rerr := recover(); rerr != nil {
@@ -27,28 +27,31 @@ func cgo_extern_get_chain_randomness(
 		}
 	}()
 
-	out := unsafe.Slice((*byte)(unsafe.Pointer(output)), 32)
+	out := unsafe.Slice((*byte)(unsafe.Pointer(output)), outputLen)
 	externs, ctx := Lookup(uint64(handle))
 	if externs == nil {
 		return ErrInvalidHandle
 	}
 
-	rand, err := externs.GetChainRandomness(ctx, crypto.DomainSeparationTag(pers), abi.ChainEpoch(round), C.GoBytes(unsafe.Pointer(entropy), entropyLen))
+	rand, err := externs.GetChainRandomness(ctx, abi.ChainEpoch(round))
 
-	switch err {
-	case nil:
-		copy(out[:], rand)
-		return 0
-	default:
+	if err != nil {
 		return ErrIO
 	}
+
+	if len(rand) > int(outputLen) {
+		return ErrInvalidArgument
+	}
+
+	copy(out[:], rand)
 }
 
 //export cgo_extern_get_beacon_randomness
 func cgo_extern_get_beacon_randomness(
-	handle C.uint64_t, pers C.int64_t, round C.int64_t,
-	entropy C.buf_t, entropyLen C.int32_t,
+	handle C.uint64_t,
+	round C.int64_t,
 	output C.buf_t,
+	outputLen C.int32_t,
 ) (res C.int32_t) {
 	defer func() {
 		if rerr := recover(); rerr != nil {
@@ -57,21 +60,23 @@ func cgo_extern_get_beacon_randomness(
 		}
 	}()
 
-	out := unsafe.Slice((*byte)(unsafe.Pointer(output)), 32)
+	out := unsafe.Slice((*byte)(unsafe.Pointer(output)), outputLen)
 	externs, ctx := Lookup(uint64(handle))
 	if externs == nil {
 		return ErrInvalidHandle
 	}
 
-	rand, err := externs.GetBeaconRandomness(ctx, crypto.DomainSeparationTag(pers), abi.ChainEpoch(round), C.GoBytes(unsafe.Pointer(entropy), entropyLen))
-
-	switch err {
-	case nil:
-		copy(out[:], rand)
-		return 0
-	default:
+	rand, err := externs.GetBeaconRandomness(ctx, abi.ChainEpoch(round))
+	if err != nil {
 		return ErrIO
 	}
+
+	if len(rand) > int(outputLen) {
+		return ErrInvalidArgument
+	}
+
+	copy(out[:], rand)
+	return 0
 }
 
 //export cgo_extern_verify_consensus_fault
