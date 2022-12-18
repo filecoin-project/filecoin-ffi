@@ -1198,10 +1198,10 @@ dependencies = [
  "filepath",
  "fr32",
  "fvm 2.1.0",
- "fvm 3.0.0-alpha.15",
+ "fvm 3.0.0-alpha.16",
  "fvm_ipld_blockstore",
  "fvm_ipld_encoding 0.2.3",
- "fvm_ipld_encoding 0.3.0",
+ "fvm_ipld_encoding 0.3.2",
  "fvm_shared 2.0.0",
  "fvm_shared 3.0.0-alpha.15",
  "group",
@@ -1422,9 +1422,9 @@ dependencies = [
 
 [[package]]
 name = "fvm"
-version = "3.0.0-alpha.15"
+version = "3.0.0-alpha.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c3bc434d9563f9a9c4555acc442fb2953ed51f301c216c9d357c8d6d52247a9c"
+checksum = "ac9f5169c14ce1d132c786390077825d065d04002aace0fdebdab931f6cf28ed"
 dependencies = [
  "anyhow",
  "blake2b_simd",
@@ -1437,7 +1437,7 @@ dependencies = [
  "fvm-wasm-instrument 0.4.0",
  "fvm_ipld_amt 0.5.0",
  "fvm_ipld_blockstore",
- "fvm_ipld_encoding 0.3.0",
+ "fvm_ipld_encoding 0.3.2",
  "fvm_ipld_hamt 0.6.1",
  "fvm_shared 3.0.0-alpha.15",
  "lazy_static",
@@ -1507,7 +1507,7 @@ dependencies = [
  "anyhow",
  "cid",
  "fvm_ipld_blockstore",
- "fvm_ipld_encoding 0.3.0",
+ "fvm_ipld_encoding 0.3.2",
  "itertools 0.10.5",
  "once_cell",
  "serde",
@@ -1545,9 +1545,9 @@ dependencies = [
 
 [[package]]
 name = "fvm_ipld_encoding"
-version = "0.3.0"
+version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cf531c59e7c9a4c9044a34d1b44c9d544fab1eb0ba50aaa18121fe698d4fec35"
+checksum = "189214585b1dc3c2a92682aa175cce1991c1a09542e5338c400d00c15b706142"
 dependencies = [
  "anyhow",
  "cid",
@@ -1592,7 +1592,7 @@ dependencies = [
  "cid",
  "forest_hash_utils",
  "fvm_ipld_blockstore",
- "fvm_ipld_encoding 0.3.0",
+ "fvm_ipld_encoding 0.3.2",
  "libipld-core 0.14.0",
  "multihash",
  "once_cell",
@@ -1649,7 +1649,7 @@ dependencies = [
  "data-encoding-macro",
  "filecoin-proofs-api",
  "fvm_ipld_blockstore",
- "fvm_ipld_encoding 0.3.0",
+ "fvm_ipld_encoding 0.3.2",
  "lazy_static",
  "libsecp256k1",
  "log",
