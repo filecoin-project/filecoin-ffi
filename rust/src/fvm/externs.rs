@@ -1,5 +1,8 @@
 use anyhow::{anyhow, Context};
+use byteorder::{BigEndian, WriteBytesExt};
+use std::io::Write;
 
+use blake2b_simd::Params;
 use fvm2::externs::{Consensus as Consensus2, Externs as Externs2, Rand as Rand2};
 use fvm3::externs::{Chain as Chain3, Consensus as Consensus3, Externs as Externs3, Rand as Rand3};
 
@@ -42,15 +45,8 @@ impl Rand3 for CgoExterns {
     ) -> anyhow::Result<[u8; 32]> {
         unsafe {
             let mut buf = [0u8; 32];
-            match cgo_extern_get_chain_randomness(
-                self.handle,
-                pers as i64,
-                round,
-                entropy.as_ptr(),
-                entropy.len() as i32,
-                &mut buf,
-            ) {
-                0 => Ok(buf),
+            match cgo_extern_get_chain_randomness(self.handle, round, &mut buf) {
+                0 => draw_randomness(&buf, pers, round, entropy),
                 r @ 1.. => panic!("invalid return value from has: {}", r),
                 x if x == FvmError::InvalidHandle as i32 => {
                     panic!("extern {} not registered", self.handle)
@@ -71,15 +67,8 @@ impl Rand3 for CgoExterns {
     ) -> anyhow::Result<[u8; 32]> {
         unsafe {
             let mut buf = [0u8; 32];
-            match cgo_extern_get_beacon_randomness(
-                self.handle,
-                pers as i64,
-                round,
-                entropy.as_ptr(),
-                entropy.len() as i32,
-                &mut buf,
-            ) {
-                0 => Ok(buf),
+            match cgo_extern_get_beacon_randomness(self.handle, round, &mut buf) {
+                0 => draw_randomness(&buf, pers, round, entropy),
                 r @ 1.. => panic!("invalid return value from has: {}", r),
                 x if x == FvmError::InvalidHandle as i32 => {
                     panic!("extern {} not registered", self.handle)
@@ -111,6 +100,22 @@ impl Rand2 for CgoExterns {
     ) -> anyhow::Result<[u8; 32]> {
         Rand3::get_beacon_randomness(self, pers, round, entropy)
     }
+}
+
+fn draw_randomness(
+    rbase: &[u8; 32],
+    pers: i64,
+    round: ChainEpoch,
+    entropy: &[u8],
+) -> anyhow::Result<[u8; 32]> {
+    let mut state = Params::new().hash_length(32).to_state();
+    state.write_i64::<BigEndian>(pers)?;
+    state.write_all(rbase)?;
+    state.write_i64::<BigEndian>(round)?;
+    state.write_all(entropy)?;
+    let mut ret = [0u8; 32];
+    ret.clone_from_slice(state.finalize().as_bytes());
+    Ok(ret)
 }
 
 impl Consensus3 for CgoExterns {

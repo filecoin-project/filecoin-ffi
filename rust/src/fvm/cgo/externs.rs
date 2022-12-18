@@ -28,19 +28,13 @@ extern "C" {
 
     pub fn cgo_extern_get_chain_randomness(
         handle: u64,
-        pers: i64,
         round: i64,
-        entropy: *const u8,
-        entropy_len: i32,
         randomness: *mut [u8; 32],
     ) -> i32;
 
     pub fn cgo_extern_get_beacon_randomness(
         handle: u64,
-        pers: i64,
         round: i64,
-        entropy: *const u8,
-        entropy_len: i32,
         randomness: *mut [u8; 32],
     ) -> i32;
 

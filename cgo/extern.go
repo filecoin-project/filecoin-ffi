@@ -11,13 +11,12 @@ import (
 	"github.com/filecoin-project/go-address"
 
 	"github.com/filecoin-project/go-state-types/abi"
-	"github.com/filecoin-project/go-state-types/crypto"
 )
 
 //export cgo_extern_get_chain_randomness
 func cgo_extern_get_chain_randomness(
-	handle C.uint64_t, pers C.int64_t, round C.int64_t,
-	entropy C.buf_t, entropyLen C.int32_t,
+	handle C.uint64_t,
+	round C.int64_t,
 	output C.buf_t,
 ) (res C.int32_t) {
 	defer func() {
@@ -33,11 +32,11 @@ func cgo_extern_get_chain_randomness(
 		return ErrInvalidHandle
 	}
 
-	rand, err := externs.GetChainRandomness(ctx, crypto.DomainSeparationTag(pers), abi.ChainEpoch(round), C.GoBytes(unsafe.Pointer(entropy), entropyLen))
+	rand, err := externs.GetChainRandomness(ctx, abi.ChainEpoch(round))
 
 	switch err {
 	case nil:
-		copy(out[:], rand)
+		copy(out[:], rand[:])
 		return 0
 	default:
 		return ErrIO
@@ -46,8 +45,8 @@ func cgo_extern_get_chain_randomness(
 
 //export cgo_extern_get_beacon_randomness
 func cgo_extern_get_beacon_randomness(
-	handle C.uint64_t, pers C.int64_t, round C.int64_t,
-	entropy C.buf_t, entropyLen C.int32_t,
+	handle C.uint64_t,
+	round C.int64_t,
 	output C.buf_t,
 ) (res C.int32_t) {
 	defer func() {
@@ -63,11 +62,11 @@ func cgo_extern_get_beacon_randomness(
 		return ErrInvalidHandle
 	}
 
-	rand, err := externs.GetBeaconRandomness(ctx, crypto.DomainSeparationTag(pers), abi.ChainEpoch(round), C.GoBytes(unsafe.Pointer(entropy), entropyLen))
+	rand, err := externs.GetBeaconRandomness(ctx, abi.ChainEpoch(round))
 
 	switch err {
 	case nil:
-		copy(out[:], rand)
+		copy(out[:], rand[:])
 		return 0
 	default:
 		return ErrIO
