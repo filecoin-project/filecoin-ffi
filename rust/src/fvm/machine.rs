@@ -1,7 +1,7 @@
 use std::borrow::Cow;
 use std::convert::{TryFrom, TryInto};
 
-use anyhow::{anyhow, bail, Context};
+use anyhow::{anyhow, Context};
 use cid::Cid;
 use fvm3::executor::ApplyKind as ApplyKind3;
 use fvm3::gas::GasCharge;
@@ -9,17 +9,17 @@ use fvm3::trace::ExecutionEvent;
 use fvm3_ipld_encoding::tuple::{Deserialize_tuple, Serialize_tuple};
 use fvm3_ipld_encoding::{to_vec, CborStore, RawBytes};
 use fvm3_shared::address::Address;
-use fvm3_shared::chainid::ChainID;
+
 use fvm3_shared::error::{ErrorNumber, ExitCode};
 use fvm3_shared::receipt::Receipt;
 use fvm3_shared::{
-    clock::ChainEpoch, econ::TokenAmount, message::Message, version::NetworkVersion,
+    econ::TokenAmount, message::Message,
 };
 use lazy_static::lazy_static;
 use log::info;
 use safer_ffi::prelude::*;
 
-use super::blockstore::{CgoBlockstore, FakeBlockstore};
+use super::blockstore::{CgoBlockstore};
 use super::engine::*;
 use super::externs::CgoExterns;
 use super::types::*;
@@ -38,18 +38,17 @@ fn create_fvm_machine_generic(
     chain_id: u64,
     base_fee_hi: u64,
     base_fee_lo: u64,
-    base_circ_supply_hi: u64,
-    base_circ_supply_lo: u64,
-    network_version: u64,
+    circulating_supply_hi: u64,
+    circulating_supply_lo: u64,
+    network_version: u32,
     state_root: c_slice::Ref<u8>,
-    manifest_cid: Option<c_slice::Ref<u8>>,
     actor_redirect: Option<c_slice::Ref<u8>>,
-    actor_debug: bool,
+    actor_debugging: bool,
     tracing: bool,
     blockstore_id: u64,
     externs_id: u64,
 ) -> repr_c::Box<Result<FvmMachine>> {
-    use fvm3::machine::NetworkConfig;
+    
     unsafe {
         catch_panic_response_no_default("create_fvm_machine", || {
             match fvm_version {
@@ -57,76 +56,48 @@ fn create_fvm_machine_generic(
                 //_ => panic!("unsupported FVM Registered Version")
             }
 
-            let chain_epoch = chain_epoch as ChainEpoch;
-
-            let base_circ_supply = TokenAmount::from_atto(
-                ((base_circ_supply_hi as u128) << u64::BITS) | base_circ_supply_lo as u128,
+            let circulating_supply = TokenAmount::from_atto(
+                ((circulating_supply_hi as u128) << u64::BITS) | circulating_supply_lo as u128,
             );
             let base_fee =
                 TokenAmount::from_atto(((base_fee_hi as u128) << u64::BITS) | base_fee_lo as u128);
 
-            let network_version = NetworkVersion::try_from(network_version as u32)
-                .map_err(|_| anyhow!("unsupported network version: {}", network_version))?;
             let state_root = Cid::try_from(&state_root[..])
                 .map_err(|err| anyhow!("invalid state root: {}", err))?;
 
-            // There may be no manifest CID:
-            // - for pre nv16, use the builtin bundles
-            // - for nv16 or higher, it means we have already migrated state for system
-            //   actor and we can pass None to the machine constructor to fish it from state.
-            // The presence of the manifest cid argument allows us to test with new bundles
-            // with minimum friction.
-            let manifest_cid = manifest_cid
-                .as_deref() // into a slice
-                .map(Cid::try_from) // into a cid
-                .transpose() // Option<Result<Cid>> -> Result<Option<Cid>>
-                .context("invalid manifest")?;
+            let blockstore = CgoBlockstore::new(blockstore_id);
 
-            let blockstore = FakeBlockstore::new(CgoBlockstore::new(blockstore_id));
+            let actor_redirect = actor_redirect
+                .map(|ar| Cid::try_from(&ar[..]).context("invalid redirect CID"))
+                .transpose()?
+                .map(|k| {
+                    blockstore
+                        .get_cbor(&k)
+                        .context("blockstore error when looking up actor redirects")?
+                        .context("failed to create engine: missing redirect vector")
+                })
+                .transpose()?
+                .unwrap_or_default();
 
-            let mut network_config = NetworkConfig::new(network_version);
-            network_config.chain_id(ChainID::from(chain_id));
-            if let Some(manifest) = manifest_cid {
-                network_config.override_actors(manifest);
-            }
-
-            if actor_debug {
-                network_config.enable_actor_debugging();
-            }
-
-            let blockstore = blockstore.finish();
-            if let Some(ar) = actor_redirect {
-                let actor_redirect_cid = Cid::try_from(&ar[..])
-                    .map_err(|err| anyhow!("invalid redirect CID: {}", err))?;
-                let redirect: Vec<(Cid, Cid)> = match blockstore
-                    .get_cbor(&actor_redirect_cid)
-                    .map_err(|err| anyhow!("invalid redirect cid: {}", err))?
-                {
-                    Some(v) => v,
-                    None => bail!("failed to create engine: missing redirect vector"),
-                };
-                network_config.redirect_actors(redirect);
-            }
-
-            let mut machine_context =
-                network_config.for_epoch(chain_epoch, chain_timestamp, state_root);
-
-            machine_context.set_base_fee(base_fee);
-            machine_context.set_circulating_supply(base_circ_supply);
-
-            if tracing {
-                machine_context.enable_tracing();
-            }
+            let config = Config {
+                network_version,
+                chain_id,
+                chain_epoch,
+                chain_timestamp,
+                state_root,
+                base_fee,
+                circulating_supply,
+                tracing,
+                actor_debugging,
+                actor_redirect,
+            };
 
             let externs = CgoExterns::new(externs_id);
 
             let engine = ENGINES.get(network_version)?;
-            Ok(Some(repr_c::Box::new(engine.new_executor(
-                network_config,
-                machine_context,
-                blockstore,
-                externs,
-            )?)))
+            Ok(Some(repr_c::Box::new(
+                engine.new_executor(config, blockstore, externs)?,
+            )))
         })
     }
 }
@@ -143,11 +114,10 @@ fn create_fvm_machine(
     chain_id: u64,
     base_fee_hi: u64,
     base_fee_lo: u64,
-    base_circ_supply_hi: u64,
-    base_circ_supply_lo: u64,
-    network_version: u64,
+    circulating_supply_hi: u64,
+    circulating_supply_lo: u64,
+    network_version: u32,
     state_root: c_slice::Ref<u8>,
-    manifest_cid: c_slice::Ref<u8>,
     tracing: bool,
     blockstore_id: u64,
     externs_id: u64,
@@ -159,15 +129,10 @@ fn create_fvm_machine(
         chain_id,
         base_fee_hi,
         base_fee_lo,
-        base_circ_supply_hi,
-        base_circ_supply_lo,
+        circulating_supply_hi,
+        circulating_supply_lo,
         network_version,
         state_root,
-        if manifest_cid.is_empty() {
-            None
-        } else {
-            Some(manifest_cid)
-        },
         None,
         false,
         tracing,
@@ -184,9 +149,9 @@ fn create_fvm_debug_machine(
     chain_id: u64,
     base_fee_hi: u64,
     base_fee_lo: u64,
-    base_circ_supply_hi: u64,
-    base_circ_supply_lo: u64,
-    network_version: u64,
+    circulating_supply_hi: u64,
+    circulating_supply_lo: u64,
+    network_version: u32,
     state_root: c_slice::Ref<u8>,
     actor_redirect: c_slice::Ref<u8>,
     tracing: bool,
@@ -200,11 +165,10 @@ fn create_fvm_debug_machine(
         chain_id,
         base_fee_hi,
         base_fee_lo,
-        base_circ_supply_hi,
-        base_circ_supply_lo,
+        circulating_supply_hi,
+        circulating_supply_lo,
         network_version,
         state_root,
-        None,
         if actor_redirect.is_empty() {
             None
         } else {

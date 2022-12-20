@@ -1,49 +1,5 @@
-//go:build cgo && (amd64 || arm64 || riscv64)
-// +build cgo
-// +build amd64 arm64 riscv64
-
-package ffi
-
-// #cgo linux LDFLAGS: ${SRCDIR}/libfilcrypto.a -Wl,-unresolved-symbols=ignore-all
-// #cgo darwin LDFLAGS: ${SRCDIR}/libfilcrypto.a -Wl,-undefined,dynamic_lookup
-// #cgo pkg-config: ${SRCDIR}/filcrypto.pc
-// #include "./filcrypto.h"
-import "C"
-import (
-	"context"
-	"fmt"
-	gobig "math/big"
-	"runtime"
-
-	"github.com/filecoin-project/filecoin-ffi/cgo"
-	"github.com/filecoin-project/go-state-types/abi"
-	"github.com/filecoin-project/go-state-types/big"
-	"github.com/filecoin-project/go-state-types/network"
-	"github.com/ipfs/go-cid"
-	"golang.org/x/xerrors"
-)
-
-type FVM struct {
-	executor *cgo.FvmMachine
-}
-
-const (
-	applyExplicit = iota
-	applyImplicit
-)
-
-type FVMOpts struct {
-	FVMVersion uint64
-	Externs    cgo.Externs
-
-	Epoch          abi.ChainEpoch
-	Timestamp      uint64
-	ChainID        uint64
-	BaseFee        abi.TokenAmount
-	BaseCircSupply abi.TokenAmount
-	NetworkVersion network.Version
+//go:build cgo && (amd64 || arm64 || riscv64NetworkVersion network.Version
 	StateBase      cid.Cid
-	Manifest       cid.Cid
 	Tracing        bool
 
 	Debug         bool
@@ -74,7 +30,6 @@ func CreateFVM(opts *FVMOpts) (*FVM, error) {
 			baseCircSupplyLo,
 			uint64(opts.NetworkVersion),
 			cgo.AsSliceRefUint8(opts.StateBase.Bytes()),
-			cgo.AsSliceRefUint8(opts.Manifest.Bytes()),
 			opts.Tracing,
 			exHandle, exHandle,
 		)
