@@ -286,9 +286,7 @@ mod v2 {
                                     compute_gas: Gas::from_milligas(
                                         charge.compute_gas.as_milligas(),
                                     ),
-                                    storage_gas: Gas::from_milligas(
-                                        charge.storage_gas.as_milligas(),
-                                    ),
+                                    other_gas: Gas::from_milligas(charge.storage_gas.as_milligas()),
                                     elapsed: Default::default(), // no timing information for v2.
                                 }))
                             }

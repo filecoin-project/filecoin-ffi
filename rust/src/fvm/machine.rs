@@ -448,14 +448,14 @@ fn build_lotus_trace(
             ExecutionEvent::GasCharge(GasCharge {
                 name,
                 compute_gas,
-                storage_gas,
+                other_gas,
                 elapsed: _, // TODO: thread timing through to lotus.
             }) => {
                 new_trace.gas_charges.push(LotusGasCharge {
                     name,
-                    total_gas: (compute_gas + storage_gas).round_up(),
+                    total_gas: (compute_gas + other_gas).round_up(),
                     compute_gas: compute_gas.round_up(),
-                    storage_gas: storage_gas.round_up(),
+                    storage_gas: other_gas.round_up(),
                 });
             }
             _ => (), // ignore unknown events.
