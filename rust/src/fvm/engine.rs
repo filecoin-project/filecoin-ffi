@@ -8,10 +8,11 @@ use cid::Cid;
 use fvm2::machine::MultiEngine as MultiEngine2;
 use fvm3::engine::MultiEngine as MultiEngine3;
 use fvm3::executor::{ApplyKind, ApplyRet};
-use fvm3::machine::{MachineContext, NetworkConfig};
-use fvm3_shared::{message::Message, version::NetworkVersion};
 
-use super::blockstore::{CgoBlockstore, OverlayBlockstore};
+use fvm3_shared::econ::TokenAmount;
+use fvm3_shared::message::Message;
+
+use super::blockstore::CgoBlockstore;
 use super::externs::CgoExterns;
 use super::types::*;
 
@@ -27,13 +28,25 @@ pub trait CgoExecutor {
     fn flush(&mut self) -> anyhow::Result<Cid>;
 }
 
+pub struct Config {
+    pub network_version: u32,
+    pub chain_id: u64,
+    pub chain_epoch: u64,
+    pub chain_timestamp: u64,
+    pub state_root: Cid,
+    pub base_fee: TokenAmount,
+    pub circulating_supply: TokenAmount,
+    pub tracing: bool,
+    pub actor_debugging: bool,
+    pub actor_redirect: Vec<(Cid, Cid)>,
+}
+
 // The generic engine interface
 pub trait AbstractMultiEngine: Send + Sync {
     fn new_executor(
         &self,
-        ncfg: NetworkConfig,
-        mctx: MachineContext,
-        blockstore: OverlayBlockstore<CgoBlockstore>,
+        config: Config,
+        blockstore: CgoBlockstore,
         externs: CgoExterns,
     ) -> anyhow::Result<InnerFvmMachine>;
 }
@@ -54,19 +67,16 @@ impl MultiEngineContainer {
         }
     }
 
-    pub fn get(
-        &self,
-        nv: NetworkVersion,
-    ) -> anyhow::Result<Arc<dyn AbstractMultiEngine + 'static>> {
+    pub fn get(&self, nv: u32) -> anyhow::Result<Arc<dyn AbstractMultiEngine + 'static>> {
         let mut locked = self.engines.lock().unwrap();
-        Ok(match locked.entry(nv as u32) {
+        Ok(match locked.entry(nv) {
             Entry::Occupied(v) => v.get().clone(),
             Entry::Vacant(v) => v
                 .insert(match nv {
-                    NetworkVersion::V16 | NetworkVersion::V17 => {
+                    16 | 17 => {
                         Arc::new(MultiEngine2::new()) as Arc<dyn AbstractMultiEngine + 'static>
                     }
-                    NetworkVersion::V18 => Arc::new(MultiEngine3::new(self.concurrency))
+                    18 => Arc::new(MultiEngine3::new(self.concurrency))
                         as Arc<dyn AbstractMultiEngine + 'static>,
                     _ => return Err(anyhow!("network version not supported")),
                 })
@@ -83,6 +93,7 @@ impl Default for MultiEngineContainer {
 
 // fvm v3 implementation
 mod v3 {
+    use anyhow::anyhow;
     use cid::Cid;
     use std::sync::Mutex;
 
@@ -92,16 +103,17 @@ mod v3 {
         ApplyKind, ApplyRet, DefaultExecutor as DefaultExecutor3,
         ThreadedExecutor as ThreadedExecutor3,
     };
-    use fvm3::machine::{DefaultMachine as DefaultMachine3, MachineContext, NetworkConfig};
+    use fvm3::machine::{DefaultMachine as DefaultMachine3, NetworkConfig};
     use fvm3::DefaultKernel as DefaultKernel3;
-    use fvm3_shared::message::Message;
+    use fvm3_shared::{chainid::ChainID, clock::ChainEpoch, message::Message};
 
     use crate::fvm::engine::{
         AbstractMultiEngine, CgoBlockstore, CgoExecutor, CgoExterns, InnerFvmMachine,
-        OverlayBlockstore,
     };
 
-    type CgoMachine3 = DefaultMachine3<OverlayBlockstore<CgoBlockstore>, CgoExterns>;
+    use super::Config;
+
+    type CgoMachine3 = DefaultMachine3<CgoBlockstore, CgoExterns>;
     type BaseExecutor3 = DefaultExecutor3<DefaultKernel3<DefaultCallManager3<CgoMachine3>>>;
     type CgoExecutor3 = ThreadedExecutor3<BaseExecutor3>;
 
@@ -130,13 +142,37 @@ mod v3 {
     impl AbstractMultiEngine for MultiEngine3 {
         fn new_executor(
             &self,
-            cfg: NetworkConfig,
-            ctx: MachineContext,
-            blockstore: OverlayBlockstore<CgoBlockstore>,
+            cfg: Config,
+            blockstore: CgoBlockstore,
             externs: CgoExterns,
         ) -> anyhow::Result<InnerFvmMachine> {
-            let engine = self.get(&cfg)?;
-            let machine = CgoMachine3::new(&ctx, blockstore, externs)?;
+            let mut network_config = NetworkConfig::new(
+                cfg.network_version
+                    .try_into()
+                    .map_err(|nv| anyhow!("network version {nv} not supported"))?,
+            );
+            network_config.chain_id(ChainID::from(cfg.chain_id));
+
+            if cfg.actor_debugging {
+                network_config.enable_actor_debugging();
+            }
+
+            network_config.redirect_actors(cfg.actor_redirect);
+
+            let mut machine_context = network_config.for_epoch(
+                cfg.chain_epoch as ChainEpoch,
+                cfg.chain_timestamp,
+                cfg.state_root,
+            );
+
+            machine_context.set_base_fee(cfg.base_fee);
+            machine_context.set_circulating_supply(cfg.circulating_supply);
+
+            if cfg.tracing {
+                machine_context.enable_tracing();
+            }
+            let engine = self.get(&network_config)?;
+            let machine = CgoMachine3::new(&machine_context, blockstore, externs)?;
             Ok(InnerFvmMachine {
                 machine: Some(Mutex::new(Box::new(new_executor(engine, machine)?))),
             })
@@ -159,21 +195,21 @@ mod v2 {
         DefaultExecutor as DefaultExecutor2, ThreadedExecutor as ThreadedExecutor2,
     };
     use fvm2::machine::{
-        DefaultMachine as DefaultMachine2, MachineContext as MachineContext2,
-        MultiEngine as MultiEngine2, NetworkConfig as NetworkConfig2,
+        DefaultMachine as DefaultMachine2, MultiEngine as MultiEngine2,
+        NetworkConfig as NetworkConfig2,
     };
     use fvm2::trace::ExecutionEvent as ExecutionEvent2;
     use fvm2::DefaultKernel as DefaultKernel2;
     use fvm2_ipld_encoding::RawBytes as RawBytes2;
     use fvm2_shared::{
-        address::Address as Address2, econ::TokenAmount as TokenAmount2,
-        message::Message as Message2, version::NetworkVersion as NetworkVersion2,
+        address::Address as Address2, clock::ChainEpoch as ChainEpoch2,
+        econ::TokenAmount as TokenAmount2, message::Message as Message2,
     };
     use fvm3::call_manager::{backtrace::Backtrace, backtrace::Cause, backtrace::Frame};
     use fvm3::executor::{ApplyFailure, ApplyKind, ApplyRet};
     use fvm3::gas::{Gas, GasCharge};
     use fvm3::kernel::SyscallError;
-    use fvm3::machine::{MachineContext, NetworkConfig};
+
     use fvm3::trace::ExecutionEvent;
     use fvm3_ipld_encoding::RawBytes;
     use fvm3_shared::{
@@ -183,10 +219,11 @@ mod v2 {
 
     use crate::fvm::engine::{
         AbstractMultiEngine, CgoBlockstore, CgoExecutor, CgoExterns, InnerFvmMachine,
-        OverlayBlockstore,
     };
 
-    type CgoMachine2 = DefaultMachine2<OverlayBlockstore<CgoBlockstore>, CgoExterns>;
+    use super::Config;
+
+    type CgoMachine2 = DefaultMachine2<CgoBlockstore, CgoExterns>;
     type BaseExecutor2 = DefaultExecutor2<DefaultKernel2<DefaultCallManager2<CgoMachine2>>>;
     type CgoExecutor2 = ThreadedExecutor2<BaseExecutor2>;
 
@@ -335,35 +372,35 @@ mod v2 {
     impl AbstractMultiEngine for MultiEngine2 {
         fn new_executor(
             &self,
-            cfg: NetworkConfig,
-            ctx: MachineContext,
-            blockstore: OverlayBlockstore<CgoBlockstore>,
+            cfg: Config,
+            blockstore: CgoBlockstore,
             externs: CgoExterns,
         ) -> anyhow::Result<InnerFvmMachine> {
-            let ver = NetworkVersion2::try_from(cfg.network_version as u32)
-                .map_err(|nv| anyhow!("unsupported network version {nv}"))?;
-            let cfg = NetworkConfig2 {
-                network_version: ver,
-                max_call_depth: cfg.max_call_depth,
-                max_wasm_stack: cfg.max_wasm_stack,
-                builtin_actors_override: cfg.builtin_actors_override,
-                actor_debugging: cfg.actor_debugging,
-                price_list: fvm2::gas::price_list_by_network_version(ver),
-                actor_redirect: cfg.actor_redirect,
-            };
+            let mut network_config = NetworkConfig2::new(
+                cfg.network_version
+                    .try_into()
+                    .map_err(|nv| anyhow!("network version {nv} not supported"))?,
+            );
 
-            let engine = self.get(&cfg)?;
+            if cfg.actor_debugging {
+                network_config.enable_actor_debugging();
+            }
 
-            let ctx = MachineContext2 {
-                network: cfg,
-                epoch: ctx.epoch,
-                initial_state_root: ctx.initial_state_root,
-                base_fee: TokenAmount2::from_atto(ctx.base_fee.atto().clone()),
-                circ_supply: TokenAmount2::from_atto(ctx.circ_supply.atto().clone()),
-                tracing: ctx.tracing,
-            };
+            network_config.redirect_actors(cfg.actor_redirect);
 
-            let machine = CgoMachine2::new(&engine, &ctx, blockstore, externs)?;
+            let mut machine_context =
+                network_config.for_epoch(cfg.chain_epoch as ChainEpoch2, cfg.state_root);
+
+            machine_context.set_base_fee(TokenAmount2::from_atto(cfg.base_fee.atto().clone()));
+            machine_context.set_circulating_supply(TokenAmount2::from_atto(
+                cfg.circulating_supply.atto().clone(),
+            ));
+
+            if cfg.tracing {
+                machine_context.enable_tracing();
+            }
+            let engine = self.get(&network_config)?;
+            let machine = CgoMachine2::new(&engine, &machine_context, blockstore, externs)?;
             Ok(InnerFvmMachine {
                 machine: Some(Mutex::new(Box::new(new_executor(machine)))),
             })
