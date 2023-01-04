@@ -1,11 +1,11 @@
 use std::{cell::RefCell, collections::HashMap, convert::TryFrom};
 
 use anyhow::Result;
-use cid::{
+use fvm3_cid::{
     multihash::{Code, MultihashDigest},
     Cid,
 };
-use fvm_ipld_blockstore::Blockstore;
+use fvm3_ipld_blockstore::Blockstore;
 
 use super::OverlayBlockstore;
 
@@ -59,8 +59,8 @@ where
 
     fn put<D>(
         &self,
-        mh_code: cid::multihash::Code,
-        block: &fvm_ipld_blockstore::Block<D>,
+        mh_code: fvm3_cid::multihash::Code,
+        block: &fvm3_ipld_blockstore::Block<D>,
     ) -> Result<Cid>
     where
         Self: Sized,
@@ -73,7 +73,7 @@ where
     where
         Self: Sized,
         D: AsRef<[u8]>,
-        I: IntoIterator<Item = (cid::multihash::Code, fvm_ipld_blockstore::Block<D>)>,
+        I: IntoIterator<Item = (fvm3_cid::multihash::Code, fvm3_ipld_blockstore::Block<D>)>,
     {
         self.base.put_many(blocks)
     }

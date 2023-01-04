@@ -3,8 +3,7 @@ use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
 use anyhow::anyhow;
-use cid::Cid;
-
+use fvm3_cid::Cid;
 use fvm2::machine::MultiEngine as MultiEngine2;
 use fvm3::executor::{ApplyKind, ApplyRet};
 use fvm3::machine::{MachineContext, MultiEngine as MultiEngine3, NetworkConfig};
@@ -79,7 +78,7 @@ impl Default for MultiEngineContainer {
 
 // fvm v3 implementation
 mod v3 {
-    use cid::Cid;
+    use fvm3_cid::Cid;
     use std::sync::Mutex;
 
     use fvm3::call_manager::DefaultCallManager as DefaultCallManager3;
@@ -142,7 +141,7 @@ mod v3 {
 // fvm v2 implementation
 mod v2 {
     use anyhow::anyhow;
-    use cid::Cid;
+    //use fvm2_cid::Cid as Cid2;
     use num_traits::FromPrimitive;
     use std::sync::Mutex;
 
@@ -175,7 +174,7 @@ mod v2 {
         address::Address, econ::TokenAmount, error::ErrorNumber, error::ExitCode, message::Message,
         receipt::Receipt,
     };
-
+    use fvm3_cid::Cid;
     use crate::fvm::engine::{
         AbstractMultiEngine, CgoBlockstore, CgoExecutor, CgoExterns, InnerFvmMachine,
         OverlayBlockstore,

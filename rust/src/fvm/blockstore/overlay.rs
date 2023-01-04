@@ -1,8 +1,12 @@
 use std::collections::HashMap;
 
 use anyhow::Result;
-use cid::Cid;
-use fvm_ipld_blockstore::Blockstore;
+use fvm3_cid::Cid;
+use fvm3_ipld_blockstore::Blockstore as Blockstore3;
+
+use fvm2_cid::Cid as Cid2;
+use fvm2_ipld_blockstore::Blockstore as Blockstore2;
+
 
 /// A blockstore with a read-only, in-memory "overlay".
 ///
@@ -25,9 +29,9 @@ impl<BS> OverlayBlockstore<BS> {
     }
 }
 
-impl<BS> Blockstore for OverlayBlockstore<BS>
+impl<BS> Blockstore3 for OverlayBlockstore<BS>
 where
-    BS: Blockstore,
+    BS: Blockstore3,
 {
     fn get(&self, k: &Cid) -> Result<Option<Vec<u8>>> {
         match self.over.get(k) {
@@ -46,8 +50,8 @@ where
 
     fn put<D>(
         &self,
-        mh_code: cid::multihash::Code,
-        block: &fvm_ipld_blockstore::Block<D>,
+        mh_code: fvm3_cid::multihash::Code,
+        block: &fvm3_ipld_blockstore::Block<D>,
     ) -> Result<Cid>
     where
         Self: Sized,
@@ -60,7 +64,7 @@ where
     where
         Self: Sized,
         D: AsRef<[u8]>,
-        I: IntoIterator<Item = (cid::multihash::Code, fvm_ipld_blockstore::Block<D>)>,
+        I: IntoIterator<Item = (fvm3_cid::multihash::Code, fvm3_ipld_blockstore::Block<D>)>,
     {
         self.base.put_many(blocks)
     }
@@ -72,5 +76,52 @@ where
         I: IntoIterator<Item = (Cid, D)>,
     {
         self.base.put_many_keyed(blocks)
+    }
+}
+
+impl<BS> Blockstore2 for OverlayBlockstore<BS>
+where
+    BS: Blockstore2,
+{
+    fn get(&self, k: &Cid2) -> Result<Option<Vec<u8>>> {
+        Blockstore3::get(self, k)
+    }
+
+    fn put_keyed(&self, k: &Cid2, block: &[u8]) -> Result<()> {
+        Blockstore3::put_keyed(&self, k, block)
+    }
+
+    fn has(&self, k: &Cid2) -> Result<bool> {
+        Blockstore3::has(self, k)
+    }
+
+    fn put<D>(
+        &self,
+        mh_code: fvm2_cid::multihash::Code,
+        block: &fvm2_ipld_blockstore::Block<D>,
+    ) -> Result<Cid2>
+    where
+        Self: Sized,
+        D: AsRef<[u8]>,
+    {
+        Blockstore3::put(self, mh_code, block)
+    }
+
+    fn put_many<D, I>(&self, blocks: I) -> Result<()>
+    where
+        Self: Sized,
+        D: AsRef<[u8]>,
+        I: IntoIterator<Item = (fvm2_cid::multihash::Code, fvm2_ipld_blockstore::Block<D>)>,
+    {
+        Blockstore3::put_many(blocks)
+    }
+
+    fn put_many_keyed<D, I>(&self, blocks: I) -> Result<()>
+    where
+        Self: Sized,
+        D: AsRef<[u8]>,
+        I: IntoIterator<Item = (Cid2, D)>,
+    {
+        Blockstore3::put_many_keyed(blocks)
     }
 }

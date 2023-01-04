@@ -187,7 +187,7 @@ impl Consensus2 for CgoExterns {
 }
 
 impl Chain3 for CgoExterns {
-    fn get_tipset_cid(&self, epoch: ChainEpoch) -> anyhow::Result<cid::Cid> {
+    fn get_tipset_cid(&self, epoch: ChainEpoch) -> anyhow::Result<fvm3_cid::Cid> {
         unsafe {
             let mut buf = [0; fvm3_shared::MAX_CID_LEN];
             match cgo_extern_get_tipset_cid(self.handle, epoch, buf.as_mut_ptr(), buf.len() as i32)

@@ -2,7 +2,7 @@ use std::borrow::Cow;
 use std::convert::{TryFrom, TryInto};
 
 use anyhow::{anyhow, bail, Context};
-use cid::Cid;
+use fvm3_cid::Cid;
 use fvm3::executor::ApplyKind as ApplyKind3;
 use fvm3::gas::GasCharge;
 use fvm3::trace::ExecutionEvent;
