@@ -8,10 +8,10 @@ use fvm3::gas::GasCharge;
 use fvm3::trace::ExecutionEvent;
 use fvm3_ipld_encoding::tuple::{Deserialize_tuple, Serialize_tuple};
 use fvm3_ipld_encoding::{to_vec, CborStore, RawBytes};
-use fvm3_shared::address::Address;
-use fvm3_shared::error::{ErrorNumber, ExitCode};
-use fvm3_shared::receipt::Receipt;
-use fvm3_shared::{
+use fvm_shared::address::Address;
+use fvm_shared::error::{ErrorNumber, ExitCode};
+use fvm_shared::receipt::Receipt;
+use fvm_shared::{
     clock::ChainEpoch, econ::TokenAmount, message::Message, version::NetworkVersion,
 };
 use lazy_static::lazy_static;
@@ -463,10 +463,10 @@ mod test {
     use fvm3::kernel::SyscallError;
     use fvm3::trace::ExecutionEvent;
     use fvm3_ipld_encoding::RawBytes;
-    use fvm3_shared::address::Address;
-    use fvm3_shared::econ::TokenAmount;
-    use fvm3_shared::error::ErrorNumber::IllegalArgument;
-    use fvm3_shared::ActorID;
+    use fvm_shared::address::Address;
+    use fvm_shared::econ::TokenAmount;
+    use fvm_shared::error::ErrorNumber::IllegalArgument;
+    use fvm_shared::ActorID;
 
     #[test]
     fn test_lotus_trace() {

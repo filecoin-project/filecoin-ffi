@@ -4,14 +4,14 @@ use fvm2::externs::{Consensus as Consensus2, Externs as Externs2, Rand as Rand2}
 use fvm3::externs::{Chain as Chain3, Consensus as Consensus3, Externs as Externs3, Rand as Rand3};
 
 use fvm2_shared::address::Address as Address2;
-use fvm3_shared::address::Address;
+use fvm_shared::address::Address;
 
-use fvm3_shared::clock::ChainEpoch;
+use fvm_shared::clock::ChainEpoch;
 
 use fvm2_shared::consensus::{
     ConsensusFault as ConsensusFault2, ConsensusFaultType as ConsensusFaultType2,
 };
-use fvm3_shared::consensus::ConsensusFault as ConsensusFault3;
+use fvm_shared::consensus::ConsensusFault as ConsensusFault3;
 
 use num_traits::FromPrimitive;
 
@@ -189,7 +189,7 @@ impl Consensus2 for CgoExterns {
 impl Chain3 for CgoExterns {
     fn get_tipset_cid(&self, epoch: ChainEpoch) -> anyhow::Result<fvm3_cid::Cid> {
         unsafe {
-            let mut buf = [0; fvm3_shared::MAX_CID_LEN];
+            let mut buf = [0; fvm_shared::MAX_CID_LEN];
             match cgo_extern_get_tipset_cid(self.handle, epoch, buf.as_mut_ptr(), buf.len() as i32)
             {
                 0 => Ok(buf[..].try_into()?),

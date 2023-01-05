@@ -1210,7 +1210,7 @@ dependencies = [
  "fvm_ipld_encoding 0.2.2",
  "fvm_ipld_encoding 0.3.0",
  "fvm_shared 2.0.0",
- "fvm_shared 3.0.0-alpha.14",
+ "fvm_shared 3.0.0-alpha.13",
  "group",
  "lazy_static",
  "libc",
@@ -1647,35 +1647,6 @@ dependencies = [
  "serde_repr",
  "serde_tuple",
  "sha3",
- "thiserror",
- "unsigned-varint",
-]
-
-[[package]]
-name = "fvm_shared"
-version = "3.0.0-alpha.14"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8f4c82720bd5a315560cb724b4806e371fede40a203955ca17690b5b668a1db5"
-dependencies = [
- "anyhow",
- "bitflags 1.3.2",
- "blake2b_simd",
- "byteorder",
- "cid 0.8.6",
- "data-encoding",
- "data-encoding-macro",
- "fvm_ipld_blockstore 0.1.1",
- "fvm_ipld_encoding 0.3.0",
- "lazy_static",
- "log",
- "multihash 0.16.3",
- "num-bigint",
- "num-derive",
- "num-integer",
- "num-traits",
- "serde",
- "serde_repr",
- "serde_tuple",
  "thiserror",
  "unsigned-varint",
 ]
