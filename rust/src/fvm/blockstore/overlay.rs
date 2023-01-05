@@ -10,6 +10,7 @@ use fvm2_cid::Cid as Cid2;
 use fvm2_ipld_blockstore::Blockstore as Blockstore2;
 
 
+// SHAWN: move and reffactor to return anyhow::result
 fn cid2_to_cid3(cid2: &Cid2) -> Cid3 {
     let v = cid2.version() as u64;
     let multihash2_bytes = cid2.hash().to_bytes();

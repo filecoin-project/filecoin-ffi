@@ -3,7 +3,12 @@ use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
 use anyhow::anyhow;
-use fvm3_cid::Cid;
+use fvm3_cid::Cid as Cid3;
+use fvm2_cid::Cid as Cid2;
+use fvm3_cid::Version as Version3;
+use fvm2_cid::Version as Version2;
+use fvm3_multihash::Multihash as Multihash3;
+use fvm2_multihash::Multihash as Multihash2;
 use fvm2::machine::MultiEngine as MultiEngine2;
 use fvm3::executor::{ApplyKind, ApplyRet};
 use fvm3::machine::{MachineContext, MultiEngine as MultiEngine3, NetworkConfig};
@@ -12,6 +17,24 @@ use fvm_shared::{message::Message, version::NetworkVersion};
 use super::blockstore::{CgoBlockstore, OverlayBlockstore};
 use super::externs::CgoExterns;
 use super::types::*;
+
+
+// SHAWN: move and reffactor to return anyhow::result
+fn cid2_to_cid3(cid2: &Cid2) -> Cid3 {
+    let v = cid2.version() as u64;
+    let multihash2_bytes = cid2.hash().to_bytes();
+    let multihash3 = Multihash3::from_bytes(&multihash2_bytes).unwrap();
+    // SHAWN TODO: instead of unwraping here propagate so we have error handling
+    Cid3::new(Version3::try_from(v).unwrap(), cid2.codec(), multihash3).unwrap()
+}
+
+fn cid3_to_cid2(cid3: &Cid3) -> Cid2 {
+    let v = cid3.version() as u64;
+    let multihash3_bytes = cid3.hash().to_bytes();
+    let multihash2 = Multihash2::from_bytes(&multihash3_bytes).unwrap();
+    // SHAWN TODO: instead of unwraping here propagate so we have error handling
+    Cid2::new(Version2::try_from(v).unwrap(), cid3.codec(), multihash2).unwrap()
+}
 
 // Generic executor; uses the current (v3) engine types
 pub trait CgoExecutor {
@@ -22,7 +45,7 @@ pub trait CgoExecutor {
         raw_length: usize,
     ) -> anyhow::Result<ApplyRet>;
 
-    fn flush(&mut self) -> anyhow::Result<Cid>;
+    fn flush(&mut self) -> anyhow::Result<Cid3>;
 }
 
 // The generic engine interface
@@ -140,6 +163,8 @@ mod v3 {
 
 // fvm v2 implementation
 mod v2 {
+    use super::cid3_to_cid2;
+    use super::cid2_to_cid3;
     use anyhow::anyhow;
     //use fvm2_cid::Cid as Cid2;
     use num_traits::FromPrimitive;
@@ -174,7 +199,7 @@ mod v2 {
         address::Address, econ::TokenAmount, error::ErrorNumber, error::ExitCode, message::Message,
         receipt::Receipt,
     };
-    use fvm3_cid::Cid;
+    use fvm3_cid::Cid as Cid3;
     use crate::fvm::engine::{
         AbstractMultiEngine, CgoBlockstore, CgoExecutor, CgoExterns, InnerFvmMachine,
         OverlayBlockstore,
@@ -322,8 +347,9 @@ mod v2 {
             }
         }
 
-        fn flush(&mut self) -> anyhow::Result<Cid> {
-            fvm2::executor::Executor::flush(self)
+        fn flush(&mut self) -> anyhow::Result<Cid3> {
+            let cid2 = fvm2::executor::Executor::flush(self)?;
+            Ok(cid2_to_cid3(&cid2))
         }
     }
 
@@ -337,22 +363,32 @@ mod v2 {
         ) -> anyhow::Result<InnerFvmMachine> {
             let ver = NetworkVersion2::try_from(cfg.network_version as u32)
                 .map_err(|nv| anyhow!("unsupported network version {nv}"))?;
+
+            let builtin_actors_override = match cfg.builtin_actors_override {
+                Some(c) => Some(cid3_to_cid2(&c)),
+                None => None,
+            };
+            let actor_redirect = cfg.actor_redirect.iter().map(
+                |c| (cid3_to_cid2(&c.0), cid3_to_cid2(&c.1))
+            ).collect::<Vec<_>>();
             let cfg = NetworkConfig2 {
                 network_version: ver,
                 max_call_depth: cfg.max_call_depth,
                 max_wasm_stack: cfg.max_wasm_stack,
-                builtin_actors_override: cfg.builtin_actors_override,
+                builtin_actors_override,
                 actor_debugging: cfg.actor_debugging,
                 price_list: fvm2::gas::price_list_by_network_version(ver),
-                actor_redirect: cfg.actor_redirect,
+                actor_redirect,
             };
 
             let engine = self.get(&cfg)?;
 
+            let initial_state_root = cid3_to_cid2(&ctx.initial_state_root);
+
             let ctx = MachineContext2 {
                 network: cfg,
                 epoch: ctx.epoch,
-                initial_state_root: ctx.initial_state_root,
+                initial_state_root,
                 base_fee: TokenAmount2::from_atto(ctx.base_fee.atto().clone()),
                 circ_supply: TokenAmount2::from_atto(ctx.circ_supply.atto().clone()),
                 tracing: ctx.tracing,
