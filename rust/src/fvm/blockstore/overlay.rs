@@ -2,21 +2,11 @@ use std::collections::HashMap;
 
 use anyhow::Result;
 use fvm3_cid::Cid as Cid3;
-use fvm3_cid::Version as Version3;
 use fvm3_ipld_blockstore::Blockstore as Blockstore3;
-use fvm3_multihash::Multihash as Multihash3;
 
 use fvm2_cid::Cid as Cid2;
 use fvm2_ipld_blockstore::Blockstore as Blockstore2;
-
-
-// SHAWN: move and reffactor to return anyhow::result
-fn cid2_to_cid3(cid2: &Cid2) -> Cid3 {
-    let v = cid2.version() as u64;
-    let multihash2_bytes = cid2.hash().to_bytes();
-    let multihash3 = Multihash3::from_bytes(&multihash2_bytes).unwrap();
-    Cid3::new(Version3::try_from(v).unwrap(), cid2.codec(), multihash3).unwrap()
-}
+use crate::fvm::engine::cid2_to_cid3;
 
 /// A blockstore with a read-only, in-memory "overlay".
 ///

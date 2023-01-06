@@ -18,24 +18,6 @@ use super::blockstore::{CgoBlockstore, OverlayBlockstore};
 use super::externs::CgoExterns;
 use super::types::*;
 
-
-// SHAWN: move and reffactor to return anyhow::result
-fn cid2_to_cid3(cid2: &Cid2) -> Cid3 {
-    let v = cid2.version() as u64;
-    let multihash2_bytes = cid2.hash().to_bytes();
-    let multihash3 = Multihash3::from_bytes(&multihash2_bytes).unwrap();
-    // SHAWN TODO: instead of unwraping here propagate so we have error handling
-    Cid3::new(Version3::try_from(v).unwrap(), cid2.codec(), multihash3).unwrap()
-}
-
-fn cid3_to_cid2(cid3: &Cid3) -> Cid2 {
-    let v = cid3.version() as u64;
-    let multihash3_bytes = cid3.hash().to_bytes();
-    let multihash2 = Multihash2::from_bytes(&multihash3_bytes).unwrap();
-    // SHAWN TODO: instead of unwraping here propagate so we have error handling
-    Cid2::new(Version2::try_from(v).unwrap(), cid3.codec(), multihash2).unwrap()
-}
-
 // Generic executor; uses the current (v3) engine types
 pub trait CgoExecutor {
     fn execute_message(
@@ -97,6 +79,26 @@ impl Default for MultiEngineContainer {
     fn default() -> MultiEngineContainer {
         MultiEngineContainer::new()
     }
+}
+
+// Copy the Cid struct used by FVMv2 to Cid used by FVMv3
+// This function is used to resolve dependency conflicts
+pub fn cid2_to_cid3(cid2: &Cid2) -> Cid3 {
+    let v = cid2.version() as u64;
+    let multihash2_bytes = cid2.hash().to_bytes();
+    let multihash3 = Multihash3::from_bytes(&multihash2_bytes).unwrap();
+    // SHAWN TODO: instead of unwraping here propagate so we have error handling
+    Cid3::new(Version3::try_from(v).unwrap(), cid2.codec(), multihash3).unwrap()
+}
+
+// Copy the Cid struct used by FVMv3 to Cid used by FVMv2
+// This function is used to resolve dependency conflicts
+pub fn cid3_to_cid2(cid3: &Cid3) -> Cid2 {
+    let v = cid3.version() as u64;
+    let multihash3_bytes = cid3.hash().to_bytes();
+    let multihash2 = Multihash2::from_bytes(&multihash3_bytes).unwrap();
+    // SHAWN TODO: instead of unwraping here propagate so we have error handling
+    Cid2::new(Version2::try_from(v).unwrap(), cid3.codec(), multihash2).unwrap()
 }
 
 // fvm v3 implementation
