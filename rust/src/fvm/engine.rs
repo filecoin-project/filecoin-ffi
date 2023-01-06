@@ -366,10 +366,7 @@ mod v2 {
             let ver = NetworkVersion2::try_from(cfg.network_version as u32)
                 .map_err(|nv| anyhow!("unsupported network version {nv}"))?;
 
-            let builtin_actors_override = match cfg.builtin_actors_override {
-                Some(c) => Some(cid3_to_cid2(&c).unwrap()),
-                None => None,
-            };
+            let builtin_actors_override = cfg.builtin_actors_override.map(|c| cid3_to_cid2(&c).unwrap());
             let actor_redirect = cfg.actor_redirect.iter().map(
                 |c| (cid3_to_cid2(&c.0).unwrap(), cid3_to_cid2(&c.1).unwrap())
             ).collect::<Vec<_>>();
