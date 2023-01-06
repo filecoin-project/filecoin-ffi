@@ -83,22 +83,22 @@ impl Default for MultiEngineContainer {
 
 // Copy the Cid struct used by FVMv2 to Cid used by FVMv3
 // This function is used to resolve dependency conflicts
-pub fn cid2_to_cid3(cid2: &Cid2) -> Cid3 {
+pub fn cid2_to_cid3(cid2: &Cid2) -> anyhow::Result<Cid3> {
     let v = cid2.version() as u64;
     let multihash2_bytes = cid2.hash().to_bytes();
     let multihash3 = Multihash3::from_bytes(&multihash2_bytes).unwrap();
-    // SHAWN TODO: instead of unwraping here propagate so we have error handling
-    Cid3::new(Version3::try_from(v).unwrap(), cid2.codec(), multihash3).unwrap()
+    let cid3 = Cid3::new(Version3::try_from(v).unwrap(), cid2.codec(), multihash3).map_err(anyhow::Error::msg)?;
+    Ok(cid3)
 }
 
 // Copy the Cid struct used by FVMv3 to Cid used by FVMv2
 // This function is used to resolve dependency conflicts
-pub fn cid3_to_cid2(cid3: &Cid3) -> Cid2 {
+pub fn cid3_to_cid2(cid3: &Cid3) -> anyhow::Result<Cid2> {
     let v = cid3.version() as u64;
     let multihash3_bytes = cid3.hash().to_bytes();
     let multihash2 = Multihash2::from_bytes(&multihash3_bytes).unwrap();
-    // SHAWN TODO: instead of unwraping here propagate so we have error handling
-    Cid2::new(Version2::try_from(v).unwrap(), cid3.codec(), multihash2).unwrap()
+    let cid2 = Cid2::new(Version2::try_from(v).unwrap(), cid3.codec(), multihash2).map_err(anyhow::Error::msg)?;
+    Ok(cid2)
 }
 
 // fvm v3 implementation
@@ -351,7 +351,7 @@ mod v2 {
 
         fn flush(&mut self) -> anyhow::Result<Cid3> {
             let cid2 = fvm2::executor::Executor::flush(self)?;
-            Ok(cid2_to_cid3(&cid2))
+            cid2_to_cid3(&cid2)
         }
     }
 
@@ -367,11 +367,11 @@ mod v2 {
                 .map_err(|nv| anyhow!("unsupported network version {nv}"))?;
 
             let builtin_actors_override = match cfg.builtin_actors_override {
-                Some(c) => Some(cid3_to_cid2(&c)),
+                Some(c) => Some(cid3_to_cid2(&c).unwrap()),
                 None => None,
             };
             let actor_redirect = cfg.actor_redirect.iter().map(
-                |c| (cid3_to_cid2(&c.0), cid3_to_cid2(&c.1))
+                |c| (cid3_to_cid2(&c.0).unwrap(), cid3_to_cid2(&c.1).unwrap())
             ).collect::<Vec<_>>();
             let cfg = NetworkConfig2 {
                 network_version: ver,
@@ -385,7 +385,7 @@ mod v2 {
 
             let engine = self.get(&cfg)?;
 
-            let initial_state_root = cid3_to_cid2(&ctx.initial_state_root);
+            let initial_state_root = cid3_to_cid2(&ctx.initial_state_root).unwrap();
 
             let ctx = MachineContext2 {
                 network: cfg,

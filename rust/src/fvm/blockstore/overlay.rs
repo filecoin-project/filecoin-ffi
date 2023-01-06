@@ -84,7 +84,8 @@ where
     BS: Blockstore2,
 {
     fn get(&self, k: &Cid2) -> Result<Option<Vec<u8>>> {
-        let cid3 = cid2_to_cid3(k);
+        // SHAWN TODO: error handle
+        let cid3 = cid2_to_cid3(k).unwrap();
         match self.over.get(&cid3) {
             Some(blk) => Ok(Some(blk.clone())),
             None => self.base.get(k),
@@ -96,7 +97,8 @@ where
     }
 
     fn has(&self, k: &Cid2) -> Result<bool> {
-        let cid3 = cid2_to_cid3(k);
+        // SHAWN TODO: error handle
+        let cid3 = cid2_to_cid3(k).unwrap();
         Ok(self.over.contains_key(&cid3) || self.base.has(k)?)
     }
 
