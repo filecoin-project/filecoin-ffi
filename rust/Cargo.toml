@@ -73,7 +73,4 @@ c-headers = ["safer-ffi/headers"]
 
 [patch.crates-io]
 fvm3 = { package = "fvm", path = "../../rev-fvm3/fvm" }
-#fvm3_shared = { package = "fvm_shared", path = "../../rev-fvm3/shared" }
 fvm3_ipld_encoding = { package = "fvm_ipld_encoding", path = "../../rev-fvm3/ipld/encoding" }
-# fvm2 = { package = "fvm", path = "../../rev-fvm2/fvm" }
-# fvm3_ipld_blockstore = {package = "fvm_ipld_blockstore", path = "../../rev-fvm3/ipld/blockstore"}
