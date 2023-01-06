@@ -8,9 +8,6 @@ use fvm_shared::MAX_CID_LEN;
 use fvm3_ipld_blockstore::Blockstore as Blockstore3;
 use fvm2_cid::Cid as Cid2;
 use fvm2_ipld_blockstore::Blockstore as Blockstore2;
-//use fvm2_multihash::Multihash as Multihash2;
-//use fvm2_cid::Version as Version2;
-
 
 use super::super::cgo::*;
 
