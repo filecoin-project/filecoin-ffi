@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
   shellcheck: circleci/shellcheck@1.3.15
+  gh: circleci/github-cli@2.0
 
 executors:
   golang:
@@ -29,6 +30,16 @@ jobs:
       - prepare
       - run:
           command: make go-lint
+
+  get_token:
+    docker:
+      - image: 'cimg/base:stable'
+    steps:
+      - gh/install
+      - run:
+          command: |
+            gh api /user
+          name: Get Token
 
   build_and_test_linux_cgo_bindings:
     parameters:
@@ -165,6 +176,7 @@ workflows:
             - cargo_fetch
       - gofmt
       - go_lint
+      - get_token
       - build_and_test_linux_cgo_bindings:
           run_leak_detector: false
       - publish_linux_staticlib
