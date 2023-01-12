@@ -168,7 +168,6 @@ mod v2 {
     use super::cid3_to_cid2;
     use super::cid2_to_cid3;
     use anyhow::anyhow;
-    //use fvm2_cid::Cid as Cid2;
     use num_traits::FromPrimitive;
     use std::sync::Mutex;
 
