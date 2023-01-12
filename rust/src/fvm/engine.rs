@@ -12,7 +12,7 @@ use fvm2_multihash::Multihash as Multihash2;
 use fvm2::machine::MultiEngine as MultiEngine2;
 use fvm3::executor::{ApplyKind, ApplyRet};
 use fvm3::machine::{MachineContext, MultiEngine as MultiEngine3, NetworkConfig};
-use fvm_shared::{message::Message, version::NetworkVersion};
+use fvm3_shared::{message::Message, version::NetworkVersion};
 
 use super::blockstore::{CgoBlockstore, OverlayBlockstore};
 use super::externs::CgoExterns;
@@ -116,7 +116,7 @@ mod v3 {
         NetworkConfig,
     };
     use fvm3::DefaultKernel as DefaultKernel3;
-    use fvm_shared::message::Message;
+    use fvm3_shared::message::Message;
 
     use crate::fvm::engine::{
         AbstractMultiEngine, CgoBlockstore, CgoExecutor, CgoExterns, InnerFvmMachine,
@@ -197,7 +197,7 @@ mod v2 {
     use fvm3::machine::{MachineContext, NetworkConfig};
     use fvm3::trace::ExecutionEvent;
     use fvm3_ipld_encoding::RawBytes;
-    use fvm_shared::{
+    use fvm3_shared::{
         address::Address, econ::TokenAmount, error::ErrorNumber, error::ExitCode, message::Message,
         receipt::Receipt,
     };

@@ -4,7 +4,7 @@ use anyhow::{anyhow, Result};
 use fvm3_cid::Cid as Cid3;
 use fvm3_cid::Version as Version3;
 use fvm3_multihash::Multihash as Multihash3;
-use fvm_shared::MAX_CID_LEN;
+use fvm3_shared::MAX_CID_LEN;
 use fvm3_ipld_blockstore::Blockstore as Blockstore3;
 use fvm2_cid::Cid as Cid2;
 use fvm2_ipld_blockstore::Blockstore as Blockstore2;
