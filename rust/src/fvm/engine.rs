@@ -6,11 +6,16 @@ use anyhow::anyhow;
 use cid::Cid;
 
 use fvm2::machine::MultiEngine as MultiEngine2;
-use fvm3::engine::MultiEngine as MultiEngine3;
-use fvm3::executor::{ApplyKind, ApplyRet};
 
-use fvm3_shared::econ::TokenAmount;
-use fvm3_shared::message::Message;
+use fvm3_nv18::engine::MultiEngine as MultiEngine3;
+use fvm3_nv18::executor::{ApplyKind, ApplyRet};
+use fvm3_nv18_shared::econ::TokenAmount;
+use fvm3_nv18_shared::message::Message;
+
+use fvm3_nv19::engine::MultiEngine as MultiEngine3;
+use fvm3_nv19::executor::{ApplyKind, ApplyRet};
+use fvm3_nv19_shared::econ::TokenAmount;
+use fvm3_nv19_shared::message::Message;
 
 use super::blockstore::CgoBlockstore;
 use super::externs::CgoExterns;
@@ -92,6 +97,8 @@ impl Default for MultiEngineContainer {
 }
 
 // fvm v3 implementation
+// HALP: is there a more elegant way to map the v3 (nv18) types to the v3 (nv19) types since they're the same?
+// Probably mem::transmute? Ask Steb.
 mod v3 {
     use anyhow::anyhow;
     use cid::Cid;
