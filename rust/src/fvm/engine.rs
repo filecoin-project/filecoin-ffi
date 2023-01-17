@@ -76,7 +76,7 @@ impl MultiEngineContainer {
                     16 | 17 => {
                         Arc::new(MultiEngine2::new()) as Arc<dyn AbstractMultiEngine + 'static>
                     }
-                    18 => Arc::new(MultiEngine3::new(self.concurrency))
+                    _ if nv >= 18 => Arc::new(MultiEngine3::new(self.concurrency))
                         as Arc<dyn AbstractMultiEngine + 'static>,
                     _ => return Err(anyhow!("network version not supported")),
                 })
