@@ -48,6 +48,13 @@ serde = "1.0.117"
 serde_tuple = "0.5"
 safer-ffi = { version = "0.0.7", features = ["proc_macros"] }
 
+[patch.crates-io]
+fvm3 = { package = "fvm", git = "https://github.com/filecoin-project/ref-fvm/", branch = "feat/no-state-root-change"}
+fvm3_shared = { package = "fvm_shared", git = "https://github.com/filecoin-project/ref-fvm/", branch = "feat/no-state-root-change"}
+fvm3_ipld_encoding = { package = "fvm_ipld_encoding", git = "https://github.com/filecoin-project/ref-fvm/", branch = "feat/no-state-root-change"}
+
+fvm_ipld_blockstore = { package ="fvm_ipld_blockstore", git = "https://github.com/filecoin-project/ref-fvm/", branch = "feat/no-state-root-change"}
+
 [dependencies.filecoin-proofs-api]
 package = "filecoin-proofs-api"
 version = "12.0"
