@@ -1528,7 +1528,8 @@ pub mod tests {
             let resp = unsafe { write_without_alignment(registered_proof, src_fd_a, 127, dst_fd) };
 
             #[cfg(target_family = "windows")]
-            let resp = unsafe { write_without_alignment(registered_proof, src_handle_a, 127, dst_handle) };
+            let resp =
+                unsafe { write_without_alignment(registered_proof, src_handle_a, 127, dst_handle) };
 
             if resp.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp.error_msg).unwrap();
@@ -1552,7 +1553,13 @@ pub mod tests {
 
             #[cfg(target_family = "windows")]
             let resp = unsafe {
-                write_with_alignment(registered_proof, src_handle_b, 508, dst_handle, existing[..].into())
+                write_with_alignment(
+                    registered_proof,
+                    src_handle_b,
+                    508,
+                    dst_handle,
+                    existing[..].into(),
+                )
             };
 
             if resp.status_code != FCPResponseStatus::NoError {

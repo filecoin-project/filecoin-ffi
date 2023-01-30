@@ -10,7 +10,8 @@ use safer_ffi::prelude::*;
 use safer_ffi::slice::slice_boxed;
 
 use super::types::{
-    catch_panic_response, catch_panic_response_no_log, GpuDeviceResponse, InitLogFdResponse, InitLogHandleResponse
+    catch_panic_response, catch_panic_response_no_log, GpuDeviceResponse, InitLogFdResponse,
+    InitLogHandleResponse,
 };
 
 /// Protects the init off the logger.
@@ -202,7 +203,13 @@ mod tests {
         use crate::util::types::{destroy_init_log_handle_response, FCPResponseStatus};
 
         let mut pfds: [libc::c_int; 2] = [0; 2];
-        let res = unsafe { libc::pipe(pfds.as_mut_ptr(), mem::size_of_val(&pfds) as libc::c_uint, libc::O_BINARY) };
+        let res = unsafe {
+            libc::pipe(
+                pfds.as_mut_ptr(),
+                mem::size_of_val(&pfds) as libc::c_uint,
+                libc::O_BINARY,
+            )
+        };
         if res != 0 {
             panic!("Cannot create pipe");
         }

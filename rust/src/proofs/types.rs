@@ -19,7 +19,9 @@ impl FileDescriptorRef {
     #[cfg(target_os = "windows")]
     pub unsafe fn new(raw: std::os::windows::io::RawHandle) -> Self {
         use std::os::windows::io::FromRawHandle;
-        FileDescriptorRef(std::mem::ManuallyDrop::new(std::fs::File::from_raw_handle(raw)))
+        FileDescriptorRef(std::mem::ManuallyDrop::new(std::fs::File::from_raw_handle(
+            raw,
+        )))
     }
 }
 
