@@ -66,7 +66,7 @@ main() {
 
     # generate filcrypto.h
     RUSTFLAGS="${__rust_flags}" HEADER_DIR="." \
-        cargo test --locked build_headers --features c-headers
+        cargo +$2 test --locked build_headers --no-default-features --features c-headers
 
     # generate pkg-config
     #
