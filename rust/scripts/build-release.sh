@@ -66,12 +66,12 @@ main() {
 
     # generate filcrypto.h
     RUSTFLAGS="${__rust_flags}" HEADER_DIR="." \
-        cargo test --locked build_headers --features c-headers
+        cargo +$2 test --locked build_headers --no-default-features --features c-headers
 
     # generate pkg-config
     #
     sed -e "s;@VERSION@;$(git rev-parse HEAD);" \
-        -e "s;@PRIVATE_LIBS@;${__linker_flags};" "$1.pc.template" > "$1.pc"
+        -e "s;@PRIVATE_LIBS@;${__linker_flags};" "$1.pc.template" > "../$1.pc"
 
     # ensure header file was built
     #

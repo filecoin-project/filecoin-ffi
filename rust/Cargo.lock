@@ -1189,7 +1189,7 @@ dependencies = [
  "filepath",
  "fr32",
  "fvm 2.1.0",
- "fvm 3.0.0-alpha.16",
+ "fvm 3.0.0-alpha.17",
  "fvm_ipld_blockstore",
  "fvm_ipld_encoding 0.2.3",
  "fvm_ipld_encoding 0.3.2",
@@ -1210,6 +1210,7 @@ dependencies = [
  "serde_json",
  "serde_tuple",
  "tempfile",
+ "windows-sys 0.36.1",
 ]
 
 [[package]]
@@ -1412,9 +1413,9 @@ dependencies = [
 
 [[package]]
 name = "fvm"
-version = "3.0.0-alpha.16"
+version = "3.0.0-alpha.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ac9f5169c14ce1d132c786390077825d065d04002aace0fdebdab931f6cf28ed"
+checksum = "9285d88f67e44c28d0e56ba6a03be4009bb536f4be6bee278b4f51eda2da190b"
 dependencies = [
  "anyhow",
  "blake2b_simd",
@@ -2581,9 +2582,9 @@ dependencies = [
 
 [[package]]
 name = "proc-macro-hack"
-version = "0.5.19"
+version = "0.5.20+deprecated"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dbf0c48bc1d91375ae5c3cd81e3722dff1abcf81a30960240640d223f59fe0e5"
+checksum = "dc375e1527247fe1a97d8b7156678dfe7c1af2fc075c9a4db3690ecd2a148068"
 
 [[package]]
 name = "proc-macro2"

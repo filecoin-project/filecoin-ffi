@@ -8,7 +8,7 @@ package cgo
 */
 import "C"
 
-func CreateFvmMachine(fvmVersion FvmRegisteredVersion, chainEpoch, chainTimestamp, chainId, baseFeeHi, baseFeeLo, baseCircSupplyHi, baseCircSupplyLo, networkVersion uint64, stateRoot SliceRefUint8, manifestCid SliceRefUint8, tracing bool, blockstoreId, externsId uint64) (*FvmMachine, error) {
+func CreateFvmMachine(fvmVersion FvmRegisteredVersion, chainEpoch, chainTimestamp, chainId, baseFeeHi, baseFeeLo, baseCircSupplyHi, baseCircSupplyLo, networkVersion uint64, stateRoot SliceRefUint8, tracing bool, blockstoreId, externsId uint64) (*FvmMachine, error) {
 	resp := C.create_fvm_machine(
 		fvmVersion,
 		C.uint64_t(chainEpoch),
@@ -18,9 +18,8 @@ func CreateFvmMachine(fvmVersion FvmRegisteredVersion, chainEpoch, chainTimestam
 		C.uint64_t(baseFeeLo),
 		C.uint64_t(baseCircSupplyHi),
 		C.uint64_t(baseCircSupplyLo),
-		C.uint64_t(networkVersion),
+		C.uint32_t(networkVersion),
 		stateRoot,
-		manifestCid,
 		C.bool(tracing),
 		C.uint64_t(blockstoreId),
 		C.uint64_t(externsId),
@@ -47,7 +46,7 @@ func CreateFvmDebugMachine(fvmVersion FvmRegisteredVersion, chainEpoch, chainTim
 		C.uint64_t(baseFeeLo),
 		C.uint64_t(baseCircSupplyHi),
 		C.uint64_t(baseCircSupplyLo),
-		C.uint64_t(networkVersion),
+		C.uint32_t(networkVersion),
 		stateRoot,
 		actorRedirect,
 		C.bool(tracing),

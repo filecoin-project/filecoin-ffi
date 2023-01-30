@@ -31,6 +31,7 @@ pub type ApiVanillaProof = Vec<u8>;
 
 /// TODO: document
 #[ffi_export]
+#[cfg(target_family = "unix")]
 unsafe fn write_with_alignment(
     registered_proof: RegisteredSealProof,
     src_fd: libc::c_int,
@@ -63,8 +64,42 @@ unsafe fn write_with_alignment(
     })
 }
 
+#[cfg(target_family = "windows")]
+unsafe fn write_with_alignment(
+    registered_proof: RegisteredSealProof,
+    src_handle: *mut libc::c_void,
+    src_size: u64,
+    dst_handle: *mut libc::c_void,
+    existing_piece_sizes: c_slice::Ref<u64>,
+) -> repr_c::Box<WriteWithAlignmentResponse> {
+    catch_panic_response("write_with_alignment", || {
+        let piece_sizes: Vec<UnpaddedBytesAmount> = existing_piece_sizes
+            .iter()
+            .copied()
+            .map(UnpaddedBytesAmount)
+            .collect();
+
+        let n = UnpaddedBytesAmount(src_size);
+
+        let (info, written) = seal::add_piece(
+            registered_proof.into(),
+            FileDescriptorRef::new(src_handle),
+            FileDescriptorRef::new(dst_handle),
+            n,
+            &piece_sizes,
+        )?;
+
+        Ok(WriteWithAlignment {
+            comm_p: info.commitment,
+            left_alignment_unpadded: (written - n).into(),
+            total_write_unpadded: written.into(),
+        })
+    })
+}
+
 /// TODO: document
 #[ffi_export]
+#[cfg(target_family = "unix")]
 unsafe fn write_without_alignment(
     registered_proof: RegisteredSealProof,
     src_fd: libc::c_int,
@@ -76,6 +111,28 @@ unsafe fn write_without_alignment(
             registered_proof.into(),
             FileDescriptorRef::new(src_fd),
             FileDescriptorRef::new(dst_fd),
+            UnpaddedBytesAmount(src_size),
+        )?;
+
+        Ok(WriteWithoutAlignment {
+            comm_p: info.commitment,
+            total_write_unpadded: written.into(),
+        })
+    })
+}
+
+#[cfg(target_family = "windows")]
+unsafe fn write_without_alignment(
+    registered_proof: RegisteredSealProof,
+    src_handle: *mut libc::c_void,
+    src_size: u64,
+    dst_handle: *mut libc::c_void,
+) -> repr_c::Box<WriteWithoutAlignmentResponse> {
+    catch_panic_response("write_without_alignment", || {
+        let (info, written) = seal::write_and_preprocess(
+            registered_proof.into(),
+            FileDescriptorRef::new(src_handle),
+            FileDescriptorRef::new(dst_handle),
             UnpaddedBytesAmount(src_size),
         )?;
 
@@ -308,6 +365,7 @@ fn verify_aggregate_seal_proof(
 
 /// TODO: document
 #[ffi_export]
+#[cfg(target_family = "unix")]
 unsafe fn unseal_range(
     registered_proof: RegisteredSealProof,
     cache_dir_path: c_slice::Ref<u8>,
@@ -343,6 +401,47 @@ unsafe fn unseal_range(
         // keep all file descriptors alive until unseal_range returns
         let _ = sealed_sector.into_raw_fd();
         let _ = unseal_output.into_raw_fd();
+
+        Ok(())
+    })
+}
+/// TODO: document
+#[cfg(target_family = "windows")]
+unsafe fn unseal_range(
+    registered_proof: RegisteredSealProof,
+    cache_dir_path: c_slice::Ref<u8>,
+    sealed_sector_raw_handle: *mut libc::c_void,
+    unseal_output_raw_handle: *mut libc::c_void,
+    sector_id: u64,
+    prover_id: &[u8; 32],
+    ticket: &[u8; 32],
+    comm_d: &[u8; 32],
+    unpadded_byte_index: u64,
+    unpadded_bytes_amount: u64,
+) -> repr_c::Box<UnsealRangeResponse> {
+    catch_panic_response("unseal_range", || {
+        use filepath::FilePath;
+        use std::os::windows::io::{FromRawHandle, IntoRawHandle};
+
+        let sealed_sector = fs::File::from_raw_handle(sealed_sector_raw_handle);
+        let mut unseal_output = fs::File::from_raw_handle(unseal_output_raw_handle);
+
+        filecoin_proofs_api::seal::get_unsealed_range_mapped(
+            registered_proof.into(),
+            as_path_buf(&cache_dir_path)?,
+            sealed_sector.path().unwrap(),
+            &mut unseal_output,
+            *prover_id,
+            SectorId::from(sector_id),
+            *comm_d,
+            *ticket,
+            UnpaddedByteIndex(unpadded_byte_index),
+            UnpaddedBytesAmount(unpadded_bytes_amount),
+        )?;
+
+        // keep all file descriptors alive until unseal_range returns
+        let _ = sealed_sector.into_raw_handle();
+        let _ = unseal_output.into_raw_handle();
 
         Ok(())
     })
@@ -1003,6 +1102,7 @@ fn verify_empty_sector_update_proof(
 /// Returns the merkle root for a piece after piece padding and alignment.
 /// The caller is responsible for closing the passed in file descriptor.
 #[ffi_export]
+#[cfg(target_family = "unix")]
 unsafe fn generate_piece_commitment(
     registered_proof: RegisteredSealProof,
     piece_fd_raw: libc::c_int,
@@ -1022,6 +1122,36 @@ unsafe fn generate_piece_commitment(
 
         // avoid dropping the File which closes it
         let _ = piece_file.into_raw_fd();
+
+        let result = result.map(|meta| GeneratePieceCommitment {
+            comm_p: meta.commitment,
+            num_bytes_aligned: meta.size.into(),
+        })?;
+
+        Ok(result)
+    })
+}
+
+#[cfg(target_family = "windows")]
+unsafe fn generate_piece_commitment(
+    registered_proof: RegisteredSealProof,
+    piece_raw_handle: *mut libc::c_void,
+    unpadded_piece_size: u64,
+) -> repr_c::Box<GeneratePieceCommitmentResponse> {
+    catch_panic_response("generate_piece_commitment", || {
+        use std::os::windows::io::{FromRawHandle, IntoRawHandle};
+
+        let mut piece_file = fs::File::from_raw_handle(piece_raw_handle);
+
+        let unpadded_piece_size = UnpaddedBytesAmount(unpadded_piece_size);
+        let result = seal::generate_piece_commitment(
+            registered_proof.into(),
+            &mut piece_file,
+            unpadded_piece_size,
+        );
+
+        // avoid dropping the File which closes it
+        let _ = piece_file.into_raw_handle();
 
         let result = result.map(|meta| GeneratePieceCommitment {
             comm_p: meta.commitment,
@@ -1314,7 +1444,10 @@ destructor!(
 pub mod tests {
     use std::fs::{metadata, remove_file, OpenOptions};
     use std::io::{Read, Seek, SeekFrom, Write};
+    #[cfg(target_family = "unix")]
     use std::os::unix::io::IntoRawFd;
+    #[cfg(target_family = "windows")]
+    use std::os::windows::io::IntoRawHandle;
     use std::path::Path;
     use std::str;
 
@@ -1376,13 +1509,27 @@ pub mod tests {
         let dest = tempfile::tempfile()?;
 
         // transmute temp files to file descriptors
+        #[cfg(target_family = "unix")]
         let src_fd_a = src_file_a.into_raw_fd();
+        #[cfg(target_family = "unix")]
         let src_fd_b = src_file_b.into_raw_fd();
+        #[cfg(target_family = "unix")]
         let dst_fd = dest.into_raw_fd();
+        #[cfg(target_family = "windows")]
+        let src_handle_a = src_file_a.into_raw_handle();
+        #[cfg(target_family = "windows")]
+        let src_handle_b = src_file_b.into_raw_handle();
+        #[cfg(target_family = "windows")]
+        let dst_handle = dest.into_raw_handle();
 
         // write the first file
         {
+            #[cfg(target_family = "unix")]
             let resp = unsafe { write_without_alignment(registered_proof, src_fd_a, 127, dst_fd) };
+
+            #[cfg(target_family = "windows")]
+            let resp =
+                unsafe { write_without_alignment(registered_proof, src_handle_a, 127, dst_handle) };
 
             if resp.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp.error_msg).unwrap();
@@ -1399,8 +1546,20 @@ pub mod tests {
         {
             let existing = vec![127u64];
 
+            #[cfg(target_family = "unix")]
             let resp = unsafe {
                 write_with_alignment(registered_proof, src_fd_b, 508, dst_fd, existing[..].into())
+            };
+
+            #[cfg(target_family = "windows")]
+            let resp = unsafe {
+                write_with_alignment(
+                    registered_proof,
+                    src_handle_b,
+                    508,
+                    dst_handle,
+                    existing[..].into(),
+                )
             };
 
             if resp.status_code != FCPResponseStatus::NoError {
@@ -1551,17 +1710,36 @@ pub mod tests {
         let (unseal_file, unseal_path) = tempfile::NamedTempFile::new()?.keep()?;
 
         // transmute temp files to file descriptors
+        #[cfg(target_family = "unix")]
         let piece_file_a_fd = piece_file_a.into_raw_fd();
+        #[cfg(target_family = "unix")]
         let piece_file_b_fd = piece_file_b.into_raw_fd();
+        #[cfg(target_family = "unix")]
         let staged_sector_fd = staged_file.into_raw_fd();
+        #[cfg(target_family = "windows")]
+        let piece_file_a_handle = piece_file_a.into_raw_handle();
+        #[cfg(target_family = "windows")]
+        let piece_file_b_handle = piece_file_b.into_raw_handle();
+        #[cfg(target_family = "windows")]
+        let staged_sector_handle = staged_file.into_raw_handle();
 
         {
+            #[cfg(target_family = "unix")]
             let resp_a1 = unsafe {
                 write_without_alignment(
                     registered_proof_seal,
                     piece_file_a_fd,
                     127,
                     staged_sector_fd,
+                )
+            };
+            #[cfg(target_family = "windows")]
+            let resp_a1 = unsafe {
+                write_without_alignment(
+                    registered_proof_seal,
+                    piece_file_a_handle,
+                    127,
+                    staged_sector_handle,
                 )
             };
 
@@ -1572,12 +1750,24 @@ pub mod tests {
 
             let existing_piece_sizes = vec![127];
 
+            #[cfg(target_family = "unix")]
             let resp_a2 = unsafe {
                 write_with_alignment(
                     registered_proof_seal,
                     piece_file_b_fd,
                     1016,
                     staged_sector_fd,
+                    existing_piece_sizes[..].into(),
+                )
+            };
+
+            #[cfg(target_family = "windows")]
+            let resp_a2 = unsafe {
+                write_with_alignment(
+                    registered_proof_seal,
+                    piece_file_b_handle,
+                    1016,
+                    staged_sector_handle,
                     existing_piece_sizes[..].into(),
                 )
             };
@@ -1743,16 +1933,36 @@ pub mod tests {
             let (_removed_data_file, removed_data_path) = tempfile::NamedTempFile::new()?.keep()?;
 
             // transmute temp files to file descriptors
+            #[cfg(target_family = "unix")]
             let piece_file_c_fd = piece_file_c.into_raw_fd();
+            #[cfg(target_family = "unix")]
             let piece_file_d_fd = piece_file_d.into_raw_fd();
+            #[cfg(target_family = "unix")]
             let new_staged_sector_fd = new_staged_file.into_raw_fd();
+            #[cfg(target_family = "windows")]
+            let piece_file_c_handle = piece_file_c.into_raw_handle();
+            #[cfg(target_family = "windows")]
+            let piece_file_d_handle = piece_file_d.into_raw_handle();
+            #[cfg(target_family = "windows")]
+            let new_staged_sector_handle = new_staged_file.into_raw_handle();
 
+            #[cfg(target_family = "unix")]
             let resp_new_a1 = unsafe {
                 write_without_alignment(
                     registered_proof_seal,
                     piece_file_c_fd,
                     127,
                     new_staged_sector_fd,
+                )
+            };
+
+            #[cfg(target_family = "windows")]
+            let resp_new_a1 = unsafe {
+                write_without_alignment(
+                    registered_proof_seal,
+                    piece_file_c_handle,
+                    127,
+                    new_staged_sector_handle,
                 )
             };
 
@@ -1763,12 +1973,24 @@ pub mod tests {
 
             let existing_piece_sizes = vec![127];
 
+            #[cfg(target_family = "unix")]
             let resp_new_a2 = unsafe {
                 write_with_alignment(
                     registered_proof_seal,
                     piece_file_d_fd,
                     1016,
                     new_staged_sector_fd,
+                    existing_piece_sizes[..].into(),
+                )
+            };
+
+            #[cfg(target_family = "windows")]
+            let resp_new_a2 = unsafe {
+                write_with_alignment(
+                    registered_proof_seal,
+                    piece_file_d_handle,
+                    1016,
+                    new_staged_sector_handle,
                     existing_piece_sizes[..].into(),
                 )
             };
@@ -2014,12 +2236,29 @@ pub mod tests {
             // End Sector Upgrade testing
             //////////////////////////////////////////////////////////////////
 
+            #[cfg(target_family = "unix")]
             let resp_e = unsafe {
                 unseal_range(
                     registered_proof_seal,
                     cache_dir_path_ref.into(),
                     sealed_file.into_raw_fd(),
                     unseal_file.into_raw_fd(),
+                    sector_id,
+                    &prover_id,
+                    &ticket,
+                    &resp_b2.comm_d,
+                    0,
+                    2032,
+                )
+            };
+
+            #[cfg(target_family = "windows")]
+            let resp_e = unsafe {
+                unseal_range(
+                    registered_proof_seal,
+                    cache_dir_path_ref.into(),
+                    sealed_file.into_raw_handle(),
+                    unseal_file.into_raw_handle(),
                     sector_id,
                     &prover_id,
                     &ticket,
@@ -2538,17 +2777,37 @@ pub mod tests {
         let sealed_path_ref = as_bytes(&sealed_path);
 
         // transmute temp files to file descriptors
+        #[cfg(target_family = "unix")]
         let piece_file_a_fd = piece_file_a.into_raw_fd();
+        #[cfg(target_family = "unix")]
         let piece_file_b_fd = piece_file_b.into_raw_fd();
+        #[cfg(target_family = "unix")]
         let staged_sector_fd = staged_file.into_raw_fd();
+        #[cfg(target_family = "windows")]
+        let piece_file_a_handle = piece_file_a.into_raw_handle();
+        #[cfg(target_family = "windows")]
+        let piece_file_b_handle = piece_file_b.into_raw_handle();
+        #[cfg(target_family = "windows")]
+        let staged_sector_handle = staged_file.into_raw_handle();
 
         {
+            #[cfg(target_family = "unix")]
             let resp_a1 = unsafe {
                 write_without_alignment(
                     registered_proof_seal,
                     piece_file_a_fd,
                     127,
                     staged_sector_fd,
+                )
+            };
+
+            #[cfg(target_family = "windows")]
+            let resp_a1 = unsafe {
+                write_without_alignment(
+                    registered_proof_seal,
+                    piece_file_a_handle,
+                    127,
+                    staged_sector_handle,
                 )
             };
 
@@ -2559,12 +2818,24 @@ pub mod tests {
 
             let existing_piece_sizes = vec![127];
 
+            #[cfg(target_family = "unix")]
             let resp_a2 = unsafe {
                 write_with_alignment(
                     registered_proof_seal,
                     piece_file_b_fd,
                     1016,
                     staged_sector_fd,
+                    existing_piece_sizes[..].into(),
+                )
+            };
+
+            #[cfg(target_family = "windows")]
+            let resp_a2 = unsafe {
+                write_with_alignment(
+                    registered_proof_seal,
+                    piece_file_b_handle,
+                    1016,
+                    staged_sector_handle,
                     existing_piece_sizes[..].into(),
                 )
             };
@@ -2727,17 +2998,37 @@ pub mod tests {
         let sealed_path_ref = as_bytes(&sealed_path);
 
         // transmute temp files to file descriptors
+        #[cfg(target_family = "unix")]
         let piece_file_a_fd = piece_file_a.into_raw_fd();
+        #[cfg(target_family = "unix")]
         let piece_file_b_fd = piece_file_b.into_raw_fd();
+        #[cfg(target_family = "unix")]
         let staged_sector_fd = staged_file.into_raw_fd();
+        #[cfg(target_family = "windows")]
+        let piece_file_a_handle = piece_file_a.into_raw_handle();
+        #[cfg(target_family = "windows")]
+        let piece_file_b_handle = piece_file_b.into_raw_handle();
+        #[cfg(target_family = "windows")]
+        let staged_sector_handle = staged_file.into_raw_handle();
 
         {
+            #[cfg(target_family = "unix")]
             let resp_a1 = unsafe {
                 write_without_alignment(
                     registered_proof_seal,
                     piece_file_a_fd,
                     127,
                     staged_sector_fd,
+                )
+            };
+
+            #[cfg(target_family = "windows")]
+            let resp_a1 = unsafe {
+                write_without_alignment(
+                    registered_proof_seal,
+                    piece_file_a_handle,
+                    127,
+                    staged_sector_handle,
                 )
             };
 
@@ -2748,12 +3039,24 @@ pub mod tests {
 
             let existing_piece_sizes = vec![127];
 
+            #[cfg(target_family = "unix")]
             let resp_a2 = unsafe {
                 write_with_alignment(
                     registered_proof_seal,
                     piece_file_b_fd,
                     1016,
                     staged_sector_fd,
+                    existing_piece_sizes[..].into(),
+                )
+            };
+
+            #[cfg(target_family = "windows")]
+            let resp_a2 = unsafe {
+                write_with_alignment(
+                    registered_proof_seal,
+                    piece_file_b_handle,
+                    1016,
+                    staged_sector_handle,
                     existing_piece_sizes[..].into(),
                 )
             };

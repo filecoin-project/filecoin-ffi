@@ -143,9 +143,15 @@ pub fn destroy_gpu_device_response(ptr: repr_c::Box<GpuDeviceResponse>) {
 }
 
 pub type InitLogFdResponse = Result<()>;
+pub type InitLogHandleResponse = Result<()>;
 
 #[ffi_export]
 pub fn destroy_init_log_fd_response(ptr: repr_c::Box<InitLogFdResponse>) {
+    drop(ptr)
+}
+
+#[ffi_export]
+pub fn destroy_init_log_handle_response(ptr: repr_c::Box<InitLogHandleResponse>) {
     drop(ptr)
 }
 

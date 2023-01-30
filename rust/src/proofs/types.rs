@@ -15,6 +15,14 @@ impl FileDescriptorRef {
         use std::os::unix::io::FromRawFd;
         FileDescriptorRef(std::mem::ManuallyDrop::new(std::fs::File::from_raw_fd(raw)))
     }
+
+    #[cfg(target_os = "windows")]
+    pub unsafe fn new(raw: std::os::windows::io::RawHandle) -> Self {
+        use std::os::windows::io::FromRawHandle;
+        FileDescriptorRef(std::mem::ManuallyDrop::new(std::fs::File::from_raw_handle(
+            raw,
+        )))
+    }
 }
 
 impl std::io::Read for FileDescriptorRef {

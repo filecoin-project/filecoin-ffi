@@ -1,5 +1,8 @@
 use std::fs::File;
+#[cfg(target_family = "unix")]
 use std::os::unix::io::FromRawFd;
+#[cfg(target_family = "windows")]
+use std::os::windows::io::FromRawHandle;
 use std::sync::Once;
 
 use anyhow::anyhow;
@@ -8,6 +11,7 @@ use safer_ffi::slice::slice_boxed;
 
 use super::types::{
     catch_panic_response, catch_panic_response_no_log, GpuDeviceResponse, InitLogFdResponse,
+    InitLogHandleResponse,
 };
 
 /// Protects the init off the logger.
@@ -60,6 +64,20 @@ pub fn get_gpu_devices() -> repr_c::Box<GpuDeviceResponse> {
 }
 
 /// Initializes the logger with a file descriptor where logs will be logged into.
+#[ffi_export]
+pub fn init_log_handle(log_handle: *mut libc::c_void) -> repr_c::Box<InitLogHandleResponse> {
+    #[cfg(target_family = "windows")]
+    catch_panic_response_no_log(|| {
+        let file = unsafe { File::from_raw_handle(log_handle) };
+
+        if init_log_with_file(file).is_none() {
+            return Err(anyhow!("There is already an active logger. `init_log_handle()` needs to be called before any other FFI function is called."));
+        }
+        Ok(())
+    })
+}
+
+/// Initializes the logger with a file descriptor where logs will be logged into.
 ///
 /// This is usually a pipe that was opened on the receiving side of the logs. The logger is
 /// initialized on the invocation, subsequent calls won't have any effect.
@@ -67,6 +85,7 @@ pub fn get_gpu_devices() -> repr_c::Box<GpuDeviceResponse> {
 /// This function must be called right at the start, before any other call. Else the logger will
 /// be initializes implicitely and log to stderr.
 #[ffi_export]
+#[cfg(target_family = "unix")]
 pub fn init_log_fd(log_fd: libc::c_int) -> repr_c::Box<InitLogFdResponse> {
     catch_panic_response_no_log(|| {
         let file = unsafe { File::from_raw_fd(log_fd) };
@@ -76,6 +95,11 @@ pub fn init_log_fd(log_fd: libc::c_int) -> repr_c::Box<InitLogFdResponse> {
         }
         Ok(())
     })
+}
+
+#[cfg(target_family = "windows")]
+pub fn init_log_fd(log_fd: *mut libc::c_void) -> repr_c::Box<InitLogHandleResponse> {
+    init_log_handle(log_fd)
 }
 
 #[cfg(test)]
@@ -154,5 +178,69 @@ mod tests {
         let resp_error = init_log_fd(write_fd);
         assert_ne!(resp_error.status_code, FCPResponseStatus::NoError);
         destroy_init_log_fd_response(resp_error);
+    }
+
+    #[test]
+    #[ignore]
+    #[cfg(target_os = "windows")]
+    fn test_init_log_handle() {
+        /*
+
+        Warning: This test is leaky. When run alongside other (Rust) tests in
+        this project, `[flexi_logger] writing log line failed` lines will be
+        observed in stderr, and various unrelated tests will fail.
+
+        - @laser 20200725
+
+         */
+        use std::env;
+        use std::fs::File;
+        use std::io::{BufRead, BufReader, Write};
+        use std::mem;
+        use std::os::windows::io::FromRawHandle;
+
+        use crate::util::api::init_log_handle;
+        use crate::util::types::{destroy_init_log_handle_response, FCPResponseStatus};
+
+        let mut pfds: [libc::c_int; 2] = [0; 2];
+        let res = unsafe {
+            libc::pipe(
+                pfds.as_mut_ptr(),
+                mem::size_of_val(&pfds) as libc::c_uint,
+                libc::O_BINARY,
+            )
+        };
+        if res != 0 {
+            panic!("Cannot create pipe");
+        }
+        let [read_handle, write_handle]: [*mut libc::c_void; 2] = [std::ptr::null_mut(); 2];
+        unsafe {
+            libc::read(pfds[0], read_handle, 1);
+            libc::write(pfds[1], write_handle, 1);
+        }
+
+        let mut reader = unsafe { BufReader::new(File::from_raw_handle(read_handle)) };
+        let mut writer = unsafe { File::from_raw_handle(write_handle) };
+
+        // Without setting this env variable there won't be any log output
+        env::set_var("RUST_LOG", "debug");
+
+        let resp = init_log_handle(write_handle);
+        destroy_init_log_handle_response(resp);
+
+        log::info!("a log message");
+
+        // Write a newline so that things don't block even if the logging doesn't work
+        writer.write_all(b"\n").unwrap();
+
+        let mut log_message = String::new();
+        reader.read_line(&mut log_message).unwrap();
+
+        assert!(log_message.ends_with("a log message\n"));
+
+        // Now test that there is an error when we try to init it again
+        let resp_error = init_log_handle(write_handle);
+        assert_ne!(resp_error.status_code, FCPResponseStatus::NoError);
+        destroy_init_log_handle_response(resp_error);
     }
 }
