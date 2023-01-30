@@ -71,7 +71,7 @@ main() {
     # generate pkg-config
     #
     sed -e "s;@VERSION@;$(git rev-parse HEAD);" \
-        -e "s;@PRIVATE_LIBS@;${__linker_flags};" "$1.pc.template" > "$1.pc"
+        -e "s;@PRIVATE_LIBS@;${__linker_flags};" "$1.pc.template" > "../$1.pc"
 
     # ensure header file was built
     #
