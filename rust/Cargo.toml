@@ -63,3 +63,7 @@ opencl = ["filecoin-proofs-api/opencl", "rust-gpu-tools/opencl", "fvm3/opencl", 
 cuda = ["filecoin-proofs-api/cuda", "rust-gpu-tools/cuda", "fvm3/cuda", "fvm2/cuda"]
 multicore-sdr = ["filecoin-proofs-api/multicore-sdr"]
 c-headers = ["safer-ffi/headers"]
+
+[target."cfg(windows)".dependencies.windows-sys]
+version = "0.36.1"
+features = ["Win32_System_Memory", "Win32_Foundation"]

@@ -1210,6 +1210,7 @@ dependencies = [
  "serde_json",
  "serde_tuple",
  "tempfile",
+ "windows-sys 0.36.1",
 ]
 
 [[package]]
