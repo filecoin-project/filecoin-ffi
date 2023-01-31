@@ -63,3 +63,9 @@ opencl = ["filecoin-proofs-api/opencl", "rust-gpu-tools/opencl", "fvm3/opencl", 
 cuda = ["filecoin-proofs-api/cuda", "rust-gpu-tools/cuda", "fvm3/cuda", "fvm2/cuda"]
 multicore-sdr = ["filecoin-proofs-api/multicore-sdr"]
 c-headers = ["safer-ffi/headers"]
+
+[patch.crates-io]
+fvm3 = { package = "fvm", git = "https://github.com/filecoin-project/ref-fvm", branch = "raulk/events-alignment" }
+fvm3_shared = { package = "fvm_shared", git = "https://github.com/filecoin-project/ref-fvm", branch = "raulk/events-alignment" }
+fvm3_ipld_encoding = { package = "fvm_ipld_encoding", git = "https://github.com/filecoin-project/ref-fvm", branch = "raulk/events-alignment" }
+fvm_ipld_blockstore = { git = "https://github.com/filecoin-project/ref-fvm", branch = "raulk/events-alignment" }
