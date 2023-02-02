@@ -198,7 +198,7 @@ impl Chain3 for CgoExterns {
                     panic!("extern {} not registered", self.handle)
                 }
                 e => Err(anyhow!(
-                    "cgo extern 'verify_consensus_fault' failed with error code {}",
+                    "cgo extern 'get_tipset_cid' failed with error code {}",
                     e
                 )),
             }
