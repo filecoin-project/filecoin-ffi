@@ -315,9 +315,9 @@ destructor!(destroy_fvm_machine_flush_response, Result<c_slice::Box<u8>>);
 #[derive(Clone, Debug, Serialize_tuple, Deserialize_tuple)]
 struct LotusGasCharge {
     pub name: Cow<'static, str>,
-    pub total_gas: i64,
-    pub compute_gas: i64,
-    pub storage_gas: i64,
+    pub total_gas: u64,
+    pub compute_gas: u64,
+    pub storage_gas: u64,
 }
 
 #[derive(Clone, Debug, Serialize_tuple, Deserialize_tuple)]
