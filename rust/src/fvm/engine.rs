@@ -182,7 +182,7 @@ mod v3 {
 
 // fvm v2 implementation
 mod v2 {
-    use anyhow::anyhow;
+    use anyhow::{anyhow, Context};
     use cid::Cid;
     use num_traits::FromPrimitive;
     use std::sync::Mutex;
@@ -241,14 +241,14 @@ mod v2 {
             let res = fvm2::executor::Executor::execute_message(
                 self,
                 Message2 {
-                    version: msg.version,
+                    version: msg.version.try_into().context("invalid message version")?,
                     from: Address2::from_bytes(&msg.from.to_bytes()).unwrap(),
                     to: Address2::from_bytes(&msg.to.to_bytes()).unwrap(),
                     sequence: msg.sequence,
                     value: TokenAmount2::from_atto(msg.value.atto().clone()),
                     method_num: msg.method_num,
                     params: RawBytes2::new(msg.params.into()),
-                    gas_limit: msg.gas_limit,
+                    gas_limit: msg.gas_limit.try_into().context("invalid gas limit")?,
                     gas_fee_cap: TokenAmount2::from_atto(msg.gas_fee_cap.atto().clone()),
                     gas_premium: TokenAmount2::from_atto(msg.gas_premium.atto().clone()),
                 },
@@ -263,7 +263,11 @@ mod v2 {
                     msg_receipt: Receipt {
                         exit_code: ExitCode::new(ret.msg_receipt.exit_code.value()),
                         return_data: RawBytes::new(ret.msg_receipt.return_data.into()),
-                        gas_used: ret.msg_receipt.gas_used,
+                        gas_used: ret
+                            .msg_receipt
+                            .gas_used
+                            .try_into()
+                            .context("negative gas used")?,
                         events_root: None,
                     },
                     penalty: TokenAmount::from_atto(ret.penalty.atto().clone()),
@@ -273,8 +277,8 @@ mod v2 {
                         ret.over_estimation_burn.atto().clone(),
                     ),
                     refund: TokenAmount::from_atto(ret.refund.atto().clone()),
-                    gas_refund: ret.gas_refund,
-                    gas_burned: ret.gas_burned,
+                    gas_refund: ret.gas_refund.try_into().context("negative gas refund")?,
+                    gas_burned: ret.gas_burned.try_into().context("negative gas burned")?,
                     failure_info: ret.failure_info.map(|failure| match failure {
                         ApplyFailure2::MessageBacktrace(bt) => {
                             ApplyFailure::MessageBacktrace(Backtrace {
@@ -318,12 +322,26 @@ mod v2 {
                         .into_iter()
                         .filter_map(|tr| match tr {
                             ExecutionEvent2::GasCharge(charge) => {
+                                // We set the gas for "negative" charges to 0. This isn't correct,
+                                // but it won't matter in practice (the sum of the gas charges in
+                                // the trace aren't guaranteed to equal the total gas charge
+                                // anyways).
                                 Some(ExecutionEvent::GasCharge(GasCharge {
                                     name: charge.name,
                                     compute_gas: Gas::from_milligas(
-                                        charge.compute_gas.as_milligas(),
+                                        charge
+                                            .compute_gas
+                                            .as_milligas()
+                                            .try_into()
+                                            .unwrap_or_default(),
                                     ),
-                                    other_gas: Gas::from_milligas(charge.storage_gas.as_milligas()),
+                                    other_gas: Gas::from_milligas(
+                                        charge
+                                            .storage_gas
+                                            .as_milligas()
+                                            .try_into()
+                                            .unwrap_or_default(),
+                                    ),
                                     elapsed: Default::default(), // no timing information for v2.
                                 }))
                             }
