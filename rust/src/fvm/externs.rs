@@ -2,9 +2,13 @@ use anyhow::{anyhow, Context};
 
 use fvm2::externs::{Consensus as Consensus2, Externs as Externs2, Rand as Rand2};
 use fvm3::externs::{Chain as Chain3, Consensus as Consensus3, Externs as Externs3, Rand as Rand3};
+use fvm3h1::externs::{
+    Chain as Chain3h1, Consensus as Consensus3h1, Externs as Externs3h1, Rand as Rand3h1,
+};
 
 use fvm2_shared::address::Address as Address2;
 use fvm3_shared::address::Address;
+use fvm3h1_shared::address::Address as Address3h1;
 
 use fvm3_shared::clock::ChainEpoch;
 
@@ -12,6 +16,9 @@ use fvm2_shared::consensus::{
     ConsensusFault as ConsensusFault2, ConsensusFaultType as ConsensusFaultType2,
 };
 use fvm3_shared::consensus::ConsensusFault as ConsensusFault3;
+use fvm3h1_shared::consensus::{
+    ConsensusFault as ConsensusFault3h1, ConsensusFaultType as ConsensusFaultType3h1,
+};
 
 use num_traits::FromPrimitive;
 
@@ -93,6 +100,26 @@ impl Rand3 for CgoExterns {
     }
 }
 
+impl Rand3h1 for CgoExterns {
+    fn get_chain_randomness(
+        &self,
+        pers: i64,
+        round: ChainEpoch,
+        entropy: &[u8],
+    ) -> anyhow::Result<[u8; 32]> {
+        Rand3::get_chain_randomness(self, pers, round, entropy)
+    }
+
+    fn get_beacon_randomness(
+        &self,
+        pers: i64,
+        round: ChainEpoch,
+        entropy: &[u8],
+    ) -> anyhow::Result<[u8; 32]> {
+        Rand3::get_beacon_randomness(self, pers, round, entropy)
+    }
+}
+
 impl Rand2 for CgoExterns {
     fn get_chain_randomness(
         &self,
@@ -163,6 +190,29 @@ impl Consensus3 for CgoExterns {
     }
 }
 
+impl Consensus3h1 for CgoExterns {
+    fn verify_consensus_fault(
+        &self,
+        h1: &[u8],
+        h2: &[u8],
+        extra: &[u8],
+    ) -> anyhow::Result<(Option<ConsensusFault3h1>, i64)> {
+        let res = Consensus3::verify_consensus_fault(self, h1, h2, extra);
+        match res {
+            Ok((Some(res), x)) => Ok((
+                Some(ConsensusFault3h1 {
+                    target: Address3h1::from_bytes(&res.target.to_bytes()).unwrap(),
+                    epoch: res.epoch,
+                    fault_type: ConsensusFaultType3h1::from_u8(res.fault_type as u8).unwrap(),
+                }),
+                x,
+            )),
+            Ok((None, x)) => Ok((None, x)),
+            Err(x) => Err(x),
+        }
+    }
+}
+
 impl Consensus2 for CgoExterns {
     fn verify_consensus_fault(
         &self,
@@ -206,5 +256,12 @@ impl Chain3 for CgoExterns {
     }
 }
 
+impl Chain3h1 for CgoExterns {
+    fn get_tipset_cid(&self, epoch: ChainEpoch) -> anyhow::Result<cid::Cid> {
+        Chain3::get_tipset_cid(self, epoch)
+    }
+}
+
 impl Externs3 for CgoExterns {}
+impl Externs3h1 for CgoExterns {}
 impl Externs2 for CgoExterns {}
