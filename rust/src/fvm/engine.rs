@@ -8,6 +8,7 @@ use cid::Cid;
 use fvm2::machine::MultiEngine as MultiEngine2;
 use fvm3::engine::MultiEngine as MultiEngine3;
 use fvm3::executor::{ApplyKind, ApplyRet};
+use fvm3h1::engine::MultiEngine as MultiEngine3h1;
 
 use fvm3_shared::econ::TokenAmount;
 use fvm3_shared::message::Message;
@@ -76,8 +77,11 @@ impl MultiEngineContainer {
                     16 | 17 => {
                         Arc::new(MultiEngine2::new()) as Arc<dyn AbstractMultiEngine + 'static>
                     }
-                    _ if nv >= 18 => Arc::new(MultiEngine3::new(self.concurrency))
+                    18 => Arc::new(MultiEngine3h1::new(self.concurrency))
                         as Arc<dyn AbstractMultiEngine + 'static>,
+                    _ if nv >= 19 => Arc::new(MultiEngine3::new(self.concurrency))
+                        as Arc<dyn AbstractMultiEngine + 'static>,
+
                     _ => return Err(anyhow!("network version not supported")),
                 })
                 .clone(),
@@ -173,6 +177,260 @@ mod v3 {
             }
             let engine = self.get(&network_config)?;
             let machine = CgoMachine3::new(&machine_context, blockstore, externs)?;
+            Ok(InnerFvmMachine {
+                machine: Some(Mutex::new(Box::new(new_executor(engine, machine)?))),
+            })
+        }
+    }
+}
+
+// fvm v3h1 implementation
+mod v3h1 {
+    use anyhow::{anyhow, Context};
+    use cid::Cid;
+    use num_traits::FromPrimitive;
+    use std::sync::Mutex;
+
+    use fvm3::call_manager::{backtrace::Backtrace, backtrace::Cause, backtrace::Frame};
+    use fvm3::executor::{ApplyFailure, ApplyKind, ApplyRet};
+    use fvm3::gas::{Gas, GasCharge};
+    use fvm3::kernel::SyscallError;
+    use fvm3::trace::ExecutionEvent;
+    use fvm3_ipld_encoding::RawBytes;
+    use fvm3_shared::{
+        address::Address, econ::TokenAmount, error::ErrorNumber, error::ExitCode, message::Message,
+        receipt::Receipt,
+    };
+
+    use fvm3h1::call_manager::{
+        backtrace::Cause as Cause3h1, DefaultCallManager as DefaultCallManager3h1,
+    };
+    use fvm3h1::engine::{EnginePool as EnginePool3h1, MultiEngine as MultiEngine3h1};
+    use fvm3h1::executor::{
+        ApplyFailure as ApplyFailure3h1, ApplyKind as ApplyKind3h1,
+        DefaultExecutor as DefaultExecutor3h1, ThreadedExecutor as ThreadedExecutor3h1,
+    };
+    use fvm3h1::machine::{DefaultMachine as DefaultMachine3h1, NetworkConfig as NetworkConfig3h1};
+    use fvm3h1::trace::ExecutionEvent as ExecutionEvent3h1;
+    use fvm3h1::DefaultKernel as DefaultKernel3h1;
+    use fvm3h1_ipld_encoding::RawBytes as RawBytes3h1;
+    use fvm3h1_shared::{
+        address::Address as Address3h1, clock::ChainEpoch as ChainEpoch3h1,
+        econ::TokenAmount as TokenAmount3h1, message::Message as Message3h1,
+    };
+
+    use crate::fvm::engine::{
+        AbstractMultiEngine, CgoBlockstore, CgoExecutor, CgoExterns, InnerFvmMachine,
+    };
+
+    use super::Config;
+
+    type CgoMachine3h1 = DefaultMachine3h1<CgoBlockstore, CgoExterns>;
+    type BaseExecutor3h1 =
+        DefaultExecutor3h1<DefaultKernel3h1<DefaultCallManager3h1<CgoMachine3h1>>>;
+    type CgoExecutor3h1 = ThreadedExecutor3h1<BaseExecutor3h1>;
+
+    fn new_executor(
+        engine_pool: EnginePool3h1,
+        machine: CgoMachine3h1,
+    ) -> anyhow::Result<CgoExecutor3h1> {
+        Ok(ThreadedExecutor3h1(BaseExecutor3h1::new(
+            engine_pool,
+            machine,
+        )?))
+    }
+
+    impl CgoExecutor for CgoExecutor3h1 {
+        fn execute_message(
+            &mut self,
+            msg: Message,
+            apply_kind: ApplyKind,
+            raw_length: usize,
+        ) -> anyhow::Result<ApplyRet> {
+            let res = fvm3h1::executor::Executor::execute_message(
+                self,
+                Message3h1 {
+                    version: msg.version.try_into().context("invalid message version")?,
+                    from: Address3h1::from_bytes(&msg.from.to_bytes()).unwrap(),
+                    to: Address3h1::from_bytes(&msg.to.to_bytes()).unwrap(),
+                    sequence: msg.sequence,
+                    value: TokenAmount3h1::from_atto(msg.value.atto().clone()),
+                    method_num: msg.method_num,
+                    params: RawBytes3h1::new(msg.params.into()),
+                    gas_limit: msg.gas_limit.try_into().context("invalid gas limit")?,
+                    gas_fee_cap: TokenAmount3h1::from_atto(msg.gas_fee_cap.atto().clone()),
+                    gas_premium: TokenAmount3h1::from_atto(msg.gas_premium.atto().clone()),
+                },
+                match apply_kind {
+                    ApplyKind::Explicit => ApplyKind3h1::Explicit,
+                    ApplyKind::Implicit => ApplyKind3h1::Implicit,
+                },
+                raw_length,
+            );
+            match res {
+                Ok(ret) => Ok(ApplyRet {
+                    msg_receipt: Receipt {
+                        exit_code: ExitCode::new(ret.msg_receipt.exit_code.value()),
+                        return_data: RawBytes::new(ret.msg_receipt.return_data.into()),
+                        gas_used: ret
+                            .msg_receipt
+                            .gas_used
+                            .try_into()
+                            .context("negative gas used")?,
+                        events_root: None,
+                    },
+                    penalty: TokenAmount::from_atto(ret.penalty.atto().clone()),
+                    miner_tip: TokenAmount::from_atto(ret.miner_tip.atto().clone()),
+                    base_fee_burn: TokenAmount::from_atto(ret.base_fee_burn.atto().clone()),
+                    over_estimation_burn: TokenAmount::from_atto(
+                        ret.over_estimation_burn.atto().clone(),
+                    ),
+                    refund: TokenAmount::from_atto(ret.refund.atto().clone()),
+                    gas_refund: ret.gas_refund.try_into().context("negative gas refund")?,
+                    gas_burned: ret.gas_burned.try_into().context("negative gas burned")?,
+                    failure_info: ret.failure_info.map(|failure| match failure {
+                        ApplyFailure3h1::MessageBacktrace(bt) => {
+                            ApplyFailure::MessageBacktrace(Backtrace {
+                                frames: bt
+                                    .frames
+                                    .into_iter()
+                                    .map(|f| Frame {
+                                        source: f.source,
+                                        method: f.method,
+                                        code: ExitCode::new(f.code.value()),
+                                        message: f.message,
+                                    })
+                                    .collect(),
+                                cause: bt.cause.map(|cause| match cause {
+                                    Cause3h1::Syscall {
+                                        module,
+                                        function,
+                                        error,
+                                        message,
+                                    } => Cause::Syscall {
+                                        module,
+                                        function,
+                                        error: ErrorNumber::from_u32(error as u32)
+                                            .unwrap_or(ErrorNumber::AssertionFailed),
+                                        message,
+                                    },
+                                    Cause3h1::Fatal {
+                                        error_msg,
+                                        backtrace,
+                                    } => Cause::Fatal {
+                                        error_msg,
+                                        backtrace,
+                                    },
+                                }),
+                            })
+                        }
+                        ApplyFailure3h1::PreValidation(s) => ApplyFailure::PreValidation(s),
+                    }),
+                    exec_trace: ret
+                        .exec_trace
+                        .into_iter()
+                        .filter_map(|tr| match tr {
+                            ExecutionEvent3h1::GasCharge(charge) => {
+                                // We set the gas for "negative" charges to 0. This isn't correct,
+                                // but it won't matter in practice (the sum of the gas charges in
+                                // the trace aren't guaranteed to equal the total gas charge
+                                // anyways).
+                                Some(ExecutionEvent::GasCharge(GasCharge {
+                                    name: charge.name,
+                                    compute_gas: Gas::from_milligas(
+                                        charge
+                                            .compute_gas
+                                            .as_milligas()
+                                            .try_into()
+                                            .unwrap_or_default(),
+                                    ),
+                                    other_gas: Gas::from_milligas(
+                                        charge
+                                            .other_gas
+                                            .as_milligas()
+                                            .try_into()
+                                            .unwrap_or_default(),
+                                    ),
+                                    // No great way to convert the timing information, so we just
+                                    // drop it.
+                                    elapsed: Default::default(),
+                                }))
+                            }
+                            ExecutionEvent3h1::Call {
+                                from,
+                                to,
+                                method,
+                                params,
+                                value,
+                            } => Some(ExecutionEvent::Call {
+                                from,
+                                to: Address::from_bytes(&to.to_bytes()).unwrap(),
+                                method,
+                                params: RawBytes::new(params.into()),
+                                value: TokenAmount::from_atto(value.atto().clone()),
+                            }),
+                            ExecutionEvent3h1::CallReturn(code, value) => {
+                                Some(ExecutionEvent::CallReturn(
+                                    ExitCode::new(code.value()),
+                                    RawBytes::new(value.into()),
+                                ))
+                            }
+                            ExecutionEvent3h1::CallError(err) => {
+                                Some(ExecutionEvent::CallError(SyscallError(
+                                    err.0,
+                                    ErrorNumber::from_u32(err.1 as u32)
+                                        .unwrap_or(ErrorNumber::AssertionFailed),
+                                )))
+                            }
+                            _ => None,
+                        })
+                        .collect(),
+                    events: vec![],
+                }),
+                Err(x) => Err(x),
+            }
+        }
+
+        fn flush(&mut self) -> anyhow::Result<Cid> {
+            fvm3h1::executor::Executor::flush(self)
+        }
+    }
+
+    impl AbstractMultiEngine for MultiEngine3h1 {
+        fn new_executor(
+            &self,
+            cfg: Config,
+            blockstore: CgoBlockstore,
+            externs: CgoExterns,
+        ) -> anyhow::Result<InnerFvmMachine> {
+            let mut network_config = NetworkConfig3h1::new(
+                cfg.network_version
+                    .try_into()
+                    .map_err(|nv| anyhow!("network version {nv} not supported"))?,
+            );
+
+            if cfg.actor_debugging {
+                network_config.enable_actor_debugging();
+            }
+
+            network_config.redirect_actors(cfg.actor_redirect);
+
+            let mut machine_context = network_config.for_epoch(
+                cfg.chain_epoch as ChainEpoch3h1,
+                cfg.chain_timestamp,
+                cfg.state_root,
+            );
+
+            machine_context.set_base_fee(TokenAmount3h1::from_atto(cfg.base_fee.atto().clone()));
+            machine_context.set_circulating_supply(TokenAmount3h1::from_atto(
+                cfg.circulating_supply.atto().clone(),
+            ));
+
+            if cfg.tracing {
+                machine_context.enable_tracing();
+            }
+            let engine = self.get(&network_config)?;
+            let machine = CgoMachine3h1::new(&machine_context, blockstore, externs)?;
             Ok(InnerFvmMachine {
                 machine: Some(Mutex::new(Box::new(new_executor(engine, machine)?))),
             })
