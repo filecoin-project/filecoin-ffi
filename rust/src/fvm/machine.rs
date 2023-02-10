@@ -4,12 +4,12 @@ use std::convert::{TryFrom, TryInto};
 use anyhow::{anyhow, Context};
 use cid::Cid;
 use fvm3::executor::ApplyKind as ApplyKind3;
-use fvm3::gas::{Gas, GasCharge};
+use fvm3::gas::GasCharge;
 use fvm3::trace::ExecutionEvent;
+use fvm3_ipld_encoding::ipld_block::IpldBlock;
 use fvm3_ipld_encoding::tuple::{Deserialize_tuple, Serialize_tuple};
 use fvm3_ipld_encoding::{to_vec, CborStore, RawBytes};
 use fvm3_shared::address::Address;
-use num_traits::Zero;
 
 use fvm3_shared::error::{ErrorNumber, ExitCode};
 use fvm3_shared::receipt::Receipt;
@@ -205,24 +205,38 @@ fn fvm_machine_execute_message(
 
         let exec_trace = if !apply_ret.exec_trace.is_empty() {
             let mut trace_iter = apply_ret.exec_trace.into_iter();
-            let initial_gas_charges: Vec<GasCharge> = trace_iter
-                .clone()
-                .take_while(|e| matches!(e, &ExecutionEvent::GasCharge(_)))
-                .map(|e| match e {
-                    ExecutionEvent::GasCharge(gc) => gc,
-                    _ => GasCharge::new("none", Gas::zero(), Gas::zero()),
-                })
-                .collect();
-            match trace_iter.nth(initial_gas_charges.len()) {
-                Some(c) => build_lotus_trace(initial_gas_charges, c, &mut trace_iter)
-                    .ok()
-                    .and_then(|t| to_vec(&t).ok())
-                    .map(|trace| trace.into_boxed_slice().into()),
-                _ => None,
+            let mut initial_gas_charges = Vec::new();
+            loop {
+                match trace_iter.next() {
+                    Some(gc @ ExecutionEvent::GasCharge(_)) => initial_gas_charges.push(gc),
+                    Some(ExecutionEvent::Call {
+                        from,
+                        to,
+                        method,
+                        params,
+                        value,
+                    }) => {
+                        break build_lotus_trace(
+                            from,
+                            to,
+                            method,
+                            params,
+                            value,
+                            &mut initial_gas_charges.into_iter().chain(&mut trace_iter),
+                        )
+                        .ok()
+                    }
+                    // Skip anything unexpected.
+                    Some(_) => {}
+                    // Return none if we don't even have a call.
+                    None => break None,
+                }
             }
         } else {
             None
-        };
+        }
+        .and_then(|t| to_vec(&t).ok())
+        .map(|trace| trace.into_boxed_slice().into());
 
         let failure_info = apply_ret
             .failure_info
@@ -343,33 +357,25 @@ pub struct LotusReceipt {
 }
 
 fn build_lotus_trace(
-    initial_gas_charges: Vec<GasCharge>,
-    new_call: ExecutionEvent,
+    from: u64,
+    to: Address,
+    method: u64,
+    params: Option<IpldBlock>,
+    value: TokenAmount,
     trace_iter: &mut impl Iterator<Item = ExecutionEvent>,
 ) -> anyhow::Result<LotusTrace> {
     let mut new_trace = LotusTrace {
-        msg: match new_call {
-            ExecutionEvent::Call {
-                from,
-                to,
-                method,
-                params,
-                value,
-            } => Message {
-                version: 0,
-                from: Address::new_id(from),
-                to,
-                value,
-                sequence: 0,
-                method_num: method,
-                params: params.map(|b| b.data).unwrap_or_default().into(),
-                gas_limit: 0,
-                gas_fee_cap: TokenAmount::default(),
-                gas_premium: TokenAmount::default(),
-            },
-            _ => {
-                return Err(anyhow!("expected ExecutionEvent of type Call"));
-            }
+        msg: Message {
+            version: 0,
+            from: Address::new_id(from),
+            to,
+            value,
+            sequence: 0,
+            method_num: method,
+            params: params.map(|b| b.data).unwrap_or_default().into(),
+            gas_limit: 0,
+            gas_fee_cap: TokenAmount::default(),
+            gas_premium: TokenAmount::default(),
         },
         msg_receipt: LotusReceipt {
             exit_code: ExitCode::OK,
@@ -377,32 +383,22 @@ fn build_lotus_trace(
             gas_used: 0,
         },
         error: String::new(),
-        gas_charges: initial_gas_charges
-            .iter()
-            .cloned()
-            .map(
-                |GasCharge {
-                     name,
-                     compute_gas,
-                     other_gas,
-                     elapsed: _, // TODO: thread timing through to lotus.
-                 }| LotusGasCharge {
-                    name,
-                    total_gas: (compute_gas + other_gas).round_up(),
-                    compute_gas: compute_gas.round_up(),
-                    other_gas: other_gas.round_up(),
-                },
-            )
-            .collect(),
+        gas_charges: vec![],
         subcalls: vec![],
     };
 
     while let Some(trace) = trace_iter.next() {
         match trace {
-            ExecutionEvent::Call { .. } => {
-                new_trace
-                    .subcalls
-                    .push(build_lotus_trace(vec![], trace, trace_iter)?);
+            ExecutionEvent::Call {
+                from,
+                to,
+                method,
+                params,
+                value,
+            } => {
+                new_trace.subcalls.push(build_lotus_trace(
+                    from, to, method, params, value, trace_iter,
+                )?);
             }
             ExecutionEvent::CallReturn(exit_code, return_data) => {
                 new_trace.msg_receipt = LotusReceipt {
@@ -472,8 +468,9 @@ mod test {
         };
         let return_result =
             ExecutionEvent::CallError(SyscallError::new(IllegalArgument, "illegal"));
+        let initial_gas_charge = GasCharge::new("gas_test", Gas::new(1), Gas::new(2));
         let trace = vec![
-            call_event.clone(),
+            ExecutionEvent::GasCharge(initial_gas_charge.clone()),
             call_event.clone(),
             return_result.clone(),
             call_event.clone(),
@@ -485,10 +482,12 @@ mod test {
 
         let mut trace_iter = trace.into_iter();
 
-        let initial_gas_charge = GasCharge::new("gas_test", Gas::new(1), Gas::new(2));
         let lotus_trace = build_lotus_trace(
-            vec![initial_gas_charge.clone()],
-            trace_iter.next().unwrap(),
+            0,
+            Address::new_id(0),
+            0,
+            None,
+            TokenAmount::default(),
             &mut trace_iter,
         )
         .unwrap();
