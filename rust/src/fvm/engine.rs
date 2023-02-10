@@ -188,6 +188,7 @@ mod v3 {
 mod v3h1 {
     use anyhow::{anyhow, Context};
     use cid::Cid;
+    use fvm3_ipld_encoding::ipld_block::IpldBlock;
     use num_traits::FromPrimitive;
     use std::sync::Mutex;
 
@@ -196,7 +197,7 @@ mod v3h1 {
     use fvm3::gas::{Gas, GasCharge};
     use fvm3::kernel::SyscallError;
     use fvm3::trace::ExecutionEvent;
-    use fvm3_ipld_encoding::RawBytes;
+    use fvm3_ipld_encoding::{RawBytes, DAG_CBOR};
     use fvm3_shared::{
         address::Address,
         econ::TokenAmount,
@@ -243,6 +244,17 @@ mod v3h1 {
             engine_pool,
             machine,
         )?))
+    }
+
+    fn bytes_to_block(bytes: RawBytes3h1) -> Option<IpldBlock> {
+        if bytes.is_empty() {
+            None
+        } else {
+            Some(IpldBlock {
+                data: bytes.into(),
+                codec: DAG_CBOR,
+            })
+        }
     }
 
     impl CgoExecutor for CgoExecutor3h1 {
@@ -371,13 +383,13 @@ mod v3h1 {
                                 from,
                                 to: Address::from_bytes(&to.to_bytes()).unwrap(),
                                 method,
-                                params: RawBytes::new(params.into()),
+                                params: bytes_to_block(params),
                                 value: TokenAmount::from_atto(value.atto().clone()),
                             }),
                             ExecutionEvent3h1::CallReturn(code, value) => {
                                 Some(ExecutionEvent::CallReturn(
                                     ExitCode::new(code.value()),
-                                    RawBytes::new(value.into()),
+                                    bytes_to_block(value),
                                 ))
                             }
                             ExecutionEvent3h1::CallError(err) => {
@@ -448,6 +460,7 @@ mod v3h1 {
 mod v2 {
     use anyhow::{anyhow, Context};
     use cid::Cid;
+    use fvm3_ipld_encoding::ipld_block::IpldBlock;
     use num_traits::FromPrimitive;
     use std::sync::Mutex;
 
@@ -475,7 +488,7 @@ mod v2 {
     use fvm3::kernel::SyscallError;
 
     use fvm3::trace::ExecutionEvent;
-    use fvm3_ipld_encoding::RawBytes;
+    use fvm3_ipld_encoding::{RawBytes, DAG_CBOR};
     use fvm3_shared::{
         address::Address, econ::TokenAmount, error::ErrorNumber, error::ExitCode, message::Message,
         receipt::Receipt,
@@ -493,6 +506,17 @@ mod v2 {
 
     fn new_executor(machine: CgoMachine2) -> CgoExecutor2 {
         ThreadedExecutor2(BaseExecutor2::new(machine))
+    }
+
+    fn bytes_to_block(bytes: RawBytes2) -> Option<IpldBlock> {
+        if bytes.is_empty() {
+            None
+        } else {
+            Some(IpldBlock {
+                data: bytes.into(),
+                codec: DAG_CBOR,
+            })
+        }
     }
 
     impl CgoExecutor for CgoExecutor2 {
@@ -619,17 +643,16 @@ mod v2 {
                                 from,
                                 to: Address::from_bytes(&to.to_bytes()).unwrap(),
                                 method,
-                                params: RawBytes::new(params.into()),
+                                params: bytes_to_block(params),
                                 value: TokenAmount::from_atto(value.atto().clone()),
                             }),
                             ExecutionEvent2::CallReturn(ret) => Some(ExecutionEvent::CallReturn(
                                 ExitCode::OK,
-                                RawBytes::new(ret.into()),
+                                bytes_to_block(ret),
                             )),
-                            ExecutionEvent2::CallAbort(ec) => Some(ExecutionEvent::CallReturn(
-                                ExitCode::new(ec.value()),
-                                RawBytes::default(),
-                            )),
+                            ExecutionEvent2::CallAbort(ec) => {
+                                Some(ExecutionEvent::CallReturn(ExitCode::new(ec.value()), None))
+                            }
                             ExecutionEvent2::CallError(err) => {
                                 Some(ExecutionEvent::CallError(SyscallError(
                                     err.0,

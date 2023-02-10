@@ -205,7 +205,7 @@ fn fvm_machine_execute_message(
         let exec_trace = if !apply_ret.exec_trace.is_empty() {
             let mut trace_iter = apply_ret.exec_trace.into_iter();
             build_lotus_trace(
-                &(&mut trace_iter)
+                (&mut trace_iter)
                     // Skip gas charges before the first call, if any. Lotus can't handle them.
                     .find(|item| !matches!(item, &ExecutionEvent::GasCharge(_)))
                     .expect("already checked trace for emptiness"),
@@ -337,7 +337,7 @@ pub struct LotusReceipt {
 }
 
 fn build_lotus_trace(
-    new_call: &ExecutionEvent,
+    new_call: ExecutionEvent,
     trace_iter: &mut impl Iterator<Item = ExecutionEvent>,
 ) -> anyhow::Result<LotusTrace> {
     let mut new_trace = LotusTrace {
@@ -350,12 +350,12 @@ fn build_lotus_trace(
                 value,
             } => Message {
                 version: 0,
-                from: Address::new_id(*from),
-                to: *to,
+                from: Address::new_id(from),
+                to,
+                value,
                 sequence: 0,
-                value: value.clone(),
-                method_num: *method,
-                params: params.clone(),
+                method_num: method,
+                params: params.map(|b| b.data).unwrap_or_default().into(),
                 gas_limit: 0,
                 gas_fee_cap: TokenAmount::default(),
                 gas_premium: TokenAmount::default(),
@@ -379,12 +379,12 @@ fn build_lotus_trace(
             ExecutionEvent::Call { .. } => {
                 new_trace
                     .subcalls
-                    .push(build_lotus_trace(&trace, trace_iter)?);
+                    .push(build_lotus_trace(trace, trace_iter)?);
             }
             ExecutionEvent::CallReturn(exit_code, return_data) => {
                 new_trace.msg_receipt = LotusReceipt {
                     exit_code,
-                    return_data,
+                    return_data: return_data.map(|b| b.data).unwrap_or_default().into(),
                     gas_used: 0,
                 };
                 return Ok(new_trace);
@@ -431,7 +431,6 @@ mod test {
     use crate::fvm::machine::build_lotus_trace;
     use fvm3::kernel::SyscallError;
     use fvm3::trace::ExecutionEvent;
-    use fvm3_ipld_encoding::RawBytes;
     use fvm3_shared::address::Address;
     use fvm3_shared::econ::TokenAmount;
     use fvm3_shared::error::ErrorNumber::IllegalArgument;
@@ -442,7 +441,7 @@ mod test {
         let call_event = ExecutionEvent::Call {
             from: ActorID::default(),
             method: 0,
-            params: RawBytes::default(),
+            params: None,
             to: Address::new_id(0),
             value: TokenAmount::default(),
         };
@@ -461,7 +460,7 @@ mod test {
 
         let mut trace_iter = trace.into_iter();
 
-        let lotus_trace = build_lotus_trace(&trace_iter.next().unwrap(), &mut trace_iter).unwrap();
+        let lotus_trace = build_lotus_trace(trace_iter.next().unwrap(), &mut trace_iter).unwrap();
 
         assert!(trace_iter.next().is_none());
 
