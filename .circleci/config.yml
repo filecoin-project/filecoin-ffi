@@ -68,16 +68,13 @@ jobs:
       - run: cd rust && cargo install cargo-lipo
       - build_project
       - compile_tests
-  check_publish_linux_staticlib:
+  publish_linux_staticlib:
     executor: golang
     steps:
       - configure_environment_variables
       - prepare
-      - publish_release:
-        filters:
-          tags:
-            only: /^v.+$/
-  check_publish_darwin_staticlib:
+      - publish_release
+  publish_darwin_staticlib:
     macos:
       xcode: "12.5.1"
     working_directory: ~/crate
@@ -95,11 +92,7 @@ jobs:
       - run: cd rust && rustup default $(cat rust-toolchain)
       - run: cd rust && cargo fetch
       - run: cd rust && cargo install cargo-lipo
-      - publish_darwin_release:
-        filters:
-          tags:
-            only: /^v.+$/
-#            only: /^v\d+\.\d+\.\d+(-rc\d+)?$/
+      - publish_darwin_release
   cargo_fetch:
     executor: rust
     working_directory: /mnt/crate
@@ -174,16 +167,17 @@ workflows:
       - go_lint
       - build_and_test_linux_cgo_bindings:
           run_leak_detector: false
-      - check_publish_linux_staticlib:
+      - publish_linux_staticlib:
         filters:
-          tags:
-            only: /^v.+$/
-#            only: /^v\d+\.\d+\.\d+(-rc\d+)?$/
+          branches:
+            only:
+              - /^release\/v\d+\.\d+\.\d+(-rc\d+)?$/
       - build_darwin_cgo_bindings
-      - check_publish_darwin_staticlib:
+      - publish_darwin_staticlib:
         filters:
-          tags:
-            only: /^v.+$/
+          branches:
+            only:
+              - /^release\/v\d+\.\d+\.\d+(-rc\d+)?$/
 
 commands:
   prepare:
