@@ -232,6 +232,17 @@ mod v2 {
         ThreadedExecutor2(BaseExecutor2::new(machine))
     }
 
+    fn bytes_to_block(bytes: RawBytes2) -> Option<IpldBlock> {
+        if bytes.is_empty() {
+            None
+        } else {
+            Some(IpldBlock {
+                data: bytes.into(),
+                codec: DAG_CBOR,
+            })
+        }
+    }
+
     impl CgoExecutor for CgoExecutor2 {
         fn execute_message(
             &mut self,
@@ -356,18 +367,12 @@ mod v2 {
                                 from,
                                 to: Address::from_bytes(&to.to_bytes()).unwrap(),
                                 method,
-                                params: params.is_empty().then(|| IpldBlock {
-                                    codec: DAG_CBOR,
-                                    data: params.into(),
-                                }),
+                                params: bytes_to_block(params),
                                 value: TokenAmount::from_atto(value.atto().clone()),
                             }),
                             ExecutionEvent2::CallReturn(ret) => Some(ExecutionEvent::CallReturn(
                                 ExitCode::OK,
-                                ret.is_empty().then(|| IpldBlock {
-                                    codec: DAG_CBOR,
-                                    data: ret.into(),
-                                }),
+                                bytes_to_block(ret),
                             )),
                             ExecutionEvent2::CallAbort(ec) => {
                                 Some(ExecutionEvent::CallReturn(ExitCode::new(ec.value()), None))
