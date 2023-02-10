@@ -189,6 +189,7 @@ mod v3h1 {
     use anyhow::{anyhow, Context};
     use cid::Cid;
     use fvm3_ipld_encoding::ipld_block::IpldBlock;
+    use fvm3_shared::event::Flags;
     use num_traits::FromPrimitive;
     use std::sync::Mutex;
 
@@ -402,8 +403,26 @@ mod v3h1 {
                             _ => None,
                         })
                         .collect(),
-                    // TODO ugly
-                    events: vec![],
+                    events: ret
+                        .events
+                        .into_iter()
+                        .map(|e| StampedEvent {
+                            emitter: e.emitter,
+                            event: ActorEvent {
+                                entries: e
+                                    .event
+                                    .entries
+                                    .into_iter()
+                                    .map(|e| Entry {
+                                        flags: Flags::from_bits(e.flags.bits().into()).unwrap(),
+                                        key: e.key,
+                                        codec: 0,
+                                        value: e.value.into(),
+                                    })
+                                    .collect(),
+                            },
+                        })
+                        .collect(),
                 }),
                 Err(x) => Err(x),
             }
