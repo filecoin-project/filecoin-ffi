@@ -184,6 +184,7 @@ mod v3 {
 mod v2 {
     use anyhow::{anyhow, Context};
     use cid::Cid;
+    use fvm3_ipld_encoding::ipld_block::IpldBlock;
     use num_traits::FromPrimitive;
     use std::sync::Mutex;
 
@@ -211,7 +212,7 @@ mod v2 {
     use fvm3::kernel::SyscallError;
 
     use fvm3::trace::ExecutionEvent;
-    use fvm3_ipld_encoding::RawBytes;
+    use fvm3_ipld_encoding::{RawBytes, DAG_CBOR};
     use fvm3_shared::{
         address::Address, econ::TokenAmount, error::ErrorNumber, error::ExitCode, message::Message,
         receipt::Receipt,
@@ -355,17 +356,22 @@ mod v2 {
                                 from,
                                 to: Address::from_bytes(&to.to_bytes()).unwrap(),
                                 method,
-                                params: RawBytes::new(params.into()),
+                                params: params.is_empty().then(|| IpldBlock {
+                                    codec: DAG_CBOR,
+                                    data: params.into(),
+                                }),
                                 value: TokenAmount::from_atto(value.atto().clone()),
                             }),
                             ExecutionEvent2::CallReturn(ret) => Some(ExecutionEvent::CallReturn(
                                 ExitCode::OK,
-                                RawBytes::new(ret.into()),
+                                ret.is_empty().then(|| IpldBlock {
+                                    codec: DAG_CBOR,
+                                    data: ret.into(),
+                                }),
                             )),
-                            ExecutionEvent2::CallAbort(ec) => Some(ExecutionEvent::CallReturn(
-                                ExitCode::new(ec.value()),
-                                RawBytes::default(),
-                            )),
+                            ExecutionEvent2::CallAbort(ec) => {
+                                Some(ExecutionEvent::CallReturn(ExitCode::new(ec.value()), None))
+                            }
                             ExecutionEvent2::CallError(err) => {
                                 Some(ExecutionEvent::CallError(SyscallError(
                                     err.0,
