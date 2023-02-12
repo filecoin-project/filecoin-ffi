@@ -222,8 +222,9 @@ mod v3h1 {
     use fvm3h1::DefaultKernel as DefaultKernel3h1;
     use fvm3h1_ipld_encoding::RawBytes as RawBytes3h1;
     use fvm3h1_shared::{
-        address::Address as Address3h1, clock::ChainEpoch as ChainEpoch3h1,
-        econ::TokenAmount as TokenAmount3h1, message::Message as Message3h1,
+        address::Address as Address3h1, chainid::ChainID as ChainID3h1,
+        clock::ChainEpoch as ChainEpoch3h1, econ::TokenAmount as TokenAmount3h1,
+        message::Message as Message3h1,
     };
 
     use crate::fvm::engine::{
@@ -445,6 +446,7 @@ mod v3h1 {
                     .try_into()
                     .map_err(|nv| anyhow!("network version {nv} not supported"))?,
             );
+            network_config.chain_id(ChainID3h1::from(cfg.chain_id));
 
             if cfg.actor_debugging {
                 network_config.enable_actor_debugging();
