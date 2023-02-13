@@ -6,6 +6,7 @@ use cid::Cid;
 use fvm3::executor::ApplyKind as ApplyKind3;
 use fvm3::gas::GasCharge;
 use fvm3::trace::ExecutionEvent;
+use fvm3_ipld_encoding::ipld_block::IpldBlock;
 use fvm3_ipld_encoding::tuple::{Deserialize_tuple, Serialize_tuple};
 use fvm3_ipld_encoding::{to_vec, CborStore, RawBytes};
 use fvm3_shared::address::Address;
@@ -204,19 +205,38 @@ fn fvm_machine_execute_message(
 
         let exec_trace = if !apply_ret.exec_trace.is_empty() {
             let mut trace_iter = apply_ret.exec_trace.into_iter();
-            build_lotus_trace(
-                (&mut trace_iter)
-                    // Skip gas charges before the first call, if any. Lotus can't handle them.
-                    .find(|item| !matches!(item, &ExecutionEvent::GasCharge(_)))
-                    .expect("already checked trace for emptiness"),
-                &mut trace_iter,
-            )
-            .ok()
-            .and_then(|t| to_vec(&t).ok())
-            .map(|trace| trace.into_boxed_slice().into())
+            let mut initial_gas_charges = Vec::new();
+            loop {
+                match trace_iter.next() {
+                    Some(gc @ ExecutionEvent::GasCharge(_)) => initial_gas_charges.push(gc),
+                    Some(ExecutionEvent::Call {
+                        from,
+                        to,
+                        method,
+                        params,
+                        value,
+                    }) => {
+                        break build_lotus_trace(
+                            from,
+                            to,
+                            method,
+                            params,
+                            value,
+                            &mut initial_gas_charges.into_iter().chain(&mut trace_iter),
+                        )
+                        .ok()
+                    }
+                    // Skip anything unexpected.
+                    Some(_) => {}
+                    // Return none if we don't even have a call.
+                    None => break None,
+                }
+            }
         } else {
             None
-        };
+        }
+        .and_then(|t| to_vec(&t).ok())
+        .map(|trace| trace.into_boxed_slice().into());
 
         let failure_info = apply_ret
             .failure_info
@@ -312,12 +332,12 @@ destructor!(
 
 destructor!(destroy_fvm_machine_flush_response, Result<c_slice::Box<u8>>);
 
-#[derive(Clone, Debug, Serialize_tuple, Deserialize_tuple)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize_tuple, Deserialize_tuple)]
 struct LotusGasCharge {
     pub name: Cow<'static, str>,
     pub total_gas: u64,
     pub compute_gas: u64,
-    pub storage_gas: u64,
+    pub other_gas: u64,
 }
 
 #[derive(Clone, Debug, Serialize_tuple, Deserialize_tuple)]
@@ -337,32 +357,25 @@ pub struct LotusReceipt {
 }
 
 fn build_lotus_trace(
-    new_call: ExecutionEvent,
+    from: u64,
+    to: Address,
+    method: u64,
+    params: Option<IpldBlock>,
+    value: TokenAmount,
     trace_iter: &mut impl Iterator<Item = ExecutionEvent>,
 ) -> anyhow::Result<LotusTrace> {
     let mut new_trace = LotusTrace {
-        msg: match new_call {
-            ExecutionEvent::Call {
-                from,
-                to,
-                method,
-                params,
-                value,
-            } => Message {
-                version: 0,
-                from: Address::new_id(from),
-                to,
-                value,
-                sequence: 0,
-                method_num: method,
-                params: params.map(|b| b.data).unwrap_or_default().into(),
-                gas_limit: 0,
-                gas_fee_cap: TokenAmount::default(),
-                gas_premium: TokenAmount::default(),
-            },
-            _ => {
-                return Err(anyhow!("expected ExecutionEvent of type Call"));
-            }
+        msg: Message {
+            version: 0,
+            from: Address::new_id(from),
+            to,
+            value,
+            sequence: 0,
+            method_num: method,
+            params: params.map(|b| b.data).unwrap_or_default().into(),
+            gas_limit: 0,
+            gas_fee_cap: TokenAmount::default(),
+            gas_premium: TokenAmount::default(),
         },
         msg_receipt: LotusReceipt {
             exit_code: ExitCode::OK,
@@ -376,10 +389,16 @@ fn build_lotus_trace(
 
     while let Some(trace) = trace_iter.next() {
         match trace {
-            ExecutionEvent::Call { .. } => {
-                new_trace
-                    .subcalls
-                    .push(build_lotus_trace(trace, trace_iter)?);
+            ExecutionEvent::Call {
+                from,
+                to,
+                method,
+                params,
+                value,
+            } => {
+                new_trace.subcalls.push(build_lotus_trace(
+                    from, to, method, params, value, trace_iter,
+                )?);
             }
             ExecutionEvent::CallReturn(exit_code, return_data) => {
                 new_trace.msg_receipt = LotusReceipt {
@@ -416,7 +435,7 @@ fn build_lotus_trace(
                     name,
                     total_gas: (compute_gas + other_gas).round_up(),
                     compute_gas: compute_gas.round_up(),
-                    storage_gas: other_gas.round_up(),
+                    other_gas: other_gas.round_up(),
                 });
             }
             _ => (), // ignore unknown events.
@@ -428,7 +447,9 @@ fn build_lotus_trace(
 
 #[cfg(test)]
 mod test {
-    use crate::fvm::machine::build_lotus_trace;
+    use crate::fvm::machine::{build_lotus_trace, LotusGasCharge};
+    use fvm3::gas::Gas;
+    use fvm3::gas::GasCharge;
     use fvm3::kernel::SyscallError;
     use fvm3::trace::ExecutionEvent;
     use fvm3_shared::address::Address;
@@ -447,8 +468,9 @@ mod test {
         };
         let return_result =
             ExecutionEvent::CallError(SyscallError::new(IllegalArgument, "illegal"));
+        let initial_gas_charge = GasCharge::new("gas_test", Gas::new(1), Gas::new(2));
         let trace = vec![
-            call_event.clone(),
+            ExecutionEvent::GasCharge(initial_gas_charge.clone()),
             call_event.clone(),
             return_result.clone(),
             call_event.clone(),
@@ -460,10 +482,28 @@ mod test {
 
         let mut trace_iter = trace.into_iter();
 
-        let lotus_trace = build_lotus_trace(trace_iter.next().unwrap(), &mut trace_iter).unwrap();
+        let lotus_trace = build_lotus_trace(
+            0,
+            Address::new_id(0),
+            0,
+            None,
+            TokenAmount::default(),
+            &mut trace_iter,
+        )
+        .unwrap();
 
         assert!(trace_iter.next().is_none());
 
+        assert_eq!(lotus_trace.gas_charges.len(), 1);
+        assert_eq!(
+            *lotus_trace.gas_charges.get(0).unwrap(),
+            LotusGasCharge {
+                name: initial_gas_charge.clone().name,
+                total_gas: initial_gas_charge.total().round_up(),
+                compute_gas: initial_gas_charge.compute_gas.round_up(),
+                other_gas: initial_gas_charge.other_gas.round_up(),
+            }
+        );
         assert_eq!(lotus_trace.subcalls.len(), 2);
         assert_eq!(lotus_trace.subcalls[0].subcalls.len(), 0);
         assert_eq!(lotus_trace.subcalls[1].subcalls.len(), 1);
