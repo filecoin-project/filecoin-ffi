@@ -68,7 +68,10 @@ impl MultiEngineContainer {
     }
 
     pub fn get(&self, nv: u32) -> anyhow::Result<Arc<dyn AbstractMultiEngine + 'static>> {
-        let mut locked = self.engines.lock().unwrap();
+        let mut locked = self
+            .engines
+            .lock()
+            .map_err(|e| anyhow!("engine lock poisoned: {e}"))?;
         Ok(match locked.entry(nv) {
             Entry::Occupied(v) => v.get().clone(),
             Entry::Vacant(v) => v
@@ -254,8 +257,10 @@ mod v2 {
                 self,
                 Message2 {
                     version: msg.version.try_into().context("invalid message version")?,
-                    from: Address2::from_bytes(&msg.from.to_bytes()).unwrap(),
-                    to: Address2::from_bytes(&msg.to.to_bytes()).unwrap(),
+                    from: Address2::from_bytes(&msg.from.to_bytes())
+                        .context("unsupported from address")?,
+                    to: Address2::from_bytes(&msg.to.to_bytes())
+                        .context("unsupported to address")?,
                     sequence: msg.sequence,
                     value: TokenAmount2::from_atto(msg.value.atto().clone()),
                     method_num: msg.method_num,
@@ -365,7 +370,10 @@ mod v2 {
                                 value,
                             } => Some(ExecutionEvent::Call {
                                 from,
-                                to: Address::from_bytes(&to.to_bytes()).unwrap(),
+                                to: Address::from_bytes(&to.to_bytes())
+                                    // There's nothing we can do here, so we use the "chaos" actor
+                                    // ID.
+                                    .unwrap_or_else(|_| Address::new_id(98)),
                                 method,
                                 params: bytes_to_block(params),
                                 value: TokenAmount::from_atto(value.atto().clone()),
