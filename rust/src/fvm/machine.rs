@@ -198,9 +198,9 @@ fn fvm_machine_execute_message(
         let mut executor = executor
             .machine
             .as_ref()
-            .expect("missing executor")
+            .context("missing executor")?
             .lock()
-            .unwrap();
+            .map_err(|e| anyhow!("executor lock poisoned: {e}"))?;
         let apply_ret = executor.execute_message(message, apply_kind, chain_len as usize)?;
 
         let exec_trace = if !apply_ret.exec_trace.is_empty() {
@@ -243,11 +243,31 @@ fn fvm_machine_execute_message(
             .map(|info| info.to_string().into_boxed_str().into());
 
         // TODO: use the non-bigint token amount everywhere in the FVM
-        let penalty: u128 = apply_ret.penalty.atto().try_into().unwrap();
-        let miner_tip: u128 = apply_ret.miner_tip.atto().try_into().unwrap();
-        let base_fee_burn: u128 = apply_ret.base_fee_burn.atto().try_into().unwrap();
-        let over_estimation_burn: u128 = apply_ret.over_estimation_burn.atto().try_into().unwrap();
-        let refund: u128 = apply_ret.refund.atto().try_into().unwrap();
+        let penalty: u128 = apply_ret
+            .penalty
+            .atto()
+            .try_into()
+            .context("penalty exceeds u128 attoFIL")?;
+        let miner_tip: u128 = apply_ret
+            .miner_tip
+            .atto()
+            .try_into()
+            .context("miner tip exceeds u128 attoFIL")?;
+        let base_fee_burn: u128 = apply_ret
+            .base_fee_burn
+            .atto()
+            .try_into()
+            .context("base fee burn exceeds u128 attoFIL")?;
+        let over_estimation_burn: u128 = apply_ret
+            .over_estimation_burn
+            .atto()
+            .try_into()
+            .context("overestimation burn exceeds u128 attoFIL")?;
+        let refund: u128 = apply_ret
+            .refund
+            .atto()
+            .try_into()
+            .context("refund exceeds u128 attoFIL")?;
         let gas_refund = apply_ret.gas_refund;
         let gas_burned = apply_ret.gas_burned;
 
@@ -313,9 +333,9 @@ fn fvm_machine_flush(executor: &'_ InnerFvmMachine) -> repr_c::Box<Result<c_slic
         let mut executor = executor
             .machine
             .as_ref()
-            .expect("missing executor")
+            .context("missing executor")?
             .lock()
-            .unwrap();
+            .map_err(|e| anyhow!("executor lock poisoned: {e}"))?;
         let cid = executor.flush()?;
 
         Ok(cid.to_bytes().into_boxed_slice().into())
