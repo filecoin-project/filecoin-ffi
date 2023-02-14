@@ -20,6 +20,7 @@ main() {
     local __release_tag="${CIRCLE_SHA1:0:16}"
     local __release_tag_name="${CIRCLE_TAG:-default}"
 
+    # Only publish if a release tag starting with 'v' was pushed
     if [[ ! -z ${__release_tag_name} && ${__release_tag_name} =~ ^v.*$ ]]; then
         echo "Publishing due to release tag: ${__release_tag_name}"
     else
