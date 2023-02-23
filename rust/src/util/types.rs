@@ -195,9 +195,9 @@ where
 {
     catch_panic_response_raw_no_log(|| {
         init_log();
-        log::info!("{}: start", name);
+        log::debug!("{}: start", name);
         let res = callback();
-        log::info!("{}: end", name);
+        log::debug!("{}: end", name);
         res
     })
 }
@@ -212,9 +212,9 @@ where
 {
     let result = match panic::catch_unwind(|| {
         init_log();
-        log::info!("{}: start", name);
+        log::debug!("{}: start", name);
         let res = callback();
-        log::info!("{}: end", name);
+        log::debug!("{}: end", name);
         res
     }) {
         Ok(t) => match t {
