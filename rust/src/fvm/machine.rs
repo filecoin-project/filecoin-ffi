@@ -374,6 +374,7 @@ pub struct LotusReceipt {
     pub exit_code: ExitCode,
     pub return_data: RawBytes,
     pub gas_used: i64,
+    pub codec: u64,
 }
 
 fn build_lotus_trace(
@@ -401,6 +402,7 @@ fn build_lotus_trace(
             exit_code: ExitCode::OK,
             return_data: RawBytes::default(),
             gas_used: 0,
+            codec: 0,
         },
         error: String::new(),
         gas_charges: vec![],
@@ -425,6 +427,7 @@ fn build_lotus_trace(
                     exit_code,
                     return_data: return_data.map(|b| b.data).unwrap_or_default().into(),
                     gas_used: 0,
+                    codec: return_data.map(|b| b.codec).unwrap_or_default().into(),
                 };
                 return Ok(new_trace);
             }
@@ -442,6 +445,7 @@ fn build_lotus_trace(
                     exit_code,
                     return_data: Default::default(),
                     gas_used: 0,
+                    codec: 0,
                 };
                 return Ok(new_trace);
             }
