@@ -303,7 +303,6 @@ fn fvm_machine_execute_message(
 
         let events_root = events_root.map(|cid| cid.to_bytes().into_boxed_slice().into());
 
-        // TODO: Do something with the backtrace.
         Ok(FvmMachineExecuteResponse {
             exit_code: exit_code.value() as u64,
             return_val,
