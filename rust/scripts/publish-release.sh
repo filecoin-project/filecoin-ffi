@@ -18,15 +18,6 @@ main() {
     local __release_file=$1
     local __release_name=$2
     local __release_tag="${CIRCLE_SHA1:0:16}"
-    local __release_tag_name="${CIRCLE_TAG:-default}"
-
-    # Only publish if a release tag starting with 'v' was pushed
-    if [[ ! -z ${__release_tag_name} && ${__release_tag_name} =~ ^v.*$ ]]; then
-        echo "Publishing due to release tag: ${__release_tag_name}"
-    else
-        echo "NOT Publishing due to unsupported release tag: ${__release_tag_name}"
-        exit 0
-    fi
 
     # make sure we have a token set, api requests won't work otherwise
     if [ -z $GITHUB_TOKEN ]; then
