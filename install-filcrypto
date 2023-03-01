@@ -165,25 +165,28 @@ build_from_source() {
         build="build"
     fi
 
-    # Default to use gpu flags, unless specified to disable
-    gpu_flags=",cuda"
-    if [ "${FFI_USE_OPENCL}" == "1" ]; then
-        gpu_flags=",opencl"
-    fi
-
+    # Check if GPU support is disabled.
     if [ "${FFI_USE_GPU}" == "0" ]; then
         gpu_flags=""
     else
+        # If not, default to CUDA support where possible.
         # First ensure that nvcc (as part of the CUDA toolkit) is
         # available -- if it's not warn that we are defaulting GPU to
         # OpenCL instead.
-        if [ -z "$(which nvcc)" ]; then
-            echo "WARNING: Cannot find nvcc for CUDA support."
-            echo "WARNING: For CUDA support, please ensure that the CUDA toolkit is properly installed."
-            echo "WARNING: After installation, nvcc must be in the system path."
-            echo ""
-            echo "WARNING: Defaulting to OpenCL GPU support(!!!)"
+        gpu_flags=",cuda"
+
+        # Unless OpenCL support is specified.
+        if [ "${FFI_USE_OPENCL}" == "1" ]; then
             gpu_flags=",opencl"
+        else
+            if [ -z "$(which nvcc)" ]; then
+                echo "WARNING: Cannot find nvcc for CUDA support."
+                echo "WARNING: For CUDA support, please ensure that the CUDA toolkit is properly installed."
+                echo "WARNING: After installation, nvcc must be in the system path."
+                echo ""
+                echo "WARNING: Defaulting to OpenCL GPU support(!!!)"
+                gpu_flags=",opencl"
+            fi
         fi
     fi
 
