@@ -179,7 +179,7 @@ build_from_source() {
         if [ "${FFI_USE_OPENCL}" == "1" ]; then
             gpu_flags=",opencl"
         else
-            if [ -z "$(which nvcc)" ]; then
+            if [ ! -v "nvcc" ]; then
                 echo "WARNING: Cannot find nvcc for CUDA support."
                 echo "WARNING: For CUDA support, please ensure that the CUDA toolkit is properly installed."
                 echo "WARNING: After installation, nvcc must be in the system path."
