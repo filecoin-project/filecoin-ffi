@@ -175,8 +175,8 @@ build_from_source() {
         # OpenCL instead.
         gpu_flags=",cuda"
 
-        # Unless OpenCL support is specified.
-        if [ "${FFI_USE_OPENCL}" == "1" ]; then
+        # Unless OpenCL support is specified or we're building on Darwin.
+        if [ "${FFI_USE_OPENCL}" == "1" ] || [ "$(uname -s)" = "Darwin" ]; then
             gpu_flags=",opencl"
         else
             if [ ! -v "nvcc" ]; then
