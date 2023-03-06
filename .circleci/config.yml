@@ -283,6 +283,7 @@ commands:
             echo 'export PATH="/usr/local/go/bin:${HOME}/.cargo/bin:${PATH}:${HOME}/go/bin:${HOME}/.bin"' >> $BASH_ENV
             echo 'export RUST_LOG=info' >> $BASH_ENV
             echo 'export CIRCLE_ARTIFACTS="/tmp"' >> $BASH_ENV
+            echo 'export FFI_USE_OPENCL=1' >> $BASH_ENV
       - when:
           condition: << parameters.darwin >>
           steps:
