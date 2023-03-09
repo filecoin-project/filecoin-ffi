@@ -306,7 +306,7 @@ fn fvm_machine_execute_message(
         Ok(FvmMachineExecuteResponse {
             exit_code: exit_code.value() as u64,
             return_val,
-            gas_used: gas_used as u64,
+            gas_used,
             penalty_hi: (penalty >> u64::BITS) as u64,
             penalty_lo: penalty as u64,
             miner_tip_hi: (miner_tip >> u64::BITS) as u64,

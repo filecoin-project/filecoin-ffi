@@ -6,7 +6,7 @@ use super::api::init_log;
 
 #[derive_ReprC]
 #[repr(i32)]
-#[derive(PartialEq, Debug, Copy, Clone)]
+#[derive(PartialEq, Eq, Debug, Copy, Clone)]
 pub enum FCPResponseStatus {
     // Don't use FCPSuccess, since that complicates description of 'successful' verification.
     NoError = 0,
