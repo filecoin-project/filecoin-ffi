@@ -44,14 +44,14 @@ rm .install-filcrypto \
     ; FFI_BUILD_FROM_SOURCE=1 FFI_USE_GPU=0 make
 ```
 
-#### Experimental CUDA build support
+#### GPU support
 
-An experimental 'gpu' option using CUDA can be used in the proofs library.  This feature is disabled by default (opencl is the default, when `FFI_USE_GPU=1` is set.).  To enable building with the 'gpu' CUDA dependency, set `FFI_USE_CUDA=1` when building from source.
+CUDA for GPU support is now enabled by default in the proofs library.  This feature can optionally be replaced by OpenCL by using `FFI_USE_OPENCL=1` set in the environment when building from source.  Alternatively, if the CUDA toolkit (such as `nvcc`) cannot be located in the environment, OpenCL support is used instead.  To disable GPU support entirely, set `FFI_USE_GPU=0` in the environment when building from source.
 
 ```shell
 rm .install-filcrypto \
     ; make clean \
-    ; FFI_BUILD_FROM_SOURCE=1 FFI_USE_CUDA=1 make
+    ; FFI_BUILD_FROM_SOURCE=1 make
 ```
 
 By default, a 'multicore-sdr' option is used in the proofs library.  This feature is also used in FFI unless explicitly disabled.  To disable building with the 'multicore-sdr' dependency, set `FFI_USE_MULTICORE_SDR=0`:

@@ -283,6 +283,7 @@ commands:
             echo 'export PATH="/usr/local/go/bin:${HOME}/.cargo/bin:${PATH}:${HOME}/go/bin:${HOME}/.bin"' >> $BASH_ENV
             echo 'export RUST_LOG=info' >> $BASH_ENV
             echo 'export CIRCLE_ARTIFACTS="/tmp"' >> $BASH_ENV
+            echo 'export FFI_USE_OPENCL=1' >> $BASH_ENV
       - when:
           condition: << parameters.darwin >>
           steps:
@@ -323,7 +324,7 @@ commands:
                 no_output_timeout: 90m
       - run:
           name: Run the Rust tests
-          command: cd rust && FIL_PROOFS_PARAMETER_CACHE="${HOME}/filecoin-proof-parameters/" RUST_LOG=info cargo test --all --release -- --test-threads 1&& cd ..
+          command: cd rust && FIL_PROOFS_PARAMETER_CACHE="${HOME}/filecoin-proof-parameters/" RUST_LOG=info cargo test --no-default-features --features multicore-sdr,opencl --all --release -- --test-threads 1&& cd ..
           no_output_timeout: 90m
       - run:
           name: Run the Go tests

@@ -57,9 +57,9 @@ memmap2 = "0.5"
 tempfile = "3.0.8"
 
 [features]
-default = ["opencl", "multicore-sdr" ]
+default = ["cuda", "multicore-sdr" ]
 blst-portable = ["bls-signatures/blst-portable", "blstrs/portable"]
-opencl = ["filecoin-proofs-api/opencl", "rust-gpu-tools/opencl", "fvm3/opencl", "fvm2/opencl"]
 cuda = ["filecoin-proofs-api/cuda", "rust-gpu-tools/cuda", "fvm3/cuda", "fvm2/cuda"]
+opencl = ["filecoin-proofs-api/opencl", "rust-gpu-tools/opencl", "fvm3/opencl", "fvm2/opencl"]
 multicore-sdr = ["filecoin-proofs-api/multicore-sdr"]
 c-headers = ["safer-ffi/headers"]
