@@ -422,14 +422,10 @@ fn generate_fallback_sector_challenges(
         )?;
 
         let sector_ids: Vec<u64> = output
-            .clone()
-            .into_iter()
-            .map(|(id, _)| u64::from(id))
+            .clone().into_keys().map(u64::from)
             .collect();
 
-        let challenges: Vec<c_slice::Box<u64>> = output
-            .into_iter()
-            .map(|(_id, challenges)| challenges.into_boxed_slice().into())
+        let challenges: Vec<c_slice::Box<u64>> = output.into_values().map(|challenges| challenges.into_boxed_slice().into())
             .collect();
 
         Ok(GenerateFallbackSectorChallenges {
@@ -461,7 +457,7 @@ fn generate_single_vanilla_proof(
             replica.registered_proof.into(),
             sector_id,
             &replica_v1,
-            &*challenges,
+            &challenges,
         )?;
         Ok(result.into_boxed_slice().into())
     })
@@ -1335,10 +1331,10 @@ pub mod tests {
         let data1 = unsafe { MmapOptions::new().map(&f_data1) }?;
         let f_data2 = OpenOptions::new().read(true).open(path2)?;
         let data2 = unsafe { MmapOptions::new().map(&f_data2) }?;
-        let fr_size = std::mem::size_of::<Fr>() as usize;
-        let end = metadata(path1)?.len() as u64;
+        let fr_size = std::mem::size_of::<Fr>();
+        let end = metadata(path1)?.len();
         ensure!(
-            metadata(path2)?.len() as u64 == end,
+            metadata(path2)?.len() == end,
             "File sizes must match"
         );
 
@@ -1365,12 +1361,12 @@ pub mod tests {
         // destination (after preprocessing)
         let mut src_file_a = tempfile::tempfile()?;
         src_file_a.write_all(&buf[0..127])?;
-        src_file_a.seek(SeekFrom::Start(0))?;
+        src_file_a.rewind()?;
 
         // second occupies 16 nodes
         let mut src_file_b = tempfile::tempfile()?;
         src_file_b.write_all(&buf[0..508])?;
-        src_file_b.seek(SeekFrom::Start(0))?;
+        src_file_b.rewind()?;
 
         // create a temp file to be used as the byte destination
         let dest = tempfile::tempfile()?;
@@ -1533,11 +1529,11 @@ pub mod tests {
 
         let mut piece_file_a = tempfile::tempfile()?;
         piece_file_a.write_all(&buf_a[0..127])?;
-        piece_file_a.seek(SeekFrom::Start(0))?;
+        piece_file_a.rewind()?;
 
         let mut piece_file_b = tempfile::tempfile()?;
         piece_file_b.write_all(&buf_a[0..1016])?;
-        piece_file_b.seek(SeekFrom::Start(0))?;
+        piece_file_b.rewind()?;
 
         // create the staged sector (the byte destination)
         let (staged_file, staged_path) = tempfile::NamedTempFile::new()?.keep()?;
@@ -1727,11 +1723,11 @@ pub mod tests {
             let buf_b: Vec<u8> = (0..2032).map(|_| rng.gen()).collect();
             let mut piece_file_c = tempfile::tempfile()?;
             piece_file_c.write_all(&buf_b[0..127])?;
-            piece_file_c.seek(SeekFrom::Start(0))?;
+            piece_file_c.rewind()?;
 
             let mut piece_file_d = tempfile::tempfile()?;
             piece_file_d.write_all(&buf_a[0..1016])?;
-            piece_file_d.seek(SeekFrom::Start(0))?;
+            piece_file_d.rewind()?;
 
             // create the new staged sector (the byte destination)
             let (new_staged_file, new_staged_path) = tempfile::NamedTempFile::new()?.keep()?;
@@ -2523,11 +2519,11 @@ pub mod tests {
 
         let mut piece_file_a = tempfile::tempfile()?;
         piece_file_a.write_all(&buf_a[0..127])?;
-        piece_file_a.seek(SeekFrom::Start(0))?;
+        piece_file_a.rewind()?;
 
         let mut piece_file_b = tempfile::tempfile()?;
         piece_file_b.write_all(&buf_a[0..1016])?;
-        piece_file_b.seek(SeekFrom::Start(0))?;
+        piece_file_b.rewind()?;
 
         // create the staged sector (the byte destination)
         let (staged_file, staged_path) = tempfile::NamedTempFile::new()?.keep()?;
@@ -2712,11 +2708,11 @@ pub mod tests {
 
         let mut piece_file_a = tempfile::tempfile()?;
         piece_file_a.write_all(&buf_a[0..127])?;
-        piece_file_a.seek(SeekFrom::Start(0))?;
+        piece_file_a.rewind()?;
 
         let mut piece_file_b = tempfile::tempfile()?;
         piece_file_b.write_all(&buf_a[0..1016])?;
-        piece_file_b.seek(SeekFrom::Start(0))?;
+        piece_file_b.rewind()?;
 
         // create the staged sector (the byte destination)
         let (staged_file, staged_path) = tempfile::NamedTempFile::new()?.keep()?;

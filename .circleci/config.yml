@@ -60,10 +60,6 @@ jobs:
       - prepare:
           linux: false
           darwin: true
-      - run: cd rust && rustup install $(cat rust-toolchain)
-      - run: cd rust && rustup target add x86_64-apple-darwin --toolchain $(cat rust-toolchain)
-      - run: cd rust && rustup target add aarch64-apple-darwin --toolchain $(cat rust-toolchain)
-      - run: cd rust && rustup default $(cat rust-toolchain)
       - run: cd rust && cargo fetch
       - run: cd rust && cargo install cargo-lipo
       - build_project
@@ -86,10 +82,6 @@ jobs:
       - prepare:
           linux: false
           darwin: true
-      - run: cd rust && rustup install $(cat rust-toolchain)
-      - run: cd rust && rustup target add x86_64-apple-darwin --toolchain $(cat rust-toolchain)
-      - run: cd rust && rustup target add aarch64-apple-darwin --toolchain $(cat rust-toolchain)
-      - run: cd rust && rustup default $(cat rust-toolchain)
       - run: cd rust && cargo fetch
       - run: cd rust && cargo install cargo-lipo
       - publish_darwin_release
@@ -101,20 +93,15 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - cargo-v0-{{ checksum "rust/rust-toolchain" }}-{{ checksum "rust/Cargo.toml" }}-{{ checksum "rust/Cargo.lock" }}-{{ arch }}
-      - run: cd rust && rustup install $(cat rust-toolchain)
-      - run: cd rust && rustup default $(cat rust-toolchain)
-      - run: cd rust && rustup target add wasm32-unknown-unknown
-      - run: cd rust && rustup component add rustfmt
-      - run: cd rust && rustup component add clippy
+            - cargo-v0-{{ checksum "rust/rust-toolchain.toml" }}-{{ checksum "rust/Cargo.toml" }}-{{ checksum "rust/Cargo.lock" }}-{{ arch }}
       - run: cd rust && cargo fetch
-      - run: cd rust && rustc +$(cat rust-toolchain) --version
+      - run: cd rust && rustc --version
       - persist_to_workspace:
           root: "."
           paths:
             - rust/Cargo.lock
       - save_cache:
-          key: cargo-v0-{{ checksum "rust/rust-toolchain" }}-{{ checksum "rust/Cargo.toml" }}-{{ checksum "rust/Cargo.lock" }}-{{ arch }}
+          key: cargo-v0-{{ checksum "rust/rust-toolchain.toml" }}-{{ checksum "rust/Cargo.toml" }}-{{ checksum "rust/Cargo.lock" }}-{{ arch }}
           paths:
             - /root/.cargo
             - /root/.rustup
@@ -126,7 +113,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - cargo-v0-{{ checksum "rust/rust-toolchain" }}-{{ checksum "rust/Cargo.toml" }}-{{ checksum "rust/Cargo.lock" }}-{{ arch }}
+            - cargo-v0-{{ checksum "rust/rust-toolchain.toml" }}-{{ checksum "rust/Cargo.toml" }}-{{ checksum "rust/Cargo.lock" }}-{{ arch }}
       - run:
           name: Run cargo fmt
           command: cargo fmt --manifest-path ./rust/Cargo.toml --all -- --check
@@ -138,16 +125,10 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - cargo-v0-{{ checksum "rust/rust-toolchain" }}-{{ checksum "rust/Cargo.toml" }}-{{ checksum "rust/Cargo.lock" }}-{{ arch }}
-      - run: cd rust && rustup install $(cat rust-toolchain)
-      - run: cd rust && rustup default $(cat rust-toolchain)
-      - run: cd rust && rustup target add wasm32-unknown-unknown
-      - run: cd rust && rustup component add rustfmt
-      - run: cd rust && rustup component add clippy
-      - run: cd rust && cargo fetch
+            - cargo-v0-{{ checksum "rust/rust-toolchain.toml" }}-{{ checksum "rust/Cargo.toml" }}-{{ checksum "rust/Cargo.lock" }}-{{ arch }}
       - run:
           name: Run cargo clippy
-          command: cd rust && cargo +$(cat rust-toolchain) clippy --all-targets --no-default-features --features multicore-sdr,blst-portable,opencl -- -D warnings
+          command: cd rust && cargo clippy --all-targets --no-default-features --features multicore-sdr,blst-portable,opencl -- -D warnings
 
 workflows:
   version: 2

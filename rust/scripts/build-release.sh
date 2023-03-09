@@ -30,10 +30,6 @@ main() {
     #
     trap '{ rm -f $__build_output_log_tmp; }' EXIT
 
-    # add the wasm target for building actors
-    #
-    rustup target add --toolchain "$2" wasm32-unknown-unknown
-
     # build with RUSTFLAGS configured to output linker flags for native libs
     #
     local __rust_flags="--print native-static-libs ${RUSTFLAGS}"

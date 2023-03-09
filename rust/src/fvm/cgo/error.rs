@@ -5,7 +5,7 @@ use safer_ffi::prelude::*;
 
 #[derive_ReprC]
 #[repr(i32)]
-#[derive(PartialEq, Debug, Copy, Clone)]
+#[derive(PartialEq, Eq, Debug, Copy, Clone)]
 pub enum FvmError {
     /// The error code returned by cgo if the blockstore handle isn't valid.
     InvalidHandle = -1,
