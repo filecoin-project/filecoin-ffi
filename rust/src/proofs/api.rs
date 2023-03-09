@@ -1320,7 +1320,7 @@ pub mod tests {
 
     use anyhow::{ensure, Error, Result};
     use log::info;
-    use memmap::MmapOptions;
+    use memmap2::MmapOptions;
     use rand::{thread_rng, Rng};
 
     use crate::util::types::as_bytes;
