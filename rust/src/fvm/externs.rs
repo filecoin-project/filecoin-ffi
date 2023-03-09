@@ -44,7 +44,7 @@ impl Rand3 for CgoExterns {
             let mut buf = [0u8; 32];
             match cgo_extern_get_chain_randomness(
                 self.handle,
-                pers as i64,
+                pers,
                 round,
                 entropy.as_ptr(),
                 entropy.len() as i32,
@@ -73,7 +73,7 @@ impl Rand3 for CgoExterns {
             let mut buf = [0u8; 32];
             match cgo_extern_get_beacon_randomness(
                 self.handle,
-                pers as i64,
+                pers,
                 round,
                 entropy.as_ptr(),
                 entropy.len() as i32,

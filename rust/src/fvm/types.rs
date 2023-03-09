@@ -6,7 +6,7 @@ use super::engine::CgoExecutor;
 
 #[derive_ReprC]
 #[repr(u8)]
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum FvmRegisteredVersion {
     V1,
 }
