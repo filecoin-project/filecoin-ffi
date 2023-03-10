@@ -101,11 +101,18 @@ pub enum RegisteredPoStProof {
     StackedDrgWinning512MiBV1,
     StackedDrgWinning32GiBV1,
     StackedDrgWinning64GiBV1,
+
     StackedDrgWindow2KiBV1,
     StackedDrgWindow8MiBV1,
     StackedDrgWindow512MiBV1,
     StackedDrgWindow32GiBV1,
     StackedDrgWindow64GiBV1,
+
+    StackedDrgWindow2KiBV1_1,
+    StackedDrgWindow8MiBV1_1,
+    StackedDrgWindow512MiBV1_1,
+    StackedDrgWindow32GiBV1_1,
+    StackedDrgWindow64GiBV1_1,
 }
 
 impl From<api::RegisteredPoStProof> for RegisteredPoStProof {
@@ -123,6 +130,17 @@ impl From<api::RegisteredPoStProof> for RegisteredPoStProof {
             StackedDrgWindow512MiBV1 => RegisteredPoStProof::StackedDrgWindow512MiBV1,
             StackedDrgWindow32GiBV1 => RegisteredPoStProof::StackedDrgWindow32GiBV1,
             StackedDrgWindow64GiBV1 => RegisteredPoStProof::StackedDrgWindow64GiBV1,
+
+            // rust-filecoin-proofs-api WindowPoSt uses api_version
+            // V1_2 to fix the grindability issue, which we map here
+            // as V1_1 for Lotus/actors compat reasons.
+            //
+            // Translation: Proofs api_version WindowPoStV1_2 -> WindowPoStV1_1 here
+            StackedDrgWindow2KiBV1_2 => RegisteredPoStProof::StackedDrgWindow2KiBV1_1,
+            StackedDrgWindow8MiBV1_2 => RegisteredPoStProof::StackedDrgWindow8MiBV1_1,
+            StackedDrgWindow512MiBV1_2 => RegisteredPoStProof::StackedDrgWindow512MiBV1_1,
+            StackedDrgWindow32GiBV1_2 => RegisteredPoStProof::StackedDrgWindow32GiBV1_1,
+            StackedDrgWindow64GiBV1_2 => RegisteredPoStProof::StackedDrgWindow64GiBV1_1,
         }
     }
 }
@@ -142,6 +160,17 @@ impl From<RegisteredPoStProof> for api::RegisteredPoStProof {
             RegisteredPoStProof::StackedDrgWindow512MiBV1 => StackedDrgWindow512MiBV1,
             RegisteredPoStProof::StackedDrgWindow32GiBV1 => StackedDrgWindow32GiBV1,
             RegisteredPoStProof::StackedDrgWindow64GiBV1 => StackedDrgWindow64GiBV1,
+
+            // rust-filecoin-proofs-api WindowPoSt uses api_version
+            // V1_2 to fix the grindability issue, which we map here
+            // as V1_1 for Lotus/actors compat reasons.
+            //
+            // Translation: WindowPoStV1_1 here -> Proofs api_version WindowPoStV1_2
+            RegisteredPoStProof::StackedDrgWindow2KiBV1_1 => StackedDrgWindow2KiBV1_2,
+            RegisteredPoStProof::StackedDrgWindow8MiBV1_1 => StackedDrgWindow8MiBV1_2,
+            RegisteredPoStProof::StackedDrgWindow512MiBV1_1 => StackedDrgWindow512MiBV1_2,
+            RegisteredPoStProof::StackedDrgWindow32GiBV1_1 => StackedDrgWindow32GiBV1_2,
+            RegisteredPoStProof::StackedDrgWindow64GiBV1_1 => StackedDrgWindow64GiBV1_2,
         }
     }
 }
