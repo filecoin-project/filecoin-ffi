@@ -1,5 +1,6 @@
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
+use std::ops::RangeInclusive;
 use std::sync::{Arc, Mutex};
 
 use anyhow::anyhow;
@@ -57,13 +58,51 @@ pub struct MultiEngineContainer {
     engines: Mutex<HashMap<u32, Arc<dyn AbstractMultiEngine + 'static>>>,
 }
 
+const LOTUS_FVM_CONCURRENCY_ENV_NAME: &str = "LOTUS_FVM_CONCURRENCY";
+const VALID_CONCURRENCY_RANGE: RangeInclusive<u32> = 1..=128;
+
 impl MultiEngineContainer {
+    /// Constructs a new multi-engine container with the default concurrency (4).
     pub fn new() -> MultiEngineContainer {
+        Self::with_concurrency(4)
+    }
+
+    /// Constructs a new multi-engine container with the concurrency specified in the
+    /// `LOTUS_FVM_CONCURRENCY` environment variable.
+    pub fn new_env() -> MultiEngineContainer {
+        let valosstr = match std::env::var_os(LOTUS_FVM_CONCURRENCY_ENV_NAME) {
+            Some(v) => v,
+            None => return Self::new(),
+        };
+        let valstr = match valosstr.to_str() {
+            Some(s) => s,
+            None => {
+                log::error!("{LOTUS_FVM_CONCURRENCY_ENV_NAME} has invalid value");
+                return Self::new();
+            }
+        };
+        let concurrency: u32 = match valstr.parse() {
+            Ok(v) => v,
+            Err(e) => {
+                log::error!("{LOTUS_FVM_CONCURRENCY_ENV_NAME} has invalid value: {e}");
+                return Self::new();
+            }
+        };
+        if !VALID_CONCURRENCY_RANGE.contains(&concurrency) {
+            log::error!(
+                "{LOTUS_FVM_CONCURRENCY_ENV_NAME} must be in the range {VALID_CONCURRENCY_RANGE:?}, not {concurrency}"
+            );
+            return Self::new();
+        }
+        Self::with_concurrency(concurrency)
+    }
+
+    pub fn with_concurrency(concurrency: u32) -> MultiEngineContainer {
         MultiEngineContainer {
             engines: Mutex::new(HashMap::new()),
             // The number of messages that can be executed simultaniously on any given engine (i.e.,
             // on any given network version/config).
-            concurrency: 1,
+            concurrency,
         }
     }
 
