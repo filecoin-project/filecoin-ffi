@@ -27,7 +27,7 @@ use crate::destructor;
 use crate::util::types::{catch_panic_response, catch_panic_response_no_default, Result};
 
 lazy_static! {
-    static ref ENGINES: MultiEngineContainer = MultiEngineContainer::new();
+    static ref ENGINES: MultiEngineContainer = MultiEngineContainer::new_env();
 }
 
 #[allow(clippy::too_many_arguments)]
