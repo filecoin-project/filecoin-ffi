@@ -49,8 +49,7 @@ safer-ffi = { version = "0.0.7", features = ["proc_macros"] }
 
 [dependencies.filecoin-proofs-api]
 package = "filecoin-proofs-api"
-git = "https://github.com/filecoin-project/rust-filecoin-proofs-api"
-#version = "13.0"
+version = "14.0"
 default-features = false
 
 [dev-dependencies]
