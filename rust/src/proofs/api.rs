@@ -1443,6 +1443,12 @@ pub mod tests {
             RegisteredPoStProof::StackedDrgWindow512MiBV1,
             RegisteredPoStProof::StackedDrgWindow32GiBV1,
             RegisteredPoStProof::StackedDrgWindow64GiBV1,
+            // Note: WindowPoSt V1_1 maps to Proofs API Version 1_2_0
+            RegisteredPoStProof::StackedDrgWindow2KiBV1_1,
+            RegisteredPoStProof::StackedDrgWindow8MiBV1_1,
+            RegisteredPoStProof::StackedDrgWindow512MiBV1_1,
+            RegisteredPoStProof::StackedDrgWindow32GiBV1_1,
+            RegisteredPoStProof::StackedDrgWindow64GiBV1_1,
         ];
 
         let num_ops = (seal_types.len() + post_types.len()) * 6;
@@ -1514,7 +1520,7 @@ pub mod tests {
     fn test_sealing_inner(registered_proof_seal: RegisteredSealProof) -> Result<()> {
         // miscellaneous setup and shared values
         let registered_proof_winning_post = RegisteredPoStProof::StackedDrgWinning2KiBV1;
-        let registered_proof_window_post = RegisteredPoStProof::StackedDrgWindow2KiBV1;
+        let registered_proof_window_post = RegisteredPoStProof::StackedDrgWindow2KiBV1_1;
 
         let cache_dir = tempfile::tempdir()?;
         let cache_dir_path = cache_dir.into_path();
@@ -2243,6 +2249,69 @@ pub mod tests {
                 panic!("verify_window_post rejected the provided proof as invalid");
             }
 
+            // Generate a legacy WindowPoSt for later use.
+            let legacy_registered_proof_window_post = RegisteredPoStProof::StackedDrgWindow2KiBV1;
+            let legacy_private_replicas = vec![PrivateReplicaInfo {
+                registered_proof: legacy_registered_proof_window_post,
+                cache_dir_path: cache_dir_path_ref.to_vec().into_boxed_slice().into(),
+                comm_r: resp_b2.comm_r,
+                replica_path: sealed_path_ref.to_vec().into_boxed_slice().into(),
+                sector_id,
+            }];
+
+            let resp_j_legacy =
+                generate_window_post(&randomness, legacy_private_replicas[..].into(), &prover_id);
+
+            if resp_j_legacy.status_code != FCPResponseStatus::NoError {
+                let msg = str::from_utf8(&resp_j_legacy.error_msg).unwrap();
+                panic!("generate_window_post failed: {:?}", msg);
+            }
+
+            let public_replicas = vec![PublicReplicaInfo {
+                registered_proof: legacy_registered_proof_window_post, // legacy registered proofs type
+                sector_id,
+                comm_r: resp_b2.comm_r,
+            }];
+
+            // Verify that the non-legacy proofs do not verify using the legacy proof type
+            let resp_k_v1_1 = verify_window_post(
+                &randomness,
+                public_replicas[..].into(),
+                resp_j.proofs.as_ref(), // non-legacy proofs provided here
+                &prover_id,
+            );
+
+            if resp_k_v1_1.status_code == FCPResponseStatus::NoError {
+                let msg = str::from_utf8(&resp_k_v1_1.error_msg).unwrap();
+                panic!(
+                    "verify_window_post was supposed to fail but did not: {:?}",
+                    msg
+                );
+            }
+
+            // Lastly ensure that the legacy WindowPoSt generated proof
+            // does not verify with the new proof version
+            let public_replicas = vec![PublicReplicaInfo {
+                registered_proof: registered_proof_window_post, // new registered proof type/version
+                sector_id,
+                comm_r: resp_b2.comm_r,
+            }];
+
+            let resp_k_legacy = verify_window_post(
+                &randomness,
+                public_replicas[..].into(),
+                resp_j_legacy.proofs.as_ref(), // legacy generated proofs
+                &prover_id,
+            );
+
+            if resp_k_legacy.status_code == FCPResponseStatus::NoError {
+                let msg = str::from_utf8(&resp_k_legacy.error_msg).unwrap();
+                panic!(
+                    "verify_window_post was supposed to fail but did not: {:?}",
+                    msg
+                );
+            }
+
             //////////////////////////////////////////////
             // Window PoSt using distributed API
             //
@@ -2472,8 +2541,11 @@ pub mod tests {
 
             destroy_generate_fallback_sector_challenges_response(resp_sc2);
             destroy_generate_window_post_response(resp_j);
+            destroy_generate_window_post_response(resp_j_legacy);
             destroy_generate_window_post_response(resp_wpwv2);
             destroy_verify_window_post_response(resp_k);
+            destroy_verify_window_post_response(resp_k_v1_1);
+            destroy_verify_window_post_response(resp_k_legacy);
             destroy_verify_window_post_response(resp_k2);
             destroy_verify_window_post_response(resp_k3);
 
@@ -2506,7 +2578,7 @@ pub mod tests {
 
     fn test_faulty_sectors_inner(registered_proof_seal: RegisteredSealProof) -> Result<()> {
         // miscellaneous setup and shared values
-        let registered_proof_window_post = RegisteredPoStProof::StackedDrgWindow2KiBV1;
+        let registered_proof_window_post = RegisteredPoStProof::StackedDrgWindow2KiBV1_1;
 
         let cache_dir = tempfile::tempdir()?;
         let cache_dir_path = cache_dir.into_path();
