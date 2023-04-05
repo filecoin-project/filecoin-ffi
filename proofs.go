@@ -104,7 +104,7 @@ func VerifyAggregateSeals(aggregate proof.AggregateSealVerifyProofAndInfos) (boo
 // VerifyWinningPoSt returns true if the Winning PoSt-generation operation from which its
 // inputs were derived was valid, and false if not.
 func VerifyWinningPoSt(info proof.WinningPoStVerifyInfo) (bool, error) {
-	filPublicReplicaInfos, err := toFilPublicReplicaInfos(info.ChallengedSectors, "winning")
+	filPublicReplicaInfos, err := toFilPublicReplicaInfosForWinningPoSt(info.ChallengedSectors)
 	if err != nil {
 		return false, errors.Wrap(err, "failed to create public replica info array for FFI")
 	}
@@ -132,7 +132,10 @@ func VerifyWinningPoSt(info proof.WinningPoStVerifyInfo) (bool, error) {
 // VerifyWindowPoSt returns true if the Winning PoSt-generation operation from which its
 // inputs were derived was valid, and false if not.
 func VerifyWindowPoSt(info proof.WindowPoStVerifyInfo) (bool, error) {
-	filPublicReplicaInfos, err := toFilPublicReplicaInfos(info.ChallengedSectors, "window")
+	if len(info.Proofs) == 0 {
+		return false, errors.New("nothing to verify")
+	}
+	filPublicReplicaInfos, err := toFilPublicReplicaInfosForWindowPoSt(info.ChallengedSectors, info.Proofs[0].PoStProof)
 	if err != nil {
 		return false, errors.Wrap(err, "failed to create public replica info array for FFI")
 	}
@@ -692,7 +695,7 @@ func toFilPublicPieceInfos(src []abi.PieceInfo) ([]cgo.PublicPieceInfo, error) {
 	return out, nil
 }
 
-func toFilPublicReplicaInfos(src []proof.SectorInfo, typ string) ([]cgo.PublicReplicaInfo, error) {
+func toFilPublicReplicaInfosForWinningPoSt(src []proof.SectorInfo) ([]cgo.PublicReplicaInfo, error) {
 	out := make([]cgo.PublicReplicaInfo, len(src))
 
 	for idx := range out {
@@ -701,29 +704,34 @@ func toFilPublicReplicaInfos(src []proof.SectorInfo, typ string) ([]cgo.PublicRe
 			return nil, err
 		}
 
-		var pp cgo.RegisteredPoStProof
+		p, err := src[idx].SealProof.RegisteredWinningPoStProof()
+		if err != nil {
+			return nil, err
+		}
 
-		switch typ {
-		case "window":
-			p, err := src[idx].SealProof.RegisteredWindowPoStProof()
-			if err != nil {
-				return nil, err
-			}
+		pp, err := toFilRegisteredPoStProof(p)
+		if err != nil {
+			return nil, err
+		}
 
-			pp, err = toFilRegisteredPoStProof(p)
-			if err != nil {
-				return nil, err
-			}
-		case "winning":
-			p, err := src[idx].SealProof.RegisteredWinningPoStProof()
-			if err != nil {
-				return nil, err
-			}
+		out[idx] = cgo.NewPublicReplicaInfo(pp, commR, uint64(src[idx].SectorNumber))
+	}
 
-			pp, err = toFilRegisteredPoStProof(p)
-			if err != nil {
-				return nil, err
-			}
+	return out, nil
+}
+
+func toFilPublicReplicaInfosForWindowPoSt(src []proof.SectorInfo, postProofType abi.RegisteredPoStProof) ([]cgo.PublicReplicaInfo, error) {
+	out := make([]cgo.PublicReplicaInfo, len(src))
+
+	for idx := range out {
+		commR, err := to32ByteCommR(src[idx].SealedCID)
+		if err != nil {
+			return nil, err
+		}
+
+		pp, err := toFilRegisteredPoStProof(postProofType)
+		if err != nil {
+			return nil, err
 		}
 
 		out[idx] = cgo.NewPublicReplicaInfo(pp, commR, uint64(src[idx].SectorNumber))
@@ -827,7 +835,7 @@ func toFilPoStProofs(src []proof.PoStProof) ([]cgo.PoStProof, func(), error) {
 		out[idx] = cgo.NewPoStProof(pp, src[idx].ProofBytes)
 	}
 
-	return out, makeCleanerPOST(out, len(src)),nil
+	return out, makeCleanerPOST(out, len(src)), nil
 }
 
 func makeCleanerPOST(src []cgo.PoStProof, limit int) func() {
@@ -870,6 +878,17 @@ func fromFilRegisteredPoStProof(p cgo.RegisteredPoStProof) (abi.RegisteredPoStPr
 		return abi.RegisteredPoStProof_StackedDrgWindow32GiBV1, nil
 	case cgo.RegisteredPoStProofStackedDrgWindow64GiBV1:
 		return abi.RegisteredPoStProof_StackedDrgWindow64GiBV1, nil
+
+	case cgo.RegisteredPoStProofStackedDrgWindow2KiBV1_1:
+		return abi.RegisteredPoStProof_StackedDrgWindow2KiBV1_1, nil
+	case cgo.RegisteredPoStProofStackedDrgWindow8MiBV1_1:
+		return abi.RegisteredPoStProof_StackedDrgWindow8MiBV1_1, nil
+	case cgo.RegisteredPoStProofStackedDrgWindow512MiBV1_1:
+		return abi.RegisteredPoStProof_StackedDrgWindow512MiBV1_1, nil
+	case cgo.RegisteredPoStProofStackedDrgWindow32GiBV1_1:
+		return abi.RegisteredPoStProof_StackedDrgWindow32GiBV1_1, nil
+	case cgo.RegisteredPoStProofStackedDrgWindow64GiBV1_1:
+		return abi.RegisteredPoStProof_StackedDrgWindow64GiBV1_1, nil
 	default:
 		return 0, errors.Errorf("no mapping to abi.RegisteredPoStProof value available for: %v", p)
 	}
@@ -898,6 +917,17 @@ func toFilRegisteredPoStProof(p abi.RegisteredPoStProof) (cgo.RegisteredPoStProo
 		return cgo.RegisteredPoStProofStackedDrgWindow32GiBV1, nil
 	case abi.RegisteredPoStProof_StackedDrgWindow64GiBV1:
 		return cgo.RegisteredPoStProofStackedDrgWindow64GiBV1, nil
+
+	case abi.RegisteredPoStProof_StackedDrgWindow2KiBV1_1:
+		return cgo.RegisteredPoStProofStackedDrgWindow2KiBV1_1, nil
+	case abi.RegisteredPoStProof_StackedDrgWindow8MiBV1_1:
+		return cgo.RegisteredPoStProofStackedDrgWindow8MiBV1_1, nil
+	case abi.RegisteredPoStProof_StackedDrgWindow512MiBV1_1:
+		return cgo.RegisteredPoStProofStackedDrgWindow512MiBV1_1, nil
+	case abi.RegisteredPoStProof_StackedDrgWindow32GiBV1_1:
+		return cgo.RegisteredPoStProofStackedDrgWindow32GiBV1_1, nil
+	case abi.RegisteredPoStProof_StackedDrgWindow64GiBV1_1:
+		return cgo.RegisteredPoStProofStackedDrgWindow64GiBV1_1, nil
 	default:
 		return 0, errors.Errorf("no mapping to abi.RegisteredPoStProof value available for: %v", p)
 	}
