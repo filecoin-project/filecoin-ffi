@@ -5,9 +5,9 @@ go 1.18
 require (
 	github.com/filecoin-project/go-address v1.1.0
 	github.com/filecoin-project/go-fil-commcid v0.1.0
-	github.com/filecoin-project/go-state-types v0.11.0-alpha-2.0.20230331142914-3c737db98e58
+	github.com/filecoin-project/go-state-types v0.11.0-rc1
 	github.com/ipfs/go-block-format v0.0.3
-	github.com/ipfs/go-cid v0.2.0
+	github.com/ipfs/go-cid v0.3.2
 	github.com/ipfs/go-ipfs-blockstore v1.2.0
 	github.com/ipfs/go-ipld-format v0.4.0
 	github.com/pkg/errors v0.9.1
@@ -38,7 +38,7 @@ require (
 	github.com/multiformats/go-base32 v0.0.4 // indirect
 	github.com/multiformats/go-base36 v0.1.0 // indirect
 	github.com/multiformats/go-multibase v0.0.3 // indirect
-	github.com/multiformats/go-multihash v0.1.0 // indirect
+	github.com/multiformats/go-multihash v0.2.1 // indirect
 	github.com/multiformats/go-varint v0.0.6 // indirect
 	github.com/opentracing/opentracing-go v1.1.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
