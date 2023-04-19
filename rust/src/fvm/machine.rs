@@ -8,9 +8,8 @@ use fvm3::gas::GasCharge;
 use fvm3::trace::ExecutionEvent;
 use fvm3_ipld_encoding::ipld_block::IpldBlock;
 use fvm3_ipld_encoding::tuple::{Deserialize_tuple, Serialize_tuple};
-use fvm3_ipld_encoding::{strict_bytes, to_vec, CborStore};
+use fvm3_ipld_encoding::{to_vec, CborStore, RawBytes};
 use fvm3_shared::address::Address;
-use fvm3_shared::MethodNum;
 
 use fvm3_shared::error::{ErrorNumber, ExitCode};
 use fvm3_shared::receipt::Receipt;
@@ -303,6 +302,7 @@ fn fvm_machine_execute_message(
 
         let events_root = events_root.map(|cid| cid.to_bytes().into_boxed_slice().into());
 
+        // TODO: Do something with the backtrace.
         Ok(FvmMachineExecuteResponse {
             exit_code: exit_code.value() as u64,
             return_val,
@@ -358,34 +358,22 @@ struct LotusGasCharge {
     pub total_gas: u64,
     pub compute_gas: u64,
     pub other_gas: u64,
-    pub duration_nanos: u64,
 }
 
 #[derive(Clone, Debug, Serialize_tuple, Deserialize_tuple)]
-struct Trace {
-    pub msg: TraceMessage,
-    pub msg_ret: TraceReturn,
+struct LotusTrace {
+    pub msg: Message,
+    pub msg_receipt: LotusReceipt,
+    pub error: String,
     pub gas_charges: Vec<LotusGasCharge>,
-    pub subcalls: Vec<Trace>,
+    pub subcalls: Vec<LotusTrace>,
 }
 
 #[derive(Serialize_tuple, Deserialize_tuple, Debug, PartialEq, Eq, Clone)]
-pub struct TraceMessage {
-    pub from: Address,
-    pub to: Address,
-    pub value: TokenAmount,
-    pub method_num: MethodNum,
-    #[serde(with = "strict_bytes")]
-    pub params: Vec<u8>,
-    pub codec: u64,
-}
-
-#[derive(Serialize_tuple, Deserialize_tuple, Debug, PartialEq, Eq, Clone)]
-pub struct TraceReturn {
+pub struct LotusReceipt {
     pub exit_code: ExitCode,
-    #[serde(with = "strict_bytes")]
-    pub return_data: Vec<u8>,
-    pub codec: u64,
+    pub return_data: RawBytes,
+    pub gas_used: i64,
 }
 
 fn build_lotus_trace(
@@ -395,22 +383,26 @@ fn build_lotus_trace(
     params: Option<IpldBlock>,
     value: TokenAmount,
     trace_iter: &mut impl Iterator<Item = ExecutionEvent>,
-) -> anyhow::Result<Trace> {
-    let params = params.unwrap_or_default();
-    let mut new_trace = Trace {
-        msg: TraceMessage {
+) -> anyhow::Result<LotusTrace> {
+    let mut new_trace = LotusTrace {
+        msg: Message {
+            version: 0,
             from: Address::new_id(from),
             to,
             value,
+            sequence: 0,
             method_num: method,
-            params: params.data,
-            codec: params.codec,
+            params: params.map(|b| b.data).unwrap_or_default().into(),
+            gas_limit: 0,
+            gas_fee_cap: TokenAmount::default(),
+            gas_premium: TokenAmount::default(),
         },
-        msg_ret: TraceReturn {
+        msg_receipt: LotusReceipt {
             exit_code: ExitCode::OK,
-            return_data: Vec::new(),
-            codec: 0,
+            return_data: RawBytes::default(),
+            gas_used: 0,
         },
+        error: String::new(),
         gas_charges: vec![],
         subcalls: vec![],
     };
@@ -429,11 +421,10 @@ fn build_lotus_trace(
                 )?);
             }
             ExecutionEvent::CallReturn(exit_code, return_data) => {
-                let return_data = return_data.unwrap_or_default();
-                new_trace.msg_ret = TraceReturn {
+                new_trace.msg_receipt = LotusReceipt {
                     exit_code,
-                    return_data: return_data.data,
-                    codec: return_data.codec,
+                    return_data: return_data.map(|b| b.data).unwrap_or_default().into(),
+                    gas_used: 0,
                 };
                 return Ok(new_trace);
             }
@@ -447,10 +438,10 @@ fn build_lotus_trace(
                     _ => ExitCode::SYS_ASSERTION_FAILED,
                 };
 
-                new_trace.msg_ret = TraceReturn {
+                new_trace.msg_receipt = LotusReceipt {
                     exit_code,
                     return_data: Default::default(),
-                    codec: 0,
+                    gas_used: 0,
                 };
                 return Ok(new_trace);
             }
@@ -458,20 +449,13 @@ fn build_lotus_trace(
                 name,
                 compute_gas,
                 other_gas,
-                elapsed,
+                elapsed: _, // TODO: thread timing through to lotus.
             }) => {
                 new_trace.gas_charges.push(LotusGasCharge {
                     name,
                     total_gas: (compute_gas + other_gas).round_up(),
                     compute_gas: compute_gas.round_up(),
                     other_gas: other_gas.round_up(),
-                    duration_nanos: elapsed
-                        .get()
-                        .copied()
-                        .unwrap_or_default()
-                        .as_nanos()
-                        .try_into()
-                        .unwrap_or(u64::MAX),
                 });
             }
             _ => (), // ignore unknown events.
@@ -538,12 +522,6 @@ mod test {
                 total_gas: initial_gas_charge.total().round_up(),
                 compute_gas: initial_gas_charge.compute_gas.round_up(),
                 other_gas: initial_gas_charge.other_gas.round_up(),
-                duration_nanos: initial_gas_charge
-                    .elapsed
-                    .get()
-                    .copied()
-                    .unwrap_or_default()
-                    .as_nanos() as u64,
             }
         );
         assert_eq!(lotus_trace.subcalls.len(), 2);
