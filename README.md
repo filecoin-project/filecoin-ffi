@@ -101,13 +101,17 @@ Run it like so:
 ### Maintainers
 
 The core maintainers of this repository are:
-- @nemo, @vmx & @shawnrader, from the fil-crypto team
+- @nemo & @vmx, from the fil-crypto team
 - @lotus-maintainers
 - @stebalien, from the FVM team 
 
 Maintainers are not only the contributors of this repository, but also exercise a range of editorial responsibilities to keep the repository organized for the OSS contributors, that includes triage the issues, review and merge/close PRs, publish releases and so on.
 
 ### Development Guidelines (WIP)
+
+#### CI Builds
+
+To start a CI job to build binaries off of a commit push a tag starting with the character `v`, i.e. `v1.22.0-rc2`.
 
 #### Branches
 
