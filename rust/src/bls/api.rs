@@ -162,27 +162,30 @@ pub fn hash_verify(
     flattened_public_keys: c_slice::Ref<u8>,
 ) -> bool {
     // prep request
-    let signature = try_ffi!(Signature::from_bytes(&signature), false);
+    let signature = Signature::from_bytes(&signature)
+        .map_err(|_| false)?;
 
     // split the flattened message array into slices of individual messages to be hashed
-    let mut messages: Vec<&[u8]> = Vec::with_capacity(message_sizes.len());
-    let mut offset = 0;
-    for chunk_size in message_sizes.iter() {
-        messages.push(&flattened_messages[offset..offset + *chunk_size]);
-        offset += *chunk_size
-    }
+    let messages: Vec<_> = message_sizes
+        .par_scan(0, |offset, chunk_size| {
+            let slice = &flattened_messages[*offset..*offset + *chunk_size];
+            *offset += *chunk_size;
+            Some(slice)
+        })
+        .collect();
 
+    // check if the length of the flattened public keys is a multiple of PUBLIC_KEY_BYTES
     if flattened_public_keys.len() % PUBLIC_KEY_BYTES != 0 {
         return false;
     }
 
-    let public_keys: Vec<_> = try_ffi!(
-        flattened_public_keys
-            .par_chunks(PUBLIC_KEY_BYTES)
-            .map(|item| { PublicKey::from_bytes(item) })
-            .collect::<Result<_, _>>(),
-        false
-    );
+    // convert the flattened public keys into a vector of PublicKey objects
+    let public_keys: Vec<_> = flattened_public_keys
+        .par_bridge()
+        .chunks_exact(PUBLIC_KEY_BYTES)
+        .map(|bytes| PublicKey::from_bytes(bytes))
+        .collect::<Result<_, _>>()
+        .map_err(|_| false)?;
 
     verify_messages_sig(&signature, &messages, &public_keys)
 }
