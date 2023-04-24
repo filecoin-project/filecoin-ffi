@@ -167,7 +167,7 @@ pub fn hash_verify(
 
     // split the flattened message array into slices of individual messages to be hashed
     let messages: Vec<_> = message_sizes
-        .par_scan(0, |offset, chunk_size| {
+        .scan(0, |offset, chunk_size| {
             let slice = &flattened_messages[*offset..*offset + *chunk_size];
             *offset += *chunk_size;
             Some(slice)
