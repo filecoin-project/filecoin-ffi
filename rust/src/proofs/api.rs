@@ -1498,6 +1498,7 @@ pub mod tests {
         let versions = vec![
             RegisteredSealProof::StackedDrg2KiBV1,
             RegisteredSealProof::StackedDrg2KiBV1_1,
+            RegisteredSealProof::StackedDrg2KiBV1_1_Feat_SyntheticPoRep,
         ];
         for version in versions {
             info!("test_sealing_versions[{:?}", version);
