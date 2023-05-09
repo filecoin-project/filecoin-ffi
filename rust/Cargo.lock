@@ -50,9 +50,15 @@ dependencies = [
 
 [[package]]
 name = "aho-corasick"
+<<<<<<< HEAD
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "43f6cb1bf222025340178f382c426f13757b2960e89779dfcb319c32542a5a41"
+=======
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "67fc08ce920c31afb70f013dcce1bfc3a3195de6a228474e45e1f145b36f8d04"
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
 dependencies = [
  "memchr",
 ]
@@ -107,6 +113,7 @@ checksum = "96d30a06541fbafbc7f82ed10c06164cfbd2c401138f6addd8404629c4b16711"
 
 [[package]]
 name = "async-trait"
+<<<<<<< HEAD
 version = "0.1.71"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a564d521dd56509c4c47480d00b80ee55f7e385ae48db5744c67ad50c92d2ebf"
@@ -114,6 +121,19 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.23",
+=======
+version = "0.1.68"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b9ccdd8f2a161be9bd5c023df56f1b2a0bd1d83872ae53b71a84a12c9bf6e842"
+dependencies = [
+ "proc-macro2",
+ "quote",
+<<<<<<< HEAD
+ "syn 1.0.109",
+=======
+ "syn 2.0.15",
+>>>>>>> 66c0804 (feat: update dependencies to WIP synthetic-porep code)
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
 ]
 
 [[package]]
@@ -162,12 +182,13 @@ checksum = "9e1b586273c5702936fe7b7d6896644d8be71e6314cfe09d3167c95f712589e8"
 
 [[package]]
 name = "bellperson"
-version = "0.24.1"
+version = "0.25.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d1a8623f815c0b1fd89efd9b5f4afbb937f91f51c1ebe3f6dda399c69fa938f3"
+checksum = "93eaee4b4753554139ae52ecf0e8b8c128cbc561b32e1bfaa32f70cba8518c1f"
 dependencies = [
  "bincode",
  "blake2s_simd 1.0.1",
+<<<<<<< HEAD
  "blstrs 0.6.1",
  "byteorder",
  "crossbeam-channel",
@@ -197,12 +218,18 @@ checksum = "93eaee4b4753554139ae52ecf0e8b8c128cbc561b32e1bfaa32f70cba8518c1f"
 dependencies = [
  "bincode",
  "blake2s_simd 1.0.1",
+=======
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
  "blstrs 0.7.0",
  "byteorder",
  "crossbeam-channel",
  "digest 0.10.7",
  "ec-gpu",
+<<<<<<< HEAD
  "ec-gpu-gen 0.6.0",
+=======
+ "ec-gpu-gen",
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
  "ff 0.13.0",
  "fs2",
  "group 0.13.0",
@@ -386,7 +413,6 @@ checksum = "3ecb6f3a9429706971633edf4b84f922aba9d2e3a7d71bfb450337e64ccb7df0"
 dependencies = [
  "blst",
  "byte-slice-cast",
- "ec-gpu",
  "ff 0.12.1",
  "group 0.12.1",
  "pairing 0.22.0",
@@ -404,6 +430,26 @@ dependencies = [
  "blst",
  "byte-slice-cast",
  "ec-gpu",
+<<<<<<< HEAD
+ "ff 0.12.1",
+ "group 0.12.1",
+ "pairing 0.22.0",
+ "rand_core",
+ "serde",
+ "subtle",
+]
+
+[[package]]
+name = "blstrs"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "33149fccb7f93271f0192614b884430cf274e880506bbd171cbc8918dcc95b14"
+dependencies = [
+ "blst",
+ "byte-slice-cast",
+ "ec-gpu",
+=======
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
  "ff 0.13.0",
  "group 0.13.0",
  "pairing 0.23.0",
@@ -414,9 +460,15 @@ dependencies = [
 
 [[package]]
 name = "bumpalo"
+<<<<<<< HEAD
 version = "3.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a3e2c3daef883ecc1b5d58c15adae93470a91d425f3532ba1695849656af3fc1"
+=======
+version = "3.12.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9b1ce199063694f33ffb7dd4e0ee620741495c32833cde5aa08f02a0bf96f0c8"
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
 
 [[package]]
 name = "byte-slice-cast"
@@ -461,6 +513,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
+name = "chacha20"
+version = "0.9.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c3613f74bd2eac03dad61bd53dbe620703d4371614fe0bc3b9f04dd36fe4e818"
+dependencies = [
+ "cfg-if",
+ "cipher",
+ "cpufeatures",
+]
+
+[[package]]
 name = "chrono"
 version = "0.4.26"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -497,22 +560,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "cl-sys"
-version = "0.4.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e8573fa3ff8acd6c49e8e113296c54277e82376b96c6ca6307848632cce38e44"
-dependencies = [
- "libc",
-]
-
-[[package]]
 name = "cl3"
-version = "0.6.5"
+version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f9f2217b5993b54a819ac8e8569cc429702c8975a88d52c73e530f1f813576a3"
+checksum = "0e014961508a981c7ef28a65d0c965af7061593b4db50cff83952c62931b39ec"
 dependencies = [
- "cl-sys",
  "libc",
+ "opencl-sys",
 ]
 
 [[package]]
@@ -589,9 +643,15 @@ dependencies = [
 
 [[package]]
 name = "cpufeatures"
+<<<<<<< HEAD
 version = "0.2.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a17b76ff3a4162b0b27f354a0c87015ddad39d35f9c0c36607a3bdd175dde1f1"
+=======
+version = "0.2.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3e4c1eaa2012c47becbbad2ab175484c2a84d1185b566fb2cc5b8707343dfe58"
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
 dependencies = [
  "libc",
 ]
@@ -844,6 +904,61 @@ dependencies = [
 ]
 
 [[package]]
+<<<<<<< HEAD
+=======
+name = "cxx"
+version = "1.0.94"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f61f1b6389c3fe1c316bf8a4dccc90a38208354b330925bce1f74a6c4756eb93"
+dependencies = [
+ "cc",
+ "cxxbridge-flags",
+ "cxxbridge-macro",
+ "link-cplusplus",
+]
+
+[[package]]
+name = "cxx-build"
+version = "1.0.94"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "12cee708e8962df2aeb38f594aae5d827c022b6460ac71a7a3e2c3c2aae5a07b"
+dependencies = [
+ "cc",
+ "codespan-reporting",
+ "once_cell",
+ "proc-macro2",
+ "quote",
+ "scratch",
+<<<<<<< HEAD
+ "syn 1.0.109",
+=======
+ "syn 2.0.15",
+>>>>>>> 66c0804 (feat: update dependencies to WIP synthetic-porep code)
+]
+
+[[package]]
+name = "cxxbridge-flags"
+version = "1.0.94"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7944172ae7e4068c533afbb984114a56c46e9ccddda550499caa222902c7f7bb"
+
+[[package]]
+name = "cxxbridge-macro"
+version = "1.0.94"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2345488264226bf682893e25de0769f3360aac9957980ec49361b083ddaa5bc5"
+dependencies = [
+ "proc-macro2",
+ "quote",
+<<<<<<< HEAD
+ "syn 1.0.109",
+=======
+ "syn 2.0.15",
+>>>>>>> 66c0804 (feat: update dependencies to WIP synthetic-porep code)
+]
+
+[[package]]
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
 name = "darling"
 version = "0.14.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -902,6 +1017,7 @@ checksum = "8fdf3fce3ce863539ec1d7fd1b6dcc3c645663376b43ed376bbf887733e4f772"
 dependencies = [
  "data-encoding",
  "syn 1.0.109",
+<<<<<<< HEAD
 ]
 
 [[package]]
@@ -911,13 +1027,21 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bef552e6f588e446098f6ba40d89ac146c8c7b64aade83c051ee00bb5d2bc18d"
 dependencies = [
  "uuid",
+=======
+>>>>>>> 66c0804 (feat: update dependencies to WIP synthetic-porep code)
 ]
 
 [[package]]
 name = "derive-getters"
+<<<<<<< HEAD
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7a2c35ab6e03642397cdda1dd58abbc05d418aef8e36297f336d5aba060fe8df"
+=======
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0122f262bf9c9a367829da84f808d9fb128c10ef283bbe7b0922a77cf07b2747"
+>>>>>>> 66c0804 (feat: update dependencies to WIP synthetic-porep code)
 dependencies = [
  "proc-macro2",
  "quote",
@@ -995,22 +1119,23 @@ dependencies = [
 
 [[package]]
 name = "dirs"
-version = "4.0.0"
+version = "5.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ca3aa72a6f96ea37bbc5aa912f6788242832f75369bdfdadcb0e38423f100059"
+checksum = "44c45a9d03d6676652bcb5e724c7e988de1acad23a711b5217ab9cbecbec2225"
 dependencies = [
  "dirs-sys",
 ]
 
 [[package]]
 name = "dirs-sys"
-version = "0.3.7"
+version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1b1d1d91c932ef41c0f2663aa8b0ca0342d444d842c06914aa0a7e352d0bada6"
+checksum = "520f05a5cbd335fae5a99ff7a6ab8627577660ee5cfd6a94a6a929b52ff0321c"
 dependencies = [
  "libc",
+ "option-ext",
  "redox_users",
- "winapi 0.3.9",
+ "windows-sys 0.48.0",
 ]
 
 [[package]]
@@ -1021,14 +1146,15 @@ checksum = "bd63582de2b59ea1aa48d7c1941b5d87618d95484397521b3acdfa0e1e9f5e45"
 
 [[package]]
 name = "ec-gpu-gen"
-version = "0.5.2"
+version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fd09bf9d5313ad60379f70250590bccc10f7a04e2773062ac13255a37022584e"
+checksum = "892df2aa20abec5b816e15d5d6383892ca142077708efa3067dd3ac44b75c664"
 dependencies = [
  "bitvec",
  "crossbeam-channel",
  "ec-gpu",
  "execute",
+<<<<<<< HEAD
  "ff 0.12.1",
  "group 0.12.1",
  "hex",
@@ -1052,6 +1178,8 @@ dependencies = [
  "crossbeam-channel",
  "ec-gpu",
  "execute",
+=======
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
  "ff 0.13.0",
  "group 0.13.0",
  "hex",
@@ -1131,7 +1259,15 @@ checksum = "55a9a55d1dab3b07854648d48e366f684aefe2ac78ae28cec3bf65e3cd53d9a3"
 dependencies = [
  "execute-command-tokens",
  "quote",
+<<<<<<< HEAD
  "syn 2.0.23",
+=======
+<<<<<<< HEAD
+ "syn 1.0.109",
+=======
+ "syn 2.0.15",
+>>>>>>> 66c0804 (feat: update dependencies to WIP synthetic-porep code)
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
 ]
 
 [[package]]
@@ -1216,6 +1352,7 @@ dependencies = [
 ]
 
 [[package]]
+<<<<<<< HEAD
 name = "fil_pasta_curves"
 version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1232,6 +1369,8 @@ dependencies = [
 ]
 
 [[package]]
+=======
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
 name = "filcrypto"
 version = "0.7.5"
 dependencies = [
@@ -1243,14 +1382,34 @@ dependencies = [
  "fil_logger",
  "filecoin-proofs-api 15.0.0",
  "filepath",
+<<<<<<< HEAD
  "fr32 7.0.0",
+=======
+<<<<<<< HEAD
+ "fr32 6.0.0",
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
  "fvm 2.5.0",
  "fvm 3.5.0",
  "fvm_ipld_blockstore",
  "fvm_ipld_encoding",
  "fvm_shared 2.5.0",
  "fvm_shared 3.4.0",
+<<<<<<< HEAD
  "group 0.13.0",
+=======
+ "group",
+=======
+ "fr32",
+ "fvm 2.4.0",
+ "fvm 3.4.0",
+ "fvm_ipld_blockstore",
+ "fvm_ipld_encoding 0.2.3",
+ "fvm_ipld_encoding 0.3.3",
+ "fvm_shared 2.4.0",
+ "fvm_shared 3.3.1",
+ "group 0.13.0",
+>>>>>>> 66c0804 (feat: update dependencies to WIP synthetic-porep code)
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
  "lazy_static",
  "libc",
  "log",
@@ -1270,10 +1429,10 @@ dependencies = [
 [[package]]
 name = "filecoin-hashers"
 version = "9.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "66d7e656d4f01d7772ef2dd0f59854c8f904370a946053cf37ef420c854d9a35"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=nemo-synth-porep#f5ef18e8ea450b06ba3b11081823cab597dc70a6"
 dependencies = [
  "anyhow",
+<<<<<<< HEAD
  "bellperson 0.24.1",
  "blstrs 0.6.1",
  "ff 0.12.1",
@@ -1295,6 +1454,9 @@ checksum = "3ad606b5bfcd1cb270d95168b9d534e5e6323abc09ac37e676a91cbf529a4a04"
 dependencies = [
  "anyhow",
  "bellperson 0.25.0",
+=======
+ "bellperson",
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
  "blstrs 0.7.0",
  "ff 0.13.0",
  "generic-array",
@@ -1310,16 +1472,21 @@ dependencies = [
 [[package]]
 name = "filecoin-proofs"
 version = "14.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e00449c0e89be0922127e7e927e578247825450abdaf0da2fc30b733cb0e535b"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=nemo-synth-porep#f5ef18e8ea450b06ba3b11081823cab597dc70a6"
 dependencies = [
  "anyhow",
  "bellperson 0.24.1",
  "bincode",
  "blake2b_simd",
+<<<<<<< HEAD
  "blstrs 0.6.1",
  "filecoin-hashers 9.0.0",
  "fr32 7.0.0",
+=======
+ "blstrs 0.7.0",
+ "filecoin-hashers",
+ "fr32",
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
  "generic-array",
  "hex",
  "lazy_static",
@@ -1376,16 +1543,22 @@ dependencies = [
 [[package]]
 name = "filecoin-proofs-api"
 version = "14.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "347a43603e12b147cc3d8285fee27771e1e9702d90f1f8e5018b8dd96b5da467"
+source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=synthetic-porep#a5a5bee2521dc944670517e5f7d0e347188a610b"
 dependencies = [
  "anyhow",
  "bellperson 0.24.1",
  "bincode",
+<<<<<<< HEAD
  "blstrs 0.6.1",
  "filecoin-hashers 9.0.0",
  "filecoin-proofs 14.0.0",
  "fr32 7.0.0",
+=======
+ "blstrs 0.7.0",
+ "filecoin-hashers",
+ "filecoin-proofs",
+ "fr32",
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
  "lazy_static",
  "serde",
  "storage-proofs-core 14.0.0",
@@ -1472,6 +1645,7 @@ dependencies = [
 [[package]]
 name = "fr32"
 version = "7.0.0"
+<<<<<<< HEAD
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a4f07b8a600b8c699f8ddc5f520231bc2aac03e944c64055eccfd9a959c3fd60"
 dependencies = [
@@ -1488,6 +1662,9 @@ name = "fr32"
 version = "8.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c177c3b65cf730dbfb710c6515fef4645043882732ba8a8789f0fe016ae4f030"
+=======
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=nemo-synth-porep#f5ef18e8ea450b06ba3b11081823cab597dc70a6"
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
 dependencies = [
  "anyhow",
  "blstrs 0.7.0",
@@ -1552,9 +1729,14 @@ dependencies = [
 
 [[package]]
 name = "fvm"
+<<<<<<< HEAD
 version = "3.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "12f3dc49619a365778da07896554674df35181ed9fd87613ffb50a77c86e9dc1"
+=======
+version = "3.4.0"
+source = "git+https://github.com/cryptonemo/ref-fvm?branch=synthetic-porep#ade6d96107c6319bd8dc5c34825ca0c1d8a46d44"
+>>>>>>> 66c0804 (feat: update dependencies to WIP synthetic-porep code)
 dependencies = [
  "anyhow",
  "byteorder",
@@ -1616,8 +1798,28 @@ dependencies = [
  "anyhow",
  "cid",
  "fvm_ipld_blockstore",
+<<<<<<< HEAD
  "fvm_ipld_encoding",
  "itertools 0.11.0",
+=======
+ "fvm_ipld_encoding 0.2.3",
+ "itertools 0.10.5",
+ "once_cell",
+ "serde",
+ "thiserror",
+]
+
+[[package]]
+name = "fvm_ipld_amt"
+version = "0.5.1"
+source = "git+https://github.com/cryptonemo/ref-fvm?branch=synthetic-porep#ade6d96107c6319bd8dc5c34825ca0c1d8a46d44"
+dependencies = [
+ "anyhow",
+ "cid",
+ "fvm_ipld_blockstore",
+ "fvm_ipld_encoding 0.3.3",
+ "itertools 0.10.5",
+>>>>>>> 66c0804 (feat: update dependencies to WIP synthetic-porep code)
  "once_cell",
  "serde",
  "thiserror",
@@ -1625,9 +1827,14 @@ dependencies = [
 
 [[package]]
 name = "fvm_ipld_blockstore"
+<<<<<<< HEAD
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "417f52f6915b9f9a68de8462e1cf46f14a2c16420f484b8d2066873de2ffe420"
+=======
+version = "0.1.2"
+source = "git+https://github.com/cryptonemo/ref-fvm?branch=synthetic-porep#ade6d96107c6319bd8dc5c34825ca0c1d8a46d44"
+>>>>>>> 66c0804 (feat: update dependencies to WIP synthetic-porep code)
 dependencies = [
  "anyhow",
  "cid",
@@ -1638,7 +1845,28 @@ dependencies = [
 name = "fvm_ipld_encoding"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
+<<<<<<< HEAD
 checksum = "90608092e31d9a06236268c58f7c36668ab4b2a48afafe3a97e08f094ad7ae50"
+=======
+checksum = "fa1ff5ba581625ab38cf2829fbd04ac232c6277466fdbe0270b42dcb976902d5"
+dependencies = [
+ "anyhow",
+ "cid",
+ "cs_serde_bytes",
+ "fvm_ipld_blockstore",
+ "multihash",
+ "serde",
+ "serde_ipld_dagcbor",
+ "serde_repr",
+ "serde_tuple",
+ "thiserror",
+]
+
+[[package]]
+name = "fvm_ipld_encoding"
+version = "0.3.3"
+source = "git+https://github.com/cryptonemo/ref-fvm?branch=synthetic-porep#ade6d96107c6319bd8dc5c34825ca0c1d8a46d44"
+>>>>>>> 66c0804 (feat: update dependencies to WIP synthetic-porep code)
 dependencies = [
  "anyhow",
  "cid",
@@ -1655,7 +1883,31 @@ dependencies = [
 name = "fvm_ipld_hamt"
 version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
+<<<<<<< HEAD
 checksum = "f01c65915bd7ab95ff973bb0bb7e03e8d43a43642c8f4b15407e42e4ffcc0d98"
+=======
+checksum = "65b5c939897aa1bfd63e7cb9c458ba10689371af3278ff20d66c6f8ca152c6c0"
+dependencies = [
+ "anyhow",
+ "byteorder",
+ "cid",
+ "cs_serde_bytes",
+ "forest_hash_utils",
+ "fvm_ipld_blockstore",
+ "fvm_ipld_encoding 0.2.3",
+ "libipld-core 0.13.1",
+ "multihash",
+ "once_cell",
+ "serde",
+ "sha2 0.10.6",
+ "thiserror",
+]
+
+[[package]]
+name = "fvm_ipld_hamt"
+version = "0.6.1"
+source = "git+https://github.com/cryptonemo/ref-fvm?branch=synthetic-porep#ade6d96107c6319bd8dc5c34825ca0c1d8a46d44"
+>>>>>>> 66c0804 (feat: update dependencies to WIP synthetic-porep code)
 dependencies = [
  "anyhow",
  "byteorder",
@@ -1705,14 +1957,23 @@ dependencies = [
 
 [[package]]
 name = "fvm_shared"
+<<<<<<< HEAD
 version = "3.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8704b912372b9640f625fef1b8af24873e27feba66dcbae3f2a49f486a26589d"
+=======
+version = "3.3.1"
+source = "git+https://github.com/cryptonemo/ref-fvm?branch=synthetic-porep#ade6d96107c6319bd8dc5c34825ca0c1d8a46d44"
+>>>>>>> 66c0804 (feat: update dependencies to WIP synthetic-porep code)
 dependencies = [
  "anyhow",
  "bitflags 2.3.3",
  "blake2b_simd",
+<<<<<<< HEAD
  "bls-signatures 0.13.0",
+=======
+ "bls-signatures 0.14.0",
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
  "cid",
  "data-encoding",
  "data-encoding-macro",
@@ -1765,9 +2026,15 @@ dependencies = [
 
 [[package]]
 name = "getrandom"
+<<<<<<< HEAD
 version = "0.2.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "be4136b2a15dd319360be1c07d9933517ccf0be8f16bf62a3bee4f0d618df427"
+=======
+version = "0.2.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c85e1d9ab2eadba7e5040d4e09cbd6d072b76a557ad64e797c2cb9d4da21d7e4"
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
 dependencies = [
  "cfg-if",
  "libc",
@@ -1776,6 +2043,7 @@ dependencies = [
 
 [[package]]
 name = "ghost"
+<<<<<<< HEAD
 version = "0.1.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "55f62cab8c48c54b8aba6588bd75fd00cdfe8517e79797c3662c5ed0c011d257"
@@ -1783,6 +2051,19 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.23",
+=======
+version = "0.1.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e77ac7b51b8e6313251737fcef4b1c01a2ea102bde68415b62c0ee9268fec357"
+dependencies = [
+ "proc-macro2",
+ "quote",
+<<<<<<< HEAD
+ "syn 1.0.109",
+=======
+ "syn 2.0.15",
+>>>>>>> 66c0804 (feat: update dependencies to WIP synthetic-porep code)
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
 ]
 
 [[package]]
@@ -1914,9 +2195,15 @@ dependencies = [
 
 [[package]]
 name = "iana-time-zone"
+<<<<<<< HEAD
 version = "0.1.57"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2fad5b825842d2b38bd206f3e81d6957625fd7f0a361e345c30e01a0ae2dd613"
+=======
+version = "0.1.56"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0722cd7114b7de04316e7ea5456a0bbb20e4adb46fd27a3697adb812cff0f37c"
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
 dependencies = [
  "android_system_properties",
  "core-foundation-sys",
@@ -2005,9 +2292,15 @@ dependencies = [
 
 [[package]]
 name = "io-lifetimes"
+<<<<<<< HEAD
 version = "1.0.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "eae7b9aee968036d54dce06cebaefd919e4472e753296daccd6d344e3e2df0c2"
+=======
+version = "1.0.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9c66c74d2ae7e79a5a8f7ac924adbe38ee42a859c6539ad869eb51f0b52dc220"
+>>>>>>> 66c0804 (feat: update dependencies to WIP synthetic-porep code)
 dependencies = [
  "hermit-abi 0.3.2",
  "libc",
@@ -2058,9 +2351,15 @@ checksum = "62b02a5381cc465bd3041d84623d0fa3b66738b52b8e2fc3bab8ad63ab032f4a"
 
 [[package]]
 name = "js-sys"
+<<<<<<< HEAD
 version = "0.3.64"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c5f195fe497f702db0f318b07fdd68edb16955aed830df8363d837542f8f935a"
+=======
+version = "0.3.62"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "68c16e1bfd491478ab155fd8b4896b86f9ede344949b641e61501e07c2b8b4d5"
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
 dependencies = [
  "wasm-bindgen",
 ]
@@ -2101,9 +2400,15 @@ checksum = "884e2677b40cc8c339eaefcb701c32ef1fd2493d71118dc0ca4b6a736c93bd67"
 
 [[package]]
 name = "libc"
+<<<<<<< HEAD
 version = "0.2.147"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b4668fb0ea861c1df094127ac5f1da3409a82116a4ba74fca2e58ef927159bb3"
+=======
+version = "0.2.144"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2b00cc1c228a6782d0f076e7b232802e0c5689d41bb5df366f2a6b6621cfdfe1"
+>>>>>>> 66c0804 (feat: update dependencies to WIP synthetic-porep code)
 
 [[package]]
 name = "libipld-core"
@@ -2170,9 +2475,15 @@ dependencies = [
 
 [[package]]
 name = "linux-raw-sys"
+<<<<<<< HEAD
 version = "0.3.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ef53942eb7bf7ff43a617b3e2c1c4a5ecf5944a7c1bc12d7ee39bbb15e5c1519"
+=======
+version = "0.3.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ece97ea872ece730aed82664c424eb4c8291e1ff2480247ccf7409044bc6479f"
+>>>>>>> 66c0804 (feat: update dependencies to WIP synthetic-porep code)
 
 [[package]]
 name = "lock_api"
@@ -2211,7 +2522,15 @@ version = "0.6.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ffc89ccdc6e10d6907450f753537ebc5c5d3460d2e4e62ea74bd571db62c0f9e"
 dependencies = [
+<<<<<<< HEAD
  "rustix",
+=======
+<<<<<<< HEAD
+ "rustix 0.36.9",
+=======
+ "rustix 0.37.19",
+>>>>>>> 66c0804 (feat: update dependencies to WIP synthetic-porep code)
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
 ]
 
 [[package]]
@@ -2363,22 +2682,31 @@ dependencies = [
 
 [[package]]
 name = "neptune"
-version = "8.0.0"
+version = "9.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9dedb261f1b35ddfd867295eacbc25eb78b4b5b63b08b1c0dc4c1b5ef0e5b2c2"
+checksum = "4227e5557caad6d2a910b7770f2479f0c9aeb8ddc1dc537623cb6ffec7f01d31"
 dependencies = [
  "bellperson 0.24.1",
  "blake2s_simd 0.5.11",
+<<<<<<< HEAD
  "blstrs 0.6.1",
  "byteorder",
  "ec-gpu",
  "ec-gpu-gen 0.5.2",
  "ff 0.12.1",
  "fil_pasta_curves",
+=======
+ "blstrs 0.7.0",
+ "byteorder",
+ "ec-gpu",
+ "ec-gpu-gen",
+ "ff 0.13.0",
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
  "generic-array",
  "itertools 0.8.2",
- "lazy_static",
  "log",
+ "pasta_curves",
+ "serde",
  "trait-set",
 ]
 
@@ -2540,17 +2868,28 @@ dependencies = [
 
 [[package]]
 name = "opencl3"
-version = "0.6.3"
+version = "0.9.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "931cc2ab3068142384dbdaba142681c11b315cf3b96c7a59e8480d062363387f"
+checksum = "274085527b193703ea266b8b09bc0f93b2b123da9b50cc7923a7c3e84bda34e3"
 dependencies = [
  "cl3 0.6.5",
  "libc",
 ]
 
 [[package]]
+<<<<<<< HEAD
 name = "opencl3"
 version = "0.9.3"
+=======
+name = "option-ext"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "04744f49eae99ab78e0d5c0b603ab218f515ea8cfe5a456d7629ad883a3b6e7d"
+
+[[package]]
+name = "output_vt100"
+version = "0.1.3"
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c247ee0c98af8a67ab9c836ed2ea663ac19a17d8bae71325b509835e536c18ad"
 dependencies = [
@@ -2600,6 +2939,7 @@ dependencies = [
 
 [[package]]
 name = "parking_lot_core"
+<<<<<<< HEAD
 version = "0.9.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "93f00c865fe7cabf650081affecd3871070f26767e7b2070a3ffae14c654b447"
@@ -2609,6 +2949,17 @@ dependencies = [
  "redox_syscall 0.3.5",
  "smallvec",
  "windows-targets",
+=======
+version = "0.9.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9069cbb9f99e3a5083476ccb29ceb1de18b9118cafa53e90c9551235de2b9521"
+dependencies = [
+ "cfg-if",
+ "libc",
+ "redox_syscall 0.2.16",
+ "smallvec",
+ "windows-sys 0.45.0",
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
 ]
 
 [[package]]
@@ -2722,9 +3073,15 @@ checksum = "dc375e1527247fe1a97d8b7156678dfe7c1af2fc075c9a4db3690ecd2a148068"
 
 [[package]]
 name = "proc-macro2"
+<<<<<<< HEAD
 version = "1.0.63"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7b368fba921b0dce7e60f5e04ec15e565b3303972b42bcfde1d0713b881959eb"
+=======
+version = "1.0.56"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2b63bdb0cd06f1f4dedf69b254734f9b45af66e4a031e42a7480257d9898b435"
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
 dependencies = [
  "unicode-ident",
 ]
@@ -2740,9 +3097,15 @@ dependencies = [
 
 [[package]]
 name = "quote"
+<<<<<<< HEAD
 version = "1.0.29"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "573015e8ab27661678357f27dc26460738fd2b6c86e46f386fde94cb5d913105"
+=======
+version = "1.0.27"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8f4f29d145265ec1c483c7c654450edde0bfe043d3938d6972630663356d9500"
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
 dependencies = [
  "proc-macro2",
 ]
@@ -2858,6 +3221,7 @@ dependencies = [
 
 [[package]]
 name = "regex"
+<<<<<<< HEAD
 version = "1.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "89089e897c013b3deb627116ae56a6955a72b8bed395c9526af31c9fe528b484"
@@ -2873,6 +3237,11 @@ name = "regex-automata"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fa250384981ea14565685dea16a9ccc4d1c541a13f82b9c168572264d1df8c56"
+=======
+version = "1.8.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "af83e617f331cc6ae2da5443c602dfa5af81e517212d9d611a5b3ba1777b5370"
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
 dependencies = [
  "aho-corasick",
  "memchr",
@@ -2881,9 +3250,15 @@ dependencies = [
 
 [[package]]
 name = "regex-syntax"
+<<<<<<< HEAD
 version = "0.7.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2ab07dc67230e4a4718e70fd5c20055a4334b121f1f9db8fe63ef39ce9b8c846"
+=======
+version = "0.7.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a5996294f19bd3aae0453a862ad728f60e6600695733dd5df01da90c54363a3c"
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
 
 [[package]]
 name = "replace_with"
@@ -2913,14 +3288,19 @@ dependencies = [
 
 [[package]]
 name = "rust-gpu-tools"
+<<<<<<< HEAD
 version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d0421f9419a176c7d21702fb078e40ef8aeb91b91b97f41c441210979ef4f2b9"
+=======
+version = "0.7.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "705270e758cf496103dc2ec8d77a3ecb319801555f0546065f45cf6e70b7c7c7"
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
 dependencies = [
  "dirs",
  "fil-rustacuda",
  "hex",
- "lazy_static",
  "log",
  "once_cell",
  "opencl3 0.6.3",
@@ -2986,16 +3366,55 @@ dependencies = [
 
 [[package]]
 name = "rustix"
+<<<<<<< HEAD
 version = "0.37.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4d69718bf81c6127a49dc64e44a742e8bb9213c0ff8869a22c308f84c1d4ab06"
+=======
+version = "0.36.13"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3a38f9520be93aba504e8ca974197f46158de5dcaa9fa04b57c57cd6a679d658"
+dependencies = [
+ "bitflags 1.3.2",
+<<<<<<< HEAD
+ "errno 0.2.8",
+=======
+ "errno 0.3.1",
+>>>>>>> 66c0804 (feat: update dependencies to WIP synthetic-porep code)
+ "io-lifetimes",
+ "libc",
+ "linux-raw-sys 0.1.4",
+ "windows-sys 0.45.0",
+]
+
+[[package]]
+name = "rustix"
+<<<<<<< HEAD
+version = "0.37.20"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b96e891d04aa506a6d1f318d2771bcb1c7dfda84e126660ace067c9b474bb2c0"
+=======
+version = "0.37.19"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "acf8729d8542766f1b2cf77eb034d52f40d375bb8b615d0b147089946e16613d"
+>>>>>>> 66c0804 (feat: update dependencies to WIP synthetic-porep code)
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
 dependencies = [
  "bitflags 1.3.2",
  "errno 0.3.1",
  "io-lifetimes",
  "libc",
+<<<<<<< HEAD
  "linux-raw-sys",
  "windows-sys",
+=======
+<<<<<<< HEAD
+ "linux-raw-sys 0.3.8",
+=======
+ "linux-raw-sys 0.3.7",
+>>>>>>> 66c0804 (feat: update dependencies to WIP synthetic-porep code)
+ "windows-sys 0.48.0",
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
 ]
 
 [[package]]
@@ -3050,9 +3469,21 @@ checksum = "bebd363326d05ec3e2f532ab7660680f3b02130d780c299bca73469d521bc0ed"
 
 [[package]]
 name = "serde"
+<<<<<<< HEAD
 version = "1.0.166"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d01b7404f9d441d3ad40e6a636a7782c377d2abdbe4fa2440e2edcc2f4f10db8"
+=======
+<<<<<<< HEAD
+version = "1.0.164"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9e8c8cf938e98f769bc164923b06dce91cea1751522f46f8466461af04c9027d"
+=======
+version = "1.0.162"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "71b2f6e1ab5c2b98c05f0f35b236b22e8df7ead6ffbf51d7808da7f8817e7ab6"
+>>>>>>> 66c0804 (feat: update dependencies to WIP synthetic-porep code)
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
 dependencies = [
  "serde_derive",
 ]
@@ -3077,13 +3508,31 @@ dependencies = [
 
 [[package]]
 name = "serde_derive"
+<<<<<<< HEAD
 version = "1.0.166"
+=======
+<<<<<<< HEAD
+version = "1.0.164"
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5dd83d6dde2b6b2d466e14d9d1acce8816dedee94f735eac6395808b3483c6d6"
 dependencies = [
  "proc-macro2",
  "quote",
+<<<<<<< HEAD
  "syn 2.0.23",
+=======
+ "syn 2.0.12",
+=======
+version = "1.0.162"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a2a0814352fd64b58489904a44ea8d90cb1a91dcb6b4f5ebabc32c8318e93cb6"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.15",
+>>>>>>> 66c0804 (feat: update dependencies to WIP synthetic-porep code)
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
 ]
 
 [[package]]
@@ -3100,9 +3549,15 @@ dependencies = [
 
 [[package]]
 name = "serde_json"
+<<<<<<< HEAD
 version = "1.0.100"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0f1e14e89be7aa4c4b78bdbdc9eb5bf8517829a600ae8eaa39a6e1d960b5185c"
+=======
+version = "1.0.96"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "057d394a50403bcac12672b2b18fb387ab6d289d957dab67dd201875391e52f1"
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
 dependencies = [
  "itoa",
  "ryu",
@@ -3111,6 +3566,7 @@ dependencies = [
 
 [[package]]
 name = "serde_repr"
+<<<<<<< HEAD
 version = "0.1.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1d89a8107374290037607734c0b73a85db7ed80cae314b3c5791f192a496e731"
@@ -3118,6 +3574,19 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.23",
+=======
+version = "0.1.12"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bcec881020c684085e55a25f7fd888954d56609ef363479dc5a1305eb0d40cab"
+dependencies = [
+ "proc-macro2",
+ "quote",
+<<<<<<< HEAD
+ "syn 1.0.109",
+=======
+ "syn 2.0.15",
+>>>>>>> 66c0804 (feat: update dependencies to WIP synthetic-porep code)
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
 ]
 
 [[package]]
@@ -3178,8 +3647,7 @@ dependencies = [
 [[package]]
 name = "sha2raw"
 version = "9.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d1ec45c74ebb91d25e61e14cfc1925e7571723ae14a38fc6c8bd0b2e516db101"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=nemo-synth-porep#f5ef18e8ea450b06ba3b11081823cab597dc70a6"
 dependencies = [
  "byteorder",
  "cpufeatures",
@@ -3235,6 +3703,12 @@ checksum = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
 
 [[package]]
 name = "spin"
+version = "0.5.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
+
+[[package]]
+name = "spin"
 version = "0.9.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6980e8d7511241f8acf4aebddbb1ff938df5eebe98691418c4468d0b72a96a67"
@@ -3263,13 +3737,13 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 [[package]]
 name = "storage-proofs-core"
 version = "14.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f756ef2dd06efda2eb30bf6806399d493072d8469b0a724f1905dc051fea59c1"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=nemo-synth-porep#f5ef18e8ea450b06ba3b11081823cab597dc70a6"
 dependencies = [
  "aes",
  "anyhow",
  "bellperson 0.24.1",
  "blake2b_simd",
+<<<<<<< HEAD
  "blstrs 0.6.1",
  "byteorder",
  "cbc",
@@ -3277,6 +3751,15 @@ dependencies = [
  "ff 0.12.1",
  "filecoin-hashers 9.0.0",
  "fr32 7.0.0",
+=======
+ "blstrs 0.7.0",
+ "byteorder",
+ "cbc",
+ "config",
+ "ff 0.13.0",
+ "filecoin-hashers",
+ "fr32",
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
  "fs2",
  "generic-array",
  "itertools 0.10.5",
@@ -3333,20 +3816,30 @@ dependencies = [
 [[package]]
 name = "storage-proofs-porep"
 version = "14.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2450a62eb009602a4a4d697a027ab1025657cd76b325a99dfeb8d263d44b1c5c"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=nemo-synth-porep#f5ef18e8ea450b06ba3b11081823cab597dc70a6"
 dependencies = [
  "anyhow",
  "bellperson 0.24.1",
  "bincode",
+<<<<<<< HEAD
  "blstrs 0.6.1",
+=======
+ "blstrs 0.7.0",
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
  "byte-slice-cast",
  "byteorder",
+ "chacha20",
  "crossbeam",
  "fdlimit",
+<<<<<<< HEAD
  "ff 0.12.1",
  "filecoin-hashers 9.0.0",
  "fr32 7.0.0",
+=======
+ "ff 0.13.0",
+ "filecoin-hashers",
+ "fr32",
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
  "generic-array",
  "hex",
  "lazy_static",
@@ -3412,17 +3905,24 @@ dependencies = [
 [[package]]
 name = "storage-proofs-post"
 version = "14.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "51e034a55f3c5137120c4cd1abb717cd397c660447c4393c2550be3ee5b070c4"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=nemo-synth-porep#f5ef18e8ea450b06ba3b11081823cab597dc70a6"
 dependencies = [
  "anyhow",
  "bellperson 0.24.1",
  "blake2b_simd",
+<<<<<<< HEAD
  "blstrs 0.6.1",
  "byteorder",
  "ff 0.12.1",
  "filecoin-hashers 9.0.0",
  "fr32 7.0.0",
+=======
+ "blstrs 0.7.0",
+ "byteorder",
+ "ff 0.13.0",
+ "filecoin-hashers",
+ "fr32",
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
  "generic-array",
  "hex",
  "log",
@@ -3458,15 +3958,22 @@ dependencies = [
 [[package]]
 name = "storage-proofs-update"
 version = "14.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3433b2832153e2744bfa87176dcb0b587392b57fd1bd770804d366c98822285a"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=nemo-synth-porep#f5ef18e8ea450b06ba3b11081823cab597dc70a6"
 dependencies = [
  "anyhow",
+<<<<<<< HEAD
  "bellperson 0.24.1",
  "blstrs 0.6.1",
  "ff 0.12.1",
  "filecoin-hashers 9.0.0",
  "fr32 7.0.0",
+=======
+ "bellperson",
+ "blstrs 0.7.0",
+ "ff 0.13.0",
+ "filecoin-hashers",
+ "fr32",
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
  "generic-array",
  "lazy_static",
  "log",
@@ -3528,9 +4035,21 @@ dependencies = [
 
 [[package]]
 name = "syn"
+<<<<<<< HEAD
 version = "2.0.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "59fb7d6d8281a51045d62b8eb3a7d1ce347b76f312af50cd3dc0af39c87c1737"
+=======
+<<<<<<< HEAD
+version = "2.0.12"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "79d9531f94112cfc3e4c8f5f02cb2b58f72c97b7efd85f70203cc6d8efda5927"
+=======
+version = "2.0.15"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a34fcf3e8b60f57e6a14301a2e916d323af98b0ea63c599441eec8558660c822"
+>>>>>>> 66c0804 (feat: update dependencies to WIP synthetic-porep code)
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
 dependencies = [
  "proc-macro2",
  "quote",
@@ -3557,18 +4076,15 @@ checksum = "55937e1799185b12863d447f42597ed69d9928686b8d88a1df17376a097d8369"
 
 [[package]]
 name = "target-lexicon"
+<<<<<<< HEAD
 version = "0.12.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1b1c7f239eb94671427157bd93b3694320f3668d4e1eff08c7285366fd777fac"
-
-[[package]]
-name = "temp-env"
-version = "0.2.0"
+=======
+version = "0.12.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "45107136c2ddf8c4b87453c02294fd0adf41751796e81e8ba3f7fd951977ab57"
-dependencies = [
- "once_cell",
-]
+checksum = "fd1ba337640d60c3e96bc6f0638a939b9c9a7f2c316a1598c279828b3d1dc8c5"
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
 
 [[package]]
 name = "temp-env"
@@ -3577,6 +4093,34 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9547444bfe52cbd79515c6c8087d8ae6ca8d64d2d31a27746320f5cb81d1a15c"
 dependencies = [
  "parking_lot",
+]
+
+[[package]]
+<<<<<<< HEAD
+name = "temp-env"
+version = "0.3.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9547444bfe52cbd79515c6c8087d8ae6ca8d64d2d31a27746320f5cb81d1a15c"
+dependencies = [
+ "parking_lot",
+=======
+name = "tempfile"
+version = "3.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b9fbec84f381d5795b08656e4912bec604d162bff9291d6189a78f4c8ab87998"
+dependencies = [
+ "cfg-if",
+ "fastrand",
+<<<<<<< HEAD
+ "redox_syscall",
+ "rustix 0.36.9",
+ "windows-sys 0.42.0",
+=======
+ "redox_syscall 0.3.5",
+ "rustix 0.37.19",
+ "windows-sys 0.45.0",
+>>>>>>> 66c0804 (feat: update dependencies to WIP synthetic-porep code)
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
 ]
 
 [[package]]
@@ -3610,7 +4154,15 @@ checksum = "f85e0dcc42d16c4f19503b2dcdb062d2466efc133b12ffef7dbe02e6ee37e991"
 dependencies = [
  "proc-macro2",
  "quote",
+<<<<<<< HEAD
  "syn 2.0.23",
+=======
+<<<<<<< HEAD
+ "syn 2.0.12",
+=======
+ "syn 2.0.15",
+>>>>>>> 66c0804 (feat: update dependencies to WIP synthetic-porep code)
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
 ]
 
 [[package]]
@@ -3733,9 +4285,15 @@ checksum = "9c8d87e72b64a3b4db28d11ce29237c246188f4f51057d65a7eab63b7987e423"
 
 [[package]]
 name = "wasm-bindgen"
+<<<<<<< HEAD
 version = "0.2.87"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7706a72ab36d8cb1f80ffbf0e071533974a60d0a308d01a5d0375bf60499a342"
+=======
+version = "0.2.85"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5b6cb788c4e39112fbe1822277ef6fb3c55cd86b95cb3d3c4c1c9597e4ac74b4"
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
 dependencies = [
  "cfg-if",
  "wasm-bindgen-macro",
@@ -3743,24 +4301,44 @@ dependencies = [
 
 [[package]]
 name = "wasm-bindgen-backend"
+<<<<<<< HEAD
 version = "0.2.87"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5ef2b6d3c510e9625e5fe6f509ab07d66a760f0885d858736483c32ed7809abd"
+=======
+version = "0.2.85"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "35e522ed4105a9d626d885b35d62501b30d9666283a5c8be12c14a8bdafe7822"
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
 dependencies = [
  "bumpalo",
  "log",
  "once_cell",
  "proc-macro2",
  "quote",
+<<<<<<< HEAD
  "syn 2.0.23",
+=======
+<<<<<<< HEAD
+ "syn 1.0.109",
+=======
+ "syn 2.0.15",
+>>>>>>> 66c0804 (feat: update dependencies to WIP synthetic-porep code)
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
  "wasm-bindgen-shared",
 ]
 
 [[package]]
 name = "wasm-bindgen-macro"
+<<<<<<< HEAD
 version = "0.2.87"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dee495e55982a3bd48105a7b947fd2a9b4a8ae3010041b9e0faab3f9cd028f1d"
+=======
+version = "0.2.85"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "358a79a0cb89d21db8120cbfb91392335913e4890665b1a7981d9e956903b434"
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
 dependencies = [
  "quote",
  "wasm-bindgen-macro-support",
@@ -3768,6 +4346,7 @@ dependencies = [
 
 [[package]]
 name = "wasm-bindgen-macro-support"
+<<<<<<< HEAD
 version = "0.2.87"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "54681b18a46765f095758388f2d0cf16eb8d4169b639ab575a8f5693af210c7b"
@@ -3775,15 +4354,34 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.23",
+=======
+version = "0.2.85"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4783ce29f09b9d93134d41297aded3a712b7b979e9c6f28c32cb88c973a94869"
+dependencies = [
+ "proc-macro2",
+ "quote",
+<<<<<<< HEAD
+ "syn 1.0.109",
+=======
+ "syn 2.0.15",
+>>>>>>> 66c0804 (feat: update dependencies to WIP synthetic-porep code)
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
  "wasm-bindgen-backend",
  "wasm-bindgen-shared",
 ]
 
 [[package]]
 name = "wasm-bindgen-shared"
+<<<<<<< HEAD
 version = "0.2.87"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ca6ad05a4870b2bf5fe995117d3728437bd27d7cd5f06f13c17443ef369775a1"
+=======
+version = "0.2.85"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a901d592cafaa4d711bc324edfaff879ac700b19c3dfd60058d2b445be2691eb"
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
 
 [[package]]
 name = "wasm-encoder"
@@ -3806,6 +4404,20 @@ dependencies = [
 
 [[package]]
 name = "wasmparser"
+<<<<<<< HEAD
+=======
+version = "0.102.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "48134de3d7598219ab9eaf6b91b15d8e50d31da76b8519fe4ecfcec2cf35104b"
+dependencies = [
+ "indexmap",
+ "url",
+]
+
+[[package]]
+name = "wasmparser"
+<<<<<<< HEAD
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
 version = "0.107.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "29e3ac9b780c7dda0cac7a52a5d6d2d6707cc6e3451c9db209b6c758f40d7acb"
@@ -3816,12 +4428,34 @@ dependencies = [
 
 [[package]]
 name = "wasmprinter"
+<<<<<<< HEAD
 version = "0.2.59"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cc960b30b84abca377768f3c62cff3a1c74db8c0f6759ed581827da0bd3a3fed"
 dependencies = [
  "anyhow",
  "wasmparser 0.107.0",
+=======
+version = "0.2.54"
+=======
+version = "0.104.0"
+>>>>>>> 66c0804 (feat: update dependencies to WIP synthetic-porep code)
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6a396af81a7c56ad976131d6a35e4b693b78a1ea0357843bd436b4577e254a7d"
+dependencies = [
+ "indexmap",
+ "url",
+]
+
+[[package]]
+name = "wasmprinter"
+version = "0.2.56"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "731da2505d5437cd5d6feb09457835f76186be13be7677fe00781ae99d5bbe8a"
+dependencies = [
+ "anyhow",
+ "wasmparser 0.104.0",
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
 ]
 
 [[package]]
@@ -3982,8 +4616,16 @@ dependencies = [
  "memoffset 0.8.0",
  "paste",
  "rand",
+<<<<<<< HEAD
  "rustix",
+=======
+<<<<<<< HEAD
+ "rustix 0.37.20",
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
  "sptr",
+=======
+ "rustix 0.36.13",
+>>>>>>> 66c0804 (feat: update dependencies to WIP synthetic-porep code)
  "wasmtime-asm-macros",
  "wasmtime-environ",
  "wasmtime-jit-debug",
@@ -4050,6 +4692,28 @@ checksum = "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f"
 [[package]]
 name = "windows"
 version = "0.48.0"
+<<<<<<< HEAD
+=======
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e686886bc078bc1b0b600cac0147aadb815089b6e4da64016cbd754b6342700f"
+dependencies = [
+<<<<<<< HEAD
+ "windows_aarch64_gnullvm 0.42.2",
+ "windows_aarch64_msvc 0.42.2",
+ "windows_i686_gnu 0.42.2",
+ "windows_i686_msvc 0.42.2",
+ "windows_x86_64_gnu 0.42.2",
+ "windows_x86_64_gnullvm 0.42.2",
+ "windows_x86_64_msvc 0.42.2",
+=======
+ "windows-targets 0.48.0",
+>>>>>>> 66c0804 (feat: update dependencies to WIP synthetic-porep code)
+]
+
+[[package]]
+name = "windows-sys"
+version = "0.45.0"
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e686886bc078bc1b0b600cac0147aadb815089b6e4da64016cbd754b6342700f"
 dependencies = [
@@ -4062,14 +4726,43 @@ version = "0.48.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "677d2418bec65e3338edb076e806bc1ec15693c5d0104683f2efe857f61056a9"
 dependencies = [
+<<<<<<< HEAD
  "windows-targets",
+=======
+<<<<<<< HEAD
+ "windows-targets 0.48.1",
+=======
+ "windows-targets 0.48.0",
+>>>>>>> 66c0804 (feat: update dependencies to WIP synthetic-porep code)
 ]
 
 [[package]]
 name = "windows-targets"
+version = "0.42.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8e5180c00cd44c9b1c88adb3693291f1cd93605ded80c250a75d472756b4d071"
+dependencies = [
+ "windows_aarch64_gnullvm 0.42.2",
+ "windows_aarch64_msvc 0.42.2",
+ "windows_i686_gnu 0.42.2",
+ "windows_i686_msvc 0.42.2",
+ "windows_x86_64_gnu 0.42.2",
+ "windows_x86_64_gnullvm 0.42.2",
+ "windows_x86_64_msvc 0.42.2",
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
+]
+
+[[package]]
+name = "windows-targets"
+<<<<<<< HEAD
 version = "0.48.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "05d4b17490f70499f20b9e791dcf6a299785ce8af4d709018206dc5b4953e95f"
+=======
+version = "0.48.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7b1eb6f0cd7c80c79759c929114ef071b87354ce476d9d94271031c0497adfd5"
+>>>>>>> 66c0804 (feat: update dependencies to WIP synthetic-porep code)
 dependencies = [
  "windows_aarch64_gnullvm",
  "windows_aarch64_msvc",
@@ -4164,5 +4857,14 @@ checksum = "ce36e65b0d2999d2aafac989fb249189a141aee1f53c612c1f37d72631959f69"
 dependencies = [
  "proc-macro2",
  "quote",
+<<<<<<< HEAD
  "syn 2.0.23",
+=======
+<<<<<<< HEAD
+ "syn 1.0.109",
+ "synstructure",
+=======
+ "syn 2.0.15",
+>>>>>>> 66c0804 (feat: update dependencies to WIP synthetic-porep code)
+>>>>>>> feat: update dependencies to WIP synthetic-porep code
 ]

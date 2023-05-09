@@ -42,6 +42,7 @@ impl std::io::Seek for FileDescriptorRef {
 #[derive_ReprC]
 #[repr(i32)]
 #[derive(Debug, Clone, Copy)]
+#[allow(non_camel_case_types)]
 pub enum RegisteredSealProof {
     StackedDrg2KiBV1,
     StackedDrg8MiBV1,
@@ -53,6 +54,11 @@ pub enum RegisteredSealProof {
     StackedDrg512MiBV1_1,
     StackedDrg32GiBV1_1,
     StackedDrg64GiBV1_1,
+    StackedDrg2KiBV1_1_Feat_SyntheticPoRep,
+    StackedDrg8MiBV1_1_Feat_SyntheticPoRep,
+    StackedDrg512MiBV1_1_Feat_SyntheticPoRep,
+    StackedDrg32GiBV1_1_Feat_SyntheticPoRep,
+    StackedDrg64GiBV1_1_Feat_SyntheticPoRep,
 }
 
 impl From<api::RegisteredSealProof> for RegisteredSealProof {
@@ -69,6 +75,11 @@ impl From<api::RegisteredSealProof> for RegisteredSealProof {
             StackedDrg512MiBV1_1 => RegisteredSealProof::StackedDrg512MiBV1_1,
             StackedDrg32GiBV1_1 => RegisteredSealProof::StackedDrg32GiBV1_1,
             StackedDrg64GiBV1_1 => RegisteredSealProof::StackedDrg64GiBV1_1,
+            StackedDrg2KiBV1_1_Feat_SyntheticPoRep => RegisteredSealProof::StackedDrg2KiBV1_1_Feat_SyntheticPoRep,
+            StackedDrg8MiBV1_1_Feat_SyntheticPoRep => RegisteredSealProof::StackedDrg8MiBV1_1_Feat_SyntheticPoRep,
+            StackedDrg512MiBV1_1_Feat_SyntheticPoRep => RegisteredSealProof::StackedDrg512MiBV1_1_Feat_SyntheticPoRep,
+            StackedDrg32GiBV1_1_Feat_SyntheticPoRep => RegisteredSealProof::StackedDrg32GiBV1_1_Feat_SyntheticPoRep,
+            StackedDrg64GiBV1_1_Feat_SyntheticPoRep => RegisteredSealProof::StackedDrg64GiBV1_1_Feat_SyntheticPoRep,
         }
     }
 }
@@ -88,6 +99,12 @@ impl From<RegisteredSealProof> for api::RegisteredSealProof {
             RegisteredSealProof::StackedDrg512MiBV1_1 => StackedDrg512MiBV1_1,
             RegisteredSealProof::StackedDrg32GiBV1_1 => StackedDrg32GiBV1_1,
             RegisteredSealProof::StackedDrg64GiBV1_1 => StackedDrg64GiBV1_1,
+
+            RegisteredSealProof::StackedDrg2KiBV1_1_Feat_SyntheticPoRep => StackedDrg2KiBV1_1_Feat_SyntheticPoRep,
+            RegisteredSealProof::StackedDrg8MiBV1_1_Feat_SyntheticPoRep => StackedDrg8MiBV1_1_Feat_SyntheticPoRep,
+            RegisteredSealProof::StackedDrg512MiBV1_1_Feat_SyntheticPoRep => StackedDrg512MiBV1_1_Feat_SyntheticPoRep,
+            RegisteredSealProof::StackedDrg32GiBV1_1_Feat_SyntheticPoRep => StackedDrg32GiBV1_1_Feat_SyntheticPoRep,
+            RegisteredSealProof::StackedDrg64GiBV1_1_Feat_SyntheticPoRep => StackedDrg64GiBV1_1_Feat_SyntheticPoRep,
         }
     }
 }
