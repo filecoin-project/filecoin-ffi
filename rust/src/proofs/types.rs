@@ -75,11 +75,21 @@ impl From<api::RegisteredSealProof> for RegisteredSealProof {
             StackedDrg512MiBV1_1 => RegisteredSealProof::StackedDrg512MiBV1_1,
             StackedDrg32GiBV1_1 => RegisteredSealProof::StackedDrg32GiBV1_1,
             StackedDrg64GiBV1_1 => RegisteredSealProof::StackedDrg64GiBV1_1,
-            StackedDrg2KiBV1_1_Feat_SyntheticPoRep => RegisteredSealProof::StackedDrg2KiBV1_1_Feat_SyntheticPoRep,
-            StackedDrg8MiBV1_1_Feat_SyntheticPoRep => RegisteredSealProof::StackedDrg8MiBV1_1_Feat_SyntheticPoRep,
-            StackedDrg512MiBV1_1_Feat_SyntheticPoRep => RegisteredSealProof::StackedDrg512MiBV1_1_Feat_SyntheticPoRep,
-            StackedDrg32GiBV1_1_Feat_SyntheticPoRep => RegisteredSealProof::StackedDrg32GiBV1_1_Feat_SyntheticPoRep,
-            StackedDrg64GiBV1_1_Feat_SyntheticPoRep => RegisteredSealProof::StackedDrg64GiBV1_1_Feat_SyntheticPoRep,
+            StackedDrg2KiBV1_1_Feat_SyntheticPoRep => {
+                RegisteredSealProof::StackedDrg2KiBV1_1_Feat_SyntheticPoRep
+            }
+            StackedDrg8MiBV1_1_Feat_SyntheticPoRep => {
+                RegisteredSealProof::StackedDrg8MiBV1_1_Feat_SyntheticPoRep
+            }
+            StackedDrg512MiBV1_1_Feat_SyntheticPoRep => {
+                RegisteredSealProof::StackedDrg512MiBV1_1_Feat_SyntheticPoRep
+            }
+            StackedDrg32GiBV1_1_Feat_SyntheticPoRep => {
+                RegisteredSealProof::StackedDrg32GiBV1_1_Feat_SyntheticPoRep
+            }
+            StackedDrg64GiBV1_1_Feat_SyntheticPoRep => {
+                RegisteredSealProof::StackedDrg64GiBV1_1_Feat_SyntheticPoRep
+            }
         }
     }
 }
@@ -100,11 +110,21 @@ impl From<RegisteredSealProof> for api::RegisteredSealProof {
             RegisteredSealProof::StackedDrg32GiBV1_1 => StackedDrg32GiBV1_1,
             RegisteredSealProof::StackedDrg64GiBV1_1 => StackedDrg64GiBV1_1,
 
-            RegisteredSealProof::StackedDrg2KiBV1_1_Feat_SyntheticPoRep => StackedDrg2KiBV1_1_Feat_SyntheticPoRep,
-            RegisteredSealProof::StackedDrg8MiBV1_1_Feat_SyntheticPoRep => StackedDrg8MiBV1_1_Feat_SyntheticPoRep,
-            RegisteredSealProof::StackedDrg512MiBV1_1_Feat_SyntheticPoRep => StackedDrg512MiBV1_1_Feat_SyntheticPoRep,
-            RegisteredSealProof::StackedDrg32GiBV1_1_Feat_SyntheticPoRep => StackedDrg32GiBV1_1_Feat_SyntheticPoRep,
-            RegisteredSealProof::StackedDrg64GiBV1_1_Feat_SyntheticPoRep => StackedDrg64GiBV1_1_Feat_SyntheticPoRep,
+            RegisteredSealProof::StackedDrg2KiBV1_1_Feat_SyntheticPoRep => {
+                StackedDrg2KiBV1_1_Feat_SyntheticPoRep
+            }
+            RegisteredSealProof::StackedDrg8MiBV1_1_Feat_SyntheticPoRep => {
+                StackedDrg8MiBV1_1_Feat_SyntheticPoRep
+            }
+            RegisteredSealProof::StackedDrg512MiBV1_1_Feat_SyntheticPoRep => {
+                StackedDrg512MiBV1_1_Feat_SyntheticPoRep
+            }
+            RegisteredSealProof::StackedDrg32GiBV1_1_Feat_SyntheticPoRep => {
+                StackedDrg32GiBV1_1_Feat_SyntheticPoRep
+            }
+            RegisteredSealProof::StackedDrg64GiBV1_1_Feat_SyntheticPoRep => {
+                StackedDrg64GiBV1_1_Feat_SyntheticPoRep
+            }
         }
     }
 }
