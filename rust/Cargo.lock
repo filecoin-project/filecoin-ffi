@@ -1277,7 +1277,7 @@ dependencies = [
 [[package]]
 name = "filecoin-hashers"
 version = "9.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=master#4ad11137a06d4209f1c03fa983f3cc0118de05cd"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=master#95e8c982540b14077d58ee9ddc076f7602b4805d"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1296,7 +1296,7 @@ dependencies = [
 [[package]]
 name = "filecoin-proofs"
 version = "14.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=master#4ad11137a06d4209f1c03fa983f3cc0118de05cd"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=master#95e8c982540b14077d58ee9ddc076f7602b4805d"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1329,7 +1329,7 @@ dependencies = [
 [[package]]
 name = "filecoin-proofs-api"
 version = "14.0.0"
-source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=master#e4499120ab17732c27337a1cb4398c9eb1d76c0a"
+source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=master#9b580c2791f028b7ce3aaef0cf9d68956c50170d"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1406,7 +1406,7 @@ dependencies = [
 [[package]]
 name = "fr32"
 version = "7.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=master#4ad11137a06d4209f1c03fa983f3cc0118de05cd"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=master#95e8c982540b14077d58ee9ddc076f7602b4805d"
 dependencies = [
  "anyhow",
  "blstrs 0.7.0",
@@ -3129,7 +3129,7 @@ dependencies = [
 [[package]]
 name = "sha2raw"
 version = "9.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=master#4ad11137a06d4209f1c03fa983f3cc0118de05cd"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=master#95e8c982540b14077d58ee9ddc076f7602b4805d"
 dependencies = [
  "byteorder",
  "cpufeatures",
@@ -3198,7 +3198,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 [[package]]
 name = "storage-proofs-core"
 version = "14.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=master#4ad11137a06d4209f1c03fa983f3cc0118de05cd"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=master#95e8c982540b14077d58ee9ddc076f7602b4805d"
 dependencies = [
  "aes",
  "anyhow",
@@ -3232,7 +3232,7 @@ dependencies = [
 [[package]]
 name = "storage-proofs-porep"
 version = "14.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=master#4ad11137a06d4209f1c03fa983f3cc0118de05cd"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=master#95e8c982540b14077d58ee9ddc076f7602b4805d"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -3271,7 +3271,7 @@ dependencies = [
 [[package]]
 name = "storage-proofs-post"
 version = "14.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=master#4ad11137a06d4209f1c03fa983f3cc0118de05cd"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=master#95e8c982540b14077d58ee9ddc076f7602b4805d"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -3293,7 +3293,7 @@ dependencies = [
 [[package]]
 name = "storage-proofs-update"
 version = "14.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=master#4ad11137a06d4209f1c03fa983f3cc0118de05cd"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=master#95e8c982540b14077d58ee9ddc076f7602b4805d"
 dependencies = [
  "anyhow",
  "bellperson",
