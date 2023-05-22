@@ -275,6 +275,12 @@ func WorkflowRegisteredSealProofFunctions(t TestHelper) {
 		abi.RegisteredSealProof_StackedDrg512MiBV1_1,
 		abi.RegisteredSealProof_StackedDrg32GiBV1_1,
 		abi.RegisteredSealProof_StackedDrg64GiBV1_1,
+
+		abi.RegisteredSealProof_StackedDrg2KiBV1_1_Feat_SyntheticPoRep,
+		abi.RegisteredSealProof_StackedDrg8MiBV1_1_Feat_SyntheticPoRep,
+		abi.RegisteredSealProof_StackedDrg512MiBV1_1_Feat_SyntheticPoRep,
+		abi.RegisteredSealProof_StackedDrg32GiBV1_1_Feat_SyntheticPoRep,
+		abi.RegisteredSealProof_StackedDrg64GiBV1_1_Feat_SyntheticPoRep,
 	}
 
 	for _, st := range sealTypes {

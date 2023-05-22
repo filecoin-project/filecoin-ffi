@@ -956,6 +956,16 @@ func toFilRegisteredSealProof(p abi.RegisteredSealProof) (cgo.RegisteredSealProo
 		return cgo.RegisteredSealProofStackedDrg32GiBV11, nil
 	case abi.RegisteredSealProof_StackedDrg64GiBV1_1:
 		return cgo.RegisteredSealProofStackedDrg64GiBV11, nil
+	case abi.RegisteredSealProof_StackedDrg2KiBV1_1_Feat_SyntheticPoRep:
+		return cgo.RegisteredSealProofStackedDrg2KiBV1_1_Feat_SyntheticPoRep, nil
+	case abi.RegisteredSealProof_StackedDrg8MiBV1_1_Feat_SyntheticPoRep:
+		return cgo.RegisteredSealProofStackedDrg8MiBV1_1_Feat_SyntheticPoRep, nil
+	case abi.RegisteredSealProof_StackedDrg512MiBV1_1_Feat_SyntheticPoRep:
+		return cgo.RegisteredSealProofStackedDrg512MiBV1_1_Feat_SyntheticPoRep, nil
+	case abi.RegisteredSealProof_StackedDrg32GiBV1_1_Feat_SyntheticPoRep:
+		return cgo.RegisteredSealProofStackedDrg32GiBV1_1_Feat_SyntheticPoRep, nil
+	case abi.RegisteredSealProof_StackedDrg64GiBV1_1_Feat_SyntheticPoRep:
+		return cgo.RegisteredSealProofStackedDrg64GiBV1_1_Feat_SyntheticPoRep, nil
 	default:
 		return 0, errors.Errorf("no mapping to C.FFIRegisteredSealProof value available for: %v", p)
 	}
