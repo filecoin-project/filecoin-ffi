@@ -1052,6 +1052,16 @@ fn clear_cache(
     })
 }
 
+#[ffi_export]
+fn clear_synthetic_proofs(
+    sector_size: u64,
+    cache_dir_path: c_slice::Ref<u8>,
+) -> repr_c::Box<ClearCacheResponse> {
+    catch_panic_response("clear_synthetic_proofs", || {
+        seal::clear_synthetic_proofs(sector_size, &as_path_buf(&cache_dir_path)?)
+    })
+}
+
 /// Returns the number of user bytes that will fit into a staged sector.
 #[ffi_export]
 fn get_max_user_bytes_per_staged_sector(registered_proof: RegisteredSealProof) -> u64 {
@@ -1501,7 +1511,7 @@ pub mod tests {
             RegisteredSealProof::StackedDrg2KiBV1_1_Feat_SyntheticPoRep,
         ];
         for version in versions {
-            info!("test_sealing_versions[{:?}", version);
+            info!("test_sealing_versions[{:?}]", version);
             ensure!(
                 test_sealing_inner(version).is_ok(),
                 format!("failed to seal at version {:?}", version)
@@ -1616,11 +1626,6 @@ pub mod tests {
                 pieces[..].into(),
             );
 
-            if resp_b1.status_code != FCPResponseStatus::NoError {
-                let msg = str::from_utf8(&resp_b1.error_msg).unwrap();
-                panic!("seal_pre_commit_phase1 failed: {:?}", msg);
-            }
-
             let resp_b2 = seal_pre_commit_phase2(
                 resp_b1.as_ref(),
                 cache_dir_path_ref.into(),
@@ -1630,6 +1635,11 @@ pub mod tests {
             if resp_b2.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_b2.error_msg).unwrap();
                 panic!("seal_pre_commit_phase2 failed: {:?}", msg);
+            }
+
+            if resp_b1.status_code != FCPResponseStatus::NoError {
+                let msg = str::from_utf8(&resp_b1.error_msg).unwrap();
+                panic!("seal_pre_commit_phase1 failed: {:?}", msg);
             }
 
             let pre_computed_comm_d: &[u8; 32] = &resp_x;
@@ -1657,6 +1667,21 @@ pub mod tests {
             if resp_c1.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_c1.error_msg).unwrap();
                 panic!("seal_commit_phase1 failed: {:?}", msg);
+            }
+
+            if registered_proof_seal == RegisteredSealProof::StackedDrg2KiBV1_1_Feat_SyntheticPoRep
+            {
+                let resp_clear = clear_synthetic_proofs(
+                    api::RegisteredSealProof::from(registered_proof_seal)
+                        .sector_size()
+                        .0,
+                    cache_dir_path_ref.into(),
+                );
+                if resp_clear.status_code != FCPResponseStatus::NoError {
+                    let msg = str::from_utf8(&resp_clear.error_msg).unwrap();
+                    panic!("clear_synthetic_proofs failed: {:?}", msg);
+                }
+                destroy_clear_cache_response(resp_clear);
             }
 
             let resp_c2 = seal_commit_phase2(resp_c1.as_ref(), sector_id, &prover_id);
@@ -2508,11 +2533,23 @@ pub mod tests {
                 panic!("verify_window_post rejected the provided proof as invalid");
             }
 
-            destroy_merge_window_post_partition_proofs_response(merged_proof_resp);
+            let resp_clear = clear_cache(
+                api::RegisteredSealProof::from(registered_proof_seal)
+                    .sector_size()
+                    .0,
+                cache_dir_path_ref.into(),
+            );
+            if resp_clear.status_code != FCPResponseStatus::NoError {
+                let msg = str::from_utf8(&resp_clear.error_msg).unwrap();
+                panic!("clear_cache failed: {:?}", msg);
+            }
+            destroy_clear_cache_response(resp_clear);
 
             ////////////////////
             // Cleanup responses
             ////////////////////
+
+            destroy_merge_window_post_partition_proofs_response(merged_proof_resp);
 
             destroy_write_without_alignment_response(resp_a1);
             destroy_write_with_alignment_response(resp_a2);
