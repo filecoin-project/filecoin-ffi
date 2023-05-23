@@ -32,7 +32,7 @@ rayon = "1.2.1"
 anyhow = "1.0.23"
 serde_json = "1.0.46"
 rust-gpu-tools = { version = "0.7", optional = true, default-features = false }
-fr32 = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "nemo-synth-porep", default-features = false }
+fr32 = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "synthetic-porep", default-features = false }
 fvm3 = { package = "fvm", git = "https://github.com/cryptonemo/ref-fvm", branch = "synthetic-porep", default-features = false }
 fvm3_shared = { package = "fvm_shared", git = "https://github.com/cryptonemo/ref-fvm", branch = "synthetic-porep" }
 fvm3_ipld_encoding = { package = "fvm_ipld_encoding", git = "https://github.com/cryptonemo/ref-fvm", branch = "synthetic-porep" }
