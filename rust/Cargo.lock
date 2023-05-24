@@ -1471,7 +1471,7 @@ dependencies = [
 [[package]]
 name = "filecoin-hashers"
 version = "9.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=synthetic-porep#8fce462a9cddd69f090bff4c902e405a2257c5cd"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=synthetic-porep#c91ef6b91b7042c3f91a5070d139e986181640bf"
 dependencies = [
  "anyhow",
 <<<<<<< HEAD
@@ -1514,7 +1514,7 @@ dependencies = [
 [[package]]
 name = "filecoin-proofs"
 version = "14.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=synthetic-porep#8fce462a9cddd69f090bff4c902e405a2257c5cd"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=synthetic-porep#c91ef6b91b7042c3f91a5070d139e986181640bf"
 dependencies = [
  "anyhow",
  "bellperson 0.24.1",
@@ -1587,7 +1587,7 @@ dependencies = [
 [[package]]
 name = "filecoin-proofs-api"
 version = "14.0.0"
-source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=synthetic-porep#39649dbc2de0c50ef8157bb3fb9a64e2457ef7a0"
+source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api?branch=synthetic-porep#c0410d89cdd776d4fd5bd91ebcf8b08866c18586"
 dependencies = [
  "anyhow",
  "bellperson 0.24.1",
@@ -1691,6 +1691,7 @@ name = "fr32"
 version = "7.0.0"
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a4f07b8a600b8c699f8ddc5f520231bc2aac03e944c64055eccfd9a959c3fd60"
 dependencies = [
@@ -1713,6 +1714,9 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=nemo-sy
 =======
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=synthetic-porep#8fce462a9cddd69f090bff4c902e405a2257c5cd"
 >>>>>>> feat: wire in new APIs
+=======
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=synthetic-porep#c91ef6b91b7042c3f91a5070d139e986181640bf"
+>>>>>>> feat: add clear_layer_data API and more robustly use synth-porep in test
 dependencies = [
  "anyhow",
  "blstrs 0.7.0",
@@ -2391,6 +2395,7 @@ dependencies = [
 [[package]]
 name = "io-lifetimes"
 <<<<<<< HEAD
+<<<<<<< HEAD
 version = "1.0.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "eae7b9aee968036d54dce06cebaefd919e4472e753296daccd6d344e3e2df0c2"
@@ -2399,6 +2404,11 @@ version = "1.0.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9c66c74d2ae7e79a5a8f7ac924adbe38ee42a859c6539ad869eb51f0b52dc220"
 >>>>>>> 66c0804 (feat: update dependencies to WIP synthetic-porep code)
+=======
+version = "1.0.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "eae7b9aee968036d54dce06cebaefd919e4472e753296daccd6d344e3e2df0c2"
+>>>>>>> df889d9 (feat: add clear_layer_data API and more robustly use synth-porep in test)
 dependencies = [
  "hermit-abi 0.3.2",
  "libc",
@@ -3832,7 +3842,7 @@ dependencies = [
 [[package]]
 name = "sha2raw"
 version = "9.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=synthetic-porep#8fce462a9cddd69f090bff4c902e405a2257c5cd"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=synthetic-porep#c91ef6b91b7042c3f91a5070d139e986181640bf"
 dependencies = [
  "byteorder",
  "cpufeatures",
@@ -3925,7 +3935,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 [[package]]
 name = "storage-proofs-core"
 version = "14.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=synthetic-porep#8fce462a9cddd69f090bff4c902e405a2257c5cd"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=synthetic-porep#c91ef6b91b7042c3f91a5070d139e986181640bf"
 dependencies = [
  "aes",
  "anyhow",
@@ -4004,7 +4014,7 @@ dependencies = [
 [[package]]
 name = "storage-proofs-porep"
 version = "14.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=synthetic-porep#8fce462a9cddd69f090bff4c902e405a2257c5cd"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=synthetic-porep#c91ef6b91b7042c3f91a5070d139e986181640bf"
 dependencies = [
  "anyhow",
  "bellperson 0.24.1",
@@ -4097,7 +4107,7 @@ dependencies = [
 [[package]]
 name = "storage-proofs-post"
 version = "14.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=synthetic-porep#8fce462a9cddd69f090bff4c902e405a2257c5cd"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=synthetic-porep#c91ef6b91b7042c3f91a5070d139e986181640bf"
 dependencies = [
  "anyhow",
  "bellperson 0.24.1",
@@ -4150,7 +4160,7 @@ dependencies = [
 [[package]]
 name = "storage-proofs-update"
 version = "14.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=synthetic-porep#8fce462a9cddd69f090bff4c902e405a2257c5cd"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=synthetic-porep#c91ef6b91b7042c3f91a5070d139e986181640bf"
 dependencies = [
  "anyhow",
 <<<<<<< HEAD
@@ -4438,9 +4448,15 @@ checksum = "92888ba5573ff080736b3648696b70cafad7d250551175acbaa4e0385b3e1460"
 
 [[package]]
 name = "unicode-ident"
+<<<<<<< HEAD
 version = "1.0.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "22049a19f4a68748a168c0fc439f9516686aa045927ff767eca0a85101fb6e73"
+=======
+version = "1.0.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b15811caf2415fb889178633e7724bad2509101cde276048e013b9def5e51fa0"
+>>>>>>> feat: add clear_layer_data API and more robustly use synth-porep in test
 
 [[package]]
 name = "unicode-normalization"
@@ -4677,10 +4693,14 @@ dependencies = [
 name = "wasmparser"
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> feat: update dependencies to WIP synthetic-porep code
 =======
 <<<<<<< HEAD
 >>>>>>> feat: wire in new APIs
+=======
+<<<<<<< HEAD
+>>>>>>> feat: add clear_layer_data API and more robustly use synth-porep in test
 version = "0.107.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "29e3ac9b780c7dda0cac7a52a5d6d2d6707cc6e3451c9db209b6c758f40d7acb"
@@ -4706,8 +4726,11 @@ version = "0.104.0"
 =======
 version = "0.105.0"
 >>>>>>> cf6646f (feat: wire in new APIs)
+=======
+version = "0.106.0"
+>>>>>>> df889d9 (feat: add clear_layer_data API and more robustly use synth-porep in test)
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "83be9e0b3f9570dc1979a33ae7b89d032c73211564232b99976553e5c155ec32"
+checksum = "d014e33793cab91655fa6349b0bc974984de106b2e0f6b0dfe6f6594b260624d"
 dependencies = [
  "indexmap",
  "url",
@@ -4715,17 +4738,21 @@ dependencies = [
 
 [[package]]
 name = "wasmprinter"
-version = "0.2.57"
+version = "0.2.58"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "50b0e5ed7a74a065637f0d7798ce5f29cadb064980d24b0c82af5200122fa0d8"
+checksum = "3c520299a0b5999adef4f063add9689e4559b3e4eb2688dbd63cc36ebb595841"
 dependencies = [
  "anyhow",
+<<<<<<< HEAD
 <<<<<<< HEAD
  "wasmparser 0.104.0",
 >>>>>>> feat: update dependencies to WIP synthetic-porep code
 =======
  "wasmparser 0.105.0",
 >>>>>>> feat: wire in new APIs
+=======
+ "wasmparser 0.106.0",
+>>>>>>> feat: add clear_layer_data API and more robustly use synth-porep in test
 ]
 
 [[package]]
