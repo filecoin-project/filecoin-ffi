@@ -516,6 +516,7 @@ pub type GenerateDataCommitmentResponse = Result<[u8; 32]>;
 
 pub type StringResponse = Result<c_slice::Box<u8>>;
 
+pub type GenerateSynthProofsResponse = Result<()>;
 pub type ClearCacheResponse = Result<()>;
 
 pub type EmptySectorUpdateEncodeIntoResponse = Result<EmptySectorUpdateEncodeInto>;

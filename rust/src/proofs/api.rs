@@ -227,6 +227,40 @@ fn seal_commit_phase2(
     })
 }
 
+/// TODO: document
+#[ffi_export]
+fn generate_synth_proofs(
+    registered_proof: RegisteredSealProof,
+    comm_r: &[u8; 32],
+    comm_d: &[u8; 32],
+    cache_dir_path: c_slice::Ref<u8>,
+    replica_path: c_slice::Ref<u8>,
+    sector_id: u64,
+    prover_id: &[u8; 32],
+    ticket: &[u8; 32],
+    pieces: c_slice::Ref<PublicPieceInfo>,
+) -> repr_c::Box<GenerateSynthProofsResponse> {
+    catch_panic_response("generate_synth_proofs", || {
+        let spcp2o = seal::SealPreCommitPhase2Output {
+            registered_proof: registered_proof.into(),
+            comm_r: *comm_r,
+            comm_d: *comm_d,
+        };
+
+        let public_pieces: Vec<PieceInfo> = pieces.iter().map(Into::into).collect();
+
+        seal::generate_synth_proofs(
+            as_path_buf(&cache_dir_path)?,
+            as_path_buf(&replica_path)?,
+            *prover_id,
+            SectorId::from(sector_id),
+            *ticket,
+            spcp2o,
+            &public_pieces,
+        )
+    })
+}
+
 #[ffi_export]
 fn aggregate_seal_proofs(
     registered_proof: RegisteredSealProof,
@@ -1062,6 +1096,16 @@ fn clear_synthetic_proofs(
     })
 }
 
+#[ffi_export]
+fn clear_layer_data(
+    sector_size: u64,
+    cache_dir_path: c_slice::Ref<u8>,
+) -> repr_c::Box<ClearCacheResponse> {
+    catch_panic_response("clear_layer_data", || {
+        seal::clear_layer_data(sector_size, &as_path_buf(&cache_dir_path)?)
+    })
+}
+
 /// Returns the number of user bytes that will fit into a staged sector.
 #[ffi_export]
 fn get_max_user_bytes_per_staged_sector(registered_proof: RegisteredSealProof) -> u64 {
@@ -1284,6 +1328,11 @@ destructor!(
 destructor!(
     destroy_generate_winning_post_sector_challenge,
     GenerateWinningPoStSectorChallenge
+);
+
+destructor!(
+    destroy_generate_synth_proofs_response,
+    GenerateSynthProofsResponse
 );
 destructor!(destroy_clear_cache_response, ClearCacheResponse);
 destructor!(destroy_aggregate_proof, AggregateProof);
@@ -1651,6 +1700,41 @@ pub mod tests {
                 "pre-computed CommD and pre-commit CommD don't match"
             );
 
+            // If we're using SyntheticPoRep -- generate the synthetic proofs here and clear the layer data.
+            if registered_proof_seal == RegisteredSealProof::StackedDrg2KiBV1_1_Feat_SyntheticPoRep
+            {
+                let resp_p1 = generate_synth_proofs(
+                    registered_proof_seal,
+                    &resp_b2.comm_r,
+                    &resp_b2.comm_d,
+                    cache_dir_path_ref.into(),
+                    sealed_path_ref.into(),
+                    sector_id,
+                    &prover_id,
+                    &ticket,
+                    pieces[..].into(),
+                );
+
+                if resp_p1.status_code != FCPResponseStatus::NoError {
+                    let msg = str::from_utf8(&resp_p1.error_msg).unwrap();
+                    panic!("generate_synth_proofs failed: {:?}", msg);
+                }
+
+                destroy_generate_synth_proofs_response(resp_p1);
+
+                let resp_clear = clear_layer_data(
+                    api::RegisteredSealProof::from(registered_proof_seal)
+                        .sector_size()
+                        .0,
+                    cache_dir_path_ref.into(),
+                );
+                if resp_clear.status_code != FCPResponseStatus::NoError {
+                    let msg = str::from_utf8(&resp_clear.error_msg).unwrap();
+                    panic!("clear_layer_data failed: {:?}", msg);
+                }
+                destroy_clear_cache_response(resp_clear);
+            }
+
             let resp_c1 = seal_commit_phase1(
                 registered_proof_seal,
                 &resp_b2.comm_r,
@@ -1664,11 +1748,7 @@ pub mod tests {
                 pieces[..].into(),
             );
 
-            if resp_c1.status_code != FCPResponseStatus::NoError {
-                let msg = str::from_utf8(&resp_c1.error_msg).unwrap();
-                panic!("seal_commit_phase1 failed: {:?}", msg);
-            }
-
+            // If we're using SyntheticPoRep -- remove the persisted synthetic proofs here.
             if registered_proof_seal == RegisteredSealProof::StackedDrg2KiBV1_1_Feat_SyntheticPoRep
             {
                 let resp_clear = clear_synthetic_proofs(
@@ -1682,6 +1762,11 @@ pub mod tests {
                     panic!("clear_synthetic_proofs failed: {:?}", msg);
                 }
                 destroy_clear_cache_response(resp_clear);
+            }
+
+            if resp_c1.status_code != FCPResponseStatus::NoError {
+                let msg = str::from_utf8(&resp_c1.error_msg).unwrap();
+                panic!("seal_commit_phase1 failed: {:?}", msg);
             }
 
             let resp_c2 = seal_commit_phase2(resp_c1.as_ref(), sector_id, &prover_id);
@@ -1998,6 +2083,18 @@ pub mod tests {
                 let msg = str::from_utf8(&resp_removed.error_msg).unwrap();
                 panic!("empty_sector_update_remove_encoded_data failed: {:?}", msg);
             }
+
+            let resp_clear = clear_cache(
+                api::RegisteredSealProof::from(registered_proof_seal)
+                    .sector_size()
+                    .0,
+                cache_dir_path_ref.into(),
+            );
+            if resp_clear.status_code != FCPResponseStatus::NoError {
+                let msg = str::from_utf8(&resp_clear.error_msg).unwrap();
+                panic!("clear_synthetic_proofs failed: {:?}", msg);
+            }
+            destroy_clear_cache_response(resp_clear);
 
             // When the data is removed, it MUST match the original sealed data.
             compare_elements(&removed_data_path, &sealed_path)?;
@@ -2532,18 +2629,6 @@ pub mod tests {
             if !**resp_k3 {
                 panic!("verify_window_post rejected the provided proof as invalid");
             }
-
-            let resp_clear = clear_cache(
-                api::RegisteredSealProof::from(registered_proof_seal)
-                    .sector_size()
-                    .0,
-                cache_dir_path_ref.into(),
-            );
-            if resp_clear.status_code != FCPResponseStatus::NoError {
-                let msg = str::from_utf8(&resp_clear.error_msg).unwrap();
-                panic!("clear_cache failed: {:?}", msg);
-            }
-            destroy_clear_cache_response(resp_clear);
 
             ////////////////////
             // Cleanup responses
