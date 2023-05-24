@@ -152,6 +152,24 @@ fn seal_pre_commit_phase1(
 
 /// TODO: document
 #[ffi_export]
+fn generate_sdr(
+    registered_proof: RegisteredSealProof,
+    cache_path: c_slice::Ref<u8>,
+    replica_id: &[u8; 32],
+) -> repr_c::Box<GenerateSdrResponse> {
+    catch_panic_response("generate_sdr", || {
+        seal::sdr(
+            registered_proof.into(),
+            as_path_buf(&cache_path)?,
+            (*replica_id).into(),
+        )?;
+
+        Ok(())
+    })
+}
+
+/// TODO: document
+#[ffi_export]
 fn seal_pre_commit_phase2(
     seal_pre_commit_phase1_output: c_slice::Ref<u8>,
     cache_dir_path: c_slice::Ref<u8>,
@@ -171,6 +189,42 @@ fn seal_pre_commit_phase2(
             comm_d: output.comm_d,
             registered_proof: output.registered_proof.into(),
         })
+    })
+}
+
+/// TODO: document
+#[ffi_export]
+fn generate_tree_r_last(
+    registered_proof: RegisteredSealProof,
+    replica_path: c_slice::Ref<u8>,
+    output_dir: c_slice::Ref<u8>,
+) -> repr_c::Box<GenerateTreeRLastResponse> {
+    catch_panic_response("generate_tree_r_last", || {
+        let comm_r_last = seal::generate_tree_r_last(
+            registered_proof.into(),
+            as_path_buf(&replica_path)?,
+            as_path_buf(&output_dir)?,
+        )?;
+
+        Ok(comm_r_last)
+    })
+}
+
+/// TODO: document
+#[ffi_export]
+fn generate_tree_c(
+    registered_proof: RegisteredSealProof,
+    input_dir: c_slice::Ref<u8>,
+    output_dir: c_slice::Ref<u8>,
+) -> repr_c::Box<GenerateTreeCResponse> {
+    catch_panic_response("generate_tree_c", || {
+        let comm_c = seal::generate_tree_c(
+            registered_proof.into(),
+            as_path_buf(&input_dir)?,
+            as_path_buf(&output_dir)?,
+        )?;
+
+        Ok(comm_c)
     })
 }
 
@@ -832,6 +886,34 @@ fn empty_sector_update_decode_from(
 
 /// TODO: document
 #[ffi_export]
+unsafe fn empty_sector_update_decode_from_range(
+    registered_proof: RegisteredUpdateProof,
+    comm_d: &[u8; 32],
+    comm_r: &[u8; 32],
+    input_fd: libc::c_int,
+    sector_key_fd: libc::c_int,
+    output_fd: libc::c_int,
+    nodes_offset: u64,
+    num_nodes: u64,
+) -> repr_c::Box<EmptySectorUpdateDecodeFromRangeResponse> {
+    catch_panic_response("empty_sector_update_decode_from_range", || {
+        update::empty_sector_update_decode_from_range(
+            registered_proof.into(),
+            *comm_d,
+            *comm_r,
+            FileDescriptorRef::new(input_fd),
+            FileDescriptorRef::new(sector_key_fd),
+            &mut FileDescriptorRef::new(output_fd),
+            usize::try_from(nodes_offset)?,
+            usize::try_from(num_nodes)?,
+        )?;
+
+        Ok(())
+    })
+}
+
+/// TODO: document
+#[ffi_export]
 fn empty_sector_update_remove_encoded_data(
     registered_proof: RegisteredUpdateProof,
     sector_key_path: c_slice::Ref<u8>,
@@ -1207,10 +1289,16 @@ destructor!(
     destroy_seal_pre_commit_phase1_response,
     SealPreCommitPhase1Response
 );
+destructor!(destroy_generate_sdr_response, GenerateSdrResponse);
 destructor!(
     destroy_seal_pre_commit_phase2_response,
     SealPreCommitPhase2Response
 );
+destructor!(
+    destroy_generate_tree_r_last_response,
+    GenerateTreeRLastResponse
+);
+destructor!(destroy_generate_tree_c_response, GenerateTreeCResponse);
 destructor!(
     destroy_seal_commit_phase1_response,
     SealCommitPhase1Response
@@ -1300,6 +1388,10 @@ destructor!(
 destructor!(
     destroy_empty_sector_update_decode_from_response,
     EmptySectorUpdateDecodeFromResponse
+);
+destructor!(
+    destroy_empty_sector_update_decode_from_range_response,
+    EmptySectorUpdateDecodeFromRangeResponse
 );
 destructor!(
     destroy_empty_sector_update_remove_encoded_data_response,

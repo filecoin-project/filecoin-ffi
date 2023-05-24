@@ -31,19 +31,11 @@ rand_chacha = "0.3.1"
 rayon = "1.2.1"
 anyhow = "1.0.23"
 serde_json = "1.0.46"
-#rust-gpu-tools = { version = "0.6", optional = true, default-features = false }
-#fr32 = { version = "~6.0", default-features = false }
-#fvm3 = { package = "fvm", version = "~3.4.0", default-features = false }
-#fvm3_shared = { package = "fvm_shared", version = "~3.3.1" }
-#fvm3_ipld_encoding = { package = "fvm_ipld_encoding", version = "0.3.3" }
-
-rust-gpu-tools = { version = "0.7", optional = true, default-features = false }
-fr32 = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "nemo-synth-porep", default-features = false }
-
-fvm3 = { package = "fvm", git = "https://github.com/cryptonemo/ref-fvm", branch = "synthetic-porep", default-features = false }
-fvm3_shared = { package = "fvm_shared", git = "https://github.com/cryptonemo/ref-fvm", branch = "synthetic-porep" }
-fvm3_ipld_encoding = { package = "fvm_ipld_encoding", git = "https://github.com/cryptonemo/ref-fvm", branch = "synthetic-porep" }
-
+rust-gpu-tools = { version = "0.6", optional = true, default-features = false }
+fr32 = { version = "7.0", default-features = false }
+fvm3 = { package = "fvm", version = "~3.4.0", default-features = false }
+fvm3_shared = { package = "fvm_shared", version = "~3.3.1" }
+fvm3_ipld_encoding = { package = "fvm_ipld_encoding", version = "0.3.3" }
 fvm2 = { package = "fvm", version = "~2.4", default-features = false }
 fvm2_shared = { package = "fvm_shared", version = "~2.4" }
 fvm2_ipld_encoding = { package = "fvm_ipld_encoding", version = "0.2.3" }
@@ -56,11 +48,7 @@ lazy_static = "1.4.0"
 serde = "1.0.117"
 serde_tuple = "0.5"
 safer-ffi = { version = "0.0.7", features = ["proc_macros"] }
-
-[dependencies.filecoin-proofs-api]
-package = "filecoin-proofs-api"
-version = "14.0"
-default-features = false
+filecoin-proofs-api = { version = "14.0", default-features = false }
 
 [dev-dependencies]
 memmap2 = "0.5"
@@ -75,5 +63,8 @@ multicore-sdr = ["filecoin-proofs-api/multicore-sdr"]
 c-headers = ["safer-ffi/headers"]
 
 [patch.crates-io]
-rust-filecoin-proofs-api = { package = "filecoin-proofs-api", git = "https://github.com/filecoin-project/rust-filecoin-proofs-api", branch = "synthetic-porep", default-features = false }
-fvm_ipld_blockstore = { git = "https://github.com/cryptonemo/ref-fvm", branch = "synthetic-porep" }
+filecoin-proofs-api = { git = "https://github.com/filecoin-project/rust-filecoin-proofs-api", branch = "master" }
+filecoin-proofs = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "master" }
+filecoin-hashers = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "master" }
+storage-proofs-core = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "master" }
+fr32 = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "master" }

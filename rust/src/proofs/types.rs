@@ -453,7 +453,13 @@ pub type SealPreCommitPhase1Response = Result<c_slice::Box<u8>>;
 
 pub type FauxRepResponse = Result<[u8; 32]>;
 
+pub type GenerateSdrResponse = Result<()>;
+
 pub type SealPreCommitPhase2Response = Result<SealPreCommitPhase2>;
+
+pub type GenerateTreeRLastResponse = Result<[u8; 32]>;
+
+pub type GenerateTreeCResponse = Result<[u8; 32]>;
 
 #[derive_ReprC]
 #[repr(C)]
@@ -530,6 +536,8 @@ pub struct EmptySectorUpdateEncodeInto {
 }
 
 pub type EmptySectorUpdateDecodeFromResponse = Result<()>;
+
+pub type EmptySectorUpdateDecodeFromRangeResponse = Result<()>;
 
 pub type EmptySectorUpdateRemoveEncodedDataResponse = Result<()>;
 
