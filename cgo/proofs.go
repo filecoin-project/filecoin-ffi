@@ -224,6 +224,12 @@ func ClearCache(sectorSize uint64, cacheDirPath SliceRefUint8) error {
 	return CheckErr(resp)
 }
 
+func ClearSyntheticProofs(sectorSize uint64, cacheDirPath SliceRefUint8) error {
+	resp := C.clear_synthetic_proofs(C.uint64_t(sectorSize), cacheDirPath)
+	defer resp.destroy()
+	return CheckErr(resp)
+}
+
 func Fauxrep(registeredProf RegisteredSealProof, cacheDirPath SliceRefUint8, sealedSectorPath SliceRefUint8) ([]byte, error) {
 	resp := C.fauxrep(registeredProf, cacheDirPath, sealedSectorPath)
 	defer resp.destroy()
