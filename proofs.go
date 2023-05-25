@@ -642,6 +642,11 @@ func ClearCache(sectorSize uint64, cacheDirPath string) error {
 	return cgo.ClearCache(sectorSize, cgo.AsSliceRefUint8([]byte(cacheDirPath)))
 }
 
+// ClearSyntheticProofs
+func ClearSyntheticProofs(sectorSize uint64, cacheDirPath string) error {
+	return cgo.ClearSyntheticProofs(sectorSize, cgo.AsSliceRefUint8([]byte(cacheDirPath)))
+}
+
 func FauxRep(proofType abi.RegisteredSealProof, cacheDirPath string, sealedSectorPath string) (cid.Cid, error) {
 	sp, err := toFilRegisteredSealProof(proofType)
 	if err != nil {
