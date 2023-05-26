@@ -150,17 +150,20 @@ fn seal_pre_commit_phase1(
     })
 }
 
-/// TODO: document
+/// Runs the SDR process the same way as it would during PreCommit Phase 1.
+///
+/// The `output_dir` is the directory where the layer labels are stored. The `replica_id` is needed
+/// to make sure the output is unique.
 #[ffi_export]
 fn generate_sdr(
     registered_proof: RegisteredSealProof,
-    cache_path: c_slice::Ref<u8>,
+    output_dir: c_slice::Ref<u8>,
     replica_id: &[u8; 32],
 ) -> repr_c::Box<GenerateSdrResponse> {
     catch_panic_response("generate_sdr", || {
         seal::sdr(
             registered_proof.into(),
-            as_path_buf(&cache_path)?,
+            as_path_buf(&output_dir)?,
             (*replica_id).into(),
         )?;
 
@@ -192,7 +195,10 @@ fn seal_pre_commit_phase2(
     })
 }
 
-/// TODO: document
+/// Generates a TreeRLast the same way as during PreCommit Phase 2 and return the CommRLast.
+///
+/// The `replica_path` points to the sealed file. `output_dir` is where the TreeRLast should be
+/// stored. It's a directory as it may consist of serveral files.
 #[ffi_export]
 fn generate_tree_r_last(
     registered_proof: RegisteredSealProof,
@@ -210,7 +216,14 @@ fn generate_tree_r_last(
     })
 }
 
-/// TODO: document
+/// Generates a TreeC the same way as during PreCommit Phase 2 and returns the CommC.
+///
+/// The `input_dir` is the directory where the label layers are stored, which were constructed
+/// during the SDR process (PreCommit Phase 1). No other data is needed.
+/// The `output_dir` is the directory where the resulting TreeC tree is stored (it may be split
+/// into several files).
+/// The `input_dir` and `output_dir` may point to the same directory. Usually that's the "cache
+/// directory".
 #[ffi_export]
 fn generate_tree_c(
     registered_proof: RegisteredSealProof,
@@ -884,7 +897,26 @@ fn empty_sector_update_decode_from(
     })
 }
 
-/// TODO: document
+/// Decodes data from an empty sector upgraded replica (aka SnapDeals)
+///
+/// This function is similar to [`empty_sector_update_decode_from`], the difference is that it
+/// operates directly on the given file descriptions. The current position of the file descriptors
+/// is where the decoding starts, i.e. you need to seek to the intended offset before you call this
+/// funtion.
+///
+/// `nodes_count` is the total number the input file contains. It's the sector size in bytes
+/// divided by the field element size of 32 bytes.
+///
+/// `comm_d` is the commitment of the data that that was "snapped" into the sector. `comm_r` is
+/// the commitment of the sealed empty sector, before data was "snapped" into it.
+///
+/// `input_data` is a file descriptor of the data you want to decode from, the "snapped" sector.
+/// `sector_key_data` is a file descriptor that points to the sealed empty sector before it was
+/// "snapped" into. `output_data` is the file descriptor the decoded data should be written into.
+///
+/// `nodes_offset` is the offset relative to the beginning of the file, it's again in field
+/// elements and not in bytes. So if the `input_data` file descriptor was sought to a certain
+/// position, it's that offset. `nodes_offset` is about how many nodes should be decoded.
 #[ffi_export]
 unsafe fn empty_sector_update_decode_from_range(
     registered_proof: RegisteredUpdateProof,
