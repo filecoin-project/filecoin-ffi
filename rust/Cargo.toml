@@ -52,16 +52,10 @@ memmap2 = "0.5"
 tempfile = "3.0.8"
 
 [features]
+#default = ["cuda", "multicore-sdr" ]
 default = ["cuda", "multicore-sdr" ]
 blst-portable = ["bls-signatures/blst-portable", "blstrs/portable"]
 cuda = ["filecoin-proofs-api/cuda", "rust-gpu-tools/cuda", "fvm3/cuda", "fvm2/cuda"]
 opencl = ["filecoin-proofs-api/opencl", "rust-gpu-tools/opencl", "fvm3/opencl", "fvm2/opencl"]
 multicore-sdr = ["filecoin-proofs-api/multicore-sdr"]
 c-headers = ["safer-ffi/headers"]
-
-[patch.crates-io]
-filecoin-proofs-api = { git = "https://github.com/filecoin-project/rust-filecoin-proofs-api", branch = "master" }
-filecoin-proofs = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "master" }
-filecoin-hashers = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "master" }
-storage-proofs-core = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "master" }
-fr32 = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "master" }
