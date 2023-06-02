@@ -6,12 +6,14 @@ orbs:
 executors:
   golang:
     docker:
-      - image: cimg/go:1.17.9
+      - image: cimg/go:1.18
     resource_class: small
-  rust:
-    docker:
-      - image: cimg/rust:1.67
-    resource_class: small
+    environment:
+      # Build the kernel only for the single architecture. This should reduce
+      # the overall compile-time significantly.
+      EC_GPU_CUDA_NVCC_ARGS: --fatbin --gpu-architecture=sm_75 --generate-code=arch=compute_75,code=sm_75
+      BELLMAN_CUDA_NVCC_ARGS: --fatbin --gpu-architecture=sm_75 --generate-code=arch=compute_75,code=sm_75
+      NEPTUNE_CUDA_NVCC_ARGS: --fatbin --gpu-architecture=sm_75 --generate-code=arch=compute_75,code=sm_75
 
 jobs:
   shellcheck:
@@ -26,14 +28,22 @@ jobs:
   gofmt:
     executor: golang
     steps:
-      - configure_environment_variables
-      - prepare
+      - checkout
+      - run: git submodule sync
+      - run: git submodule update --init
       - run:
-          command: "! go fmt ./... 2>&1 | read"
+          name: Run go fmt
+          # `! go fmt ./... 2>&1 | read"` doesn't work, this one does, thanks
+          # https://carsonip.me/posts/go-fmt-and-ci/
+          command: |
+            output=$(go fmt ./...)
+            echo "${output}"
+            test -z "${output}"
+
   go_lint:
     description: Run various linters
     executor: golang
-    resource_class: large
+    resource_class: medium
     steps:
       - configure_environment_variables
       - prepare
@@ -46,12 +56,15 @@ jobs:
         type: boolean
         default: true
     machine:
-      image: ubuntu-2004:current
+      image: ubuntu-2204:current
     resource_class: arm.large
     working_directory: ~/go/src/github.com/filecoin-project/filecoin-ffi
     steps:
       - configure_environment_variables
       - prepare
+      - run:
+          name: Make sure libcuda is found by linker
+          command: sudo ln --symbolic --relative /usr/lib/aarch64-linux-gnu/stubs/libcuda.so /usr/lib/aarch64-linux-gnu/stubs/libcuda.so.1
       - build_project
       - restore_parameter_cache
       - obtain_filecoin_parameters
@@ -65,7 +78,7 @@ jobs:
         type: boolean
         default: true
     executor: golang
-    resource_class: large
+    resource_class: medium
     working_directory: ~/go/src/github.com/filecoin-project/filecoin-ffi
     steps:
       - configure_environment_variables
@@ -82,7 +95,7 @@ jobs:
     macos:
       xcode: "12.5.1"
     working_directory: ~/go/src/github.com/filecoin-project/filecoin-ffi
-    resource_class: medium
+    resource_class: macos.x86.medium.gen2
     steps:
       - configure_environment_variables:
           linux: false
@@ -97,14 +110,14 @@ jobs:
       - compile_tests
   publish_linux_x86_64_staticlib:
     executor: golang
-    resource_class: large
+    resource_class: medium
     steps:
       - configure_environment_variables
       - prepare
       - publish_release
   publish_linux_aarch64_staticlib:
     machine:
-      image: ubuntu-2004:current
+      image: ubuntu-2204:current
     resource_class: arm.large
     steps:
       - configure_environment_variables
@@ -113,7 +126,7 @@ jobs:
   publish_darwin_staticlib:
     macos:
       xcode: "12.5.1"
-    resource_class: medium
+    resource_class: macos.x86.medium.gen2
     steps:
       - configure_environment_variables:
           linux: false
@@ -126,21 +139,24 @@ jobs:
       - run: cd rust && cargo install cargo-lipo
       - publish_darwin_release
   rustfmt:
-    executor: rust
+    docker:
+      - image: cimg/rust:1.67
+    resource_class: small
     steps:
-      - configure_environment_variables
-      - prepare
+      - checkout
+      - run: git submodule sync
+      - run: git submodule update --init
       - run:
           name: Run cargo fmt
           command: cargo fmt --manifest-path ./rust/Cargo.toml --all -- --check
   clippy:
-    executor: rust
+    executor: golang
     steps:
       - configure_environment_variables
       - prepare
       - run:
           name: Run cargo clippy
-          command: cd rust && cargo clippy --all-targets --no-default-features --features multicore-sdr,blst-portable,opencl -- -D warnings
+          command: cd rust && cargo clippy --all-targets --features blst-portable,opencl -- -D warnings
 
 workflows:
   version: 2
@@ -193,7 +209,7 @@ commands:
           condition: << parameters.linux >>
           steps:
             - run: sudo apt-get update
-            - run: sudo apt-get install -y jq valgrind ocl-icd-opencl-dev clang libssl-dev libhwloc-dev
+            - run: sudo apt-get install --no-install-recommends -y valgrind ocl-icd-opencl-dev libssl-dev libhwloc-dev nvidia-cuda-toolkit
       - when:
           condition: << parameters.darwin >>
           steps:
@@ -209,8 +225,7 @@ commands:
       - run:
           name: Install Rust toolchain
           command: |
-            curl https://sh.rustup.rs -sSf | sh -s -- -y
-            rustc --version
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain none
       - run: git submodule sync
       - run: git submodule update --init
 
@@ -273,7 +288,9 @@ commands:
             echo 'export PATH="/usr/local/go/bin:${HOME}/.cargo/bin:${PATH}:${HOME}/go/bin:${HOME}/.bin"' >> $BASH_ENV
             echo 'export RUST_LOG=info' >> $BASH_ENV
             echo 'export CIRCLE_ARTIFACTS="/tmp"' >> $BASH_ENV
-            echo 'export FFI_USE_OPENCL=1' >> $BASH_ENV
+            # Make sure CUDA is found on aarch64
+            echo 'export LD_LIBRARY_PATH="/usr/lib/aarch64-linux-gnu/stubs:${LD_LIBRARY_PATH}"' >> ${BASH_ENV}
+            echo 'export LIBRARY_PATH="/usr/lib/aarch64-linux-gnu/stubs:${LIBRARY_PATH}"' >> ${BASH_ENV}
       - when:
           condition: << parameters.darwin >>
           steps:
@@ -313,8 +330,8 @@ commands:
                 command: make cgo-leakdetect
                 no_output_timeout: 90m
       - run:
-          name: Run the Rust tests
-          command: cd rust && FIL_PROOFS_PARAMETER_CACHE="${HOME}/filecoin-proof-parameters/" RUST_LOG=info cargo test --no-default-features --features multicore-sdr,opencl --all --release -- --test-threads 1&& cd ..
+          name: Run the Rust tests with default features
+          command: cd rust && FIL_PROOFS_PARAMETER_CACHE="${HOME}/filecoin-proof-parameters/" RUST_LOG=info cargo test --all --release -- --test-threads 1 && cd ..
           no_output_timeout: 90m
       - run:
           name: Run the Go tests
