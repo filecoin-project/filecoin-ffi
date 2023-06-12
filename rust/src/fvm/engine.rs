@@ -1,4 +1,3 @@
-use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::ops::RangeInclusive;
 use std::sync::{Arc, Mutex};
@@ -52,14 +51,31 @@ pub trait AbstractMultiEngine: Send + Sync {
     ) -> anyhow::Result<InnerFvmMachine>;
 }
 
+#[derive(Eq, PartialEq, Hash, Debug, Copy, Clone)]
+enum EngineVersion {
+    V1,
+    V2,
+}
+
 // The generic engine container
 pub struct MultiEngineContainer {
     concurrency: u32,
-    engines: Mutex<HashMap<u32, Arc<dyn AbstractMultiEngine + 'static>>>,
+    engines: Mutex<HashMap<EngineVersion, Arc<dyn AbstractMultiEngine + 'static>>>,
 }
 
 const LOTUS_FVM_CONCURRENCY_ENV_NAME: &str = "LOTUS_FVM_CONCURRENCY";
 const VALID_CONCURRENCY_RANGE: RangeInclusive<u32> = 1..=128;
+
+impl TryFrom<u32> for EngineVersion {
+    type Error = anyhow::Error;
+    fn try_from(value: u32) -> Result<Self, Self::Error> {
+        match value {
+            16 | 17 => Ok(EngineVersion::V1),
+            18 | 19 | 20 => Ok(EngineVersion::V2),
+            _ => return Err(anyhow!("network version not supported")),
+        }
+    }
+}
 
 impl MultiEngineContainer {
     /// Constructs a new multi-engine container with the default concurrency (4).
@@ -107,23 +123,21 @@ impl MultiEngineContainer {
     }
 
     pub fn get(&self, nv: u32) -> anyhow::Result<Arc<dyn AbstractMultiEngine + 'static>> {
+        let engine_version = nv.try_into()?;
         let mut locked = self
             .engines
             .lock()
             .map_err(|e| anyhow!("engine lock poisoned: {e}"))?;
-        Ok(match locked.entry(nv) {
-            Entry::Occupied(v) => v.get().clone(),
-            Entry::Vacant(v) => v
-                .insert(match nv {
-                    16 | 17 => {
-                        Arc::new(MultiEngine2::new()) as Arc<dyn AbstractMultiEngine + 'static>
-                    }
-                    18 | 19 | 20 => Arc::new(MultiEngine3::new(self.concurrency))
-                        as Arc<dyn AbstractMultiEngine + 'static>,
-                    _ => return Err(anyhow!("network version not supported")),
-                })
-                .clone(),
-        })
+        Ok(locked
+            .entry(engine_version)
+            .or_insert_with(|| match engine_version {
+                EngineVersion::V1 => {
+                    Arc::new(MultiEngine2::new()) as Arc<dyn AbstractMultiEngine + 'static>
+                }
+                EngineVersion::V2 => Arc::new(MultiEngine3::new(self.concurrency))
+                    as Arc<dyn AbstractMultiEngine + 'static>,
+            })
+            .clone())
     }
 }
 
