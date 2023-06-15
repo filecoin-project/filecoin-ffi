@@ -172,11 +172,15 @@ build_from_source() {
     # Check if GPU support is disabled.
     if [ "${FFI_USE_GPU}" == "0" ]; then
         gpu_flags=""
+    elif [ "${FFI_USE_CUDA_SUPRASEAL}" == "1" ]; then
+        # If SupraSeal is enabled, just use the `cuda-supraseal` eature and
+        # nothing else GPU related.
+        gpu_flags=",cuda-supraseal"
     else
-        # If not, default to CUDA support where possible.
-        # First ensure that nvcc (as part of the CUDA toolkit) is
-        # available -- if it's not warn that we are defaulting GPU to
-        # OpenCL instead.
+        # If GPUs are enabled and SupraSeal is not, default to CUDA support
+        # where possible.
+        # First ensure that nvcc (as part of the CUDA toolkit) is available --
+        # if it's not warn that we are defaulting GPU to OpenCL instead.
         gpu_flags=",cuda"
 
         # Unless OpenCL support is specified or we're building on Darwin.

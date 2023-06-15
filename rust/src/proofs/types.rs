@@ -69,6 +69,7 @@ impl From<api::RegisteredSealProof> for RegisteredSealProof {
             StackedDrg512MiBV1_1 => RegisteredSealProof::StackedDrg512MiBV1_1,
             StackedDrg32GiBV1_1 => RegisteredSealProof::StackedDrg32GiBV1_1,
             StackedDrg64GiBV1_1 => RegisteredSealProof::StackedDrg64GiBV1_1,
+            _ => todo!(),
         }
     }
 }

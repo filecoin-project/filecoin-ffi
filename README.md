@@ -48,6 +48,8 @@ rm .install-filcrypto \
 
 CUDA for GPU support is now enabled by default in the proofs library.  This feature can optionally be replaced by OpenCL by using `FFI_USE_OPENCL=1` set in the environment when building from source.  Alternatively, if the CUDA toolkit (such as `nvcc`) cannot be located in the environment, OpenCL support is used instead.  To disable GPU support entirely, set `FFI_USE_GPU=0` in the environment when building from source.
 
+There is experimental support for faster C2 named "SupraSeal". To enable it, set `FFI_USE_CUDA_SUPRASEAL=1`. It's specific to CUDA and won't work with OpenCL.
+
 ```shell
 rm .install-filcrypto \
     ; make clean \
