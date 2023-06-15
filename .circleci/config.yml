@@ -107,6 +107,19 @@ jobs:
       - run: cd rust && cargo install cargo-lipo
       - build_project
       - compile_tests
+
+  # SupraSeal pulls in a C++ code base, make sure everything compiles properly.
+  build_linux_supraseal:
+    executor: golang
+    resource_class: medium
+    working_directory: ~/go/src/github.com/filecoin-project/filecoin-ffi
+    steps:
+      - configure_environment_variables
+      - prepare
+      - run:
+          name: Build project with `FFI_USE_CUDA_SUPRASEAL=1`
+          command: FFI_BUILD_FROM_SOURCE=1 FFI_USE_CUDA_SUPRASEAL=1 make
+
   publish_linux_x86_64_staticlib:
     executor: golang
     resource_class: medium
@@ -172,6 +185,7 @@ workflows:
       - build_and_test_aarch64_linux_cgo_bindings:
           run_leak_detector: false
       - build_darwin_cgo_bindings
+      - build_linux_supraseal
       - publish_linux_x86_64_staticlib:
           filters:
             tags:
@@ -208,7 +222,12 @@ commands:
           condition: << parameters.linux >>
           steps:
             - run: sudo apt-get update
-            - run: sudo apt-get install --no-install-recommends -y valgrind ocl-icd-opencl-dev libssl-dev libhwloc-dev nvidia-cuda-toolkit
+            - run: sudo apt-get install --no-install-recommends -y valgrind ocl-icd-opencl-dev libssl-dev libhwloc-dev nvidia-cuda-toolkit g++-10
+            - run:
+                name: Downgrade to GCC 10, as CUDA 11 doesn't play nice with GCC 11
+                command: |
+                  sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-10 10
+                  sudo update-alternatives --set c++ /usr/bin/g++-10
       - when:
           condition: << parameters.darwin >>
           steps:

@@ -57,6 +57,7 @@ tempfile = "3.0.8"
 default = ["cuda", "multicore-sdr" ]
 blst-portable = ["bls-signatures/blst-portable", "blstrs/portable"]
 cuda = ["filecoin-proofs-api/cuda", "rust-gpu-tools/cuda", "fvm3/cuda", "fvm2/cuda"]
+cuda-supraseal = ["filecoin-proofs-api/cuda-supraseal", "rust-gpu-tools/cuda", "fvm3/cuda-supraseal"]
 opencl = ["filecoin-proofs-api/opencl", "rust-gpu-tools/opencl", "fvm3/opencl", "fvm2/opencl"]
 multicore-sdr = ["filecoin-proofs-api/multicore-sdr"]
 c-headers = ["safer-ffi/headers"]
