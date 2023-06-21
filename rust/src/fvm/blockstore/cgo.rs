@@ -8,10 +8,10 @@ use fvm_ipld_blockstore::Blockstore;
 use super::super::cgo::*;
 
 /// The maximum amount of data to buffer in a batch before writing it to the underlying blockstore.
-const MAX_BUF_SIZE: usize = 4 << 20; // 4MiB
+const MAX_BUF_SIZE: usize = 64 << 20; // 64MiB
 /// The maximum number of blocks to buffer in a batch before before writing it to the underlying
-/// blockstore.
-const MAX_BLOCK_BATCH: usize = 1024;
+/// blockstore. This will allocate 0.5MiB of memory to store offsets.
+const MAX_BLOCK_BATCH: usize = 64 << 10;
 
 pub struct CgoBlockstore {
     handle: u64,
