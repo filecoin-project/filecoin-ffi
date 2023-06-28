@@ -518,6 +518,25 @@ func UnsealRange(
 	)
 }
 
+func GenerateSDR(
+	proofType abi.RegisteredSealProof,
+	cacheDirPath string,
+	replicaId [32]byte,
+) (err error) {
+	sp, err := toFilRegisteredSealProof(proofType)
+	if err != nil {
+		return err
+	}
+
+	replicaIdtBytes := cgo.AsByteArray32(replicaId[:])
+
+	return cgo.GenerateSDR(
+		sp,
+		cgo.AsSliceRefUint8([]byte(cacheDirPath)),
+		&replicaIdtBytes,
+	)
+}
+
 // GenerateWinningPoStSectorChallenge
 func GenerateWinningPoStSectorChallenge(
 	proofType abi.RegisteredPoStProof,
