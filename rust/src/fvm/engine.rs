@@ -240,7 +240,7 @@ mod v3 {
 mod v2 {
     use anyhow::{anyhow, Context};
     use cid::Cid;
-    use fvm3_ipld_encoding::ipld_block::IpldBlock;
+    use fvm_ipld_encoding::ipld_block::IpldBlock;
     use num_traits::FromPrimitive;
     use std::sync::Mutex;
 
@@ -257,7 +257,6 @@ mod v2 {
     };
     use fvm2::trace::ExecutionEvent as ExecutionEvent2;
     use fvm2::DefaultKernel as DefaultKernel2;
-    use fvm2_ipld_encoding::RawBytes as RawBytes2;
     use fvm2_shared::{
         address::Address as Address2, clock::ChainEpoch as ChainEpoch2,
         econ::TokenAmount as TokenAmount2, message::Message as Message2,
@@ -268,11 +267,11 @@ mod v2 {
     use fvm3::kernel::SyscallError;
 
     use fvm3::trace::ExecutionEvent;
-    use fvm3_ipld_encoding::{RawBytes, DAG_CBOR};
     use fvm3_shared::{
         address::Address, econ::TokenAmount, error::ErrorNumber, error::ExitCode, message::Message,
         receipt::Receipt,
     };
+    use fvm_ipld_encoding::{RawBytes, DAG_CBOR};
 
     use crate::fvm::engine::{
         AbstractMultiEngine, CgoBlockstore, CgoExecutor, CgoExterns, InnerFvmMachine,
@@ -288,7 +287,7 @@ mod v2 {
         ThreadedExecutor2(BaseExecutor2::new(machine))
     }
 
-    fn bytes_to_block(bytes: RawBytes2) -> Option<IpldBlock> {
+    fn bytes_to_block(bytes: RawBytes) -> Option<IpldBlock> {
         if bytes.is_empty() {
             None
         } else {
@@ -317,7 +316,7 @@ mod v2 {
                     sequence: msg.sequence,
                     value: TokenAmount2::from_atto(msg.value.atto().clone()),
                     method_num: msg.method_num,
-                    params: RawBytes2::new(msg.params.into()),
+                    params: msg.params,
                     gas_limit: msg.gas_limit.try_into().context("invalid gas limit")?,
                     gas_fee_cap: TokenAmount2::from_atto(msg.gas_fee_cap.atto().clone()),
                     gas_premium: TokenAmount2::from_atto(msg.gas_premium.atto().clone()),
