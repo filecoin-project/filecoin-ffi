@@ -6,11 +6,11 @@ use cid::Cid;
 use fvm3::executor::ApplyKind as ApplyKind3;
 use fvm3::gas::GasCharge;
 use fvm3::trace::ExecutionEvent;
-use fvm3_ipld_encoding::ipld_block::IpldBlock;
-use fvm3_ipld_encoding::tuple::{Deserialize_tuple, Serialize_tuple};
-use fvm3_ipld_encoding::{strict_bytes, to_vec, CborStore};
 use fvm3_shared::address::Address;
 use fvm3_shared::MethodNum;
+use fvm_ipld_encoding::ipld_block::IpldBlock;
+use fvm_ipld_encoding::tuple::{Deserialize_tuple, Serialize_tuple};
+use fvm_ipld_encoding::{strict_bytes, to_vec, CborStore};
 
 use fvm3_shared::error::{ErrorNumber, ExitCode};
 use fvm3_shared::receipt::Receipt;
@@ -194,7 +194,7 @@ fn fvm_machine_execute_message(
             ApplyKind3::Implicit
         };
 
-        let message: Message = fvm3_ipld_encoding::from_slice(&message)?;
+        let message: Message = fvm_ipld_encoding::from_slice(&message)?;
 
         let mut executor = executor
             .machine
