@@ -226,6 +226,8 @@ func ClearCache(sectorSize uint64, cacheDirPath SliceRefUint8) error {
 
 func ClearSyntheticProofs(sectorSize uint64, cacheDirPath SliceRefUint8) error {
 	resp := C.clear_synthetic_proofs(C.uint64_t(sectorSize), cacheDirPath)
+	defer resp.destroy()
+	return CheckErr(resp)
 }
 func ClearLayerData(sectorSize uint64, cacheDirPath SliceRefUint8) error {
 	resp := C.clear_layer_data(C.uint64_t(sectorSize), cacheDirPath)
