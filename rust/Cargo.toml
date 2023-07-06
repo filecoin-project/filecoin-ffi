@@ -45,9 +45,6 @@ lazy_static = "1.4.0"
 serde = "1.0.117"
 serde_tuple = "0.5"
 safer-ffi = { version = "0.0.7", features = ["proc_macros"] }
-filecoin-proofs = { version = "15.0.0", default-features = false }
-filecoin-hashers = { version = "10.0.0", default-features = false }
-storage-proofs-core = { version = "15.0.0", default-features = false }
 filecoin-proofs-api = { version = "15.0", default-features = false }
 
 [dev-dependencies]
