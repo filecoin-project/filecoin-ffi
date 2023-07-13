@@ -1595,7 +1595,7 @@ dependencies = [
 [[package]]
 name = "filecoin-hashers"
 version = "10.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=synthetic-porep#9789d77c80a346545abbb3e9ff91e5ee9e18713d"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=synthetic-porep#4d12385114fa52eac5938b21588834b11bfee452"
 dependencies = [
  "anyhow",
 <<<<<<< HEAD
@@ -1674,7 +1674,7 @@ dependencies = [
 [[package]]
 name = "filecoin-proofs"
 version = "15.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=synthetic-porep#9789d77c80a346545abbb3e9ff91e5ee9e18713d"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=synthetic-porep#4d12385114fa52eac5938b21588834b11bfee452"
 dependencies = [
  "anyhow",
 <<<<<<< HEAD
@@ -1911,6 +1911,7 @@ dependencies = [
 name = "fr32"
 version = "8.0.0"
 <<<<<<< HEAD
+<<<<<<< HEAD
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c177c3b65cf730dbfb710c6515fef4645043882732ba8a8789f0fe016ae4f030"
 =======
@@ -1925,6 +1926,9 @@ source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=synthet
 =======
 source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=synthetic-porep#9789d77c80a346545abbb3e9ff91e5ee9e18713d"
 >>>>>>> Update deps after (messy) rebase
+=======
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=synthetic-porep#4d12385114fa52eac5938b21588834b11bfee452"
+>>>>>>> update cargo lock
 dependencies = [
  "anyhow",
  "blstrs 0.7.0",
@@ -4171,7 +4175,7 @@ dependencies = [
 [[package]]
 name = "sha2raw"
 version = "10.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=synthetic-porep#9789d77c80a346545abbb3e9ff91e5ee9e18713d"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=synthetic-porep#4d12385114fa52eac5938b21588834b11bfee452"
 dependencies = [
  "byteorder",
  "cpufeatures",
@@ -4306,7 +4310,7 @@ dependencies = [
 [[package]]
 name = "storage-proofs-core"
 version = "15.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=synthetic-porep#9789d77c80a346545abbb3e9ff91e5ee9e18713d"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=synthetic-porep#4d12385114fa52eac5938b21588834b11bfee452"
 dependencies = [
  "aes",
  "anyhow",
@@ -4439,7 +4443,7 @@ dependencies = [
 [[package]]
 name = "storage-proofs-porep"
 version = "15.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=synthetic-porep#9789d77c80a346545abbb3e9ff91e5ee9e18713d"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=synthetic-porep#4d12385114fa52eac5938b21588834b11bfee452"
 dependencies = [
  "anyhow",
  "bellperson 0.25.0",
@@ -4561,7 +4565,7 @@ dependencies = [
 [[package]]
 name = "storage-proofs-post"
 version = "15.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=synthetic-porep#9789d77c80a346545abbb3e9ff91e5ee9e18713d"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=synthetic-porep#4d12385114fa52eac5938b21588834b11bfee452"
 dependencies = [
  "anyhow",
  "bellperson 0.25.0",
@@ -4647,7 +4651,7 @@ dependencies = [
 [[package]]
 name = "storage-proofs-update"
 version = "15.0.0"
-source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=synthetic-porep#9789d77c80a346545abbb3e9ff91e5ee9e18713d"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs?branch=synthetic-porep#4d12385114fa52eac5938b21588834b11bfee452"
 dependencies = [
  "anyhow",
 <<<<<<< HEAD
