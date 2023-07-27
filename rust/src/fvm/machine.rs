@@ -216,6 +216,8 @@ fn fvm_machine_execute_message(
                         method,
                         params,
                         value,
+                        gas_limit,
+                        read_only,
                     }) => {
                         break build_lotus_trace(
                             from,
@@ -223,6 +225,8 @@ fn fvm_machine_execute_message(
                             method,
                             params,
                             value,
+                            gas_limit,
+                            read_only,
                             &mut initial_gas_charges.into_iter().chain(&mut trace_iter),
                         )
                         .ok()
@@ -378,6 +382,8 @@ pub struct TraceMessage {
     #[serde(with = "strict_bytes")]
     pub params: Vec<u8>,
     pub codec: u64,
+    pub gas_limit: u64,
+    pub read_only: bool,
 }
 
 #[derive(Serialize_tuple, Deserialize_tuple, Debug, PartialEq, Eq, Clone)]
@@ -394,6 +400,8 @@ fn build_lotus_trace(
     method: u64,
     params: Option<IpldBlock>,
     value: TokenAmount,
+    gas_limit: u64,
+    read_only: bool,
     trace_iter: &mut impl Iterator<Item = ExecutionEvent>,
 ) -> anyhow::Result<Trace> {
     let params = params.unwrap_or_default();
@@ -405,6 +413,8 @@ fn build_lotus_trace(
             method_num: method,
             params: params.data,
             codec: params.codec,
+            gas_limit,
+            read_only,
         },
         msg_ret: TraceReturn {
             exit_code: ExitCode::OK,
@@ -423,9 +433,11 @@ fn build_lotus_trace(
                 method,
                 params,
                 value,
+                gas_limit,
+                read_only,
             } => {
                 new_trace.subcalls.push(build_lotus_trace(
-                    from, to, method, params, value, trace_iter,
+                    from, to, method, params, value, gas_limit, read_only, trace_iter,
                 )?);
             }
             ExecutionEvent::CallReturn(exit_code, return_data) => {
@@ -501,6 +513,8 @@ mod test {
             params: None,
             to: Address::new_id(0),
             value: TokenAmount::default(),
+            gas_limit: u64::MAX,
+            read_only: false,
         };
         let return_result =
             ExecutionEvent::CallError(SyscallError::new(IllegalArgument, "illegal"));
@@ -524,6 +538,8 @@ mod test {
             0,
             None,
             TokenAmount::default(),
+            u64::MAX,
+            false,
             &mut trace_iter,
         )
         .unwrap();
