@@ -384,6 +384,7 @@ pub struct TraceMessage {
     pub codec: u64,
     pub gas_limit: u64,
     pub read_only: bool,
+    pub code_cid: Cid,
 }
 
 #[derive(Serialize_tuple, Deserialize_tuple, Debug, PartialEq, Eq, Clone)]
@@ -415,6 +416,7 @@ fn build_lotus_trace(
             codec: params.codec,
             gas_limit,
             read_only,
+            code_cid: Cid::default(),
         },
         msg_ret: TraceReturn {
             exit_code: ExitCode::OK,
@@ -439,6 +441,9 @@ fn build_lotus_trace(
                 new_trace.subcalls.push(build_lotus_trace(
                     from, to, method, params, value, gas_limit, read_only, trace_iter,
                 )?);
+            }
+            ExecutionEvent::InvokeActor(cid) => {
+                new_trace.msg.code_cid = cid;
             }
             ExecutionEvent::CallReturn(exit_code, return_data) => {
                 let return_data = return_data.unwrap_or_default();
