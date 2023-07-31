@@ -381,3 +381,39 @@ func MergeWindowPoStPartitionProofs(registeredProof RegisteredPoStProof, partiti
 
 	return resp.value.copy(), nil
 }
+
+// PoRep primitives
+
+func GenerateSDR(registeredProof RegisteredPoStProof, outDir SliceRefUint8, replicaID *ByteArray32) error {
+	resp := C.generate_sdr(registeredProof, outDir, replicaID)
+	defer resp.destroy()
+
+	return CheckErr(resp)
+}
+
+func GenerateTreeRLast(registeredProof RegisteredPoStProof, replicaPath, outDir SliceRefUint8) ([]byte, error) {
+	resp := C.generate_tree_r_last(registeredProof, replicaPath, outDir)
+	defer resp.destroy()
+	if err := CheckErr(resp); err != nil {
+		return nil, err
+	}
+
+	return resp.value.copy(), nil
+}
+
+func GenerateTreeC(registeredProof RegisteredPoStProof, inputDir, outDir SliceRefUint8) ([]byte, error) {
+	resp := C.generate_tree_c(registeredProof, inputDir, outDir)
+	defer resp.destroy()
+	if err := CheckErr(resp); err != nil {
+		return nil, err
+	}
+
+	return resp.value.copy(), nil
+}
+
+func EmptySectorUpdateDecodeFromRange(registeredProof RegisteredUpdateProof, commD, commR *ByteArray32, inputFd, sectorKeyFd, outputFd int32, nodesOffset, numNodes uint64) error {
+	resp := C.empty_sector_update_decode_from_range(registeredProof, commD, commR, C.int(inputFd), C.int(sectorKeyFd), C.int(outputFd), C.uint64_t(nodesOffset), C.uint64_t(numNodes))
+	defer resp.destroy()
+
+	return CheckErr(resp)
+}

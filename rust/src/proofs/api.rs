@@ -150,6 +150,27 @@ fn seal_pre_commit_phase1(
     })
 }
 
+/// Runs the SDR process the same way as it would during PreCommit Phase 1.
+///
+/// The `output_dir` is the directory where the layer labels are stored. The `replica_id` is needed
+/// to make sure the output is unique.
+#[ffi_export]
+fn generate_sdr(
+    registered_proof: RegisteredSealProof,
+    output_dir: c_slice::Ref<u8>,
+    replica_id: &[u8; 32],
+) -> repr_c::Box<GenerateSdrResponse> {
+    catch_panic_response("generate_sdr", || {
+        seal::sdr(
+            registered_proof.into(),
+            as_path_buf(&output_dir)?,
+            (*replica_id).into(),
+        )?;
+
+        Ok(())
+    })
+}
+
 /// TODO: document
 #[ffi_export]
 fn seal_pre_commit_phase2(
@@ -171,6 +192,52 @@ fn seal_pre_commit_phase2(
             comm_d: output.comm_d,
             registered_proof: output.registered_proof.into(),
         })
+    })
+}
+
+/// Generates a TreeRLast the same way as during PreCommit Phase 2 and return the CommRLast.
+///
+/// The `replica_path` points to the sealed file. `output_dir` is where the TreeRLast should be
+/// stored. It's a directory as it may consist of serveral files.
+#[ffi_export]
+fn generate_tree_r_last(
+    registered_proof: RegisteredSealProof,
+    replica_path: c_slice::Ref<u8>,
+    output_dir: c_slice::Ref<u8>,
+) -> repr_c::Box<GenerateTreeRLastResponse> {
+    catch_panic_response("generate_tree_r_last", || {
+        let comm_r_last = seal::generate_tree_r_last(
+            registered_proof.into(),
+            as_path_buf(&replica_path)?,
+            as_path_buf(&output_dir)?,
+        )?;
+
+        Ok(comm_r_last)
+    })
+}
+
+/// Generates a TreeC the same way as during PreCommit Phase 2 and returns the CommC.
+///
+/// The `input_dir` is the directory where the label layers are stored, which were constructed
+/// during the SDR process (PreCommit Phase 1). No other data is needed.
+/// The `output_dir` is the directory where the resulting TreeC tree is stored (it may be split
+/// into several files).
+/// The `input_dir` and `output_dir` may point to the same directory. Usually that's the "cache
+/// directory".
+#[ffi_export]
+fn generate_tree_c(
+    registered_proof: RegisteredSealProof,
+    input_dir: c_slice::Ref<u8>,
+    output_dir: c_slice::Ref<u8>,
+) -> repr_c::Box<GenerateTreeCResponse> {
+    catch_panic_response("generate_tree_c", || {
+        let comm_c = seal::generate_tree_c(
+            registered_proof.into(),
+            as_path_buf(&input_dir)?,
+            as_path_buf(&output_dir)?,
+        )?;
+
+        Ok(comm_c)
     })
 }
 
@@ -830,6 +897,53 @@ fn empty_sector_update_decode_from(
     })
 }
 
+/// Decodes data from an empty sector upgraded replica (aka SnapDeals)
+///
+/// This function is similar to [`empty_sector_update_decode_from`], the difference is that it
+/// operates directly on the given file descriptions. The current position of the file descriptors
+/// is where the decoding starts, i.e. you need to seek to the intended offset before you call this
+/// funtion.
+///
+/// `nodes_count` is the total number the input file contains. It's the sector size in bytes
+/// divided by the field element size of 32 bytes.
+///
+/// `comm_d` is the commitment of the data that that was "snapped" into the sector. `comm_r` is
+/// the commitment of the sealed empty sector, before data was "snapped" into it.
+///
+/// `input_data` is a file descriptor of the data you want to decode from, the "snapped" sector.
+/// `sector_key_data` is a file descriptor that points to the sealed empty sector before it was
+/// "snapped" into. `output_data` is the file descriptor the decoded data should be written into.
+///
+/// `nodes_offset` is the offset relative to the beginning of the file, it's again in field
+/// elements and not in bytes. So if the `input_data` file descriptor was sought to a certain
+/// position, it's that offset. `nodes_offset` is about how many nodes should be decoded.
+#[ffi_export]
+unsafe fn empty_sector_update_decode_from_range(
+    registered_proof: RegisteredUpdateProof,
+    comm_d: &[u8; 32],
+    comm_r: &[u8; 32],
+    input_fd: libc::c_int,
+    sector_key_fd: libc::c_int,
+    output_fd: libc::c_int,
+    nodes_offset: u64,
+    num_nodes: u64,
+) -> repr_c::Box<EmptySectorUpdateDecodeFromRangeResponse> {
+    catch_panic_response("empty_sector_update_decode_from_range", || {
+        update::empty_sector_update_decode_from_range(
+            registered_proof.into(),
+            *comm_d,
+            *comm_r,
+            FileDescriptorRef::new(input_fd),
+            FileDescriptorRef::new(sector_key_fd),
+            &mut FileDescriptorRef::new(output_fd),
+            usize::try_from(nodes_offset)?,
+            usize::try_from(num_nodes)?,
+        )?;
+
+        Ok(())
+    })
+}
+
 /// TODO: document
 #[ffi_export]
 fn empty_sector_update_remove_encoded_data(
@@ -1207,10 +1321,16 @@ destructor!(
     destroy_seal_pre_commit_phase1_response,
     SealPreCommitPhase1Response
 );
+destructor!(destroy_generate_sdr_response, GenerateSdrResponse);
 destructor!(
     destroy_seal_pre_commit_phase2_response,
     SealPreCommitPhase2Response
 );
+destructor!(
+    destroy_generate_tree_r_last_response,
+    GenerateTreeRLastResponse
+);
+destructor!(destroy_generate_tree_c_response, GenerateTreeCResponse);
 destructor!(
     destroy_seal_commit_phase1_response,
     SealCommitPhase1Response
@@ -1300,6 +1420,10 @@ destructor!(
 destructor!(
     destroy_empty_sector_update_decode_from_response,
     EmptySectorUpdateDecodeFromResponse
+);
+destructor!(
+    destroy_empty_sector_update_decode_from_range_response,
+    EmptySectorUpdateDecodeFromRangeResponse
 );
 destructor!(
     destroy_empty_sector_update_remove_encoded_data_response,
