@@ -384,36 +384,6 @@ func MergeWindowPoStPartitionProofs(registeredProof RegisteredPoStProof, partiti
 
 // PoRep primitives
 
-/*
-
-pub type GenerateSdrResponse = Result<()>;
-pub type GenerateTreeRLastResponse = Result<[u8; 32]>;
-pub type GenerateTreeCResponse = Result<[u8; 32]>;
-pub type EmptySectorUpdateDecodeFromRangeResponse = Result<()>;
-
-#[ffi_export]
-fn generate_tree_c(
-    registered_proof: RegisteredSealProof,
-    input_dir: c_slice::Ref<u8>,
-    output_dir: c_slice::Ref<u8>,
-) -> repr_c::Box<GenerateTreeCResponse> {
-
-#[ffi_export]
-fn generate_tree_r_last(
-    registered_proof: RegisteredSealProof,
-    replica_path: c_slice::Ref<u8>,
-    output_dir: c_slice::Ref<u8>,
-) -> repr_c::Box<GenerateTreeRLastResponse> {
-
-#[ffi_export]
-fn generate_sdr(
-    registered_proof: RegisteredSealProof,
-    output_dir: c_slice::Ref<u8>,
-    replica_id: &[u8; 32],
-) -> repr_c::Box<GenerateSdrResponse> {
-
-*/
-
 func GenerateSDR(registeredProof RegisteredPoStProof, outDir SliceRefUint8, replicaID *ByteArray32) error {
 	resp := C.generate_sdr(registeredProof, outDir, replicaID)
 	defer resp.destroy()
