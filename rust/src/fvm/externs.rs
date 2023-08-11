@@ -34,22 +34,10 @@ impl CgoExterns {
 }
 
 impl Rand3 for CgoExterns {
-    fn get_chain_randomness(
-        &self,
-        pers: i64,
-        round: ChainEpoch,
-        entropy: &[u8],
-    ) -> anyhow::Result<[u8; 32]> {
+    fn get_chain_randomness(&self, round: ChainEpoch) -> anyhow::Result<[u8; 32]> {
         unsafe {
             let mut buf = [0u8; 32];
-            match cgo_extern_get_chain_randomness(
-                self.handle,
-                pers,
-                round,
-                entropy.as_ptr(),
-                entropy.len() as i32,
-                &mut buf,
-            ) {
+            match cgo_extern_get_chain_randomness(self.handle, round, &mut buf) {
                 0 => Ok(buf),
                 r @ 1.. => panic!("invalid return value from has: {}", r),
                 x if x == FvmError::InvalidHandle as i32 => {
@@ -63,22 +51,10 @@ impl Rand3 for CgoExterns {
         }
     }
 
-    fn get_beacon_randomness(
-        &self,
-        pers: i64,
-        round: ChainEpoch,
-        entropy: &[u8],
-    ) -> anyhow::Result<[u8; 32]> {
+    fn get_beacon_randomness(&self, round: ChainEpoch) -> anyhow::Result<[u8; 32]> {
         unsafe {
             let mut buf = [0u8; 32];
-            match cgo_extern_get_beacon_randomness(
-                self.handle,
-                pers,
-                round,
-                entropy.as_ptr(),
-                entropy.len() as i32,
-                &mut buf,
-            ) {
+            match cgo_extern_get_beacon_randomness(self.handle, round, &mut buf) {
                 0 => Ok(buf),
                 r @ 1.. => panic!("invalid return value from has: {}", r),
                 x if x == FvmError::InvalidHandle as i32 => {
@@ -94,22 +70,12 @@ impl Rand3 for CgoExterns {
 }
 
 impl Rand2 for CgoExterns {
-    fn get_chain_randomness(
-        &self,
-        pers: i64,
-        round: ChainEpoch,
-        entropy: &[u8],
-    ) -> anyhow::Result<[u8; 32]> {
-        Rand3::get_chain_randomness(self, pers, round, entropy)
+    fn get_chain_randomness(&self, round: ChainEpoch) -> anyhow::Result<[u8; 32]> {
+        Rand3::get_chain_randomness(self, round)
     }
 
-    fn get_beacon_randomness(
-        &self,
-        pers: i64,
-        round: ChainEpoch,
-        entropy: &[u8],
-    ) -> anyhow::Result<[u8; 32]> {
-        Rand3::get_beacon_randomness(self, pers, round, entropy)
+    fn get_beacon_randomness(&self, round: ChainEpoch) -> anyhow::Result<[u8; 32]> {
+        Rand3::get_beacon_randomness(self, round)
     }
 }
 
