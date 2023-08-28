@@ -395,6 +395,7 @@ pub struct TraceReturn {
     pub codec: u64,
 }
 
+#[allow(clippy::too_many_arguments)]
 fn build_lotus_trace(
     from: u64,
     to: Address,
