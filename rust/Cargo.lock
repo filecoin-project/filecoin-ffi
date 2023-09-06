@@ -192,7 +192,7 @@ checksum = "d1a8623f815c0b1fd89efd9b5f4afbb937f91f51c1ebe3f6dda399c69fa938f3"
 dependencies = [
  "bincode",
  "blake2s_simd 1.0.1",
- "blstrs 0.6.1",
+ "blstrs 0.6.2",
  "byteorder",
  "crossbeam-channel",
  "digest 0.10.7",
@@ -360,12 +360,12 @@ dependencies = [
 
 [[package]]
 name = "bls-signatures"
-version = "0.13.0"
+version = "0.13.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9fcead733e20b9afbf3784a3f33cc6d728e0f11a593a35bd6c5c4503db19e06e"
+checksum = "1659e487883b92123806f16ff3568dd57563991231d187d29b23eea5d910e800"
 dependencies = [
  "blst",
- "blstrs 0.6.1",
+ "blstrs 0.6.2",
  "ff 0.12.1",
  "group 0.12.1",
  "pairing 0.22.0",
@@ -421,9 +421,9 @@ dependencies = [
 
 [[package]]
 name = "blstrs"
-version = "0.6.1"
+version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3ecb6f3a9429706971633edf4b84f922aba9d2e3a7d71bfb450337e64ccb7df0"
+checksum = "1ff3694b352ece02eb664a09ffb948ee69b35afa2e6ac444a6b8cb9d515deebd"
 dependencies = [
  "blst",
  "byte-slice-cast",
@@ -1325,25 +1325,8 @@ dependencies = [
  "fil_logger",
  "filecoin-proofs-api 16.0.0",
  "filepath",
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
- "fr32 6.0.0",
- "fvm 2.6.0",
-=======
  "fr32 9.0.0",
-<<<<<<< HEAD
  "fvm 2.5.0",
-<<<<<<< HEAD
->>>>>>> 352b90f (newer cargo lock)
-=======
-=======
- "fvm 2.6.0",
->>>>>>> aa7ba1d (Update Cargo.lock)
->>>>>>> c104e61 (Update Cargo.lock)
  "fvm 3.7.0",
  "fvm_ipld_blockstore",
  "fvm_ipld_encoding",
@@ -1374,7 +1357,7 @@ checksum = "66d7e656d4f01d7772ef2dd0f59854c8f904370a946053cf37ef420c854d9a35"
 dependencies = [
  "anyhow",
  "bellperson 0.24.1",
- "blstrs 0.6.1",
+ "blstrs 0.6.2",
  "ff 0.12.1",
  "generic-array",
  "hex",
@@ -1416,7 +1399,7 @@ dependencies = [
  "bellperson 0.24.1",
  "bincode",
  "blake2b_simd",
- "blstrs 0.6.1",
+ "blstrs 0.6.2",
  "filecoin-hashers 9.0.0",
  "fr32 7.0.0",
  "generic-array",
@@ -1481,7 +1464,7 @@ dependencies = [
  "anyhow",
  "bellperson 0.24.1",
  "bincode",
- "blstrs 0.6.1",
+ "blstrs 0.6.2",
  "filecoin-hashers 9.0.0",
  "filecoin-proofs 14.0.0",
  "fr32 7.0.0",
@@ -1575,7 +1558,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a4f07b8a600b8c699f8ddc5f520231bc2aac03e944c64055eccfd9a959c3fd60"
 dependencies = [
  "anyhow",
- "blstrs 0.6.1",
+ "blstrs 0.6.2",
  "byte-slice-cast",
  "byteorder",
  "ff 0.12.1",
@@ -1651,48 +1634,8 @@ dependencies = [
 
 [[package]]
 name = "fvm"
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 version = "3.7.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a18c99b65d6210f87addf30511f677edd89200d93798f74bdb64fb14d94c335c"
-=======
-=======
->>>>>>> 636e58f (Update deps after (messy) rebase)
-<<<<<<< HEAD
-version = "3.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7c4c28467e3781fcfa97a47eedd1e05eb68fb0b2099a345a373e83cafe47a119"
-=======
-<<<<<<< HEAD
-version = "3.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "12f3dc49619a365778da07896554674df35181ed9fd87613ffb50a77c86e9dc1"
-=======
-version = "3.4.0"
-source = "git+https://github.com/cryptonemo/ref-fvm?branch=synthetic-porep#ade6d96107c6319bd8dc5c34825ca0c1d8a46d44"
->>>>>>> 66c0804 (feat: update dependencies to WIP synthetic-porep code)
->>>>>>> 77fee37 (feat: update dependencies to WIP synthetic-porep code)
-<<<<<<< HEAD
->>>>>>> c937424 (feat: update dependencies to WIP synthetic-porep code)
-=======
-=======
-version = "3.5.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=synthetic-porep#eb90e48da43e2ba0ca58b0b2d4be866f1c8cc0e6"
->>>>>>> 594d901 (Update deps after (messy) rebase)
->>>>>>> 636e58f (Update deps after (messy) rebase)
-=======
-version = "3.7.0"
-<<<<<<< HEAD
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=synthetic-porep#6d94b2c1695683796b8dd2aa653ddad3917deafb"
-<<<<<<< HEAD
->>>>>>> 352b90f (newer cargo lock)
-=======
-=======
 source = "git+https://github.com/filecoin-project/ref-fvm?branch=synthetic-porep#ec4e9f91b756bfe7786e9665b9ee4e661c5b0e2c"
->>>>>>> aa7ba1d (Update Cargo.lock)
->>>>>>> c104e61 (Update Cargo.lock)
 dependencies = [
  "anyhow",
  "blake2b_simd",
@@ -1765,11 +1708,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_amt"
 version = "0.6.1"
-<<<<<<< HEAD
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=synthetic-porep#6d94b2c1695683796b8dd2aa653ddad3917deafb"
-=======
 source = "git+https://github.com/filecoin-project/ref-fvm?branch=synthetic-porep#ec4e9f91b756bfe7786e9665b9ee4e661c5b0e2c"
->>>>>>> aa7ba1d (Update Cargo.lock)
 dependencies = [
  "anyhow",
  "cid",
@@ -1830,11 +1769,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_hamt"
 version = "0.8.0"
-<<<<<<< HEAD
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=synthetic-porep#6d94b2c1695683796b8dd2aa653ddad3917deafb"
-=======
 source = "git+https://github.com/filecoin-project/ref-fvm?branch=synthetic-porep#ec4e9f91b756bfe7786e9665b9ee4e661c5b0e2c"
->>>>>>> aa7ba1d (Update Cargo.lock)
 dependencies = [
  "anyhow",
  "byteorder",
@@ -1858,7 +1793,7 @@ checksum = "9fbb8a6f058b94d267f972b5a1e5339028f934f0e13c66699a66dd454cbd9056"
 dependencies = [
  "anyhow",
  "blake2b_simd",
- "bls-signatures 0.13.0",
+ "bls-signatures 0.13.1",
  "byteorder",
  "cid",
  "cs_serde_bytes",
@@ -1885,11 +1820,7 @@ dependencies = [
 [[package]]
 name = "fvm_shared"
 version = "3.5.0"
-<<<<<<< HEAD
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=synthetic-porep#6d94b2c1695683796b8dd2aa653ddad3917deafb"
-=======
 source = "git+https://github.com/filecoin-project/ref-fvm?branch=synthetic-porep#ec4e9f91b756bfe7786e9665b9ee4e661c5b0e2c"
->>>>>>> aa7ba1d (Update Cargo.lock)
 dependencies = [
  "anyhow",
  "bitflags 2.4.0",
@@ -2570,7 +2501,7 @@ checksum = "9dedb261f1b35ddfd867295eacbc25eb78b4b5b63b08b1c0dc4c1b5ef0e5b2c2"
 dependencies = [
  "bellperson 0.24.1",
  "blake2s_simd 0.5.11",
- "blstrs 0.6.1",
+ "blstrs 0.6.2",
  "byteorder",
  "ec-gpu",
  "ec-gpu-gen 0.5.2",
@@ -3485,7 +3416,7 @@ dependencies = [
  "anyhow",
  "bellperson 0.24.1",
  "blake2b_simd",
- "blstrs 0.6.1",
+ "blstrs 0.6.2",
  "byteorder",
  "cbc",
  "config",
@@ -3554,7 +3485,7 @@ dependencies = [
  "anyhow",
  "bellperson 0.24.1",
  "bincode",
- "blstrs 0.6.1",
+ "blstrs 0.6.2",
  "byte-slice-cast",
  "byteorder",
  "crossbeam",
@@ -3635,7 +3566,7 @@ dependencies = [
  "anyhow",
  "bellperson 0.24.1",
  "blake2b_simd",
- "blstrs 0.6.1",
+ "blstrs 0.6.2",
  "byteorder",
  "ff 0.12.1",
  "filecoin-hashers 9.0.0",
@@ -3680,7 +3611,7 @@ checksum = "3433b2832153e2744bfa87176dcb0b587392b57fd1bd770804d366c98822285a"
 dependencies = [
  "anyhow",
  "bellperson 0.24.1",
- "blstrs 0.6.1",
+ "blstrs 0.6.2",
  "ff 0.12.1",
  "filecoin-hashers 9.0.0",
  "fr32 7.0.0",
@@ -3908,9 +3839,9 @@ checksum = "f962df74c8c05a667b5ee8bcf162993134c104e96440b663c8daa176dc772d8c"
 
 [[package]]
 name = "unsigned-varint"
-version = "0.7.1"
+version = "0.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d86a8dc7f45e4c1b0d30e43038c38f274e77af056aa5f74b93c2cf9eb3c1c836"
+checksum = "6889a77d49f1f013504cec6bf97a2c730394adedaeb1deb5ea08949a50541105"
 
 [[package]]
 name = "url"
