@@ -429,6 +429,8 @@ mod v2 {
                                 method,
                                 params: bytes_to_block(params),
                                 value: TokenAmount::from_atto(value.atto().clone()),
+                                gas_limit: msg.gas_limit,
+                                read_only: false,
                             }),
                             ExecutionEvent2::CallReturn(ret) => Some(ExecutionEvent::CallReturn(
                                 ExitCode::OK,
