@@ -35,7 +35,7 @@ rust-gpu-tools = { version = "0.7", optional = true, default-features = false }
 fr32 = { version = "9.0.0", default-features = false }
 fvm3 = { package = "fvm", git = "https://github.com/filecoin-project/ref-fvm", default-features = false }
 fvm3_shared = { package = "fvm_shared", git = "https://github.com/filecoin-project/ref-fvm" }
-fvm2 = { package = "fvm", version = "~2.5", default-features = false }
+fvm2 = { package = "fvm", version = "~2.6", default-features = false }
 fvm2_shared = { package = "fvm_shared", version = "~2.5" }
 fvm_ipld_encoding = "0.4.0"
 fvm_ipld_blockstore = "0.2.0"

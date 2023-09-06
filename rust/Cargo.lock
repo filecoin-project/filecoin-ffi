@@ -1326,7 +1326,7 @@ dependencies = [
  "filecoin-proofs-api 16.0.0",
  "filepath",
  "fr32 9.0.0",
- "fvm 2.5.0",
+ "fvm 2.6.0",
  "fvm 3.7.0",
  "fvm_ipld_blockstore",
  "fvm_ipld_encoding",
@@ -1597,9 +1597,9 @@ checksum = "e6d5a32815ae3f33302d95fdcb2ce17862f8c65363dcfd29360480ba1001fc9c"
 
 [[package]]
 name = "fvm"
-version = "2.5.0"
+version = "2.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "afc7bf5d6ae51aa1032001e65b074bcc06d8703835345d6ccbec14787bea4a74"
+checksum = "cd6e310e34d99d1b01d93463843a5b1ec5fdd96f5dfbd9b127d76e030acce8a3"
 dependencies = [
  "anyhow",
  "blake2b_simd",
