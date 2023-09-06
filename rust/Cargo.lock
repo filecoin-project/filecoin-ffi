@@ -1635,7 +1635,7 @@ dependencies = [
 [[package]]
 name = "fvm"
 version = "3.7.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=synthetic-porep#ec4e9f91b756bfe7786e9665b9ee4e661c5b0e2c"
+source = "git+https://github.com/filecoin-project/ref-fvm#da5d0e36ceab3a72cb4f099c83256b4e6f1f4259"
 dependencies = [
  "anyhow",
  "blake2b_simd",
@@ -1644,7 +1644,7 @@ dependencies = [
  "derive_more",
  "filecoin-proofs-api 16.0.0",
  "fvm-wasm-instrument 0.4.0",
- "fvm_ipld_amt 0.6.1 (git+https://github.com/filecoin-project/ref-fvm?branch=synthetic-porep)",
+ "fvm_ipld_amt 0.6.1 (git+https://github.com/filecoin-project/ref-fvm)",
  "fvm_ipld_blockstore",
  "fvm_ipld_encoding",
  "fvm_ipld_hamt 0.8.0",
@@ -1708,7 +1708,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_amt"
 version = "0.6.1"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=synthetic-porep#ec4e9f91b756bfe7786e9665b9ee4e661c5b0e2c"
+source = "git+https://github.com/filecoin-project/ref-fvm#da5d0e36ceab3a72cb4f099c83256b4e6f1f4259"
 dependencies = [
  "anyhow",
  "cid",
@@ -1723,7 +1723,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_blockstore"
 version = "0.2.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=synthetic-porep#ec4e9f91b756bfe7786e9665b9ee4e661c5b0e2c"
+source = "git+https://github.com/filecoin-project/ref-fvm#da5d0e36ceab3a72cb4f099c83256b4e6f1f4259"
 dependencies = [
  "anyhow",
  "cid",
@@ -1733,7 +1733,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_encoding"
 version = "0.4.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=synthetic-porep#ec4e9f91b756bfe7786e9665b9ee4e661c5b0e2c"
+source = "git+https://github.com/filecoin-project/ref-fvm#da5d0e36ceab3a72cb4f099c83256b4e6f1f4259"
 dependencies = [
  "anyhow",
  "cid",
@@ -1769,7 +1769,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_hamt"
 version = "0.8.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=synthetic-porep#ec4e9f91b756bfe7786e9665b9ee4e661c5b0e2c"
+source = "git+https://github.com/filecoin-project/ref-fvm#da5d0e36ceab3a72cb4f099c83256b4e6f1f4259"
 dependencies = [
  "anyhow",
  "byteorder",
@@ -1820,7 +1820,7 @@ dependencies = [
 [[package]]
 name = "fvm_shared"
 version = "3.5.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=synthetic-porep#ec4e9f91b756bfe7786e9665b9ee4e661c5b0e2c"
+source = "git+https://github.com/filecoin-project/ref-fvm#da5d0e36ceab3a72cb4f099c83256b4e6f1f4259"
 dependencies = [
  "anyhow",
  "bitflags 2.4.0",
