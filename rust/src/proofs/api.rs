@@ -150,6 +150,27 @@ fn seal_pre_commit_phase1(
     })
 }
 
+/// Runs the SDR process the same way as it would during PreCommit Phase 1.
+///
+/// The `output_dir` is the directory where the layer labels are stored. The `replica_id` is needed
+/// to make sure the output is unique.
+#[ffi_export]
+fn generate_sdr(
+    registered_proof: RegisteredSealProof,
+    output_dir: c_slice::Ref<u8>,
+    replica_id: &[u8; 32],
+) -> repr_c::Box<GenerateSdrResponse> {
+    catch_panic_response("generate_sdr", || {
+        seal::sdr(
+            registered_proof.into(),
+            as_path_buf(&output_dir)?,
+            (*replica_id).into(),
+        )?;
+
+        Ok(())
+    })
+}
+
 /// TODO: document
 #[ffi_export]
 fn seal_pre_commit_phase2(
@@ -171,6 +192,52 @@ fn seal_pre_commit_phase2(
             comm_d: output.comm_d,
             registered_proof: output.registered_proof.into(),
         })
+    })
+}
+
+/// Generates a TreeRLast the same way as during PreCommit Phase 2 and return the CommRLast.
+///
+/// The `replica_path` points to the sealed file. `output_dir` is where the TreeRLast should be
+/// stored. It's a directory as it may consist of serveral files.
+#[ffi_export]
+fn generate_tree_r_last(
+    registered_proof: RegisteredSealProof,
+    replica_path: c_slice::Ref<u8>,
+    output_dir: c_slice::Ref<u8>,
+) -> repr_c::Box<GenerateTreeRLastResponse> {
+    catch_panic_response("generate_tree_r_last", || {
+        let comm_r_last = seal::generate_tree_r_last(
+            registered_proof.into(),
+            as_path_buf(&replica_path)?,
+            as_path_buf(&output_dir)?,
+        )?;
+
+        Ok(comm_r_last)
+    })
+}
+
+/// Generates a TreeC the same way as during PreCommit Phase 2 and returns the CommC.
+///
+/// The `input_dir` is the directory where the label layers are stored, which were constructed
+/// during the SDR process (PreCommit Phase 1). No other data is needed.
+/// The `output_dir` is the directory where the resulting TreeC tree is stored (it may be split
+/// into several files).
+/// The `input_dir` and `output_dir` may point to the same directory. Usually that's the "cache
+/// directory".
+#[ffi_export]
+fn generate_tree_c(
+    registered_proof: RegisteredSealProof,
+    input_dir: c_slice::Ref<u8>,
+    output_dir: c_slice::Ref<u8>,
+) -> repr_c::Box<GenerateTreeCResponse> {
+    catch_panic_response("generate_tree_c", || {
+        let comm_c = seal::generate_tree_c(
+            registered_proof.into(),
+            as_path_buf(&input_dir)?,
+            as_path_buf(&output_dir)?,
+        )?;
+
+        Ok(comm_c)
     })
 }
 
@@ -224,6 +291,40 @@ fn seal_commit_phase2(
         let result = seal::seal_commit_phase2(scp1o, *prover_id, SectorId::from(sector_id))?;
 
         Ok(result.proof.into_boxed_slice().into())
+    })
+}
+
+/// TODO: document
+#[ffi_export]
+fn generate_synth_proofs(
+    registered_proof: RegisteredSealProof,
+    comm_r: &[u8; 32],
+    comm_d: &[u8; 32],
+    cache_dir_path: c_slice::Ref<u8>,
+    replica_path: c_slice::Ref<u8>,
+    sector_id: u64,
+    prover_id: &[u8; 32],
+    ticket: &[u8; 32],
+    pieces: c_slice::Ref<PublicPieceInfo>,
+) -> repr_c::Box<GenerateSynthProofsResponse> {
+    catch_panic_response("generate_synth_proofs", || {
+        let spcp2o = seal::SealPreCommitPhase2Output {
+            registered_proof: registered_proof.into(),
+            comm_r: *comm_r,
+            comm_d: *comm_d,
+        };
+
+        let public_pieces: Vec<PieceInfo> = pieces.iter().map(Into::into).collect();
+
+        seal::generate_synth_proofs(
+            as_path_buf(&cache_dir_path)?,
+            as_path_buf(&replica_path)?,
+            *prover_id,
+            SectorId::from(sector_id),
+            *ticket,
+            spcp2o,
+            &public_pieces,
+        )
     })
 }
 
@@ -830,6 +931,53 @@ fn empty_sector_update_decode_from(
     })
 }
 
+/// Decodes data from an empty sector upgraded replica (aka SnapDeals)
+///
+/// This function is similar to [`empty_sector_update_decode_from`], the difference is that it
+/// operates directly on the given file descriptions. The current position of the file descriptors
+/// is where the decoding starts, i.e. you need to seek to the intended offset before you call this
+/// funtion.
+///
+/// `nodes_count` is the total number the input file contains. It's the sector size in bytes
+/// divided by the field element size of 32 bytes.
+///
+/// `comm_d` is the commitment of the data that that was "snapped" into the sector. `comm_r` is
+/// the commitment of the sealed empty sector, before data was "snapped" into it.
+///
+/// `input_data` is a file descriptor of the data you want to decode from, the "snapped" sector.
+/// `sector_key_data` is a file descriptor that points to the sealed empty sector before it was
+/// "snapped" into. `output_data` is the file descriptor the decoded data should be written into.
+///
+/// `nodes_offset` is the offset relative to the beginning of the file, it's again in field
+/// elements and not in bytes. So if the `input_data` file descriptor was sought to a certain
+/// position, it's that offset. `nodes_offset` is about how many nodes should be decoded.
+#[ffi_export]
+unsafe fn empty_sector_update_decode_from_range(
+    registered_proof: RegisteredUpdateProof,
+    comm_d: &[u8; 32],
+    comm_r: &[u8; 32],
+    input_fd: libc::c_int,
+    sector_key_fd: libc::c_int,
+    output_fd: libc::c_int,
+    nodes_offset: u64,
+    num_nodes: u64,
+) -> repr_c::Box<EmptySectorUpdateDecodeFromRangeResponse> {
+    catch_panic_response("empty_sector_update_decode_from_range", || {
+        update::empty_sector_update_decode_from_range(
+            registered_proof.into(),
+            *comm_d,
+            *comm_r,
+            FileDescriptorRef::new(input_fd),
+            FileDescriptorRef::new(sector_key_fd),
+            &mut FileDescriptorRef::new(output_fd),
+            usize::try_from(nodes_offset)?,
+            usize::try_from(num_nodes)?,
+        )?;
+
+        Ok(())
+    })
+}
+
 /// TODO: document
 #[ffi_export]
 fn empty_sector_update_remove_encoded_data(
@@ -1052,6 +1200,26 @@ fn clear_cache(
     })
 }
 
+#[ffi_export]
+fn clear_synthetic_proofs(
+    sector_size: u64,
+    cache_dir_path: c_slice::Ref<u8>,
+) -> repr_c::Box<ClearCacheResponse> {
+    catch_panic_response("clear_synthetic_proofs", || {
+        seal::clear_synthetic_proofs(sector_size, &as_path_buf(&cache_dir_path)?)
+    })
+}
+
+#[ffi_export]
+fn clear_layer_data(
+    sector_size: u64,
+    cache_dir_path: c_slice::Ref<u8>,
+) -> repr_c::Box<ClearCacheResponse> {
+    catch_panic_response("clear_layer_data", || {
+        seal::clear_layer_data(sector_size, &as_path_buf(&cache_dir_path)?)
+    })
+}
+
 /// Returns the number of user bytes that will fit into a staged sector.
 #[ffi_export]
 fn get_max_user_bytes_per_staged_sector(registered_proof: RegisteredSealProof) -> u64 {
@@ -1207,10 +1375,16 @@ destructor!(
     destroy_seal_pre_commit_phase1_response,
     SealPreCommitPhase1Response
 );
+destructor!(destroy_generate_sdr_response, GenerateSdrResponse);
 destructor!(
     destroy_seal_pre_commit_phase2_response,
     SealPreCommitPhase2Response
 );
+destructor!(
+    destroy_generate_tree_r_last_response,
+    GenerateTreeRLastResponse
+);
+destructor!(destroy_generate_tree_c_response, GenerateTreeCResponse);
 destructor!(
     destroy_seal_commit_phase1_response,
     SealCommitPhase1Response
@@ -1275,6 +1449,11 @@ destructor!(
     destroy_generate_winning_post_sector_challenge,
     GenerateWinningPoStSectorChallenge
 );
+
+destructor!(
+    destroy_generate_synth_proofs_response,
+    GenerateSynthProofsResponse
+);
 destructor!(destroy_clear_cache_response, ClearCacheResponse);
 destructor!(destroy_aggregate_proof, AggregateProof);
 destructor!(
@@ -1300,6 +1479,10 @@ destructor!(
 destructor!(
     destroy_empty_sector_update_decode_from_response,
     EmptySectorUpdateDecodeFromResponse
+);
+destructor!(
+    destroy_empty_sector_update_decode_from_range_response,
+    EmptySectorUpdateDecodeFromRangeResponse
 );
 destructor!(
     destroy_empty_sector_update_remove_encoded_data_response,
@@ -1498,9 +1681,10 @@ pub mod tests {
         let versions = vec![
             RegisteredSealProof::StackedDrg2KiBV1,
             RegisteredSealProof::StackedDrg2KiBV1_1,
+            RegisteredSealProof::StackedDrg2KiBV1_1_Feat_SyntheticPoRep,
         ];
         for version in versions {
-            info!("test_sealing_versions[{:?}", version);
+            info!("test_sealing_versions[{:?}]", version);
             ensure!(
                 test_sealing_inner(version).is_ok(),
                 format!("failed to seal at version {:?}", version)
@@ -1615,11 +1799,6 @@ pub mod tests {
                 pieces[..].into(),
             );
 
-            if resp_b1.status_code != FCPResponseStatus::NoError {
-                let msg = str::from_utf8(&resp_b1.error_msg).unwrap();
-                panic!("seal_pre_commit_phase1 failed: {:?}", msg);
-            }
-
             let resp_b2 = seal_pre_commit_phase2(
                 resp_b1.as_ref(),
                 cache_dir_path_ref.into(),
@@ -1631,6 +1810,11 @@ pub mod tests {
                 panic!("seal_pre_commit_phase2 failed: {:?}", msg);
             }
 
+            if resp_b1.status_code != FCPResponseStatus::NoError {
+                let msg = str::from_utf8(&resp_b1.error_msg).unwrap();
+                panic!("seal_pre_commit_phase1 failed: {:?}", msg);
+            }
+
             let pre_computed_comm_d: &[u8; 32] = &resp_x;
             let pre_commit_comm_d: &[u8; 32] = &resp_b2.comm_d;
 
@@ -1639,6 +1823,41 @@ pub mod tests {
                 format!("{:x?}", pre_commit_comm_d),
                 "pre-computed CommD and pre-commit CommD don't match"
             );
+
+            // If we're using SyntheticPoRep -- generate the synthetic proofs here and clear the layer data.
+            if registered_proof_seal == RegisteredSealProof::StackedDrg2KiBV1_1_Feat_SyntheticPoRep
+            {
+                let resp_p1 = generate_synth_proofs(
+                    registered_proof_seal,
+                    &resp_b2.comm_r,
+                    &resp_b2.comm_d,
+                    cache_dir_path_ref.into(),
+                    sealed_path_ref.into(),
+                    sector_id,
+                    &prover_id,
+                    &ticket,
+                    pieces[..].into(),
+                );
+
+                if resp_p1.status_code != FCPResponseStatus::NoError {
+                    let msg = str::from_utf8(&resp_p1.error_msg).unwrap();
+                    panic!("generate_synth_proofs failed: {:?}", msg);
+                }
+
+                destroy_generate_synth_proofs_response(resp_p1);
+
+                let resp_clear = clear_layer_data(
+                    api::RegisteredSealProof::from(registered_proof_seal)
+                        .sector_size()
+                        .0,
+                    cache_dir_path_ref.into(),
+                );
+                if resp_clear.status_code != FCPResponseStatus::NoError {
+                    let msg = str::from_utf8(&resp_clear.error_msg).unwrap();
+                    panic!("clear_layer_data failed: {:?}", msg);
+                }
+                destroy_clear_cache_response(resp_clear);
+            }
 
             let resp_c1 = seal_commit_phase1(
                 registered_proof_seal,
@@ -1652,6 +1871,22 @@ pub mod tests {
                 &seed,
                 pieces[..].into(),
             );
+
+            // If we're using SyntheticPoRep -- remove the persisted synthetic proofs here.
+            if registered_proof_seal == RegisteredSealProof::StackedDrg2KiBV1_1_Feat_SyntheticPoRep
+            {
+                let resp_clear = clear_synthetic_proofs(
+                    api::RegisteredSealProof::from(registered_proof_seal)
+                        .sector_size()
+                        .0,
+                    cache_dir_path_ref.into(),
+                );
+                if resp_clear.status_code != FCPResponseStatus::NoError {
+                    let msg = str::from_utf8(&resp_clear.error_msg).unwrap();
+                    panic!("clear_synthetic_proofs failed: {:?}", msg);
+                }
+                destroy_clear_cache_response(resp_clear);
+            }
 
             if resp_c1.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_c1.error_msg).unwrap();
@@ -1972,6 +2207,18 @@ pub mod tests {
                 let msg = str::from_utf8(&resp_removed.error_msg).unwrap();
                 panic!("empty_sector_update_remove_encoded_data failed: {:?}", msg);
             }
+
+            let resp_clear = clear_cache(
+                api::RegisteredSealProof::from(registered_proof_seal)
+                    .sector_size()
+                    .0,
+                cache_dir_path_ref.into(),
+            );
+            if resp_clear.status_code != FCPResponseStatus::NoError {
+                let msg = str::from_utf8(&resp_clear.error_msg).unwrap();
+                panic!("clear_synthetic_proofs failed: {:?}", msg);
+            }
+            destroy_clear_cache_response(resp_clear);
 
             // When the data is removed, it MUST match the original sealed data.
             compare_elements(&removed_data_path, &sealed_path)?;
@@ -2507,11 +2754,11 @@ pub mod tests {
                 panic!("verify_window_post rejected the provided proof as invalid");
             }
 
-            destroy_merge_window_post_partition_proofs_response(merged_proof_resp);
-
             ////////////////////
             // Cleanup responses
             ////////////////////
+
+            destroy_merge_window_post_partition_proofs_response(merged_proof_resp);
 
             destroy_write_without_alignment_response(resp_a1);
             destroy_write_with_alignment_response(resp_a2);

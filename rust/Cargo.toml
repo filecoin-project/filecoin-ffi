@@ -18,11 +18,11 @@ publish = false
 crate-type = ["rlib", "staticlib"]
 
 [dependencies]
-bls-signatures = { version = "0.13.0", default-features = false, features = ["blst"] }
-blstrs = "0.6"
+bls-signatures = { version = "0.15.0", default-features = false, features = ["blst"] }
+blstrs = "0.7"
 byteorder = "1.4.3"
 filepath = "0.1.1"
-group = "0.12"
+group = "0.13"
 libc = "0.2.58"
 log = "0.4.7"
 fil_logger = "0.1.6"
@@ -31,12 +31,12 @@ rand_chacha = "0.3.1"
 rayon = "1.2.1"
 anyhow = "1.0.23"
 serde_json = "1.0.46"
-rust-gpu-tools = { version = "0.6", optional = true, default-features = false }
-fr32 = { version = "~6.0", default-features = false }
-fvm3 = { package = "fvm", version = "~3.7.0", default-features = false, features = ["nv21-dev"] }
-fvm3_shared = { package = "fvm_shared", version = "~3.5.0" }
-fvm2 = { package = "fvm", version = "~2.6", default-features = false }
-fvm2_shared = { package = "fvm_shared", version = "~2.5" }
+rust-gpu-tools = { version = "0.7", optional = true, default-features = false }
+fr32 = { version = "9.0.0", default-features = false }
+fvm3 = { package = "fvm", version = "~3.8.0", default-features = false, features = ["nv21-dev"] }
+fvm3_shared = { package = "fvm_shared", version = "~3.6.0" }
+fvm2 = { package = "fvm", version = "~2.7", default-features = false }
+fvm2_shared = { package = "fvm_shared", version = "~2.6" }
 fvm_ipld_encoding = "0.4.0"
 fvm_ipld_blockstore = "0.2.0"
 num-traits = "0.2.14"
@@ -45,11 +45,7 @@ lazy_static = "1.4.0"
 serde = "1.0.117"
 serde_tuple = "0.5"
 safer-ffi = { version = "0.0.7", features = ["proc_macros"] }
-
-[dependencies.filecoin-proofs-api]
-package = "filecoin-proofs-api"
-version = "14.0"
-default-features = false
+filecoin-proofs-api = { version = "16.0", default-features = false }
 
 [dev-dependencies]
 memmap2 = "0.5"
