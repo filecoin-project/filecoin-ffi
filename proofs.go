@@ -661,6 +661,53 @@ func ClearCache(sectorSize uint64, cacheDirPath string) error {
 	return cgo.ClearCache(sectorSize, cgo.AsSliceRefUint8([]byte(cacheDirPath)))
 }
 
+// ClearSyntheticProofs
+func ClearSyntheticProofs(sectorSize uint64, cacheDirPath string) error {
+	return cgo.ClearSyntheticProofs(sectorSize, cgo.AsSliceRefUint8([]byte(cacheDirPath)))
+}
+
+func ClearLayerData(sectorSize abi.SectorSize, cacheDirPath string) error {
+	return cgo.ClearLayerData(uint64(sectorSize), cgo.AsSliceRefUint8([]byte(cacheDirPath)))
+}
+
+func GenerateSynthProofs(
+	proofType abi.RegisteredSealProof,
+	sealedCID, unsealedCID cid.Cid,
+	cacheDirPath, replicaPath string,
+	sector_id abi.SectorNumber,
+	minerID abi.ActorID,
+	ticket []byte,
+	pieces []abi.PieceInfo,
+) error {
+	sp, err := toFilRegisteredSealProof(proofType)
+	if err != nil {
+		return err
+	}
+	filPublicPieceInfos, err := toFilPublicPieceInfos(pieces)
+	if err != nil {
+		return err
+	}
+	commR, err := to32ByteCommR(sealedCID)
+	if err != nil {
+		return err
+	}
+
+	commD, err := to32ByteCommD(unsealedCID)
+	if err != nil {
+		return err
+	}
+	proverID, err := toProverID(minerID)
+	if err != nil {
+		return err
+	}
+	return cgo.GenerateSynthProofs(sp,
+		commR, commD,
+		cgo.AsSliceRefUint8([]byte(cacheDirPath)), cgo.AsSliceRefUint8([]byte(replicaPath)),
+		uint64(sector_id),
+		proverID, cgo.AsByteArray32(ticket),
+		cgo.AsSliceRefPublicPieceInfo(filPublicPieceInfos))
+}
+
 func FauxRep(proofType abi.RegisteredSealProof, cacheDirPath string, sealedSectorPath string) (cid.Cid, error) {
 	sp, err := toFilRegisteredSealProof(proofType)
 	if err != nil {
@@ -975,6 +1022,18 @@ func toFilRegisteredSealProof(p abi.RegisteredSealProof) (cgo.RegisteredSealProo
 		return cgo.RegisteredSealProofStackedDrg32GiBV11, nil
 	case abi.RegisteredSealProof_StackedDrg64GiBV1_1:
 		return cgo.RegisteredSealProofStackedDrg64GiBV11, nil
+
+	case abi.RegisteredSealProof_StackedDrg2KiBV1_1_Feat_SyntheticPoRep:
+		return cgo.RegisteredSealProofStackedDrg2KiBV11_Feat_SyntheticPoRep, nil
+	case abi.RegisteredSealProof_StackedDrg8MiBV1_1_Feat_SyntheticPoRep:
+		return cgo.RegisteredSealProofStackedDrg8MiBV11_Feat_SyntheticPoRep, nil
+	case abi.RegisteredSealProof_StackedDrg512MiBV1_1_Feat_SyntheticPoRep:
+		return cgo.RegisteredSealProofStackedDrg512MiBV11_Feat_SyntheticPoRep, nil
+	case abi.RegisteredSealProof_StackedDrg32GiBV1_1_Feat_SyntheticPoRep:
+		return cgo.RegisteredSealProofStackedDrg32GiBV11_Feat_SyntheticPoRep, nil
+	case abi.RegisteredSealProof_StackedDrg64GiBV1_1_Feat_SyntheticPoRep:
+		return cgo.RegisteredSealProofStackedDrg64GiBV11_Feat_SyntheticPoRep, nil
+
 	default:
 		return 0, errors.Errorf("no mapping to C.FFIRegisteredSealProof value available for: %v", p)
 	}
