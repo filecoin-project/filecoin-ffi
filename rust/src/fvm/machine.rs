@@ -3,18 +3,18 @@ use std::convert::{TryFrom, TryInto};
 
 use anyhow::{anyhow, Context};
 use cid::Cid;
-use fvm3::executor::ApplyKind as ApplyKind3;
-use fvm3::gas::GasCharge;
-use fvm3::trace::ExecutionEvent;
-use fvm3_shared::address::Address;
-use fvm3_shared::MethodNum;
+use fvm4::executor::ApplyKind;
+use fvm4::gas::GasCharge;
+use fvm4::trace::ExecutionEvent;
+use fvm4_shared::address::Address;
+use fvm4_shared::MethodNum;
 use fvm_ipld_encoding::ipld_block::IpldBlock;
 use fvm_ipld_encoding::tuple::{Deserialize_tuple, Serialize_tuple};
 use fvm_ipld_encoding::{strict_bytes, to_vec, CborStore};
 
-use fvm3_shared::error::{ErrorNumber, ExitCode};
-use fvm3_shared::receipt::Receipt;
-use fvm3_shared::{econ::TokenAmount, message::Message};
+use fvm4_shared::error::{ErrorNumber, ExitCode};
+use fvm4_shared::receipt::Receipt;
+use fvm4_shared::{econ::TokenAmount, message::Message};
 use lazy_static::lazy_static;
 use log::info;
 use safer_ffi::prelude::*;
@@ -189,9 +189,9 @@ fn fvm_machine_execute_message(
 ) -> repr_c::Box<Result<FvmMachineExecuteResponse>> {
     catch_panic_response("fvm_machine_execute_message", || {
         let apply_kind = if apply_kind == 0 {
-            ApplyKind3::Explicit
+            ApplyKind::Explicit
         } else {
-            ApplyKind3::Implicit
+            ApplyKind::Implicit
         };
 
         let message: Message = fvm_ipld_encoding::from_slice(&message)?;
