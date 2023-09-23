@@ -502,14 +502,14 @@ fn build_lotus_trace(
 #[cfg(test)]
 mod test {
     use crate::fvm::machine::{build_lotus_trace, LotusGasCharge};
-    use fvm3::gas::Gas;
-    use fvm3::gas::GasCharge;
-    use fvm3::kernel::SyscallError;
-    use fvm3::trace::ExecutionEvent;
-    use fvm3_shared::address::Address;
-    use fvm3_shared::econ::TokenAmount;
-    use fvm3_shared::error::ErrorNumber::IllegalArgument;
-    use fvm3_shared::ActorID;
+    use fvm4::gas::Gas;
+    use fvm4::gas::GasCharge;
+    use fvm4::kernel::SyscallError;
+    use fvm4::trace::ExecutionEvent;
+    use fvm4_shared::address::Address;
+    use fvm4_shared::econ::TokenAmount;
+    use fvm4_shared::error::ErrorNumber::IllegalArgument;
+    use fvm4_shared::ActorID;
 
     #[test]
     fn test_lotus_trace() {
