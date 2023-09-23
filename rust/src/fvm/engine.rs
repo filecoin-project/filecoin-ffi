@@ -245,6 +245,7 @@ mod v4 {
 mod v3 {
     use anyhow::{anyhow, Context};
     use cid::Cid;
+    use fvm4_shared::event::{self, ActorEvent, Entry, StampedEvent};
     use num_traits::FromPrimitive;
     use std::sync::Mutex;
 
@@ -328,7 +329,7 @@ mod v3 {
                         exit_code: ExitCode::new(ret.msg_receipt.exit_code.value()),
                         return_data: ret.msg_receipt.return_data,
                         gas_used: ret.msg_receipt.gas_used,
-                        events_root: None,
+                        events_root: ret.msg_receipt.events_root,
                     },
                     penalty: TokenAmount::from_atto(ret.penalty.atto().clone()),
                     miner_tip: TokenAmount::from_atto(ret.miner_tip.atto().clone()),
@@ -423,10 +424,32 @@ mod v3 {
                                         .unwrap_or(ErrorNumber::AssertionFailed),
                                 )))
                             }
+                            ExecutionEvent3::InvokeActor(cid) => {
+                                Some(ExecutionEvent::InvokeActor(cid))
+                            }
                             _ => None,
                         })
                         .collect(),
-                    events: vec![],
+                    events: ret
+                        .events
+                        .into_iter()
+                        .map(|e| StampedEvent {
+                            emitter: e.emitter,
+                            event: ActorEvent {
+                                entries: e
+                                    .event
+                                    .entries
+                                    .into_iter()
+                                    .map(|e| Entry {
+                                        flags: event::Flags::from_bits_retain(e.flags.bits()),
+                                        key: e.key,
+                                        codec: e.codec,
+                                        value: e.value,
+                                    })
+                                    .collect(),
+                            },
+                        })
+                        .collect(),
                 }),
                 Err(x) => Err(x),
             }
