@@ -1154,12 +1154,12 @@ dependencies = [
  "fr32",
  "fvm 2.7.0",
  "fvm 3.8.0",
- "fvm 4.0.0-alpha.2",
+ "fvm 4.0.0-alpha.3",
  "fvm_ipld_blockstore",
  "fvm_ipld_encoding",
  "fvm_shared 2.6.0",
  "fvm_shared 3.6.0",
- "fvm_shared 4.0.0-alpha.2",
+ "fvm_shared 4.0.0-alpha.3",
  "group",
  "lazy_static",
  "libc",
@@ -1415,9 +1415,9 @@ dependencies = [
 
 [[package]]
 name = "fvm"
-version = "4.0.0-alpha.2"
+version = "4.0.0-alpha.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c6cb612a56eb37b1e36aa69de550b41f47cb7c482344af13a9aa7d54e1eb325f"
+checksum = "bda3c868d334b0615c62595e1260dc9481b82535eb6427d14434063d27eed965"
 dependencies = [
  "anyhow",
  "blake2b_simd",
@@ -1430,7 +1430,7 @@ dependencies = [
  "fvm_ipld_blockstore",
  "fvm_ipld_encoding",
  "fvm_ipld_hamt",
- "fvm_shared 4.0.0-alpha.2",
+ "fvm_shared 4.0.0-alpha.3",
  "lazy_static",
  "log",
  "minstant",
@@ -1598,9 +1598,9 @@ dependencies = [
 
 [[package]]
 name = "fvm_shared"
-version = "4.0.0-alpha.2"
+version = "4.0.0-alpha.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1dc4430d91e5269db5f32f8bb747810546e95485644c2d3ee432b7f6b15c7323"
+checksum = "e04c88cf61b42fd2492509f87d92e6757f60430cd7ee692f5fc0b9a94a14ae45"
 dependencies = [
  "anyhow",
  "bitflags 2.4.0",

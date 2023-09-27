@@ -268,7 +268,7 @@ mod v3 {
 
     use fvm4::call_manager::{backtrace::Backtrace, backtrace::Cause, backtrace::Frame};
     use fvm4::executor::{ApplyFailure, ApplyKind, ApplyRet};
-    use fvm4::gas::{Gas, GasCharge};
+    use fvm4::gas::{Gas, GasCharge, GasDuration};
     use fvm4::kernel::SyscallError;
 
     use fvm4::trace::ExecutionEvent;
@@ -389,9 +389,12 @@ mod v3 {
                                         charge.compute_gas.as_milligas(),
                                     ),
                                     other_gas: Gas::from_milligas(charge.other_gas.as_milligas()),
-                                    // TODO: There's no way to convert at the moment without a
-                                    // transmute.
-                                    elapsed: Default::default(),
+                                    elapsed: charge
+                                        .elapsed
+                                        .get()
+                                        .copied()
+                                        .map(GasDuration::from)
+                                        .unwrap_or_default(),
                                 }))
                             }
                             ExecutionEvent3::Call {
