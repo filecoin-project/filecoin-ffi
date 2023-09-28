@@ -163,6 +163,10 @@ build_from_source() {
     # Note that the cross compile works on x86_64 for m1, but doesn't work on m1.
     # For m1, we will build natively if building from source.
     if [ "$(uname -s)" = "Darwin" ] && [ "$(uname -m)" = "x86_64" ]; then
+        # Rustup only installs the correct versions for the current
+        # architecture you're on. As we cross-compile to aarch64, we need to
+        # make sure that toolchain is installes as well.
+        rustup target add aarch64-apple-darwin
         build="lipo"
         additional_flags="--targets x86_64-apple-darwin,aarch64-apple-darwin "
     else

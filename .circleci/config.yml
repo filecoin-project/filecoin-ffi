@@ -103,7 +103,6 @@ jobs:
       - prepare:
           linux: false
           darwin: true
-      - run: cd rust && rustup target add aarch64-apple-darwin
       - run: cd rust && cargo fetch
       - run: cd rust && cargo install cargo-lipo
       - build_project
