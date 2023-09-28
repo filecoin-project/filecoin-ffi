@@ -93,9 +93,9 @@ jobs:
 
   build_darwin_cgo_bindings:
     macos:
-      xcode: "12.5.1"
+      xcode: "13.4.1"
     working_directory: ~/go/src/github.com/filecoin-project/filecoin-ffi
-    resource_class: macos.x86.medium.gen2
+    resource_class: macos.m1.medium.gen1
     steps:
       - configure_environment_variables:
           linux: false
@@ -316,6 +316,7 @@ commands:
                 name: Add a few more environment variables
                 command: |
                   echo 'export PATH="${HOME}/.cargo/bin:${HOME}/.bin:${PATH}"' >> $BASH_ENV
+                  echo 'export LIBRARY_PATH=/opt/homebrew/lib' >> $BASH_ENV
   obtain_filecoin_parameters:
     steps:
       - run: |
