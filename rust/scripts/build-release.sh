@@ -37,7 +37,7 @@ main() {
         | cut -d ':' -f 3)
 
     echo "Linker Flags: ${__linker_flags}"
-    if [ "$(uname -s)" = "Darwin" ] && [ "$(uname -m)" = "x86_64" ]; then
+    if [ "$(uname -s)" = "Darwin" ]; then
         # With lipo enabled, this replacement may not be necessary,
         # but leaving it in doesn't hurt as it does nothing if not
         # needed
