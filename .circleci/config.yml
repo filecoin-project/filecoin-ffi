@@ -104,7 +104,6 @@ jobs:
           linux: false
           darwin: true
       - run: cd rust && cargo fetch
-      - run: cd rust && cargo install cargo-lipo
       - build_project
       - compile_tests
 
@@ -137,8 +136,8 @@ jobs:
       - publish_release
   publish_darwin_staticlib:
     macos:
-      xcode: "12.5.1"
-    resource_class: macos.x86.medium.gen2
+      xcode: "13.4.1"
+    resource_class: macos.m1.medium.gen1
     steps:
       - configure_environment_variables:
           linux: false
@@ -146,9 +145,8 @@ jobs:
       - prepare:
           linux: false
           darwin: true
-      - run: cd rust && rustup target add aarch64-apple-darwin
+      - run: cd rust && rustup target add x86_64-apple-darwin
       - run: cd rust && cargo fetch
-      - run: cd rust && cargo install cargo-lipo
       - publish_darwin_release
   rustfmt:
     docker:
@@ -283,7 +281,7 @@ commands:
             TARBALL_PATH="/tmp/${RELEASE_NAME}.tar.gz"
 
             # Note: the blst dependency uses the portable configuration for maximum compatibility
-            ./scripts/build-release.sh lipo --targets x86_64-apple-darwin,aarch64-apple-darwin --verbose --no-default-features --features multicore-sdr,opencl,blst-portable
+            ./scripts/build-release.sh lipo --verbose --no-default-features --features multicore-sdr,opencl,blst-portable
             ./scripts/package-release.sh $TARBALL_PATH
             ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
   configure_environment_variables:

@@ -158,17 +158,15 @@ build_from_source() {
 
     cargo --version
 
-    additional_flags=""
-    # For building on Darwin, we try to use cargo-lipo instead of cargo build.
-    # Note that the cross compile works on x86_64 for m1, but doesn't work on m1.
-    # For m1, we will build natively if building from source.
+    # In the past we were only able to build universal binaries on x86_64,
+    # for now we just keep that behaviour. This means that on aarch64 (e.g.
+    # Apple M1) it's a native, non-universal binary.
     if [ "$(uname -s)" = "Darwin" ] && [ "$(uname -m)" = "x86_64" ]; then
         # Rustup only installs the correct versions for the current
         # architecture you're on. As we cross-compile to aarch64, we need to
         # make sure that toolchain is installes as well.
         rustup target add aarch64-apple-darwin
         build="lipo"
-        additional_flags="--targets x86_64-apple-darwin,aarch64-apple-darwin "
     else
         build="build"
     fi
@@ -226,6 +224,7 @@ build_from_source() {
         use_fixed_rows_to_discard=",fixed-rows-to-discard"
     fi
 
+    additional_flags=""
     # Add feature specific rust flags as needed here.
     if [ "${FFI_USE_BLST_PORTABLE}" == "1" ]; then
         additional_flags="${additional_flags} --no-default-features --features ${use_multicore_sdr},blst-portable${gpu_flags}${use_fixed_rows_to_discard}"
