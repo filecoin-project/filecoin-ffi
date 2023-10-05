@@ -26,7 +26,7 @@ main() {
 
     # shellcheck disable=SC2068 # the rest of the parameters should be split
     RUSTFLAGS="${__rust_flags}" \
-        cargo "${__action}" \
+        cargo build \
         --release --locked ${@:2} 2>&1 | tee ${__build_output_log_tmp}
 
     # parse build output for linker flags
@@ -37,16 +37,37 @@ main() {
         | cut -d ':' -f 3)
 
     echo "Linker Flags: ${__linker_flags}"
-    if [ "$(uname -s)" = "Darwin" ] && [ "$(uname -m)" = "x86_64" ]; then
+    # Build a universal binary when `lipo` is enabled, independent of which
+    # architecture we are on.
+    if [ "${__action}" = "lipo" ]; then
         # With lipo enabled, this replacement may not be necessary,
         # but leaving it in doesn't hurt as it does nothing if not
         # needed
         __linker_flags=$(echo ${__linker_flags} | sed 's/-lOpenCL/-framework OpenCL/g')
         echo "Using Linker Flags: ${__linker_flags}"
 
+        # Build again for the other architecture.
+        if [ "$(uname -m)" = "x86_64" ]; then
+            __target="aarch64-apple-darwin"
+        else
+            __target="x86_64-apple-darwin"
+        fi
+
+        # shellcheck disable=SC2068 # the rest of the parameters should be split
+        RUSTFLAGS="${__rust_flags}" \
+            cargo build \
+            --release --locked --target ${__target} ${@:2} 2>&1 \
+            | tee ${__build_output_log_tmp}
+
+        # Create the universal binary/
+        lipo -create -output libfilcrypto.a \
+            target/release/libfilcrypto.a \
+            target/${__target}/release/libfilcrypto.a
+
         find . -type f -name "libfilcrypto.a"
         rm -f ./target/aarch64-apple-darwin/release/libfilcrypto.a
         rm -f ./target/x86_64-apple-darwin/release/libfilcrypto.a
+        rm -f ./target/release/libfilcrypto.a
         echo "Eliminated non-universal binary libraries"
         find . -type f -name "libfilcrypto.a"
     fi

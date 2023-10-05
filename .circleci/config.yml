@@ -93,9 +93,9 @@ jobs:
 
   build_darwin_cgo_bindings:
     macos:
-      xcode: "12.5.1"
+      xcode: "13.4.1"
     working_directory: ~/go/src/github.com/filecoin-project/filecoin-ffi
-    resource_class: macos.x86.medium.gen2
+    resource_class: macos.m1.medium.gen1
     steps:
       - configure_environment_variables:
           linux: false
@@ -104,7 +104,6 @@ jobs:
           linux: false
           darwin: true
       - run: cd rust && cargo fetch
-      - run: cd rust && cargo install cargo-lipo
       - build_project
       - compile_tests
 
@@ -137,8 +136,8 @@ jobs:
       - publish_release
   publish_darwin_staticlib:
     macos:
-      xcode: "12.5.1"
-    resource_class: macos.x86.medium.gen2
+      xcode: "13.4.1"
+    resource_class: macos.m1.medium.gen1
     steps:
       - configure_environment_variables:
           linux: false
@@ -146,9 +145,8 @@ jobs:
       - prepare:
           linux: false
           darwin: true
-      - run: cd rust && rustup target add aarch64-apple-darwin
+      - run: cd rust && rustup target add x86_64-apple-darwin
       - run: cd rust && cargo fetch
-      - run: cd rust && cargo install cargo-lipo
       - publish_darwin_release
   rustfmt:
     docker:
@@ -234,7 +232,7 @@ commands:
             - run:
                 name: Install Go
                 command: |
-                  curl https://dl.google.com/go/go1.17.9.darwin-amd64.pkg -o /tmp/go.pkg && \
+                  curl https://dl.google.com/go/go1.17.9.darwin-arm64.pkg -o /tmp/go.pkg && \
                   sudo installer -pkg /tmp/go.pkg -target /
                   go version
             - run:
@@ -283,7 +281,7 @@ commands:
             TARBALL_PATH="/tmp/${RELEASE_NAME}.tar.gz"
 
             # Note: the blst dependency uses the portable configuration for maximum compatibility
-            ./scripts/build-release.sh lipo --targets x86_64-apple-darwin,aarch64-apple-darwin --verbose --no-default-features --features multicore-sdr,opencl,blst-portable
+            ./scripts/build-release.sh lipo --verbose --no-default-features --features multicore-sdr,opencl,blst-portable
             ./scripts/package-release.sh $TARBALL_PATH
             ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
   configure_environment_variables:
@@ -316,6 +314,7 @@ commands:
                 name: Add a few more environment variables
                 command: |
                   echo 'export PATH="${HOME}/.cargo/bin:${HOME}/.bin:${PATH}"' >> $BASH_ENV
+                  echo 'export LIBRARY_PATH=/opt/homebrew/lib' >> $BASH_ENV
   obtain_filecoin_parameters:
     steps:
       - run: |
