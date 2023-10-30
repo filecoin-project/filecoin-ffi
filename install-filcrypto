@@ -208,11 +208,19 @@ build_from_source() {
         use_multicore_sdr=""
     fi
 
+    # By default the number or rows to discard of the TreeRLast can be set via
+    # `FIL_PROOFS_ROWS_TO_DISCARD`. When SupraSeal PC2 is used, then this
+    # number is fixed.
+    use_fixed_rows_to_discard=""
+    if [ "${FFI_USE_FIXED_ROWS_TO_DISCARD}" == "1" ]; then
+        use_fixed_rows_to_discard=",fixed-rows-to-discard"
+    fi
+
     # Add feature specific rust flags as needed here.
     if [ "${FFI_USE_BLST_PORTABLE}" == "1" ]; then
-        additional_flags="${additional_flags} --no-default-features --features ${use_multicore_sdr},blst-portable${gpu_flags}"
+        additional_flags="${additional_flags} --no-default-features --features ${use_multicore_sdr},blst-portable${gpu_flags}${use_fixed_rows_to_discard}"
     else
-        additional_flags="${additional_flags} --no-default-features --features ${use_multicore_sdr}${gpu_flags}"
+        additional_flags="${additional_flags} --no-default-features --features ${use_multicore_sdr}${gpu_flags}${use_fixed_rows_to_discard}"
     fi
 
     echo "Using additional build flags: ${additional_flags}"

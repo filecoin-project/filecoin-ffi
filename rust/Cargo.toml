@@ -47,7 +47,7 @@ lazy_static = "1.4.0"
 serde = "1.0.117"
 serde_tuple = "0.5"
 safer-ffi = { version = "0.0.7", features = ["proc_macros"] }
-filecoin-proofs-api = { version = "16.0", default-features = false }
+filecoin-proofs-api = { version = "16.1", default-features = false }
 
 [dev-dependencies]
 memmap2 = "0.5"
@@ -61,3 +61,6 @@ cuda-supraseal = ["filecoin-proofs-api/cuda-supraseal", "rust-gpu-tools/cuda", "
 opencl = ["filecoin-proofs-api/opencl", "rust-gpu-tools/opencl", "fvm2/opencl", "fvm3/opencl", "fvm4/opencl"]
 multicore-sdr = ["filecoin-proofs-api/multicore-sdr"]
 c-headers = ["safer-ffi/headers"]
+# This feature enables a fixed number of discarded rows for TreeR. The `FIL_PROOFS_ROWS_TO_DISCARD`
+# setting is ignored, no `TemporaryAux` file will be written.
+fixed-rows-to-discard = ["filecoin-proofs-api/fixed-rows-to-discard"]
