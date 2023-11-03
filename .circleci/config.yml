@@ -6,7 +6,7 @@ orbs:
 executors:
   golang:
     docker:
-      - image: cimg/go:1.18
+      - image: cimg/go:1.20
     resource_class: small
     environment:
       # Build the kernel only for the single architecture. This should reduce
@@ -56,7 +56,7 @@ jobs:
         type: boolean
         default: true
     machine:
-      image: ubuntu-2204:current
+      image: ubuntu-2204:2023.07.2
     resource_class: arm.large
     working_directory: ~/go/src/github.com/filecoin-project/filecoin-ffi
     steps:
@@ -234,7 +234,7 @@ commands:
             - run:
                 name: Install Go
                 command: |
-                  curl https://dl.google.com/go/go1.17.9.darwin-amd64.pkg -o /tmp/go.pkg && \
+                  curl https://dl.google.com/go/go1.20.10.darwin-amd64.pkg -o /tmp/go.pkg && \
                   sudo installer -pkg /tmp/go.pkg -target /
                   go version
             - run:

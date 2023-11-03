@@ -91,7 +91,7 @@ type PoStProofGo struct {
 	Proof           []byte
 }
 
-/// FvmMachineExecuteResponse is a go allocated version of `FvmMachineExecuteResponse`.
+// FvmMachineExecuteResponse is a go allocated version of `FvmMachineExecuteResponse`.
 type FvmMachineExecuteResponseGo struct {
 	ExitCode             uint64
 	ReturnVal            []byte
