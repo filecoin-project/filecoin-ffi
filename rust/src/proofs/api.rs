@@ -1210,16 +1210,6 @@ fn clear_synthetic_proofs(
     })
 }
 
-#[ffi_export]
-fn clear_layer_data(
-    sector_size: u64,
-    cache_dir_path: c_slice::Ref<u8>,
-) -> repr_c::Box<ClearCacheResponse> {
-    catch_panic_response("clear_layer_data", || {
-        seal::clear_layer_data(sector_size, &as_path_buf(&cache_dir_path)?)
-    })
-}
-
 /// Returns the number of user bytes that will fit into a staged sector.
 #[ffi_export]
 fn get_max_user_bytes_per_staged_sector(registered_proof: RegisteredSealProof) -> u64 {
@@ -1846,7 +1836,7 @@ pub mod tests {
 
                 destroy_generate_synth_proofs_response(resp_p1);
 
-                let resp_clear = clear_layer_data(
+                let resp_clear = clear_cache(
                     api::RegisteredSealProof::from(registered_proof_seal)
                         .sector_size()
                         .0,
@@ -1854,7 +1844,7 @@ pub mod tests {
                 );
                 if resp_clear.status_code != FCPResponseStatus::NoError {
                     let msg = str::from_utf8(&resp_clear.error_msg).unwrap();
-                    panic!("clear_layer_data failed: {:?}", msg);
+                    panic!("clear_cache failed: {:?}", msg);
                 }
                 destroy_clear_cache_response(resp_clear);
             }

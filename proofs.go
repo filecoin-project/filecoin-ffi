@@ -666,10 +666,6 @@ func ClearSyntheticProofs(sectorSize uint64, cacheDirPath string) error {
 	return cgo.ClearSyntheticProofs(sectorSize, cgo.AsSliceRefUint8([]byte(cacheDirPath)))
 }
 
-func ClearLayerData(sectorSize abi.SectorSize, cacheDirPath string) error {
-	return cgo.ClearLayerData(uint64(sectorSize), cgo.AsSliceRefUint8([]byte(cacheDirPath)))
-}
-
 func GenerateSynthProofs(
 	proofType abi.RegisteredSealProof,
 	sealedCID, unsealedCID cid.Cid,
