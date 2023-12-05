@@ -213,7 +213,7 @@ fn fvm_machine_execute_message(
                     Some(ExecutionEvent::Call {
                         from,
                         to,
-                        method,
+                        entrypoint: fvm4::call_manager::Entrypoint::Invoke(method),
                         params,
                         value,
                         gas_limit,
@@ -229,7 +229,7 @@ fn fvm_machine_execute_message(
                             read_only,
                             &mut initial_gas_charges.into_iter().chain(&mut trace_iter),
                         )
-                        .ok()
+                        .ok();
                     }
                     // Skip anything unexpected.
                     Some(_) => {}
@@ -433,7 +433,7 @@ fn build_lotus_trace(
             ExecutionEvent::Call {
                 from,
                 to,
-                method,
+                entrypoint: fvm4::call_manager::Entrypoint::Invoke(method),
                 params,
                 value,
                 gas_limit,
@@ -502,6 +502,7 @@ fn build_lotus_trace(
 #[cfg(test)]
 mod test {
     use crate::fvm::machine::{build_lotus_trace, LotusGasCharge};
+    use fvm4::call_manager::Entrypoint;
     use fvm4::gas::Gas;
     use fvm4::gas::GasCharge;
     use fvm4::kernel::SyscallError;
@@ -515,7 +516,7 @@ mod test {
     fn test_lotus_trace() {
         let call_event = ExecutionEvent::Call {
             from: ActorID::default(),
-            method: 0,
+            entrypoint: Entrypoint::Invoke(0),
             params: None,
             to: Address::new_id(0),
             value: TokenAmount::default(),

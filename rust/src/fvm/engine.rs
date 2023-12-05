@@ -266,7 +266,9 @@ mod v3 {
         message::Message as Message3,
     };
 
-    use fvm4::call_manager::{backtrace::Backtrace, backtrace::Cause, backtrace::Frame};
+    use fvm4::call_manager::{
+        backtrace::Backtrace, backtrace::Cause, backtrace::Frame, Entrypoint,
+    };
     use fvm4::executor::{ApplyFailure, ApplyKind, ApplyRet};
     use fvm4::gas::{Gas, GasCharge, GasDuration};
     use fvm4::kernel::SyscallError;
@@ -348,7 +350,7 @@ mod v3 {
                                     .into_iter()
                                     .map(|f| Frame {
                                         source: f.source,
-                                        method: f.method,
+                                        entrypoint: Entrypoint::Invoke(f.method),
                                         code: ExitCode::new(f.code.value()),
                                         message: f.message,
                                     })
@@ -411,7 +413,7 @@ mod v3 {
                                     // There's nothing we can do here, so we use the "chaos" actor
                                     // ID.
                                     .unwrap_or_else(|_| Address::new_id(98)),
-                                method,
+                                entrypoint: Entrypoint::Invoke(method),
                                 params,
                                 value: TokenAmount::from_atto(value.atto().clone()),
                                 gas_limit,
@@ -531,6 +533,7 @@ mod v2 {
         address::Address as Address2, clock::ChainEpoch as ChainEpoch2,
         econ::TokenAmount as TokenAmount2, message::Message as Message2,
     };
+    use fvm4::call_manager::Entrypoint::Invoke;
     use fvm4::call_manager::{backtrace::Backtrace, backtrace::Cause, backtrace::Frame};
     use fvm4::executor::{ApplyFailure, ApplyKind, ApplyRet};
     use fvm4::gas::{Gas, GasCharge};
@@ -626,7 +629,7 @@ mod v2 {
                                     .into_iter()
                                     .map(|f| Frame {
                                         source: f.source,
-                                        method: f.method,
+                                        entrypoint: Invoke(f.method),
                                         code: ExitCode::new(f.code.value()),
                                         message: f.message,
                                     })
@@ -696,7 +699,7 @@ mod v2 {
                                     // There's nothing we can do here, so we use the "chaos" actor
                                     // ID.
                                     .unwrap_or_else(|_| Address::new_id(98)),
-                                method,
+                                entrypoint: Invoke(method),
                                 params: bytes_to_block(params),
                                 value: TokenAmount::from_atto(value.atto().clone()),
                                 gas_limit: msg.gas_limit,
