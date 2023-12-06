@@ -1,10 +1,9 @@
 use std::fs;
 
 use blstrs::Scalar as Fr;
-use filecoin_proofs_api::seal;
 use filecoin_proofs_api::{
-    self as api, update, PieceInfo, SectorId, StorageProofsError, UnpaddedByteIndex,
-    UnpaddedBytesAmount,
+    self as api, seal, update, EmptySectorUpdateProof, PieceInfo, SectorId,
+    SectorUpdateProofInputs, StorageProofsError, UnpaddedByteIndex, UnpaddedBytesAmount,
 };
 use rayon::prelude::*;
 use safer_ffi::prelude::*;
@@ -355,10 +354,10 @@ fn aggregate_seal_proofs(
 }
 
 /// Retrieves the seal inputs based on the provided input, used for aggregation verification.
-fn convert_aggregation_inputs(
+fn convert_seal_aggregation_inputs(
     registered_proof: RegisteredSealProof,
     prover_id: &[u8; 32],
-    input: &AggregationInputs,
+    input: &SealAggregationInputs,
 ) -> anyhow::Result<Vec<Vec<Fr>>> {
     seal::get_seal_inputs(
         registered_proof.into(),
@@ -378,12 +377,12 @@ fn verify_aggregate_seal_proof(
     registered_aggregation: RegisteredAggregationProof,
     prover_id: &[u8; 32],
     proof: c_slice::Ref<u8>,
-    commit_inputs: c_slice::Ref<AggregationInputs>,
+    commit_inputs: c_slice::Ref<SealAggregationInputs>,
 ) -> repr_c::Box<VerifyAggregateSealProofResponse> {
     catch_panic_response("verify_aggregate_seal_proof", || {
         let inputs: Vec<Vec<Fr>> = commit_inputs
             .par_iter()
-            .map(|input| convert_aggregation_inputs(registered_proof, prover_id, input))
+            .map(|input| convert_seal_aggregation_inputs(registered_proof, prover_id, input))
             .try_reduce(Vec::new, |mut acc, current| {
                 acc.extend(current);
                 Ok(acc)
@@ -400,6 +399,93 @@ fn verify_aggregate_seal_proof(
             proof_bytes,
             &comm_rs,
             &seeds,
+            inputs,
+        )?;
+
+        Ok(result)
+    })
+}
+
+#[ffi_export]
+fn aggregate_empty_sector_update_proofs(
+    registered_proof: RegisteredUpdateProof,
+    registered_aggregation: RegisteredAggregationProof,
+    sector_update_inputs: c_slice::Ref<SectorUpdateAggregationInputs>,
+    sector_update_proofs: c_slice::Ref<c_slice::Box<u8>>,
+) -> repr_c::Box<AggregateProof> {
+    catch_panic_response("aggregate_empty_sector_update_proofs", || {
+        let proofs: Vec<_> = sector_update_proofs
+            .iter()
+            .map(|sector_update_proof| EmptySectorUpdateProof(sector_update_proof.to_vec()))
+            .collect();
+
+        //let public_pieces: Vec<PieceInfo> = pieces.iter().map(Into::into).collect();
+        let inputs: Vec<SectorUpdateProofInputs> = sector_update_inputs
+            .iter()
+            .map(|input| SectorUpdateProofInputs {
+                comm_r_old: input.comm_r_old,
+                comm_r_new: input.comm_r_new,
+                comm_d_new: input.comm_d_new,
+            })
+            .collect();
+
+        let result = update::aggregate_empty_sector_update_proofs(
+            registered_proof.into(),
+            registered_aggregation.into(),
+            &inputs,
+            &proofs,
+        )?;
+
+        Ok(result.into_boxed_slice().into())
+    })
+}
+
+/// Retrieves the empty_sector_update inputs based on the provided input, used for aggregation verification.
+fn convert_empty_sector_update_aggregation_inputs(
+    registered_proof: RegisteredUpdateProof,
+    input: &SectorUpdateAggregationInputs,
+) -> anyhow::Result<Vec<Vec<Fr>>> {
+    update::get_sector_update_inputs(
+        registered_proof.into(),
+        input.comm_r_old,
+        input.comm_r_new,
+        input.comm_d_new,
+    )
+}
+
+/// Verifies the output of an aggregated seal.
+#[ffi_export]
+fn verify_aggregate_empty_sector_update_proof(
+    registered_proof: RegisteredUpdateProof,
+    registered_aggregation: RegisteredAggregationProof,
+    proof: c_slice::Ref<u8>,
+    sector_update_inputs: c_slice::Ref<SectorUpdateAggregationInputs>,
+) -> repr_c::Box<VerifyAggregateSealProofResponse> {
+    catch_panic_response("verify_aggregate_empty_sector_update_proof", || {
+        let inputs: Vec<Vec<Fr>> = sector_update_inputs
+            .par_iter()
+            .map(|input| convert_empty_sector_update_aggregation_inputs(registered_proof, input))
+            .try_reduce(Vec::new, |mut acc, current| {
+                acc.extend(current);
+                Ok(acc)
+            })?;
+
+        let proof_bytes: Vec<u8> = proof.to_vec();
+
+        let converted_sector_update_inputs: Vec<SectorUpdateProofInputs> = sector_update_inputs
+            .iter()
+            .map(|input| SectorUpdateProofInputs {
+                comm_r_old: input.comm_r_old,
+                comm_r_new: input.comm_r_new,
+                comm_d_new: input.comm_d_new,
+            })
+            .collect();
+
+        let result = update::verify_aggregate_empty_sector_update_proofs(
+            registered_proof.into(),
+            registered_aggregation.into(),
+            proof_bytes,
+            &converted_sector_update_inputs,
             inputs,
         )?;
 
@@ -3206,15 +3292,15 @@ pub mod tests {
                 );
             }
 
-            let inputs: Vec<AggregationInputs> = vec![
-                AggregationInputs {
+            let inputs: Vec<SealAggregationInputs> = vec![
+                SealAggregationInputs {
                     comm_r: resp_b2.comm_r,
                     comm_d: resp_b2.comm_d,
                     sector_id,
                     ticket,
                     seed,
                 },
-                AggregationInputs {
+                SealAggregationInputs {
                     comm_r: resp_b2.comm_r,
                     comm_d: resp_b2.comm_d,
                     sector_id,

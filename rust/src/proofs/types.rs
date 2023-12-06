@@ -486,12 +486,21 @@ pub type SealCommitPhase2Response = Result<c_slice::Box<u8>>;
 #[derive_ReprC]
 #[repr(C)]
 #[derive(Clone, Default)]
-pub struct AggregationInputs {
+pub struct SealAggregationInputs {
     pub comm_r: [u8; 32],
     pub comm_d: [u8; 32],
     pub sector_id: u64,
     pub ticket: [u8; 32],
     pub seed: [u8; 32],
+}
+
+#[derive_ReprC]
+#[repr(C)]
+#[derive(Clone, Default)]
+pub struct SectorUpdateAggregationInputs {
+    pub comm_r_old: [u8; 32],
+    pub comm_r_new: [u8; 32],
+    pub comm_d_new: [u8; 32],
 }
 
 pub type UnsealRangeResponse = Result<()>;
