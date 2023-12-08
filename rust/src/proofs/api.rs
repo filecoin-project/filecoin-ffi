@@ -419,7 +419,6 @@ fn aggregate_empty_sector_update_proofs(
             .map(|sector_update_proof| EmptySectorUpdateProof(sector_update_proof.to_vec()))
             .collect();
 
-        //let public_pieces: Vec<PieceInfo> = pieces.iter().map(Into::into).collect();
         let inputs: Vec<SectorUpdateProofInputs> = sector_update_inputs
             .iter()
             .map(|input| SectorUpdateProofInputs {
@@ -1484,6 +1483,10 @@ destructor!(
     destroy_verify_aggregate_seal_response,
     VerifyAggregateSealProofResponse
 );
+destructor!(
+    destroy_verify_aggregate_empty_sector_update_response,
+    VerifyAggregateEmptySectorUpdateProofResponse
+);
 destructor!(destroy_finalize_ticket_response, FinalizeTicketResponse);
 destructor!(
     destroy_verify_winning_post_response,
@@ -2231,6 +2234,56 @@ pub mod tests {
                 let msg = str::from_utf8(&resp_verify_empty_sector_update2.error_msg).unwrap();
                 panic!("verify_empty_sector_update_proof failed: {:?}", msg);
             }
+
+            // Test aggregating both of the generated empty sector update proofs together
+            let sector_update_inputs: Vec<SectorUpdateAggregationInputs> = vec![
+                SectorUpdateAggregationInputs {
+                    comm_r_old: resp_b2.comm_r,
+                    comm_r_new: resp_encode.comm_r_new,
+                    comm_d_new: resp_encode.comm_d_new,
+                },
+                SectorUpdateAggregationInputs {
+                    comm_r_old: resp_b2.comm_r,
+                    comm_r_new: resp_encode.comm_r_new,
+                    comm_d_new: resp_encode.comm_d_new,
+                },
+            ];
+            let sector_update_proofs = vec![
+                resp_empty_sector_update.value.clone(),
+                resp_empty_sector_update2.value.clone(),
+            ];
+
+            let resp_aggregate_empty_sector_update_proof = aggregate_empty_sector_update_proofs(
+                registered_proof_empty_sector_update,
+                RegisteredAggregationProof::SnarkPackV2,
+                sector_update_inputs[..].into(),
+                sector_update_proofs[..].into(),
+            );
+
+            if resp_aggregate_empty_sector_update_proof.status_code != FCPResponseStatus::NoError {
+                panic!(
+                    "aggregate_empty_sector_update_proofs failed: {}",
+                    str::from_utf8(&resp_aggregate_empty_sector_update_proof.error_msg).unwrap()
+                );
+            }
+
+            let resp_verify_agg = verify_aggregate_empty_sector_update_proof(
+                registered_proof_empty_sector_update,
+                RegisteredAggregationProof::SnarkPackV2,
+                resp_aggregate_empty_sector_update_proof.as_ref(),
+                sector_update_inputs[..].into(),
+            );
+
+            if resp_verify_agg.status_code != FCPResponseStatus::NoError {
+                let msg = str::from_utf8(&resp_verify_agg.error_msg).unwrap();
+                panic!(
+                    "verify_aggregate_empty_sector_update_proof failed: {:?}",
+                    msg
+                );
+            }
+
+            destroy_aggregate_proof(resp_aggregate_empty_sector_update_proof);
+            destroy_verify_aggregate_empty_sector_update_response(resp_verify_agg);
 
             // Set the new_decoded_file length to the same as the
             // original sealed file length (required for the API, but

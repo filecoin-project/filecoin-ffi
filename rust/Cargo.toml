@@ -48,7 +48,7 @@ serde = "1.0.117"
 serde_tuple = "0.5"
 safer-ffi = { version = "0.0.7", features = ["proc_macros"] }
 #filecoin-proofs-api = { version = "16.1", default-features = false }
-filecoin-proofs-api = { path = "/home/nemo/pl/rust-filecoin-proofs-api", default-features = false }
+filecoin-proofs-api = { git = "https://github.com/filecoin-project/rust-filecoin-proofs-api", branch = "supersnaps", default-features = false }
 
 [dev-dependencies]
 memmap2 = "0.5"

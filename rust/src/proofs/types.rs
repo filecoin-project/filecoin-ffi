@@ -508,6 +508,7 @@ pub type UnsealRangeResponse = Result<()>;
 pub type VerifySealResponse = Result<bool>;
 
 pub type VerifyAggregateSealProofResponse = Result<bool>;
+pub type VerifyAggregateEmptySectorUpdateProofResponse = Result<bool>;
 
 pub type VerifyWinningPoStResponse = Result<bool>;
 
