@@ -494,11 +494,21 @@ pub struct AggregationInputs {
     pub seed: [u8; 32],
 }
 
+#[derive_ReprC]
+#[repr(C)]
+#[derive(Clone, Default)]
+pub struct SectorUpdateAggregationInputs {
+    pub comm_r_old: [u8; 32],
+    pub comm_r_new: [u8; 32],
+    pub comm_d_new: [u8; 32],
+}
+
 pub type UnsealRangeResponse = Result<()>;
 
 pub type VerifySealResponse = Result<bool>;
 
 pub type VerifyAggregateSealProofResponse = Result<bool>;
+pub type VerifyAggregateEmptySectorUpdateProofResponse = Result<bool>;
 
 pub type VerifyWinningPoStResponse = Result<bool>;
 

@@ -1,10 +1,9 @@
 use std::fs;
 
 use blstrs::Scalar as Fr;
-use filecoin_proofs_api::seal;
 use filecoin_proofs_api::{
-    self as api, update, PieceInfo, SectorId, StorageProofsError, UnpaddedByteIndex,
-    UnpaddedBytesAmount,
+    self as api, seal, update, EmptySectorUpdateProof, PieceInfo, SectorId,
+    SectorUpdateProofInputs, StorageProofsError, UnpaddedByteIndex, UnpaddedBytesAmount,
 };
 use rayon::prelude::*;
 use safer_ffi::prelude::*;
@@ -355,7 +354,7 @@ fn aggregate_seal_proofs(
 }
 
 /// Retrieves the seal inputs based on the provided input, used for aggregation verification.
-fn convert_aggregation_inputs(
+fn convert_seal_aggregation_inputs(
     registered_proof: RegisteredSealProof,
     prover_id: &[u8; 32],
     input: &AggregationInputs,
@@ -383,7 +382,7 @@ fn verify_aggregate_seal_proof(
     catch_panic_response("verify_aggregate_seal_proof", || {
         let inputs: Vec<Vec<Fr>> = commit_inputs
             .par_iter()
-            .map(|input| convert_aggregation_inputs(registered_proof, prover_id, input))
+            .map(|input| convert_seal_aggregation_inputs(registered_proof, prover_id, input))
             .try_reduce(Vec::new, |mut acc, current| {
                 acc.extend(current);
                 Ok(acc)
@@ -400,6 +399,92 @@ fn verify_aggregate_seal_proof(
             proof_bytes,
             &comm_rs,
             &seeds,
+            inputs,
+        )?;
+
+        Ok(result)
+    })
+}
+
+#[ffi_export]
+fn aggregate_empty_sector_update_proofs(
+    registered_proof: RegisteredUpdateProof,
+    registered_aggregation: RegisteredAggregationProof,
+    sector_update_inputs: c_slice::Ref<SectorUpdateAggregationInputs>,
+    sector_update_proofs: c_slice::Ref<c_slice::Box<u8>>,
+) -> repr_c::Box<AggregateProof> {
+    catch_panic_response("aggregate_empty_sector_update_proofs", || {
+        let proofs: Vec<_> = sector_update_proofs
+            .iter()
+            .map(|sector_update_proof| EmptySectorUpdateProof(sector_update_proof.to_vec()))
+            .collect();
+
+        let inputs: Vec<SectorUpdateProofInputs> = sector_update_inputs
+            .iter()
+            .map(|input| SectorUpdateProofInputs {
+                comm_r_old: input.comm_r_old,
+                comm_r_new: input.comm_r_new,
+                comm_d_new: input.comm_d_new,
+            })
+            .collect();
+
+        let result = update::aggregate_empty_sector_update_proofs(
+            registered_proof.into(),
+            registered_aggregation.into(),
+            &inputs,
+            &proofs,
+        )?;
+
+        Ok(result.into_boxed_slice().into())
+    })
+}
+
+/// Retrieves the empty_sector_update inputs based on the provided input, used for aggregation verification.
+fn convert_empty_sector_update_aggregation_inputs(
+    registered_proof: RegisteredUpdateProof,
+    input: &SectorUpdateAggregationInputs,
+) -> anyhow::Result<Vec<Vec<Fr>>> {
+    update::get_sector_update_inputs(
+        registered_proof.into(),
+        input.comm_r_old,
+        input.comm_r_new,
+        input.comm_d_new,
+    )
+}
+
+/// Verifies the output of an aggregated seal.
+#[ffi_export]
+fn verify_aggregate_empty_sector_update_proof(
+    registered_proof: RegisteredUpdateProof,
+    registered_aggregation: RegisteredAggregationProof,
+    proof: c_slice::Ref<u8>,
+    sector_update_inputs: c_slice::Ref<SectorUpdateAggregationInputs>,
+) -> repr_c::Box<VerifyAggregateSealProofResponse> {
+    catch_panic_response("verify_aggregate_empty_sector_update_proof", || {
+        let inputs: Vec<Vec<Fr>> = sector_update_inputs
+            .par_iter()
+            .map(|input| convert_empty_sector_update_aggregation_inputs(registered_proof, input))
+            .try_reduce(Vec::new, |mut acc, current| {
+                acc.extend(current);
+                Ok(acc)
+            })?;
+
+        let proof_bytes: Vec<u8> = proof.to_vec();
+
+        let converted_sector_update_inputs: Vec<SectorUpdateProofInputs> = sector_update_inputs
+            .iter()
+            .map(|input| SectorUpdateProofInputs {
+                comm_r_old: input.comm_r_old,
+                comm_r_new: input.comm_r_new,
+                comm_d_new: input.comm_d_new,
+            })
+            .collect();
+
+        let result = update::verify_aggregate_empty_sector_update_proofs(
+            registered_proof.into(),
+            registered_aggregation.into(),
+            proof_bytes,
+            &converted_sector_update_inputs,
             inputs,
         )?;
 
@@ -1398,6 +1483,10 @@ destructor!(
     destroy_verify_aggregate_seal_response,
     VerifyAggregateSealProofResponse
 );
+destructor!(
+    destroy_verify_aggregate_empty_sector_update_response,
+    VerifyAggregateEmptySectorUpdateProofResponse
+);
 destructor!(destroy_finalize_ticket_response, FinalizeTicketResponse);
 destructor!(
     destroy_verify_winning_post_response,
@@ -2145,6 +2234,56 @@ pub mod tests {
                 let msg = str::from_utf8(&resp_verify_empty_sector_update2.error_msg).unwrap();
                 panic!("verify_empty_sector_update_proof failed: {:?}", msg);
             }
+
+            // Test aggregating both of the generated empty sector update proofs together
+            let sector_update_inputs: Vec<SectorUpdateAggregationInputs> = vec![
+                SectorUpdateAggregationInputs {
+                    comm_r_old: resp_b2.comm_r,
+                    comm_r_new: resp_encode.comm_r_new,
+                    comm_d_new: resp_encode.comm_d_new,
+                },
+                SectorUpdateAggregationInputs {
+                    comm_r_old: resp_b2.comm_r,
+                    comm_r_new: resp_encode.comm_r_new,
+                    comm_d_new: resp_encode.comm_d_new,
+                },
+            ];
+            let sector_update_proofs = vec![
+                resp_empty_sector_update.value.clone(),
+                resp_empty_sector_update2.value.clone(),
+            ];
+
+            let resp_aggregate_empty_sector_update_proof = aggregate_empty_sector_update_proofs(
+                registered_proof_empty_sector_update,
+                RegisteredAggregationProof::SnarkPackV2,
+                sector_update_inputs[..].into(),
+                sector_update_proofs[..].into(),
+            );
+
+            if resp_aggregate_empty_sector_update_proof.status_code != FCPResponseStatus::NoError {
+                panic!(
+                    "aggregate_empty_sector_update_proofs failed: {}",
+                    str::from_utf8(&resp_aggregate_empty_sector_update_proof.error_msg).unwrap()
+                );
+            }
+
+            let resp_verify_agg = verify_aggregate_empty_sector_update_proof(
+                registered_proof_empty_sector_update,
+                RegisteredAggregationProof::SnarkPackV2,
+                resp_aggregate_empty_sector_update_proof.as_ref(),
+                sector_update_inputs[..].into(),
+            );
+
+            if resp_verify_agg.status_code != FCPResponseStatus::NoError {
+                let msg = str::from_utf8(&resp_verify_agg.error_msg).unwrap();
+                panic!(
+                    "verify_aggregate_empty_sector_update_proof failed: {:?}",
+                    msg
+                );
+            }
+
+            destroy_aggregate_proof(resp_aggregate_empty_sector_update_proof);
+            destroy_verify_aggregate_empty_sector_update_response(resp_verify_agg);
 
             // Set the new_decoded_file length to the same as the
             // original sealed file length (required for the API, but
