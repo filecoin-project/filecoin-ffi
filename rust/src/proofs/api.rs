@@ -357,7 +357,7 @@ fn aggregate_seal_proofs(
 fn convert_seal_aggregation_inputs(
     registered_proof: RegisteredSealProof,
     prover_id: &[u8; 32],
-    input: &SealAggregationInputs,
+    input: &AggregationInputs,
 ) -> anyhow::Result<Vec<Vec<Fr>>> {
     seal::get_seal_inputs(
         registered_proof.into(),
@@ -377,7 +377,7 @@ fn verify_aggregate_seal_proof(
     registered_aggregation: RegisteredAggregationProof,
     prover_id: &[u8; 32],
     proof: c_slice::Ref<u8>,
-    commit_inputs: c_slice::Ref<SealAggregationInputs>,
+    commit_inputs: c_slice::Ref<AggregationInputs>,
 ) -> repr_c::Box<VerifyAggregateSealProofResponse> {
     catch_panic_response("verify_aggregate_seal_proof", || {
         let inputs: Vec<Vec<Fr>> = commit_inputs
@@ -3345,15 +3345,15 @@ pub mod tests {
                 );
             }
 
-            let inputs: Vec<SealAggregationInputs> = vec![
-                SealAggregationInputs {
+            let inputs: Vec<AggregationInputs> = vec![
+                AggregationInputs {
                     comm_r: resp_b2.comm_r,
                     comm_d: resp_b2.comm_d,
                     sector_id,
                     ticket,
                     seed,
                 },
-                SealAggregationInputs {
+                AggregationInputs {
                     comm_r: resp_b2.comm_r,
                     comm_d: resp_b2.comm_d,
                     sector_id,

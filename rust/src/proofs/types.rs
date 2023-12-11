@@ -486,7 +486,7 @@ pub type SealCommitPhase2Response = Result<c_slice::Box<u8>>;
 #[derive_ReprC]
 #[repr(C)]
 #[derive(Clone, Default)]
-pub struct SealAggregationInputs {
+pub struct AggregationInputs {
     pub comm_r: [u8; 32],
     pub comm_d: [u8; 32],
     pub sector_id: u64,
