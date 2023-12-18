@@ -58,6 +58,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "ambassador"
+version = "0.3.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a2362d85b9d773d0d6ec70d6cc8f27ddef81edd11b05bc4e18281e4993b6e6d6"
+dependencies = [
+ "itertools 0.10.5",
+ "proc-macro2",
+ "quote",
+ "syn 1.0.109",
+]
+
+[[package]]
 name = "android-tzdata"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1154,12 +1166,12 @@ dependencies = [
  "filepath",
  "fvm 2.7.0",
  "fvm 3.8.0",
- "fvm 4.0.0-alpha.4",
+ "fvm 4.1.1",
  "fvm_ipld_blockstore",
  "fvm_ipld_encoding",
  "fvm_shared 2.6.0",
  "fvm_shared 3.6.0",
- "fvm_shared 4.0.0-alpha.4",
+ "fvm_shared 4.1.1",
  "group",
  "lazy_static",
  "libc",
@@ -1357,7 +1369,7 @@ dependencies = [
  "fvm_ipld_amt",
  "fvm_ipld_blockstore",
  "fvm_ipld_encoding",
- "fvm_ipld_hamt",
+ "fvm_ipld_hamt 0.8.0",
  "fvm_shared 2.6.0",
  "lazy_static",
  "log",
@@ -1392,7 +1404,7 @@ dependencies = [
  "fvm_ipld_amt",
  "fvm_ipld_blockstore",
  "fvm_ipld_encoding",
- "fvm_ipld_hamt",
+ "fvm_ipld_hamt 0.8.0",
  "fvm_shared 3.6.0",
  "lazy_static",
  "log",
@@ -1415,10 +1427,11 @@ dependencies = [
 
 [[package]]
 name = "fvm"
-version = "4.0.0-alpha.4"
+version = "4.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a71e2172d4454647217d0f2d31c0a5f72feb10b277520ea0a14643081fa74a7f"
+checksum = "5cd164d04fa0c7729e0d77d8c046aa994b5e60dbc4351c6f10ba73fa6f6c8323"
 dependencies = [
+ "ambassador",
  "anyhow",
  "blake2b_simd",
  "byteorder",
@@ -1429,8 +1442,8 @@ dependencies = [
  "fvm_ipld_amt",
  "fvm_ipld_blockstore",
  "fvm_ipld_encoding",
- "fvm_ipld_hamt",
- "fvm_shared 4.0.0-alpha.4",
+ "fvm_ipld_hamt 0.9.0",
+ "fvm_shared 4.1.1",
  "lazy_static",
  "log",
  "minstant",
@@ -1537,6 +1550,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "fvm_ipld_hamt"
+version = "0.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "48c900736087ff87cc51f669eee2f8e000c80717472242eb3f712aaa059ac3b3"
+dependencies = [
+ "anyhow",
+ "byteorder",
+ "cid",
+ "forest_hash_utils",
+ "fvm_ipld_blockstore",
+ "fvm_ipld_encoding",
+ "libipld-core",
+ "multihash",
+ "once_cell",
+ "serde",
+ "sha2 0.10.7",
+ "thiserror",
+]
+
+[[package]]
 name = "fvm_shared"
 version = "2.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1598,9 +1631,9 @@ dependencies = [
 
 [[package]]
 name = "fvm_shared"
-version = "4.0.0-alpha.4"
+version = "4.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "022bdee26d3a256905d6430b66099868ff7a439a8ceb22c0f351843aa7c5f394"
+checksum = "0008efb7229b975d4f44c2cabf0211d899c622c1b9e4bfc9153a5def4712acab"
 dependencies = [
  "anyhow",
  "bitflags 2.4.0",
