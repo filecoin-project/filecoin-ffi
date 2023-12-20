@@ -34,7 +34,7 @@ pub fn init_log_with_file(file: File) -> Option<()> {
 }
 
 /// Serialize the GPU device names into a vector
-#[cfg(any(feature = "opencl", feature = "cuda"))]
+#[cfg(any(feature = "opencl", feature = "cuda", feature = "cuda-supraseal"))]
 fn get_gpu_devices_internal() -> Vec<slice_boxed<u8>> {
     let devices = rust_gpu_tools::Device::all();
 
@@ -45,7 +45,7 @@ fn get_gpu_devices_internal() -> Vec<slice_boxed<u8>> {
 }
 
 // Return empty vector for GPU devices if cuda and opencl are disabled
-#[cfg(not(any(feature = "opencl", feature = "cuda")))]
+#[cfg(not(any(feature = "opencl", feature = "cuda", feature = "cuda-supraseal")))]
 fn get_gpu_devices_internal() -> Vec<slice_boxed<u8>> {
     Vec::new()
 }
