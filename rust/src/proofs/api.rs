@@ -1487,7 +1487,8 @@ pub mod tests {
     use std::path::Path;
     use std::str;
 
-    use anyhow::{ensure, Error, Result};
+    use anyhow::{anyhow, ensure, Error, Result};
+    use group::ff::PrimeField;
     use log::info;
     use memmap2::MmapOptions;
     use rand::{thread_rng, Rng};
@@ -1495,7 +1496,6 @@ pub mod tests {
     use crate::util::types::as_bytes;
 
     use super::*;
-    use fr32::bytes_into_fr;
 
     /// This is a test method for ensuring that the elements of 1 file matches the other.
     pub fn compare_elements(path1: &Path, path2: &Path) -> Result<(), Error> {
@@ -1510,8 +1510,10 @@ pub mod tests {
 
         for i in (0..end).step_by(fr_size) {
             let index = i as usize;
-            let fr1 = bytes_into_fr(&data1[index..index + fr_size])?;
-            let fr2 = bytes_into_fr(&data2[index..index + fr_size])?;
+            let fr1 = Fr::from_repr_vartime(data1[index..index + fr_size].try_into().unwrap())
+                .ok_or_else(|| anyhow!("Bytes could not be converted to Fr"))?;
+            let fr2 = Fr::from_repr_vartime(data2[index..index + fr_size].try_into().unwrap())
+                .ok_or_else(|| anyhow!("Bytes could not be converted to Fr"))?;
             ensure!(fr1 == fr2, "Data mismatch when comparing elements");
         }
         info!("Match found for {:?} and {:?}", path1, path2);
