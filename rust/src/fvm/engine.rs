@@ -74,7 +74,7 @@ impl TryFrom<u32> for EngineVersion {
         match value {
             16 | 17 => Ok(EngineVersion::V1),
             18 | 19 | 20 => Ok(EngineVersion::V2),
-            21 => Ok(EngineVersion::V3),
+            21 | 22 => Ok(EngineVersion::V3),
             _ => return Err(anyhow!("network version not supported")),
         }
     }
@@ -164,8 +164,8 @@ mod v4 {
         ApplyKind, ApplyRet, DefaultExecutor as DefaultExecutor4,
         ThreadedExecutor as ThreadedExecutor4,
     };
+    use fvm4::kernel::filecoin::DefaultFilecoinKernel as DefaultFilecoinKernel4;
     use fvm4::machine::{DefaultMachine as DefaultMachine4, NetworkConfig};
-    use fvm4::DefaultKernel as DefaultKernel4;
     use fvm4_shared::{chainid::ChainID, clock::ChainEpoch, message::Message};
 
     use crate::fvm::engine::{
@@ -175,7 +175,7 @@ mod v4 {
     use super::Config;
 
     type CgoMachine4 = DefaultMachine4<CgoBlockstore, CgoExterns>;
-    type BaseExecutor4 = DefaultExecutor4<DefaultKernel4<DefaultCallManager4<CgoMachine4>>>;
+    type BaseExecutor4 = DefaultExecutor4<DefaultFilecoinKernel4<DefaultCallManager4<CgoMachine4>>>;
     type CgoExecutor4 = ThreadedExecutor4<BaseExecutor4>;
 
     fn new_executor(
@@ -426,9 +426,6 @@ mod v3 {
                                     ErrorNumber::from_u32(err.1 as u32)
                                         .unwrap_or(ErrorNumber::AssertionFailed),
                                 )))
-                            }
-                            ExecutionEvent3::InvokeActor(cid) => {
-                                Some(ExecutionEvent::InvokeActor(cid))
                             }
                             _ => None,
                         })
