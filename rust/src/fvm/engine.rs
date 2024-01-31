@@ -274,7 +274,7 @@ mod v3 {
     use fvm4::trace::ExecutionEvent;
     use fvm4_shared::{
         address::Address, econ::TokenAmount, error::ErrorNumber, error::ExitCode, message::Message,
-        receipt::Receipt,
+        receipt::Receipt, state::ActorState,
     };
 
     use crate::fvm::engine::{
@@ -426,6 +426,24 @@ mod v3 {
                                     ErrorNumber::from_u32(err.1 as u32)
                                         .unwrap_or(ErrorNumber::AssertionFailed),
                                 )))
+                            }
+                            ExecutionEvent3::InvokeActor { id, state } => {
+                                Some(ExecutionEvent::InvokeActor {
+                                    id,
+                                    state: ActorState {
+                                        code: state.code,
+                                        state: state.state,
+                                        sequence: state.sequence,
+                                        balance: TokenAmount::from_atto(
+                                            state.balance.atto().clone(),
+                                        ),
+                                        delegated_address: state
+                                            .delegated_address
+                                            // Do our best to convert the address, or drop it if
+                                            // that's impossible for some reason.
+                                            .and_then(|a| Address::from_bytes(&a.to_bytes()).ok()),
+                                    },
+                                })
                             }
                             _ => None,
                         })
