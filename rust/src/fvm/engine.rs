@@ -66,7 +66,7 @@ pub struct MultiEngineContainer {
 }
 
 const LOTUS_FVM_CONCURRENCY_ENV_NAME: &str = "LOTUS_FVM_CONCURRENCY";
-const VALID_CONCURRENCY_RANGE: RangeInclusive<u32> = 1..=128;
+const VALID_CONCURRENCY_RANGE: RangeInclusive<u32> = 1..=4096;
 
 impl TryFrom<u32> for EngineVersion {
     type Error = anyhow::Error;
@@ -81,9 +81,9 @@ impl TryFrom<u32> for EngineVersion {
 }
 
 impl MultiEngineContainer {
-    /// Constructs a new multi-engine container with the default concurrency (4).
+    /// Constructs a new multi-engine container with the default concurrency (150).
     pub fn new() -> MultiEngineContainer {
-        Self::with_concurrency(4)
+        Self::with_concurrency(150)
     }
 
     /// Constructs a new multi-engine container with the concurrency specified in the
