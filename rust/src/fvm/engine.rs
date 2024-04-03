@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::ops::RangeInclusive;
 use std::sync::{Arc, Mutex};
 
 use anyhow::anyhow;
@@ -18,7 +17,7 @@ use super::externs::CgoExterns;
 use super::types::*;
 
 // Generic executor; uses the current (v3) engine types
-pub trait CgoExecutor {
+pub trait CgoExecutor: Send {
     fn execute_message(
         &mut self,
         msg: Message,
@@ -65,9 +64,6 @@ pub struct MultiEngineContainer {
     engines: Mutex<HashMap<EngineVersion, Arc<dyn AbstractMultiEngine + 'static>>>,
 }
 
-const LOTUS_FVM_CONCURRENCY_ENV_NAME: &str = "LOTUS_FVM_CONCURRENCY";
-const VALID_CONCURRENCY_RANGE: RangeInclusive<u32> = 1..=128;
-
 impl TryFrom<u32> for EngineVersion {
     type Error = anyhow::Error;
     fn try_from(value: u32) -> Result<Self, Self::Error> {
@@ -81,41 +77,6 @@ impl TryFrom<u32> for EngineVersion {
 }
 
 impl MultiEngineContainer {
-    /// Constructs a new multi-engine container with the default concurrency (4).
-    pub fn new() -> MultiEngineContainer {
-        Self::with_concurrency(4)
-    }
-
-    /// Constructs a new multi-engine container with the concurrency specified in the
-    /// `LOTUS_FVM_CONCURRENCY` environment variable.
-    pub fn new_env() -> MultiEngineContainer {
-        let valosstr = match std::env::var_os(LOTUS_FVM_CONCURRENCY_ENV_NAME) {
-            Some(v) => v,
-            None => return Self::new(),
-        };
-        let valstr = match valosstr.to_str() {
-            Some(s) => s,
-            None => {
-                log::error!("{LOTUS_FVM_CONCURRENCY_ENV_NAME} has invalid value");
-                return Self::new();
-            }
-        };
-        let concurrency: u32 = match valstr.parse() {
-            Ok(v) => v,
-            Err(e) => {
-                log::error!("{LOTUS_FVM_CONCURRENCY_ENV_NAME} has invalid value: {e}");
-                return Self::new();
-            }
-        };
-        if !VALID_CONCURRENCY_RANGE.contains(&concurrency) {
-            log::error!(
-                "{LOTUS_FVM_CONCURRENCY_ENV_NAME} must be in the range {VALID_CONCURRENCY_RANGE:?}, not {concurrency}"
-            );
-            return Self::new();
-        }
-        Self::with_concurrency(concurrency)
-    }
-
     pub fn with_concurrency(concurrency: u32) -> MultiEngineContainer {
         MultiEngineContainer {
             engines: Mutex::new(HashMap::new()),
@@ -146,12 +107,6 @@ impl MultiEngineContainer {
     }
 }
 
-impl Default for MultiEngineContainer {
-    fn default() -> MultiEngineContainer {
-        MultiEngineContainer::new()
-    }
-}
-
 // fvm v4 implementation
 mod v4 {
     use anyhow::anyhow;
@@ -160,10 +115,7 @@ mod v4 {
 
     use fvm4::call_manager::DefaultCallManager as DefaultCallManager4;
     use fvm4::engine::{EnginePool as EnginePool4, MultiEngine as MultiEngine4};
-    use fvm4::executor::{
-        ApplyKind, ApplyRet, DefaultExecutor as DefaultExecutor4,
-        ThreadedExecutor as ThreadedExecutor4,
-    };
+    use fvm4::executor::{ApplyKind, ApplyRet, DefaultExecutor as DefaultExecutor4};
     use fvm4::kernel::filecoin::DefaultFilecoinKernel as DefaultFilecoinKernel4;
     use fvm4::machine::{DefaultMachine as DefaultMachine4, NetworkConfig};
     use fvm4_shared::{chainid::ChainID, clock::ChainEpoch, message::Message};
@@ -175,14 +127,13 @@ mod v4 {
     use super::Config;
 
     type CgoMachine4 = DefaultMachine4<CgoBlockstore, CgoExterns>;
-    type BaseExecutor4 = DefaultExecutor4<DefaultFilecoinKernel4<DefaultCallManager4<CgoMachine4>>>;
-    type CgoExecutor4 = ThreadedExecutor4<BaseExecutor4>;
+    type CgoExecutor4 = DefaultExecutor4<DefaultFilecoinKernel4<DefaultCallManager4<CgoMachine4>>>;
 
     fn new_executor(
         engine_pool: EnginePool4,
         machine: CgoMachine4,
     ) -> anyhow::Result<CgoExecutor4> {
-        Ok(ThreadedExecutor4(BaseExecutor4::new(engine_pool, machine)?))
+        CgoExecutor4::new(engine_pool, machine)
     }
 
     impl CgoExecutor for CgoExecutor4 {
@@ -254,8 +205,7 @@ mod v3 {
     };
     use fvm3::engine::{EnginePool as EnginePool3, MultiEngine as MultiEngine3};
     use fvm3::executor::{
-        ApplyFailure as ApplyFailure3, ApplyKind as ApplyKind3,
-        DefaultExecutor as DefaultExecutor3, ThreadedExecutor as ThreadedExecutor3,
+        ApplyFailure as ApplyFailure3, ApplyKind as ApplyKind3, DefaultExecutor as DefaultExecutor3,
     };
     use fvm3::machine::{DefaultMachine as DefaultMachine3, NetworkConfig as NetworkConfig3};
     use fvm3::trace::ExecutionEvent as ExecutionEvent3;
@@ -284,14 +234,13 @@ mod v3 {
     use super::Config;
 
     type CgoMachine3 = DefaultMachine3<CgoBlockstore, CgoExterns>;
-    type BaseExecutor3 = DefaultExecutor3<DefaultKernel3<DefaultCallManager3<CgoMachine3>>>;
-    type CgoExecutor3 = ThreadedExecutor3<BaseExecutor3>;
+    type CgoExecutor3 = DefaultExecutor3<DefaultKernel3<DefaultCallManager3<CgoMachine3>>>;
 
     fn new_executor(
         engine_pool: EnginePool3,
         machine: CgoMachine3,
     ) -> anyhow::Result<CgoExecutor3> {
-        Ok(ThreadedExecutor3(BaseExecutor3::new(engine_pool, machine)?))
+        CgoExecutor3::new(engine_pool, machine)
     }
 
     impl CgoExecutor for CgoExecutor3 {
@@ -533,8 +482,7 @@ mod v2 {
         backtrace::Cause as Cause2, DefaultCallManager as DefaultCallManager2,
     };
     use fvm2::executor::{
-        ApplyFailure as ApplyFailure2, ApplyKind as ApplyKind2,
-        DefaultExecutor as DefaultExecutor2, ThreadedExecutor as ThreadedExecutor2,
+        ApplyFailure as ApplyFailure2, ApplyKind as ApplyKind2, DefaultExecutor as DefaultExecutor2,
     };
     use fvm2::machine::{
         DefaultMachine as DefaultMachine2, MultiEngine as MultiEngine2,
@@ -565,11 +513,10 @@ mod v2 {
     use super::Config;
 
     type CgoMachine2 = DefaultMachine2<CgoBlockstore, CgoExterns>;
-    type BaseExecutor2 = DefaultExecutor2<DefaultKernel2<DefaultCallManager2<CgoMachine2>>>;
-    type CgoExecutor2 = ThreadedExecutor2<BaseExecutor2>;
+    type CgoExecutor2 = DefaultExecutor2<DefaultKernel2<DefaultCallManager2<CgoMachine2>>>;
 
     fn new_executor(machine: CgoMachine2) -> CgoExecutor2 {
-        ThreadedExecutor2(BaseExecutor2::new(machine))
+        CgoExecutor2::new(machine)
     }
 
     fn bytes_to_block(bytes: RawBytes) -> Option<IpldBlock> {

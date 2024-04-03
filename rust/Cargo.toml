@@ -46,13 +46,14 @@ serde = "1.0.117"
 serde_tuple = "0.5"
 safer-ffi = { version = "0.0.7", features = ["proc_macros"] }
 filecoin-proofs-api = { version = "16.1", default-features = false }
+yastl = "0.1.2"
 
 [dev-dependencies]
 memmap2 = "0.5"
 tempfile = "3.0.8"
 
 [features]
-default = ["cuda", "multicore-sdr" ]
+default = ["cuda", "multicore-sdr"]
 blst-portable = ["bls-signatures/blst-portable", "blstrs/portable"]
 cuda = ["filecoin-proofs-api/cuda", "rust-gpu-tools/cuda", "fvm2/cuda", "fvm3/cuda", "fvm4/cuda"]
 cuda-supraseal = ["filecoin-proofs-api/cuda-supraseal", "rust-gpu-tools/cuda", "fvm3/cuda-supraseal", "fvm4/cuda-supraseal"]

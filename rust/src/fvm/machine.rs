@@ -1,5 +1,6 @@
 use std::borrow::Cow;
 use std::convert::{TryFrom, TryInto};
+use std::ops::RangeInclusive;
 
 use anyhow::{anyhow, Context};
 use cid::Cid;
@@ -27,8 +28,54 @@ use super::types::*;
 use crate::destructor;
 use crate::util::types::{catch_panic_response, catch_panic_response_no_default, Result};
 
+const STACK_SIZE: usize = 64 << 20; // 20MiB
+
 lazy_static! {
-    static ref ENGINES: MultiEngineContainer = MultiEngineContainer::new_env();
+    static ref CONCURRENCY: u32 = get_concurrency();
+    static ref ENGINES: MultiEngineContainer = MultiEngineContainer::with_concurrency(*CONCURRENCY);
+    static ref THREAD_POOL: yastl::Pool = yastl::Pool::with_config(
+        *CONCURRENCY as usize,
+        yastl::ThreadConfig::new()
+            .prefix("fvm")
+            .stack_size(STACK_SIZE)
+    );
+}
+
+const LOTUS_FVM_CONCURRENCY_ENV_NAME: &str = "LOTUS_FVM_CONCURRENCY";
+const VALID_CONCURRENCY_RANGE: RangeInclusive<u32> = 1..=256;
+
+fn available_parallelism() -> u32 {
+    std::thread::available_parallelism()
+        .map(usize::from)
+        .unwrap_or(8) as u32
+}
+
+fn get_concurrency() -> u32 {
+    let valosstr = match std::env::var_os(LOTUS_FVM_CONCURRENCY_ENV_NAME) {
+        Some(v) => v,
+        None => return available_parallelism(),
+    };
+    let valstr = match valosstr.to_str() {
+        Some(s) => s,
+        None => {
+            log::error!("{LOTUS_FVM_CONCURRENCY_ENV_NAME} has invalid value");
+            return available_parallelism();
+        }
+    };
+    let concurrency: u32 = match valstr.parse() {
+        Ok(v) => v,
+        Err(e) => {
+            log::error!("{LOTUS_FVM_CONCURRENCY_ENV_NAME} has invalid value: {e}");
+            return available_parallelism();
+        }
+    };
+    if !VALID_CONCURRENCY_RANGE.contains(&concurrency) {
+        log::error!(
+            "{LOTUS_FVM_CONCURRENCY_ENV_NAME} must be in the range {VALID_CONCURRENCY_RANGE:?}, not {concurrency}"
+        );
+        return available_parallelism();
+    }
+    concurrency
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -181,6 +228,23 @@ fn create_fvm_debug_machine(
     )
 }
 
+fn with_new_stack<F, T>(name: &str, pool: &yastl::Pool, callback: F) -> repr_c::Box<Result<T>>
+where
+    T: Sized + Default + Send,
+    F: FnOnce() -> anyhow::Result<T> + std::panic::UnwindSafe + Send,
+{
+    let mut res = None;
+    pool.scoped(|scope| scope.execute(|| res = Some(catch_panic_response(name, callback))));
+
+    res.unwrap_or_else(|| {
+        repr_c::Box::new(Result::err(
+            format!("failed to schedule {name}")
+                .into_bytes()
+                .into_boxed_slice(),
+        ))
+    })
+}
+
 #[ffi_export]
 fn fvm_machine_execute_message(
     executor: &'_ InnerFvmMachine,
@@ -188,7 +252,8 @@ fn fvm_machine_execute_message(
     chain_len: u64,
     apply_kind: u64, /* 0: Explicit, _: Implicit */
 ) -> repr_c::Box<Result<FvmMachineExecuteResponse>> {
-    catch_panic_response("fvm_machine_execute_message", || {
+    // Execute in the thread-pool because we need a 64MiB stack.
+    with_new_stack("fvm_machine_execute_message", &THREAD_POOL, || {
         let apply_kind = if apply_kind == 0 {
             ApplyKind::Explicit
         } else {
