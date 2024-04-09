@@ -69,9 +69,9 @@ impl TryFrom<u32> for EngineVersion {
     fn try_from(value: u32) -> Result<Self, Self::Error> {
         match value {
             16 | 17 => Ok(EngineVersion::V1),
-            18 | 19 | 20 => Ok(EngineVersion::V2),
+            18..=20 => Ok(EngineVersion::V2),
             21 | 22 => Ok(EngineVersion::V3),
-            _ => return Err(anyhow!("network version not supported")),
+            _ => Err(anyhow!("network version not supported")),
         }
     }
 }
