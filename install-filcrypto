@@ -173,24 +173,34 @@ build_from_source() {
         build="build"
     fi
 
-    # Check if GPU support is disabled.
-    if [ "${FFI_USE_GPU}" == "0" ]; then
-        gpu_flags=""
-    elif [ "${FFI_USE_CUDA_SUPRASEAL}" == "1" ]; then
-        # If SupraSeal is enabled, just use the `cuda-supraseal` eature and
+    # Check for specified GPU support.
+    if [ "${FFI_USE_CUDA_SUPRASEAL}" == "1" ]; then
+        # If SupraSeal is enabled, just use the `cuda-supraseal` feature and
         # nothing else GPU related.
         gpu_flags=",cuda-supraseal"
-    else
-        # If GPUs are enabled and SupraSeal is not, default to CUDA support
-        # where possible.
-        # First ensure that nvcc (as part of the CUDA toolkit) is available --
-        # if it's not warn that we are defaulting GPU to OpenCL instead.
-        gpu_flags=",cuda"
 
-        # Unless OpenCL support is specified or we're building on Darwin.
-        if [ "${FFI_USE_OPENCL}" == "1" ] || [ "$(uname -s)" = "Darwin" ]; then
+        if [ ! "$(command -v nvcc)" ]; then
+            echo "WARNING: Cannot find nvcc for CUDA support."
+            echo "WARNING: For CUDA support, please ensure that the CUDA toolkit is properly installed."
+            echo "WARNING: After installation, nvcc must be in the system path."
+            echo ""
+            echo "WARNING: Defaulting to OpenCL GPU support(!!!)"
+            gpu_flags=",opencl"
+        fi
+    else
+        # Check if GPU usage is to be disabled.
+        if [ "${FFI_USE_GPU}" == "0" ]; then
+            gpu_flags=""
+        # Check if OpenCL support is specified or we're building on Darwin.
+        elif [ "${FFI_USE_OPENCL}" == "1" ] || [ "$(uname -s)" = "Darwin" ]; then
             gpu_flags=",opencl"
         else
+            # If GPUs are enabled and SupraSeal is not, default to CUDA support
+            # where possible.
+            # First ensure that nvcc (as part of the CUDA toolkit) is available --
+            # if it's not warn that we are defaulting GPU to OpenCL instead.
+            gpu_flags=",cuda"
+
             if [ ! "$(command -v nvcc)" ]; then
                 echo "WARNING: Cannot find nvcc for CUDA support."
                 echo "WARNING: For CUDA support, please ensure that the CUDA toolkit is properly installed."
