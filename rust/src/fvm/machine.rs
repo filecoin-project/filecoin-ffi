@@ -28,7 +28,7 @@ use super::types::*;
 use crate::destructor;
 use crate::util::types::{catch_panic_response, catch_panic_response_no_default, Result};
 
-const STACK_SIZE: usize = 64 << 20; // 20MiB
+const STACK_SIZE: usize = 64 << 20; // 64MiB
 
 lazy_static! {
     static ref CONCURRENCY: u32 = get_concurrency();
