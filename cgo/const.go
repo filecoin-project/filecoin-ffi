@@ -16,21 +16,26 @@ const (
 )
 
 const (
-	RegisteredSealProofStackedDrg2KiBV1                        = C.REGISTERED_SEAL_PROOF_STACKED_DRG2_KI_B_V1
-	RegisteredSealProofStackedDrg8MiBV1                        = C.REGISTERED_SEAL_PROOF_STACKED_DRG8_MI_B_V1
-	RegisteredSealProofStackedDrg512MiBV1                      = C.REGISTERED_SEAL_PROOF_STACKED_DRG512_MI_B_V1
-	RegisteredSealProofStackedDrg32GiBV1                       = C.REGISTERED_SEAL_PROOF_STACKED_DRG32_GI_B_V1
-	RegisteredSealProofStackedDrg64GiBV1                       = C.REGISTERED_SEAL_PROOF_STACKED_DRG64_GI_B_V1
-	RegisteredSealProofStackedDrg2KiBV11                       = C.REGISTERED_SEAL_PROOF_STACKED_DRG2_KI_B_V1_1
-	RegisteredSealProofStackedDrg8MiBV11                       = C.REGISTERED_SEAL_PROOF_STACKED_DRG8_MI_B_V1_1
-	RegisteredSealProofStackedDrg512MiBV11                     = C.REGISTERED_SEAL_PROOF_STACKED_DRG512_MI_B_V1_1
-	RegisteredSealProofStackedDrg32GiBV11                      = C.REGISTERED_SEAL_PROOF_STACKED_DRG32_GI_B_V1_1
-	RegisteredSealProofStackedDrg64GiBV11                      = C.REGISTERED_SEAL_PROOF_STACKED_DRG64_GI_B_V1_1
-	RegisteredSealProofStackedDrg2KiBV11_Feat_SyntheticPoRep   = C.REGISTERED_SEAL_PROOF_STACKED_DRG2_KI_B_V1_1__FEAT__SYNTHETIC_PO_REP
-	RegisteredSealProofStackedDrg8MiBV11_Feat_SyntheticPoRep   = C.REGISTERED_SEAL_PROOF_STACKED_DRG8_MI_B_V1_1__FEAT__SYNTHETIC_PO_REP
-	RegisteredSealProofStackedDrg512MiBV11_Feat_SyntheticPoRep = C.REGISTERED_SEAL_PROOF_STACKED_DRG512_MI_B_V1_1__FEAT__SYNTHETIC_PO_REP
-	RegisteredSealProofStackedDrg32GiBV11_Feat_SyntheticPoRep  = C.REGISTERED_SEAL_PROOF_STACKED_DRG32_GI_B_V1_1__FEAT__SYNTHETIC_PO_REP
-	RegisteredSealProofStackedDrg64GiBV11_Feat_SyntheticPoRep  = C.REGISTERED_SEAL_PROOF_STACKED_DRG64_GI_B_V1_1__FEAT__SYNTHETIC_PO_REP
+	RegisteredSealProofStackedDrg2KiBV1                              = C.REGISTERED_SEAL_PROOF_STACKED_DRG2_KI_B_V1
+	RegisteredSealProofStackedDrg8MiBV1                              = C.REGISTERED_SEAL_PROOF_STACKED_DRG8_MI_B_V1
+	RegisteredSealProofStackedDrg512MiBV1                            = C.REGISTERED_SEAL_PROOF_STACKED_DRG512_MI_B_V1
+	RegisteredSealProofStackedDrg32GiBV1                             = C.REGISTERED_SEAL_PROOF_STACKED_DRG32_GI_B_V1
+	RegisteredSealProofStackedDrg64GiBV1                             = C.REGISTERED_SEAL_PROOF_STACKED_DRG64_GI_B_V1
+	RegisteredSealProofStackedDrg2KiBV11                             = C.REGISTERED_SEAL_PROOF_STACKED_DRG2_KI_B_V1_1
+	RegisteredSealProofStackedDrg8MiBV11                             = C.REGISTERED_SEAL_PROOF_STACKED_DRG8_MI_B_V1_1
+	RegisteredSealProofStackedDrg512MiBV11                           = C.REGISTERED_SEAL_PROOF_STACKED_DRG512_MI_B_V1_1
+	RegisteredSealProofStackedDrg32GiBV11                            = C.REGISTERED_SEAL_PROOF_STACKED_DRG32_GI_B_V1_1
+	RegisteredSealProofStackedDrg64GiBV11                            = C.REGISTERED_SEAL_PROOF_STACKED_DRG64_GI_B_V1_1
+	RegisteredSealProofStackedDrg2KiBV11_Feat_SyntheticPoRep         = C.REGISTERED_SEAL_PROOF_STACKED_DRG2_KI_B_V1_1__FEAT__SYNTHETIC_PO_REP
+	RegisteredSealProofStackedDrg8MiBV11_Feat_SyntheticPoRep         = C.REGISTERED_SEAL_PROOF_STACKED_DRG8_MI_B_V1_1__FEAT__SYNTHETIC_PO_REP
+	RegisteredSealProofStackedDrg512MiBV11_Feat_SyntheticPoRep       = C.REGISTERED_SEAL_PROOF_STACKED_DRG512_MI_B_V1_1__FEAT__SYNTHETIC_PO_REP
+	RegisteredSealProofStackedDrg32GiBV11_Feat_SyntheticPoRep        = C.REGISTERED_SEAL_PROOF_STACKED_DRG32_GI_B_V1_1__FEAT__SYNTHETIC_PO_REP
+	RegisteredSealProofStackedDrg64GiBV11_Feat_SyntheticPoRep        = C.REGISTERED_SEAL_PROOF_STACKED_DRG64_GI_B_V1_1__FEAT__SYNTHETIC_PO_REP
+	RegisteredSealProofStackedDrg2KiBV1_2_Feat_NonInteractivePoRep   = C.REGISTERED_SEAL_PROOF_STACKED_DRG2_KI_B_V1_2__FEAT__NON_INTERACTIVE_PO_REP
+	RegisteredSealProofStackedDrg8MiBV1_2_Feat_NonInteractivePoRep   = C.REGISTERED_SEAL_PROOF_STACKED_DRG8_MI_B_V1_2__FEAT__NON_INTERACTIVE_PO_REP
+	RegisteredSealProofStackedDrg512MiBV1_2_Feat_NonInteractivePoRep = C.REGISTERED_SEAL_PROOF_STACKED_DRG512_MI_B_V1_2__FEAT__NON_INTERACTIVE_PO_REP
+	RegisteredSealProofStackedDrg32GiBV1_2_Feat_NonInteractivePoRep  = C.REGISTERED_SEAL_PROOF_STACKED_DRG32_GI_B_V1_2__FEAT__NON_INTERACTIVE_PO_REP
+	RegisteredSealProofStackedDrg64GiBV1_2_Feat_NonInteractivePoRep  = C.REGISTERED_SEAL_PROOF_STACKED_DRG64_GI_B_V1_2__FEAT__NON_INTERACTIVE_PO_REP
 )
 
 const (

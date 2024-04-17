@@ -31,8 +31,8 @@ rayon = "1.2.1"
 anyhow = "1.0.23"
 serde_json = "1.0.46"
 rust-gpu-tools = { version = "0.7", optional = true, default-features = false }
-fvm4 = { package = "fvm", version = "~4.2.0", default-features = false, features = ["nv23-dev"] }
-fvm4_shared = { package = "fvm_shared", version = "~4.2.0" }
+fvm4 = { package = "fvm", version = "~4.3.0", default-features = false, features = ["nv23-dev"] }
+fvm4_shared = { package = "fvm_shared", version = "~4.3.0" }
 fvm3 = { package = "fvm", version = "~3.9.0", default-features = false }
 fvm3_shared = { package = "fvm_shared", version = "~3.6.0" }
 fvm2 = { package = "fvm", version = "~2.7", default-features = false }
@@ -45,7 +45,7 @@ lazy_static = "1.4.0"
 serde = "1.0.117"
 serde_tuple = "0.5"
 safer-ffi = { version = "0.0.7", features = ["proc_macros"] }
-filecoin-proofs-api = { version = "17.0", default-features = false }
+filecoin-proofs-api = { version = "18.0", default-features = false }
 yastl = "0.1.2"
 
 [dev-dependencies]

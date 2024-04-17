@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/filecoin-project/go-address v1.1.0
 	github.com/filecoin-project/go-fil-commcid v0.1.0
-	github.com/filecoin-project/go-state-types v0.13.1
+	github.com/filecoin-project/go-state-types v0.14.0-rc1
 	github.com/ipfs/go-block-format v0.0.3
 	github.com/ipfs/go-cid v0.3.2
 	github.com/ipfs/go-ipfs-blockstore v1.2.0
