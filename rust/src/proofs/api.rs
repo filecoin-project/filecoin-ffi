@@ -1674,6 +1674,7 @@ pub mod tests {
             RegisteredSealProof::StackedDrg2KiBV1,
             RegisteredSealProof::StackedDrg2KiBV1_1,
             RegisteredSealProof::StackedDrg2KiBV1_1_Feat_SyntheticPoRep,
+            RegisteredSealProof::StackedDrg2KiBV1_2_Feat_NonInteractivePoRep,
         ];
         for version in versions {
             info!("test_sealing_versions[{:?}]", version);
