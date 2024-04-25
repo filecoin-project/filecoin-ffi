@@ -45,8 +45,7 @@ lazy_static = "1.4.0"
 serde = "1.0.117"
 serde_tuple = "0.5"
 safer-ffi = { version = "0.0.7", features = ["proc_macros"] }
-#filecoin-proofs-api = { version = "16.1", default-features = false }
-filecoin-proofs-api = { git = "https://github.com/filecoin-project/rust-filecoin-proofs-api", branch = "improved-error-handling", default-features = false }
+filecoin-proofs-api = { version = "17.0", default-features = false }
 yastl = "0.1.2"
 
 [dev-dependencies]
