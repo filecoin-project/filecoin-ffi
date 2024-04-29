@@ -296,7 +296,7 @@ mod tests {
 
         assert!(verified);
 
-        let message_sizes = vec![message.len()];
+        let message_sizes = [message.len()];
         let flattened_messages = message;
 
         let verified = hash_verify(
@@ -319,7 +319,7 @@ mod tests {
         assert!(!not_verified);
 
         // garbage verification
-        let different_digest = vec![0, 1, 2, 3, 4];
+        let different_digest = [0, 1, 2, 3, 4];
         let not_verified = verify(
             signature[..].into(),
             different_digest[..].into(),

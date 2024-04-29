@@ -1565,7 +1565,7 @@ pub mod tests {
 
         // write the second
         {
-            let existing = vec![127u64];
+            let existing = [127u64];
 
             let resp = unsafe {
                 write_with_alignment(registered_proof, src_fd_b, 508, dst_fd, existing[..].into())
@@ -1670,7 +1670,7 @@ pub mod tests {
     #[test]
     #[allow(clippy::cognitive_complexity)]
     fn test_sealing_versions() -> Result<()> {
-        let versions = vec![
+        let versions = [
             RegisteredSealProof::StackedDrg2KiBV1,
             RegisteredSealProof::StackedDrg2KiBV1_1,
             RegisteredSealProof::StackedDrg2KiBV1_1_Feat_SyntheticPoRep,
@@ -1745,7 +1745,7 @@ pub mod tests {
                 panic!("write_without_alignment failed: {:?}", msg);
             }
 
-            let existing_piece_sizes = vec![127];
+            let existing_piece_sizes = [127];
 
             let resp_a2 = unsafe {
                 write_with_alignment(
@@ -1762,7 +1762,7 @@ pub mod tests {
                 panic!("write_with_alignment failed: {:?}", msg);
             }
 
-            let pieces = vec![
+            let pieces = [
                 PublicPieceInfo {
                     num_bytes: 127,
                     comm_p: resp_a1.comm_p,
@@ -1987,7 +1987,7 @@ pub mod tests {
                 panic!("write_without_alignment failed: {:?}", msg);
             }
 
-            let existing_piece_sizes = vec![127];
+            let existing_piece_sizes = [127];
 
             let resp_new_a2 = unsafe {
                 write_with_alignment(
@@ -2299,7 +2299,7 @@ pub mod tests {
 
             // generate a PoSt
 
-            let sectors = vec![sector_id];
+            let sectors = [sector_id];
             let resp_f = generate_winning_post_sector_challenge(
                 registered_proof_winning_post,
                 &randomness,
@@ -2553,7 +2553,7 @@ pub mod tests {
             //
             //////////////////////////////////////////////
 
-            let sectors = vec![sector_id, sector_id2];
+            let sectors = [sector_id, sector_id2];
             let private_replicas = vec![
                 PrivateReplicaInfo {
                     registered_proof: registered_proof_window_post,
@@ -2861,7 +2861,7 @@ pub mod tests {
                 panic!("write_without_alignment failed: {:?}", msg);
             }
 
-            let existing_piece_sizes = vec![127];
+            let existing_piece_sizes = [127];
 
             let resp_a2 = unsafe {
                 write_with_alignment(
@@ -3050,7 +3050,7 @@ pub mod tests {
                 panic!("write_without_alignment failed: {:?}", msg);
             }
 
-            let existing_piece_sizes = vec![127];
+            let existing_piece_sizes = [127];
 
             let resp_a2 = unsafe {
                 write_with_alignment(
@@ -3189,10 +3189,10 @@ pub mod tests {
 
             assert!(**resp_d2, "proof was not valid");
 
-            let seal_commit_responses = vec![resp_c2.value.clone(), resp_c22.value.clone()];
+            let seal_commit_responses = [resp_c2.value.clone(), resp_c22.value.clone()];
 
-            let comm_rs = vec![resp_b2.comm_r, resp_b2.comm_r];
-            let seeds = vec![seed, seed];
+            let comm_rs = [resp_b2.comm_r, resp_b2.comm_r];
+            let seeds = [seed, seed];
             let resp_aggregate_proof = aggregate_seal_proofs(
                 registered_proof_seal,
                 registered_aggregation,
