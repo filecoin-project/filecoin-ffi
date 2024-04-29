@@ -152,7 +152,7 @@ jobs:
       - publish_darwin_release
   rustfmt:
     docker:
-      - image: cimg/rust:1.67
+      - image: cimg/rust:1.73
     resource_class: small
     steps:
       - checkout
