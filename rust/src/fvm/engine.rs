@@ -70,7 +70,7 @@ impl TryFrom<u32> for EngineVersion {
         match value {
             16 | 17 => Ok(EngineVersion::V1),
             18..=20 => Ok(EngineVersion::V2),
-            21 | 22 => Ok(EngineVersion::V3),
+            21..=23 => Ok(EngineVersion::V3),
             _ => Err(anyhow!("network version not supported")),
         }
     }
