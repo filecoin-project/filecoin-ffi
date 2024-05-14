@@ -232,7 +232,7 @@ commands:
             - run:
                 name: Install Go
                 command: |
-                  curl https://dl.google.com/go/go1.20.10.darwin-amd64.pkg -o /tmp/go.pkg && \
+                  curl https://dl.google.com/go/go1.20.10.darwin-arm64.pkg -o /tmp/go.pkg && \
                   sudo installer -pkg /tmp/go.pkg -target /
                   go version
             - run:
