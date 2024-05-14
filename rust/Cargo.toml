@@ -63,3 +63,9 @@ c-headers = ["safer-ffi/headers"]
 # This feature enables a fixed number of discarded rows for TreeR. The `FIL_PROOFS_ROWS_TO_DISCARD`
 # setting is ignored, no `TemporaryAux` file will be written.
 fixed-rows-to-discard = ["filecoin-proofs-api/fixed-rows-to-discard"]
+
+[patch.crates-io]
+fvm = { git = "https://github.com/filecoin-project/ref-fvm.git", branch = "master" }
+fvm_shared = { git = "https://github.com/filecoin-project/ref-fvm.git", branch = "master" }
+fvm_ipld_encoding = { git = "https://github.com/filecoin-project/ref-fvm.git", branch = "master" }
+fvm_ipld_blockstore = { git = "https://github.com/filecoin-project/ref-fvm.git", branch = "master" }
