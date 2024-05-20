@@ -78,7 +78,7 @@ jobs:
         type: boolean
         default: true
     executor: golang
-    resource_class: medium
+    resource_class: medium+
     working_directory: ~/go/src/github.com/filecoin-project/filecoin-ffi
     steps:
       - configure_environment_variables
