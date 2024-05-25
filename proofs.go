@@ -414,6 +414,13 @@ func SealCommitPhase2(
 	return cgo.SealCommitPhase2(cgo.AsSliceRefUint8(phase1Output), uint64(sectorNum), &proverID)
 }
 
+// SealCommitPhase2CircuitProofs runs a non-interactive proof and returns the circuit proof bytes
+// rather than the aggregated proof bytes. This is used to aggregate multiple non-interactive
+// proofs as the aggregated single proof outputs can't further be aggregated.
+func SealCommitPhase2CircuitProofs(phase1Output []byte, sectorNum abi.SectorNumber) ([]byte, error) {
+	return cgo.SealCommitPhase2CircuitProofs(cgo.AsSliceRefUint8(phase1Output), uint64(sectorNum))
+}
+
 // TODO AggregateSealProofs it only needs InteractiveRandomness out of the aggregateInfo.Infos
 func AggregateSealProofs(aggregateInfo proof.AggregateSealVerifyProofAndInfos, proofs [][]byte) (out []byte, err error) {
 	sp, err := toFilRegisteredSealProof(aggregateInfo.SealProof)
@@ -1029,6 +1036,17 @@ func toFilRegisteredSealProof(p abi.RegisteredSealProof) (cgo.RegisteredSealProo
 		return cgo.RegisteredSealProofStackedDrg32GiBV11_Feat_SyntheticPoRep, nil
 	case abi.RegisteredSealProof_StackedDrg64GiBV1_1_Feat_SyntheticPoRep:
 		return cgo.RegisteredSealProofStackedDrg64GiBV11_Feat_SyntheticPoRep, nil
+
+	case abi.RegisteredSealProof_StackedDrg2KiBV1_2_Feat_NiPoRep:
+		return cgo.RegisteredSealProofStackedDrg2KiBV1_2_Feat_NonInteractivePoRep, nil
+	case abi.RegisteredSealProof_StackedDrg8MiBV1_2_Feat_NiPoRep:
+		return cgo.RegisteredSealProofStackedDrg8MiBV1_2_Feat_NonInteractivePoRep, nil
+	case abi.RegisteredSealProof_StackedDrg512MiBV1_2_Feat_NiPoRep:
+		return cgo.RegisteredSealProofStackedDrg512MiBV1_2_Feat_NonInteractivePoRep, nil
+	case abi.RegisteredSealProof_StackedDrg32GiBV1_2_Feat_NiPoRep:
+		return cgo.RegisteredSealProofStackedDrg32GiBV1_2_Feat_NonInteractivePoRep, nil
+	case abi.RegisteredSealProof_StackedDrg64GiBV1_2_Feat_NiPoRep:
+		return cgo.RegisteredSealProofStackedDrg64GiBV1_2_Feat_NonInteractivePoRep, nil
 
 	default:
 		return 0, errors.Errorf("no mapping to C.FFIRegisteredSealProof value available for: %v", p)

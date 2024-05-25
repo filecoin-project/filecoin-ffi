@@ -130,6 +130,15 @@ func SealCommitPhase2(sealCommitPhase1Output SliceRefUint8, sectorId uint64, pro
 	return resp.value.copy(), nil
 }
 
+func SealCommitPhase2CircuitProofs(sealCommitPhase1Output SliceRefUint8, sectorId uint64) ([]byte, error) {
+	resp := C.seal_commit_phase2_circuit_proofs(sealCommitPhase1Output, C.uint64_t(sectorId))
+	defer resp.destroy()
+	if err := CheckErr(resp); err != nil {
+		return nil, err
+	}
+	return resp.value.copy(), nil
+}
+
 func AggregateSealProofs(registeredProof RegisteredSealProof, registeredAggregation RegisteredAggregationProof, commRs SliceRefByteArray32, seeds SliceRefByteArray32, sealCommitResponses SliceRefSliceBoxedUint8) ([]byte, error) {
 	resp := C.aggregate_seal_proofs(registeredProof, registeredAggregation, commRs, seeds, sealCommitResponses)
 	defer resp.destroy()
