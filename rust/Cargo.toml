@@ -48,6 +48,12 @@ safer-ffi = { version = "0.0.7", features = ["proc_macros"] }
 filecoin-proofs-api = { version = "18.0", default-features = false }
 yastl = "0.1.2"
 
+[patch.crates-io]
+fvm = { git = "https://github.com/filecoin-project/ref-fvm.git", branch="rvagg/nlucic/niporep" }
+fvm_shared = { git = "https://github.com/filecoin-project/ref-fvm.git", branch="rvagg/nlucic/niporep" }
+fvm_ipld_blockstore = { git = "https://github.com/filecoin-project/ref-fvm.git", branch="rvagg/nlucic/niporep" }
+fvm_ipld_encoding = { git = "https://github.com/filecoin-project/ref-fvm.git", branch="rvagg/nlucic/niporep" }
+
 [dev-dependencies]
 memmap2 = "0.5"
 tempfile = "3.0.8"

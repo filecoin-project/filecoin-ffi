@@ -1569,7 +1569,7 @@ dependencies = [
  "derive_more",
  "filecoin-proofs-api 16.1.0",
  "fvm-wasm-instrument 0.2.0",
- "fvm_ipld_amt",
+ "fvm_ipld_amt 0.6.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "fvm_ipld_blockstore",
  "fvm_ipld_encoding",
  "fvm_ipld_hamt 0.8.0",
@@ -1604,7 +1604,7 @@ dependencies = [
  "derive_more",
  "filecoin-proofs-api 16.1.0",
  "fvm-wasm-instrument 0.4.0",
- "fvm_ipld_amt",
+ "fvm_ipld_amt 0.6.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "fvm_ipld_blockstore",
  "fvm_ipld_encoding",
  "fvm_ipld_hamt 0.8.0",
@@ -1631,16 +1631,15 @@ dependencies = [
 [[package]]
 name = "fvm"
 version = "4.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b31422270e0665c2f12f91a46e3bf1e164dcab41c7d5d44006418261c71def64"
+source = "git+https://github.com/filecoin-project/ref-fvm.git?branch=rvagg/nlucic/niporep#c74f065167f674321f68f3310337111dabbda510"
 dependencies = [
  "ambassador",
  "anyhow",
  "cid",
  "derive_more",
- "filecoin-proofs-api 16.1.0",
+ "filecoin-proofs-api 18.0.1",
  "fvm-wasm-instrument 0.4.0",
- "fvm_ipld_amt",
+ "fvm_ipld_amt 0.6.2 (git+https://github.com/filecoin-project/ref-fvm.git?branch=rvagg/nlucic/niporep)",
  "fvm_ipld_blockstore",
  "fvm_ipld_encoding",
  "fvm_ipld_hamt 0.9.0",
@@ -1701,10 +1700,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "fvm_ipld_amt"
+version = "0.6.2"
+source = "git+https://github.com/filecoin-project/ref-fvm.git?branch=rvagg/nlucic/niporep#c74f065167f674321f68f3310337111dabbda510"
+dependencies = [
+ "anyhow",
+ "cid",
+ "fvm_ipld_blockstore",
+ "fvm_ipld_encoding",
+ "itertools 0.11.0",
+ "once_cell",
+ "serde",
+ "thiserror",
+]
+
+[[package]]
 name = "fvm_ipld_blockstore"
 version = "0.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d064b957420f5ecc137a153baaa6c32e2eb19b674135317200b6f2537eabdbfd"
+source = "git+https://github.com/filecoin-project/ref-fvm.git?branch=rvagg/nlucic/niporep#c74f065167f674321f68f3310337111dabbda510"
 dependencies = [
  "anyhow",
  "cid",
@@ -1714,8 +1727,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_encoding"
 version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "90608092e31d9a06236268c58f7c36668ab4b2a48afafe3a97e08f094ad7ae50"
+source = "git+https://github.com/filecoin-project/ref-fvm.git?branch=rvagg/nlucic/niporep#c74f065167f674321f68f3310337111dabbda510"
 dependencies = [
  "anyhow",
  "cid",
@@ -1751,8 +1763,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_hamt"
 version = "0.9.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "48c900736087ff87cc51f669eee2f8e000c80717472242eb3f712aaa059ac3b3"
+source = "git+https://github.com/filecoin-project/ref-fvm.git?branch=rvagg/nlucic/niporep#c74f065167f674321f68f3310337111dabbda510"
 dependencies = [
  "anyhow",
  "byteorder",
@@ -1831,8 +1842,7 @@ dependencies = [
 [[package]]
 name = "fvm_shared"
 version = "4.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "19de4747a883b0f1ed8b9200c188d87ebcc70f7c10c07f7f64d7fc5fb192d085"
+source = "git+https://github.com/filecoin-project/ref-fvm.git?branch=rvagg/nlucic/niporep#c74f065167f674321f68f3310337111dabbda510"
 dependencies = [
  "anyhow",
  "bitflags 2.5.0",
@@ -1841,7 +1851,7 @@ dependencies = [
  "cid",
  "data-encoding",
  "data-encoding-macro",
- "filecoin-proofs-api 16.1.0",
+ "filecoin-proofs-api 18.0.1",
  "fvm_ipld_encoding",
  "lazy_static",
  "libsecp256k1",
