@@ -101,7 +101,7 @@ impl From<api::RegisteredSealProof> for RegisteredSealProof {
             StackedDrg8MiBV1_2_Feat_NonInteractivePoRep => {
                 RegisteredSealProof::StackedDrg8MiBV1_2_Feat_NonInteractivePoRep
             }
-            StackedDrg512MiBV1_2_Feat_NonInteractivecPoRep => {
+            StackedDrg512MiBV1_2_Feat_NonInteractivePoRep => {
                 RegisteredSealProof::StackedDrg512MiBV1_2_Feat_NonInteractivePoRep
             }
             StackedDrg32GiBV1_2_Feat_NonInteractivePoRep => {
@@ -153,7 +153,7 @@ impl From<RegisteredSealProof> for api::RegisteredSealProof {
                 StackedDrg8MiBV1_2_Feat_NonInteractivePoRep
             }
             RegisteredSealProof::StackedDrg512MiBV1_2_Feat_NonInteractivePoRep => {
-                StackedDrg512MiBV1_2_Feat_NonInteractivecPoRep
+                StackedDrg512MiBV1_2_Feat_NonInteractivePoRep
             }
             RegisteredSealProof::StackedDrg32GiBV1_2_Feat_NonInteractivePoRep => {
                 StackedDrg32GiBV1_2_Feat_NonInteractivePoRep
