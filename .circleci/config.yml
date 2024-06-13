@@ -352,13 +352,13 @@ commands:
           no_output_timeout: 90m
       - run:
           name: Run the Go tests
-          command: GODEBUG=cgocheck=2 RUST_LOG=info go test -p 1 -timeout 60m
+          command: GOEXPERIMENT=cgocheck2 RUST_LOG=info go test -p 1 -timeout 60m
           no_output_timeout: 60m
   compile_tests:
     steps:
       - run:
           name: Build project and tests, but don't actually run the tests (used to verify that build/link works with Darwin)
-          command: GODEBUG=cgocheck=2 RUST_LOG=info go test -run=^$
+          command: GOEXPERIMENT=cgocheck2 RUST_LOG=info go test -run=^$
   restore_parameter_cache:
     steps:
       - restore_cache:
