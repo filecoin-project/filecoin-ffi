@@ -6,7 +6,7 @@ orbs:
 executors:
   golang:
     docker:
-      - image: cimg/go:1.20
+      - image: cimg/go:1.21
     resource_class: small
     environment:
       # Build the kernel only for the single architecture. This should reduce
