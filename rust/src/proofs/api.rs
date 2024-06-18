@@ -294,6 +294,36 @@ fn seal_commit_phase2(
     })
 }
 
+/// This function generates a variant of the circuit proof for the second phase of the sealing
+/// process. It takes as input the output from the first phase of the sealing process
+/// [`seal_commit_phase1`] and a sector ID.
+///
+/// This variant of `seal_commit_phase2` is intended specifically for returning the circuit proofs
+/// of a NonInteractivePoRep proof, such that it can later be aggregated with other
+/// NonInteractivePoRep proofs.
+///
+/// # Arguments
+///
+/// * `seal_commit_phase1_output` - A reference to a slice of bytes representing the output from the
+///   first phase of the sealing process.
+/// * `sector_id` - A 64-bit integer representing the sector ID.
+///
+/// # Returns
+/// This function returns a `SealCommitPhase2Response` wrapped in a `repr_c::Box`. This response
+/// includes the proof generated in this phase of the sealing process.
+#[ffi_export]
+fn seal_commit_phase2_circuit_proofs(
+    seal_commit_phase1_output: c_slice::Ref<u8>,
+    sector_id: u64,
+) -> repr_c::Box<SealCommitPhase2Response> {
+    catch_panic_response("seal_commit_phase2_circuit_proofs", || {
+        let scp1o = serde_json::from_slice(&seal_commit_phase1_output)?;
+        let result = seal::seal_commit_phase2_circuit_proofs(scp1o, SectorId::from(sector_id))?;
+
+        Ok(result.proof.into_boxed_slice().into())
+    })
+}
+
 /// TODO: document
 #[ffi_export]
 fn generate_synth_proofs(
@@ -1674,6 +1704,7 @@ pub mod tests {
             RegisteredSealProof::StackedDrg2KiBV1,
             RegisteredSealProof::StackedDrg2KiBV1_1,
             RegisteredSealProof::StackedDrg2KiBV1_1_Feat_SyntheticPoRep,
+            RegisteredSealProof::StackedDrg2KiBV1_2_Feat_NonInteractivePoRep,
         ];
         for version in versions {
             info!("test_sealing_versions[{:?}]", version);

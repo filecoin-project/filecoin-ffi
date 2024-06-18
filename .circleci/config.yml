@@ -6,7 +6,7 @@ orbs:
 executors:
   golang:
     docker:
-      - image: cimg/go:1.20
+      - image: cimg/go:1.21
     resource_class: small
     environment:
       # Build the kernel only for the single architecture. This should reduce
@@ -56,7 +56,7 @@ jobs:
         type: boolean
         default: true
     machine:
-      image: ubuntu-2204:2023.07.2
+      image: default
     resource_class: arm.large
     working_directory: ~/go/src/github.com/filecoin-project/filecoin-ffi
     steps:
@@ -78,7 +78,7 @@ jobs:
         type: boolean
         default: true
     executor: golang
-    resource_class: medium
+    resource_class: medium+
     working_directory: ~/go/src/github.com/filecoin-project/filecoin-ffi
     steps:
       - configure_environment_variables
@@ -232,7 +232,7 @@ commands:
             - run:
                 name: Install Go
                 command: |
-                  curl https://dl.google.com/go/go1.20.10.darwin-arm64.pkg -o /tmp/go.pkg && \
+                  curl https://dl.google.com/go/go1.21.11.darwin-arm64.pkg -o /tmp/go.pkg && \
                   sudo installer -pkg /tmp/go.pkg -target /
                   go version
             - run:
@@ -352,13 +352,13 @@ commands:
           no_output_timeout: 90m
       - run:
           name: Run the Go tests
-          command: GODEBUG=cgocheck=2 RUST_LOG=info go test -p 1 -timeout 60m
+          command: GOEXPERIMENT=cgocheck2 RUST_LOG=info go test -p 1 -timeout 60m
           no_output_timeout: 60m
   compile_tests:
     steps:
       - run:
           name: Build project and tests, but don't actually run the tests (used to verify that build/link works with Darwin)
-          command: GODEBUG=cgocheck=2 RUST_LOG=info go test -run=^$
+          command: GOEXPERIMENT=cgocheck2 RUST_LOG=info go test -run=^$
   restore_parameter_cache:
     steps:
       - restore_cache:

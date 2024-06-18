@@ -59,6 +59,11 @@ pub enum RegisteredSealProof {
     StackedDrg512MiBV1_1_Feat_SyntheticPoRep,
     StackedDrg32GiBV1_1_Feat_SyntheticPoRep,
     StackedDrg64GiBV1_1_Feat_SyntheticPoRep,
+    StackedDrg2KiBV1_2_Feat_NonInteractivePoRep,
+    StackedDrg8MiBV1_2_Feat_NonInteractivePoRep,
+    StackedDrg512MiBV1_2_Feat_NonInteractivePoRep,
+    StackedDrg32GiBV1_2_Feat_NonInteractivePoRep,
+    StackedDrg64GiBV1_2_Feat_NonInteractivePoRep,
 }
 
 impl From<api::RegisteredSealProof> for RegisteredSealProof {
@@ -89,6 +94,21 @@ impl From<api::RegisteredSealProof> for RegisteredSealProof {
             }
             StackedDrg64GiBV1_1_Feat_SyntheticPoRep => {
                 RegisteredSealProof::StackedDrg64GiBV1_1_Feat_SyntheticPoRep
+            }
+            StackedDrg2KiBV1_2_Feat_NonInteractivePoRep => {
+                RegisteredSealProof::StackedDrg2KiBV1_2_Feat_NonInteractivePoRep
+            }
+            StackedDrg8MiBV1_2_Feat_NonInteractivePoRep => {
+                RegisteredSealProof::StackedDrg8MiBV1_2_Feat_NonInteractivePoRep
+            }
+            StackedDrg512MiBV1_2_Feat_NonInteractivePoRep => {
+                RegisteredSealProof::StackedDrg512MiBV1_2_Feat_NonInteractivePoRep
+            }
+            StackedDrg32GiBV1_2_Feat_NonInteractivePoRep => {
+                RegisteredSealProof::StackedDrg32GiBV1_2_Feat_NonInteractivePoRep
+            }
+            StackedDrg64GiBV1_2_Feat_NonInteractivePoRep => {
+                RegisteredSealProof::StackedDrg64GiBV1_2_Feat_NonInteractivePoRep
             }
         }
     }
@@ -124,6 +144,22 @@ impl From<RegisteredSealProof> for api::RegisteredSealProof {
             }
             RegisteredSealProof::StackedDrg64GiBV1_1_Feat_SyntheticPoRep => {
                 StackedDrg64GiBV1_1_Feat_SyntheticPoRep
+            }
+
+            RegisteredSealProof::StackedDrg2KiBV1_2_Feat_NonInteractivePoRep => {
+                StackedDrg2KiBV1_2_Feat_NonInteractivePoRep
+            }
+            RegisteredSealProof::StackedDrg8MiBV1_2_Feat_NonInteractivePoRep => {
+                StackedDrg8MiBV1_2_Feat_NonInteractivePoRep
+            }
+            RegisteredSealProof::StackedDrg512MiBV1_2_Feat_NonInteractivePoRep => {
+                StackedDrg512MiBV1_2_Feat_NonInteractivePoRep
+            }
+            RegisteredSealProof::StackedDrg32GiBV1_2_Feat_NonInteractivePoRep => {
+                StackedDrg32GiBV1_2_Feat_NonInteractivePoRep
+            }
+            RegisteredSealProof::StackedDrg64GiBV1_2_Feat_NonInteractivePoRep => {
+                StackedDrg64GiBV1_2_Feat_NonInteractivePoRep
             }
         }
     }
