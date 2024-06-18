@@ -5,7 +5,7 @@ version = "0.7.5"
 authors = [
   "nemo <nemo@protocol.ai>",
   "dignifiedquire <me@dignifiedquire.com>",
-  "laser <l@s3r.com>"
+  "laser <l@s3r.com>",
 ]
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/filecoin-project/filecoin-ffi"
@@ -18,7 +18,9 @@ publish = false
 crate-type = ["rlib", "staticlib"]
 
 [dependencies]
-bls-signatures = { version = "0.15.0", default-features = false, features = ["blst"] }
+bls-signatures = { version = "0.15.0", default-features = false, features = [
+  "blst",
+] }
 blstrs = "0.7"
 filepath = "0.1.1"
 group = "0.13"
@@ -31,7 +33,10 @@ rayon = "1.2.1"
 anyhow = "1.0.23"
 serde_json = "1.0.46"
 rust-gpu-tools = { version = "0.7", optional = true, default-features = false }
-fvm4 = { package = "fvm", version = "~4.3.0", default-features = false, features = ["nv23-dev"] }
+fvm4 = { package = "fvm", version = "~4.3.0", default-features = false, features = [
+  "nv23-dev",
+  "verify-signature",
+] }
 fvm4_shared = { package = "fvm_shared", version = "~4.3.0" }
 fvm3 = { package = "fvm", version = "~3.10.0", default-features = false }
 fvm3_shared = { package = "fvm_shared", version = "~3.10.0" }
@@ -55,9 +60,26 @@ tempfile = "3.0.8"
 [features]
 default = ["cuda", "multicore-sdr"]
 blst-portable = ["bls-signatures/blst-portable", "blstrs/portable"]
-cuda = ["filecoin-proofs-api/cuda", "rust-gpu-tools/cuda", "fvm2/cuda", "fvm3/cuda", "fvm4/cuda"]
-cuda-supraseal = ["filecoin-proofs-api/cuda-supraseal", "rust-gpu-tools/cuda", "fvm3/cuda-supraseal", "fvm4/cuda-supraseal"]
-opencl = ["filecoin-proofs-api/opencl", "rust-gpu-tools/opencl", "fvm2/opencl", "fvm3/opencl", "fvm4/opencl"]
+cuda = [
+  "filecoin-proofs-api/cuda",
+  "rust-gpu-tools/cuda",
+  "fvm2/cuda",
+  "fvm3/cuda",
+  "fvm4/cuda",
+]
+cuda-supraseal = [
+  "filecoin-proofs-api/cuda-supraseal",
+  "rust-gpu-tools/cuda",
+  "fvm3/cuda-supraseal",
+  "fvm4/cuda-supraseal",
+]
+opencl = [
+  "filecoin-proofs-api/opencl",
+  "rust-gpu-tools/opencl",
+  "fvm2/opencl",
+  "fvm3/opencl",
+  "fvm4/opencl",
+]
 multicore-sdr = ["filecoin-proofs-api/multicore-sdr"]
 c-headers = ["safer-ffi/headers"]
 # This feature enables a fixed number of discarded rows for TreeR. The `FIL_PROOFS_ROWS_TO_DISCARD`
@@ -67,4 +89,4 @@ fixed-rows-to-discard = ["filecoin-proofs-api/fixed-rows-to-discard"]
 [patch.crates-io]
 filecoin-proofs = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "fip90-and-test-updates" }
 filecoin-proofs-api = { git = "https://github.com/filecoin-project/rust-filecoin-proofs-api", branch = "use-pub-more" }
-storage-proofs-core = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch="fip90-and-test-updates" }
+storage-proofs-core = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "fip90-and-test-updates" }
