@@ -155,7 +155,8 @@ The versioning in Filecoin-FFI currently follows the Lotus versioning.  For exam
 2. Click the "Draft a new release" button in the right corner.
 3. In the "Choose a tag" dropdown, enter the desired version and click "Create new tag: vX.XX.X on publish".
 4. Target the release candidate you want to create a stable.
-5. Set the previous tag to compare against, the last definitive or patch release, and click the "Generate release notes" button.
+5. Set the previous tag to compare against, which should be the last stable release (e.g., non-RC)
+6. click the "Generate release notes" button.
 6. Ensure the "Set as a latest release" checkbox **is checked**.
 7. Click "Publish release" to create the release.
 
