@@ -101,7 +101,7 @@ Run it like so:
 
 The core maintainers of this repository are:
 - @Filoz
-- Elliptic Research
+- [Elliptic Research](https://www.ellipticresearch.com/)
 
 Maintainers are not only the contributors of this repository, but also exercise a range of editorial responsibilities to keep the repository organized for the OSS contributors, that includes triage the issues, review and merge/close PRs, publish releases and so on.
 
