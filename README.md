@@ -130,7 +130,7 @@ We will cooperates with the [lotus' releases and it's testing flows](https://git
 
 #### Versioning
 
-The versioning in Filecoin-FFI currently follows the Lotus versioning, this is something we will refactor in the near future. As an example, if you are cutting a release for Lotus v1.28.0-rc1, the Filecoin-FFI release will be named v1.28.0-rc1 as well.
+The versioning in Filecoin-FFI currently follows the Lotus versioning.  For example, if you are cutting a release for Lotus v1.28.0-rc1, the Filecoin-FFI release will be named v1.28.0-rc1 as well.  (Note: Lotus versioning will be refactored in the near future as part of [lotus #12072](https://github.com/filecoin-project/lotus/issues/12072).)
 
 #### Release Process
 
