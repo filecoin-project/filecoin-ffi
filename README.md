@@ -134,8 +134,10 @@ The versioning in Filecoin-FFI currently follows the Lotus versioning.  For exam
 
 #### Release Process
 
+##### Cutting a development or release candidate release
+
 <details>
-  <summary>Cutting a development or release candidate release:</summary>
+  <summary>Steps to cut a development or release candidate release:</summary>
 
 1. Go to [Filecoin-FFI Releases](https://github.com/filecoin-project/filecoin-ffi/releases).
 2. Click the "Draft a new release" button in the right corner.
@@ -148,8 +150,10 @@ The versioning in Filecoin-FFI currently follows the Lotus versioning.  For exam
 
 </details>
 
+##### Cutting a definitive release
+
 <details>
-  <summary>Cutting a definitive release:</summary>
+  <summary>Steps to cut a definitive release:</summary>
 
 1. Go to [Filecoin-FFI Releases](https://github.com/filecoin-project/filecoin-ffi/releases).
 2. Click the "Draft a new release" button in the right corner.
