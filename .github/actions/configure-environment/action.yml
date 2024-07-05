@@ -9,9 +9,7 @@ runs:
         echo 'GO111MODULE=on' >> $GITHUB_ENV
         echo 'RUST_LOG=info' >> $GITHUB_ENV
         echo "GOPATH=${HOME}/go" >> $GITHUB_ENV
-        echo "CPATH=/usr/include:/usr/local/include:$CPATH" >> $GITHUB_ENV
-        echo "LIBRARY_PATH=/usr/lib:/usr/local/lib:$LIBRARY_PATH" >> $GITHUB_ENV
-        echo "LD_LIBRARY_PATH=/usr/lib:/usr/local/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
+        echo "CARGO_TERM_COLOR=never" >> $GITHUB_ENV
       shell: bash
     - run: |
         echo "/usr/local/go/bin" >> $GITHUB_PATH
@@ -19,23 +17,10 @@ runs:
         echo "${HOME}/.cargo/bin" >> $GITHUB_PATH
         echo "${HOME}/.bin" >> $GITHUB_PATH
       shell: bash
-    - if: runner.os == 'Linux' && runner.arch == 'X64'
-      run: |
-        echo "CPATH=/usr/include/x86_64-linux-gnu:$CPATH" >> $GITHUB_ENV
-        echo "LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$LIBRARY_PATH" >> $GITHUB_ENV
-        echo "LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH" >> $GITHUB_ENV
-      shell: bash
-    - if: runner.os == 'Linux' && runner.arch == 'ARM64'
-      run: |
-        echo "CPATH=/usr/include/aarch64-linux-gnu:$CPATH" >> $GITHUB_ENV
-        echo "LIBRARY_PATH=/usr/lib/aarch64-linux-gnu:$LIBRARY_PATH" >> $GITHUB_ENV
-        echo "LD_LIBRARY_PATH=/usr/lib/aarch64-linux-gnu:$LD_LIBRARY_PATH" >> $GITHUB_ENV
-      shell: bash
     - if: runner.os == 'macOS'
       run: |
-        echo "CPATH=$(brew --prefix)/include:$CPATH" >> $GITHUB_ENV
-        echo "LIBRARY_PATH=$(brew --prefix)/lib:$LIBRARY_PATH" >> $GITHUB_ENV
-        echo "LD_LIBRARY_PATH=$(brew --prefix)/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
+        echo "CPATH=$(brew --prefix)/include" >> $GITHUB_ENV
+        echo "LIBRARY_PATH=$(brew --prefix)/lib" >> $GITHUB_ENV
       shell: bash
     - if: runner.os == 'Linux'
       run: |
@@ -45,11 +30,6 @@ runs:
         sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-10 10
         sudo update-alternatives --set c++ /usr/bin/g++-10
         # Check if we need to install cuda-toolkit-12-5
-      shell: bash
-    - if: runner.os == 'Linux' && runner.arch == 'ARM64'
-      run: |
-        ls /usr/include/aarch64-linux-gnu
-        ls /usr/lib/aarch64-linux-gnu
       shell: bash
     - if: runner.os == 'macOS'
       run: |
