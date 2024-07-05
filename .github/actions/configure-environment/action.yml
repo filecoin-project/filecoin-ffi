@@ -13,6 +13,7 @@ runs:
         sudo cp /var/cuda-repo-ubuntu2204-12-5-local/cuda-*-keyring.gpg /usr/share/keyrings/
         sudo apt-get update
         sudo apt-get -y install cuda-toolkit-12-5
+        sudo mkdir -p /usr/lib/aarch64-linux-gnu/stubs
         sudo ln -s /usr/local/cuda-12.5/lib64/stubs/libcuda.so /usr/lib/aarch64-linux-gnu/stubs/libcuda.so.1
         sudo ln -s /usr/local/cuda-12.5/lib64/stubs/libcuda.so /usr/lib/aarch64-linux-gnu/stubs/libcuda.so
       shell: bash
