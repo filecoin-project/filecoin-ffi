@@ -17,13 +17,11 @@ runs:
         echo "${HOME}/.bin" >> $GITHUB_PATH
       shell: bash
     - if: runner.os == 'Linux' && runner.arch == 'ARM64'
-      run: |
-        # Make sure CUDA is found on aarch64
-        echo 'LD_LIBRARY_PATH="/usr/lib/aarch64-linux-gnu/stubs:'"${LD_LIBRARY_PATH}"'"' >> $GITHUB_ENV
-        echo 'LIBRARY_PATH="/usr/lib/aarch64-linux-gnu/stubs:'"${LIBRARY_PATH}"'"' >> $GITHUB_ENV
-      shell: bash
+      uses: Jimver/cuda-toolkit@9b295696791d75d658d8de64c4a85097ad8abeaf # v0.2.16
     - if: runner.os == 'macOS'
       run: |
+        ls "/Applications" | grep "Xcode_"
+        sudo xcode-select -s "/Applications/Xcode_14.3.1.app"
         echo "CPATH=$(brew --prefix)/include" >> $GITHUB_ENV
         echo "LIBRARY_PATH=$(brew --prefix)/lib" >> $GITHUB_ENV
       shell: bash
