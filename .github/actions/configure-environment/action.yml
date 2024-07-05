@@ -16,8 +16,6 @@ runs:
         echo "${HOME}/.cargo/bin" >> $GITHUB_PATH
         echo "${HOME}/.bin" >> $GITHUB_PATH
       shell: bash
-    - if: runner.os == 'Linux' && runner.arch == 'ARM64'
-      uses: Jimver/cuda-toolkit@9b295696791d75d658d8de64c4a85097ad8abeaf # v0.2.16
     - if: runner.os == 'macOS'
       run: |
         ls "/Applications" | grep "Xcode_"
@@ -36,6 +34,17 @@ runs:
     - if: runner.os == 'macOS'
       run: |
         HOMEBREW_NO_AUTO_UPDATE=1 brew install pkg-config md5sha1sum jq hwloc libmx || brew link --overwrite python@2
+      shell: bash
+    - if: runner.os == 'Linux' && runner.arch == 'ARM64'
+      run: |
+        wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/sbsa/cuda-ubuntu2204.pin
+        sudo mv cuda-ubuntu2204.pin /etc/apt/preferences.d/cuda-repository-pin-600
+        wget https://developer.download.nvidia.com/compute/cuda/12.5.1/local_installers/cuda-repo-ubuntu2204-12-5-local_12.5.1-555.42.06-1_arm64.deb
+        sudo dpkg -i cuda-repo-ubuntu2204-12-5-local_12.5.1-555.42.06-1_arm64.deb
+        sudo cp /var/cuda-repo-ubuntu2204-12-5-local/cuda-*-keyring.gpg /usr/share/keyrings/
+        sudo apt-get update
+        sudo apt-get -y install cuda-toolkit-12-5
+        echo "LD_LIBRARY_PATH=/usr/local/cuda-12.5/lib64:/usr/local/cuda-12.5/lib64/stubs:$LD_LIBRARY_PATH" >> $GITHUB_ENV
       shell: bash
     - uses: dtolnay/rust-toolchain@21dc36fb71dd22e3317045c0c31a3f4249868b17
       with:
