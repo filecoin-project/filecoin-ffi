@@ -1,0 +1,40 @@
+name: Configure Environment Variables
+description: Configure environment variables for Filecoin FFI
+
+runs:
+  using: 'composite'
+  steps:
+    - run: |
+        echo 'FIL_PROOFS_PARAMETER_CACHE="${GITHUB_WORKSPACE}/filecoin-proof-parameters/"' >> $GITHUB_ENV
+        echo 'GO111MODULE=on' >> $GITHUB_ENV
+        echo 'GOPATH="${GITHUB_WORKSPACE}/go"' >> $GITHUB_ENV
+        echo 'PATH="/usr/local/go/bin:${GITHUB_WORKSPACE}/.cargo/bin:${PATH}:${GITHUB_WORKSPACE}/go/bin:${GITHUB_WORKSPACE}/.bin"' >> $GITHUB_ENV
+        echo 'RUST_LOG=info' >> $GITHUB_ENV
+        echo 'CIRCLE_ARTIFACTS="/tmp"' >> $GITHUB_ENV
+        # Make sure CUDA is found on aarch64
+        echo 'LD_LIBRARY_PATH="/usr/lib/aarch64-linux-gnu/stubs:${LD_LIBRARY_PATH}"' >> $GITHUB_ENV
+        echo 'LIBRARY_PATH="/usr/lib/aarch64-linux-gnu/stubs:${LIBRARY_PATH}"' >> $GITHUB_ENV
+      shell: bash
+    - if: runner.os == 'MacOS'
+      run: |
+        echo 'export PATH="${GITHUB_WORKSPACE}/.cargo/bin:${GITHUB_WORKSPACE}/.bin:${PATH}"' >> $GITHUB_ENV
+        echo 'export LIBRARY_PATH=/opt/homebrew/lib' >> $GITHUB_ENV
+      shell: bash
+    - if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install --no-install-recommends -y valgrind ocl-icd-opencl-dev libssl-dev libhwloc-dev nvidia-cuda-toolkit g++-10
+        # Downgrade to GCC 10, as CUDA 11 doesn't play nice with GCC 11
+        sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-10 10
+        sudo update-alternatives --set c++ /usr/bin/g++-10
+      shell: bash
+    - if: runner.os == 'MacOS'
+      run: |
+        brew install filippo.io/age/age
+      shell: bash
+    - uses: dtolnay/rust-toolchain@21dc36fb71dd22e3317045c0c31a3f4249868b17
+      with:
+        toolchain: 1.73
+    - uses: actions/setup-go@v5
+      with:
+        go-version: '1.21'

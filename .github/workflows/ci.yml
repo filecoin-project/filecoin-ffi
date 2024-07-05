@@ -1,0 +1,182 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+    tags:
+      - v*
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Publish the static library'
+        required: false
+        default: 'false'
+
+defaults:
+  run:
+    shell: bash
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+# Can we apply these to the entire workflow?
+env:
+  # Build the kernel only for the single architecture. This should reduce
+  # the overall compile-time significantly.
+  EC_GPU_CUDA_NVCC_ARGS: --fatbin --gpu-architecture=sm_75 --generate-code=arch=compute_75,code=sm_75
+  BELLMAN_CUDA_NVCC_ARGS: --fatbin --gpu-architecture=sm_75 --generate-code=arch=compute_75,code=sm_75
+  NEPTUNE_CUDA_NVCC_ARGS: --fatbin --gpu-architecture=sm_75 --generate-code=arch=compute_75,code=sm_75
+
+jobs:
+  check:
+    name: Check code style and run linters
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: ./.github/actions/configure-environment
+      - name: Run shellcheck
+        run: shellcheck ./install-filcrypto
+      - name: Run cargo fmt
+        run: cargo fmt --manifest-path ./rust/Cargo.toml --all -- --check
+      - name: Run cargo clippy
+        run: cd rust && cargo clippy --all-targets --features blst-portable,opencl -- -D warnings
+      - name: Run go fmt
+        # `! go fmt ./... 2>&1 | read"` doesn't work, this one does, thanks
+        # https://carsonip.me/posts/go-fmt-and-ci/
+        run: |
+          output=$(go fmt ./...)
+          echo "${output}"
+          test -z "${output}"
+      - name: Run various linters
+        run: make go-lint
+  cgo-bindings:
+    name: Build and test CGO bindings (${{ matrix.runner }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        runner: ['ubuntu-latest', ["self-hosted", "linux", "arm64", "xlarge"], 'macos-latest']
+    # # Is it OK if we operate in the default working directory?
+    # defaults:
+    #   run:
+    #     working-directory: go/src/github.com/filecoin-project/filecoin-ffi
+    steps:
+      - run: echo "Running on $RUNNER_OS $RUNNER_ARCH"
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: ./.github/actions/configure-environment
+      - if: runner.os == 'MacOS'
+        run: cd rust && cargo fetch
+      - name: Build project
+        run: make
+      - name: Build project without CGO
+        run: env CGO_ENABLED=0 go build .
+      - if: runner.os == 'Linux'
+        uses: actions/cache/restore@v3
+        with:
+          key: v28-proof-params-${{ runner.os }}-${{ runner.arch }}
+          path: |
+            ./filecoin-proof-parameters
+      - if: runner.os == 'Linux'
+        name: Obtain Filecoin parameters
+        run: |
+          DIR=$(pwd)
+          cd $(mktemp -d)
+          go install github.com/filecoin-project/go-paramfetch/paramfetch@latest
+          $GOPATH/bin/paramfetch 2048 "${DIR}/parameters.json" "${DIR}/srs-inner-product.json"
+      - if: runner.os == 'Linux' && github.event == 'push' && !startsWith(github.ref, 'refs/tags/')
+        uses: actions/cache/save@v3
+        with:
+          key: v28-proof-params-${{ runner.os }}-${{ runner.arch }}
+          path: |
+            ./filecoin-proof-parameters
+      - if: runner.os == 'Linux'
+        run: cd rust && rustup target add wasm32-unknown-unknown
+      - if: runner.os == 'Linux' && runner.arch == 'x86_64'
+        run: make cgo-leakdetect
+      - if: runner.os == 'Linux'
+        run: cd rust && FIL_PROOFS_PARAMETER_CACHE="${GITHUB_WORKSPACE}/filecoin-proof-parameters/" RUST_LOG=info cargo test --all --release -- --test-threads 1 && cd ..
+      - if: runner.os == 'Linux'
+        run: GOEXPERIMENT=cgocheck2 RUST_LOG=info go test -p 1 -timeout 60m
+      - if: runner.os == 'MacOS'
+        name: Build project and tests, but don't actually run the tests (used to verify that build/link works with Darwin)
+        run: GOEXPERIMENT=cgocheck2 RUST_LOG=info go test -run=^$
+  supraseal:
+    runs-on: ubuntu-latest
+    # # Is it OK if we operate in the default working directory?
+    # defaults:
+    #   run:
+    #     working-directory: go/src/github.com/filecoin-project/filecoin-ffi
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: ./.github/actions/configure-environment
+      - name: Build project with `FFI_USE_CUDA_SUPRASEAL=1`
+        run: FFI_BUILD_FROM_SOURCE=1 FFI_USE_CUDA_SUPRASEAL=1 make
+  publish:
+    needs: [check, cgo-bindings, supraseal]
+    if: (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) || github.event.inputs.publish == 'true'
+    name: Publish the static library (${{ matrix.runner }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        runner: ['ubuntu-latest', ['self-hosted', 'linux', 'arm64', 'xlarge'], 'macos-latest']
+    steps:
+      - run: echo "Running on $RUNNER_OS $RUNNER_ARCH"
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: ./.github/actions/configure-environment
+      - if: runner.os == 'MacOS'
+        run: |
+          cd rust && rustup target add x86_64-apple-darwin
+          cd rust && cargo fetch
+      - if: runner.os == 'Linux'
+        name: Build and publish the standard release
+        run: |
+          cd rust
+
+          REPOSITORY_NAME=${GITHUB_REPOSITORY##*/}
+
+          TARBALL_PATH="/tmp/${REPOSITORY_NAME}-$(uname)-$(uname -m)-standard.tar.gz"
+          RELEASE_NAME="${REPOSITORY_NAME}-$(uname)-$(uname -m)-standard"
+
+          # Note: the blst dependency uses the portable configuration for maximum compatibility
+          ./scripts/build-release.sh build --verbose --no-default-features --features multicore-sdr,opencl,blst-portable
+          ./scripts/package-release.sh $TARBALL_PATH
+          ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
+      - if: runner.os == 'Linux'
+        name: Build the optimized release
+        run: |
+          cd rust
+
+          REPOSITORY_NAME=${GITHUB_REPOSITORY##*/}
+
+          TARBALL_PATH="/tmp/${CIRCLE_PROJECT_REPONAME}-$(uname)-$(uname -m)-optimized.tar.gz"
+          RUSTFLAGS="-C target-feature=$(cat rustc-target-features-optimized.json | jq -r '.[].rustc_target_feature' | tr '\n' ',')"
+
+          ./scripts/build-release.sh build --verbose --no-default-features --features multicore-sdr,opencl
+          ./scripts/package-release.sh $TARBALL_PATH
+      - if: runner.os == 'MacOS'
+        name: Build and publish the universal standard release
+        run: |
+          cd rust
+
+          REPOSITORY_NAME=${GITHUB_REPOSITORY##*/}
+
+          RELEASE_NAME="${CIRCLE_PROJECT_REPONAME}-$(uname)-standard"
+          TARBALL_PATH="/tmp/${RELEASE_NAME}.tar.gz"
+
+          # Note: the blst dependency uses the portable configuration for maximum compatibility
+          ./scripts/build-release.sh lipo --verbose --no-default-features --features multicore-sdr,opencl,blst-portable
+          ./scripts/package-release.sh $TARBALL_PATH
+          ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
