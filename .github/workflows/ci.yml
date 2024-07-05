@@ -45,7 +45,9 @@ jobs:
       - name: Run shellcheck
         run: shellcheck ./install-filcrypto
       - name: Run cargo fmt
-        run: cargo fmt --manifest-path ./rust/Cargo.toml --all -- --check
+        run: |
+          rustup component add rustfmt
+          cargo fmt --manifest-path ./rust/Cargo.toml --all -- --check
       - name: Run cargo clippy
         run: cd rust && cargo clippy --all-targets --features blst-portable,opencl -- -D warnings
       - name: Run go fmt
@@ -63,6 +65,7 @@ jobs:
     strategy:
       matrix:
         runner: ['ubuntu-latest', ["self-hosted", "linux", "arm64", "xlarge"], 'macos-latest']
+      fail-fast: false
     # # Is it OK if we operate in the default working directory?
     # defaults:
     #   run:
@@ -73,7 +76,7 @@ jobs:
         with:
           submodules: recursive
       - uses: ./.github/actions/configure-environment
-      - if: runner.os == 'MacOS'
+      - if: runner.os == 'macOS'
         run: cd rust && cargo fetch
       - name: Build project
         run: make
@@ -100,13 +103,13 @@ jobs:
             ./filecoin-proof-parameters
       - if: runner.os == 'Linux'
         run: cd rust && rustup target add wasm32-unknown-unknown
-      - if: runner.os == 'Linux' && runner.arch == 'x86_64'
+      - if: runner.os == 'Linux' && runner.arch == 'ARM64'
         run: make cgo-leakdetect
       - if: runner.os == 'Linux'
         run: cd rust && FIL_PROOFS_PARAMETER_CACHE="${GITHUB_WORKSPACE}/filecoin-proof-parameters/" RUST_LOG=info cargo test --all --release -- --test-threads 1 && cd ..
       - if: runner.os == 'Linux'
         run: GOEXPERIMENT=cgocheck2 RUST_LOG=info go test -p 1 -timeout 60m
-      - if: runner.os == 'MacOS'
+      - if: runner.os == 'macOS'
         name: Build project and tests, but don't actually run the tests (used to verify that build/link works with Darwin)
         run: GOEXPERIMENT=cgocheck2 RUST_LOG=info go test -run=^$
   supraseal:
@@ -130,13 +133,14 @@ jobs:
     strategy:
       matrix:
         runner: ['ubuntu-latest', ['self-hosted', 'linux', 'arm64', 'xlarge'], 'macos-latest']
+      fail-fast: false
     steps:
       - run: echo "Running on $RUNNER_OS $RUNNER_ARCH"
       - uses: actions/checkout@v4
         with:
           submodules: recursive
       - uses: ./.github/actions/configure-environment
-      - if: runner.os == 'MacOS'
+      - if: runner.os == 'macOS'
         run: |
           cd rust && rustup target add x86_64-apple-darwin
           cd rust && cargo fetch
@@ -166,7 +170,7 @@ jobs:
 
           ./scripts/build-release.sh build --verbose --no-default-features --features multicore-sdr,opencl
           ./scripts/package-release.sh $TARBALL_PATH
-      - if: runner.os == 'MacOS'
+      - if: runner.os == 'macOS'
         name: Build and publish the universal standard release
         run: |
           cd rust

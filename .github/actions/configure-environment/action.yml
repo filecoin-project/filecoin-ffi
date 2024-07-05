@@ -9,13 +9,13 @@ runs:
         echo 'GO111MODULE=on' >> $GITHUB_ENV
         echo 'RUST_LOG=info' >> $GITHUB_ENV
       shell: bash
-    - if: runner.os == 'Linux' && runner.arch == 'x86_64'
+    - if: runner.os == 'Linux' && runner.arch == 'ARM64'
       run: |
         # Make sure CUDA is found on aarch64
         echo 'LD_LIBRARY_PATH="/usr/lib/aarch64-linux-gnu/stubs:'"${LD_LIBRARY_PATH}"'"' >> $GITHUB_ENV
         echo 'LIBRARY_PATH="/usr/lib/aarch64-linux-gnu/stubs:'"${LIBRARY_PATH}"'"' >> $GITHUB_ENV
       shell: bash
-    - if: runner.os == 'MacOS'
+    - if: runner.os == 'macOS'
       run: |
         echo 'export LIBRARY_PATH=/opt/homebrew/lib' >> $GITHUB_ENV
       shell: bash
@@ -27,7 +27,7 @@ runs:
         sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-10 10
         sudo update-alternatives --set c++ /usr/bin/g++-10
       shell: bash
-    - if: runner.os == 'MacOS'
+    - if: runner.os == 'macOS'
       run: |
         HOMEBREW_NO_AUTO_UPDATE=1 brew install pkg-config md5sha1sum jq hwloc || brew link --overwrite python@2
       shell: bash
