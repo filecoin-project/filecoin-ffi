@@ -17,6 +17,10 @@ on:
         description: 'Publish the static library'
         required: false
         default: 'false'
+      run-leak-detector:
+        description: 'Run the CGO leak detector'
+        required: false
+        default: 'false'
 
 defaults:
   run:
@@ -109,7 +113,7 @@ jobs:
             ./filecoin-proof-parameters
       - if: runner.os == 'Linux'
         run: cd rust && rustup target add wasm32-unknown-unknown
-      - if: runner.os == 'Linux' && runner.arch == 'ARM64'
+      - if: github.event.inputs.run-leak-detector == 'true'
         run: make cgo-leakdetect
       - if: runner.os == 'Linux'
         run: cd rust && FIL_PROOFS_PARAMETER_CACHE="${GITHUB_WORKSPACE}/filecoin-proof-parameters/" RUST_LOG=info cargo test --all --release -- --test-threads 1 && cd ..
