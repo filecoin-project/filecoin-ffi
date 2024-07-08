@@ -220,6 +220,7 @@ commands:
           condition: << parameters.linux >>
           steps:
             - run: sudo apt-get update
+            - run: sudo apt-get remove needrestart
             - run: sudo apt-get install --no-install-recommends -y valgrind ocl-icd-opencl-dev libssl-dev libhwloc-dev nvidia-cuda-toolkit g++-10
             - run:
                 name: Downgrade to GCC 10, as CUDA 11 doesn't play nice with GCC 11
