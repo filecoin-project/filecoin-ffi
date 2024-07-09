@@ -43,6 +43,7 @@ env:
   EC_GPU_CUDA_NVCC_ARGS: --fatbin --gpu-architecture=sm_75 --generate-code=arch=compute_75,code=sm_75
   BELLMAN_CUDA_NVCC_ARGS: --fatbin --gpu-architecture=sm_75 --generate-code=arch=compute_75,code=sm_75
   NEPTUNE_CUDA_NVCC_ARGS: --fatbin --gpu-architecture=sm_75 --generate-code=arch=compute_75,code=sm_75
+  DEBIAN_FRONTEND: noninteractive
 
 jobs:
   check:
@@ -138,6 +139,10 @@ jobs:
   supraseal:
     name: Build with CUDA supraseal
     runs-on: ubuntu-latest
+    # # Is it OK if we operate in the default working directory?
+    # defaults:
+    #   run:
+    #     working-directory: go/src/github.com/filecoin-project/filecoin-ffi
     steps:
       - uses: actions/checkout@v4
         with:
