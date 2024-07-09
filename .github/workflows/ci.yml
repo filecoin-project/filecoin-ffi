@@ -21,6 +21,9 @@ on:
         description: 'Run the CGO leak detector'
         required: false
         default: 'false'
+      ref:
+        description: 'The ref to build'
+        required: false
 
 defaults:
   run:
@@ -50,6 +53,11 @@ jobs:
         with:
           submodules: recursive
       - uses: ./.github/actions/configure-environment
+      - if: github.event.inputs.ref != ''
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          ref: ${{ github.event.inputs.ref }}
       - name: Run shellcheck
         run: shellcheck ./install-filcrypto
       - name: Run cargo fmt
@@ -86,6 +94,11 @@ jobs:
         with:
           submodules: recursive
       - uses: ./.github/actions/configure-environment
+      - if: github.event.inputs.ref != ''
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          ref: ${{ github.event.inputs.ref }}
       - if: runner.os == 'macOS'
         run: cd rust && cargo fetch
       - name: Build project
@@ -125,15 +138,16 @@ jobs:
   supraseal:
     name: Build with CUDA supraseal
     runs-on: ubuntu-latest
-    # # Is it OK if we operate in the default working directory?
-    # defaults:
-    #   run:
-    #     working-directory: go/src/github.com/filecoin-project/filecoin-ffi
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
       - uses: ./.github/actions/configure-environment
+      - if: github.event.inputs.ref != ''
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          ref: ${{ github.event.inputs.ref }}
       - name: Build project with `FFI_USE_CUDA_SUPRASEAL=1`
         run: FFI_BUILD_FROM_SOURCE=1 FFI_USE_CUDA_SUPRASEAL=1 make
   publish:
@@ -151,6 +165,11 @@ jobs:
         with:
           submodules: recursive
       - uses: ./.github/actions/configure-environment
+      - if: github.event.inputs.ref != ''
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          ref: ${{ github.event.inputs.ref }}
       - if: runner.os == 'macOS'
         run: |
           cd rust && rustup target add x86_64-apple-darwin
