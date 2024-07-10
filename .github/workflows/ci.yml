@@ -85,10 +85,6 @@ jobs:
       matrix:
         runner: ['ubuntu-latest', ["self-hosted", "linux", "arm64", "xlarge"], 'macos-latest']
       fail-fast: false
-    # # Is it OK if we operate in the default working directory?
-    # defaults:
-    #   run:
-    #     working-directory: go/src/github.com/filecoin-project/filecoin-ffi
     steps:
       - run: echo "Running on $RUNNER_OS $RUNNER_ARCH"
       - uses: actions/checkout@v4
@@ -139,10 +135,6 @@ jobs:
   supraseal:
     name: Build with CUDA supraseal
     runs-on: ubuntu-latest
-    # # Is it OK if we operate in the default working directory?
-    # defaults:
-    #   run:
-    #     working-directory: go/src/github.com/filecoin-project/filecoin-ffi
     steps:
       - uses: actions/checkout@v4
         with:
