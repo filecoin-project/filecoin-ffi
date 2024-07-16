@@ -1,0 +1,32 @@
+name: Release
+on:
+  push:
+    paths: [CHANGELOG.md]
+    branches: [master]
+  pull_request:
+    paths: [CHANGELOG.md]
+    branches: [master]
+jobs:
+  release:
+    name: Realase
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - id: release
+        uses: ipdxco/changelog-driven-release@v1
+        with:
+          path: CHANGELOG.md
+          draft: ${{ github.event_name == 'pull_request' }}
+          mutable: 'false'
+      - if: github.event_name == 'pull_request' && steps.release.outputs.tag != ''
+        uses: marocchino/sticky-pull-request-comment@331f8f5b4215f0445d3c07b4967662a32a2d3e31 # v2.9.0
+        with:
+          header: release
+          recreate: true
+          message: |
+            ## [${{ steps.release.outputs.tag }}](${{ steps.release.outputs.url }})
+
+            ${{ steps.release.outputs.body }}

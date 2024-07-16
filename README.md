@@ -95,7 +95,7 @@ Run it like so:
 ./mkreleaselog v0.25.0 v0.26.0 > /tmp/v0.26.0.notes.txt
 ```
 
-## Contribution 
+## Contribution
 
 ### Maintainers
 
@@ -124,7 +124,7 @@ We will cooperates with the [lotus' releases and it's testing flows](https://git
 - If any bug is found during the testing, the fix should land in master then get backported to `release/lotus-vX`. The updated commit should be integrated into lotus and getting tested. Repeat the steps until it can be considered as stable.
 
 *Consensus breaking changes*
-- Consensus breaking changes should be developed in it's own branch, (branch name is suggested to be: feature branches `feat/` or bug fix branches `bug/`). 
+- Consensus breaking changes should be developed in it's own branch, (branch name is suggested to be: feature branches `feat/` or bug fix branches `bug/`).
 - Consensus breaking changes that are scoped into the next immediate network upgrade shall land in `next` branch first. The maintainers are responsible to coordinate on when to land `next` to `master` according to lotus mandatory(network upgrade) release schedules.
 - A new dev branch should be created and contributors are responsible to rebase the branch onto `master`/`next` as needed.
 
@@ -134,37 +134,7 @@ The versioning in Filecoin-FFI currently follows the Lotus versioning.  For exam
 
 #### Release Process
 
-##### Cutting a development or release candidate release
-
-<details>
-  <summary>Steps to cut a development or release candidate release:</summary>
-
-1. Go to [Filecoin-FFI Releases](https://github.com/filecoin-project/filecoin-ffi/releases).
-2. Click the "Draft a new release" button in the right corner.
-3. In the "Choose a tag" dropdown, enter the desired version and click "Create new tag: vX.XX.X-rcX/dev on publish".
-4. Target the master branch.
-5. Set the previous tag to compare against, which should be the last stable release.
-6. Click the "Generate release notes" button.
-6. Check the "Set as a pre-release" checkbox.
-7. Click "Publish release" to create the release.
-
-</details>
-
-##### Cutting a definitive release
-
-<details>
-  <summary>Steps to cut a definitive release:</summary>
-
-1. Go to [Filecoin-FFI Releases](https://github.com/filecoin-project/filecoin-ffi/releases).
-2. Click the "Draft a new release" button in the right corner.
-3. In the "Choose a tag" dropdown, enter the desired version and click "Create new tag: vX.XX.X on publish".
-4. Target the release candidate you want to create a stable.
-5. Set the previous tag to compare against, which should be the last stable release (e.g., non-RC)
-6. click the "Generate release notes" button.
-6. Ensure the "Set as a latest release" checkbox **is checked**.
-7. Click "Publish release" to create the release.
-
-</details>
+Create a new entry in the [Changelog](CHANGELOG.md) for the new release. If you don't provide a changelog entry, the release will be created with auto-generated release notes.
 
 ## License
 

@@ -1,6 +1,84 @@
-# filecoin-ffi changelog
+# Changelog
+All notable changes to this project will be documented in this file.
 
-## 0.30.3
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## Unreleased
+
+## [1.28.0-rc2] - 2024-06-27
+
+## [1.28.0-rc1] - 2024-06-18
+
+## [1.28.0-dev2] - 2024-06-14
+
+## [1.28.0-dev] - 2024-05-02
+
+## [1.27.0-rc2] - 2024-04-29
+
+## [1.27.0-rc1] - 2024-04-10
+
+## [1.26.0-rc2] - 2024-01-31
+
+## [1.26.0] - 2024-01-31
+
+## [1.26.0-rc1] - 2024-01-25
+
+## [1.25.1-dev.0] - 2023-11-20
+
+## [1.24.0-rc.2] - 2023-10-04
+
+## [1.25.0-dev.2] - 2023-10-04
+
+## [1.24.0-rc.1] - 2023-10-03
+
+## [1.24.0-dev.2] - 2023-09-23
+
+## [1.23.4-pre1] - 2023-09-05
+
+## [1.25.0-dev.1] - 2023-08-28
+
+## [1.25.0-dev.0] - 2023-08-23
+
+## [1.24.0-dev.0] - 2023-08-22
+
+## [1.23.3-randomness] - 2023-08-21
+
+## [1.24.0] - 2023-07-31
+
+## [1.23.3-pre1] - 2023-06-29
+
+## [1.23.1-pre1] - 2023-04-28
+
+## [1.23.0] - 2023-04-23
+
+## [1.22.1] - 2023-04-23
+
+## [1.22.0-rc3] - 2023-04-19
+
+## [1.22.0] - 2023-04-19
+
+## [1.23.0-rc1] - 2023-04-19
+
+## [1.22.0-rc2] - 2023-04-19
+
+## [1.22.0-rc1] - 2023-04-10
+
+## [1.22.0-pre1] - 2023-04-05
+
+## [1.20.0-concurrency-fix] - 2023-03-14
+
+## [1.21.0-rc.2] - 2023-03-14
+
+## [1.21.0-rc.1] - 2023-03-09
+
+## [1.21.0-alpha.1] - 2023-03-01
+
+## [1.20.0] - 2023-02-27
+
+## [1.20.0-rc1] - 2023-02-10
+
+## [0.30.3] - 2020-02-07
 
 This release adds `FauxRep` to the `ffi` package, and a few other
 rust-fil-proofs improvements, which you can read about [here](https://github.com/filecoin-project/rust-fil-proofs/blob/master/CHANGELOG.md#403---2020-07-01).
@@ -16,7 +94,7 @@ rust-fil-proofs improvements, which you can read about [here](https://github.com
 |-------------|---------|---------|---------------|
 | Erin Swenson-Healey | 1 | +370/-143 | 9 |
 
-## 0.30.2
+## [0.30.2] - 2020-29-06
 
 This release fixed a bug in the `ffi.Aggregate` function, which did not properly
 handle a NUL byte (representing an error) returned from the `fil_aggregate` Rust
@@ -34,7 +112,7 @@ function.
 |-------------|---------|---------|---------------|
 | Erin Swenson-Healey | 2 | +45/-1 | 3 |
 
-## 0.30.1
+## [0.30.1] - 2020-26-06
 
 This release wil include Window PoSt speedups (2x measured for 32GiB sectors),
 RAM reduction of 56GiB for 32GiB sectors (mmap'd parent cache with windows for
@@ -59,7 +137,7 @@ updates (for the trusted setup participants).
 | Erin Swenson-Healey | 2 | +90/-68 | 7 |
 | laser | 1 | +31/-0 | 1 |
 
-## 0.30.0
+## [0.30.0] - 2020-15-06
 
 This release includes an update specs-actors (splits abi.RegisteredProof into
 two new types - one for seal and one for PoSt) and an update to rust-fil-proofs
@@ -90,7 +168,7 @@ two new types - one for seal and one for PoSt) and an update to rust-fil-proofs
 | Henri | 1 | +2/-2 | 1 |
 
 
-## 0.29.0
+## [0.29.0] - 2020-08-06
 
 Big changes here! We moved off of the nightly Rust channel, fixed a nasty file
 descriptor-leak, and (most importantly) updated to [v27 parameters and keys](https://github.com/filecoin-project/rust-fil-proofs/blob/master/CHANGELOG.md#300---2020-06-08).
@@ -111,7 +189,7 @@ descriptor-leak, and (most importantly) updated to [v27 parameters and keys](htt
 | Volker Mische | 1 | +1/-3 | 3 |
 
 
-## 0.28.1
+## [0.28.1] - 2020-04-06
 
 This release modifies the rust-filecoin-proofs-api dependency, downloading it
 from crates.io instead of GitHub. No behavior changes.
@@ -128,7 +206,7 @@ from crates.io instead of GitHub. No behavior changes.
 | nemo | 1 | +6/-5 | 3 |
 
 
-## 0.28.0
+## [0.28.0] - 2020-03-06
 
 This release adds unseal-to-a-file-descriptor functionality to the API, improves
 merkle tree cache usage, [and more](https://github.com/filecoin-project/rust-fil-proofs/blob/master/CHANGELOG.md#200---2020-05-27).
@@ -146,7 +224,7 @@ merkle tree cache usage, [and more](https://github.com/filecoin-project/rust-fil
 | Erin Swenson-Healey | 2 | +245/-371 | 9 |
 
 
-## 0.27.0
+## [0.27.0] - 2020-21-05
 
 This release migrates from specs-actors 0.4.1 to 0.5.4.
 
@@ -194,7 +272,7 @@ This release migrates from specs-actors 0.4.1 to 0.5.4.
 | Frrist | 2 | +27/-8 | 2 |
 | cerasusland | 1 | +2/-5 | 1 |
 
-## 0.26.2
+## [0.26.2] - 2020-19-05
 
 This release contains a fix for a bug which prevented unmodified miners from
 generating Winning PoSts for 64GiB sectors. It also contains a fix for a bug
@@ -217,7 +295,7 @@ the CGO call returned).
 | laser | 1 | +5/-5 | 1 |
 | shannon-6block | 1 | +2/-0 | 1 |
 
-## 0.26.1
+## [0.26.1] - 2020-15-05
 
 This release updates to version 0.4.1 of specs-actors, which (among other
 things) extends the `RegisteredProof` types to include 64GiB sector sizes. It
@@ -272,7 +350,7 @@ a single byte array) and various fixes for bellperson and neptune Rust crates.
 | ZX | 1 | +48/-20 | 5 |
 | nemo | 1 | +4/-56 | 2 |
 
-## 0.26.0
+## [0.26.0] - 2020-05-08
 
 This release migrates from v25 to v26 Groth parameters, which allows us to use
 64GiB sectors. It also adds some safety to the CGO bindings, which were
@@ -290,3 +368,7 @@ previously sharing Go memory with C, resulting in some errors when running with
 | Contributor | Commits | Lines ± | Files Changed |
 |-------------|---------|---------|---------------|
 | Erin Swenson-Healey | 2 | +514/-375 | 15 |
+
+## [0.25.1] - 2020-04-27
+
+## [0.0.1] - 2020-01-14
