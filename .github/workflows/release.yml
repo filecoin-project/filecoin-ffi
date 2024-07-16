@@ -8,7 +8,7 @@ on:
     branches: [master]
 jobs:
   release:
-    name: Realase
+    name: Release
     runs-on: ubuntu-latest
     permissions:
       contents: write
