@@ -134,7 +134,7 @@ The versioning in Filecoin-FFI currently follows the Lotus versioning.  For exam
 
 #### Release Process
 
-Create a new entry in the [Changelog](CHANGELOG.md) for the new release. If you don't provide a changelog entry, the release will be created with auto-generated release notes.
+Create a new entry in the [Changelog](CHANGELOG.md) for the new release. If you don't provide any description/body for the new entry, the release will be created with auto-generated release notes.
 
 ## License
 
