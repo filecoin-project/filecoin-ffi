@@ -134,37 +134,10 @@ The versioning in Filecoin-FFI currently follows the Lotus versioning.  For exam
 
 #### Release Process
 
-##### Cutting a development or release candidate release
-
-<details>
-  <summary>Steps to cut a development or release candidate release:</summary>
-
-1. Go to [Filecoin-FFI Releases](https://github.com/filecoin-project/filecoin-ffi/releases).
-2. Click the "Draft a new release" button in the right corner.
-3. In the "Choose a tag" dropdown, enter the desired version and click "Create new tag: vX.XX.X-rcX/dev on publish".
-4. Target the master branch.
-5. Set the previous tag to compare against, which should be the last stable release.
-6. Click the "Generate release notes" button.
-6. Check the "Set as a pre-release" checkbox.
-7. Click "Publish release" to create the release.
-
-</details>
-
-##### Cutting a definitive release
-
-<details>
-  <summary>Steps to cut a definitive release:</summary>
-
-1. Go to [Filecoin-FFI Releases](https://github.com/filecoin-project/filecoin-ffi/releases).
-2. Click the "Draft a new release" button in the right corner.
-3. In the "Choose a tag" dropdown, enter the desired version and click "Create new tag: vX.XX.X on publish".
-4. Target the release candidate you want to create a stable.
-5. Set the previous tag to compare against, which should be the last stable release (e.g., non-RC)
-6. click the "Generate release notes" button.
-6. Ensure the "Set as a latest release" checkbox **is checked**.
-7. Click "Publish release" to create the release.
-
-</details>
+1. Update the string in version.json. 
+2. When the PR is opened, a draft GitHub release will be created with GitHub-generated release notes.
+3. When the PR is merged, the corresponding version.json tag will be created GitHub release will be published.
+4. The tag will cause additional CI to run to build and attach the assets.
 
 ## License
 
