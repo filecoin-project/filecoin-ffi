@@ -121,12 +121,10 @@ func BenchmarkBLSVerifyBatch(b *testing.B) {
 func benchmarkBLSVerifyBatchSize(size int) func(b *testing.B) {
 	return func(b *testing.B) {
 		var digests []Digest
-		var msgs []Message
 		var sigs []Signature
 		var pubks []PublicKey
 		for i := 0; i < size; i++ {
 			msg := Message(fmt.Sprintf("cats cats cats cats %d %d %d dogs", i, i, i))
-			msgs = append(msgs, msg)
 			digests = append(digests, Hash(msg))
 			priv := PrivateKeyGenerate()
 			sig := PrivateKeySign(priv, msg)
