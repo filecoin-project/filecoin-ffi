@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"crypto/rand"
 	"io"
-	"io/ioutil"
 	"math/big"
+	"os"
 	"testing"
 
 	commcid "github.com/filecoin-project/go-fil-commcid"
@@ -76,7 +76,7 @@ func TestDoesNotExhaustFileDescriptors(t *testing.T) {
 
 	for i := 0; i < m; i++ {
 		// create a temporary file over which we'll compute CommP
-		file, err := ioutil.TempFile("", "")
+		file, err := os.CreateTemp("", "")
 		if err != nil {
 			panic(err)
 		}

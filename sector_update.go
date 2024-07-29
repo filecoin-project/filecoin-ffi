@@ -30,24 +30,6 @@ func toFilRegisteredUpdateProof(p abi.RegisteredUpdateProof) (cgo.RegisteredUpda
 	}
 }
 
-//nolint:deadcode,unused
-func fromFilRegisteredUpdateProof(p cgo.RegisteredUpdateProof) (abi.RegisteredUpdateProof, error) {
-	switch p {
-	case cgo.RegisteredUpdateProofStackedDrg2KiBV1:
-		return abi.RegisteredUpdateProof_StackedDrg2KiBV1, nil
-	case cgo.RegisteredUpdateProofStackedDrg8MiBV1:
-		return abi.RegisteredUpdateProof_StackedDrg8MiBV1, nil
-	case cgo.RegisteredUpdateProofStackedDrg512MiBV1:
-		return abi.RegisteredUpdateProof_StackedDrg512MiBV1, nil
-	case cgo.RegisteredUpdateProofStackedDrg32GiBV1:
-		return abi.RegisteredUpdateProof_StackedDrg32GiBV1, nil
-	case cgo.RegisteredUpdateProofStackedDrg64GiBV1:
-		return abi.RegisteredUpdateProof_StackedDrg64GiBV1, nil
-	default:
-		return 0, errors.Errorf("no mapping to abi.RegisteredUpdateProof value available for: %v", p)
-	}
-}
-
 type FunctionsSectorUpdate struct{}
 
 var SectorUpdate = FunctionsSectorUpdate{}
