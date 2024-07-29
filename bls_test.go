@@ -1,8 +1,8 @@
 package ffi
 
 import (
+	"crypto/rand"
 	"fmt"
-	"math/rand"
 	"testing"
 	"time"
 
@@ -11,8 +11,6 @@ import (
 )
 
 func TestDeterministicPrivateKeyGeneration(t *testing.T) {
-	rand.Seed(time.Now().UnixNano())
-
 	for i := 0; i < 10000; i++ {
 		var xs [32]byte
 		n, err := rand.Read(xs[:])
