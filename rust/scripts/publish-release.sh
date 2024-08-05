@@ -16,8 +16,8 @@ main() {
     fi
 
     local __release_file=$1
-    local __release_name=$2
-    local __release_tag="${CIRCLE_SHA1:0:16}"
+    local __release_url="${GITHUB_RELEASE_URL}"
+    local __release_target="$(basename $__release_file)"
 
     # make sure we have a token set, api requests won't work otherwise
     if [ -z $GITHUB_TOKEN ]; then
@@ -25,37 +25,37 @@ main() {
         exit 1
     fi
 
+    # make sure we have a release url set
+    if [ -z "$GITHUB_RELEASE_URL" ]; then
+        (>&2 echo "[publish-release/main] \$GITHUB_RELEASE_URL not set, publish failed")
+        exit 1
+    fi
+
     # see if the release already exists by tag
     local __release_response=`
         curl \
             --header "Authorization: token $GITHUB_TOKEN" \
-            "https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/releases/tags/$__release_tag"
+            "$__release_url"
     `
 
     local __release_id=`echo $__release_response | jq '.id'`
 
     if [ "$__release_id" = "null" ]; then
-        (>&2 echo '[publish-release/main] creating release')
+        (>&2 echo '[publish-release/main] release does not exist')
+        exit 1
+    fi
 
-        RELEASE_DATA="{
-            \"tag_name\": \"$__release_tag\",
-            \"target_commitish\": \"$CIRCLE_SHA1\",
-            \"name\": \"$__release_tag\",
-            \"body\": \"\"
-        }"
+    __release_target_asset=`echo $__release_response | jq -r ".assets | .[] | select(.name == \"$release_target\")"`
 
-        # create it if it doesn't exist yet
-        #
-        __release_response=`
-            curl \
-                --request POST \
-                --header "Authorization: token $GITHUB_TOKEN" \
-                --header "Content-Type: application/json" \
-                --data "$RELEASE_DATA" \
-                "https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/releases"
-        `
-    else
-        (>&2 echo '[publish-release/main] release already exists')
+    if [ -n "$__release_target_asset" ]; then
+        (>&2 echo "[publish-release/main] $__release_target_asset already exists, deleting")
+
+        __release_target_asset_url=`echo $__release_target_asset | jq -r '.url'`
+
+        curl \
+        --request DELETE \
+        --header "Authorization: token $GITHUB_TOKEN" \
+        "$__release_target_asset_url"
     fi
 
     __release_upload_url=`echo $__release_response | jq -r '.upload_url' | cut -d'{' -f1`
@@ -65,7 +65,7 @@ main() {
         --header "Authorization: token $GITHUB_TOKEN" \
         --header "Content-Type: application/octet-stream" \
         --data-binary "@$__release_file" \
-        "$__release_upload_url?name=$(basename $__release_file)"
+        "$__release_upload_url?name=$__release_target"
 
     (>&2 echo '[publish-release/main] release file uploaded')
 }

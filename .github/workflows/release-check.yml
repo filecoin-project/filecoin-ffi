@@ -1,0 +1,84 @@
+name: Release Checker
+
+on:
+  pull_request_target:
+    paths: ["version.json"]
+    types: [ opened, synchronize, reopened, labeled, unlabeled ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  release-check:
+    uses: ipdxco/unified-github-workflows/.github/workflows/release-check.yml@v1.0
+    with:
+      sources: '["version.json"]'
+  upload-release-assets:
+    needs: [release-check]
+    if: fromJSON(needs.release-check.outputs.json)['version.json']
+    name: Publish the static library (${{ matrix.runner }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        runner: ['ubuntu-latest', ['self-hosted', 'linux', 'arm64', 'xlarge'], 'macos-latest']
+      fail-fast: false
+    steps:
+      - run: echo "Running on $RUNNER_OS $RUNNER_ARCH"
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: ./.github/actions/configure-environment
+      - if: runner.os == 'macOS'
+        run: |
+          cd rust && rustup target add x86_64-apple-darwin
+          cd rust && cargo fetch
+      - if: runner.os == 'Linux'
+        name: Build and publish the standard release
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          cd rust
+
+          REPOSITORY_NAME=${GITHUB_REPOSITORY##*/}
+
+          TARBALL_PATH="/tmp/${REPOSITORY_NAME}-$(uname)-$(uname -m)-standard.tar.gz"
+          RELEASE_NAME="${REPOSITORY_NAME}-$(uname)-$(uname -m)-standard"
+
+          # Note: the blst dependency uses the portable configuration for maximum compatibility
+          ./scripts/build-release.sh build --verbose --no-default-features --features multicore-sdr,opencl,blst-portable
+          ./scripts/package-release.sh $TARBALL_PATH
+          ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
+      - if: runner.os == 'Linux'
+        name: Build the optimized release
+        run: |
+          cd rust
+
+          REPOSITORY_NAME=${GITHUB_REPOSITORY##*/}
+
+          TARBALL_PATH="/tmp/${REPOSITORY_NAME}-$(uname)-$(uname -m)-optimized.tar.gz"
+          RUSTFLAGS="-C target-feature=$(cat rustc-target-features-optimized.json | jq -r '.[].rustc_target_feature' | tr '\n' ',')"
+
+          ./scripts/build-release.sh build --verbose --no-default-features --features multicore-sdr,opencl
+          ./scripts/package-release.sh $TARBALL_PATH
+      - if: runner.os == 'macOS'
+        name: Build and publish the universal standard release
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          cd rust
+
+          REPOSITORY_NAME=${GITHUB_REPOSITORY##*/}
+
+          RELEASE_NAME="${REPOSITORY_NAME}-$(uname)-standard"
+          TARBALL_PATH="/tmp/${RELEASE_NAME}.tar.gz"
+
+          # Note: the blst dependency uses the portable configuration for maximum compatibility
+          ./scripts/build-release.sh lipo --verbose --no-default-features --features multicore-sdr,opencl,blst-portable
+          ./scripts/package-release.sh $TARBALL_PATH
+          ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
