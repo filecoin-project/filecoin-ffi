@@ -1,8 +1,8 @@
 package ffi
 
 import (
+	"crypto/rand"
 	"fmt"
-	"math/rand"
 	"testing"
 	"time"
 
@@ -11,8 +11,6 @@ import (
 )
 
 func TestDeterministicPrivateKeyGeneration(t *testing.T) {
-	rand.Seed(time.Now().UnixNano())
-
 	for i := 0; i < 10000; i++ {
 		var xs [32]byte
 		n, err := rand.Read(xs[:])
@@ -121,12 +119,10 @@ func BenchmarkBLSVerifyBatch(b *testing.B) {
 func benchmarkBLSVerifyBatchSize(size int) func(b *testing.B) {
 	return func(b *testing.B) {
 		var digests []Digest
-		var msgs []Message
 		var sigs []Signature
 		var pubks []PublicKey
 		for i := 0; i < size; i++ {
 			msg := Message(fmt.Sprintf("cats cats cats cats %d %d %d dogs", i, i, i))
-			msgs = append(msgs, msg)
 			digests = append(digests, Hash(msg))
 			priv := PrivateKeyGenerate()
 			sig := PrivateKeySign(priv, msg)

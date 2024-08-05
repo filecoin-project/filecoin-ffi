@@ -9,7 +9,6 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"math"
 	"math/big"
 	"os"
@@ -161,7 +160,7 @@ func WorkflowProofsLifecycle(t TestHelper) {
 	t.RequireNoError(Unseal(sealProofType, sectorCacheDirPath, sealedSectorFile, unsealOutputFileA, sectorNum, minerID, ticket, unsealedCID))
 	_, err = unsealOutputFileA.Seek(0, 0)
 	t.RequireNoError(err)
-	contents, err := ioutil.ReadFile(unsealOutputFileA.Name())
+	contents, err := os.ReadFile(unsealOutputFileA.Name())
 	t.RequireNoError(err)
 
 	// unsealed sector includes a bunch of alignment NUL-bytes
@@ -179,7 +178,7 @@ func WorkflowProofsLifecycle(t TestHelper) {
 	t.RequireNoError(err)
 	_, err = unsealOutputFileB.Seek(0, 0)
 	t.RequireNoError(err)
-	contentsB, err := ioutil.ReadFile(unsealOutputFileB.Name())
+	contentsB, err := os.ReadFile(unsealOutputFileB.Name())
 	t.RequireNoError(err)
 	t.AssertEqual(127, len(contentsB))
 	t.AssertTrue(bytes.Equal(someBytes[0:127], contentsB[0:127]), "bytes aren't equal")
@@ -191,7 +190,7 @@ func WorkflowProofsLifecycle(t TestHelper) {
 	t.RequireNoError(err)
 	_, err = unsealOutputFileC.Seek(0, 0)
 	t.RequireNoError(err)
-	contentsC, err := ioutil.ReadFile(unsealOutputFileC.Name())
+	contentsC, err := os.ReadFile(unsealOutputFileC.Name())
 	t.RequireNoError(err)
 	t.AssertEqual(1016, len(contentsC))
 	t.AssertTrue(bytes.Equal(someBytes[0:1016], contentsC[0:1016]), "bytes aren't equal")
@@ -369,7 +368,7 @@ func randUInt64() uint64 {
 }
 
 func requireTempFile(t TestHelper, fileContentsReader io.Reader, size uint64) *os.File {
-	file, err := ioutil.TempFile("", "")
+	file, err := os.CreateTemp("", "")
 	t.RequireNoError(err)
 
 	written, err := io.Copy(file, fileContentsReader)
@@ -387,7 +386,7 @@ func requireTempFile(t TestHelper, fileContentsReader io.Reader, size uint64) *o
 }
 
 func requireTempDirPath(t TestHelper, prefix string) string {
-	dir, err := ioutil.TempDir("", prefix)
+	dir, err := os.MkdirTemp("", prefix)
 	t.RequireNoError(err)
 
 	return dir
