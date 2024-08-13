@@ -95,7 +95,7 @@ Run it like so:
 ./mkreleaselog v0.25.0 v0.26.0 > /tmp/v0.26.0.notes.txt
 ```
 
-## Contribution 
+## Contribution
 
 ### Maintainers
 
@@ -124,7 +124,7 @@ We will cooperates with the [lotus' releases and it's testing flows](https://git
 - If any bug is found during the testing, the fix should land in master then get backported to `release/lotus-vX`. The updated commit should be integrated into lotus and getting tested. Repeat the steps until it can be considered as stable.
 
 *Consensus breaking changes*
-- Consensus breaking changes should be developed in it's own branch, (branch name is suggested to be: feature branches `feat/` or bug fix branches `bug/`). 
+- Consensus breaking changes should be developed in it's own branch, (branch name is suggested to be: feature branches `feat/` or bug fix branches `bug/`).
 - Consensus breaking changes that are scoped into the next immediate network upgrade shall land in `next` branch first. The maintainers are responsible to coordinate on when to land `next` to `master` according to lotus mandatory(network upgrade) release schedules.
 - A new dev branch should be created and contributors are responsible to rebase the branch onto `master`/`next` as needed.
 
@@ -132,12 +132,7 @@ We will cooperates with the [lotus' releases and it's testing flows](https://git
 
 The versioning in Filecoin-FFI currently follows the Lotus versioning.  For example, if you are cutting a release for Lotus v1.28.0-rc1, the Filecoin-FFI release will be named v1.28.0-rc1 as well.  (Note: Lotus versioning will be refactored in the near future as part of [lotus #12072](https://github.com/filecoin-project/lotus/issues/12072).)
 
-#### Release Process
-
-1. Update the string in version.json. 
-2. When the PR is opened, a draft GitHub release will be created with GitHub-generated release notes.
-3. When the PR is merged, the corresponding version.json tag will be created GitHub release will be published.
-4. The tag will cause additional CI to run to build and attach the assets.
+#### [Release Process](RELEASE.md)
 
 ## License
 
