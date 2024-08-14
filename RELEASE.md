@@ -4,7 +4,8 @@ This document describes the process for releasing a new version of the `filecoin
 
 ## Current State
 
-1. Create a pull request which updates the `version` in the top-level `version.json` file.
+1. Create a pull request which updates the `version` in the [top-level `version.json` file](https://github.com/filecoin-project/filecoin-ffi/blob/master/version.json).
+   - Title the PR `chore: X.Y.Z release`
 2. On pull request creation, a [Release Checker](.github/workflows/release-check.yml) workflow will run. It will perform the following actions:
     1. Extract the version from the top-level `version.json` file.
     2. Check if a git tag for the version already exists. Continue only if it does not.
