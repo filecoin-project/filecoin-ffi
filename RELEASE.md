@@ -9,7 +9,7 @@ This document describes the process for releasing a new version of the `filecoin
 2. On pull request creation, a [Release Checker](.github/workflows/release-check.yml) workflow will run. It will perform the following actions:
     1. Extract the version from the top-level `version.json` file.
     2. Check if a git tag for the version already exists. Continue only if it does not.
-    3. Create a draft GitHub release with the version as the tag.
+    3. Create a draft GitHub release with the version as the tag.  (A git tag with this version string will be created when the release is published.)
     4. Comment on the pull request with a link to the draft release.
     5. Build the project for Linux (X64), Linux (ARM64), and MacOS.
     7. Upload the built assets to the draft release (replace any existing assets with the same name).
