@@ -17,7 +17,7 @@ This document describes the process for releasing a new version of the `filecoin
     1. Extract the version from the top-level `version.json` file.
     2. Check if a git tag for the version already exists. Continue only if it does not.
     3. Check if a draft GitHub release with the version as the tag exists.
-    4. If the draft release exists, publish it. Otherwise, create a new release with the version as the tag.
+    4. If the draft release exists, publish it. Otherwise, create and publish a new release with the version as the git tag.  Publishing the release creates the git tag.
 
 ## Known Limitations
 
