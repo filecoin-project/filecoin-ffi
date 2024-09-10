@@ -190,7 +190,7 @@ build_from_source() {
         if [ "${FFI_USE_GPU}" == "0" ]; then
             gpu_flags=""
         # Check if OpenCL support is specified or we're building on Darwin.
-        elif [ "${FFI_USE_OPENCL}" == "1" ] || [ "$(uname -s)" = "Darwin" ]; then
+        elif [ "${FFI_USE_OPENCL}" == "1" ] || [ "${FFI_PORTABLE}" == "1" ] || [ "$(uname -s)" = "Darwin" ]; then
             gpu_flags=",opencl"
         else
             # If GPUs are enabled and SupraSeal is not, default to CUDA support
@@ -226,7 +226,7 @@ build_from_source() {
 
     additional_flags=""
     # Add feature specific rust flags as needed here.
-    if [ "${FFI_USE_BLST_PORTABLE}" == "1" ]; then
+    if [ "${FFI_USE_BLST_PORTABLE}" == "1" ] || [ "${FFI_PORTABLE}" == "1" ]; then
         additional_flags="${additional_flags} --no-default-features --features ${use_multicore_sdr},blst-portable${gpu_flags}${use_fixed_rows_to_discard}"
     else
         additional_flags="${additional_flags} --no-default-features --features ${use_multicore_sdr}${gpu_flags}${use_fixed_rows_to_discard}"
@@ -243,6 +243,11 @@ build_from_source() {
 }
 
 get_release_flags() {
+    if [ "${FFI_PORTABLE}" == "1" ]; then
+        echo ""
+        return
+    fi
+
     local __features=""
 
     # determine where to look for CPU features
