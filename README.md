@@ -34,6 +34,14 @@ rm .install-filcrypto \
     ; FFI_BUILD_FROM_SOURCE=1 FFI_USE_BLST_PORTABLE=1 make
 ```
 
+Alternatively, to build a maximally portable binary without optimizing for the current CPU, set `FFI_PORTABLE=1`:
+
+```shell
+rm .install-filcrypto \
+    ; make clean \
+    ; FFI_BUILD_FROM_SOURCE=1 FFI_PORTABLE=1 make
+```
+
 By default, a 'gpu' option is used in the proofs library. This feature is also used in FFI unless explicitly disabled. To disable building with the 'gpu' dependency, set `FFI_USE_GPU=0`:
 
 ```shell
@@ -44,7 +52,7 @@ rm .install-filcrypto \
 
 #### GPU support
 
-CUDA for GPU support is now enabled by default in the proofs library. This feature can optionally be replaced by OpenCL by using `FFI_USE_OPENCL=1` set in the environment when building from source. Alternatively, if the CUDA toolkit (such as `nvcc`) cannot be located in the environment, OpenCL support is used instead. To disable GPU support entirely, set `FFI_USE_GPU=0` in the environment when building from source.
+CUDA for GPU support is now enabled by default in the proofs library. This feature can optionally be replaced by OpenCL by using `FFI_USE_OPENCL=1` set in the environment when building from source. Using `FFI_PORTABLE=1` will also enable OpenCL support. Alternatively, if the CUDA toolkit (such as `nvcc`) cannot be located in the environment, OpenCL support is used instead. To disable GPU support entirely, set `FFI_USE_GPU=0` in the environment when building from source.
 
 There is experimental support for faster C2 named "SupraSeal". To enable it, set `FFI_USE_CUDA_SUPRASEAL=1`. It's specific to CUDA and won't work with OpenCL.
 
