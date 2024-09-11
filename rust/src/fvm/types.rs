@@ -1,3 +1,5 @@
+#![allow(clippy::non_canonical_clone_impl)]
+
 use std::sync::Mutex;
 
 use safer_ffi::prelude::*;

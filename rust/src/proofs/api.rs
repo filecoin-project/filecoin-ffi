@@ -2068,7 +2068,6 @@ pub mod tests {
             let f_new_sealed_sector = OpenOptions::new()
                 .read(true)
                 .write(true)
-                .create(true)
                 .open(&new_sealed_path)?;
             f_new_sealed_sector.set_len(new_sealed_target_len)?;
 
@@ -2185,7 +2184,6 @@ pub mod tests {
             let f_decoded_sector = OpenOptions::new()
                 .read(true)
                 .write(true)
-                .create(true)
                 .open(&decoded_path)?;
             f_decoded_sector.set_len(new_sealed_target_len)?;
 
@@ -2212,7 +2210,6 @@ pub mod tests {
             let f_removed_data_sector = OpenOptions::new()
                 .read(true)
                 .write(true)
-                .create(true)
                 .open(&removed_data_path)?;
             f_removed_data_sector.set_len(new_sealed_target_len)?;
 
@@ -2352,7 +2349,7 @@ pub mod tests {
                 panic!("generate_candidates produced no results");
             }
 
-            let private_replicas = vec![PrivateReplicaInfo {
+            let private_replicas = [PrivateReplicaInfo {
                 registered_proof: registered_proof_winning_post,
                 cache_dir_path: cache_dir_path_ref.to_vec().into_boxed_slice().into(),
                 comm_r: resp_b2.comm_r,
@@ -2369,12 +2366,11 @@ pub mod tests {
                 let msg = str::from_utf8(&resp_h.error_msg).unwrap();
                 panic!("generate_winning_post failed: {:?}", msg);
             }
-            let public_replicas = vec![PublicReplicaInfo {
+            let public_replicas = [PublicReplicaInfo {
                 registered_proof: registered_proof_winning_post,
                 sector_id,
                 comm_r: resp_b2.comm_r,
-            }]
-            .into_boxed_slice();
+            }];
 
             let resp_i = verify_winning_post(
                 &randomness,
@@ -2475,7 +2471,7 @@ pub mod tests {
 
             // window post
 
-            let private_replicas = vec![PrivateReplicaInfo {
+            let private_replicas = [PrivateReplicaInfo {
                 registered_proof: registered_proof_window_post,
                 cache_dir_path: cache_dir_path_ref.to_vec().into_boxed_slice().into(),
                 comm_r: resp_b2.comm_r,
@@ -2490,7 +2486,7 @@ pub mod tests {
                 panic!("generate_window_post failed: {:?}", msg);
             }
 
-            let public_replicas = vec![PublicReplicaInfo {
+            let public_replicas = [PublicReplicaInfo {
                 registered_proof: registered_proof_window_post,
                 sector_id,
                 comm_r: resp_b2.comm_r,
@@ -2514,7 +2510,7 @@ pub mod tests {
 
             // Generate a legacy WindowPoSt for later use.
             let legacy_registered_proof_window_post = RegisteredPoStProof::StackedDrgWindow2KiBV1;
-            let legacy_private_replicas = vec![PrivateReplicaInfo {
+            let legacy_private_replicas = [PrivateReplicaInfo {
                 registered_proof: legacy_registered_proof_window_post,
                 cache_dir_path: cache_dir_path_ref.to_vec().into_boxed_slice().into(),
                 comm_r: resp_b2.comm_r,
@@ -2530,7 +2526,7 @@ pub mod tests {
                 panic!("generate_window_post failed: {:?}", msg);
             }
 
-            let public_replicas = vec![PublicReplicaInfo {
+            let public_replicas = [PublicReplicaInfo {
                 registered_proof: legacy_registered_proof_window_post, // legacy registered proofs type
                 sector_id,
                 comm_r: resp_b2.comm_r,
@@ -2554,7 +2550,7 @@ pub mod tests {
 
             // Lastly ensure that the legacy WindowPoSt generated proof
             // does not verify with the new proof version
-            let public_replicas = vec![PublicReplicaInfo {
+            let public_replicas = [PublicReplicaInfo {
                 registered_proof: registered_proof_window_post, // new registered proof type/version
                 sector_id,
                 comm_r: resp_b2.comm_r,
@@ -2585,7 +2581,7 @@ pub mod tests {
             //////////////////////////////////////////////
 
             let sectors = [sector_id, sector_id2];
-            let private_replicas = vec![
+            let private_replicas = [
                 PrivateReplicaInfo {
                     registered_proof: registered_proof_window_post,
                     cache_dir_path: cache_dir_path_ref.to_vec().into_boxed_slice().into(),
@@ -2601,7 +2597,7 @@ pub mod tests {
                     sector_id: sector_id2,
                 },
             ];
-            let public_replicas = vec![
+            let public_replicas = [
                 PublicReplicaInfo {
                     registered_proof: registered_proof_window_post,
                     sector_id,
@@ -2764,7 +2760,7 @@ pub mod tests {
             let resp_k3 = verify_window_post(
                 &randomness,
                 public_replicas[..].into(),
-                vec![merged_proof_resp.value.clone()][..].into(),
+                [merged_proof_resp.value.clone()][..].into(),
                 &prover_id,
             );
 
@@ -2909,7 +2905,7 @@ pub mod tests {
                 panic!("write_with_alignment failed: {:?}", msg);
             }
 
-            let pieces = vec![
+            let pieces = [
                 PublicPieceInfo {
                     num_bytes: 127,
                     comm_p: resp_a1.comm_p,
@@ -2959,7 +2955,7 @@ pub mod tests {
             let faulty_sealed_file = tempfile::NamedTempFile::new()?;
             let faulty_sealed_path_ref = as_bytes(faulty_sealed_file.path());
 
-            let private_replicas = vec![PrivateReplicaInfo {
+            let private_replicas = [PrivateReplicaInfo {
                 registered_proof: registered_proof_window_post,
                 cache_dir_path: cache_dir_path_ref.to_vec().into_boxed_slice().into(),
                 comm_r: resp_b2.comm_r,
@@ -3002,7 +2998,7 @@ pub mod tests {
     #[test]
     #[ignore]
     fn test_sealing_aggregation_versions() -> Result<()> {
-        let versions = vec![
+        let versions = [
             (
                 RegisteredSealProof::StackedDrg2KiBV1,
                 RegisteredAggregationProof::SnarkPackV1,
@@ -3098,7 +3094,7 @@ pub mod tests {
                 panic!("write_with_alignment failed: {:?}", msg);
             }
 
-            let pieces = vec![
+            let pieces = [
                 PublicPieceInfo {
                     num_bytes: 127,
                     comm_p: resp_a1.comm_p,
@@ -3239,7 +3235,7 @@ pub mod tests {
                 );
             }
 
-            let inputs: Vec<AggregationInputs> = vec![
+            let inputs = [
                 AggregationInputs {
                     comm_r: resp_b2.comm_r,
                     comm_d: resp_b2.comm_d,

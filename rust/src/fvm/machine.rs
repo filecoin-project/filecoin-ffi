@@ -629,7 +629,7 @@ mod test {
 
         assert_eq!(lotus_trace.gas_charges.len(), 1);
         assert_eq!(
-            *lotus_trace.gas_charges.get(0).unwrap(),
+            *lotus_trace.gas_charges.first().unwrap(),
             LotusGasCharge {
                 name: initial_gas_charge.clone().name,
                 total_gas: initial_gas_charge.total().round_up(),
