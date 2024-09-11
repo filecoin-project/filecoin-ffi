@@ -1563,7 +1563,7 @@ dependencies = [
 [[package]]
 name = "fvm"
 version = "4.3.2"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/update-wasmtime#529fa6b28152d936d2e72bfd2959e9b2df0c1833"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/disable-mach-ports#2b1cde15338bf1293fda52018320f875b3ec6775"
 dependencies = [
  "ambassador",
  "anyhow",
@@ -1571,7 +1571,7 @@ dependencies = [
  "derive_more",
  "filecoin-proofs-api",
  "fvm-wasm-instrument 0.4.0",
- "fvm_ipld_amt 0.6.2 (git+https://github.com/filecoin-project/ref-fvm?branch=steb/update-wasmtime)",
+ "fvm_ipld_amt 0.6.2 (git+https://github.com/filecoin-project/ref-fvm?branch=steb/disable-mach-ports)",
  "fvm_ipld_blockstore",
  "fvm_ipld_encoding",
  "fvm_ipld_hamt 0.9.0",
@@ -1633,7 +1633,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_amt"
 version = "0.6.2"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/update-wasmtime#529fa6b28152d936d2e72bfd2959e9b2df0c1833"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/disable-mach-ports#2b1cde15338bf1293fda52018320f875b3ec6775"
 dependencies = [
  "anyhow",
  "cid",
@@ -1648,7 +1648,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_blockstore"
 version = "0.2.1"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/update-wasmtime#529fa6b28152d936d2e72bfd2959e9b2df0c1833"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/disable-mach-ports#2b1cde15338bf1293fda52018320f875b3ec6775"
 dependencies = [
  "anyhow",
  "cid",
@@ -1658,7 +1658,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_encoding"
 version = "0.4.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/update-wasmtime#529fa6b28152d936d2e72bfd2959e9b2df0c1833"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/disable-mach-ports#2b1cde15338bf1293fda52018320f875b3ec6775"
 dependencies = [
  "anyhow",
  "cid",
@@ -1694,7 +1694,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_hamt"
 version = "0.9.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/update-wasmtime#529fa6b28152d936d2e72bfd2959e9b2df0c1833"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/disable-mach-ports#2b1cde15338bf1293fda52018320f875b3ec6775"
 dependencies = [
  "anyhow",
  "byteorder",
@@ -1773,7 +1773,7 @@ dependencies = [
 [[package]]
 name = "fvm_shared"
 version = "4.3.2"
-source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/update-wasmtime#529fa6b28152d936d2e72bfd2959e9b2df0c1833"
+source = "git+https://github.com/filecoin-project/ref-fvm?branch=steb/disable-mach-ports#2b1cde15338bf1293fda52018320f875b3ec6775"
 dependencies = [
  "anyhow",
  "bitflags 2.6.0",

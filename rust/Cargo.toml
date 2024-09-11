@@ -84,7 +84,7 @@ c-headers = ["safer-ffi/headers"]
 fixed-rows-to-discard = ["filecoin-proofs-api/fixed-rows-to-discard"]
 
 [patch.crates-io]
-fvm = { git = "https://github.com/filecoin-project/ref-fvm", branch = "steb/update-wasmtime" }
-fvm_shared = { git = "https://github.com/filecoin-project/ref-fvm", branch = "steb/update-wasmtime" }
-fvm_ipld_encoding = { git = "https://github.com/filecoin-project/ref-fvm", branch = "steb/update-wasmtime" }
-fvm_ipld_blockstore = { git = "https://github.com/filecoin-project/ref-fvm", branch = "steb/update-wasmtime" }
+fvm = { git = "https://github.com/filecoin-project/ref-fvm", branch = "steb/disable-mach-ports" }
+fvm_shared = { git = "https://github.com/filecoin-project/ref-fvm", branch = "steb/disable-mach-ports" }
+fvm_ipld_encoding = { git = "https://github.com/filecoin-project/ref-fvm", branch = "steb/disable-mach-ports" }
+fvm_ipld_blockstore = { git = "https://github.com/filecoin-project/ref-fvm", branch = "steb/disable-mach-ports" }
