@@ -2068,7 +2068,7 @@ pub mod tests {
             let f_new_sealed_sector = OpenOptions::new()
                 .read(true)
                 .write(true)
-                .create(true)
+                .create_new(true)
                 .open(&new_sealed_path)?;
             f_new_sealed_sector.set_len(new_sealed_target_len)?;
 
@@ -2185,7 +2185,7 @@ pub mod tests {
             let f_decoded_sector = OpenOptions::new()
                 .read(true)
                 .write(true)
-                .create(true)
+                .create_new(true)
                 .open(&decoded_path)?;
             f_decoded_sector.set_len(new_sealed_target_len)?;
 
@@ -2212,7 +2212,7 @@ pub mod tests {
             let f_removed_data_sector = OpenOptions::new()
                 .read(true)
                 .write(true)
-                .create(true)
+                .create_new(true)
                 .open(&removed_data_path)?;
             f_removed_data_sector.set_len(new_sealed_target_len)?;
 
