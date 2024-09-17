@@ -43,7 +43,7 @@ jobs:
         name: Build and publish the standard release
         env:
           GITHUB_TOKEN: ${{ github.token }}
-          GITHUB_RELEASE_URL: ${{ github.api_url }}/${{ github.repository }}/releases/${{ fromJSON(needs.release-check.outputs.json)['version.json'].id }}
+          GITHUB_RELEASE_URL: ${{ github.api_url }}/repos/${{ github.repository }}/releases/${{ fromJSON(needs.release-check.outputs.json)['version.json'].id }}
         run: |
           REPOSITORY_NAME=${GITHUB_REPOSITORY##*/}
 
