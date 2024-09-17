@@ -36,15 +36,14 @@ jobs:
       - uses: ./.github/actions/configure-environment
       - if: runner.os == 'macOS'
         run: |
-          cd rust && rustup target add x86_64-apple-darwin
-          cd rust && cargo fetch
+          rustup target add x86_64-apple-darwin
+          cargo fetch
+        working-directory: rust
       - if: runner.os == 'Linux'
         name: Build and publish the standard release
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
-          cd rust
-
           REPOSITORY_NAME=${GITHUB_REPOSITORY##*/}
 
           TARBALL_PATH="/tmp/${REPOSITORY_NAME}-$(uname)-$(uname -m)-standard.tar.gz"
@@ -54,11 +53,10 @@ jobs:
           ./scripts/build-release.sh build --verbose --no-default-features --features multicore-sdr,opencl,blst-portable
           ./scripts/package-release.sh $TARBALL_PATH
           ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
+        working-directory: rust
       - if: runner.os == 'Linux'
         name: Build the optimized release
         run: |
-          cd rust
-
           REPOSITORY_NAME=${GITHUB_REPOSITORY##*/}
 
           TARBALL_PATH="/tmp/${REPOSITORY_NAME}-$(uname)-$(uname -m)-optimized.tar.gz"
@@ -66,13 +64,12 @@ jobs:
 
           ./scripts/build-release.sh build --verbose --no-default-features --features multicore-sdr,opencl
           ./scripts/package-release.sh $TARBALL_PATH
+        working-directory: rust
       - if: runner.os == 'macOS'
         name: Build and publish the universal standard release
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
-          cd rust
-
           REPOSITORY_NAME=${GITHUB_REPOSITORY##*/}
 
           RELEASE_NAME="${REPOSITORY_NAME}-$(uname)-standard"
@@ -82,3 +79,4 @@ jobs:
           ./scripts/build-release.sh lipo --verbose --no-default-features --features multicore-sdr,opencl,blst-portable
           ./scripts/package-release.sh $TARBALL_PATH
           ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
+        working-directory: rust
