@@ -45,7 +45,7 @@ main() {
         exit 1
     fi
 
-    __release_target_asset=`echo $__release_response | jq -r ".assets | .[] | select(.name == \"$release_target\")"`
+    __release_target_asset=`echo $__release_response | jq -r ".assets | .[] | select(.name == \"$__release_target\")"`
 
     if [ -n "$__release_target_asset" ]; then
         (>&2 echo "[publish-release/main] $__release_target_asset already exists, deleting")
