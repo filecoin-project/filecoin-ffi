@@ -58,12 +58,12 @@ fn destroy_box_bls_signature(ptr: repr_c::Box<BLSSignature>) {
 ///
 /// * `message` - reference to a message byte array
 #[ffi_export]
-pub fn hash(message: c_slice::Ref<u8>) -> repr_c::Box<BLSDigest> {
+pub fn hash(message: c_slice::Ref<'_, u8>) -> repr_c::Box<BLSDigest> {
     // call method
     let raw_digest = hash_sig(&message).to_bytes();
     let digest: [u8; DIGEST_BYTES] = raw_digest.as_ref().try_into().expect("known size");
 
-    repr_c::Box::new(digest)
+    Box::new(digest).into()
 }
 
 /// Aggregate signatures together into a new signature
@@ -74,7 +74,7 @@ pub fn hash(message: c_slice::Ref<u8>) -> repr_c::Box<BLSDigest> {
 ///
 /// Returns `None` on error. Result must be freed using `destroy_aggregate_response`.
 #[ffi_export]
-pub fn aggregate(flattened_signatures: c_slice::Ref<u8>) -> Option<repr_c::Box<BLSSignature>> {
+pub fn aggregate(flattened_signatures: c_slice::Ref<'_, u8>) -> Option<repr_c::Box<BLSSignature>> {
     // prep request
     let signatures = try_ffi!(
         flattened_signatures
@@ -91,7 +91,7 @@ pub fn aggregate(flattened_signatures: c_slice::Ref<u8>) -> Option<repr_c::Box<B
         .write_bytes(&mut signature.as_mut())
         .expect("preallocated");
 
-    Some(repr_c::Box::new(signature))
+    Some(Box::new(signature).into())
 }
 
 /// Verify that a signature is the aggregated signature of hashes - pubkeys
@@ -103,9 +103,9 @@ pub fn aggregate(flattened_signatures: c_slice::Ref<u8>) -> Option<repr_c::Box<B
 /// * `flattened_public_keys` - byte array containing public keys
 #[ffi_export]
 pub fn verify(
-    signature: c_slice::Ref<u8>,
-    flattened_digests: c_slice::Ref<u8>,
-    flattened_public_keys: c_slice::Ref<u8>,
+    signature: c_slice::Ref<'_, u8>,
+    flattened_digests: c_slice::Ref<'_, u8>,
+    flattened_public_keys: c_slice::Ref<'_, u8>,
 ) -> bool {
     // prep request
     let signature = try_ffi!(Signature::from_bytes(&signature), false);
@@ -157,10 +157,10 @@ pub fn verify(
 /// * `flattened_public_keys` - byte array containing public keys
 #[ffi_export]
 pub fn hash_verify(
-    signature: c_slice::Ref<u8>,
-    flattened_messages: c_slice::Ref<u8>,
-    message_sizes: c_slice::Ref<libc::size_t>,
-    flattened_public_keys: c_slice::Ref<u8>,
+    signature: c_slice::Ref<'_, u8>,
+    flattened_messages: c_slice::Ref<'_, u8>,
+    message_sizes: c_slice::Ref<'_, libc::size_t>,
+    flattened_public_keys: c_slice::Ref<'_, u8>,
 ) -> bool {
     // prep request
     let signature = try_ffi!(Signature::from_bytes(&signature), false);
@@ -196,7 +196,7 @@ pub fn private_key_generate() -> repr_c::Box<BLSPrivateKey> {
         .write_bytes(&mut raw_private_key.as_mut())
         .expect("preallocated");
 
-    repr_c::Box::new(raw_private_key)
+    Box::new(raw_private_key).into()
 }
 
 /// Generate a new private key with seed
@@ -215,7 +215,7 @@ pub fn private_key_generate_with_seed(raw_seed: &[u8; 32]) -> repr_c::Box<BLSPri
         .write_bytes(&mut raw_private_key.as_mut())
         .expect("preallocated");
 
-    repr_c::Box::new(raw_private_key)
+    Box::new(raw_private_key).into()
 }
 
 /// Sign a message with a private key and return the signature
@@ -228,8 +228,8 @@ pub fn private_key_generate_with_seed(raw_seed: &[u8; 32]) -> repr_c::Box<BLSPri
 /// Returns `None` when passed invalid arguments.
 #[ffi_export]
 pub fn private_key_sign(
-    raw_private_key: c_slice::Ref<u8>,
-    message: c_slice::Ref<u8>,
+    raw_private_key: c_slice::Ref<'_, u8>,
+    message: c_slice::Ref<'_, u8>,
 ) -> Option<repr_c::Box<BLSSignature>> {
     let private_key = try_ffi!(PrivateKey::from_bytes(&raw_private_key), None);
 
@@ -238,7 +238,7 @@ pub fn private_key_sign(
         .write_bytes(&mut raw_signature.as_mut())
         .expect("preallocated");
 
-    Some(repr_c::Box::new(raw_signature))
+    Some(Box::new(raw_signature).into())
 }
 
 /// Generate the public key for a private key
@@ -250,7 +250,7 @@ pub fn private_key_sign(
 /// Returns `None` when passed invalid arguments.
 #[ffi_export]
 pub fn private_key_public_key(
-    raw_private_key: c_slice::Ref<u8>,
+    raw_private_key: c_slice::Ref<'_, u8>,
 ) -> Option<repr_c::Box<BLSPublicKey>> {
     let private_key = try_ffi!(PrivateKey::from_bytes(&raw_private_key), None);
 
@@ -260,7 +260,7 @@ pub fn private_key_public_key(
         .write_bytes(&mut raw_public_key.as_mut())
         .expect("preallocated");
 
-    Some(repr_c::Box::new(raw_public_key))
+    Some(Box::new(raw_public_key).into())
 }
 
 /// Returns a zero signature, used as placeholder in Filecoin.
@@ -275,7 +275,7 @@ pub fn create_zero_signature() -> repr_c::Box<BLSSignature> {
     sig.write_bytes(&mut raw_signature.as_mut())
         .expect("preallocated");
 
-    repr_c::Box::new(raw_signature)
+    Box::new(raw_signature).into()
 }
 
 #[cfg(test)]
