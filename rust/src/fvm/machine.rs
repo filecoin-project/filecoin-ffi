@@ -89,8 +89,8 @@ fn create_fvm_machine_generic(
     circulating_supply_hi: u64,
     circulating_supply_lo: u64,
     network_version: u32,
-    state_root: c_slice::Ref<u8>,
-    actor_redirect: Option<c_slice::Ref<u8>>,
+    state_root: c_slice::Ref<'_, u8>,
+    actor_redirect: Option<c_slice::Ref<'_, u8>>,
     actor_debugging: bool,
     tracing: bool,
     blockstore_id: u64,
@@ -142,9 +142,9 @@ fn create_fvm_machine_generic(
             let externs = CgoExterns::new(externs_id);
 
             let engine = ENGINES.get(network_version)?;
-            Ok(Some(repr_c::Box::new(
-                engine.new_executor(config, blockstore, externs)?,
-            )))
+            Ok(Some(
+                Box::new(engine.new_executor(config, blockstore, externs)?).into(),
+            ))
         })
     }
 }
@@ -164,7 +164,7 @@ fn create_fvm_machine(
     circulating_supply_hi: u64,
     circulating_supply_lo: u64,
     network_version: u32,
-    state_root: c_slice::Ref<u8>,
+    state_root: c_slice::Ref<'_, u8>,
     tracing: bool,
     blockstore_id: u64,
     externs_id: u64,
@@ -199,8 +199,8 @@ fn create_fvm_debug_machine(
     circulating_supply_hi: u64,
     circulating_supply_lo: u64,
     network_version: u32,
-    state_root: c_slice::Ref<u8>,
-    actor_redirect: c_slice::Ref<u8>,
+    state_root: c_slice::Ref<'_, u8>,
+    actor_redirect: c_slice::Ref<'_, u8>,
     tracing: bool,
     blockstore_id: u64,
     externs_id: u64,
@@ -237,18 +237,19 @@ where
     pool.scoped(|scope| scope.execute(|| res = Some(catch_panic_response(name, callback))));
 
     res.unwrap_or_else(|| {
-        repr_c::Box::new(Result::err(
+        Box::new(Result::<T>::err(
             format!("failed to schedule {name}")
                 .into_bytes()
                 .into_boxed_slice(),
         ))
+        .into()
     })
 }
 
 #[ffi_export]
 fn fvm_machine_execute_message(
     executor: &'_ InnerFvmMachine,
-    message: c_slice::Ref<u8>,
+    message: c_slice::Ref<'_, u8>,
     chain_len: u64,
     apply_kind: u64, /* 0: Explicit, _: Implicit */
 ) -> repr_c::Box<Result<FvmMachineExecuteResponse>> {

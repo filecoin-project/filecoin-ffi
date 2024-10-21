@@ -185,7 +185,7 @@ where
         }
     };
 
-    repr_c::Box::new(result)
+    Box::new(result).into()
 }
 
 pub fn catch_panic_response_raw<F, T>(name: &str, callback: F) -> repr_c::Box<Result<T>>
@@ -218,7 +218,7 @@ where
         res
     });
 
-    repr_c::Box::new(match result {
+    Box::new(match result {
         Ok(t) => match t {
             Ok(t) => Result::ok(t),
             Err(err) => Result::err_no_default(format!("{err:?}").into_bytes().into_boxed_slice()),
@@ -236,6 +236,7 @@ where
             )
         }
     })
+    .into()
 }
 
 /// Generate a destructor for the given type wrapped in a `repr_c::Box`.
