@@ -36,7 +36,7 @@ unsafe fn write_with_alignment(
     src_fd: libc::c_int,
     src_size: u64,
     dst_fd: libc::c_int,
-    existing_piece_sizes: c_slice::Ref<u64>,
+    existing_piece_sizes: c_slice::Ref<'_, u64>,
 ) -> repr_c::Box<WriteWithAlignmentResponse> {
     catch_panic_response("write_with_alignment", || {
         let piece_sizes: Vec<UnpaddedBytesAmount> = existing_piece_sizes
@@ -89,8 +89,8 @@ unsafe fn write_without_alignment(
 #[ffi_export]
 fn fauxrep(
     registered_proof: RegisteredSealProof,
-    cache_dir_path: c_slice::Ref<u8>,
-    sealed_sector_path: c_slice::Ref<u8>,
+    cache_dir_path: c_slice::Ref<'_, u8>,
+    sealed_sector_path: c_slice::Ref<'_, u8>,
 ) -> repr_c::Box<FauxRepResponse> {
     catch_panic_response("fauxrep", || {
         let res = seal::fauxrep(
@@ -105,8 +105,8 @@ fn fauxrep(
 #[ffi_export]
 fn fauxrep2(
     registered_proof: RegisteredSealProof,
-    cache_dir_path: c_slice::Ref<u8>,
-    existing_p_aux_path: c_slice::Ref<u8>,
+    cache_dir_path: c_slice::Ref<'_, u8>,
+    existing_p_aux_path: c_slice::Ref<'_, u8>,
 ) -> repr_c::Box<FauxRepResponse> {
     catch_panic_response("fauxrep2", || {
         let result = seal::fauxrep2(
@@ -123,13 +123,13 @@ fn fauxrep2(
 #[ffi_export]
 fn seal_pre_commit_phase1(
     registered_proof: RegisteredSealProof,
-    cache_dir_path: c_slice::Ref<u8>,
-    staged_sector_path: c_slice::Ref<u8>,
-    sealed_sector_path: c_slice::Ref<u8>,
+    cache_dir_path: c_slice::Ref<'_, u8>,
+    staged_sector_path: c_slice::Ref<'_, u8>,
+    sealed_sector_path: c_slice::Ref<'_, u8>,
     sector_id: u64,
     prover_id: &[u8; 32],
     ticket: &[u8; 32],
-    pieces: c_slice::Ref<PublicPieceInfo>,
+    pieces: c_slice::Ref<'_, PublicPieceInfo>,
 ) -> repr_c::Box<SealPreCommitPhase1Response> {
     catch_panic_response("seal_pre_commit_phase1", || {
         let public_pieces: Vec<PieceInfo> = pieces.iter().map(Into::into).collect();
@@ -157,7 +157,7 @@ fn seal_pre_commit_phase1(
 #[ffi_export]
 fn generate_sdr(
     registered_proof: RegisteredSealProof,
-    output_dir: c_slice::Ref<u8>,
+    output_dir: c_slice::Ref<'_, u8>,
     replica_id: &[u8; 32],
 ) -> repr_c::Box<GenerateSdrResponse> {
     catch_panic_response("generate_sdr", || {
@@ -174,9 +174,9 @@ fn generate_sdr(
 /// TODO: document
 #[ffi_export]
 fn seal_pre_commit_phase2(
-    seal_pre_commit_phase1_output: c_slice::Ref<u8>,
-    cache_dir_path: c_slice::Ref<u8>,
-    sealed_sector_path: c_slice::Ref<u8>,
+    seal_pre_commit_phase1_output: c_slice::Ref<'_, u8>,
+    cache_dir_path: c_slice::Ref<'_, u8>,
+    sealed_sector_path: c_slice::Ref<'_, u8>,
 ) -> repr_c::Box<SealPreCommitPhase2Response> {
     catch_panic_response("seal_pre_commit_phase2", || {
         let phase_1_output = serde_json::from_slice(&seal_pre_commit_phase1_output)?;
@@ -202,8 +202,8 @@ fn seal_pre_commit_phase2(
 #[ffi_export]
 fn generate_tree_r_last(
     registered_proof: RegisteredSealProof,
-    replica_path: c_slice::Ref<u8>,
-    output_dir: c_slice::Ref<u8>,
+    replica_path: c_slice::Ref<'_, u8>,
+    output_dir: c_slice::Ref<'_, u8>,
 ) -> repr_c::Box<GenerateTreeRLastResponse> {
     catch_panic_response("generate_tree_r_last", || {
         let comm_r_last = seal::generate_tree_r_last(
@@ -227,8 +227,8 @@ fn generate_tree_r_last(
 #[ffi_export]
 fn generate_tree_c(
     registered_proof: RegisteredSealProof,
-    input_dir: c_slice::Ref<u8>,
-    output_dir: c_slice::Ref<u8>,
+    input_dir: c_slice::Ref<'_, u8>,
+    output_dir: c_slice::Ref<'_, u8>,
 ) -> repr_c::Box<GenerateTreeCResponse> {
     catch_panic_response("generate_tree_c", || {
         let comm_c = seal::generate_tree_c(
@@ -247,13 +247,13 @@ fn seal_commit_phase1(
     registered_proof: RegisteredSealProof,
     comm_r: &[u8; 32],
     comm_d: &[u8; 32],
-    cache_dir_path: c_slice::Ref<u8>,
-    replica_path: c_slice::Ref<u8>,
+    cache_dir_path: c_slice::Ref<'_, u8>,
+    replica_path: c_slice::Ref<'_, u8>,
     sector_id: u64,
     prover_id: &[u8; 32],
     ticket: &[u8; 32],
     seed: &[u8; 32],
-    pieces: c_slice::Ref<PublicPieceInfo>,
+    pieces: c_slice::Ref<'_, PublicPieceInfo>,
 ) -> repr_c::Box<SealCommitPhase1Response> {
     catch_panic_response("seal_commit_phase1", || {
         let spcp2o = seal::SealPreCommitPhase2Output {
@@ -282,7 +282,7 @@ fn seal_commit_phase1(
 
 #[ffi_export]
 fn seal_commit_phase2(
-    seal_commit_phase1_output: c_slice::Ref<u8>,
+    seal_commit_phase1_output: c_slice::Ref<'_, u8>,
     sector_id: u64,
     prover_id: &[u8; 32],
 ) -> repr_c::Box<SealCommitPhase2Response> {
@@ -313,7 +313,7 @@ fn seal_commit_phase2(
 /// includes the proof generated in this phase of the sealing process.
 #[ffi_export]
 fn seal_commit_phase2_circuit_proofs(
-    seal_commit_phase1_output: c_slice::Ref<u8>,
+    seal_commit_phase1_output: c_slice::Ref<'_, u8>,
     sector_id: u64,
 ) -> repr_c::Box<SealCommitPhase2Response> {
     catch_panic_response("seal_commit_phase2_circuit_proofs", || {
@@ -330,12 +330,12 @@ fn generate_synth_proofs(
     registered_proof: RegisteredSealProof,
     comm_r: &[u8; 32],
     comm_d: &[u8; 32],
-    cache_dir_path: c_slice::Ref<u8>,
-    replica_path: c_slice::Ref<u8>,
+    cache_dir_path: c_slice::Ref<'_, u8>,
+    replica_path: c_slice::Ref<'_, u8>,
     sector_id: u64,
     prover_id: &[u8; 32],
     ticket: &[u8; 32],
-    pieces: c_slice::Ref<PublicPieceInfo>,
+    pieces: c_slice::Ref<'_, PublicPieceInfo>,
 ) -> repr_c::Box<GenerateSynthProofsResponse> {
     catch_panic_response("generate_synth_proofs", || {
         let spcp2o = seal::SealPreCommitPhase2Output {
@@ -362,9 +362,9 @@ fn generate_synth_proofs(
 fn aggregate_seal_proofs(
     registered_proof: RegisteredSealProof,
     registered_aggregation: RegisteredAggregationProof,
-    comm_rs: c_slice::Ref<[u8; 32]>,
-    seeds: c_slice::Ref<[u8; 32]>,
-    seal_commit_responses: c_slice::Ref<c_slice::Box<u8>>,
+    comm_rs: c_slice::Ref<'_, [u8; 32]>,
+    seeds: c_slice::Ref<'_, [u8; 32]>,
+    seal_commit_responses: c_slice::Ref<'_, c_slice::Box<u8>>,
 ) -> repr_c::Box<AggregateProof> {
     catch_panic_response("aggregate_seal_proofs", || {
         let outputs: Vec<seal::SealCommitPhase2Output> = seal_commit_responses
@@ -407,8 +407,8 @@ fn verify_aggregate_seal_proof(
     registered_proof: RegisteredSealProof,
     registered_aggregation: RegisteredAggregationProof,
     prover_id: &[u8; 32],
-    proof: c_slice::Ref<u8>,
-    commit_inputs: c_slice::Ref<AggregationInputs>,
+    proof: c_slice::Ref<'_, u8>,
+    commit_inputs: c_slice::Ref<'_, AggregationInputs>,
 ) -> repr_c::Box<VerifyAggregateSealProofResponse> {
     catch_panic_response("verify_aggregate_seal_proof", || {
         let inputs: Vec<Vec<Fr>> = commit_inputs
@@ -441,7 +441,7 @@ fn verify_aggregate_seal_proof(
 #[ffi_export]
 unsafe fn unseal_range(
     registered_proof: RegisteredSealProof,
-    cache_dir_path: c_slice::Ref<u8>,
+    cache_dir_path: c_slice::Ref<'_, u8>,
     sealed_sector_fd_raw: libc::c_int,
     unseal_output_fd_raw: libc::c_int,
     sector_id: u64,
@@ -489,7 +489,7 @@ fn verify_seal(
     ticket: &[u8; 32],
     seed: &[u8; 32],
     sector_id: u64,
-    proof: c_slice::Ref<u8>,
+    proof: c_slice::Ref<'_, u8>,
 ) -> repr_c::Box<super::types::VerifySealResponse> {
     catch_panic_response("verify_seal", || {
         let proof_bytes: Vec<u8> = proof.to_vec();
@@ -539,7 +539,7 @@ fn generate_winning_post_sector_challenge(
 fn generate_fallback_sector_challenges(
     registered_proof: RegisteredPoStProof,
     randomness: &[u8; 32],
-    sector_ids: c_slice::Ref<u64>,
+    sector_ids: c_slice::Ref<'_, u64>,
     prover_id: &[u8; 32],
 ) -> repr_c::Box<GenerateFallbackSectorChallengesResponse> {
     catch_panic_response("generate_fallback_sector_challenges", || {
@@ -570,7 +570,7 @@ fn generate_fallback_sector_challenges(
 #[ffi_export]
 fn generate_single_vanilla_proof(
     replica: PrivateReplicaInfo,
-    challenges: c_slice::Ref<u64>,
+    challenges: c_slice::Ref<'_, u64>,
 ) -> repr_c::Box<GenerateSingleVanillaProofResponse> {
     catch_panic_response("generate_single_vanilla_proof", || {
         let sector_id = SectorId::from(replica.sector_id);
@@ -600,7 +600,7 @@ fn generate_winning_post_with_vanilla(
     registered_proof: RegisteredPoStProof,
     randomness: &[u8; 32],
     prover_id: &[u8; 32],
-    vanilla_proofs: c_slice::Ref<VanillaProof>,
+    vanilla_proofs: c_slice::Ref<'_, VanillaProof>,
 ) -> repr_c::Box<GenerateWinningPoStResponse> {
     catch_panic_response("generate_winning_post_with_vanilla", || {
         let vanilla_proofs: Vec<_> = vanilla_proofs
@@ -631,7 +631,7 @@ fn generate_winning_post_with_vanilla(
 #[ffi_export]
 fn generate_winning_post(
     randomness: &[u8; 32],
-    replicas: c_slice::Ref<PrivateReplicaInfo>,
+    replicas: c_slice::Ref<'_, PrivateReplicaInfo>,
     prover_id: &[u8; 32],
 ) -> repr_c::Box<GenerateWinningPoStResponse> {
     catch_panic_response("generate_winning_post", || {
@@ -655,8 +655,8 @@ fn generate_winning_post(
 #[ffi_export]
 fn verify_winning_post(
     randomness: &[u8; 32],
-    replicas: c_slice::Ref<PublicReplicaInfo>,
-    proofs: c_slice::Ref<PoStProof>,
+    replicas: c_slice::Ref<'_, PublicReplicaInfo>,
+    proofs: c_slice::Ref<'_, PoStProof>,
     prover_id: &[u8; 32],
 ) -> repr_c::Box<VerifyWinningPoStResponse> {
     catch_panic_response("verify_winning_post", || {
@@ -681,7 +681,7 @@ fn generate_window_post_with_vanilla(
     registered_proof: RegisteredPoStProof,
     randomness: &[u8; 32],
     prover_id: &[u8; 32],
-    vanilla_proofs: c_slice::Ref<VanillaProof>,
+    vanilla_proofs: c_slice::Ref<'_, VanillaProof>,
 ) -> repr_c::Box<GenerateWindowPoStResponse> {
     catch_panic_response_raw("generate_window_post_with_vanilla", || {
         let vanilla_proofs: Vec<_> = vanilla_proofs
@@ -737,7 +737,7 @@ fn generate_window_post_with_vanilla(
 #[ffi_export]
 fn generate_window_post(
     randomness: &[u8; 32],
-    replicas: c_slice::Ref<PrivateReplicaInfo>,
+    replicas: c_slice::Ref<'_, PrivateReplicaInfo>,
     prover_id: &[u8; 32],
 ) -> repr_c::Box<GenerateWindowPoStResponse> {
     catch_panic_response_raw("generate_window_post", || {
@@ -785,8 +785,8 @@ fn generate_window_post(
 #[ffi_export]
 fn verify_window_post(
     randomness: &[u8; 32],
-    replicas: c_slice::Ref<PublicReplicaInfo>,
-    proofs: c_slice::Ref<PoStProof>,
+    replicas: c_slice::Ref<'_, PublicReplicaInfo>,
+    proofs: c_slice::Ref<'_, PoStProof>,
     prover_id: &[u8; 32],
 ) -> repr_c::Box<VerifyWindowPoStResponse> {
     catch_panic_response("verify_window_post", || {
@@ -813,7 +813,7 @@ fn verify_window_post(
 #[ffi_export]
 fn merge_window_post_partition_proofs(
     registered_proof: RegisteredPoStProof,
-    partition_proofs: c_slice::Ref<c_slice::Box<u8>>,
+    partition_proofs: c_slice::Ref<'_, c_slice::Box<u8>>,
 ) -> repr_c::Box<MergeWindowPoStPartitionProofsResponse> {
     catch_panic_response("merge_window_post_partition_proofs", || {
         let partition_proofs = partition_proofs
@@ -854,7 +854,7 @@ fn generate_single_window_post_with_vanilla(
     registered_proof: RegisteredPoStProof,
     randomness: &[u8; 32],
     prover_id: &[u8; 32],
-    vanilla_proofs: c_slice::Ref<VanillaProof>,
+    vanilla_proofs: c_slice::Ref<'_, VanillaProof>,
     partition_index: libc::size_t,
 ) -> repr_c::Box<GenerateSingleWindowPoStWithVanillaResponse> {
     catch_panic_response_raw("generate_single_window_post_with_vanilla", || {
@@ -909,12 +909,12 @@ fn generate_single_window_post_with_vanilla(
 #[ffi_export]
 fn empty_sector_update_encode_into(
     registered_proof: RegisteredUpdateProof,
-    new_replica_path: c_slice::Ref<u8>,
-    new_cache_dir_path: c_slice::Ref<u8>,
-    sector_key_path: c_slice::Ref<u8>,
-    sector_key_cache_dir_path: c_slice::Ref<u8>,
-    staged_data_path: c_slice::Ref<u8>,
-    pieces: c_slice::Ref<PublicPieceInfo>,
+    new_replica_path: c_slice::Ref<'_, u8>,
+    new_cache_dir_path: c_slice::Ref<'_, u8>,
+    sector_key_path: c_slice::Ref<'_, u8>,
+    sector_key_cache_dir_path: c_slice::Ref<'_, u8>,
+    staged_data_path: c_slice::Ref<'_, u8>,
+    pieces: c_slice::Ref<'_, PublicPieceInfo>,
 ) -> repr_c::Box<EmptySectorUpdateEncodeIntoResponse> {
     catch_panic_response("empty_sector_update_encode_into", || {
         let public_pieces = pieces.iter().map(Into::into).collect::<Vec<_>>();
@@ -941,10 +941,10 @@ fn empty_sector_update_encode_into(
 #[ffi_export]
 fn empty_sector_update_decode_from(
     registered_proof: RegisteredUpdateProof,
-    out_data_path: c_slice::Ref<u8>,
-    replica_path: c_slice::Ref<u8>,
-    sector_key_path: c_slice::Ref<u8>,
-    sector_key_cache_dir_path: c_slice::Ref<u8>,
+    out_data_path: c_slice::Ref<'_, u8>,
+    replica_path: c_slice::Ref<'_, u8>,
+    sector_key_path: c_slice::Ref<'_, u8>,
+    sector_key_cache_dir_path: c_slice::Ref<'_, u8>,
     comm_d_new: &[u8; 32],
 ) -> repr_c::Box<EmptySectorUpdateDecodeFromResponse> {
     catch_panic_response("empty_sector_update_decode_from", || {
@@ -1012,11 +1012,11 @@ unsafe fn empty_sector_update_decode_from_range(
 #[ffi_export]
 fn empty_sector_update_remove_encoded_data(
     registered_proof: RegisteredUpdateProof,
-    sector_key_path: c_slice::Ref<u8>,
-    sector_key_cache_dir_path: c_slice::Ref<u8>,
-    replica_path: c_slice::Ref<u8>,
-    replica_cache_path: c_slice::Ref<u8>,
-    data_path: c_slice::Ref<u8>,
+    sector_key_path: c_slice::Ref<'_, u8>,
+    sector_key_cache_dir_path: c_slice::Ref<'_, u8>,
+    replica_path: c_slice::Ref<'_, u8>,
+    replica_cache_path: c_slice::Ref<'_, u8>,
+    data_path: c_slice::Ref<'_, u8>,
     comm_d_new: &[u8; 32],
 ) -> repr_c::Box<EmptySectorUpdateRemoveEncodedDataResponse> {
     catch_panic_response("empty_sector_update_remove_encoded_data", || {
@@ -1041,10 +1041,10 @@ fn generate_empty_sector_update_partition_proofs(
     comm_r_old: &[u8; 32],
     comm_r_new: &[u8; 32],
     comm_d_new: &[u8; 32],
-    sector_key_path: c_slice::Ref<u8>,
-    sector_key_cache_dir_path: c_slice::Ref<u8>,
-    replica_path: c_slice::Ref<u8>,
-    replica_cache_path: c_slice::Ref<u8>,
+    sector_key_path: c_slice::Ref<'_, u8>,
+    sector_key_cache_dir_path: c_slice::Ref<'_, u8>,
+    replica_path: c_slice::Ref<'_, u8>,
+    replica_cache_path: c_slice::Ref<'_, u8>,
 ) -> repr_c::Box<PartitionProofResponse> {
     catch_panic_response("generate_empty_sector_update_partition_proofs", || {
         let output = update::generate_partition_proofs(
@@ -1072,7 +1072,7 @@ fn generate_empty_sector_update_partition_proofs(
 #[ffi_export]
 fn verify_empty_sector_update_partition_proofs(
     registered_proof: RegisteredUpdateProof,
-    proofs: c_slice::Ref<ApiPartitionProof>,
+    proofs: c_slice::Ref<'_, ApiPartitionProof>,
     comm_r_old: &[u8; 32],
     comm_r_new: &[u8; 32],
     comm_d_new: &[u8; 32],
@@ -1099,7 +1099,7 @@ fn verify_empty_sector_update_partition_proofs(
 #[ffi_export]
 fn generate_empty_sector_update_proof_with_vanilla(
     registered_proof: RegisteredUpdateProof,
-    vanilla_proofs: c_slice::Ref<ApiPartitionProof>,
+    vanilla_proofs: c_slice::Ref<'_, ApiPartitionProof>,
     comm_r_old: &[u8; 32],
     comm_r_new: &[u8; 32],
     comm_d_new: &[u8; 32],
@@ -1129,10 +1129,10 @@ fn generate_empty_sector_update_proof(
     comm_r_old: &[u8; 32],
     comm_r_new: &[u8; 32],
     comm_d_new: &[u8; 32],
-    sector_key_path: c_slice::Ref<u8>,
-    sector_key_cache_dir_path: c_slice::Ref<u8>,
-    replica_path: c_slice::Ref<u8>,
-    replica_cache_path: c_slice::Ref<u8>,
+    sector_key_path: c_slice::Ref<'_, u8>,
+    sector_key_cache_dir_path: c_slice::Ref<'_, u8>,
+    replica_path: c_slice::Ref<'_, u8>,
+    replica_cache_path: c_slice::Ref<'_, u8>,
 ) -> repr_c::Box<EmptySectorUpdateProofResponse> {
     catch_panic_response("generate_empty_sector_update_proof", || {
         let result = update::generate_empty_sector_update_proof(
@@ -1154,7 +1154,7 @@ fn generate_empty_sector_update_proof(
 #[ffi_export]
 fn verify_empty_sector_update_proof(
     registered_proof: RegisteredUpdateProof,
-    proof: c_slice::Ref<u8>,
+    proof: c_slice::Ref<'_, u8>,
     comm_r_old: &[u8; 32],
     comm_r_new: &[u8; 32],
     comm_d_new: &[u8; 32],
@@ -1210,7 +1210,7 @@ unsafe fn generate_piece_commitment(
 #[ffi_export]
 fn generate_data_commitment(
     registered_proof: RegisteredSealProof,
-    pieces: c_slice::Ref<PublicPieceInfo>,
+    pieces: c_slice::Ref<'_, PublicPieceInfo>,
 ) -> repr_c::Box<GenerateDataCommitmentResponse> {
     catch_panic_response("generate_data_commitment", || {
         let public_pieces: Vec<PieceInfo> = pieces.iter().map(Into::into).collect();
@@ -1223,7 +1223,7 @@ fn generate_data_commitment(
 #[ffi_export]
 fn clear_cache(
     sector_size: u64,
-    cache_dir_path: c_slice::Ref<u8>,
+    cache_dir_path: c_slice::Ref<'_, u8>,
 ) -> repr_c::Box<ClearCacheResponse> {
     catch_panic_response("clear_cache", || {
         seal::clear_cache(sector_size, &as_path_buf(&cache_dir_path)?)
@@ -1233,7 +1233,7 @@ fn clear_cache(
 #[ffi_export]
 fn clear_synthetic_proofs(
     sector_size: u64,
-    cache_dir_path: c_slice::Ref<u8>,
+    cache_dir_path: c_slice::Ref<'_, u8>,
 ) -> repr_c::Box<ClearCacheResponse> {
     catch_panic_response("clear_synthetic_proofs", || {
         seal::clear_synthetic_proofs(sector_size, &as_path_buf(&cache_dir_path)?)
@@ -1366,9 +1366,10 @@ fn registered_seal_proof_accessor(
 ) -> repr_c::Box<StringResponse> {
     let rsp: api::RegisteredSealProof = registered_proof.into();
 
-    repr_c::Box::new(StringResponse::from(
+    Box::new(StringResponse::from(
         op(rsp).map(|v| v.into_bytes().into_boxed_slice().into()),
     ))
+    .into()
 }
 
 fn registered_post_proof_accessor(
@@ -1377,9 +1378,10 @@ fn registered_post_proof_accessor(
 ) -> repr_c::Box<StringResponse> {
     let rsp: api::RegisteredPoStProof = registered_proof.into();
 
-    repr_c::Box::new(StringResponse::from(
+    Box::new(StringResponse::from(
         op(rsp).map(|v| v.into_bytes().into_boxed_slice().into()),
     ))
+    .into()
 }
 
 destructor!(
