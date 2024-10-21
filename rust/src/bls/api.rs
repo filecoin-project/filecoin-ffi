@@ -25,6 +25,7 @@ pub type BLSDigest = [u8; DIGEST_BYTES];
 /// Unwraps or returns the passed in value.
 macro_rules! try_ffi {
     ($res:expr, $val:expr) => {{
+        #[allow(clippy::blocks_in_conditions)]
         match $res {
             Ok(res) => res,
             Err(_) => return $val,
