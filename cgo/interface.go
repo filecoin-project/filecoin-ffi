@@ -5,8 +5,8 @@ import (
 
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-state-types/abi"
+	blockstore "github.com/ipfs/boxo/blockstore"
 	"github.com/ipfs/go-cid"
-	blockstore "github.com/ipfs/go-ipfs-blockstore"
 )
 
 type ConsensusFault struct {
