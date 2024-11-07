@@ -109,7 +109,6 @@ impl MultiEngineContainer {
 
 // fvm v4 implementation
 mod v4 {
-    use anyhow::anyhow;
     use cid::Cid;
     use std::sync::Mutex;
 
@@ -158,11 +157,7 @@ mod v4 {
             blockstore: CgoBlockstore,
             externs: CgoExterns,
         ) -> anyhow::Result<InnerFvmMachine> {
-            let mut network_config = NetworkConfig::new(
-                cfg.network_version
-                    .try_into()
-                    .map_err(|nv| anyhow!("network version {nv} not supported"))?,
-            );
+            let mut network_config = NetworkConfig::new(cfg.network_version.into());
             network_config.chain_id(ChainID::from(cfg.chain_id));
 
             if cfg.actor_debugging {
@@ -194,7 +189,7 @@ mod v4 {
 
 // fvm v3 implementation
 mod v3 {
-    use anyhow::{anyhow, Context};
+    use anyhow::Context;
     use cid::Cid;
     use fvm4_shared::event::{self, ActorEvent, Entry, StampedEvent};
     use num_traits::FromPrimitive;
@@ -434,11 +429,7 @@ mod v3 {
             blockstore: CgoBlockstore,
             externs: CgoExterns,
         ) -> anyhow::Result<InnerFvmMachine> {
-            let mut network_config = NetworkConfig3::new(
-                cfg.network_version
-                    .try_into()
-                    .map_err(|nv| anyhow!("network version {nv} not supported"))?,
-            );
+            let mut network_config = NetworkConfig3::new(cfg.network_version.into());
             network_config.chain_id(ChainID3::from(cfg.chain_id));
 
             if cfg.actor_debugging {

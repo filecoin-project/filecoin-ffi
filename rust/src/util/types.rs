@@ -210,13 +210,15 @@ where
     T: Sized,
     F: FnOnce() -> anyhow::Result<T> + std::panic::UnwindSafe,
 {
-    let result = match panic::catch_unwind(|| {
+    let result = panic::catch_unwind(|| {
         init_log();
         log::debug!("{}: start", name);
         let res = callback();
         log::debug!("{}: end", name);
         res
-    }) {
+    });
+
+    repr_c::Box::new(match result {
         Ok(t) => match t {
             Ok(t) => Result::ok(t),
             Err(err) => Result::err_no_default(format!("{err:?}").into_bytes().into_boxed_slice()),
@@ -233,9 +235,7 @@ where
                     .into_boxed_slice(),
             )
         }
-    };
-
-    repr_c::Box::new(result)
+    })
 }
 
 /// Generate a destructor for the given type wrapped in a `repr_c::Box`.
