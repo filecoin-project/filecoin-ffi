@@ -42,7 +42,7 @@ fvm2_shared = { package = "fvm_shared", version = "~2.9.1" }
 fvm_ipld_encoding = "0.4.0"
 fvm_ipld_blockstore = "0.2.1"
 num-traits = "0.2.14"
-cid = { version = "0.10.1", features = ["serde-codec"] }
+cid = { version = "0.10.1", features = ["serde-codec"], default-features = false }
 lazy_static = "1.4.0"
 serde = "1.0.117"
 serde_tuple = "0.5"
