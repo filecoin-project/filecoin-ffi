@@ -46,7 +46,7 @@ cid = { version = "0.10.1", features = ["serde-codec"] }
 lazy_static = "1.4.0"
 serde = "1.0.117"
 serde_tuple = "0.5"
-safer-ffi = { version = "0.0.7", features = ["proc_macros"] }
+safer-ffi = { version = "0.1.13", features = ["proc_macros"] }
 filecoin-proofs-api = { version = "18.1", default-features = false }
 yastl = "0.1.2"
 
