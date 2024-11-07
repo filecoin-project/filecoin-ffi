@@ -77,11 +77,17 @@ jobs:
           go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.59.0
           make go-lint
   cgo-bindings:
-    name: Build and test CGO bindings (${{ matrix.runner }})
-    runs-on: ${{ matrix.runner }}
+    name: Build and test CGO bindings (${{ matrix.runner.name }})
+    runs-on: ${{ matrix.runner.machine }}
     strategy:
       matrix:
-        runner: ['ubuntu-latest', ["self-hosted", "linux", "arm64", "xlarge"], 'macos-latest']
+        runner:
+          - name: "linux-x86_64"
+            machine: ["self-hosted", "linux", "x64", "4xlarge"]
+          - name: "linux-arm64"
+            machine: ["self-hosted", "linux", "arm64", "4xlarge"]
+          - name: "macos-latest"
+            machine: 'macos-latest'
       fail-fast: false
     steps:
       - run: echo "Running on $RUNNER_OS $RUNNER_ARCH"
@@ -124,9 +130,9 @@ jobs:
       - if: github.event.inputs.run-leak-detector == 'true'
         run: make cgo-leakdetect
       - if: runner.os == 'Linux'
-        run: cd rust && FIL_PROOFS_PARAMETER_CACHE="${GITHUB_WORKSPACE}/filecoin-proof-parameters/" RUST_LOG=info cargo test --all --release -- --test-threads 1 && cd ..
+        run: cd rust && FIL_PROOFS_PARAMETER_CACHE="${GITHUB_WORKSPACE}/filecoin-proof-parameters/" RUST_LOG=info cargo test --all --release && cd ..
       - if: runner.os == 'Linux'
-        run: GOEXPERIMENT=cgocheck2 RUST_LOG=info go test -p 1 -timeout 60m
+        run: GOEXPERIMENT=cgocheck2 RUST_LOG=info go test -timeout 60m
       - if: runner.os == 'macOS'
         name: Build project and tests, but don't actually run the tests (used to verify that build/link works with Darwin)
         run: GOEXPERIMENT=cgocheck2 RUST_LOG=info go test -run=^$
