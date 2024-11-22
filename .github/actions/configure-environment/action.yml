@@ -51,7 +51,7 @@ runs:
       shell: bash
     - if: runner.os == 'macOS'
       run: |
-        HOMEBREW_NO_AUTO_UPDATE=1 brew install pkg-config md5sha1sum jq hwloc
+        HOMEBREW_NO_AUTO_UPDATE=1 brew install md5sha1sum hwloc
       shell: bash
     - uses: dtolnay/rust-toolchain@21dc36fb71dd22e3317045c0c31a3f4249868b17
       with:
