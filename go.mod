@@ -7,13 +7,13 @@ toolchain go1.22.7
 require (
 	github.com/filecoin-project/go-address v1.2.0
 	github.com/filecoin-project/go-fil-commcid v0.2.0
-	github.com/filecoin-project/go-state-types v0.15.0
+	github.com/filecoin-project/go-state-types v0.16.0-rc1
 	github.com/ipfs/boxo v0.20.0
 	github.com/ipfs/go-block-format v0.2.0
 	github.com/ipfs/go-cid v0.4.1
 	github.com/ipfs/go-ipld-format v0.6.0
 	github.com/pkg/errors v0.9.1
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da
 )
 
@@ -44,8 +44,8 @@ require (
 	github.com/whyrusleeping/cbor-gen v0.2.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
-	golang.org/x/crypto v0.28.0 // indirect
-	golang.org/x/sys v0.26.0 // indirect
+	golang.org/x/crypto v0.29.0 // indirect
+	golang.org/x/sys v0.27.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	lukechampine.com/blake3 v1.3.0 // indirect
 )
