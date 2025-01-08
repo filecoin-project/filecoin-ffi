@@ -110,17 +110,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7c02d123df017efcdfbd739ef81735b36c5ba83ec3c59c80a9d7ecc718f92e50"
 
 [[package]]
-name = "async-trait"
-version = "0.1.83"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "721cae7de5c34fbb2acd27e21e6d2cf7b886dce0c27388d46c4e6c47ea4318dd"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 2.0.87",
-]
-
-[[package]]
 name = "atty"
 version = "0.2.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -185,7 +174,7 @@ dependencies = [
  "byteorder",
  "ff",
  "serde",
- "thiserror",
+ "thiserror 1.0.68",
 ]
 
 [[package]]
@@ -216,7 +205,7 @@ dependencies = [
  "serde",
  "sha2 0.10.8",
  "supraseal-c2",
- "thiserror",
+ "thiserror 1.0.68",
 ]
 
 [[package]]
@@ -227,12 +216,6 @@ checksum = "b1f45e9417d87227c7a56d22e471c6206462cba514c7590c09aff4cf6d1ddcad"
 dependencies = [
  "serde",
 ]
-
-[[package]]
-name = "bitflags"
-version = "0.7.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "aad18937a628ec6abcd26d1489012cc0e18c21798210f491af69ded9b881106d"
 
 [[package]]
 name = "bitflags"
@@ -334,7 +317,7 @@ dependencies = [
  "pairing",
  "rand_core",
  "subtle",
- "thiserror",
+ "thiserror 1.0.68",
 ]
 
 [[package]]
@@ -474,7 +457,7 @@ checksum = "b823f24e72fa0c68aa14a250ae1c0848e68d4ae188b71c3972343e45b46f8644"
 dependencies = [
  "libc",
  "opencl-sys",
- "thiserror",
+ "thiserror 1.0.68",
 ]
 
 [[package]]
@@ -485,12 +468,10 @@ checksum = "67ba02a97a2bd10f4b59b25c7973101c79642302776489e030cd13cdab09ed15"
 
 [[package]]
 name = "config"
-version = "0.12.0"
+version = "0.14.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "54ad70579325f1a38ea4c13412b82241c5900700a69785d73e2736bd65a33f86"
+checksum = "68578f196d2a33ff61b27fae256c3164f65e36382648e30666dde05b8cc9dfdf"
 dependencies = [
- "async-trait",
- "lazy_static",
  "nom",
  "pathdiff",
  "serde",
@@ -978,7 +959,7 @@ dependencies = [
  "rayon",
  "rust-gpu-tools",
  "sha2 0.10.8",
- "thiserror",
+ "thiserror 1.0.68",
  "yastl",
 ]
 
@@ -1001,7 +982,7 @@ dependencies = [
  "rayon",
  "rust-gpu-tools",
  "sha2 0.10.8",
- "thiserror",
+ "thiserror 1.0.68",
  "yastl",
 ]
 
@@ -1152,11 +1133,12 @@ checksum = "e8c02a5121d4ea3eb16a80748c74f5549a5665e4c21333c6098f283870fbdea6"
 
 [[package]]
 name = "fdlimit"
-version = "0.2.1"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2c4c9e43643f5a3be4ca5b67d26b98031ff9db6806c3440ae32e02e3ceac3f1b"
+checksum = "e182f7dbc2ef73d9ef67351c5fbbea084729c48362d3ce9dd44c28e32e277fe5"
 dependencies = [
  "libc",
+ "thiserror 1.0.68",
 ]
 
 [[package]]
@@ -1233,8 +1215,7 @@ dependencies = [
 [[package]]
 name = "filecoin-hashers"
 version = "13.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "85413176cea16bfe171caafab023044820c0033b243b535b19116776ffd3f285"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs#8e96f1de6ca8468f5308773c3706c1a25509cf95"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1253,8 +1234,7 @@ dependencies = [
 [[package]]
 name = "filecoin-proofs"
 version = "18.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "096b8b483f6ed5823150daf6cd22ee8e32b3dabcb4fd70dab70044e73bcab107"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs#8e96f1de6ca8468f5308773c3706c1a25509cf95"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -1263,7 +1243,7 @@ dependencies = [
  "blstrs",
  "ff",
  "filecoin-hashers",
- "fr32",
+ "fr32 11.1.0 (git+https://github.com/filecoin-project/rust-fil-proofs)",
  "generic-array 0.14.7",
  "hex",
  "iowrap",
@@ -1287,14 +1267,13 @@ dependencies = [
 [[package]]
 name = "filecoin-proofs-api"
 version = "18.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3aea8140d1e2d2ac18347e6121ee24d0e903f9cfdc2eb2ee507932e352c9e7b8"
+source = "git+https://github.com/filecoin-project/rust-filecoin-proofs-api#d1ad2f59e36b9745f68560bd0c0c8279f2e94113"
 dependencies = [
  "anyhow",
  "bincode",
  "blstrs",
  "filecoin-proofs",
- "fr32",
+ "fr32 11.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static",
  "serde",
  "storage-proofs-core",
@@ -1323,7 +1302,7 @@ dependencies = [
  "log",
  "nu-ansi-term",
  "regex",
- "thiserror",
+ "thiserror 1.0.68",
 ]
 
 [[package]]
@@ -1377,7 +1356,20 @@ dependencies = [
  "byte-slice-cast",
  "byteorder",
  "ff",
- "thiserror",
+ "thiserror 1.0.68",
+]
+
+[[package]]
+name = "fr32"
+version = "11.1.0"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs#8e96f1de6ca8468f5308773c3706c1a25509cf95"
+dependencies = [
+ "anyhow",
+ "blstrs",
+ "byte-slice-cast",
+ "byteorder",
+ "ff",
+ "thiserror 2.0.11",
 ]
 
 [[package]]
@@ -1429,7 +1421,7 @@ dependencies = [
  "serde",
  "serde_repr",
  "serde_tuple",
- "thiserror",
+ "thiserror 1.0.68",
  "wasmtime",
  "yastl",
 ]
@@ -1465,7 +1457,7 @@ dependencies = [
  "replace_with",
  "serde",
  "serde_tuple",
- "thiserror",
+ "thiserror 1.0.68",
  "wasmtime",
  "wasmtime-environ",
  "yastl",
@@ -1500,7 +1492,7 @@ dependencies = [
  "serde",
  "serde_tuple",
  "static_assertions",
- "thiserror",
+ "thiserror 1.0.68",
  "wasmtime",
  "wasmtime-environ",
  "yastl",
@@ -1541,7 +1533,7 @@ dependencies = [
  "multihash-codetable",
  "once_cell",
  "serde",
- "thiserror",
+ "thiserror 1.0.68",
 ]
 
 [[package]]
@@ -1569,7 +1561,7 @@ dependencies = [
  "serde_ipld_dagcbor",
  "serde_repr",
  "serde_tuple",
- "thiserror",
+ "thiserror 1.0.68",
 ]
 
 [[package]]
@@ -1589,7 +1581,7 @@ dependencies = [
  "once_cell",
  "serde",
  "sha2 0.10.8",
- "thiserror",
+ "thiserror 1.0.68",
 ]
 
 [[package]]
@@ -1620,7 +1612,7 @@ dependencies = [
  "serde",
  "serde_repr",
  "serde_tuple",
- "thiserror",
+ "thiserror 1.0.68",
  "unsigned-varint",
 ]
 
@@ -1648,7 +1640,7 @@ dependencies = [
  "num-traits",
  "serde",
  "serde_tuple",
- "thiserror",
+ "thiserror 1.0.68",
  "unsigned-varint",
 ]
 
@@ -1675,7 +1667,7 @@ dependencies = [
  "num-traits",
  "serde",
  "serde_tuple",
- "thiserror",
+ "thiserror 1.0.68",
  "unsigned-varint",
 ]
 
@@ -1831,12 +1823,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "hwloc"
-version = "0.5.0"
+name = "hwloc2"
+version = "2.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2934f84993b8b4bcae9b6a4e5f0aca638462dda9c7b4f26a570241494f21e0f4"
+checksum = "0f2a4b6f52a58293f5a69375e8bedfc53b15e439f751d9d20a62689632fe348e"
 dependencies = [
- "bitflags 0.7.0",
+ "bitflags 1.3.2",
  "errno 0.2.8",
  "kernel32-sys",
  "libc",
@@ -2894,7 +2886,7 @@ dependencies = [
  "opencl3",
  "sha2 0.10.8",
  "temp-env",
- "thiserror",
+ "thiserror 1.0.68",
 ]
 
 [[package]]
@@ -3060,6 +3052,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "serde_spanned"
+version = "0.6.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "87607cb1398ed59d48732e575a4c28a7a8ebf2454b964fe3f224f2afc07909e1"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "serde_tuple"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3123,8 +3124,7 @@ checksum = "5f179d4e11094a893b82fff208f74d448a7512f99f5a0acbd5c679b705f83ed9"
 [[package]]
 name = "sha2raw"
 version = "13.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "73744f6a373edfc5624f452ec705a762e1154bb88c6699242bf37c56d99a6ebb"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs#8e96f1de6ca8468f5308773c3706c1a25509cf95"
 dependencies = [
  "byteorder",
  "cpufeatures",
@@ -3132,7 +3132,6 @@ dependencies = [
  "fake-simd",
  "lazy_static",
  "opaque-debug",
- "sha2-asm",
 ]
 
 [[package]]
@@ -3240,8 +3239,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 [[package]]
 name = "storage-proofs-core"
 version = "18.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "390385ae6787ad5d4312f3b6f0462c9f6615d9a7863376f8636604e6e43f3d28"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs#8e96f1de6ca8468f5308773c3706c1a25509cf95"
 dependencies = [
  "aes",
  "anyhow",
@@ -3253,10 +3251,10 @@ dependencies = [
  "config",
  "ff",
  "filecoin-hashers",
- "fr32",
+ "fr32 11.1.0 (git+https://github.com/filecoin-project/rust-fil-proofs)",
  "fs2",
  "generic-array 0.14.7",
- "itertools 0.10.5",
+ "itertools 0.13.0",
  "lazy_static",
  "log",
  "memmap2 0.5.10",
@@ -3269,14 +3267,13 @@ dependencies = [
  "serde",
  "serde_json",
  "sha2 0.10.8",
- "thiserror",
+ "thiserror 2.0.11",
 ]
 
 [[package]]
 name = "storage-proofs-porep"
 version = "18.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6dd8c6bbeb00933edb41152fdabf28d2519d6a1b6ea176a793e3198a07bb9acd"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs#8e96f1de6ca8468f5308773c3706c1a25509cf95"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -3290,11 +3287,11 @@ dependencies = [
  "fdlimit",
  "ff",
  "filecoin-hashers",
- "fr32",
+ "fr32 11.1.0 (git+https://github.com/filecoin-project/rust-fil-proofs)",
  "generic-array 0.14.7",
  "glob",
  "hex",
- "hwloc",
+ "hwloc2",
  "lazy_static",
  "libc",
  "log",
@@ -3318,8 +3315,7 @@ dependencies = [
 [[package]]
 name = "storage-proofs-post"
 version = "18.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "779fbfe1455a57d2a7fd655ce1b2e97bf9f238b65c71919e92aa9df8f2ced8b1"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs#8e96f1de6ca8468f5308773c3706c1a25509cf95"
 dependencies = [
  "anyhow",
  "bellperson",
@@ -3338,15 +3334,14 @@ dependencies = [
 [[package]]
 name = "storage-proofs-update"
 version = "18.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ee4b391917dbcffa2297295971a02cc54aa19aa8b5378d539a435e78f8050153"
+source = "git+https://github.com/filecoin-project/rust-fil-proofs#8e96f1de6ca8468f5308773c3706c1a25509cf95"
 dependencies = [
  "anyhow",
  "bellperson",
  "blstrs",
  "ff",
  "filecoin-hashers",
- "fr32",
+ "fr32 11.1.0 (git+https://github.com/filecoin-project/rust-fil-proofs)",
  "generic-array 0.14.7",
  "lazy_static",
  "log",
@@ -3464,7 +3459,16 @@ version = "1.0.68"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "02dd99dc800bbb97186339685293e1cc5d9df1f8fae2d0aecd9ff1c77efea892"
 dependencies = [
- "thiserror-impl",
+ "thiserror-impl 1.0.68",
+]
+
+[[package]]
+name = "thiserror"
+version = "2.0.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d452f284b73e6d76dd36758a0c8684b1d5be31f92b89d07fd5822175732206fc"
+dependencies = [
+ "thiserror-impl 2.0.11",
 ]
 
 [[package]]
@@ -3472,6 +3476,17 @@ name = "thiserror-impl"
 version = "1.0.68"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a7c61ec9a6f64d2793d8a45faba21efbe3ced62a886d44c36a009b2b519b4c7e"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.87",
+]
+
+[[package]]
+name = "thiserror-impl"
+version = "2.0.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "26afc1baea8a989337eeb52b6e72a039780ce45c3edfcc9c5b9d112feeb173c2"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -3499,11 +3514,14 @@ dependencies = [
 
 [[package]]
 name = "toml"
-version = "0.5.11"
+version = "0.8.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f4f7f0dd8d50a853a531c426359045b1998f04219d88799810762cd4ad314234"
+checksum = "a1ed1f98e3fdc28d6d910e6737ae6ab1a93bf1985935a1193e68f93eeb68d24e"
 dependencies = [
  "serde",
+ "serde_spanned",
+ "toml_datetime",
+ "toml_edit",
 ]
 
 [[package]]
@@ -3511,6 +3529,9 @@ name = "toml_datetime"
 version = "0.6.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0dd7358ecb8fc2f8d014bf86f6f638ce72ba252a2c3a2572f2a795f1d23efb41"
+dependencies = [
+ "serde",
+]
 
 [[package]]
 name = "toml_edit"
@@ -3519,6 +3540,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4ae48d6208a266e853d946088ed816055e556cc6028c5e8e2b84d9fa5dd7c7f5"
 dependencies = [
  "indexmap 2.6.0",
+ "serde",
+ "serde_spanned",
  "toml_datetime",
  "winnow",
 ]
@@ -3833,7 +3856,7 @@ dependencies = [
  "object",
  "smallvec",
  "target-lexicon",
- "thiserror",
+ "thiserror 1.0.68",
  "wasmparser 0.217.0",
  "wasmtime-environ",
  "wasmtime-versioned-export-macros",
