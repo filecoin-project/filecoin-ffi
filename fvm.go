@@ -19,6 +19,7 @@ import (
 	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/filecoin-project/go-state-types/big"
 	"github.com/filecoin-project/go-state-types/network"
+	"github.com/ipfs/boxo/blockstore"
 	"github.com/ipfs/go-cid"
 	"golang.org/x/xerrors"
 )
@@ -187,6 +188,14 @@ func (f *FVM) Flush() (cid.Cid, error) {
 	return cid.Cast(stateRoot)
 }
 
+// DumpCache dumps the intermediate blockstore cache of the FVM to the provided blockstore.
+func (f *FVM) DumpCache(bs blockstore.Blockstore) error {
+	defer runtime.KeepAlive(f)
+	bsHandle := cgo.Register(context.TODO(), blockStoreAsExterns{Blockstore: bs})
+	defer cgo.Unregister(bsHandle)
+	return cgo.FvmMachineDumpCache(f.executor, bsHandle)
+}
+
 type ApplyRet struct {
 	Return             []byte
 	ExitCode           uint64
@@ -237,4 +246,33 @@ func reformBigInt(hi, lo uint64) big.Int {
 	int := new(gobig.Int)
 	int.SetBits(words)
 	return big.NewFromGo(int)
+}
+
+// blockStoreAsExterns is a wrapper around a blockstore.Blockstore that implements the cgo.Externs.
+// It is only intended for use strictly as a Blockstore, and does not support any of the other
+// Externs methods.
+type blockStoreAsExterns struct {
+	blockstore.Blockstore
+}
+
+var _ cgo.Externs = blockStoreAsExterns{}
+
+func (b blockStoreAsExterns) GetChainRandomness(ctx context.Context, epoch abi.ChainEpoch) ([32]byte, error) {
+	return [32]byte{}, xerrors.Errorf("GetChainRandomness not supported")
+}
+
+func (b blockStoreAsExterns) GetBeaconRandomness(ctx context.Context, epoch abi.ChainEpoch) ([32]byte, error) {
+	return [32]byte{}, xerrors.Errorf("GetBeaconRandomness not supported")
+}
+
+func (b blockStoreAsExterns) VerifyConsensusFault(ctx context.Context, h1, h2, extra []byte) (*cgo.ConsensusFault, int64) {
+	panic("VerifyConsensusFault not supported")
+}
+
+func (b blockStoreAsExterns) TipsetCid(ctx context.Context, epoch abi.ChainEpoch) (cid.Cid, error) {
+	return cid.Undef, xerrors.Errorf("TipsetCid not supported")
+}
+
+func (b blockStoreAsExterns) View(ctx context.Context, cid cid.Cid, callback func([]byte) error) error {
+	return xerrors.Errorf("View not supported")
 }

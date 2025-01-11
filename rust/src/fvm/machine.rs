@@ -399,6 +399,23 @@ fn fvm_machine_execute_message(
 }
 
 #[ffi_export]
+fn fvm_machine_dump_cache(
+    executor: &'_ InnerFvmMachine,
+    blockstore_id: u64,
+) -> repr_c::Box<Result<()>> {
+    catch_panic_response("fvm_machine_dump_cache", || {
+        let blockstore = CgoBlockstore::new(blockstore_id);
+        let mut executor = executor
+            .machine
+            .as_ref()
+            .context("missing executor")?
+            .lock()
+            .map_err(|e| anyhow!("executor lock poisoned: {e}"))?;
+        executor.dump_cache(blockstore)
+    })
+}
+
+#[ffi_export]
 fn fvm_machine_flush(executor: &'_ InnerFvmMachine) -> repr_c::Box<Result<c_slice::Box<u8>>> {
     catch_panic_response("fvm_machine_flush", || {
         let mut executor = executor
@@ -422,6 +439,7 @@ destructor!(
 );
 
 destructor!(destroy_fvm_machine_flush_response, Result<c_slice::Box<u8>>);
+destructor!(destroy_fvm_machine_dump_cache_response, Result<()>);
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize_tuple, Deserialize_tuple)]
 struct LotusGasCharge {
@@ -439,6 +457,7 @@ struct Trace {
     pub msg_invoked: Option<TraceActor>,
     pub gas_charges: Vec<LotusGasCharge>,
     pub subcalls: Vec<Trace>,
+    pub logs: Vec<String>,
 }
 
 #[derive(Serialize_tuple, Deserialize_tuple, Debug, PartialEq, Eq, Clone)]
@@ -499,6 +518,7 @@ fn build_lotus_trace(
         },
         gas_charges: vec![],
         subcalls: vec![],
+        logs: vec![],
     };
 
     while let Some(trace) = trace_iter.next() {
@@ -568,6 +588,9 @@ fn build_lotus_trace(
                         .unwrap_or(u64::MAX),
                 });
             }
+            ExecutionEvent::Log(s) => {
+                new_trace.logs.push(s);
+            }
             _ => (), // ignore unknown events.
         };
     }
@@ -605,10 +628,12 @@ mod test {
             ExecutionEvent::GasCharge(initial_gas_charge.clone()),
             call_event.clone(),
             return_result.clone(),
+            ExecutionEvent::Log("something happened".to_string()),
             call_event.clone(),
             call_event,
             return_result.clone(),
             return_result.clone(),
+            ExecutionEvent::Log("something else happened".to_string()),
             return_result,
         ];
 
@@ -648,5 +673,8 @@ mod test {
         assert_eq!(lotus_trace.subcalls[0].subcalls.len(), 0);
         assert_eq!(lotus_trace.subcalls[1].subcalls.len(), 1);
         assert_eq!(lotus_trace.subcalls[1].subcalls[0].subcalls.len(), 0);
+        assert_eq!(lotus_trace.logs.len(), 2);
+        assert_eq!(lotus_trace.logs[0], "something happened");
+        assert_eq!(lotus_trace.logs[1], "something else happened");
     }
 }
