@@ -50,6 +50,12 @@ safer-ffi = { version = "0.1.13", features = ["proc_macros"] }
 filecoin-proofs-api = { version = "18.1", default-features = false }
 yastl = "0.1.2"
 
+[patch.crates-io]
+fvm4 = { package = "fvm", path = "/home/rvagg/git/pl/filecoin-project/ref-fvm/fvm" }
+fvm4_shared = { package = "fvm_shared", path = "/home/rvagg/git/pl/filecoin-project/ref-fvm/shared" }
+fvm_ipld_blockstore = { path = "/home/rvagg/git/pl/filecoin-project/ref-fvm/ipld/blockstore" }
+fvm_ipld_encoding = { path = "/home/rvagg/git/pl/filecoin-project/ref-fvm/ipld/encoding" }
+
 [dev-dependencies]
 memmap2 = "0.9"
 tempfile = "3.12.0"

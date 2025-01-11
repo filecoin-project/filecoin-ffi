@@ -90,3 +90,10 @@ func FvmMachineFlush(executor *FvmMachine) ([]byte, error) {
 	}
 	return (SliceBoxedUint8)(resp.value).copy(), nil
 }
+
+func FvmMachineDumpCache(executor *FvmMachine, blockstoreId uint64) error {
+	resp := C.fvm_machine_dump_cache(executor, C.uint64_t(blockstoreId))
+	defer resp.destroy()
+
+	return CheckErr(resp)
+}

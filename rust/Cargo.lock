@@ -1547,8 +1547,6 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_blockstore"
 version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "97b8b31e022f71b73440054f7e5171231a1ebc745adf075014d5aa8ea78ea283"
 dependencies = [
  "anyhow",
  "cid",
@@ -4264,3 +4262,15 @@ dependencies = [
  "quote",
  "syn 2.0.87",
 ]
+
+[[patch.unused]]
+name = "fvm"
+version = "4.5.3"
+
+[[patch.unused]]
+name = "fvm_shared"
+version = "4.5.3"
+
+[[patch.unused]]
+name = "fvm_ipld_encoding"
+version = "0.5.1"
