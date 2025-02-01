@@ -43,11 +43,7 @@ runs:
     - if: runner.os == 'Linux'
       run: |
         sudo apt-get update
-        sudo apt-get install --no-install-recommends -y valgrind ocl-icd-opencl-dev libssl-dev libhwloc-dev nvidia-cuda-toolkit g++-10 pkgconf libc6=2.35-0ubuntu3.8
-        # Downgrade to GCC 10, as CUDA 11 doesn't play nice with GCC 11
-        sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-10 10
-        sudo update-alternatives --set c++ /usr/bin/g++-10
-        # Check if we need to install cuda-toolkit-12-5
+        sudo apt-get install --no-install-recommends -y valgrind ocl-icd-opencl-dev libssl-dev libhwloc-dev nvidia-cuda-toolkit pkgconf
       shell: bash
     - if: runner.os == 'macOS'
       run: |
