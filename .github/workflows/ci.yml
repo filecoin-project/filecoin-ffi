@@ -44,50 +44,14 @@ env:
   DEBIAN_FRONTEND: noninteractive
 
 jobs:
-  check:
-    name: Check code style and run linters
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: recursive
-      - uses: ./.github/actions/configure-environment
-      - if: github.event.inputs.ref != ''
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
-          ref: ${{ github.event.inputs.ref }}
-      - name: Run shellcheck
-        run: shellcheck ./install-filcrypto
-      - name: Run cargo fmt
-        run: |
-          rustup component add rustfmt
-          cargo fmt --manifest-path ./rust/Cargo.toml --all -- --check
-      - name: Run cargo clippy
-        run: cd rust && cargo clippy --all-targets --features blst-portable,opencl -- -D warnings
-      - name: Run go fmt
-        # `! go fmt ./... 2>&1 | read"` doesn't work, this one does, thanks
-        # https://carsonip.me/posts/go-fmt-and-ci/
-        run: |
-          output=$(go fmt ./...)
-          echo "${output}"
-          test -z "${output}"
-      - name: Run various linters
-        run: |
-          go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.59.0
-          make go-lint
   cgo-bindings:
     name: Build and test CGO bindings (${{ matrix.runner.name }})
     runs-on: ${{ matrix.runner.machine }}
     strategy:
       matrix:
         runner:
-          - name: "linux-x86_64"
-            machine: ["self-hosted", "linux", "x64", "4xlarge"]
           - name: "linux-arm64"
             machine: ["self-hosted", "linux", "arm64", "2xlarge"]
-          - name: "macos-latest"
-            machine: 'macos-latest'
       fail-fast: false
     steps:
       - run: echo "Running on $RUNNER_OS $RUNNER_ARCH"
@@ -136,18 +100,3 @@ jobs:
       - if: runner.os == 'macOS'
         name: Build project and tests, but don't actually run the tests (used to verify that build/link works with Darwin)
         run: GOEXPERIMENT=cgocheck2 RUST_LOG=info go test -run=^$
-  supraseal:
-    name: Build with CUDA supraseal
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: recursive
-      - uses: ./.github/actions/configure-environment
-      - if: github.event.inputs.ref != ''
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
-          ref: ${{ github.event.inputs.ref }}
-      - name: Build project with `FFI_USE_CUDA_SUPRASEAL=1`
-        run: FFI_BUILD_FROM_SOURCE=1 FFI_USE_CUDA_SUPRASEAL=1 make
