@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - master
+      - arm-64-on-ubuntu-24.04
   workflow_dispatch:
     inputs:
       save:
