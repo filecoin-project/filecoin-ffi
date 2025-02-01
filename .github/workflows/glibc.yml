@@ -19,6 +19,7 @@ jobs:
           - ["self-hosted", "linux", "arm64", "2xlarge"]
       fail-fast: false
     steps:
+      - uses: actions/checkout@v4
       - run: uname -a
       - run: ldd --version
       - run: ls /lib
