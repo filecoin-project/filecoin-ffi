@@ -1,0 +1,25 @@
+name: glibc
+
+on:
+  push:
+    branches:
+      - arm-64-on-ubuntu-24.04
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  glibc:
+    name: Get glibc version
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        runner:
+          - ["self-hosted", "linux", "arm64", "4xlarge"]
+          - ["self-hosted", "linux", "arm64", "2xlarge"]
+      fail-fast: false
+    steps:
+      - run: uname -a
+      - run: ldd --version
+      - run: ls /lib
