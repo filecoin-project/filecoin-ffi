@@ -85,7 +85,7 @@ jobs:
           - name: "linux-x86_64"
             machine: ["self-hosted", "linux", "x64", "4xlarge"]
           - name: "linux-arm64"
-            machine: ["self-hosted", "linux", "arm64", "4xlarge"]
+            machine: ["self-hosted", "linux", "arm64", "2xlarge"]
           - name: "macos-latest"
             machine: 'macos-latest'
       fail-fast: false
