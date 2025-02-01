@@ -16,8 +16,7 @@ jobs:
     strategy:
       matrix:
         runner:
-          - ["self-hosted", "linux", "arm64", "4xlarge"]
-          - ["self-hosted", "linux", "arm64", "2xlarge"]
+          - ["self-hosted", "linux", "x64", "2xlarge"]
       fail-fast: false
     steps:
       - run: uname -a
