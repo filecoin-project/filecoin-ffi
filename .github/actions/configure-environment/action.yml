@@ -19,6 +19,7 @@ runs:
         sudo ln -s /usr/local/cuda-12.8/lib64/stubs/libcuda.so /usr/lib/aarch64-linux-gnu/stubs/libcuda.so
         echo "LD_LIBRARY_PATH=/usr/lib/aarch64-linux-gnu/stubs:${LD_LIBRARY_PATH}" >> $GITHUB_ENV
         echo "LIBRARY_PATH=/usr/lib/aarch64-linux-gnu/stubs:${LIBRARY_PATH}" >> $GITHUB_ENV
+        echo "/usr/local/cuda-12.8/bin" >> $GITHUB_PATH
       shell: bash
     - if: runner.os == 'Linux' && runner.arch == 'X64'
       run: |
@@ -34,6 +35,7 @@ runs:
         sudo ln -s /usr/local/cuda-12.8/lib64/stubs/libcuda.so /usr/lib/x86_64-linux-gnu/stubs/libcuda.so
         echo "LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/stubs:${LD_LIBRARY_PATH}" >> $GITHUB_ENV
         echo "LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/stubs:${LIBRARY_PATH}" >> $GITHUB_ENV
+        echo "/usr/local/cuda-12.8/bin" >> $GITHUB_PATH
       shell: bash
     - run: |
         echo "FIL_PROOFS_PARAMETER_CACHE=${GITHUB_WORKSPACE}/filecoin-proof-parameters/" >> $GITHUB_ENV
