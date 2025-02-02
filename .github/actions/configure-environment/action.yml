@@ -13,7 +13,7 @@ runs:
         sudo dpkg -i cuda-repo-ubuntu2404-12-8-local_12.8.0-570.86.10-1_arm64.deb
         sudo cp /var/cuda-repo-ubuntu2404-12-8-local/cuda-*-keyring.gpg /usr/share/keyrings/
         sudo apt-get update
-        sudo apt-get -y install cuda-toolkit-12-8
+        sudo apt-get install --no-install-recommends -y cuda-toolkit-12-8
         sudo mkdir -p /usr/lib/aarch64-linux-gnu/stubs
         sudo ln -s /usr/local/cuda-12.8/lib64/stubs/libcuda.so /usr/lib/aarch64-linux-gnu/stubs/libcuda.so.1
         sudo ln -s /usr/local/cuda-12.8/lib64/stubs/libcuda.so /usr/lib/aarch64-linux-gnu/stubs/libcuda.so
@@ -29,7 +29,7 @@ runs:
         sudo dpkg -i cuda-repo-ubuntu2404-12-8-local_12.8.0-570.86.10-1_amd64.deb
         sudo cp /var/cuda-repo-ubuntu2404-12-8-local/cuda-*-keyring.gpg /usr/share/keyrings/
         sudo apt-get update
-        sudo apt-get -y install cuda-toolkit-12-8
+        sudo apt-get install --no-install-recommends -y cuda-toolkit-12-8
         sudo mkdir -p /usr/lib/x86_64-linux-gnu/stubs
         sudo ln -s /usr/local/cuda-12.8/lib64/stubs/libcuda.so /usr/lib/x86_64-linux-gnu/stubs/libcuda.so.1
         sudo ln -s /usr/local/cuda-12.8/lib64/stubs/libcuda.so /usr/lib/x86_64-linux-gnu/stubs/libcuda.so
@@ -70,3 +70,5 @@ runs:
     - uses: actions/setup-go@v5
       with:
         go-version: '1.21'
+    - run: exit 1
+      shell: bash
