@@ -4,19 +4,6 @@ description: Configure environment variables for Filecoin FFI
 runs:
   using: 'composite'
   steps:
-    - if: runner.os == 'Linux' && runner.arch == 'ARM64'
-      run: |
-        wget -q https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/cuda-ubuntu2404.pin
-        sudo mv cuda-ubuntu2404.pin /etc/apt/preferences.d/cuda-repository-pin-600
-        wget -q https://developer.download.nvidia.com/compute/cuda/12.5.1/local_installers/cuda-repo-ubuntu2404-12-5-local_12.5.1-555.42.06-1_arm64.deb
-        sudo dpkg -i cuda-repo-ubuntu2404-12-5-local_12.5.1-555.42.06-1_arm64.deb
-        sudo cp /var/cuda-repo-ubuntu2404-12-5-local/cuda-*-keyring.gpg /usr/share/keyrings/
-        sudo apt-get update
-        sudo apt-get -y install cuda-toolkit-12-5
-        sudo mkdir -p /usr/lib/aarch64-linux-gnu/stubs
-        sudo ln -s /usr/local/cuda-12.5/lib64/stubs/libcuda.so /usr/lib/aarch64-linux-gnu/stubs/libcuda.so.1
-        sudo ln -s /usr/local/cuda-12.5/lib64/stubs/libcuda.so /usr/lib/aarch64-linux-gnu/stubs/libcuda.so
-      shell: bash
     - run: |
         echo "FIL_PROOFS_PARAMETER_CACHE=${GITHUB_WORKSPACE}/filecoin-proof-parameters/" >> $GITHUB_ENV
         echo 'GO111MODULE=on' >> $GITHUB_ENV
@@ -29,11 +16,6 @@ runs:
         echo "${GOPATH}/bin" >> $GITHUB_PATH
         echo "${HOME}/.cargo/bin" >> $GITHUB_PATH
         echo "${HOME}/.bin" >> $GITHUB_PATH
-      shell: bash
-    - if: runner.os == 'Linux' && runner.arch == 'ARM64'
-      run: |
-        echo "LD_LIBRARY_PATH=/usr/lib/aarch64-linux-gnu/stubs:${LD_LIBRARY_PATH}" >> $GITHUB_ENV
-        echo "LIBRARY_PATH=/usr/lib/aarch64-linux-gnu/stubs:${LIBRARY_PATH}" >> $GITHUB_ENV
       shell: bash
     - if: runner.os == 'macOS'
       run: |
