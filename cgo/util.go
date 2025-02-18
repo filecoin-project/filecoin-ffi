@@ -9,12 +9,7 @@ package cgo
 import "C"
 
 func InitLogFd(fd int32) error {
-	resp := C.init_log_fd(C.int32_t(fd))
+	resp := &resultVoid{delegate: C.init_log_fd(C.int32_t(fd))}
 	defer resp.destroy()
-
-	if err := CheckErr(resp); err != nil {
-		return err
-	}
-
-	return nil
+	return CheckErr(resp)
 }

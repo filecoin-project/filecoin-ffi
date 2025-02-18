@@ -9,13 +9,13 @@ package cgo
 import "C"
 
 func Hash(message SliceRefUint8) *[96]byte {
-	resp := C.hash(message)
+	resp := ByteArray96{delegate: C.hash(message)}
 	defer resp.destroy()
 	return resp.copyAsArray()
 }
 
 func Aggregate(flattenedSignatures SliceRefUint8) *[96]byte {
-	resp := C.aggregate(flattenedSignatures)
+	resp := ByteArray96{delegate: C.aggregate(flattenedSignatures)}
 	defer resp.destroy()
 	return resp.copyAsArray()
 }
@@ -31,31 +31,31 @@ func HashVerify(signature SliceRefUint8, flattenedMessages SliceRefUint8, messag
 }
 
 func PrivateKeyGenerate() *[32]byte {
-	resp := C.private_key_generate()
+	resp := ByteArray32{delegate: C.private_key_generate()}
 	defer resp.destroy()
 	return resp.copyAsArray()
 }
 
 func PrivateKeyGenerateWithSeed(rawSeed *ByteArray32) *[32]byte {
-	resp := C.private_key_generate_with_seed(rawSeed)
+	resp := ByteArray32{delegate: C.private_key_generate_with_seed(rawSeed.delegate)}
 	defer resp.destroy()
 	return resp.copyAsArray()
 }
 
 func PrivateKeySign(rawPrivateKey SliceRefUint8, message SliceRefUint8) *[96]byte {
-	resp := C.private_key_sign(rawPrivateKey, message)
+	resp := ByteArray96{delegate: C.private_key_sign(rawPrivateKey, message)}
 	defer resp.destroy()
 	return resp.copyAsArray()
 }
 
 func PrivateKeyPublicKey(rawPrivateKey SliceRefUint8) *[48]byte {
-	resp := C.private_key_public_key(rawPrivateKey)
+	resp := ByteArray48{delegate: C.private_key_public_key(rawPrivateKey)}
 	defer resp.destroy()
 	return resp.copyAsArray()
 }
 
 func CreateZeroSignature() *[96]byte {
-	resp := C.create_zero_signature()
+	resp := ByteArray96{delegate: C.create_zero_signature()}
 	defer resp.destroy()
 	return resp.copyAsArray()
 }
