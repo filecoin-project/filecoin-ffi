@@ -9,8 +9,8 @@ package cgo
 import "C"
 
 func CreateFvmMachine(fvmVersion FvmRegisteredVersion, chainEpoch, chainTimestamp, chainId, baseFeeHi, baseFeeLo, baseCircSupplyHi, baseCircSupplyLo, networkVersion uint64, stateRoot SliceRefUint8, tracing bool, blockstoreId, externsId uint64) (*FvmMachine, error) {
-	resp := C.create_fvm_machine(
-		fvmVersion,
+	resp := (*resultFvmMachine)(C.create_fvm_machine(
+		(C.FvmRegisteredVersion_t)(fvmVersion),
 		C.uint64_t(chainEpoch),
 		C.uint64_t(chainTimestamp),
 		C.uint64_t(chainId),
@@ -19,13 +19,13 @@ func CreateFvmMachine(fvmVersion FvmRegisteredVersion, chainEpoch, chainTimestam
 		C.uint64_t(baseCircSupplyHi),
 		C.uint64_t(baseCircSupplyLo),
 		C.uint32_t(networkVersion),
-		stateRoot,
+		(C.slice_ref_uint8_t)(stateRoot),
 		C.bool(tracing),
 		C.uint64_t(blockstoreId),
 		C.uint64_t(externsId),
-	)
+	))
 	// take out the pointer from the result to ensure it doesn't get freed
-	executor := resp.value
+	executor := (*FvmMachine)(resp.value)
 	resp.value = nil
 	defer resp.destroy()
 
@@ -37,8 +37,8 @@ func CreateFvmMachine(fvmVersion FvmRegisteredVersion, chainEpoch, chainTimestam
 }
 
 func CreateFvmDebugMachine(fvmVersion FvmRegisteredVersion, chainEpoch, chainTimestamp, chainId, baseFeeHi, baseFeeLo, baseCircSupplyHi, baseCircSupplyLo, networkVersion uint64, stateRoot SliceRefUint8, actorRedirect SliceRefUint8, tracing bool, blockstoreId, externsId uint64) (*FvmMachine, error) {
-	resp := C.create_fvm_debug_machine(
-		fvmVersion,
+	resp := (*resultFvmMachine)(C.create_fvm_debug_machine(
+		(C.FvmRegisteredVersion_t)(fvmVersion),
 		C.uint64_t(chainEpoch),
 		C.uint64_t(chainTimestamp),
 		C.uint64_t(chainId),
@@ -47,14 +47,14 @@ func CreateFvmDebugMachine(fvmVersion FvmRegisteredVersion, chainEpoch, chainTim
 		C.uint64_t(baseCircSupplyHi),
 		C.uint64_t(baseCircSupplyLo),
 		C.uint32_t(networkVersion),
-		stateRoot,
-		actorRedirect,
+		(C.slice_ref_uint8_t)(stateRoot),
+		(C.slice_ref_uint8_t)(actorRedirect),
 		C.bool(tracing),
 		C.uint64_t(blockstoreId),
 		C.uint64_t(externsId),
-	)
+	))
 	// take out the pointer from the result to ensure it doesn't get freed
-	executor := resp.value
+	executor := (*FvmMachine)(resp.value)
 	resp.value = nil
 	defer resp.destroy()
 
@@ -66,27 +66,27 @@ func CreateFvmDebugMachine(fvmVersion FvmRegisteredVersion, chainEpoch, chainTim
 }
 
 func FvmMachineExecuteMessage(executor *FvmMachine, message SliceRefUint8, chainLen, applyKind uint64) (FvmMachineExecuteResponseGo, error) {
-	resp := C.fvm_machine_execute_message(
-		executor,
-		message,
+	resp := (*resultFvmMachineExecuteResponse)(C.fvm_machine_execute_message(
+		(*C.InnerFvmMachine_t)(executor),
+		(C.slice_ref_uint8_t)(message),
 		C.uint64_t(chainLen),
 		C.uint64_t(applyKind),
-	)
+	))
 	defer resp.destroy()
 
 	if err := CheckErr(resp); err != nil {
 		return FvmMachineExecuteResponseGo{}, err
 	}
 
-	return resp.value.copy(), nil
+	return (FvmMachineExecuteResponse)(resp.value).copy(), nil
 }
 
 func FvmMachineFlush(executor *FvmMachine) ([]byte, error) {
-	resp := C.fvm_machine_flush(executor)
+	resp := (*resultSliceBoxedUint8)(C.fvm_machine_flush((*C.InnerFvmMachine_t)(executor)))
 	defer resp.destroy()
 
 	if err := CheckErr(resp); err != nil {
 		return nil, err
 	}
-	return resp.value.copy(), nil
+	return (SliceBoxedUint8)(resp.value).copy(), nil
 }

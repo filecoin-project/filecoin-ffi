@@ -11,67 +11,67 @@ import (
 	"unsafe"
 )
 
-type FCPResponseStatus = int64
+type FCPResponseStatus int64
 
-type RegisteredSealProof = C.RegisteredSealProof_t
-type RegisteredAggregationProof = C.RegisteredAggregationProof_t
-type RegisteredPoStProof = C.RegisteredPoStProof_t
-type RegisteredUpdateProof = C.RegisteredUpdateProof_t
+type RegisteredSealProof C.RegisteredSealProof_t
+type RegisteredAggregationProof C.RegisteredAggregationProof_t
+type RegisteredPoStProof C.RegisteredPoStProof_t
+type RegisteredUpdateProof C.RegisteredUpdateProof_t
 
-type FvmRegisteredVersion = C.FvmRegisteredVersion_t
+type FvmRegisteredVersion C.FvmRegisteredVersion_t
 
-type AggregationInputs = C.AggregationInputs_t
+type AggregationInputs C.AggregationInputs_t
 
-type PublicReplicaInfo = C.PublicReplicaInfo_t
-type PrivateReplicaInfo = C.PrivateReplicaInfo_t
-type PartitionSnarkProof = C.PartitionSnarkProof_t
-type PoStProof = C.PoStProof_t
-type PublicPieceInfo = C.PublicPieceInfo_t
+type PublicReplicaInfo C.PublicReplicaInfo_t
+type PrivateReplicaInfo C.PrivateReplicaInfo_t
+type PartitionSnarkProof C.PartitionSnarkProof_t
+type PoStProof C.PoStProof_t
+type PublicPieceInfo C.PublicPieceInfo_t
 
-type SliceRefPublicReplicaInfo = C.slice_ref_PublicReplicaInfo_t
-type SliceRefPrivateReplicaInfo = C.slice_ref_PrivateReplicaInfo_t
-type SliceRefByteArray32 = C.slice_ref_uint8_32_array_t
-type SliceRefSliceBoxedUint8 = C.slice_ref_slice_boxed_uint8_t
-type SliceRefUint64 = C.slice_ref_uint64_t
-type SliceRefPoStProof = C.slice_ref_PoStProof_t
-type SliceRefPublicPieceInfo = C.slice_ref_PublicPieceInfo_t
-type SliceRefUint8 = C.slice_ref_uint8_t
-type SliceRefUint = C.slice_ref_size_t
-type SliceRefAggregationInputs = C.slice_ref_AggregationInputs_t
+type SliceRefPublicReplicaInfo C.slice_ref_PublicReplicaInfo_t
+type SliceRefPrivateReplicaInfo C.slice_ref_PrivateReplicaInfo_t
+type SliceRefByteArray32 C.slice_ref_uint8_32_array_t
+type SliceRefSliceBoxedUint8 C.slice_ref_slice_boxed_uint8_t
+type SliceRefUint64 C.slice_ref_uint64_t
+type SliceRefPoStProof C.slice_ref_PoStProof_t
+type SliceRefPublicPieceInfo C.slice_ref_PublicPieceInfo_t
+type SliceRefUint8 C.slice_ref_uint8_t
+type SliceRefUint C.slice_ref_size_t
+type SliceRefAggregationInputs C.slice_ref_AggregationInputs_t
 
-type SliceBoxedPoStProof = C.struct_slice_boxed_PoStProof
-type SliceBoxedUint64 = C.struct_slice_boxed_uint64
-type SliceBoxedSliceBoxedUint8 = C.slice_boxed_slice_boxed_uint8_t
-type SliceBoxedSliceBoxedUint64 = C.slice_boxed_slice_boxed_uint64_t
-type SliceBoxedUint8 = C.struct_slice_boxed_uint8
+type SliceBoxedPoStProof C.struct_slice_boxed_PoStProof
+type SliceBoxedUint64 C.struct_slice_boxed_uint64
+type SliceBoxedSliceBoxedUint8 C.slice_boxed_slice_boxed_uint8_t
+type SliceBoxedSliceBoxedUint64 C.slice_boxed_slice_boxed_uint64_t
+type SliceBoxedUint8 C.struct_slice_boxed_uint8
 
-type ByteArray32 = C.uint8_32_array_t
-type ByteArray48 = C.uint8_48_array_t
-type ByteArray96 = C.uint8_96_array_t
+type ByteArray32 C.uint8_32_array_t
+type ByteArray48 C.uint8_48_array_t
+type ByteArray96 C.uint8_96_array_t
 
-type FvmMachine = C.InnerFvmMachine_t
-type FvmMachineExecuteResponse = C.FvmMachineExecuteResponse_t
+type FvmMachine C.InnerFvmMachine_t
+type FvmMachineExecuteResponse C.FvmMachineExecuteResponse_t
 
-type resultBool = C.Result_bool_t
-type resultGeneratePieceCommitment = C.Result_GeneratePieceCommitment_t
-type resultWriteWithAlignment = C.Result_WriteWithAlignment_t
-type resultWriteWithoutAlignment = C.Result_WriteWithoutAlignment_t
-type resultByteArray32 = C.Result_uint8_32_array_t
-type resultVoid = C.Result_void_t
-type resultSealPreCommitPhase2 = C.Result_SealPreCommitPhase2_t
-type resultSliceBoxedUint8 = C.Result_slice_boxed_uint8_t
-type resultSliceBoxedPoStProof = C.Result_slice_boxed_PoStProof_t
-type resultSliceBoxedUint64 = C.Result_slice_boxed_uint64_t
-type resultUint = C.Result_size_t
-type resultSliceBoxedSliceBoxedUint8 = C.Result_slice_boxed_slice_boxed_uint8_t
-type resultGenerateWindowPoSt = C.Result_GenerateWindowPoSt_t
-type resultEmptySectorUpdateEncodeInto = C.Result_EmptySectorUpdateEncodeInto_t
-type resultGenerateFallbackSectorChallenges = C.Result_GenerateFallbackSectorChallenges_t
-type resultGenerateSingleWindowPoStWithVanilla = C.Result_GenerateSingleWindowPoStWithVanilla_t
-type resultPoStProof = C.Result_PoStProof_t
+type resultBool C.Result_bool_t
+type resultGeneratePieceCommitment C.Result_GeneratePieceCommitment_t
+type resultWriteWithAlignment C.Result_WriteWithAlignment_t
+type resultWriteWithoutAlignment C.Result_WriteWithoutAlignment_t
+type resultByteArray32 C.Result_uint8_32_array_t
+type resultVoid C.Result_void_t
+type resultSealPreCommitPhase2 C.Result_SealPreCommitPhase2_t
+type resultSliceBoxedUint8 C.Result_slice_boxed_uint8_t
+type resultSliceBoxedPoStProof C.Result_slice_boxed_PoStProof_t
+type resultSliceBoxedUint64 C.Result_slice_boxed_uint64_t
+type resultUint C.Result_size_t
+type resultSliceBoxedSliceBoxedUint8 C.Result_slice_boxed_slice_boxed_uint8_t
+type resultGenerateWindowPoSt C.Result_GenerateWindowPoSt_t
+type resultEmptySectorUpdateEncodeInto C.Result_EmptySectorUpdateEncodeInto_t
+type resultGenerateFallbackSectorChallenges C.Result_GenerateFallbackSectorChallenges_t
+type resultGenerateSingleWindowPoStWithVanilla C.Result_GenerateSingleWindowPoStWithVanilla_t
+type resultPoStProof C.Result_PoStProof_t
 
-type resultFvmMachine = C.Result_InnerFvmMachine_ptr_t
-type resultFvmMachineExecuteResponse = C.Result_FvmMachineExecuteResponse_t
+type resultFvmMachine C.Result_InnerFvmMachine_ptr_t
+type resultFvmMachineExecuteResponse C.Result_FvmMachineExecuteResponse_t
 
 type result interface {
 	statusCode() FCPResponseStatus
@@ -138,31 +138,30 @@ func (ptr *resultBool) statusCode() FCPResponseStatus {
 }
 
 func (ptr *resultBool) errorMsg() *SliceBoxedUint8 {
-	return &ptr.error_msg
+	return (*SliceBoxedUint8)(&ptr.error_msg)
 }
 
 func (ptr *resultBool) destroy() {
 	if ptr != nil {
-		// TODO: correct naming
-		C.destroy_verify_seal_response(ptr)
+		C.destroy_verify_seal_response((*C.Result_bool_t)(ptr))
 		ptr = nil
 	}
 }
 
 func (ptr *PoStProof) registeredProof() RegisteredPoStProof {
-	return ptr.registered_proof
+	return RegisteredPoStProof(ptr.registered_proof)
 }
 
 func (ptr *PoStProof) destroy() {
 	if ptr != nil {
-		ptr.proof.Destroy()
+		(*SliceBoxedUint8)(&ptr.proof).Destroy()
 		ptr = nil
 	}
 }
 
 func (ptr *ByteArray96) destroy() {
 	if ptr != nil {
-		C.destroy_box_bls_digest(ptr)
+		C.destroy_box_bls_digest((*C.uint8_96_array_t)(ptr))
 		ptr = nil
 	}
 }
@@ -195,7 +194,7 @@ func (ptr *ByteArray48) copyAsArray() *[48]byte {
 
 func (ptr *ByteArray48) destroy() {
 	if ptr != nil {
-		C.destroy_box_bls_public_key(ptr)
+		C.destroy_box_bls_public_key((*C.uint8_48_array_t)(ptr))
 		ptr = nil
 	}
 }
@@ -223,7 +222,7 @@ func (ptr *ByteArray32) copyAsArray() *[32]byte {
 
 func (ptr *ByteArray32) destroy() {
 	if ptr != nil {
-		C.destroy_box_bls_private_key(ptr)
+		C.destroy_box_bls_private_key((*C.uint8_32_array_t)(ptr))
 		ptr = nil
 	}
 }
@@ -233,12 +232,12 @@ func (ptr *resultGeneratePieceCommitment) statusCode() FCPResponseStatus {
 }
 
 func (ptr *resultGeneratePieceCommitment) errorMsg() *SliceBoxedUint8 {
-	return &ptr.error_msg
+	return (*SliceBoxedUint8)(&ptr.error_msg)
 }
 
 func (ptr *resultGeneratePieceCommitment) destroy() {
 	if ptr != nil {
-		C.destroy_generate_piece_commitment_response(ptr)
+		C.destroy_generate_piece_commitment_response((*C.Result_GeneratePieceCommitment_t)(ptr))
 		ptr = nil
 	}
 }
@@ -248,13 +247,12 @@ func (ptr *resultByteArray32) statusCode() FCPResponseStatus {
 }
 
 func (ptr *resultByteArray32) errorMsg() *SliceBoxedUint8 {
-	return &ptr.error_msg
+	return (*SliceBoxedUint8)(&ptr.error_msg)
 }
 
 func (ptr *resultByteArray32) destroy() {
 	if ptr != nil {
-		// TODO: better naming
-		C.destroy_generate_data_commitment_response(ptr)
+		C.destroy_generate_data_commitment_response((*C.Result_uint8_32_array_t)(ptr))
 		ptr = nil
 	}
 }
@@ -264,12 +262,12 @@ func (ptr *resultWriteWithAlignment) statusCode() FCPResponseStatus {
 }
 
 func (ptr *resultWriteWithAlignment) errorMsg() *SliceBoxedUint8 {
-	return &ptr.error_msg
+	return (*SliceBoxedUint8)(&ptr.error_msg)
 }
 
 func (ptr *resultWriteWithAlignment) destroy() {
 	if ptr != nil {
-		C.destroy_write_with_alignment_response(ptr)
+		C.destroy_write_with_alignment_response((*C.Result_WriteWithAlignment_t)(ptr))
 		ptr = nil
 	}
 }
@@ -279,12 +277,12 @@ func (ptr *resultWriteWithoutAlignment) statusCode() FCPResponseStatus {
 }
 
 func (ptr *resultWriteWithoutAlignment) errorMsg() *SliceBoxedUint8 {
-	return &ptr.error_msg
+	return (*SliceBoxedUint8)(&ptr.error_msg)
 }
 
 func (ptr *resultWriteWithoutAlignment) destroy() {
 	if ptr != nil {
-		C.destroy_write_without_alignment_response(ptr)
+		C.destroy_write_without_alignment_response((*C.Result_WriteWithoutAlignment_t)(ptr))
 		ptr = nil
 	}
 }
@@ -294,13 +292,12 @@ func (ptr *resultSliceBoxedUint8) statusCode() FCPResponseStatus {
 }
 
 func (ptr *resultSliceBoxedUint8) errorMsg() *SliceBoxedUint8 {
-	return &ptr.error_msg
+	return (*SliceBoxedUint8)(&ptr.error_msg)
 }
 
 func (ptr *resultSliceBoxedUint8) destroy() {
 	if ptr != nil {
-		// TODO: naming
-		C.destroy_seal_pre_commit_phase1_response(ptr)
+		C.destroy_seal_pre_commit_phase1_response((*C.Result_slice_boxed_uint8_t)(ptr))
 		ptr = nil
 	}
 }
@@ -310,12 +307,12 @@ func (ptr *resultSealPreCommitPhase2) statusCode() FCPResponseStatus {
 }
 
 func (ptr *resultSealPreCommitPhase2) errorMsg() *SliceBoxedUint8 {
-	return &ptr.error_msg
+	return (*SliceBoxedUint8)(&ptr.error_msg)
 }
 
 func (ptr *resultSealPreCommitPhase2) destroy() {
 	if ptr != nil {
-		C.destroy_seal_pre_commit_phase2_response(ptr)
+		C.destroy_seal_pre_commit_phase2_response((*C.Result_SealPreCommitPhase2_t)(ptr))
 		ptr = nil
 	}
 }
@@ -325,13 +322,12 @@ func (ptr *resultVoid) statusCode() FCPResponseStatus {
 }
 
 func (ptr *resultVoid) errorMsg() *SliceBoxedUint8 {
-	return &ptr.error_msg
+	return (*SliceBoxedUint8)(&ptr.error_msg)
 }
 
 func (ptr *resultVoid) destroy() {
 	if ptr != nil {
-		// TODO: correct naming
-		C.destroy_unseal_range_response(ptr)
+		C.destroy_unseal_range_response((*C.Result_void_t)(ptr))
 		ptr = nil
 	}
 }
@@ -360,13 +356,12 @@ func (ptr *resultSliceBoxedUint64) statusCode() FCPResponseStatus {
 }
 
 func (ptr *resultSliceBoxedUint64) errorMsg() *SliceBoxedUint8 {
-	return &ptr.error_msg
+	return (*SliceBoxedUint8)(&ptr.error_msg)
 }
 
 func (ptr *resultSliceBoxedUint64) destroy() {
 	if ptr != nil {
-		// TODO: correct naming
-		C.destroy_generate_winning_post_sector_challenge(ptr)
+		C.destroy_generate_winning_post_sector_challenge((*C.Result_slice_boxed_uint64_t)(ptr))
 		ptr = nil
 	}
 }
@@ -396,8 +391,8 @@ func (ptr SliceBoxedPoStProof) copy() []PoStProofGo {
 
 func (proof PoStProof) copy() PoStProofGo {
 	return PoStProofGo{
-		RegisteredProof: proof.registered_proof,
-		Proof:           proof.proof.copy(),
+		RegisteredProof: RegisteredPoStProof(proof.registered_proof),
+		Proof:           (*SliceBoxedUint8)(&proof.proof).copy(),
 	}
 }
 
@@ -406,13 +401,12 @@ func (ptr *resultSliceBoxedPoStProof) statusCode() FCPResponseStatus {
 }
 
 func (ptr *resultSliceBoxedPoStProof) errorMsg() *SliceBoxedUint8 {
-	return &ptr.error_msg
+	return (*SliceBoxedUint8)(&ptr.error_msg)
 }
 
 func (ptr *resultSliceBoxedPoStProof) destroy() {
 	if ptr != nil {
-		// TODO: correct naming
-		C.destroy_generate_winning_post_response(ptr)
+		C.destroy_generate_winning_post_response((*C.Result_slice_boxed_PoStProof_t)(ptr))
 		ptr = nil
 	}
 }
@@ -422,12 +416,12 @@ func (ptr *resultGenerateWindowPoSt) statusCode() FCPResponseStatus {
 }
 
 func (ptr *resultGenerateWindowPoSt) errorMsg() *SliceBoxedUint8 {
-	return &ptr.error_msg
+	return (*SliceBoxedUint8)(&ptr.error_msg)
 }
 
 func (ptr *resultGenerateWindowPoSt) destroy() {
 	if ptr != nil {
-		C.destroy_generate_window_post_response(ptr)
+		C.destroy_generate_window_post_response((*C.Result_GenerateWindowPoSt_t)(ptr))
 		ptr = nil
 	}
 }
@@ -475,13 +469,12 @@ func (ptr *resultSliceBoxedSliceBoxedUint8) statusCode() FCPResponseStatus {
 }
 
 func (ptr *resultSliceBoxedSliceBoxedUint8) errorMsg() *SliceBoxedUint8 {
-	return &ptr.error_msg
+	return (*SliceBoxedUint8)(&ptr.error_msg)
 }
 
 func (ptr *resultSliceBoxedSliceBoxedUint8) destroy() {
 	if ptr != nil {
-		// TODO: naming
-		C.destroy_generate_empty_sector_update_partition_proof_response(ptr)
+		C.destroy_generate_empty_sector_update_partition_proof_response((*C.Result_slice_boxed_slice_boxed_uint8_t)(ptr))
 		ptr = nil
 	}
 }
@@ -491,13 +484,12 @@ func (ptr *resultUint) statusCode() FCPResponseStatus {
 }
 
 func (ptr *resultUint) errorMsg() *SliceBoxedUint8 {
-	return &ptr.error_msg
+	return (*SliceBoxedUint8)(&ptr.error_msg)
 }
 
 func (ptr *resultUint) destroy() {
 	if ptr != nil {
-		// TODO: naming
-		C.destroy_get_num_partition_for_fallback_post_response(ptr)
+		C.destroy_get_num_partition_for_fallback_post_response((*C.Result_size_t)(ptr))
 		ptr = nil
 	}
 }
@@ -507,12 +499,12 @@ func (ptr *resultEmptySectorUpdateEncodeInto) statusCode() FCPResponseStatus {
 }
 
 func (ptr *resultEmptySectorUpdateEncodeInto) errorMsg() *SliceBoxedUint8 {
-	return &ptr.error_msg
+	return (*SliceBoxedUint8)(&ptr.error_msg)
 }
 
 func (ptr *resultEmptySectorUpdateEncodeInto) destroy() {
 	if ptr != nil {
-		C.destroy_empty_sector_update_encode_into_response(ptr)
+		C.destroy_empty_sector_update_encode_into_response((*C.Result_EmptySectorUpdateEncodeInto_t)(ptr))
 		ptr = nil
 	}
 }
@@ -545,20 +537,20 @@ func (ptr *resultGenerateFallbackSectorChallenges) statusCode() FCPResponseStatu
 }
 
 func (ptr *resultGenerateFallbackSectorChallenges) errorMsg() *SliceBoxedUint8 {
-	return &ptr.error_msg
+	return (*SliceBoxedUint8)(&ptr.error_msg)
 }
 
 func (ptr *resultGenerateFallbackSectorChallenges) destroy() {
 	if ptr != nil {
-		C.destroy_generate_fallback_sector_challenges_response(ptr)
+		C.destroy_generate_fallback_sector_challenges_response((*C.Result_GenerateFallbackSectorChallenges_t)(ptr))
 		ptr = nil
 	}
 }
 
 func (proof PartitionSnarkProof) copy() PartitionSnarkProofGo {
 	return PartitionSnarkProofGo{
-		RegisteredProof: proof.registered_proof,
-		Proof:           proof.proof.copy(),
+		RegisteredProof: RegisteredPoStProof(proof.registered_proof),
+		Proof:           (*SliceBoxedUint8)(&proof.proof).copy(),
 	}
 }
 
@@ -567,12 +559,12 @@ func (ptr *resultGenerateSingleWindowPoStWithVanilla) statusCode() FCPResponseSt
 }
 
 func (ptr *resultGenerateSingleWindowPoStWithVanilla) errorMsg() *SliceBoxedUint8 {
-	return &ptr.error_msg
+	return (*SliceBoxedUint8)(&ptr.error_msg)
 }
 
 func (ptr *resultGenerateSingleWindowPoStWithVanilla) destroy() {
 	if ptr != nil {
-		C.destroy_generate_single_window_post_with_vanilla_response(ptr)
+		C.destroy_generate_single_window_post_with_vanilla_response((*C.Result_GenerateSingleWindowPoStWithVanilla_t)(ptr))
 		ptr = nil
 	}
 }
@@ -582,34 +574,34 @@ func (ptr *resultPoStProof) statusCode() FCPResponseStatus {
 }
 
 func (ptr *resultPoStProof) errorMsg() *SliceBoxedUint8 {
-	return &ptr.error_msg
+	return (*SliceBoxedUint8)(&ptr.error_msg)
 }
 
 func (ptr *resultPoStProof) destroy() {
 	if ptr != nil {
-		C.destroy_merge_window_post_partition_proofs_response(ptr)
+		C.destroy_merge_window_post_partition_proofs_response((*C.Result_PoStProof_t)(ptr))
 		ptr = nil
 	}
 }
 
 func (ptr *SliceBoxedUint8) Destroy() {
 	if ptr.ptr != nil {
-		C.destroy_boxed_slice(*ptr)
+		C.destroy_boxed_slice(*(*C.struct_slice_boxed_uint8)(ptr))
 		ptr.ptr = nil
 	}
 }
 
 func (ptr *PrivateReplicaInfo) Destroy() {
 	if ptr != nil {
-		ptr.cache_dir_path.Destroy()
-		ptr.replica_path.Destroy()
+		(*SliceBoxedUint8)(&ptr.cache_dir_path).Destroy()
+		(*SliceBoxedUint8)(&ptr.replica_path).Destroy()
 		ptr = nil
 	}
 }
 
 func (ptr *PoStProof) Destroy() {
 	if ptr != nil {
-		ptr.proof.Destroy()
+		(*SliceBoxedUint8)(&ptr.proof).Destroy()
 		ptr = nil
 	}
 }
@@ -619,12 +611,12 @@ func (ptr *resultFvmMachineExecuteResponse) statusCode() FCPResponseStatus {
 }
 
 func (ptr *resultFvmMachineExecuteResponse) errorMsg() *SliceBoxedUint8 {
-	return &ptr.error_msg
+	return (*SliceBoxedUint8)(&ptr.error_msg)
 }
 
 func (ptr *resultFvmMachineExecuteResponse) destroy() {
 	if ptr != nil {
-		C.destroy_fvm_machine_execute_response(ptr)
+		C.destroy_fvm_machine_execute_response((*C.Result_FvmMachineExecuteResponse_t)(ptr))
 		ptr = nil
 	}
 }
@@ -634,19 +626,19 @@ func (ptr *resultFvmMachine) statusCode() FCPResponseStatus {
 }
 
 func (ptr *resultFvmMachine) errorMsg() *SliceBoxedUint8 {
-	return &ptr.error_msg
+	return (*SliceBoxedUint8)(&ptr.error_msg)
 }
 
 func (ptr *resultFvmMachine) destroy() {
 	if ptr != nil {
-		C.destroy_create_fvm_machine_response(ptr)
+		C.destroy_create_fvm_machine_response((*C.Result_InnerFvmMachine_ptr_t)(ptr))
 		ptr = nil
 	}
 }
 
 func (ptr *FvmMachine) Destroy() {
 	if ptr != nil {
-		C.drop_fvm_machine(ptr)
+		C.drop_fvm_machine((*C.InnerFvmMachine_t)(ptr))
 		ptr = nil
 	}
 }
@@ -654,7 +646,7 @@ func (ptr *FvmMachine) Destroy() {
 func (r FvmMachineExecuteResponse) copy() FvmMachineExecuteResponseGo {
 	return FvmMachineExecuteResponseGo{
 		ExitCode:             uint64(r.exit_code),
-		ReturnVal:            r.return_val.copy(),
+		ReturnVal:            (*SliceBoxedUint8)(&r.return_val).copy(),
 		GasUsed:              uint64(r.gas_used),
 		PenaltyHi:            uint64(r.penalty_hi),
 		PenaltyLo:            uint64(r.penalty_lo),
@@ -668,9 +660,9 @@ func (r FvmMachineExecuteResponse) copy() FvmMachineExecuteResponseGo {
 		RefundLo:             uint64(r.refund_lo),
 		GasRefund:            int64(r.gas_refund),
 		GasBurned:            int64(r.gas_burned),
-		ExecTrace:            r.exec_trace.copy(),
-		FailureInfo:          string(r.failure_info.slice()),
-		Events:               r.events.copy(),
-		EventsRoot:           r.events_root.copy(),
+		ExecTrace:            (*SliceBoxedUint8)(&r.exec_trace).copy(),
+		FailureInfo:          string((*SliceBoxedUint8)(&r.failure_info).slice()),
+		Events:               (*SliceBoxedUint8)(&r.events).copy(),
+		EventsRoot:           (*SliceBoxedUint8)(&r.events_root).copy(),
 	}
 }
