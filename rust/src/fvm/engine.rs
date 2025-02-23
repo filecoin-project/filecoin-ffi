@@ -16,7 +16,7 @@ use super::blockstore::CgoBlockstore;
 use super::externs::CgoExterns;
 use super::types::*;
 
-// Generic executor; uses the current (v3) engine types
+// Generic executor; uses the current engine types
 pub trait CgoExecutor: Send {
     fn execute_message(
         &mut self,
@@ -26,6 +26,8 @@ pub trait CgoExecutor: Send {
     ) -> anyhow::Result<ApplyRet>;
 
     fn flush(&mut self) -> anyhow::Result<Cid>;
+
+    fn dump_cache(&mut self, bs: CgoBlockstore) -> anyhow::Result<()>;
 }
 
 pub struct Config {
@@ -147,6 +149,11 @@ mod v4 {
 
         fn flush(&mut self) -> anyhow::Result<Cid> {
             fvm4::executor::Executor::flush(self)
+        }
+
+        fn dump_cache(&mut self, bs: CgoBlockstore) -> anyhow::Result<()> {
+            log::info!("CgoExecutor4::dump_cache");
+            fvm4::executor::Executor::dump_cache(self, bs)
         }
     }
 
@@ -420,6 +427,11 @@ mod v3 {
         fn flush(&mut self) -> anyhow::Result<Cid> {
             fvm3::executor::Executor::flush(self)
         }
+
+        // dump_cache is only implemented in v4
+        fn dump_cache(&mut self, _: CgoBlockstore) -> anyhow::Result<()> {
+            Err(anyhow::anyhow!("dump_cache not implemented for fvm v3"))
+        }
     }
 
     impl AbstractMultiEngine for MultiEngine3 {
@@ -680,6 +692,11 @@ mod v2 {
 
         fn flush(&mut self) -> anyhow::Result<Cid> {
             fvm2::executor::Executor::flush(self)
+        }
+
+        // dump_cache is only implemented in v4
+        fn dump_cache(&mut self, _: CgoBlockstore) -> anyhow::Result<()> {
+            Err(anyhow::anyhow!("dump_cache not implemented for fvm v2"))
         }
     }
 
