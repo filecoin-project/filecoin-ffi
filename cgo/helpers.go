@@ -60,7 +60,7 @@ func AsSliceRefUint64(goBytes []uint64) SliceRefUint64 {
 func AllocSliceBoxedUint8(goBytes []byte) SliceBoxedUint8 {
 	len := len(goBytes)
 
-	ptr := C.alloc_boxed_slice(C.size_t(len))
+	ptr := (SliceBoxedUint8)(C.alloc_boxed_slice(C.size_t(len)))
 	copy(ptr.slice(), goBytes)
 
 	return ptr
@@ -227,49 +227,49 @@ func CheckErr(resp result) error {
 
 func NewAggregationInputs(commR ByteArray32, commD ByteArray32, sectorId uint64, ticket ByteArray32, seed ByteArray32) AggregationInputs {
 	return AggregationInputs{
-		comm_r:    commR,
-		comm_d:    commD,
+		comm_r:    (C.uint8_32_array_t)(commR),
+		comm_d:    (C.uint8_32_array_t)(commD),
 		sector_id: C.uint64_t(sectorId),
-		ticket:    ticket,
-		seed:      seed,
+		ticket:    (C.uint8_32_array_t)(ticket),
+		seed:      (C.uint8_32_array_t)(seed),
 	}
 }
 
 func NewPrivateReplicaInfo(pp RegisteredPoStProof, cacheDirPath string, commR ByteArray32, replicaPath string, sectorId uint64) PrivateReplicaInfo {
 	return PrivateReplicaInfo{
-		registered_proof: pp,
-		cache_dir_path:   AllocSliceBoxedUint8([]byte(cacheDirPath)),
-		replica_path:     AllocSliceBoxedUint8([]byte(replicaPath)),
+		registered_proof: (C.RegisteredPoStProof_t)(pp),
+		cache_dir_path:   (C.slice_boxed_uint8_t)(AllocSliceBoxedUint8([]byte(cacheDirPath))),
+		replica_path:     (C.slice_boxed_uint8_t)(AllocSliceBoxedUint8([]byte(replicaPath))),
 		sector_id:        C.uint64_t(sectorId),
-		comm_r:           commR,
+		comm_r:           (C.uint8_32_array_t)(commR),
 	}
 }
 
 func NewPublicReplicaInfo(pp RegisteredPoStProof, commR ByteArray32, sectorId uint64) PublicReplicaInfo {
 	return PublicReplicaInfo{
-		registered_proof: pp,
+		registered_proof: (C.RegisteredPoStProof_t)(pp),
 		sector_id:        C.uint64_t(sectorId),
-		comm_r:           commR,
+		comm_r:           (C.uint8_32_array_t)(commR),
 	}
 }
 
 func NewPoStProof(pp RegisteredPoStProof, proof []byte) PoStProof {
 	return PoStProof{
-		registered_proof: pp,
-		proof:            AllocSliceBoxedUint8(proof),
+		registered_proof: (C.RegisteredPoStProof_t)(pp),
+		proof:            (C.slice_boxed_uint8_t)(AllocSliceBoxedUint8(proof)),
 	}
 }
 
 func NewPublicPieceInfo(numBytes uint64, commP ByteArray32) PublicPieceInfo {
 	return PublicPieceInfo{
 		num_bytes: C.uint64_t(numBytes),
-		comm_p:    commP,
+		comm_p:    (C.uint8_32_array_t)(commP),
 	}
 }
 
 func NewPartitionSnarkProof(pp RegisteredPoStProof, proof []byte) PartitionSnarkProof {
 	return PartitionSnarkProof{
-		registered_proof: pp,
-		proof:            AllocSliceBoxedUint8(proof),
+		registered_proof: (C.RegisteredPoStProof_t)(pp),
+		proof:            (C.slice_boxed_uint8_t)(AllocSliceBoxedUint8(proof)),
 	}
 }
