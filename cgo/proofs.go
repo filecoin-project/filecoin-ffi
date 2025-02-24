@@ -596,7 +596,7 @@ func MergeWindowPoStPartitionProofs(registeredProof RegisteredPoStProof, partiti
 	return (PoStProof)(resp.value).copy(), nil
 }
 
-func GenerateSDR(registeredProof RegisteredPoStProof, outDir SliceRefUint8, replicaID *ByteArray32) error {
+func GenerateSDR(registeredProof RegisteredSealProof, outDir SliceRefUint8, replicaID *ByteArray32) error {
 	resp := (*resultVoid)(C.generate_sdr(
 		(C.RegisteredPoStProof_t)(registeredProof),
 		(C.slice_ref_uint8_t)(outDir),
