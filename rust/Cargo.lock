@@ -1206,12 +1206,12 @@ dependencies = [
  "filepath",
  "fvm 2.10.0",
  "fvm 3.12.0",
- "fvm 4.5.3",
+ "fvm 4.6.0",
  "fvm_ipld_blockstore",
  "fvm_ipld_encoding",
  "fvm_shared 2.10.0",
  "fvm_shared 3.12.0",
- "fvm_shared 4.5.3",
+ "fvm_shared 4.6.0",
  "group",
  "lazy_static",
  "libc",
@@ -1473,9 +1473,9 @@ dependencies = [
 
 [[package]]
 name = "fvm"
-version = "4.5.3"
+version = "4.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d590e1f94d84ffa49eb7d7d3ea8721af1d90e4b793af89095b9e8b0b816f0360"
+checksum = "80a15502d48f04a1aa4ef7c89b2878643d14e45390354486094a6e1050ce685c"
 dependencies = [
  "ambassador",
  "anyhow",
@@ -1487,7 +1487,7 @@ dependencies = [
  "fvm_ipld_blockstore",
  "fvm_ipld_encoding",
  "fvm_ipld_hamt",
- "fvm_shared 4.5.3",
+ "fvm_shared 4.6.0",
  "lazy_static",
  "log",
  "minstant",
@@ -1557,9 +1557,9 @@ dependencies = [
 
 [[package]]
 name = "fvm_ipld_encoding"
-version = "0.5.1"
+version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "723294d1574e0126a9e16069ef6581a2ee3c06eb7d6edc33eb2a976057747bfb"
+checksum = "52627625ec02011e22692e150644b90619343bd9df6d8487df13ca64355db8ab"
 dependencies = [
  "anyhow",
  "cid",
@@ -1574,9 +1574,9 @@ dependencies = [
 
 [[package]]
 name = "fvm_ipld_hamt"
-version = "0.10.2"
+version = "0.10.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8512ddaa098c324e0c6b0d8cccacdcbc08834509db11f52d5f5cd7f1f10a39f8"
+checksum = "1cc4806b6cd89fd69b7d3910492d2309fad0be2fd223686411ebfc78e16af93b"
 dependencies = [
  "anyhow",
  "byteorder",
@@ -1654,9 +1654,9 @@ dependencies = [
 
 [[package]]
 name = "fvm_shared"
-version = "4.5.3"
+version = "4.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2ae590927cdaefbf803c43952885cf172e4d8159464f1c82cad8dce22dc09b7b"
+checksum = "b693befeb038020d57695b079476d49b228236b6eb12f9158c38d0ef43c6c79d"
 dependencies = [
  "anyhow",
  "bitflags 2.6.0",
@@ -2067,9 +2067,9 @@ dependencies = [
 
 [[package]]
 name = "ipld-core"
-version = "0.4.1"
+version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b4ede82a79e134f179f4b29b5fdb1eb92bd1b38c4dfea394c539051150a21b9b"
+checksum = "104718b1cc124d92a6d01ca9c9258a7df311405debb3408c445a36452f9bf8db"
 dependencies = [
  "cid",
  "serde",
@@ -3026,9 +3026,9 @@ dependencies = [
 
 [[package]]
 name = "serde_ipld_dagcbor"
-version = "0.6.1"
+version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ded35fbe4ab8fdec1f1d14b4daff2206b1eada4d6e708cb451d464d2d965f493"
+checksum = "6851dcd54a7271dd9013195fdccbdaba70c8e71014364e396d4b938d0e67f324"
 dependencies = [
  "cbor4ii",
  "ipld-core",
