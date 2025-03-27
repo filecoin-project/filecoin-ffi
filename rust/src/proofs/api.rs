@@ -1220,23 +1220,27 @@ fn generate_data_commitment(
     })
 }
 
+// NOTE vmx 2025-01-08: sector size is no longer needed, but it's kept so that the public API
+// stays the same.
 #[ffi_export]
 fn clear_cache(
-    sector_size: u64,
+    _sector_size: u64,
     cache_dir_path: c_slice::Ref<'_, u8>,
 ) -> repr_c::Box<ClearCacheResponse> {
     catch_panic_response("clear_cache", || {
-        seal::clear_cache(sector_size, &as_path_buf(&cache_dir_path)?)
+        seal::clear_cache(&as_path_buf(&cache_dir_path)?)
     })
 }
 
+// NOTE vmx 2025-01-08: sector size is no longer needed, but it's kept so that the public API
+// stays the same.
 #[ffi_export]
 fn clear_synthetic_proofs(
-    sector_size: u64,
+    _sector_size: u64,
     cache_dir_path: c_slice::Ref<'_, u8>,
 ) -> repr_c::Box<ClearCacheResponse> {
     catch_panic_response("clear_synthetic_proofs", || {
-        seal::clear_synthetic_proofs(sector_size, &as_path_buf(&cache_dir_path)?)
+        seal::clear_synthetic_proofs(&as_path_buf(&cache_dir_path)?)
     })
 }
 
