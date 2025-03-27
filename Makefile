@@ -22,7 +22,7 @@ clean:
 .PHONY: clean
 
 go-lint: $(DEPS)
-	golangci-lint run -v --concurrency 2 --new-from-rev origin/master --timeout 2m
+	golangci-lint run -v --concurrency 2 --new-from-rev origin/master --timeout 3m
 .PHONY: go-lint
 
 shellcheck:
