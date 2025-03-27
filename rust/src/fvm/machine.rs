@@ -93,6 +93,7 @@ fn create_fvm_machine_generic(
     actor_redirect: Option<c_slice::Ref<'_, u8>>,
     actor_debugging: bool,
     tracing: bool,
+    flush_all_blocks: bool,
     blockstore_id: u64,
     externs_id: u64,
 ) -> repr_c::Box<Result<FvmMachine>> {
@@ -137,6 +138,7 @@ fn create_fvm_machine_generic(
                 tracing,
                 actor_debugging,
                 actor_redirect,
+                flush_all_blocks,
             };
 
             let externs = CgoExterns::new(externs_id);
@@ -166,6 +168,7 @@ fn create_fvm_machine(
     network_version: u32,
     state_root: c_slice::Ref<'_, u8>,
     tracing: bool,
+    flush_all_blocks: bool,
     blockstore_id: u64,
     externs_id: u64,
 ) -> repr_c::Box<Result<FvmMachine>> {
@@ -183,6 +186,7 @@ fn create_fvm_machine(
         None,
         false,
         tracing,
+        flush_all_blocks,
         blockstore_id,
         externs_id,
     )
@@ -202,6 +206,7 @@ fn create_fvm_debug_machine(
     state_root: c_slice::Ref<'_, u8>,
     actor_redirect: c_slice::Ref<'_, u8>,
     tracing: bool,
+    flush_all_blocks: bool,
     blockstore_id: u64,
     externs_id: u64,
 ) -> repr_c::Box<Result<FvmMachine>> {
@@ -223,6 +228,7 @@ fn create_fvm_debug_machine(
         },
         true,
         tracing,
+        flush_all_blocks,
         blockstore_id,
         externs_id,
     )
@@ -399,23 +405,6 @@ fn fvm_machine_execute_message(
 }
 
 #[ffi_export]
-fn fvm_machine_dump_cache(
-    executor: &'_ InnerFvmMachine,
-    blockstore_id: u64,
-) -> repr_c::Box<Result<()>> {
-    catch_panic_response("fvm_machine_dump_cache", || {
-        let blockstore = CgoBlockstore::new(blockstore_id);
-        let mut executor = executor
-            .machine
-            .as_ref()
-            .context("missing executor")?
-            .lock()
-            .map_err(|e| anyhow!("executor lock poisoned: {e}"))?;
-        executor.dump_cache(blockstore)
-    })
-}
-
-#[ffi_export]
 fn fvm_machine_flush(executor: &'_ InnerFvmMachine) -> repr_c::Box<Result<c_slice::Box<u8>>> {
     catch_panic_response("fvm_machine_flush", || {
         let mut executor = executor
@@ -439,7 +428,6 @@ destructor!(
 );
 
 destructor!(destroy_fvm_machine_flush_response, Result<c_slice::Box<u8>>);
-destructor!(destroy_fvm_machine_dump_cache_response, Result<()>);
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize_tuple, Deserialize_tuple)]
 struct LotusGasCharge {
