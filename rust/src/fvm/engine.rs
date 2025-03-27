@@ -26,8 +26,6 @@ pub trait CgoExecutor: Send {
     ) -> anyhow::Result<ApplyRet>;
 
     fn flush(&mut self) -> anyhow::Result<Cid>;
-
-    fn dump_cache(&mut self, bs: CgoBlockstore) -> anyhow::Result<()>;
 }
 
 pub struct Config {
@@ -41,6 +39,7 @@ pub struct Config {
     pub tracing: bool,
     pub actor_debugging: bool,
     pub actor_redirect: Vec<(Cid, Cid)>,
+    pub flush_all_blocks: bool,
 }
 
 // The generic engine interface
@@ -150,11 +149,6 @@ mod v4 {
         fn flush(&mut self) -> anyhow::Result<Cid> {
             fvm4::executor::Executor::flush(self)
         }
-
-        fn dump_cache(&mut self, bs: CgoBlockstore) -> anyhow::Result<()> {
-            log::info!("CgoExecutor4::dump_cache");
-            fvm4::executor::Executor::dump_cache(self, bs)
-        }
     }
 
     impl AbstractMultiEngine for MultiEngine4 {
@@ -184,6 +178,9 @@ mod v4 {
 
             if cfg.tracing {
                 machine_context.enable_tracing();
+            }
+            if cfg.flush_all_blocks {
+                machine_context.enable_flush_all_blocks();
             }
             let engine = self.get(&network_config)?;
             let machine = CgoMachine4::new(&machine_context, blockstore, externs)?;
@@ -426,11 +423,6 @@ mod v3 {
 
         fn flush(&mut self) -> anyhow::Result<Cid> {
             fvm3::executor::Executor::flush(self)
-        }
-
-        // dump_cache is only implemented in v4
-        fn dump_cache(&mut self, _: CgoBlockstore) -> anyhow::Result<()> {
-            Err(anyhow::anyhow!("dump_cache not implemented for fvm v3"))
         }
     }
 
@@ -692,11 +684,6 @@ mod v2 {
 
         fn flush(&mut self) -> anyhow::Result<Cid> {
             fvm2::executor::Executor::flush(self)
-        }
-
-        // dump_cache is only implemented in v4
-        fn dump_cache(&mut self, _: CgoBlockstore) -> anyhow::Result<()> {
-            Err(anyhow::anyhow!("dump_cache not implemented for fvm v2"))
         }
     }
 
