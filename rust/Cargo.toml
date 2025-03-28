@@ -51,10 +51,14 @@ filecoin-proofs-api = { version = "18.1", default-features = false }
 yastl = "0.1.2"
 
 [patch.crates-io]
-fvm = { path = "/home/rvagg/git/pl/filecoin-project/ref-fvm/fvm" }
-fvm_shared = { path = "/home/rvagg/git/pl/filecoin-project/ref-fvm/shared" } 
-fvm_ipld_blockstore = { path = "/home/rvagg/git/pl/filecoin-project/ref-fvm/ipld/blockstore" }
-fvm_ipld_encoding = { path = "/home/rvagg/git/pl/filecoin-project/ref-fvm/ipld/encoding" }
+#fvm = { path = "/home/rvagg/git/pl/filecoin-project/ref-fvm/fvm" }
+#fvm_shared = { path = "/home/rvagg/git/pl/filecoin-project/ref-fvm/shared" }
+#fvm_ipld_blockstore = { path = "/home/rvagg/git/pl/filecoin-project/ref-fvm/ipld/blockstore" }
+#fvm_ipld_encoding = { path = "/home/rvagg/git/pl/filecoin-project/ref-fvm/ipld/encoding" }
+fvm = { git = "https://github.com/filecoin-project/ref-fvm", rev = "784aa42fb5beb32ba3578262f126febeae918d11" }
+fvm_shared = { git = "https://github.com/filecoin-project/ref-fvm", rev = "784aa42fb5beb32ba3578262f126febeae918d11" }
+fvm_ipld_blockstore = { git = "https://github.com/filecoin-project/ref-fvm", rev = "784aa42fb5beb32ba3578262f126febeae918d11" }
+fvm_ipld_encoding = { git = "https://github.com/filecoin-project/ref-fvm", rev = "784aa42fb5beb32ba3578262f126febeae918d11" }
 
 [dev-dependencies]
 memmap2 = "0.9"
