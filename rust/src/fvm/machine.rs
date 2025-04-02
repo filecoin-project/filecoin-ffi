@@ -439,6 +439,13 @@ struct LotusGasCharge {
 }
 
 #[derive(Clone, Debug, Serialize_tuple, Deserialize_tuple)]
+struct TraceIpld {
+    pub op: u64,
+    pub cid: Cid,
+    pub size: usize,
+}
+
+#[derive(Clone, Debug, Serialize_tuple, Deserialize_tuple)]
 struct Trace {
     pub msg: TraceMessage,
     pub msg_ret: TraceReturn,
@@ -446,6 +453,7 @@ struct Trace {
     pub gas_charges: Vec<LotusGasCharge>,
     pub subcalls: Vec<Trace>,
     pub logs: Vec<String>,
+    pub ipld: Vec<TraceIpld>,
 }
 
 #[derive(Serialize_tuple, Deserialize_tuple, Debug, PartialEq, Eq, Clone)]
@@ -507,6 +515,7 @@ fn build_lotus_trace(
         gas_charges: vec![],
         subcalls: vec![],
         logs: vec![],
+        ipld: vec![],
     };
 
     while let Some(trace) = trace_iter.next() {
@@ -578,6 +587,13 @@ fn build_lotus_trace(
             }
             ExecutionEvent::Log(s) => {
                 new_trace.logs.push(s);
+            }
+            ExecutionEvent::Ipld { op, cid, size } => {
+                new_trace.ipld.push(TraceIpld {
+                    op: op as u64,
+                    cid,
+                    size,
+                });
             }
             _ => (), // ignore unknown events.
         };
