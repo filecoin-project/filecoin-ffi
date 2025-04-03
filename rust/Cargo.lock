@@ -1474,7 +1474,7 @@ dependencies = [
 [[package]]
 name = "fvm"
 version = "4.6.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?rev=13badcb71acb740f583a395a5498249216882ddc#13badcb71acb740f583a395a5498249216882ddc"
+source = "git+https://github.com/filecoin-project/ref-fvm#709e0d8df0fe0e8133389cdb70ba2160e302187f"
 dependencies = [
  "ambassador",
  "anyhow",
@@ -1482,10 +1482,10 @@ dependencies = [
  "derive_more",
  "filecoin-proofs-api",
  "fvm-wasm-instrument 0.4.0",
- "fvm_ipld_amt 0.7.3 (git+https://github.com/filecoin-project/ref-fvm?rev=13badcb71acb740f583a395a5498249216882ddc)",
+ "fvm_ipld_amt 0.7.3 (git+https://github.com/filecoin-project/ref-fvm)",
  "fvm_ipld_blockstore",
  "fvm_ipld_encoding",
- "fvm_ipld_hamt 0.10.3 (git+https://github.com/filecoin-project/ref-fvm?rev=13badcb71acb740f583a395a5498249216882ddc)",
+ "fvm_ipld_hamt 0.10.3 (git+https://github.com/filecoin-project/ref-fvm)",
  "fvm_shared 4.6.0",
  "lazy_static",
  "log",
@@ -1546,7 +1546,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_amt"
 version = "0.7.3"
-source = "git+https://github.com/filecoin-project/ref-fvm?rev=13badcb71acb740f583a395a5498249216882ddc#13badcb71acb740f583a395a5498249216882ddc"
+source = "git+https://github.com/filecoin-project/ref-fvm#709e0d8df0fe0e8133389cdb70ba2160e302187f"
 dependencies = [
  "anyhow",
  "cid",
@@ -1562,7 +1562,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_blockstore"
 version = "0.3.1"
-source = "git+https://github.com/filecoin-project/ref-fvm?rev=13badcb71acb740f583a395a5498249216882ddc#13badcb71acb740f583a395a5498249216882ddc"
+source = "git+https://github.com/filecoin-project/ref-fvm#709e0d8df0fe0e8133389cdb70ba2160e302187f"
 dependencies = [
  "anyhow",
  "cid",
@@ -1572,7 +1572,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_encoding"
 version = "0.5.2"
-source = "git+https://github.com/filecoin-project/ref-fvm?rev=13badcb71acb740f583a395a5498249216882ddc#13badcb71acb740f583a395a5498249216882ddc"
+source = "git+https://github.com/filecoin-project/ref-fvm#709e0d8df0fe0e8133389cdb70ba2160e302187f"
 dependencies = [
  "anyhow",
  "cid",
@@ -1608,7 +1608,7 @@ dependencies = [
 [[package]]
 name = "fvm_ipld_hamt"
 version = "0.10.3"
-source = "git+https://github.com/filecoin-project/ref-fvm?rev=13badcb71acb740f583a395a5498249216882ddc#13badcb71acb740f583a395a5498249216882ddc"
+source = "git+https://github.com/filecoin-project/ref-fvm#709e0d8df0fe0e8133389cdb70ba2160e302187f"
 dependencies = [
  "anyhow",
  "byteorder",
@@ -1687,7 +1687,7 @@ dependencies = [
 [[package]]
 name = "fvm_shared"
 version = "4.6.0"
-source = "git+https://github.com/filecoin-project/ref-fvm?rev=13badcb71acb740f583a395a5498249216882ddc#13badcb71acb740f583a395a5498249216882ddc"
+source = "git+https://github.com/filecoin-project/ref-fvm#709e0d8df0fe0e8133389cdb70ba2160e302187f"
 dependencies = [
  "anyhow",
  "bitflags 2.6.0",

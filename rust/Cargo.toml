@@ -55,10 +55,10 @@ yastl = "0.1.2"
 #fvm_shared = { path = "/home/rvagg/git/pl/filecoin-project/ref-fvm/shared" }
 #fvm_ipld_blockstore = { path = "/home/rvagg/git/pl/filecoin-project/ref-fvm/ipld/blockstore" }
 #fvm_ipld_encoding = { path = "/home/rvagg/git/pl/filecoin-project/ref-fvm/ipld/encoding" }
-fvm = { git = "https://github.com/filecoin-project/ref-fvm", rev = "13badcb71acb740f583a395a5498249216882ddc" }
-fvm_shared = { git = "https://github.com/filecoin-project/ref-fvm", rev = "13badcb71acb740f583a395a5498249216882ddc" }
-fvm_ipld_blockstore = { git = "https://github.com/filecoin-project/ref-fvm", rev = "13badcb71acb740f583a395a5498249216882ddc" }
-fvm_ipld_encoding = { git = "https://github.com/filecoin-project/ref-fvm", rev = "13badcb71acb740f583a395a5498249216882ddc" }
+fvm = { git = "https://github.com/filecoin-project/ref-fvm" }
+fvm_shared = { git = "https://github.com/filecoin-project/ref-fvm" }
+fvm_ipld_blockstore = { git = "https://github.com/filecoin-project/ref-fvm" }
+fvm_ipld_encoding = { git = "https://github.com/filecoin-project/ref-fvm" }
 
 [dev-dependencies]
 memmap2 = "0.9"
