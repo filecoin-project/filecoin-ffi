@@ -93,6 +93,7 @@ fn create_fvm_machine_generic(
     actor_redirect: Option<c_slice::Ref<'_, u8>>,
     actor_debugging: bool,
     tracing: bool,
+    flush_all_blocks: bool,
     blockstore_id: u64,
     externs_id: u64,
 ) -> repr_c::Box<Result<FvmMachine>> {
@@ -137,6 +138,7 @@ fn create_fvm_machine_generic(
                 tracing,
                 actor_debugging,
                 actor_redirect,
+                flush_all_blocks,
             };
 
             let externs = CgoExterns::new(externs_id);
@@ -166,6 +168,7 @@ fn create_fvm_machine(
     network_version: u32,
     state_root: c_slice::Ref<'_, u8>,
     tracing: bool,
+    flush_all_blocks: bool,
     blockstore_id: u64,
     externs_id: u64,
 ) -> repr_c::Box<Result<FvmMachine>> {
@@ -183,6 +186,7 @@ fn create_fvm_machine(
         None,
         false,
         tracing,
+        flush_all_blocks,
         blockstore_id,
         externs_id,
     )
@@ -202,6 +206,7 @@ fn create_fvm_debug_machine(
     state_root: c_slice::Ref<'_, u8>,
     actor_redirect: c_slice::Ref<'_, u8>,
     tracing: bool,
+    flush_all_blocks: bool,
     blockstore_id: u64,
     externs_id: u64,
 ) -> repr_c::Box<Result<FvmMachine>> {
@@ -223,6 +228,7 @@ fn create_fvm_debug_machine(
         },
         true,
         tracing,
+        flush_all_blocks,
         blockstore_id,
         externs_id,
     )
@@ -433,12 +439,21 @@ struct LotusGasCharge {
 }
 
 #[derive(Clone, Debug, Serialize_tuple, Deserialize_tuple)]
+struct TraceIpld {
+    pub op: u64,
+    pub cid: Cid,
+    pub size: usize,
+}
+
+#[derive(Clone, Debug, Serialize_tuple, Deserialize_tuple)]
 struct Trace {
     pub msg: TraceMessage,
     pub msg_ret: TraceReturn,
     pub msg_invoked: Option<TraceActor>,
     pub gas_charges: Vec<LotusGasCharge>,
     pub subcalls: Vec<Trace>,
+    pub logs: Vec<String>,
+    pub ipld: Vec<TraceIpld>,
 }
 
 #[derive(Serialize_tuple, Deserialize_tuple, Debug, PartialEq, Eq, Clone)]
@@ -499,6 +514,8 @@ fn build_lotus_trace(
         },
         gas_charges: vec![],
         subcalls: vec![],
+        logs: vec![],
+        ipld: vec![],
     };
 
     while let Some(trace) = trace_iter.next() {
@@ -568,6 +585,16 @@ fn build_lotus_trace(
                         .unwrap_or(u64::MAX),
                 });
             }
+            ExecutionEvent::Log(s) => {
+                new_trace.logs.push(s);
+            }
+            ExecutionEvent::Ipld { op, cid, size } => {
+                new_trace.ipld.push(TraceIpld {
+                    op: op as u64,
+                    cid,
+                    size,
+                });
+            }
             _ => (), // ignore unknown events.
         };
     }
@@ -605,10 +632,12 @@ mod test {
             ExecutionEvent::GasCharge(initial_gas_charge.clone()),
             call_event.clone(),
             return_result.clone(),
+            ExecutionEvent::Log("something happened".to_string()),
             call_event.clone(),
             call_event,
             return_result.clone(),
             return_result.clone(),
+            ExecutionEvent::Log("something else happened".to_string()),
             return_result,
         ];
 
@@ -648,5 +677,8 @@ mod test {
         assert_eq!(lotus_trace.subcalls[0].subcalls.len(), 0);
         assert_eq!(lotus_trace.subcalls[1].subcalls.len(), 1);
         assert_eq!(lotus_trace.subcalls[1].subcalls[0].subcalls.len(), 0);
+        assert_eq!(lotus_trace.logs.len(), 2);
+        assert_eq!(lotus_trace.logs[0], "something happened");
+        assert_eq!(lotus_trace.logs[1], "something else happened");
     }
 }
