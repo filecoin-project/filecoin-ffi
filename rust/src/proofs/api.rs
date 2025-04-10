@@ -527,7 +527,6 @@ fn generate_winning_post_sector_challenge(
 
         Ok(result
             .into_iter()
-            .map(u64::from)
             .collect::<Vec<_>>()
             .into_boxed_slice()
             .into())
