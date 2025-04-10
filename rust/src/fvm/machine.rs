@@ -11,7 +11,7 @@ use fvm4_shared::address::Address;
 use fvm4_shared::state::ActorState;
 use fvm4_shared::{ActorID, MethodNum};
 use fvm_ipld_encoding::ipld_block::IpldBlock;
-use fvm_ipld_encoding::tuple::{Deserialize_tuple, Serialize_tuple};
+use fvm_ipld_encoding::tuple::*;
 use fvm_ipld_encoding::{strict_bytes, to_vec, CborStore};
 
 use fvm4_shared::error::{ErrorNumber, ExitCode};

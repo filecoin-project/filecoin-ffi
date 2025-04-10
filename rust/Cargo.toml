@@ -22,37 +22,36 @@ bls-signatures = { version = "0.15.0", default-features = false, features = [
   "blst",
 ] }
 blstrs = "0.7"
-filepath = "0.1.1"
+filepath = "0.1.3"
 group = "0.13"
-libc = "0.2.58"
-log = "0.4.7"
-fil_logger = "0.1.6"
+libc = "0.2.171"
+log = "0.4.27"
+fil_logger = "0.1.7"
 rand = "0.8"
 rand_chacha = "0.3.1"
-rayon = "1.2.1"
-anyhow = "1.0.23"
-serde_json = "1.0.46"
+rayon = "1.10.0"
+anyhow = "1.0.97"
+serde_json = "1.0.140"
 rust-gpu-tools = { version = "0.7", optional = true, default-features = false }
-fvm4 = { package = "fvm", version = "~4.6.1", default-features = false, features = ["verify-signature"] }
-fvm4_shared = { package = "fvm_shared", version = "~4.6.1" }
-fvm3 = { package = "fvm", version = "~3.12.0", default-features = false }
-fvm3_shared = { package = "fvm_shared", version = "~3.12.0" }
-fvm2 = { package = "fvm", version = "~2.10.0", default-features = false }
-fvm2_shared = { package = "fvm_shared", version = "~2.10.0" }
-fvm_ipld_encoding = "0.5.2"
+fvm4 = { package = "fvm", version = "~4.7.0", default-features = false, features = ["verify-signature"] }
+fvm4_shared = { package = "fvm_shared", version = "~4.7.0" }
+fvm3 = { package = "fvm", version = "~3.13.0", default-features = false }
+fvm3_shared = { package = "fvm_shared", version = "~3.13.0" }
+fvm2 = { package = "fvm", version = "~2.11.0", default-features = false }
+fvm2_shared = { package = "fvm_shared", version = "~2.11.0" }
+fvm_ipld_encoding = "0.5.3"
 fvm_ipld_blockstore = "0.3.1"
-num-traits = "0.2.14"
+num-traits = "0.2.19"
 cid = { version = "0.11.1", features = ["serde"], default-features = false }
-lazy_static = "1.4.0"
-serde = "1.0.117"
-serde_tuple = "0.5"
+lazy_static = "1.5.0"
+serde = "1.0.219"
 safer-ffi = { version = "0.1.13", features = ["proc_macros"] }
 filecoin-proofs-api = { version = "18.1", default-features = false }
 yastl = "0.1.2"
 
 [dev-dependencies]
 memmap2 = "0.9"
-tempfile = "3.12.0"
+tempfile = "3.19.1"
 
 [features]
 default = ["cuda", "multicore-sdr"]
