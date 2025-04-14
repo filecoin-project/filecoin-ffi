@@ -16,7 +16,7 @@ use super::blockstore::CgoBlockstore;
 use super::externs::CgoExterns;
 use super::types::*;
 
-// Generic executor; uses the current (v3) engine types
+// Generic executor; uses the current engine types
 pub trait CgoExecutor: Send {
     fn execute_message(
         &mut self,
@@ -39,6 +39,7 @@ pub struct Config {
     pub tracing: bool,
     pub actor_debugging: bool,
     pub actor_redirect: Vec<(Cid, Cid)>,
+    pub flush_all_blocks: bool,
 }
 
 // The generic engine interface
@@ -177,6 +178,9 @@ mod v4 {
 
             if cfg.tracing {
                 machine_context.enable_tracing();
+            }
+            if cfg.flush_all_blocks {
+                machine_context.enable_flush_all_blocks();
             }
             let engine = self.get(&network_config)?;
             let machine = CgoMachine4::new(&machine_context, blockstore, externs)?;

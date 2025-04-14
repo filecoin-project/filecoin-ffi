@@ -44,6 +44,7 @@ type FVMOpts struct {
 	NetworkVersion network.Version
 	StateBase      cid.Cid
 	Tracing        bool
+	FlushAllBlocks bool
 
 	Debug         bool
 	ActorRedirect cid.Cid
@@ -74,6 +75,7 @@ func CreateFVM(opts *FVMOpts) (*FVM, error) {
 			uint64(opts.NetworkVersion),
 			cgo.AsSliceRefUint8(opts.StateBase.Bytes()),
 			opts.Tracing,
+			opts.FlushAllBlocks,
 			exHandle, exHandle,
 		)
 	} else {
@@ -89,6 +91,7 @@ func CreateFVM(opts *FVMOpts) (*FVM, error) {
 			cgo.AsSliceRefUint8(opts.StateBase.Bytes()),
 			cgo.AsSliceRefUint8(opts.ActorRedirect.Bytes()),
 			true,
+			opts.FlushAllBlocks,
 			exHandle, exHandle,
 		)
 	}

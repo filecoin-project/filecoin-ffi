@@ -8,7 +8,7 @@ package cgo
 */
 import "C"
 
-func CreateFvmMachine(fvmVersion FvmRegisteredVersion, chainEpoch, chainTimestamp, chainId, baseFeeHi, baseFeeLo, baseCircSupplyHi, baseCircSupplyLo, networkVersion uint64, stateRoot SliceRefUint8, tracing bool, blockstoreId, externsId uint64) (*FvmMachine, error) {
+func CreateFvmMachine(fvmVersion FvmRegisteredVersion, chainEpoch, chainTimestamp, chainId, baseFeeHi, baseFeeLo, baseCircSupplyHi, baseCircSupplyLo, networkVersion uint64, stateRoot SliceRefUint8, tracing, flushAllBlocks bool, blockstoreId, externsId uint64) (*FvmMachine, error) {
 	resp := (*resultFvmMachine)(C.create_fvm_machine(
 		(C.FvmRegisteredVersion_t)(fvmVersion),
 		C.uint64_t(chainEpoch),
@@ -21,6 +21,7 @@ func CreateFvmMachine(fvmVersion FvmRegisteredVersion, chainEpoch, chainTimestam
 		C.uint32_t(networkVersion),
 		(C.slice_ref_uint8_t)(stateRoot),
 		C.bool(tracing),
+		C.bool(flushAllBlocks),
 		C.uint64_t(blockstoreId),
 		C.uint64_t(externsId),
 	))
@@ -36,7 +37,7 @@ func CreateFvmMachine(fvmVersion FvmRegisteredVersion, chainEpoch, chainTimestam
 	return executor, nil
 }
 
-func CreateFvmDebugMachine(fvmVersion FvmRegisteredVersion, chainEpoch, chainTimestamp, chainId, baseFeeHi, baseFeeLo, baseCircSupplyHi, baseCircSupplyLo, networkVersion uint64, stateRoot SliceRefUint8, actorRedirect SliceRefUint8, tracing bool, blockstoreId, externsId uint64) (*FvmMachine, error) {
+func CreateFvmDebugMachine(fvmVersion FvmRegisteredVersion, chainEpoch, chainTimestamp, chainId, baseFeeHi, baseFeeLo, baseCircSupplyHi, baseCircSupplyLo, networkVersion uint64, stateRoot SliceRefUint8, actorRedirect SliceRefUint8, tracing, flushAllBlocks bool, blockstoreId, externsId uint64) (*FvmMachine, error) {
 	resp := (*resultFvmMachine)(C.create_fvm_debug_machine(
 		(C.FvmRegisteredVersion_t)(fvmVersion),
 		C.uint64_t(chainEpoch),
@@ -50,6 +51,7 @@ func CreateFvmDebugMachine(fvmVersion FvmRegisteredVersion, chainEpoch, chainTim
 		(C.slice_ref_uint8_t)(stateRoot),
 		(C.slice_ref_uint8_t)(actorRedirect),
 		C.bool(tracing),
+		C.bool(flushAllBlocks),
 		C.uint64_t(blockstoreId),
 		C.uint64_t(externsId),
 	))
