@@ -4,6 +4,8 @@ github.com/cpuguy83/go-md2man/v2 v2.0.0-20190314233015-f79a8a8ca69d/go.mod h1:ma
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
+github.com/filecoin-project/filecoin-ffi v1.33.1-dev.0.20250630122246-02e12941f742 h1:/Rlp07Q7M2Xv3sVb0ba1GsZz3NX5ivlmVAh8BFtHmAs=
+github.com/filecoin-project/filecoin-ffi v1.33.1-dev.0.20250630122246-02e12941f742/go.mod h1:VhUYzli/63PyXVgFiRU9HrAZvhcUsd2qXYM/15U0tKs=
 github.com/filecoin-project/go-address v1.2.0 h1:NHmWUE/J7Pi2JZX3gZt32XuY69o9StVZeJxdBodIwOE=
 github.com/filecoin-project/go-address v1.2.0/go.mod h1:kQEQ4qZ99a51X7DjT9HiMT4yR6UwLJ9kznlxsOIeDAg=
 github.com/filecoin-project/go-crypto v0.1.0 h1:Pob2MphoipMbe/ksxZOMcQvmBHAd3sI/WEqcbpIsGI0=

@@ -3,7 +3,7 @@ module github.com/filecoin-project/filecoin-ffi/prebuilt/darwin-arm64
 go 1.23.0
 
 require (
-	github.com/filecoin-project/filecoin-ffi v1.32.2
+	github.com/filecoin-project/filecoin-ffi v1.33.1-dev.0.20250630122246-02e12941f742
 	github.com/filecoin-project/go-address v1.2.0
 	github.com/filecoin-project/go-fil-commcid v0.2.0
 	github.com/filecoin-project/go-state-types v0.16.0
