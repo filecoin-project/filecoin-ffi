@@ -1,7 +1,6 @@
-//go:build cgo && ffi_source
-// +build cgo,ffi_source
+//go:build cgo
 
-package ffi
+package prebuilt
 
 import (
 	"github.com/filecoin-project/filecoin-ffi/cgo"

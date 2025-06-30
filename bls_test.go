@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/filecoin-project/filecoin-ffi/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -34,8 +35,8 @@ func TestBLSSigningAndVerification(t *testing.T) {
 	barPublicKey := PrivateKeyPublicKey(barPrivateKey)
 
 	// make messages to sign with the keys
-	fooMessage := Message("hello foo")
-	barMessage := Message("hello bar!")
+	fooMessage := types.Message("hello foo")
+	barMessage := types.Message("hello bar!")
 
 	// calculate the digests of the messages
 	fooDigest := Hash(fooMessage)
@@ -46,39 +47,39 @@ func TestBLSSigningAndVerification(t *testing.T) {
 	barSignature := PrivateKeySign(barPrivateKey, barMessage)
 
 	// get the aggregateSign
-	aggregateSign := Aggregate([]Signature{*fooSignature, *barSignature})
+	aggregateSign := Aggregate([]types.Signature{*fooSignature, *barSignature})
 
 	// assert the foo message was signed with the foo key
-	assert.True(t, Verify(fooSignature, []Digest{fooDigest}, []PublicKey{*fooPublicKey}))
+	assert.True(t, Verify(fooSignature, []types.Digest{fooDigest}, []types.PublicKey{*fooPublicKey}))
 
 	// assert the bar message was signed with the bar key
-	assert.True(t, Verify(barSignature, []Digest{barDigest}, []PublicKey{*barPublicKey}))
+	assert.True(t, Verify(barSignature, []types.Digest{barDigest}, []types.PublicKey{*barPublicKey}))
 
 	// assert the foo message was signed with the foo key
-	assert.True(t, HashVerify(fooSignature, []Message{fooMessage}, []PublicKey{*fooPublicKey}))
+	assert.True(t, HashVerify(fooSignature, []types.Message{fooMessage}, []types.PublicKey{*fooPublicKey}))
 
 	// assert the bar message was signed with the bar key
-	assert.True(t, HashVerify(barSignature, []Message{barMessage}, []PublicKey{*barPublicKey}))
+	assert.True(t, HashVerify(barSignature, []types.Message{barMessage}, []types.PublicKey{*barPublicKey}))
 
 	// assert the foo message was not signed by the bar key
-	assert.False(t, Verify(fooSignature, []Digest{fooDigest}, []PublicKey{*barPublicKey}))
+	assert.False(t, Verify(fooSignature, []types.Digest{fooDigest}, []types.PublicKey{*barPublicKey}))
 
 	// assert the bar/foo message was not signed by the foo/bar key
-	assert.False(t, Verify(barSignature, []Digest{barDigest}, []PublicKey{*fooPublicKey}))
-	assert.False(t, Verify(barSignature, []Digest{fooDigest}, []PublicKey{*barPublicKey}))
-	assert.False(t, Verify(fooSignature, []Digest{barDigest}, []PublicKey{*fooPublicKey}))
+	assert.False(t, Verify(barSignature, []types.Digest{barDigest}, []types.PublicKey{*fooPublicKey}))
+	assert.False(t, Verify(barSignature, []types.Digest{fooDigest}, []types.PublicKey{*barPublicKey}))
+	assert.False(t, Verify(fooSignature, []types.Digest{barDigest}, []types.PublicKey{*fooPublicKey}))
 
 	//assert the foo and bar message was signed with the foo and bar key
-	assert.True(t, HashVerify(aggregateSign, []Message{fooMessage, barMessage}, []PublicKey{*fooPublicKey, *barPublicKey}))
+	assert.True(t, HashVerify(aggregateSign, []types.Message{fooMessage, barMessage}, []types.PublicKey{*fooPublicKey, *barPublicKey}))
 
 	//assert the bar and foo message was not signed by the foo and bar key
-	assert.False(t, HashVerify(aggregateSign, []Message{fooMessage, barMessage}, []PublicKey{*fooPublicKey}))
+	assert.False(t, HashVerify(aggregateSign, []types.Message{fooMessage, barMessage}, []types.PublicKey{*fooPublicKey}))
 }
 
 func BenchmarkBLSVerify(b *testing.B) {
 	priv := PrivateKeyGenerate()
 
-	msg := Message("this is a message that i will be signing")
+	msg := types.Message("this is a message that i will be signing")
 	digest := Hash(msg)
 
 	sig := PrivateKeySign(priv, msg)
@@ -88,7 +89,7 @@ func BenchmarkBLSVerify(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		if !Verify(sig, []Digest{digest}, []PublicKey{*pubk}) {
+		if !Verify(sig, []types.Digest{digest}, []types.PublicKey{*pubk}) {
 			b.Fatal("failed to verify")
 		}
 	}
@@ -96,7 +97,7 @@ func BenchmarkBLSVerify(b *testing.B) {
 
 func TestBlsAggregateErrors(t *testing.T) {
 	t.Run("no signatures", func(t *testing.T) {
-		var empty []Signature
+		var empty []types.Signature
 		out := Aggregate(empty)
 		require.Nil(t, out)
 	})
@@ -118,11 +119,11 @@ func BenchmarkBLSVerifyBatch(b *testing.B) {
 
 func benchmarkBLSVerifyBatchSize(size int) func(b *testing.B) {
 	return func(b *testing.B) {
-		var digests []Digest
-		var sigs []Signature
-		var pubks []PublicKey
+		var digests []types.Digest
+		var sigs []types.Signature
+		var pubks []types.PublicKey
 		for i := 0; i < size; i++ {
-			msg := Message(fmt.Sprintf("cats cats cats cats %d %d %d dogs", i, i, i))
+			msg := types.Message(fmt.Sprintf("cats cats cats cats %d %d %d dogs", i, i, i))
 			digests = append(digests, Hash(msg))
 			priv := PrivateKeyGenerate()
 			sig := PrivateKeySign(priv, msg)
@@ -147,7 +148,7 @@ func benchmarkBLSVerifyBatchSize(size int) func(b *testing.B) {
 func BenchmarkBLSHashAndVerify(b *testing.B) {
 	priv := PrivateKeyGenerate()
 
-	msg := Message("this is a message that i will be signing")
+	msg := types.Message("this is a message that i will be signing")
 	sig := PrivateKeySign(priv, msg)
 
 	// fmt.Println("SIG SIZE: ", len(sig))
@@ -157,7 +158,7 @@ func BenchmarkBLSHashAndVerify(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		digest := Hash(msg)
-		if !Verify(sig, []Digest{digest}, []PublicKey{*pubk}) {
+		if !Verify(sig, []types.Digest{digest}, []types.PublicKey{*pubk}) {
 			b.Fatal("failed to verify")
 		}
 	}
@@ -166,7 +167,7 @@ func BenchmarkBLSHashAndVerify(b *testing.B) {
 func BenchmarkBLSHashVerify(b *testing.B) {
 	priv := PrivateKeyGenerate()
 
-	msg := Message("this is a message that i will be signing")
+	msg := types.Message("this is a message that i will be signing")
 	sig := PrivateKeySign(priv, msg)
 
 	// fmt.Println("SIG SIZE: ", len(sig))
@@ -175,7 +176,7 @@ func BenchmarkBLSHashVerify(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		if !HashVerify(sig, []Message{msg}, []PublicKey{*pubk}) {
+		if !HashVerify(sig, []types.Message{msg}, []types.PublicKey{*pubk}) {
 			b.Fatal("failed to verify")
 		}
 	}

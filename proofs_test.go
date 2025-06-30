@@ -14,6 +14,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/filecoin-project/filecoin-ffi/cgo"
+	. "github.com/filecoin-project/filecoin-ffi/types"
 )
 
 func TestRegisteredSealProofFunctions(t *testing.T) {
@@ -42,9 +43,9 @@ func TestGenerateWinningPoStSectorChallengeEdgeCase(t *testing.T) {
 
 func TestJsonMarshalSymmetry(t *testing.T) {
 	for i := 0; i < 100; i++ {
-		xs := make([]publicSectorInfo, 10)
+		xs := make([]PublicSectorInfo, 10)
 		for j := 0; j < 10; j++ {
-			var x publicSectorInfo
+			var x PublicSectorInfo
 			var commR [32]byte
 			_, err := io.ReadFull(rand.Reader, commR[:])
 			require.NoError(t, err)
@@ -57,7 +58,7 @@ func TestJsonMarshalSymmetry(t *testing.T) {
 			x.SectorNum = abi.SectorNumber(n.Uint64())
 			xs[j] = x
 		}
-		toSerialize := newSortedPublicSectorInfo(xs...)
+		toSerialize := NewSortedPublicSectorInfo(xs...)
 
 		serialized, err := toSerialize.MarshalJSON()
 		require.NoError(t, err)

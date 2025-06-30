@@ -1,38 +1,36 @@
-//go:build cgo && ffi_source
-// +build cgo,ffi_source
+//go:build cgo
 
-package ffi
+package prebuilt
 
-// #cgo linux LDFLAGS: ${SRCDIR}/libfilcrypto.a -Wl,-unresolved-symbols=ignore-all
-// #cgo darwin LDFLAGS: ${SRCDIR}/libfilcrypto.a -Wl,-undefined,dynamic_lookup
+// #cgo LDFLAGS: ${SRCDIR}/libfilcrypto.a -Wl,-undefined,dynamic_lookup
 // #cgo pkg-config: ${SRCDIR}/filcrypto.pc
 // #include "./filcrypto.h"
 import "C"
 import (
 	"github.com/filecoin-project/filecoin-ffi/cgo"
-	. "github.com/filecoin-project/filecoin-ffi/types"
+	"github.com/filecoin-project/filecoin-ffi/types"
 )
 
 // Hash computes the digest of a message
-func Hash(message Message) Digest {
+func Hash(message types.Message) types.Digest {
 	digest := cgo.Hash(cgo.AsSliceRefUint8(message))
 	if digest == nil {
-		return Digest{}
+		return types.Digest{}
 	}
 	return *digest
 }
 
 // Verify verifies that a signature is the aggregated signature of digests - pubkeys
-func Verify(signature *Signature, digests []Digest, publicKeys []PublicKey) bool {
+func Verify(signature *types.Signature, digests []types.Digest, publicKeys []types.PublicKey) bool {
 	// prep data
-	flattenedDigests := make([]byte, DigestBytes*len(digests))
+	flattenedDigests := make([]byte, types.DigestBytes*len(digests))
 	for idx, digest := range digests {
-		copy(flattenedDigests[(DigestBytes*idx):(DigestBytes*(1+idx))], digest[:])
+		copy(flattenedDigests[(types.DigestBytes*idx):(types.DigestBytes*(1+idx))], digest[:])
 	}
 
-	flattenedPublicKeys := make([]byte, PublicKeyBytes*len(publicKeys))
+	flattenedPublicKeys := make([]byte, types.PublicKeyBytes*len(publicKeys))
 	for idx, publicKey := range publicKeys {
-		copy(flattenedPublicKeys[(PublicKeyBytes*idx):(PublicKeyBytes*(1+idx))], publicKey[:])
+		copy(flattenedPublicKeys[(types.PublicKeyBytes*idx):(types.PublicKeyBytes*(1+idx))], publicKey[:])
 	}
 
 	return cgo.Verify(
@@ -43,7 +41,7 @@ func Verify(signature *Signature, digests []Digest, publicKeys []PublicKey) bool
 }
 
 // HashVerify verifies that a signature is the aggregated signature of hashed messages.
-func HashVerify(signature *Signature, messages []Message, publicKeys []PublicKey) bool {
+func HashVerify(signature *types.Signature, messages []types.Message, publicKeys []types.PublicKey) bool {
 	var flattenedMessages []byte
 	messagesSizes := make([]uint, len(messages))
 	for idx := range messages {
@@ -51,9 +49,9 @@ func HashVerify(signature *Signature, messages []Message, publicKeys []PublicKey
 		messagesSizes[idx] = uint(len(messages[idx]))
 	}
 
-	flattenedPublicKeys := make([]byte, PublicKeyBytes*len(publicKeys))
+	flattenedPublicKeys := make([]byte, types.PublicKeyBytes*len(publicKeys))
 	for idx, publicKey := range publicKeys {
-		copy(flattenedPublicKeys[(PublicKeyBytes*idx):(PublicKeyBytes*(1+idx))], publicKey[:])
+		copy(flattenedPublicKeys[(types.PublicKeyBytes*idx):(types.PublicKeyBytes*(1+idx))], publicKey[:])
 	}
 
 	return cgo.HashVerify(
@@ -66,51 +64,51 @@ func HashVerify(signature *Signature, messages []Message, publicKeys []PublicKey
 
 // Aggregate aggregates signatures together into a new signature. If the
 // provided signatures cannot be aggregated (due to invalid input or an
-// operational error), Aggregate will return nil.
-func Aggregate(signatures []Signature) *Signature {
+// an operational error), Aggregate will return nil.
+func Aggregate(signatures []types.Signature) *types.Signature {
 	// prep data
-	flattenedSignatures := make([]byte, SignatureBytes*len(signatures))
+	flattenedSignatures := make([]byte, types.SignatureBytes*len(signatures))
 	for idx, sig := range signatures {
-		copy(flattenedSignatures[(SignatureBytes*idx):(SignatureBytes*(1+idx))], sig[:])
+		copy(flattenedSignatures[(types.SignatureBytes*idx):(types.SignatureBytes*(1+idx))], sig[:])
 	}
 
 	return cgo.Aggregate(cgo.AsSliceRefUint8(flattenedSignatures))
 }
 
 // PrivateKeyGenerate generates a private key
-func PrivateKeyGenerate() PrivateKey {
+func PrivateKeyGenerate() types.PrivateKey {
 	key := cgo.PrivateKeyGenerate()
 	if key == nil {
-		return PrivateKey{}
+		return types.PrivateKey{}
 	}
 	return *key
 }
 
 // PrivateKeyGenerate generates a private key in a predictable manner.
-func PrivateKeyGenerateWithSeed(seed PrivateKeyGenSeed) PrivateKey {
+func PrivateKeyGenerateWithSeed(seed types.PrivateKeyGenSeed) types.PrivateKey {
 	ary := cgo.AsByteArray32(seed[:])
 	key := cgo.PrivateKeyGenerateWithSeed(&ary)
 	if key == nil {
-		return PrivateKey{}
+		return types.PrivateKey{}
 	}
 	return *key
 }
 
 // PrivateKeySign signs a message
-func PrivateKeySign(privateKey PrivateKey, message Message) *Signature {
+func PrivateKeySign(privateKey types.PrivateKey, message types.Message) *types.Signature {
 	return cgo.PrivateKeySign(cgo.AsSliceRefUint8(privateKey[:]), cgo.AsSliceRefUint8(message))
 }
 
 // PrivateKeyPublicKey gets the public key for a private key
-func PrivateKeyPublicKey(privateKey PrivateKey) *PublicKey {
+func PrivateKeyPublicKey(privateKey types.PrivateKey) *types.PublicKey {
 	return cgo.PrivateKeyPublicKey(cgo.AsSliceRefUint8(privateKey[:]))
 }
 
 // CreateZeroSignature creates a zero signature, used as placeholder in filecoin.
-func CreateZeroSignature() Signature {
+func CreateZeroSignature() types.Signature {
 	signature := cgo.CreateZeroSignature()
 	if signature == nil {
-		return Signature{}
+		return types.Signature{}
 	}
 	return *signature
 }

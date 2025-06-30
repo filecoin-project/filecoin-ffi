@@ -1,7 +1,6 @@
-//go:build cgo && ffi_source
-// +build cgo,ffi_source
+//go:build cgo
 
-package ffi
+package prebuilt
 
 import (
 	"bytes"
@@ -18,6 +17,8 @@ import (
 
 	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/ipfs/go-cid"
+
+	. "github.com/filecoin-project/filecoin-ffi/types"
 )
 
 func WorkflowProofsLifecycle(t TestHelper) {

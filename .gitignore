@@ -9,3 +9,4 @@ filecoin.h
 filecoin.pc
 *.a
 simulator
+go.work.sum
