@@ -1221,7 +1221,6 @@ fn generate_data_commitment(
 
 #[ffi_export]
 fn clear_cache(
-    _sector_size: u64,
     cache_dir_path: c_slice::Ref<'_, u8>,
 ) -> repr_c::Box<ClearCacheResponse> {
     catch_panic_response("clear_cache", || {
@@ -1231,7 +1230,6 @@ fn clear_cache(
 
 #[ffi_export]
 fn clear_synthetic_proofs(
-    _sector_size: u64,
     cache_dir_path: c_slice::Ref<'_, u8>,
 ) -> repr_c::Box<ClearCacheResponse> {
     catch_panic_response("clear_synthetic_proofs", || {
@@ -1871,9 +1869,6 @@ pub mod tests {
                 destroy_generate_synth_proofs_response(resp_p1);
 
                 let resp_clear = clear_cache(
-                    api::RegisteredSealProof::from(registered_proof_seal)
-                        .sector_size()
-                        .0,
                     cache_dir_path_ref.into(),
                 );
                 if resp_clear.status_code != FCPResponseStatus::NoError {
@@ -1900,9 +1895,6 @@ pub mod tests {
             if registered_proof_seal == RegisteredSealProof::StackedDrg2KiBV1_1_Feat_SyntheticPoRep
             {
                 let resp_clear = clear_synthetic_proofs(
-                    api::RegisteredSealProof::from(registered_proof_seal)
-                        .sector_size()
-                        .0,
                     cache_dir_path_ref.into(),
                 );
                 if resp_clear.status_code != FCPResponseStatus::NoError {
@@ -2230,9 +2222,6 @@ pub mod tests {
             }
 
             let resp_clear = clear_cache(
-                api::RegisteredSealProof::from(registered_proof_seal)
-                    .sector_size()
-                    .0,
                 cache_dir_path_ref.into(),
             );
             if resp_clear.status_code != FCPResponseStatus::NoError {

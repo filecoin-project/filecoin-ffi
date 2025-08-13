@@ -664,13 +664,13 @@ func GetNumPartitionForFallbackPost(proofType abi.RegisteredPoStProof, numSector
 }
 
 // ClearCache
-func ClearCache(sectorSize uint64, cacheDirPath string) error {
-	return cgo.ClearCache(sectorSize, cgo.AsSliceRefUint8([]byte(cacheDirPath)))
+func ClearCache(cacheDirPath string) error {
+	return cgo.ClearCache(cgo.AsSliceRefUint8([]byte(cacheDirPath)))
 }
 
 // ClearSyntheticProofs
-func ClearSyntheticProofs(sectorSize uint64, cacheDirPath string) error {
-	return cgo.ClearSyntheticProofs(sectorSize, cgo.AsSliceRefUint8([]byte(cacheDirPath)))
+func ClearSyntheticProofs(cacheDirPath string) error {
+	return cgo.ClearSyntheticProofs(cgo.AsSliceRefUint8([]byte(cacheDirPath)))
 }
 
 func GenerateSynthProofs(

@@ -322,17 +322,15 @@ func GetNumPartitionForFallbackPost(registeredProof RegisteredPoStProof, numSect
 	return uint(resp.value), nil
 }
 
-func ClearCache(sectorSize uint64, cacheDirPath SliceRefUint8) error {
+func ClearCache(cacheDirPath SliceRefUint8) error {
 	resp := (*resultVoid)(C.clear_cache(
-		C.uint64_t(sectorSize),
 		(C.slice_ref_uint8_t)(cacheDirPath)))
 	defer resp.destroy()
 	return CheckErr(resp)
 }
 
-func ClearSyntheticProofs(sectorSize uint64, cacheDirPath SliceRefUint8) error {
+func ClearSyntheticProofs(cacheDirPath SliceRefUint8) error {
 	resp := (*resultVoid)(C.clear_synthetic_proofs(
-		C.uint64_t(sectorSize),
 		(C.slice_ref_uint8_t)(cacheDirPath)))
 	defer resp.destroy()
 	return CheckErr(resp)
