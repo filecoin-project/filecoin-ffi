@@ -1221,7 +1221,7 @@ fn generate_data_commitment(
 
 #[ffi_export]
 fn clear_cache(
-    sector_size: u64,
+    _sector_size: u64,
     cache_dir_path: c_slice::Ref<'_, u8>,
 ) -> repr_c::Box<ClearCacheResponse> {
     catch_panic_response("clear_cache", || {
@@ -1231,7 +1231,7 @@ fn clear_cache(
 
 #[ffi_export]
 fn clear_synthetic_proofs(
-    sector_size: u64,
+    _sector_size: u64,
     cache_dir_path: c_slice::Ref<'_, u8>,
 ) -> repr_c::Box<ClearCacheResponse> {
     catch_panic_response("clear_synthetic_proofs", || {
