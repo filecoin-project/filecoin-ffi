@@ -1220,22 +1220,16 @@ fn generate_data_commitment(
 }
 
 #[ffi_export]
-fn clear_cache(
-    sector_size: u64,
-    cache_dir_path: c_slice::Ref<'_, u8>,
-) -> repr_c::Box<ClearCacheResponse> {
+fn clear_cache(cache_dir_path: c_slice::Ref<'_, u8>) -> repr_c::Box<ClearCacheResponse> {
     catch_panic_response("clear_cache", || {
-        seal::clear_cache(sector_size, &as_path_buf(&cache_dir_path)?)
+        seal::clear_cache(&as_path_buf(&cache_dir_path)?)
     })
 }
 
 #[ffi_export]
-fn clear_synthetic_proofs(
-    sector_size: u64,
-    cache_dir_path: c_slice::Ref<'_, u8>,
-) -> repr_c::Box<ClearCacheResponse> {
+fn clear_synthetic_proofs(cache_dir_path: c_slice::Ref<'_, u8>) -> repr_c::Box<ClearCacheResponse> {
     catch_panic_response("clear_synthetic_proofs", || {
-        seal::clear_synthetic_proofs(sector_size, &as_path_buf(&cache_dir_path)?)
+        seal::clear_synthetic_proofs(&as_path_buf(&cache_dir_path)?)
     })
 }
 
@@ -1870,12 +1864,7 @@ pub mod tests {
 
                 destroy_generate_synth_proofs_response(resp_p1);
 
-                let resp_clear = clear_cache(
-                    api::RegisteredSealProof::from(registered_proof_seal)
-                        .sector_size()
-                        .0,
-                    cache_dir_path_ref.into(),
-                );
+                let resp_clear = clear_cache(cache_dir_path_ref.into());
                 if resp_clear.status_code != FCPResponseStatus::NoError {
                     let msg = str::from_utf8(&resp_clear.error_msg).unwrap();
                     panic!("clear_cache failed: {:?}", msg);
@@ -1899,12 +1888,7 @@ pub mod tests {
             // If we're using SyntheticPoRep -- remove the persisted synthetic proofs here.
             if registered_proof_seal == RegisteredSealProof::StackedDrg2KiBV1_1_Feat_SyntheticPoRep
             {
-                let resp_clear = clear_synthetic_proofs(
-                    api::RegisteredSealProof::from(registered_proof_seal)
-                        .sector_size()
-                        .0,
-                    cache_dir_path_ref.into(),
-                );
+                let resp_clear = clear_synthetic_proofs(cache_dir_path_ref.into());
                 if resp_clear.status_code != FCPResponseStatus::NoError {
                     let msg = str::from_utf8(&resp_clear.error_msg).unwrap();
                     panic!("clear_synthetic_proofs failed: {:?}", msg);
@@ -2229,12 +2213,7 @@ pub mod tests {
                 panic!("empty_sector_update_remove_encoded_data failed: {:?}", msg);
             }
 
-            let resp_clear = clear_cache(
-                api::RegisteredSealProof::from(registered_proof_seal)
-                    .sector_size()
-                    .0,
-                cache_dir_path_ref.into(),
-            );
+            let resp_clear = clear_cache(cache_dir_path_ref.into());
             if resp_clear.status_code != FCPResponseStatus::NoError {
                 let msg = str::from_utf8(&resp_clear.error_msg).unwrap();
                 panic!("clear_synthetic_proofs failed: {:?}", msg);

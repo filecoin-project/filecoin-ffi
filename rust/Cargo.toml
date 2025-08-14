@@ -46,7 +46,7 @@ cid = { version = "0.11.1", features = ["serde"], default-features = false }
 lazy_static = "1.5.0"
 serde = "1.0.219"
 safer-ffi = { version = "0.1.13", features = ["proc_macros"] }
-filecoin-proofs-api = { version = "18.1", default-features = false }
+filecoin-proofs-api = { version = "19.0", default-features = false }
 yastl = "0.1.2"
 
 [dev-dependencies]
