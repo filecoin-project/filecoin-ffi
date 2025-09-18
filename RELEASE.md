@@ -13,11 +13,15 @@ This document describes the process for releasing a new version of the `filecoin
     4. Comment on the pull request with a link to the draft release.
     5. Build the project for Linux (X64), Linux (ARM64), and MacOS.
     7. Upload the built assets to the draft release (replace any existing assets with the same name).
-3. On pull request merge, a [Releaser](.github/workflows/release.yml) workflow will run. It will perform the following actions:
+3. On pull request merge, a [Releaser](.github/workflows/releaser.yml) workflow will run. It will perform the following actions:
     1. Extract the version from the top-level `version.json` file.
     2. Check if a git tag for the version already exists. Continue only if it does not.
     3. Check if a draft GitHub release with the version as the tag exists.
     4. If the draft release exists, publish it. Otherwise, create and publish a new release with the version as the git tag.  Publishing the release creates the git tag.
+    5. **Validate that all expected release assets are present.** If any assets are missing, build and upload them automatically:
+       - Linux (X64) standard: `filecoin-ffi-Linux-x86_64-standard.tar.gz`
+       - Linux (ARM64) standard: `filecoin-ffi-Linux-aarch64-standard.tar.gz`
+       - MacOS universal standard: `filecoin-ffi-Darwin-standard.tar.gz`
 
 ## Known Limitations
 
@@ -25,4 +29,4 @@ This document describes the process for releasing a new version of the `filecoin
 
 ## Possible Improvements
 
-1. Add a check to the [Releaser](.github/workflows/release.yml) workflow to ensure that the created/published release contains the expected assets. If it does not, create them and run the [publish-release.sh](rust/scripts/publish-release.sh) script to upload the missing assets.
+1. ~~Add a check to the [Releaser](.github/workflows/releaser.yml) workflow to ensure that the created/published release contains the expected assets. If it does not, create them and run the [publish-release.sh](rust/scripts/publish-release.sh) script to upload the missing assets.~~ **✅ IMPLEMENTED** - The Releaser workflow now automatically validates and builds missing release assets.
