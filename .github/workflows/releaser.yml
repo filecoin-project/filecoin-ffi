@@ -19,3 +19,111 @@ jobs:
       sources: '["version.json"]'
     secrets:
       UCI_GITHUB_TOKEN: ${{ secrets.UCI_GITHUB_TOKEN }}
+
+  validate-and-build-missing-assets:
+    needs: [releaser]
+    if: fromJSON(needs.releaser.outputs.json)['version.json']
+    name: Validate release assets (${{ matrix.runner }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        runner: [
+          'ubuntu-latest',
+          ['self-hosted', 'linux', 'arm64', 'xlarge'],
+          'macos-latest'
+        ]
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: ./.github/actions/configure-environment
+      - if: runner.os == 'macOS'
+        run: |
+          rustup target add x86_64-apple-darwin
+          cargo fetch
+        working-directory: rust
+      - name: Check and build missing release assets
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          RELEASE_TAG: >-
+            ${{ fromJSON(needs.releaser.outputs.json)['version.json'].tag }}
+          RELEASE_ID: >-
+            ${{ fromJSON(needs.releaser.outputs.json)['version.json'].id }}
+        run: |
+          # Get release information
+          RELEASE_URL="https://api.github.com/repos"
+          RELEASE_URL="$RELEASE_URL/${{ github.repository }}/releases"
+          RELEASE_INFO=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+            "$RELEASE_URL/$RELEASE_ID")
+
+          if [ "$(echo $RELEASE_INFO | jq '.id')" = "null" ]; then
+            echo "Release not found for ID $RELEASE_ID"
+            exit 1
+          fi
+
+          echo "Checking assets for release: $RELEASE_TAG"
+
+          # Determine what asset this runner should build
+          REPOSITORY_NAME=${GITHUB_REPOSITORY##*/}
+
+          if [ "$RUNNER_OS" = "Linux" ] && [ "$RUNNER_ARCH" = "X64" ]; then
+            EXPECTED_ASSET="${REPOSITORY_NAME}-Linux-x86_64-standard.tar.gz"
+            BUILD_CMD="./scripts/build-release.sh build --verbose"
+            BUILD_CMD="$BUILD_CMD --no-default-features"
+            BUILD_CMD="$BUILD_CMD --features multicore-sdr,opencl,blst-portable"
+          elif [ "$RUNNER_OS" = "Linux" ] && [ "$RUNNER_ARCH" = "ARM64" ]; then
+            EXPECTED_ASSET="${REPOSITORY_NAME}-Linux-aarch64-standard.tar.gz"
+            BUILD_CMD="./scripts/build-release.sh build --verbose"
+            BUILD_CMD="$BUILD_CMD --no-default-features"
+            BUILD_CMD="$BUILD_CMD --features multicore-sdr,opencl,blst-portable"
+          elif [ "$RUNNER_OS" = "macOS" ]; then
+            EXPECTED_ASSET="${REPOSITORY_NAME}-Darwin-standard.tar.gz"
+            BUILD_CMD="./scripts/build-release.sh lipo --verbose"
+            BUILD_CMD="$BUILD_CMD --no-default-features"
+            BUILD_CMD="$BUILD_CMD --features multicore-sdr,opencl,blst-portable"
+          else
+            echo "Unknown runner configuration: $RUNNER_OS $RUNNER_ARCH"
+            exit 1
+          fi
+
+          # Check if this asset already exists
+          asset_exists=$(echo $RELEASE_INFO | jq -r \
+            ".assets[] | select(.name == \"$EXPECTED_ASSET\") | .name")
+
+          if [ -n "$asset_exists" ]; then
+            echo "Asset $EXPECTED_ASSET already exists - skipping"
+            exit 0
+          fi
+
+          echo "Asset $EXPECTED_ASSET is missing - building it"
+
+          # Build the asset
+          cd rust
+
+          if [ "$RUNNER_OS" = "Linux" ]; then
+            TARBALL_PATH="/tmp/$EXPECTED_ASSET"
+
+            $BUILD_CMD
+            ./scripts/package-release.sh $TARBALL_PATH
+
+            # Upload using the publish-release script
+            API_URL="https://api.github.com/repos"
+            RELEASE_URL="$API_URL/${{ github.repository }}/releases/$RELEASE_ID"
+            export GITHUB_RELEASE_URL="$RELEASE_URL"
+            ./scripts/publish-release.sh $TARBALL_PATH $EXPECTED_ASSET
+
+          elif [ "$RUNNER_OS" = "macOS" ]; then
+            TARBALL_PATH="/tmp/$EXPECTED_ASSET"
+
+            $BUILD_CMD
+            ./scripts/package-release.sh $TARBALL_PATH
+
+            # Upload using the publish-release script
+            API_URL="https://api.github.com/repos"
+            RELEASE_URL="$API_URL/${{ github.repository }}/releases/$RELEASE_ID"
+            export GITHUB_RELEASE_URL="$RELEASE_URL"
+            ./scripts/publish-release.sh $TARBALL_PATH $EXPECTED_ASSET
+          fi
+
+          echo "Successfully built and uploaded: $EXPECTED_ASSET"
