@@ -1,5 +1,5 @@
-name: Configure Environment Variables
-description: Configure environment variables for Filecoin FFI
+name: Upload Release Assets
+description: Build and upload release assets to an existing GitHub release
 
 inputs:
   id:
