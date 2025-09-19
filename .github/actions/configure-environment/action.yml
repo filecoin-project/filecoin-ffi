@@ -63,4 +63,4 @@ runs:
         toolchain: 1.73
     - uses: actions/setup-go@v5
       with:
-        go-version: '1.23'
+        go-version: '1.24'
