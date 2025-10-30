@@ -74,7 +74,7 @@ jobs:
           test -z "${output}"
       - name: Run various linters
         run: |
-          go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.60.1
+          go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.64.8
           make go-lint
   cgo-bindings:
     name: Build and test CGO bindings (${{ matrix.runner.name }})
