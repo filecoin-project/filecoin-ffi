@@ -232,13 +232,20 @@ build_from_source() {
         use_fixed_rows_to_discard=",fixed-rows-to-discard"
     fi
 
-    additional_flags=""
-    # Add feature specific rust flags as needed here.
+    # Collect features into an array, stripping leading commas as we go
+    features=()
+    [ -n "${use_multicore_sdr}" ] && features+=("${use_multicore_sdr}")
+    [ -n "${gpu_flags}" ] && features+=("$(echo "${gpu_flags}" | sed 's/^,//')")
+    [ "${FFI_USE_FVM}" == "1" ] && features+=("fvm")
+    [ -n "${use_fixed_rows_to_discard}" ] && features+=("$(echo "${use_fixed_rows_to_discard}" | sed 's/^,//')")
     if [ "${FFI_USE_BLST_PORTABLE}" == "1" ] || [ "${FFI_PORTABLE}" == "1" ]; then
-        additional_flags="${additional_flags} --no-default-features --features ${use_multicore_sdr},blst-portable${gpu_flags}${use_fixed_rows_to_discard}"
-    else
-        additional_flags="${additional_flags} --no-default-features --features ${use_multicore_sdr}${gpu_flags}${use_fixed_rows_to_discard}"
+        features=("blst-portable" "${features[@]}")
     fi
+
+    # Join features with commas
+    feature_list=$(IFS=','; echo "${features[*]}")
+
+    additional_flags="--no-default-features --features ${feature_list}"
 
     echo "Using additional build flags: ${additional_flags}"
     if [ -n "${__release_flags}" ]; then
