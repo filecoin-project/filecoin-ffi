@@ -48,6 +48,7 @@ serde = "1.0.219"
 safer-ffi = { version = "0.1.13", features = ["proc_macros"] }
 filecoin-proofs-api = { version = "19.0", default-features = false }
 yastl = "0.1.2"
+supraseal-c2 = "0.1.2"
 
 [dev-dependencies]
 memmap2 = "0.9"
