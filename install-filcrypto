@@ -236,7 +236,7 @@ build_from_source() {
     features=()
     [ -n "${use_multicore_sdr}" ] && features+=("${use_multicore_sdr}")
     [ -n "${gpu_flags}" ] && features+=("$(echo "${gpu_flags}" | sed 's/^,//')")
-    [ "${FFI_USE_FVM}" == "1" ] && features+=("fvm")
+    [ "${FFI_DISABLE_FVM}" != "1" ] && features+=("fvm")
     [ -n "${use_fixed_rows_to_discard}" ] && features+=("$(echo "${use_fixed_rows_to_discard}" | sed 's/^,//')")
     if [ "${FFI_USE_BLST_PORTABLE}" == "1" ] || [ "${FFI_PORTABLE}" == "1" ]; then
         features+=("blst-portable")
