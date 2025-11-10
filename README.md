@@ -103,13 +103,17 @@ Run it like so:
 ./mkreleaselog v0.25.0 v0.26.0 > /tmp/v0.26.0.notes.txt
 ```
 
+## Go Version Management
+
+This repo follows [the same policy as Lotus](https://github.com/filecoin-project/lotus/blob/master/CONTRIBUTING.md#go-version-management).
+
+See [PR #545](https://github.com/filecoin-project/filecoin-ffi/pull/545) for an example of upgrading from 1.23.7 to 1.24.7.
+
 ## Contribution
 
 ### Maintainers
 
-The core maintainers of this repository are:
-- @Filoz
-- [Elliptic Research](https://www.ellipticresearch.com/)
+The core maintainer of this repository is [FilOz](https://filoz.org/).
 
 Maintainers are not only the contributors of this repository, but also exercise a range of editorial responsibilities to keep the repository organized for the OSS contributors, that includes triage the issues, review and merge/close PRs, publish releases and so on.
 
