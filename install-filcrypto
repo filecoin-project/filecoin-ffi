@@ -239,7 +239,7 @@ build_from_source() {
     [ "${FFI_USE_FVM}" == "1" ] && features+=("fvm")
     [ -n "${use_fixed_rows_to_discard}" ] && features+=("$(echo "${use_fixed_rows_to_discard}" | sed 's/^,//')")
     if [ "${FFI_USE_BLST_PORTABLE}" == "1" ] || [ "${FFI_PORTABLE}" == "1" ]; then
-        features=("blst-portable" "${features[@]}")
+        features+=("blst-portable")
     fi
 
     # Join features with commas
