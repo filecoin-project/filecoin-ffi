@@ -243,9 +243,13 @@ build_from_source() {
     fi
 
     # Join features with commas
-    feature_list=$(IFS=','; echo "${features[*]}")
+    feature_list=$(IFS=','; printf '%s' "${features[*]}")
 
-    additional_flags="--no-default-features --features ${feature_list}"
+    if [ -n "${feature_list}" ]; then
+        additional_flags="--no-default-features --features ${feature_list}"
+    else
+        additional_flags="--no-default-features"
+    fi
 
     echo "Using additional build flags: ${additional_flags}"
     if [ -n "${__release_flags}" ]; then
