@@ -42,6 +42,8 @@ env:
   BELLMAN_CUDA_NVCC_ARGS: --fatbin --gpu-architecture=sm_75 --generate-code=arch=compute_75,code=sm_75
   NEPTUNE_CUDA_NVCC_ARGS: --fatbin --gpu-architecture=sm_75 --generate-code=arch=compute_75,code=sm_75
   DEBIAN_FRONTEND: noninteractive
+  # Standardize NVCC flags across all jobs
+  NVCC_PREPEND_FLAGS: "-ccbin /usr/bin/g++-12"
 
 jobs:
   check:
@@ -158,7 +160,6 @@ jobs:
     env:
       CC: gcc-12
       CXX: g++-12
-      NVCC_PREPEND_FLAGS: "-ccbin /usr/bin/g++-12"
     steps:
       - uses: actions/checkout@v4
         with:
