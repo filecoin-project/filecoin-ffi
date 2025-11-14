@@ -5,6 +5,7 @@ use std::ops::RangeInclusive;
 use anyhow::{anyhow, Context};
 use cid::Cid;
 use fvm4::executor::ApplyKind;
+use fvm4::executor::ReservationError;
 use fvm4::gas::GasCharge;
 use fvm4::trace::ExecutionEvent;
 use fvm4_shared::address::Address;
@@ -39,10 +40,27 @@ lazy_static! {
             .prefix("fvm")
             .stack_size(STACK_SIZE)
     );
+    static ref CURRENT_MACHINE: std::sync::Mutex<*const InnerFvmMachine> =
+        std::sync::Mutex::new(std::ptr::null());
 }
 
 const LOTUS_FVM_CONCURRENCY_ENV_NAME: &str = "LOTUS_FVM_CONCURRENCY";
 const VALID_CONCURRENCY_RANGE: RangeInclusive<u32> = 1..=256;
+
+#[derive_ReprC]
+#[repr(i32)]
+#[derive(PartialEq, Eq, Debug, Copy, Clone)]
+pub enum FvmReservationStatus {
+    Ok = 0,
+    ErrNotImplemented = 1,
+    ErrInsufficientFundsAtBegin = 2,
+    ErrSessionOpen = 3,
+    ErrSessionClosed = 4,
+    ErrNonZeroRemainder = 5,
+    ErrPlanTooLarge = 6,
+    ErrOverflow = 7,
+    ErrReservationInvariant = 8,
+}
 
 fn available_parallelism() -> u32 {
     std::thread::available_parallelism()
@@ -144,9 +162,18 @@ fn create_fvm_machine_generic(
             let externs = CgoExterns::new(externs_id);
 
             let engine = ENGINES.get(network_version)?;
-            Ok(Some(
-                Box::new(engine.new_executor(config, blockstore, externs)?).into(),
-            ))
+            let inner = engine.new_executor(config, blockstore, externs)?;
+            let mut boxed: repr_c::Box<InnerFvmMachine> = Box::new(inner).into();
+
+            // Track the most recently created machine for reservation sessions.
+            {
+                let mut current = CURRENT_MACHINE
+                    .lock()
+                    .map_err(|e| anyhow!("current executor lock poisoned: {e}"))?;
+                *current = &*boxed as *const InnerFvmMachine;
+            }
+
+            Ok(Some(boxed))
         })
     }
 }
@@ -429,6 +456,309 @@ destructor!(
 
 destructor!(destroy_fvm_machine_flush_response, Result<c_slice::Box<u8>>);
 
+#[ffi_export]
+fn FVM_DestroyReservationErrorMessage(error_msg_ptr: *mut u8, error_msg_len: usize) {
+    if error_msg_ptr.is_null() || error_msg_len == 0 {
+        return;
+    }
+
+    // Safety: the pointer and length are produced by the FFI side in
+    // FVM_BeginReservations/FVM_EndReservations using the same layout.
+    unsafe {
+        let layout = match std::alloc::Layout::array::<u8>(error_msg_len) {
+            Ok(layout) => layout,
+            Err(_) => return,
+        };
+        std::alloc::dealloc(error_msg_ptr, layout);
+    }
+}
+
+fn clear_reservation_error_message_out(
+    error_msg_ptr_out: *mut *const u8,
+    error_msg_len_out: *mut usize,
+) {
+    if !error_msg_ptr_out.is_null() {
+        // Safety: caller provided a valid pointer.
+        unsafe { *error_msg_ptr_out = std::ptr::null() };
+    }
+    if !error_msg_len_out.is_null() {
+        // Safety: caller provided a valid pointer.
+        unsafe { *error_msg_len_out = 0 };
+    }
+}
+
+fn set_reservation_error_message_out(
+    error_msg_ptr_out: *mut *const u8,
+    error_msg_len_out: *mut usize,
+    message: &str,
+) {
+    if error_msg_ptr_out.is_null() || error_msg_len_out.is_null() {
+        return;
+    }
+
+    let bytes = message.as_bytes();
+    if bytes.is_empty() {
+        // Nothing to set; leave outputs cleared.
+        return;
+    }
+
+    let layout = match std::alloc::Layout::array::<u8>(bytes.len()) {
+        Ok(layout) => layout,
+        Err(_) => return,
+    };
+
+    // Safety: allocate and copy the message bytes for the host. The host is
+    // responsible for freeing the allocation via FVM_DestroyReservationErrorMessage.
+    unsafe {
+        let ptr = std::alloc::alloc(layout);
+        if ptr.is_null() {
+            return;
+        }
+        std::ptr::copy_nonoverlapping(bytes.as_ptr(), ptr, bytes.len());
+        *error_msg_ptr_out = ptr as *const u8;
+        *error_msg_len_out = bytes.len();
+    }
+}
+
+fn map_reservation_error_to_status(
+    err: ReservationError,
+    error_msg_ptr_out: *mut *const u8,
+    error_msg_len_out: *mut usize,
+) -> FvmReservationStatus {
+    use ReservationError::*;
+
+    match err {
+        NotImplemented => {
+            set_reservation_error_message_out(
+                error_msg_ptr_out,
+                error_msg_len_out,
+                "reservations not implemented",
+            );
+            FvmReservationStatus::ErrNotImplemented
+        }
+        InsufficientFundsAtBegin { sender } => {
+            set_reservation_error_message_out(
+                error_msg_ptr_out,
+                error_msg_len_out,
+                &format!("insufficient funds at begin for sender {sender}"),
+            );
+            FvmReservationStatus::ErrInsufficientFundsAtBegin
+        }
+        SessionOpen => {
+            set_reservation_error_message_out(
+                error_msg_ptr_out,
+                error_msg_len_out,
+                "reservation session already open",
+            );
+            FvmReservationStatus::ErrSessionOpen
+        }
+        SessionClosed => {
+            set_reservation_error_message_out(
+                error_msg_ptr_out,
+                error_msg_len_out,
+                "no reservation session open",
+            );
+            FvmReservationStatus::ErrSessionClosed
+        }
+        NonZeroRemainder => {
+            set_reservation_error_message_out(
+                error_msg_ptr_out,
+                error_msg_len_out,
+                "reservation ledger has non-zero remainder at session end",
+            );
+            FvmReservationStatus::ErrNonZeroRemainder
+        }
+        PlanTooLarge => {
+            set_reservation_error_message_out(
+                error_msg_ptr_out,
+                error_msg_len_out,
+                "reservation plan too large",
+            );
+            FvmReservationStatus::ErrPlanTooLarge
+        }
+        Overflow => {
+            set_reservation_error_message_out(
+                error_msg_ptr_out,
+                error_msg_len_out,
+                "reservation arithmetic overflow or underflow",
+            );
+            FvmReservationStatus::ErrOverflow
+        }
+        ReservationInvariant(reason) => {
+            set_reservation_error_message_out(
+                error_msg_ptr_out,
+                error_msg_len_out,
+                &format!("reservation invariant violated: {reason}"),
+            );
+            FvmReservationStatus::ErrReservationInvariant
+        }
+    }
+}
+
+#[ffi_export]
+fn FVM_BeginReservations(
+    cbor_plan_ptr: *const u8,
+    cbor_plan_len: usize,
+    error_msg_ptr_out: *mut *const u8,
+    error_msg_len_out: *mut usize,
+) -> FvmReservationStatus {
+    clear_reservation_error_message_out(error_msg_ptr_out, error_msg_len_out);
+
+    // Empty plan is a no-op and must not enter reservation mode.
+    if cbor_plan_len == 0 {
+        return FvmReservationStatus::Ok;
+    }
+
+    // Enforce a maximum encoded plan size (8 MiB).
+    const MAX_PLAN_BYTES: usize = 8 * 1024 * 1024;
+    if cbor_plan_len > MAX_PLAN_BYTES {
+        set_reservation_error_message_out(
+            error_msg_ptr_out,
+            error_msg_len_out,
+            "reservation plan too large (encoded bytes)",
+        );
+        return FvmReservationStatus::ErrPlanTooLarge;
+    }
+
+    let bytes = unsafe {
+        if cbor_plan_ptr.is_null() {
+            set_reservation_error_message_out(
+                error_msg_ptr_out,
+                error_msg_len_out,
+                "reservation invariant violated: null plan pointer",
+            );
+            return FvmReservationStatus::ErrReservationInvariant;
+        }
+        std::slice::from_raw_parts(cbor_plan_ptr, cbor_plan_len)
+    };
+
+    let plan: Vec<(Address, TokenAmount)> = match fvm_ipld_encoding::from_slice(bytes) {
+        Ok(p) => p,
+        Err(_) => {
+            set_reservation_error_message_out(
+                error_msg_ptr_out,
+                error_msg_len_out,
+                "reservation invariant violated: invalid plan CBOR encoding",
+            );
+            return FvmReservationStatus::ErrReservationInvariant;
+        }
+    };
+
+    let machine_ptr = match CURRENT_MACHINE.lock() {
+        Ok(guard) => *guard,
+        Err(_) => {
+            set_reservation_error_message_out(
+                error_msg_ptr_out,
+                error_msg_len_out,
+                "reservation invariant violated: current executor lock poisoned",
+            );
+            return FvmReservationStatus::ErrReservationInvariant;
+        }
+    };
+
+    if machine_ptr.is_null() {
+        set_reservation_error_message_out(
+            error_msg_ptr_out,
+            error_msg_len_out,
+            "reservations not implemented for current machine",
+        );
+        return FvmReservationStatus::ErrNotImplemented;
+    }
+
+    // SAFETY: the pointer is set when the machine is created and
+    // is expected to remain valid while reservations are used.
+    let inner = unsafe { &*machine_ptr };
+    let machine_mutex = match &inner.machine {
+        Some(m) => m,
+        None => {
+            set_reservation_error_message_out(
+                error_msg_ptr_out,
+                error_msg_len_out,
+                "reservation invariant violated: missing executor on current machine",
+            );
+            return FvmReservationStatus::ErrReservationInvariant;
+        }
+    };
+
+    let mut executor = match machine_mutex.lock() {
+        Ok(guard) => guard,
+        Err(_) => {
+            set_reservation_error_message_out(
+                error_msg_ptr_out,
+                error_msg_len_out,
+                "reservation invariant violated: executor lock poisoned",
+            );
+            return FvmReservationStatus::ErrReservationInvariant;
+        }
+    };
+
+    match executor.begin_reservations(plan) {
+        Ok(()) => FvmReservationStatus::Ok,
+        Err(err) => map_reservation_error_to_status(err, error_msg_ptr_out, error_msg_len_out),
+    }
+}
+
+#[ffi_export]
+fn FVM_EndReservations(
+    error_msg_ptr_out: *mut *const u8,
+    error_msg_len_out: *mut usize,
+) -> FvmReservationStatus {
+    clear_reservation_error_message_out(error_msg_ptr_out, error_msg_len_out);
+
+    let machine_ptr = match CURRENT_MACHINE.lock() {
+        Ok(guard) => *guard,
+        Err(_) => {
+            set_reservation_error_message_out(
+                error_msg_ptr_out,
+                error_msg_len_out,
+                "reservation invariant violated: current executor lock poisoned",
+            );
+            return FvmReservationStatus::ErrReservationInvariant;
+        }
+    };
+
+    if machine_ptr.is_null() {
+        set_reservation_error_message_out(
+            error_msg_ptr_out,
+            error_msg_len_out,
+            "reservations not implemented for current machine",
+        );
+        return FvmReservationStatus::ErrNotImplemented;
+    }
+
+    // SAFETY: the pointer is set when the machine is created and
+    // is expected to remain valid while reservations are used.
+    let inner = unsafe { &*machine_ptr };
+    let machine_mutex = match &inner.machine {
+        Some(m) => m,
+        None => {
+            set_reservation_error_message_out(
+                error_msg_ptr_out,
+                error_msg_len_out,
+                "reservation invariant violated: missing executor on current machine",
+            );
+            return FvmReservationStatus::ErrReservationInvariant;
+        }
+    };
+
+    let mut executor = match machine_mutex.lock() {
+        Ok(guard) => guard,
+        Err(_) => {
+            set_reservation_error_message_out(
+                error_msg_ptr_out,
+                error_msg_len_out,
+                "reservation invariant violated: executor lock poisoned",
+            );
+            return FvmReservationStatus::ErrReservationInvariant;
+        }
+    };
+
+    match executor.end_reservations() {
+        Ok(()) => FvmReservationStatus::Ok,
+        Err(err) => map_reservation_error_to_status(err, error_msg_ptr_out, error_msg_len_out),
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, Serialize_tuple, Deserialize_tuple)]
 struct LotusGasCharge {
     pub name: Cow<'static, str>,
@@ -604,10 +934,14 @@ fn build_lotus_trace(
 
 #[cfg(test)]
 mod test {
+    use super::{
+        map_reservation_error_to_status, FvmReservationStatus, FVM_DestroyReservationErrorMessage,
+    };
     use crate::fvm::machine::{build_lotus_trace, LotusGasCharge};
     use fvm4::gas::Gas;
     use fvm4::gas::GasCharge;
     use fvm4::kernel::SyscallError;
+    use fvm4::executor::ReservationError;
     use fvm4::trace::ExecutionEvent;
     use fvm4_shared::address::Address;
     use fvm4_shared::econ::TokenAmount;
@@ -680,5 +1014,63 @@ mod test {
         assert_eq!(lotus_trace.logs.len(), 2);
         assert_eq!(lotus_trace.logs[0], "something happened");
         assert_eq!(lotus_trace.logs[1], "something else happened");
+    }
+
+    #[test]
+    fn reservation_error_mapping_sets_message_for_insufficient_funds() {
+        let mut msg_ptr: *const u8 = std::ptr::null();
+        let mut msg_len: usize = 0;
+
+        let status = map_reservation_error_to_status(
+            ReservationError::InsufficientFundsAtBegin { sender: 42 },
+            &mut msg_ptr,
+            &mut msg_len,
+        );
+
+        assert_eq!(status, FvmReservationStatus::ErrInsufficientFundsAtBegin);
+        assert!(!msg_ptr.is_null());
+        assert!(msg_len > 0);
+
+        let msg = unsafe {
+            let slice = std::slice::from_raw_parts(msg_ptr, msg_len);
+            std::str::from_utf8(slice).expect("reservation error message is valid UTF-8")
+        };
+        assert!(
+            msg.contains("sender 42"),
+            "expected message to contain sender id, got {msg}"
+        );
+
+        unsafe {
+            FVM_DestroyReservationErrorMessage(msg_ptr as *mut u8, msg_len);
+        }
+    }
+
+    #[test]
+    fn reservation_error_mapping_sets_message_for_invariant() {
+        let mut msg_ptr: *const u8 = std::ptr::null();
+        let mut msg_len: usize = 0;
+
+        let status = map_reservation_error_to_status(
+            ReservationError::ReservationInvariant("test invariant".to_string()),
+            &mut msg_ptr,
+            &mut msg_len,
+        );
+
+        assert_eq!(status, FvmReservationStatus::ErrReservationInvariant);
+        assert!(!msg_ptr.is_null());
+        assert!(msg_len > 0);
+
+        let msg = unsafe {
+            let slice = std::slice::from_raw_parts(msg_ptr, msg_len);
+            std::str::from_utf8(slice).expect("reservation error message is valid UTF-8")
+        };
+        assert!(
+            msg.contains("test invariant"),
+            "expected message to contain invariant reason, got {msg}"
+        );
+
+        unsafe {
+            FVM_DestroyReservationErrorMessage(msg_ptr as *mut u8, msg_len);
+        }
     }
 }

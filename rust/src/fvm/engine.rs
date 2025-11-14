@@ -7,8 +7,9 @@ use cid::Cid;
 use fvm2::machine::MultiEngine as MultiEngine2;
 use fvm3::engine::MultiEngine as MultiEngine3;
 use fvm4::engine::MultiEngine as MultiEngine4;
-use fvm4::executor::{ApplyKind, ApplyRet};
+use fvm4::executor::{ApplyKind, ApplyRet, ReservationError};
 
+use fvm4_shared::address::Address;
 use fvm4_shared::econ::TokenAmount;
 use fvm4_shared::message::Message;
 
@@ -26,6 +27,23 @@ pub trait CgoExecutor: Send {
     ) -> anyhow::Result<ApplyRet>;
 
     fn flush(&mut self) -> anyhow::Result<Cid>;
+
+    /// Begin a gas reservation session for the given plan.
+    ///
+    /// Default implementation reports reservations as not implemented for this engine version.
+    fn begin_reservations(
+        &mut self,
+        _plan: Vec<(Address, TokenAmount)>,
+    ) -> Result<(), ReservationError> {
+        Err(ReservationError::NotImplemented)
+    }
+
+    /// End the active gas reservation session.
+    ///
+    /// Default implementation reports reservations as not implemented for this engine version.
+    fn end_reservations(&mut self) -> Result<(), ReservationError> {
+        Err(ReservationError::NotImplemented)
+    }
 }
 
 pub struct Config {
@@ -148,6 +166,17 @@ mod v4 {
 
         fn flush(&mut self) -> anyhow::Result<Cid> {
             fvm4::executor::Executor::flush(self)
+        }
+
+        fn begin_reservations(
+            &mut self,
+            plan: Vec<(Address, TokenAmount)>,
+        ) -> Result<(), ReservationError> {
+            fvm4::executor::DefaultExecutor::begin_reservation_session(self, &plan)
+        }
+
+        fn end_reservations(&mut self) -> Result<(), ReservationError> {
+            fvm4::executor::DefaultExecutor::end_reservation_session(self)
         }
     }
 

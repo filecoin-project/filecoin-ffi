@@ -27,6 +27,42 @@ type FVM struct {
 	executor *cgo.FvmMachine
 }
 
+var (
+	ErrReservationsNotImplemented     = fmt.Errorf("fvm reservations not implemented")
+	ErrReservationsInsufficientFunds  = fmt.Errorf("fvm reservation insufficient funds at begin")
+	ErrReservationsSessionOpen        = fmt.Errorf("fvm reservation session already open")
+	ErrReservationsSessionClosed      = fmt.Errorf("fvm reservation session closed")
+	ErrReservationsNonZeroRemainder   = fmt.Errorf("fvm reservation non-zero remainder at end")
+	ErrReservationsPlanTooLarge       = fmt.Errorf("fvm reservation plan too large")
+	ErrReservationsOverflow           = fmt.Errorf("fvm reservation arithmetic overflow")
+	ErrReservationsInvariantViolation = fmt.Errorf("fvm reservation invariant violation")
+)
+
+func ReservationStatusToError(code int32) error {
+	switch code {
+	case 0:
+		return nil
+	case 1:
+		return ErrReservationsNotImplemented
+	case 2:
+		return ErrReservationsInsufficientFunds
+	case 3:
+		return ErrReservationsSessionOpen
+	case 4:
+		return ErrReservationsSessionClosed
+	case 5:
+		return ErrReservationsNonZeroRemainder
+	case 6:
+		return ErrReservationsPlanTooLarge
+	case 7:
+		return ErrReservationsOverflow
+	case 8:
+		return ErrReservationsInvariantViolation
+	default:
+		return fmt.Errorf("unknown FVM reservation status code: %d", code)
+	}
+}
+
 const (
 	applyExplicit = iota
 	applyImplicit
@@ -116,6 +152,38 @@ func CreateFVM(opts *FVMOpts) (*FVM, error) {
 	})
 
 	return fvm, nil
+}
+
+// BeginReservations starts a reservation session for the given CBOR-encoded plan.
+// It returns a typed error based on the underlying FVM reservation status code,
+// optionally wrapped with a short human-readable message from the engine.
+func (f *FVM) BeginReservations(plan []byte) error {
+	defer runtime.KeepAlive(f)
+	status, msg := cgo.FvmBeginReservations(cgo.AsSliceRefUint8(plan))
+	baseErr := ReservationStatusToError(status)
+	if baseErr == nil {
+		return nil
+	}
+	if msg == "" {
+		return baseErr
+	}
+	return fmt.Errorf("%w: %s", baseErr, msg)
+}
+
+// EndReservations ends the active reservation session.
+// It returns a typed error based on the underlying FVM reservation status code,
+// optionally wrapped with a short human-readable message from the engine.
+func (f *FVM) EndReservations() error {
+	defer runtime.KeepAlive(f)
+	status, msg := cgo.FvmEndReservations()
+	baseErr := ReservationStatusToError(status)
+	if baseErr == nil {
+		return nil
+	}
+	if msg == "" {
+		return baseErr
+	}
+	return fmt.Errorf("%w: %s", baseErr, msg)
 }
 
 func (f *FVM) ApplyMessage(msgBytes []byte, chainLen uint) (*ApplyRet, error) {
