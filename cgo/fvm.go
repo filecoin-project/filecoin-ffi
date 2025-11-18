@@ -123,7 +123,6 @@ func FvmBeginReservations(plan SliceRefUint8) (int32, string) {
 		return int32(status), ""
 	}
 
-	// Copy the message into Go memory and free the FFI allocation.
 	msgBytes := C.GoBytes(unsafe.Pointer(msgPtr), C.int(msgLen))
 	C.FVM_DestroyReservationErrorMessage(msgPtr, msgLen)
 
