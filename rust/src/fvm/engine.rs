@@ -7,15 +7,28 @@ use cid::Cid;
 use fvm2::machine::MultiEngine as MultiEngine2;
 use fvm3::engine::MultiEngine as MultiEngine3;
 use fvm4::engine::MultiEngine as MultiEngine4;
-use fvm4::executor::{ApplyKind, ApplyRet, ReservationError};
+use fvm4::executor::{ApplyKind, ApplyRet};
 
 use fvm4_shared::address::Address;
 use fvm4_shared::econ::TokenAmount;
 use fvm4_shared::message::Message;
+use fvm4_shared::ActorID;
 
 use super::blockstore::CgoBlockstore;
 use super::externs::CgoExterns;
 use super::types::*;
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ReservationError {
+    NotImplemented,
+    InsufficientFundsAtBegin { sender: ActorID },
+    SessionOpen,
+    SessionClosed,
+    NonZeroRemainder,
+    PlanTooLarge,
+    Overflow,
+    ReservationInvariant(String),
+}
 
 // Generic executor; uses the current engine types
 pub trait CgoExecutor: Send {
@@ -166,17 +179,6 @@ mod v4 {
 
         fn flush(&mut self) -> anyhow::Result<Cid> {
             fvm4::executor::Executor::flush(self)
-        }
-
-        fn begin_reservations(
-            &mut self,
-            plan: Vec<(Address, TokenAmount)>,
-        ) -> Result<(), ReservationError> {
-            fvm4::executor::DefaultExecutor::begin_reservation_session(self, &plan)
-        }
-
-        fn end_reservations(&mut self) -> Result<(), ReservationError> {
-            fvm4::executor::DefaultExecutor::end_reservation_session(self)
         }
     }
 

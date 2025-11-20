@@ -5,7 +5,6 @@ use std::ops::RangeInclusive;
 use anyhow::{anyhow, Context};
 use cid::Cid;
 use fvm4::executor::ApplyKind;
-use fvm4::executor::ReservationError;
 use fvm4::gas::GasCharge;
 use fvm4::trace::ExecutionEvent;
 use fvm4_shared::address::Address;
@@ -27,9 +26,23 @@ use super::engine::*;
 use super::externs::CgoExterns;
 use super::types::*;
 use crate::destructor;
+use crate::fvm::engine::ReservationError;
 use crate::util::types::{catch_panic_response, catch_panic_response_no_default, Result};
 
 const STACK_SIZE: usize = 64 << 20; // 64MiB
+
+#[derive(Copy, Clone)]
+struct MachinePtr(*const InnerFvmMachine);
+
+// Safety: MachinePtr is only read or written behind a mutex and points to an
+// InnerFvmMachine that is itself synchronized internally.
+unsafe impl Send for MachinePtr {}
+
+impl Default for MachinePtr {
+    fn default() -> Self {
+        MachinePtr(std::ptr::null())
+    }
+}
 
 lazy_static! {
     static ref CONCURRENCY: u32 = get_concurrency();
@@ -40,8 +53,8 @@ lazy_static! {
             .prefix("fvm")
             .stack_size(STACK_SIZE)
     );
-    static ref CURRENT_MACHINE: std::sync::Mutex<*const InnerFvmMachine> =
-        std::sync::Mutex::new(std::ptr::null());
+    static ref CURRENT_MACHINE: std::sync::Mutex<MachinePtr> =
+        std::sync::Mutex::new(MachinePtr::default());
 }
 
 const LOTUS_FVM_CONCURRENCY_ENV_NAME: &str = "LOTUS_FVM_CONCURRENCY";
@@ -163,14 +176,14 @@ fn create_fvm_machine_generic(
 
             let engine = ENGINES.get(network_version)?;
             let inner = engine.new_executor(config, blockstore, externs)?;
-            let mut boxed: repr_c::Box<InnerFvmMachine> = Box::new(inner).into();
+            let boxed: repr_c::Box<InnerFvmMachine> = Box::new(inner).into();
 
             // Track the most recently created machine for reservation sessions.
             {
                 let mut current = CURRENT_MACHINE
                     .lock()
                     .map_err(|e| anyhow!("current executor lock poisoned: {e}"))?;
-                *current = &*boxed as *const InnerFvmMachine;
+                *current = MachinePtr(&*boxed as *const InnerFvmMachine);
             }
 
             Ok(Some(boxed))
@@ -457,6 +470,7 @@ destructor!(
 destructor!(destroy_fvm_machine_flush_response, Result<c_slice::Box<u8>>);
 
 #[ffi_export]
+#[allow(non_snake_case)]
 fn FVM_DestroyReservationErrorMessage(error_msg_ptr: *mut u8, error_msg_len: usize) {
     if error_msg_ptr.is_null() || error_msg_len == 0 {
         return;
@@ -596,6 +610,7 @@ fn map_reservation_error_to_status(
 }
 
 #[ffi_export]
+#[allow(non_snake_case)]
 fn FVM_BeginReservations(
     cbor_plan_ptr: *const u8,
     cbor_plan_len: usize,
@@ -645,7 +660,7 @@ fn FVM_BeginReservations(
     };
 
     let machine_ptr = match CURRENT_MACHINE.lock() {
-        Ok(guard) => *guard,
+        Ok(guard) => guard.0,
         Err(_) => {
             set_reservation_error_message_out(
                 error_msg_ptr_out,
@@ -699,6 +714,7 @@ fn FVM_BeginReservations(
 }
 
 #[ffi_export]
+#[allow(non_snake_case)]
 fn FVM_EndReservations(
     error_msg_ptr_out: *mut *const u8,
     error_msg_len_out: *mut usize,
@@ -706,7 +722,7 @@ fn FVM_EndReservations(
     clear_reservation_error_message_out(error_msg_ptr_out, error_msg_len_out);
 
     let machine_ptr = match CURRENT_MACHINE.lock() {
-        Ok(guard) => *guard,
+        Ok(guard) => guard.0,
         Err(_) => {
             set_reservation_error_message_out(
                 error_msg_ptr_out,
@@ -937,8 +953,8 @@ mod test {
     use super::{
         map_reservation_error_to_status, FVM_DestroyReservationErrorMessage, FvmReservationStatus,
     };
+    use crate::fvm::engine::ReservationError;
     use crate::fvm::machine::{build_lotus_trace, LotusGasCharge};
-    use fvm4::executor::ReservationError;
     use fvm4::gas::Gas;
     use fvm4::gas::GasCharge;
     use fvm4::kernel::SyscallError;
@@ -1040,9 +1056,7 @@ mod test {
             "expected message to contain sender id, got {msg}"
         );
 
-        unsafe {
-            FVM_DestroyReservationErrorMessage(msg_ptr as *mut u8, msg_len);
-        }
+        FVM_DestroyReservationErrorMessage(msg_ptr as *mut u8, msg_len);
     }
 
     #[test]
@@ -1069,8 +1083,6 @@ mod test {
             "expected message to contain invariant reason, got {msg}"
         );
 
-        unsafe {
-            FVM_DestroyReservationErrorMessage(msg_ptr as *mut u8, msg_len);
-        }
+        FVM_DestroyReservationErrorMessage(msg_ptr as *mut u8, msg_len);
     }
 }
