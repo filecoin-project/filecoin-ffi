@@ -8,23 +8,18 @@ package cgo
 #cgo pkg-config: ${SRCDIR}/../filcrypto.pc
 #include "../filcrypto.h"
 */
-import "C"
 
 import (
 	"testing"
-	"unsafe"
 )
 
 // TestFvmBeginReservationsErrorMessage verifies that the cgo wrapper surfaces a
 // non-empty error message for a failing reservation plan and that the FFI
 // allocation can be freed without panics.
 func TestFvmBeginReservationsErrorMessage(t *testing.T) {
-	var plan SliceRefUint8
-
 	// Force a non-empty plan length with a null pointer to trigger an invariant
 	// error in the FFI without relying on a full FVM executor.
-	cPlan := (*C.slice_ref_uint8_t)(unsafe.Pointer(&plan))
-	cPlan.len = 1
+	plan := SliceRefUint8{len: 1}
 
 	status, msg := FvmBeginReservations(plan)
 	if status == 0 {
