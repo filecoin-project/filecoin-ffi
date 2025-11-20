@@ -935,13 +935,13 @@ fn build_lotus_trace(
 #[cfg(test)]
 mod test {
     use super::{
-        map_reservation_error_to_status, FvmReservationStatus, FVM_DestroyReservationErrorMessage,
+        map_reservation_error_to_status, FVM_DestroyReservationErrorMessage, FvmReservationStatus,
     };
     use crate::fvm::machine::{build_lotus_trace, LotusGasCharge};
+    use fvm4::executor::ReservationError;
     use fvm4::gas::Gas;
     use fvm4::gas::GasCharge;
     use fvm4::kernel::SyscallError;
-    use fvm4::executor::ReservationError;
     use fvm4::trace::ExecutionEvent;
     use fvm4_shared::address::Address;
     use fvm4_shared::econ::TokenAmount;
