@@ -1,3 +1,6 @@
+//go:build cgo
+// +build cgo
+
 package cgo
 
 /*
@@ -43,4 +46,3 @@ func TestFvmEndReservationsErrorMessage(t *testing.T) {
 		t.Fatalf("expected non-empty reservation end error message")
 	}
 }
-
