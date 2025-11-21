@@ -3,9 +3,11 @@
 #![allow(clippy::upper_case_acronyms)]
 
 pub mod bls;
-pub mod fvm;
 pub mod proofs;
 pub mod util;
+
+#[cfg(feature = "fvm")]
+pub mod fvm;
 
 // Generates the headers.
 // Run `HEADER_DIR=<dir> cargo test --locked build_headers --features c-headers` to build

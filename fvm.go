@@ -1,6 +1,7 @@
-//go:build cgo && (amd64 || arm64 || riscv64)
+//go:build cgo && (amd64 || arm64 || riscv64) && fvm
 // +build cgo
 // +build amd64 arm64 riscv64
+// +build fvm
 
 package ffi
 
