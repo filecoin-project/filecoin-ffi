@@ -237,7 +237,7 @@ build_from_source() {
     [ -n "${use_multicore_sdr}" ] && features+=("${use_multicore_sdr}")
 
     [ -n "${gpu_flags}" ] && features+=("${gpu_flags#,}")
-    [ "${FFI_DISABLE_FVM}" == "1" ] && features+=("fvm")
+    [ "${FFI_DISABLE_FVM}" != "1" ] && features+=("fvm")
     [ -n "${use_fixed_rows_to_discard}" ] && features+=("${use_fixed_rows_to_discard#,}")
     if [ "${FFI_USE_BLST_PORTABLE}" == "1" ] || [ "${FFI_PORTABLE}" == "1" ]; then
         features+=("blst-portable")
