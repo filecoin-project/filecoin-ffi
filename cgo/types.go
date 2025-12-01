@@ -18,7 +18,7 @@ type RegisteredAggregationProof C.RegisteredAggregationProof_t
 type RegisteredPoStProof C.RegisteredPoStProof_t
 type RegisteredUpdateProof C.RegisteredUpdateProof_t
 
-type FvmRegisteredVersion C.FvmRegisteredVersion_t
+// FVM types moved to types_fvm.go behind build tag
 
 type AggregationInputs C.AggregationInputs_t
 
@@ -49,8 +49,7 @@ type ByteArray32 C.uint8_32_array_t
 type ByteArray48 C.uint8_48_array_t
 type ByteArray96 C.uint8_96_array_t
 
-type FvmMachine C.InnerFvmMachine_t
-type FvmMachineExecuteResponse C.FvmMachineExecuteResponse_t
+// FVM types moved to types_fvm.go behind build tag
 
 type resultBool C.Result_bool_t
 type resultGeneratePieceCommitment C.Result_GeneratePieceCommitment_t
@@ -70,8 +69,7 @@ type resultGenerateFallbackSectorChallenges C.Result_GenerateFallbackSectorChall
 type resultGenerateSingleWindowPoStWithVanilla C.Result_GenerateSingleWindowPoStWithVanilla_t
 type resultPoStProof C.Result_PoStProof_t
 
-type resultFvmMachine C.Result_InnerFvmMachine_ptr_t
-type resultFvmMachineExecuteResponse C.Result_FvmMachineExecuteResponse_t
+// FVM types moved to types_fvm.go behind build tag
 
 type result interface {
 	statusCode() FCPResponseStatus
@@ -606,63 +604,10 @@ func (ptr *PoStProof) Destroy() {
 	}
 }
 
-func (ptr *resultFvmMachineExecuteResponse) statusCode() FCPResponseStatus {
-	return FCPResponseStatus(ptr.status_code)
-}
+// FVM helpers moved to types_fvm.go
 
-func (ptr *resultFvmMachineExecuteResponse) errorMsg() *SliceBoxedUint8 {
-	return (*SliceBoxedUint8)(&ptr.error_msg)
-}
+// FVM helpers moved to types_fvm.go
 
-func (ptr *resultFvmMachineExecuteResponse) destroy() {
-	if ptr != nil {
-		C.destroy_fvm_machine_execute_response((*C.Result_FvmMachineExecuteResponse_t)(ptr))
-		ptr = nil
-	}
-}
+// FVM helpers moved to types_fvm.go
 
-func (ptr *resultFvmMachine) statusCode() FCPResponseStatus {
-	return FCPResponseStatus(ptr.status_code)
-}
-
-func (ptr *resultFvmMachine) errorMsg() *SliceBoxedUint8 {
-	return (*SliceBoxedUint8)(&ptr.error_msg)
-}
-
-func (ptr *resultFvmMachine) destroy() {
-	if ptr != nil {
-		C.destroy_create_fvm_machine_response((*C.Result_InnerFvmMachine_ptr_t)(ptr))
-		ptr = nil
-	}
-}
-
-func (ptr *FvmMachine) Destroy() {
-	if ptr != nil {
-		C.drop_fvm_machine((*C.InnerFvmMachine_t)(ptr))
-		ptr = nil
-	}
-}
-
-func (r FvmMachineExecuteResponse) copy() FvmMachineExecuteResponseGo {
-	return FvmMachineExecuteResponseGo{
-		ExitCode:             uint64(r.exit_code),
-		ReturnVal:            (*SliceBoxedUint8)(&r.return_val).copy(),
-		GasUsed:              uint64(r.gas_used),
-		PenaltyHi:            uint64(r.penalty_hi),
-		PenaltyLo:            uint64(r.penalty_lo),
-		MinerTipHi:           uint64(r.miner_tip_hi),
-		MinerTipLo:           uint64(r.miner_tip_lo),
-		BaseFeeBurnHi:        uint64(r.base_fee_burn_hi),
-		BaseFeeBurnLo:        uint64(r.base_fee_burn_lo),
-		OverEstimationBurnHi: uint64(r.over_estimation_burn_hi),
-		OverEstimationBurnLo: uint64(r.over_estimation_burn_lo),
-		RefundHi:             uint64(r.refund_hi),
-		RefundLo:             uint64(r.refund_lo),
-		GasRefund:            int64(r.gas_refund),
-		GasBurned:            int64(r.gas_burned),
-		ExecTrace:            (*SliceBoxedUint8)(&r.exec_trace).copy(),
-		FailureInfo:          string((*SliceBoxedUint8)(&r.failure_info).slice()),
-		Events:               (*SliceBoxedUint8)(&r.events).copy(),
-		EventsRoot:           (*SliceBoxedUint8)(&r.events_root).copy(),
-	}
-}
+// FVM helpers moved to types_fvm.go

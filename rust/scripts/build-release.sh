@@ -73,10 +73,13 @@ main() {
     fi
 
     # generate filcrypto.h
-    # The header files are the same even without having any features enables,
-    # this reduces the compile time and makes it work on more platforms.
+    # Check if FVM is in the build features - if so, include it in header generation
+    local __header_features="c-headers"
+    if echo "${@:2}" | grep -q "fvm"; then
+        __header_features="c-headers,fvm"
+    fi
     RUSTFLAGS="${__rust_flags}" HEADER_DIR="." \
-        cargo test --no-default-features --locked build_headers --features c-headers
+        cargo test --no-default-features --locked build_headers --features ${__header_features}
 
     # generate pkg-config
     #
