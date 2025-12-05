@@ -20,8 +20,6 @@ package cgo
 // 6 = ErrPlanTooLarge
 // 7 = ErrOverflow
 // 8 = ErrReservationInvariant
-int32_t FVM_BeginReservations(const uint8_t *cbor_plan_ptr, size_t cbor_plan_len, const uint8_t **error_msg_ptr, size_t *error_msg_len);
-int32_t FVM_EndReservations(const uint8_t **error_msg_ptr, size_t *error_msg_len);
 void FVM_DestroyReservationErrorMessage(uint8_t *error_msg_ptr, size_t error_msg_len);
 */
 import "C"
@@ -115,11 +113,11 @@ func FvmMachineFlush(executor *FvmMachine) ([]byte, error) {
 // FvmBeginReservations invokes the FVM_BeginReservations C ABI with a CBOR-encoded plan.
 // It returns the raw reservation status code as defined by FvmReservationStatus,
 // along with an optional, human-readable error message from the engine.
-func FvmBeginReservations(plan SliceRefUint8) (int32, string) {
+func FvmBeginReservations(executor *FvmMachine, plan SliceRefUint8) (int32, string) {
 	var msgPtr *C.uint8_t
 	var msgLen C.size_t
 
-	status := C.FVM_BeginReservations(plan.ptr, plan.len, &msgPtr, &msgLen)
+	status := C.FVM_BeginReservations((*C.InnerFvmMachine_t)(executor), plan.ptr, plan.len, &msgPtr, &msgLen)
 
 	if msgPtr == nil || msgLen == 0 {
 		return int32(status), ""
@@ -132,11 +130,11 @@ func FvmBeginReservations(plan SliceRefUint8) (int32, string) {
 }
 
 // FvmEndReservations invokes the FVM_EndReservations C ABI and returns the raw status code.
-func FvmEndReservations() (int32, string) {
+func FvmEndReservations(executor *FvmMachine) (int32, string) {
 	var msgPtr *C.uint8_t
 	var msgLen C.size_t
 
-	status := C.FVM_EndReservations(&msgPtr, &msgLen)
+	status := C.FVM_EndReservations((*C.InnerFvmMachine_t)(executor), &msgPtr, &msgLen)
 
 	if msgPtr == nil || msgLen == 0 {
 		return int32(status), ""

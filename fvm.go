@@ -160,7 +160,7 @@ func CreateFVM(opts *FVMOpts) (*FVM, error) {
 // optionally wrapped with a short human-readable message from the engine.
 func (f *FVM) BeginReservations(plan []byte) error {
 	defer runtime.KeepAlive(f)
-	status, msg := cgo.FvmBeginReservations(cgo.AsSliceRefUint8(plan))
+	status, msg := cgo.FvmBeginReservations(f.executor, cgo.AsSliceRefUint8(plan))
 	baseErr := ReservationStatusToError(status)
 	if baseErr == nil {
 		return nil
@@ -176,7 +176,7 @@ func (f *FVM) BeginReservations(plan []byte) error {
 // optionally wrapped with a short human-readable message from the engine.
 func (f *FVM) EndReservations() error {
 	defer runtime.KeepAlive(f)
-	status, msg := cgo.FvmEndReservations()
+	status, msg := cgo.FvmEndReservations(f.executor)
 	baseErr := ReservationStatusToError(status)
 	if baseErr == nil {
 		return nil
