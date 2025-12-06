@@ -614,8 +614,9 @@ fn FVM_BeginReservations(
         return FvmReservationStatus::Ok;
     }
 
-    // Enforce a maximum encoded plan size (8 MiB).
-    const MAX_PLAN_BYTES: usize = 8 * 1024 * 1024;
+    // Enforce a maximum encoded plan size (256 KiB).
+    // This is based on a maximum of 4096 entries at 64 bytes per entry.
+    const MAX_PLAN_BYTES: usize = 256 * 1024;
     if cbor_plan_len > MAX_PLAN_BYTES {
         set_reservation_error_message_out(
             error_msg_ptr_out,
