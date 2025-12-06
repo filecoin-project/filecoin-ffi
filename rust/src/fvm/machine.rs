@@ -597,6 +597,18 @@ fn FVM_BeginReservations(
 ) -> FvmReservationStatus {
     clear_reservation_error_message_out(error_msg_ptr_out, error_msg_len_out);
 
+    let machine_mutex = match &executor.machine {
+        Some(m) => m,
+        None => {
+            set_reservation_error_message_out(
+                error_msg_ptr_out,
+                error_msg_len_out,
+                "reservation invariant violated: missing executor on current machine",
+            );
+            return FvmReservationStatus::ErrReservationInvariant;
+        }
+    };
+
     // Empty plan is a no-op and must not enter reservation mode.
     if cbor_plan_len == 0 {
         return FvmReservationStatus::Ok;
@@ -632,18 +644,6 @@ fn FVM_BeginReservations(
                 error_msg_ptr_out,
                 error_msg_len_out,
                 "reservation invariant violated: invalid plan CBOR encoding",
-            );
-            return FvmReservationStatus::ErrReservationInvariant;
-        }
-    };
-
-    let machine_mutex = match &executor.machine {
-        Some(m) => m,
-        None => {
-            set_reservation_error_message_out(
-                error_msg_ptr_out,
-                error_msg_len_out,
-                "reservation invariant violated: missing executor on current machine",
             );
             return FvmReservationStatus::ErrReservationInvariant;
         }
