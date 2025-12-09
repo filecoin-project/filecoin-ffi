@@ -14,12 +14,12 @@ This PR wires the ref‑fvm reservation session API through filecoin‑ffi and e
 
 - **`cgo/fvm.go`**
   - Extend C declarations:
-    - `int32_t FVM_BeginReservations(const uint8_t *cbor_plan_ptr, size_t cbor_plan_len, const uint8_t **error_msg_ptr, size_t *error_msg_len);`
-    - `int32_t FVM_EndReservations(const uint8_t **error_msg_ptr, size_t *error_msg_len);`
+    - `int32_t FVM_BeginReservations(InnerFvmMachine_t *executor, const uint8_t *cbor_plan_ptr, size_t cbor_plan_len, const uint8_t **error_msg_ptr, size_t *error_msg_len);`
+    - `int32_t FVM_EndReservations(InnerFvmMachine_t *executor, const uint8_t **error_msg_ptr, size_t *error_msg_len);`
     - `void FVM_DestroyReservationErrorMessage(uint8_t *error_msg_ptr, size_t error_msg_len);`
   - Add Go wrappers:
-    - `func FvmBeginReservations(plan SliceRefUint8) (int32, string)`
-    - `func FvmEndReservations() (int32, string)`
+    - `func FvmBeginReservations(executor *FvmMachine, plan SliceRefUint8) (int32, string)`
+    - `func FvmEndReservations(executor *FvmMachine) (int32, string)`
   - Behaviour:
     - Call the C ABI, copy the returned message (if any) into Go memory, and free the FFI allocation via `FVM_DestroyReservationErrorMessage`.
 
@@ -64,13 +64,7 @@ This PR wires the ref‑fvm reservation session API through filecoin‑ffi and e
 
 ### Tests
 
-- **`cgo/fvm_reservations_test.go`**
-  - `TestFvmBeginReservationsErrorMessage`:
-    - Calls `FvmBeginReservations` with a deliberately invalid plan pointer/length pair to trigger a Reservation invariant error.
-    - Asserts that the status code is non‑zero and the message is non‑empty.
-  - `TestFvmEndReservationsErrorMessage`:
-    - Calls `FvmEndReservations` without an active session.
-    - Asserts non‑zero status and non‑empty message.
+_Test coverage for error messages is pending or handled in integration tests. No unit tests for error message propagation are included in this PR._
 
 ## Notes
 
