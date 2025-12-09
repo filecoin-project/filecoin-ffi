@@ -64,7 +64,7 @@ This PR wires the ref‑fvm reservation session API through filecoin‑ffi and e
 
 ### Tests
 
-_Test coverage for error messages is pending or handled in integration tests. No unit tests for error message propagation are included in this PR._
+Error propagation is verified via integration tests in consuming repositories (e.g. Lotus).
 
 ## Notes
 
