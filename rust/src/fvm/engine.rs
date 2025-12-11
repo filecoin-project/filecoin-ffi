@@ -9,12 +9,26 @@ use fvm3::engine::MultiEngine as MultiEngine3;
 use fvm4::engine::MultiEngine as MultiEngine4;
 use fvm4::executor::{ApplyKind, ApplyRet};
 
+use fvm4_shared::address::Address;
 use fvm4_shared::econ::TokenAmount;
 use fvm4_shared::message::Message;
+use fvm4_shared::ActorID;
 
 use super::blockstore::CgoBlockstore;
 use super::externs::CgoExterns;
 use super::types::*;
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ReservationError {
+    NotImplemented,
+    InsufficientFundsAtBegin { sender: ActorID },
+    SessionOpen,
+    SessionClosed,
+    NonZeroRemainder,
+    PlanTooLarge,
+    Overflow,
+    ReservationInvariant(String),
+}
 
 // Generic executor; uses the current engine types
 pub trait CgoExecutor: Send {
@@ -26,6 +40,23 @@ pub trait CgoExecutor: Send {
     ) -> anyhow::Result<ApplyRet>;
 
     fn flush(&mut self) -> anyhow::Result<Cid>;
+
+    /// Begin a gas reservation session for the given plan.
+    ///
+    /// Default implementation reports reservations as not implemented for this engine version.
+    fn begin_reservations(
+        &mut self,
+        _plan: Vec<(Address, TokenAmount)>,
+    ) -> Result<(), ReservationError> {
+        Err(ReservationError::NotImplemented)
+    }
+
+    /// End the active gas reservation session.
+    ///
+    /// Default implementation reports reservations as not implemented for this engine version.
+    fn end_reservations(&mut self) -> Result<(), ReservationError> {
+        Err(ReservationError::NotImplemented)
+    }
 }
 
 pub struct Config {
