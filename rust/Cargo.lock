@@ -3343,9 +3343,9 @@ dependencies = [
 
 [[package]]
 name = "sppark"
-version = "0.1.14"
+version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d9c900139f3f6fdc8db217881a946adf00e935102fdd82b0e1bc19bacbffa311"
+checksum = "16bf457036c0a778140ce4c3bcf9ff30c5c70a9d9c0bb04fe513af025b647b2c"
 dependencies = [
  "cc",
  "which",
@@ -3661,9 +3661,9 @@ checksum = "13c2bddecc57b384dee18652358fb23172facb8a2c51ccc10d74c157bdea3292"
 
 [[package]]
 name = "supraseal-c2"
-version = "0.1.2"
+version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ea1b727b012f4a4ca34b3a7a90eb5cb8cca9ba614769bc6d6933094fc2be51d2"
+checksum = "fd427b05c226de2e0f99b96600c81dabd2129cb31d6c8feda650c195414beab2"
 dependencies = [
  "blst",
  "cc",
