@@ -223,7 +223,9 @@ build_from_source() {
         echo "FFI_DISABLE_FVM is set, using no-fvm GPU variant"
         gpu_flags="${gpu_flags}-no-fvm"
     fi
-    echo "DEBUG: FFI_DISABLE_FVM=${FFI_DISABLE_FVM} gpu_flags=${gpu_flags}"
+    if [ -n "${DEBUG}" ]; then
+        echo "DEBUG: FFI_DISABLE_FVM=${FFI_DISABLE_FVM} gpu_flags=${gpu_flags}"
+    fi
 
     # Default to use multicore_sdr flags, unless specified to disable
     use_multicore_sdr="multicore-sdr"
