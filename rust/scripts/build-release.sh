@@ -73,16 +73,47 @@ main() {
     fi
 
     local __has_no_default_features=0
-    for arg in "${@:2}"; do
+    local __has_fvm_feature=0
+    local __features_list=""
+    
+    # Iterate through arguments to find --no-default-features and --features
+    local i=2
+    while [[ $i -le $# ]]; do
+        local arg="${!i}"
         if [[ "$arg" == "--no-default-features" ]]; then
             __has_no_default_features=1
-            break
+        elif [[ "$arg" == --features=* ]]; then
+            # Handle --features=value format
+            __features_list="${arg#--features=}"
+        elif [[ "$arg" == "--features" ]]; then
+            # Handle --features value format (next argument is the value)
+            ((i++))
+            if [[ $i -le $# ]]; then
+                __features_list="${!i}"
+            fi
         fi
+        ((i++))
     done
+    
+    # Check if fvm is in the features list
+    if [[ -n "${__features_list}" ]]; then
+        IFS=',' read -ra __features_array <<< "${__features_list}"
+        for feature in "${__features_array[@]}"; do
+            if [[ "$feature" == "fvm" ]]; then
+                __has_fvm_feature=1
+                break
+            fi
+        done
+    fi
 
-    # If --no-default-features is set and FFI_DISABLE_FVM is not set to 1, add fvm
+    # generate filcrypto.h
+    # Check if FVM is in the build features - if so, include it in header generation
     local __header_features="c-headers"
-    if [[ "${__has_no_default_features}" -eq 1 ]] && [[ "${FFI_DISABLE_FVM}" != "1" ]]; then
+    if [[ "${__has_fvm_feature}" -eq 1 ]]; then
+        # FVM was explicitly included in --features
+        __header_features="c-headers,fvm"
+    elif [[ "${__has_no_default_features}" -eq 1 ]] && [[ "${FFI_DISABLE_FVM}" != "1" ]]; then
+        # --no-default-features is set and FFI_DISABLE_FVM is not set to 1, add fvm
         __header_features="c-headers,fvm"
     fi
 
