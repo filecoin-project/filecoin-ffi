@@ -112,7 +112,7 @@ main() {
     if [[ "${__has_fvm_feature}" -eq 1 ]]; then
         # FVM was explicitly included in --features
         __header_features="c-headers,fvm"
-    elif [[ "${__has_no_default_features}" -eq 1 ]] && [[ "${FFI_DISABLE_FVM}" != "1" ]]; then
+    elif [[ "${__has_no_default_features}" -eq 1 ]] || [[ -z "${FFI_DISABLE_FVM}" ]]; then
         # --no-default-features is set and FFI_DISABLE_FVM is not set to 1, add fvm
         __header_features="c-headers,fvm"
     fi
