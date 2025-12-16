@@ -72,12 +72,20 @@ main() {
         find . -type f -name "libfilcrypto.a"
     fi
 
-    # generate filcrypto.h
-    # Check if FVM is in the build features - if so, include it in header generation
+    local __has_no_default_features=0
+    for arg in "${@:2}"; do
+        if [[ "$arg" == "--no-default-features" ]]; then
+            __has_no_default_features=1
+            break
+        fi
+    done
+
+    # If --no-default-features is set and FFI_DISABLE_FVM is not set to 1, add fvm
     local __header_features="c-headers"
-    if echo "${@:2}" | tr ' ,' '\n' | grep -qx "fvm"; then
+    if [[ "${__has_no_default_features}" -eq 1 ]] && [[ "${FFI_DISABLE_FVM}" != "1" ]]; then
         __header_features="c-headers,fvm"
     fi
+
     RUSTFLAGS="${__rust_flags}" HEADER_DIR="." \
         cargo test --no-default-features --locked build_headers --features ${__header_features}
 
