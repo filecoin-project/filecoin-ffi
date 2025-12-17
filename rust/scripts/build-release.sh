@@ -24,10 +24,15 @@ main() {
     #
     local __rust_flags="--print native-static-libs ${RUSTFLAGS}"
 
+    local __extra_features=""
+    if [[ -z "${FFI_DISABLE_FVM}" ]]; then
+        __extra_features="--features fvm"
+    fi
+
     # shellcheck disable=SC2068 # the rest of the parameters should be split
     RUSTFLAGS="${__rust_flags}" \
         cargo build \
-        --release --locked ${@:2} 2>&1 | tee ${__build_output_log_tmp}
+        --release --locked ${@:2} ${__extra_features} 2>&1 | tee ${__build_output_log_tmp}
 
     # parse build output for linker flags
     #
@@ -56,7 +61,7 @@ main() {
         # shellcheck disable=SC2068 # the rest of the parameters should be split
         RUSTFLAGS="${__rust_flags}" \
             cargo build \
-            --release --locked --target ${__target} ${@:2} 2>&1 \
+            --release --locked --target ${__target} ${@:2} ${__extra_features} 2>&1 \
             | tee ${__build_output_log_tmp}
 
         # Create the universal binary/
@@ -72,51 +77,12 @@ main() {
         find . -type f -name "libfilcrypto.a"
     fi
 
-    local __has_no_default_features=0
-    local __has_fvm_feature=0
-    local __features_list=""
-    
-    # Iterate through arguments to find --no-default-features and --features
-    local i=2
-    while [[ $i -le $# ]]; do
-        local arg="${!i}"
-        if [[ "$arg" == "--no-default-features" ]]; then
-            __has_no_default_features=1
-        elif [[ "$arg" == --features=* ]]; then
-            # Handle --features=value format
-            __features_list="${arg#--features=}"
-        elif [[ "$arg" == "--features" ]]; then
-            # Handle --features value format (next argument is the value)
-            ((i++))
-            if [[ $i -le $# ]]; then
-                __features_list="${!i}"
-            fi
-        fi
-        ((i++))
-    done
-    
-    # Check if fvm is in the features list
-    if [[ -n "${__features_list}" ]]; then
-        IFS=',' read -ra __features_array <<< "${__features_list}"
-        for feature in "${__features_array[@]}"; do
-            if [[ "$feature" == "fvm" ]]; then
-                __has_fvm_feature=1
-                break
-            fi
-        done
-    fi
-
     # generate filcrypto.h
     # Check if FVM is in the build features - if so, include it in header generation
     local __header_features="c-headers"
-    if [[ "${__has_fvm_feature}" -eq 1 ]]; then
-        # FVM was explicitly included in --features
-        __header_features="c-headers,fvm"
-    elif [[ "${__has_no_default_features}" -eq 1 ]] || [[ -z "${FFI_DISABLE_FVM}" ]]; then
-        # --no-default-features is set and FFI_DISABLE_FVM is not set to 1, add fvm
+    if echo "${@:2}" | tr ' ,' '\n' | grep -qx "fvm"; then
         __header_features="c-headers,fvm"
     fi
-
     RUSTFLAGS="${__rust_flags}" HEADER_DIR="." \
         cargo test --no-default-features --locked build_headers --features ${__header_features}
 
