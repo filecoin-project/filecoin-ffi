@@ -80,7 +80,7 @@ main() {
     # generate filcrypto.h
     # Check if FVM is in the build features - if so, include it in header generation
     local __header_features="c-headers"
-    if echo "${@:2}" | tr ' ,' '\n' | grep -qx "fvm"; then
+    if [[ -z "${FFI_DISABLE_FVM}" ]]; then  
         __header_features="c-headers,fvm"
     fi
     RUSTFLAGS="${__rust_flags}" HEADER_DIR="." \
