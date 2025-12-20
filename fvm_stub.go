@@ -1,4 +1,4 @@
-//go:build !fvm
+//go:build nofvm
 
 package ffi
 

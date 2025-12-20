@@ -24,10 +24,15 @@ main() {
     #
     local __rust_flags="--print native-static-libs ${RUSTFLAGS}"
 
+    local __extra_features=""
+    if [[ -z "${FFI_DISABLE_FVM}" ]]; then
+        __extra_features="--features fvm"
+    fi
+
     # shellcheck disable=SC2068 # the rest of the parameters should be split
     RUSTFLAGS="${__rust_flags}" \
         cargo build \
-        --release --locked ${@:2} 2>&1 | tee ${__build_output_log_tmp}
+        --release --locked ${@:2} ${__extra_features} 2>&1 | tee ${__build_output_log_tmp}
 
     # parse build output for linker flags
     #
@@ -56,7 +61,7 @@ main() {
         # shellcheck disable=SC2068 # the rest of the parameters should be split
         RUSTFLAGS="${__rust_flags}" \
             cargo build \
-            --release --locked --target ${__target} ${@:2} 2>&1 \
+            --release --locked --target ${__target} ${@:2} ${__extra_features} 2>&1 \
             | tee ${__build_output_log_tmp}
 
         # Create the universal binary/
@@ -75,7 +80,7 @@ main() {
     # generate filcrypto.h
     # Check if FVM is in the build features - if so, include it in header generation
     local __header_features="c-headers"
-    if echo "${@:2}" | grep -q "fvm"; then
+    if [[ -z "${FFI_DISABLE_FVM}" ]]; then  
         __header_features="c-headers,fvm"
     fi
     RUSTFLAGS="${__rust_flags}" HEADER_DIR="." \

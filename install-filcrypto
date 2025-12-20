@@ -218,6 +218,12 @@ build_from_source() {
         fi
     fi
 
+    # Use -no-fvm GPU feature variants when FVM is disabled
+    if [ -n "${FFI_DISABLE_FVM}" ] && [ -n "${gpu_flags}" ]; then
+        echo "FFI_DISABLE_FVM is set, using no-fvm GPU variant"
+        gpu_flags="${gpu_flags}-no-fvm"
+    fi
+
     # Default to use multicore_sdr flags, unless specified to disable
     use_multicore_sdr="multicore-sdr"
     if [ "${FFI_USE_MULTICORE_SDR}" == "0" ]; then
@@ -237,7 +243,7 @@ build_from_source() {
     [ -n "${use_multicore_sdr}" ] && features+=("${use_multicore_sdr}")
 
     [ -n "${gpu_flags}" ] && features+=("${gpu_flags#,}")
-    [ "${FFI_DISABLE_FVM}" != "1" ] && features+=("fvm")
+    [ -z "${FFI_DISABLE_FVM}" ] && features+=("fvm")
     [ -n "${use_fixed_rows_to_discard}" ] && features+=("${use_fixed_rows_to_discard#,}")
     if [ "${FFI_USE_BLST_PORTABLE}" == "1" ] || [ "${FFI_PORTABLE}" == "1" ]; then
         features+=("blst-portable")

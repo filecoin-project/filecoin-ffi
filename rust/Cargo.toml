@@ -87,6 +87,19 @@ opencl = [
   "fvm3/opencl",
   "fvm4/opencl",
 ]
+# GPU features without FVM (for builds that disable FVM)
+cuda-no-fvm = [
+  "filecoin-proofs-api/cuda",
+  "rust-gpu-tools/cuda",
+]
+cuda-supraseal-no-fvm = [
+  "filecoin-proofs-api/cuda-supraseal",
+  "rust-gpu-tools/cuda",
+]
+opencl-no-fvm = [
+  "filecoin-proofs-api/opencl",
+  "rust-gpu-tools/opencl",
+]
 multicore-sdr = ["filecoin-proofs-api/multicore-sdr"]
 c-headers = ["safer-ffi/headers"]
 # This feature enables a fixed number of discarded rows for TreeR. The `FIL_PROOFS_ROWS_TO_DISCARD`
