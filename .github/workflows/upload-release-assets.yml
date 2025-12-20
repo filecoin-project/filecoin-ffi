@@ -9,6 +9,11 @@ on:
       ref:
         description: The release ref (e.g. refs/tags/v1.34.0)
         required: true
+      force:
+        type: boolean
+        description: Whether the assets should be overwritten if they already exist
+        required: false
+        default: false
 
 permissions:
   contents: write
@@ -27,8 +32,9 @@ jobs:
         runner: ['ubuntu-latest', ['self-hosted', 'linux', 'arm64', 'xlarge'], 'macos-latest']
       fail-fast: false
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: ./.github/actions/upload-release-assets
         with:
           id: ${{ inputs.id }}
           ref: ${{ inputs.ref }}
+          force: ${{ inputs.force }}

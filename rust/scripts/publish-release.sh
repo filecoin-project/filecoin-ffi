@@ -9,16 +9,6 @@ main() {
         exit 1
     fi
 
-    if [[ -z "$2" ]]
-    then
-        (>&2 echo '[publish-release/main] Error: script requires a release name, e.g. "filecoin-ffi-Darwin-standard" or "filecoin-ffi-Linux-standard"')
-        exit 1
-    fi
-
-    local __release_file=$1
-    local __release_url="${GITHUB_RELEASE_URL}"
-    local __release_target="$(basename $__release_file)"
-
     # make sure we have a token set, api requests won't work otherwise
     if [ -z $GITHUB_TOKEN ]; then
         (>&2 echo "[publish-release/main] \$GITHUB_TOKEN not set, publish failed")
@@ -30,6 +20,10 @@ main() {
         (>&2 echo "[publish-release/main] \$GITHUB_RELEASE_URL not set, publish failed")
         exit 1
     fi
+
+    local __release_file=$1
+    local __release_url="${GITHUB_RELEASE_URL}"
+    local __release_target="$(basename $__release_file)"
 
     # see if the release already exists by tag
     local __release_response=`
@@ -45,7 +39,7 @@ main() {
         exit 1
     fi
 
-    __release_target_asset=`echo $__release_response | jq -r ".assets | .[] | select(.name == \"$__release_target\")"`
+    local __release_target_asset=`echo $__release_response | jq -r ".assets | .[] | select(.name == \"$__release_target\")"`
 
     if [ -n "$__release_target_asset" ]; then
         (>&2 echo "[publish-release/main] $__release_target_asset already exists, deleting")
