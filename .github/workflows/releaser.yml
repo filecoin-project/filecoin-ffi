@@ -19,3 +19,18 @@ jobs:
       sources: '["version.json"]'
     secrets:
       UCI_GITHUB_TOKEN: ${{ secrets.UCI_GITHUB_TOKEN }}
+  upload-release-assets:
+    needs: [releaser]
+    if: fromJSON(needs.releaser.outputs.json)['version.json']
+    name: Publish the static library (${{ matrix.runner }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        runner: ['ubuntu-latest', ['self-hosted', 'linux', 'arm64', 'xlarge'], 'macos-latest']
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/upload-release-assets
+        with:
+          id: ${{ fromJSON(needs.releaser.outputs.json)['version.json'].id }}
+          force: false

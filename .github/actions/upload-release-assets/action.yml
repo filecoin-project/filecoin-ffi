@@ -8,13 +8,17 @@ inputs:
   ref:
     description: The release ref
     required: true
+  force:
+    description: Force upload
+    required: false
+    default: 'false'
 
 runs:
   using: 'composite'
   steps:
     - run: echo "Running on $RUNNER_OS $RUNNER_ARCH"
       shell: bash
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
       with:
         ref: ${{ inputs.ref }}
         submodules: recursive
@@ -30,16 +34,22 @@ runs:
       env:
         GITHUB_TOKEN: ${{ github.token }}
         GITHUB_RELEASE_URL: ${{ github.api_url }}/repos/${{ github.repository }}/releases/${{ inputs.id }}
+        INPUTS_FORCE: ${{ inputs.force }}
       run: |
         REPOSITORY_NAME=${GITHUB_REPOSITORY##*/}
 
-        TARBALL_PATH="/tmp/${REPOSITORY_NAME}-$(uname)-$(uname -m)-standard.tar.gz"
         RELEASE_NAME="${REPOSITORY_NAME}-$(uname)-$(uname -m)-standard"
+        TARBALL_PATH="/tmp/${RELEASE_NAME}.tar.gz"
+
+        # Note: If assets should not be overwritten, exit early if they already exist
+        if [[ "$INPUTS_FORCE" == 'false' && "$(./scripts/check-release.sh $TARBALL_PATH)" == 'true' ]]; then
+          exit 0
+        fi
 
         # Note: the blst dependency uses the portable configuration for maximum compatibility
         ./scripts/build-release.sh build --verbose --no-default-features --features multicore-sdr,opencl,blst-portable
         ./scripts/package-release.sh $TARBALL_PATH
-        ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
+        ./scripts/publish-release.sh $TARBALL_PATH
       working-directory: rust
       shell: bash
     - if: runner.os == 'Linux'
@@ -59,15 +69,21 @@ runs:
       env:
         GITHUB_TOKEN: ${{ github.token }}
         GITHUB_RELEASE_URL: ${{ github.api_url }}/repos/${{ github.repository }}/releases/${{ inputs.id }}
+        INPUTS_FORCE: ${{ inputs.force }}
       run: |
         REPOSITORY_NAME=${GITHUB_REPOSITORY##*/}
 
         RELEASE_NAME="${REPOSITORY_NAME}-$(uname)-standard"
         TARBALL_PATH="/tmp/${RELEASE_NAME}.tar.gz"
 
+        # Note: If assets should not be overwritten, exit early if they already exist
+        if [[ "$INPUTS_FORCE" == 'false' && "$(./scripts/check-release.sh $TARBALL_PATH)" == 'true' ]]; then
+          exit 0
+        fi
+
         # Note: the blst dependency uses the portable configuration for maximum compatibility
         ./scripts/build-release.sh lipo --verbose --no-default-features --features multicore-sdr,opencl,blst-portable
         ./scripts/package-release.sh $TARBALL_PATH
-        ./scripts/publish-release.sh $TARBALL_PATH $RELEASE_NAME
+        ./scripts/publish-release.sh $TARBALL_PATH
       working-directory: rust
       shell: bash
