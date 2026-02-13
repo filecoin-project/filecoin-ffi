@@ -1,6 +1,7 @@
 use std::{fmt::Display, mem::MaybeUninit, ops::Deref, panic, path::PathBuf, str::Utf8Error};
 
 use safer_ffi::prelude::*;
+use safer_ffi::slice::slice_boxed;
 
 use super::api::init_log;
 
@@ -135,8 +136,6 @@ impl<T: Sized + Default> Result<T> {
     }
 }
 
-pub type GpuDeviceResponse = Result<c_slice::Box<c_slice::Box<u8>>>;
-
 #[ffi_export]
 pub fn destroy_gpu_device_response(ptr: repr_c::Box<GpuDeviceResponse>) {
     drop(ptr)
@@ -250,3 +249,14 @@ macro_rules! destructor {
         }
     };
 }
+
+#[derive_ReprC]
+#[repr(C)]
+#[derive(Clone)]
+pub struct GpuDeviceInfo {
+    pub name: slice_boxed<u8>,
+    pub vram_bytes: u64,
+    pub cores: u32,
+}
+
+pub type GpuDeviceResponse = Result<c_slice::Box<GpuDeviceInfo>>;
