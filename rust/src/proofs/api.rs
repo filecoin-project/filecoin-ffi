@@ -1718,7 +1718,7 @@ pub mod tests {
         let registered_proof_window_post = RegisteredPoStProof::StackedDrgWindow2KiBV1_1;
 
         let cache_dir = tempfile::tempdir()?;
-        let cache_dir_path = cache_dir.into_path();
+        let cache_dir_path = cache_dir.keep();
         let cache_dir_path_ref = as_bytes(&cache_dir_path);
 
         let prover_id = [1u8; 32];
@@ -1962,9 +1962,9 @@ pub mod tests {
             let registered_proof_empty_sector_update = RegisteredUpdateProof::StackedDrg2KiBV1;
 
             let new_cache_dir = tempfile::tempdir()?;
-            let new_cache_dir_path = new_cache_dir.into_path();
+            let new_cache_dir_path = new_cache_dir.keep();
             let removed_data_dir = tempfile::tempdir()?;
-            let removed_data_dir_path = removed_data_dir.into_path();
+            let removed_data_dir_path = removed_data_dir.keep();
 
             let buf_b: Vec<u8> = (0..2032).map(|_| rng.gen()).collect();
             let mut piece_file_c = tempfile::tempfile()?;
@@ -2820,7 +2820,7 @@ pub mod tests {
         let registered_proof_window_post = RegisteredPoStProof::StackedDrgWindow2KiBV1_1;
 
         let cache_dir = tempfile::tempdir()?;
-        let cache_dir_path = cache_dir.into_path();
+        let cache_dir_path = cache_dir.keep();
         let cache_dir_path_ref = as_bytes(&cache_dir_path);
 
         let prover_id = [1u8; 32];
@@ -3009,7 +3009,7 @@ pub mod tests {
     ) -> Result<()> {
         // miscellaneous setup and shared values
         let cache_dir = tempfile::tempdir()?;
-        let cache_dir_path = cache_dir.into_path();
+        let cache_dir_path = cache_dir.keep();
         let cache_dir_path_ref = as_bytes(&cache_dir_path);
 
         let prover_id = [1u8; 32];
