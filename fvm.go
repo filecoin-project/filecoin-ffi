@@ -178,6 +178,7 @@ func buildResponse(resp cgo.FvmMachineExecuteResponseGo) (*ApplyRet, error) {
 		FailureInfo:        resp.FailureInfo,
 		EventsRoot:         eventsRoot,
 		EventsBytes:        resp.Events,
+		ReturnCodec:        resp.ReturnCodec,
 	}, nil
 }
 
@@ -206,6 +207,7 @@ type ApplyRet struct {
 	FailureInfo        string
 	EventsRoot         *cid.Cid
 	EventsBytes        []byte
+	ReturnCodec        uint64
 }
 
 // NOTE: We only support 64bit platforms

@@ -76,5 +76,6 @@ func (r FvmMachineExecuteResponse) copy() FvmMachineExecuteResponseGo {
 		FailureInfo:          string((*SliceBoxedUint8)(&r.failure_info).slice()),
 		Events:               (*SliceBoxedUint8)(&r.events).copy(),
 		EventsRoot:           (*SliceBoxedUint8)(&r.events_root).copy(),
+		ReturnCodec:          uint64(r.return_codec),
 	}
 }

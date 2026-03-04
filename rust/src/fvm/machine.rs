@@ -348,6 +348,7 @@ fn fvm_machine_execute_message(
             .context("refund exceeds u128 attoFIL")?;
         let gas_refund = apply_ret.gas_refund;
         let gas_burned = apply_ret.gas_burned;
+        let return_codec = apply_ret.return_codec;
 
         let Receipt {
             exit_code,
@@ -400,6 +401,7 @@ fn fvm_machine_execute_message(
             failure_info,
             events,
             events_root,
+            return_codec,
         })
     })
 }

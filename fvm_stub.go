@@ -66,6 +66,7 @@ type ApplyRet struct {
 	FailureInfo        string
 	EventsRoot         *cid.Cid
 	EventsBytes        []byte
+	ReturnCodec        uint64
 }
 
 // Ensure cgo.Externs referenced to avoid unused import when stubbed

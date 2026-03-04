@@ -110,6 +110,7 @@ type FvmMachineExecuteResponseGo struct {
 	FailureInfo          string
 	Events               []byte
 	EventsRoot           []byte
+	ReturnCodec          uint64
 }
 
 func (ptr SliceBoxedUint8) slice() []byte {

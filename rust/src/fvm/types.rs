@@ -45,4 +45,5 @@ pub struct FvmMachineExecuteResponse {
     pub failure_info: Option<str::Box>,
     pub events: Option<c_slice::Box<u8>>,
     pub events_root: Option<c_slice::Box<u8>>,
+    pub return_codec: u64,
 }
