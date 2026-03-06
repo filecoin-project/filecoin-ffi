@@ -396,6 +396,8 @@ mod v3 {
                             _ => None,
                         })
                         .collect(),
+                    // Older FVM versions don't track return codec.
+                    return_codec: 0,
                     events: ret
                         .events
                         .into_iter()
@@ -677,6 +679,8 @@ mod v2 {
                         })
                         .collect(),
                     events: vec![],
+                    // Older FVM versions don't track return codec.
+                    return_codec: 0,
                 }),
                 Err(x) => Err(x),
             }
