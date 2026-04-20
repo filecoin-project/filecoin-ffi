@@ -110,10 +110,10 @@ pub fn verify(
     // prep request
     let signature = try_ffi!(Signature::from_bytes(&signature), false);
 
-    if flattened_digests.len() % DIGEST_BYTES != 0 {
+    if !flattened_digests.len().is_multiple_of(DIGEST_BYTES) {
         return false;
     }
-    if flattened_public_keys.len() % PUBLIC_KEY_BYTES != 0 {
+    if !flattened_public_keys.len().is_multiple_of(PUBLIC_KEY_BYTES) {
         return false;
     }
 
@@ -173,7 +173,7 @@ pub fn hash_verify(
         offset += *chunk_size
     }
 
-    if flattened_public_keys.len() % PUBLIC_KEY_BYTES != 0 {
+    if !flattened_public_keys.len().is_multiple_of(PUBLIC_KEY_BYTES) {
         return false;
     }
 

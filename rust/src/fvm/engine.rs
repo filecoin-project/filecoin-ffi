@@ -416,6 +416,7 @@ mod v3 {
                             },
                         })
                         .collect(),
+                    return_codec: None,
                 }),
                 Err(x) => Err(x),
             }
@@ -677,6 +678,7 @@ mod v2 {
                         })
                         .collect(),
                     events: vec![],
+                    return_codec: None,
                 }),
                 Err(x) => Err(x),
             }
