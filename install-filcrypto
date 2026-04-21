@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2155 enable=require-variable-braces
 
-set -Exeo pipefail
+set -Eeo pipefail
 auth_header=()
 if [ -n "${GITHUB_TOKEN}" ]; then
 	auth_header=("-H" "Authorization: token ${GITHUB_TOKEN}")
