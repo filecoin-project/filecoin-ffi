@@ -48,6 +48,12 @@ serde = "1.0.219"
 safer-ffi = { version = "0.1.13", features = ["proc_macros"] }
 filecoin-proofs-api = { version = "19.1", default-features = false }
 yastl = "0.1.2"
+# Pin SupraSeal's GPU stack to pre-regression versions: sppark 0.1.12+ leaks GPU
+# memory under FFI_USE_CUDA_SUPRASEAL=1. Transitive via filecoin-proofs-api ->
+# bellperson; declared here only to hold versions back. Drop once sppark ships a
+# fix. See filecoin-project/lotus#13634 and supranational/sppark#81.
+supraseal-c2 = { version = "=0.1.1", optional = true }
+sppark = { version = "=0.1.11", optional = true }
 
 [dev-dependencies]
 memmap2 = "0.9"
