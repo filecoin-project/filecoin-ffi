@@ -105,3 +105,6 @@ c-headers = ["safer-ffi/headers"]
 # This feature enables a fixed number of discarded rows for TreeR. The `FIL_PROOFS_ROWS_TO_DISCARD`
 # setting is ignored, no `TemporaryAux` file will be written.
 fixed-rows-to-discard = ["filecoin-proofs-api/fixed-rows-to-discard"]
+
+[patch.crates-io]
+sppark = { git = "https://github.com/curiostorage/sppark.git", rev = "813d73cfcb3afdc166c00960b37734b23504ac96" }
