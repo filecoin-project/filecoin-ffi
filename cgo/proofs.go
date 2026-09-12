@@ -278,14 +278,22 @@ func GenerateWindowPoSt(randomness *ByteArray32, replicas SliceRefPrivateReplica
 	return proofs, []uint64{}, nil
 }
 
-func GetGpuDevices() ([]string, error) {
-	resp := (*resultSliceBoxedSliceBoxedUint8)(C.get_gpu_devices())
+func GetGpuDevices() ([]GpuDeviceInfoGo, error) {
+	resp := (*resultSliceBoxedGpuDeviceInfo)(C.get_gpu_devices())
 	defer resp.destroy()
+
 	if err := CheckErr(resp); err != nil {
 		return nil, err
 	}
 
-	return (SliceBoxedSliceBoxedUint8)(resp.value).copyAsStrings(), nil
+	ref := (SliceBoxedGpuDeviceInfo)(resp.value).slice()
+
+	out := make([]GpuDeviceInfoGo, 0, len(ref))
+	for i := range ref {
+		out = append(out, ref[i].copy())
+	}
+
+	return out, nil
 }
 
 func GetSealVersion(registeredProof RegisteredSealProof) (string, error) {
