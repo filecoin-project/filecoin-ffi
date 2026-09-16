@@ -1276,13 +1276,13 @@ dependencies = [
  "fil_logger",
  "filecoin-proofs-api",
  "filepath",
- "fvm 2.12.1",
- "fvm 3.14.1",
+ "fvm 2.12.2",
+ "fvm 3.14.2",
  "fvm 4.8.3",
  "fvm_ipld_blockstore",
  "fvm_ipld_encoding",
- "fvm_shared 2.12.1",
- "fvm_shared 3.14.1",
+ "fvm_shared 2.12.2",
+ "fvm_shared 3.14.2",
  "fvm_shared 4.8.3",
  "group",
  "lazy_static",
@@ -1475,9 +1475,9 @@ checksum = "e6d5a32815ae3f33302d95fdcb2ce17862f8c65363dcfd29360480ba1001fc9c"
 
 [[package]]
 name = "fvm"
-version = "2.12.1"
+version = "2.12.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "016e16b780770bd9ac5cebd7939cdce74b026d6fd4628554a24a60e07ddf0340"
+checksum = "acc343e4b720b577029a96a932808ff4eb85f83243b1d8fdd6ac2297fcfecc4e"
 dependencies = [
  "anyhow",
  "blake2b_simd",
@@ -1492,7 +1492,7 @@ dependencies = [
  "fvm_ipld_blockstore",
  "fvm_ipld_encoding",
  "fvm_ipld_hamt",
- "fvm_shared 2.12.1",
+ "fvm_shared 2.12.2",
  "lazy_static",
  "log",
  "multihash-codetable",
@@ -1513,9 +1513,9 @@ dependencies = [
 
 [[package]]
 name = "fvm"
-version = "3.14.1"
+version = "3.14.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4b7647ec2415f63e0d8c08f3bb395d877f059e529ffe06a6a26e5e77ed69adca"
+checksum = "53f8ea29129c5e76cad8031bb9b2ff4fa05fdfc270ce718bb0831a2c3e7d21dc"
 dependencies = [
  "anyhow",
  "blake2b_simd",
@@ -1528,7 +1528,7 @@ dependencies = [
  "fvm_ipld_blockstore",
  "fvm_ipld_encoding",
  "fvm_ipld_hamt",
- "fvm_shared 3.14.1",
+ "fvm_shared 3.14.2",
  "lazy_static",
  "log",
  "minstant",
@@ -1670,9 +1670,9 @@ dependencies = [
 
 [[package]]
 name = "fvm_shared"
-version = "2.12.1"
+version = "2.12.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b6236c849d3c3aa78e916eb6a40eb0c7db034759802d39a4b747343437cbb4d7"
+checksum = "ba16d3df24e5cef5da552b60d12b5aea0b4ce2afb2e070392819eb48aaba0cb2"
 dependencies = [
  "anyhow",
  "blake2b_simd",
@@ -1702,9 +1702,9 @@ dependencies = [
 
 [[package]]
 name = "fvm_shared"
-version = "3.14.1"
+version = "3.14.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f025c4b94f1d5a23776dcb6d6c8e02d6a06c4675f2d86a334322e9e5f71b7124"
+checksum = "05f8894d5bc5a9e321c55b8c1889b3bb694fdb1d9b3142790097c0760aefd729"
 dependencies = [
  "anyhow",
  "bitflags 2.9.0",
