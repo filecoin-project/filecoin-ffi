@@ -4,10 +4,10 @@ use std::sync::Once;
 
 use anyhow::anyhow;
 use safer_ffi::prelude::*;
-use safer_ffi::slice::slice_boxed;
 
 use super::types::{
-    catch_panic_response, catch_panic_response_no_log, GpuDeviceResponse, InitLogFdResponse,
+    catch_panic_response, catch_panic_response_no_log, GpuDeviceInfo, GpuDeviceResponse,
+    InitLogFdResponse,
 };
 
 /// Protects the init off the logger.
@@ -35,18 +35,22 @@ pub fn init_log_with_file(file: File) -> Option<()> {
 
 /// Serialize the GPU device names into a vector
 #[cfg(any(feature = "opencl", feature = "cuda", feature = "cuda-supraseal"))]
-fn get_gpu_devices_internal() -> Vec<slice_boxed<u8>> {
+fn get_gpu_devices_internal() -> Vec<GpuDeviceInfo> {
     let devices = rust_gpu_tools::Device::all();
 
     devices
         .into_iter()
-        .map(|d| d.name().into_bytes().into_boxed_slice().into())
+        .map(|d| GpuDeviceInfo {
+            name: d.name().into_bytes().into_boxed_slice().into(),
+            vram_bytes: d.memory(),
+            cores: d.compute_units(),
+        })
         .collect()
 }
 
 // Return empty vector for GPU devices if cuda and opencl are disabled
 #[cfg(not(any(feature = "opencl", feature = "cuda", feature = "cuda-supraseal")))]
-fn get_gpu_devices_internal() -> Vec<slice_boxed<u8>> {
+fn get_gpu_devices_internal() -> Vec<GpuDeviceInfo> {
     Vec::new()
 }
 
@@ -91,14 +95,24 @@ mod tests {
         let resp = get_gpu_devices();
         assert!(resp.error_msg.is_empty());
 
-        let strings = &resp.value;
+        let devices = &resp.value;
 
-        let devices: Vec<&str> = strings
+        let names: Vec<&str> = devices
             .iter()
-            .map(|s| std::str::from_utf8(s).unwrap())
+            .map(|d| std::str::from_utf8(&d.name).unwrap())
             .collect();
 
-        assert_eq!(devices.len(), resp.value.len());
+        assert_eq!(names.len(), devices.len());
+
+        for d in devices.iter() {
+            // name must be non-empty bytes
+            assert!(!d.name.is_empty());
+            log::info!("device name: {:?}", d.name);
+            log::info!("device vram: {}", d.vram_bytes);
+            log::info!("device cores: {}", d.cores);
+            // assert!(d.vram_bytes > 0);
+            // assert!(d.cores > 0);
+        }
 
         destroy_gpu_device_response(resp);
     }
