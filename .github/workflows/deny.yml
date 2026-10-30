@@ -1,0 +1,18 @@
+# Runs `cargo-deny` against the Rust crate: advisories, licences, bans and sources.
+# Configuration lives in rust/deny.toml.
+name: Cargo Deny
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  cargo-deny:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: EmbarkStudios/cargo-deny-action@v2
+      with:
+        manifest-path: rust/Cargo.toml
+        rust-version: "1.94.0"
