@@ -68,6 +68,9 @@ type resultEmptySectorUpdateEncodeInto C.Result_EmptySectorUpdateEncodeInto_t
 type resultGenerateFallbackSectorChallenges C.Result_GenerateFallbackSectorChallenges_t
 type resultGenerateSingleWindowPoStWithVanilla C.Result_GenerateSingleWindowPoStWithVanilla_t
 type resultPoStProof C.Result_PoStProof_t
+type GpuDeviceInfo C.GpuDeviceInfo_t
+type SliceBoxedGpuDeviceInfo C.slice_boxed_GpuDeviceInfo_t
+type resultSliceBoxedGpuDeviceInfo C.Result_slice_boxed_GpuDeviceInfo_t
 
 // FVM types moved to types_fvm.go behind build tag
 
@@ -600,6 +603,44 @@ func (ptr *PrivateReplicaInfo) Destroy() {
 func (ptr *PoStProof) Destroy() {
 	if ptr != nil {
 		(*SliceBoxedUint8)(&ptr.proof).Destroy()
+		ptr = nil
+	}
+}
+
+func (ptr SliceBoxedGpuDeviceInfo) slice() []GpuDeviceInfo {
+	if ptr.ptr == nil || ptr.len == 0 {
+		return nil
+	}
+	return unsafe.Slice((*GpuDeviceInfo)(unsafe.Pointer(ptr.ptr)), int(ptr.len))
+}
+
+type GpuDeviceInfoGo struct {
+	Name      string
+	VRAMBytes uint64
+	Cores     uint32
+}
+
+func (info GpuDeviceInfo) copy() GpuDeviceInfoGo {
+	name := (*SliceBoxedUint8)(&info.name).copy()
+
+	return GpuDeviceInfoGo{
+		Name:      string(name),
+		VRAMBytes: uint64(info.vram_bytes),
+		Cores:     uint32(info.cores),
+	}
+}
+
+func (ptr *resultSliceBoxedGpuDeviceInfo) statusCode() FCPResponseStatus {
+	return FCPResponseStatus(ptr.status_code)
+}
+
+func (ptr *resultSliceBoxedGpuDeviceInfo) errorMsg() *SliceBoxedUint8 {
+	return (*SliceBoxedUint8)(&ptr.error_msg)
+}
+
+func (ptr *resultSliceBoxedGpuDeviceInfo) destroy() {
+	if ptr != nil {
+		C.destroy_gpu_device_response((*C.Result_slice_boxed_GpuDeviceInfo_t)(ptr))
 		ptr = nil
 	}
 }
