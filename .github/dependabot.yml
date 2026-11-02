@@ -1,0 +1,55 @@
+version: 2
+updates:
+  - package-ecosystem: "cargo"
+    directory: "/rust"
+    schedule:
+      interval: "monthly"
+    cooldown:
+      default-days: 7
+    ignore:
+      # fvm and proofs releases are adopted by hand, alongside network upgrades
+      - dependency-name: "fvm*"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "filecoin-proofs-api"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+    groups:
+      # wasmtime arrives transitively through fvm2/3/4 and must move as one family
+      wasmtime:
+        applies-to: security-updates
+        patterns:
+          - "wasmtime*"
+          - "cranelift*"
+          - "pulley*"
+      rust:
+        patterns:
+          - "*"
+    labels:
+      - "dependencies"
+
+  - package-ecosystem: "gomod"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    cooldown:
+      default-days: 7
+    groups:
+      go:
+        patterns:
+          - "*"
+    labels:
+      - "dependencies"
+
+  - package-ecosystem: "github-actions"
+    directories:
+      - "/"
+      - "/.github/actions/*"
+    schedule:
+      interval: "monthly"
+    cooldown:
+      default-days: 7
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+    labels:
+      - "dependencies"
