@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   release-check:
-    uses: ipdxco/unified-github-workflows/.github/workflows/release-check.yml@v1.0
+    uses: ipdxco/unified-github-workflows/.github/workflows/release-check.yml@d9b156f4be9fae6843707f5e5cda2fb079f821ac # v1.0.45
     with:
       sources: '["version.json"]'
   upload-release-assets:
@@ -29,7 +29,7 @@ jobs:
         runner: ['ubuntu-latest', ['self-hosted', 'linux', 'arm64', 'xlarge'], 'macos-latest']
       fail-fast: false
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/upload-release-assets
         with:
           id: ${{ fromJSON(needs.release-check.outputs.json)['version.json'].id }}

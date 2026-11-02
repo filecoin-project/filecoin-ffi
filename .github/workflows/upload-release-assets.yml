@@ -32,7 +32,7 @@ jobs:
         runner: ['ubuntu-latest', ['self-hosted', 'linux', 'arm64', 'xlarge'], 'macos-latest']
       fail-fast: false
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/upload-release-assets
         with:
           id: ${{ inputs.id }}
