@@ -48,12 +48,12 @@ jobs:
     name: Check code style and run linters
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           submodules: recursive
       - uses: ./.github/actions/configure-environment
       - if: github.event.inputs.ref != ''
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           submodules: recursive
           ref: ${{ github.event.inputs.ref }}
@@ -91,12 +91,12 @@ jobs:
       fail-fast: false
     steps:
       - run: echo "Running on $RUNNER_OS $RUNNER_ARCH"
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           submodules: recursive
       - uses: ./.github/actions/configure-environment
       - if: github.event.inputs.ref != ''
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           submodules: recursive
           ref: ${{ github.event.inputs.ref }}
@@ -115,7 +115,7 @@ jobs:
       - name: Build project without CGO
         run: env CGO_ENABLED=0 go build .
       - if: runner.os == 'Linux'
-        uses: actions/cache/restore@v3
+        uses: actions/cache/restore@v6
         with:
           key: v28-proof-params-${{ runner.os }}-${{ runner.arch }}
           path: |
@@ -128,7 +128,7 @@ jobs:
           go install github.com/filecoin-project/go-paramfetch/paramfetch@latest
           $GOPATH/bin/paramfetch 2048 "${DIR}/parameters.json" "${DIR}/srs-inner-product.json"
       - if: runner.os == 'Linux' && (github.event == 'push' || github.event.inputs.save == 'true')
-        uses: actions/cache/save@v3
+        uses: actions/cache/save@v6
         with:
           key: v28-proof-params-${{ runner.os }}-${{ runner.arch }}
           path: |
@@ -152,12 +152,12 @@ jobs:
       CXX: g++-12
       NVCC_PREPEND_FLAGS: "-allow-unsupported-compiler"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           submodules: recursive
       - uses: ./.github/actions/configure-environment
       - if: github.event.inputs.ref != ''
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           submodules: recursive
           ref: ${{ github.event.inputs.ref }}
