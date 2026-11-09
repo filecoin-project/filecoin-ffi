@@ -2300,7 +2300,7 @@ pub mod tests {
             .concat();
 
             assert_eq!(
-                format!("{:x?}", &expected),
+                format!("{:x?}", expected),
                 format!("{:x?}", &buf_b),
                 "original bytes don't match unsealed bytes"
             );
@@ -3123,8 +3123,8 @@ pub mod tests {
             let pre_commit_comm_d: &[u8; 32] = &resp_b2.comm_d;
 
             assert_eq!(
-                format!("{:x?}", &pre_computed_comm_d),
-                format!("{:x?}", &pre_commit_comm_d),
+                format!("{:x?}", pre_computed_comm_d),
+                format!("{:x?}", pre_commit_comm_d),
                 "pre-computed CommD and pre-commit CommD don't match"
             );
 
