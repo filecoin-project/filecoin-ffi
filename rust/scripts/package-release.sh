@@ -5,7 +5,7 @@ set -Exeuo pipefail
 main() {
     if [[ -z "$1" ]]
     then
-        (>&2 echo '[package-release/main] Error: script requires path to which it will write release (gzipped) tarball, e.g. "/tmp/filecoin-ffi-Darwin-standard.tar.tz"')
+        (>&2 echo '[package-release/main] Error: script requires path to which it will write release (gzipped) tarball, e.g. "/tmp/filecoin-ffi-Darwin-arm64-standard.tar.tz"')
         exit 1
     fi
 

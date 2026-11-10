@@ -23,12 +23,6 @@ runs:
         ref: ${{ inputs.ref }}
         submodules: recursive
     - uses: ./.github/actions/configure-environment
-    - if: runner.os == 'macOS'
-      run: |
-        rustup target add x86_64-apple-darwin
-        cargo fetch
-      working-directory: rust
-      shell: bash
     - if: runner.os == 'Linux'
       name: Build and publish the standard release
       env:
@@ -65,7 +59,7 @@ runs:
       working-directory: rust
       shell: bash
     - if: runner.os == 'macOS'
-      name: Build and publish the universal standard release
+      name: Build and publish the standard release (Apple Silicon only)
       env:
         GITHUB_TOKEN: ${{ github.token }}
         GITHUB_RELEASE_URL: ${{ github.api_url }}/repos/${{ github.repository }}/releases/${{ inputs.id }}
@@ -73,7 +67,7 @@ runs:
       run: |
         REPOSITORY_NAME=${GITHUB_REPOSITORY##*/}
 
-        RELEASE_NAME="${REPOSITORY_NAME}-$(uname)-standard"
+        RELEASE_NAME="${REPOSITORY_NAME}-$(uname)-$(uname -m)-standard"
         TARBALL_PATH="/tmp/${RELEASE_NAME}.tar.gz"
 
         # Note: If assets should not be overwritten, exit early if they already exist
@@ -82,7 +76,7 @@ runs:
         fi
 
         # Note: the blst dependency uses the portable configuration for maximum compatibility
-        ./scripts/build-release.sh lipo --verbose --no-default-features --features multicore-sdr,opencl,blst-portable
+        ./scripts/build-release.sh build --verbose --no-default-features --features multicore-sdr,opencl,blst-portable
         ./scripts/package-release.sh $TARBALL_PATH
         ./scripts/publish-release.sh $TARBALL_PATH
       working-directory: rust

@@ -28,6 +28,13 @@ rust_sources_dir="rust"
 cpu_features_required_for_optimized_release=$(jq -r '.[].check_cpu_for_feature | select(. != null)' < "${rust_sources_dir}/rustc-target-features-optimized.json")
 
 main() {
+    # darwin/amd64 (Intel Mac) is not supported, neither via prebuilt release
+    # assets (which are arm64 only) nor via building from source.
+    if [ "$(uname -s)" = "Darwin" ] && [ "$(uname -m)" = "x86_64" ]; then
+        (>&2 echo "[install-filcrypto/main] Error: darwin/amd64 (Intel Mac) is not supported; use an Apple Silicon (arm64) Mac")
+        exit 1
+    fi
+
     local __release_flags=$(get_release_flags)
     if [ "${FFI_BUILD_FROM_SOURCE}" != "1" ] && download_release_tarball __tarball_path "${rust_sources_dir}" "filecoin-ffi" "${__release_flags}"; then
         local __tmp_dir=$(mktemp -d)
@@ -58,11 +65,7 @@ main() {
 
         # copy from Rust's build directory (target) to root of filecoin-ffi
         #
-        if [ "$(uname -s)" = "Darwin" ] && [ "$(uname -m)" = "x86_64" ]; then
-            find -L "${rust_sources_dir}/target/universal/release" -type f -name libfilcrypto.a -exec cp -- "{}" . \;
-        else
-            find -L "${rust_sources_dir}/target/release" -type f -name libfilcrypto.a -exec cp -- "{}" . \;
-        fi
+        find -L "${rust_sources_dir}/target/release" -type f -name libfilcrypto.a -exec cp -- "{}" . \;
 
         find -L "${rust_sources_dir}" -type f -name filcrypto.h -exec cp -- "{}" . \;
         find -L "${rust_sources_dir}" -type f -name filcrypto.pc -exec cp -- "{}" . \;
@@ -100,12 +103,7 @@ download_release_tarball() {
     # names are constructed. Marginally less-bad would be to require that this
     # function's caller provide the release name.
     #
-    if [ "$(uname -s)" = "Darwin" ]; then
-        # For MacOS a universal library is used so naming convention is different
-        local __release_name="${__repo_name}-$(uname)-${release_flag_name}"
-    else
-        local __release_name="${__repo_name}-$(uname)-$(uname -m)-${release_flag_name}"
-    fi
+    local __release_name="${__repo_name}-$(uname)-$(uname -m)-${release_flag_name}"
 
     (>&2 echo "[download_release_tarball] acquiring release @ ${__release_tag}")
 
@@ -165,19 +163,6 @@ build_from_source() {
     pushd "${__rust_sources_path}"
 
     cargo --version
-
-    # In the past we were only able to build universal binaries on x86_64,
-    # for now we just keep that behaviour. This means that on aarch64 (e.g.
-    # Apple M1) it's a native, non-universal binary.
-    if [ "$(uname -s)" = "Darwin" ] && [ "$(uname -m)" = "x86_64" ]; then
-        # Rustup only installs the correct versions for the current
-        # architecture you're on. As we cross-compile to aarch64, we need to
-        # make sure that toolchain is installes as well.
-        rustup target add aarch64-apple-darwin
-        build="lipo"
-    else
-        build="build"
-    fi
 
     # Check for specified GPU support.
     if [ "${FFI_USE_CUDA_SUPRASEAL}" == "1" ]; then
@@ -260,9 +245,9 @@ build_from_source() {
 
     echo "Using additional build flags: ${additional_flags}"
     if [ -n "${__release_flags}" ]; then
-        RUSTFLAGS="-C target-feature=${__release_flags}" ./scripts/build-release.sh ${build} "${additional_flags}"
+        RUSTFLAGS="-C target-feature=${__release_flags}" ./scripts/build-release.sh build "${additional_flags}"
     else
-        ./scripts/build-release.sh ${build} "${additional_flags}"
+        ./scripts/build-release.sh build "${additional_flags}"
     fi
 
     popd
@@ -294,11 +279,7 @@ get_release_flags() {
     fi
 
     # Maps cpu flag to rust flags (related to entries in rust/rustc-target-features-optimized.json)
-    if [ "$(uname -s)" = "Darwin" ] && [ "$(uname -m)" = "x86_64" ]; then
-        feature_map=("adx:+adx" "sha_ni:+sha" "sha2:+sha2" "avx2:+avx2" "sse4_2:+sse4.2" "sse4_1:+sse4.1")
-    else
-        feature_map=("adx:+adx" "sha_ni:+sha" "sha2:+sha2" "sse2:+sse2" "avx2:+avx2" "avx:+avx" "sse4_2:+sse4.2" "sse4_1:+sse4.1")
-    fi
+    feature_map=("adx:+adx" "sha_ni:+sha" "sha2:+sha2" "sse2:+sse2" "avx2:+avx2" "avx:+avx" "sse4_2:+sse4.2" "sse4_1:+sse4.1")
 
     target_features=""
     # check for the presence of each required CPU feature
