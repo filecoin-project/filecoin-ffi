@@ -1,8 +1,9 @@
 # filecoin-ffi changelog
 
-## Unreleased
+## 1.38.0
 
-- Dropped darwin/amd64 (Intel Mac) support ([#601](https://github.com/filecoin-project/filecoin-ffi/issues/601)). The macOS release asset is now arm64 only instead of a universal binary, and is renamed from `filecoin-ffi-Darwin-standard.tar.gz` to `filecoin-ffi-Darwin-arm64-standard.tar.gz` to match the Linux naming (anything that downloads the macOS asset by name needs updating), and `install-filcrypto` exits with an error on Intel Macs instead of downloading or building from source. darwin/arm64 (Apple Silicon) is unchanged.
+- FVM 4.9.0, 3.15.0 and 2.13.0, all on wasmtime 48 LTS (fixes RUSTSEC-2026-0424); Rust toolchain 1.99.1 ([#602](https://github.com/filecoin-project/filecoin-ffi/pull/602)).
+- **Breaking:** Dropped darwin/amd64 (Intel Mac) support ([#601](https://github.com/filecoin-project/filecoin-ffi/issues/601)). The macOS release asset is now arm64 only instead of a universal binary, and is renamed from `filecoin-ffi-Darwin-standard.tar.gz` to `filecoin-ffi-Darwin-arm64-standard.tar.gz` to match the Linux naming (anything that downloads the macOS asset by name needs updating), and `install-filcrypto` exits with an error on Intel Macs instead of downloading or building from source. darwin/arm64 (Apple Silicon) is unchanged.
 
 ## 0.30.3
 
