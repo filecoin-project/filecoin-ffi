@@ -12,6 +12,15 @@ updates:
         update-types: ["version-update:semver-major", "version-update:semver-minor"]
       - dependency-name: "filecoin-proofs-api"
         update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      # ff/group 0.14 + rand_core 0.10 needs the whole proofs stack to move, see #603
+      - dependency-name: "bls-signatures"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "blstrs"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "group"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "rand*"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
     groups:
       # wasmtime arrives transitively through fvm2/3/4 and must move as one family
       wasmtime:
