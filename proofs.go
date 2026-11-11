@@ -628,9 +628,9 @@ func GenerateWindowPoSt(
 	return proofs, nil, nil
 }
 
-// GetGPUDevices produces a slice of strings, each representing the name of a
+// GetGPUDevices produces a slice of struct, each representing the name, vRAM, and GPU cores of a
 // detected GPU device.
-func GetGPUDevices() ([]string, error) {
+func GetGPUDevices() ([]cgo.GpuDeviceInfoGo, error) {
 	return cgo.GetGpuDevices()
 }
 
