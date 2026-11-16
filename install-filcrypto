@@ -134,8 +134,9 @@ download_release_tarball() {
         return 1
     fi
 
-    # The asset API redirects to a pre-signed download URL that needs no
-    # credentials, so the token is not sent with the download.
+    # The asset API normally redirects to a pre-signed download URL that needs
+    # no credentials, so the token is not sent with the download. A public
+    # asset served directly by the API also downloads without it.
     if ! curl --fail --header "Accept: application/octet-stream" --retry 3 --output "${__tar_path}" "${__asset_url}"; then
         (>&2 echo "[download_release_tarball] failed to download release asset (tag URL: ${__release_tag_url}, asset URL: ${__asset_url%%\?*})")
         rm -f "${__tar_path}"

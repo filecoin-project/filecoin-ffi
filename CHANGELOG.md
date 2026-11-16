@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- `install-filcrypto` now treats an HTTP error from the release asset download (for example GitHub's API rate-limit reply) as a failed download and falls back to building from source, instead of saving the error as the tarball and failing in `tar` with `gzip: stdin: unexpected end of file`. It also sends `GITHUB_TOKEN` only to `api.github.com`, not to the pre-signed asset download host.
+- `install-filcrypto` now treats an HTTP error from the release asset download (for example GitHub's API rate-limit reply) as a failed download and falls back to building from source, instead of passing an invalid or empty archive to `tar`. It also sends `GITHUB_TOKEN` only to `api.github.com`, not to the pre-signed asset download host.
 
 ## 1.38.0
 
