@@ -135,13 +135,8 @@ download_release_tarball() {
     fi
 
     # The asset API redirects to a pre-signed download URL that needs no
-    # credentials, so only send the token if the URL is still the GitHub API.
-    local __asset_auth_header=()
-    if [[ "${__asset_url}" == https://api.github.com/* ]]; then
-        __asset_auth_header=("${auth_header[@]}")
-    fi
-
-    if ! curl "${__asset_auth_header[@]}" --fail --header "Accept: application/octet-stream" --retry 3 --output "${__tar_path}" "${__asset_url}"; then
+    # credentials, so the token is not sent with the download.
+    if ! curl --fail --header "Accept: application/octet-stream" --retry 3 --output "${__tar_path}" "${__asset_url}"; then
         (>&2 echo "[download_release_tarball] failed to download release asset (tag URL: ${__release_tag_url}, asset URL: ${__asset_url%%\?*})")
         rm -f "${__tar_path}"
         return 1
