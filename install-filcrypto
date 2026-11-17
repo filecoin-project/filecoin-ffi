@@ -120,17 +120,26 @@ download_release_tarball() {
         return 1
     fi
 
-    local __asset_url=$(curl "${auth_header[@]}" \
+    local __asset_url
+    if ! __asset_url=$(curl "${auth_header[@]}" \
         --head \
+        --fail \
         --retry 3 \
         --header "Accept:application/octet-stream" \
         --location \
         --output /dev/null \
         -w "%{url_effective}" \
-        "${__release_url}")
+        "${__release_url}"); then
+        (>&2 echo "[download_release_tarball] failed to resolve release asset URL (tag URL: ${__release_tag_url}, asset API URL: ${__release_url})")
+        return 1
+    fi
 
-    if ! curl "${auth_header[@]}" --header "Accept: application/octet-stream" --retry 3 --output "${__tar_path}" "${__asset_url}"; then
-        (>&2 echo "[download_release_tarball] failed to download release asset (tag URL: ${__release_tag_url}, asset URL: ${__asset_url})")
+    # The asset API normally redirects to a pre-signed download URL that needs
+    # no credentials, so the token is not sent with the download. A public
+    # asset served directly by the API also downloads without it.
+    if ! curl --fail --header "Accept: application/octet-stream" --retry 3 --output "${__tar_path}" "${__asset_url}"; then
+        (>&2 echo "[download_release_tarball] failed to download release asset (tag URL: ${__release_tag_url}, asset URL: ${__asset_url%%\?*})")
+        rm -f "${__tar_path}"
         return 1
     fi
 

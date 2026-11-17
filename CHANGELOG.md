@@ -1,5 +1,9 @@
 # filecoin-ffi changelog
 
+## Unreleased
+
+- `install-filcrypto` now treats an HTTP error from the release asset download (for example GitHub's API rate-limit reply) as a failed download and falls back to building from source, instead of passing an invalid or empty archive to `tar`. It also sends `GITHUB_TOKEN` only to `api.github.com`, not to the pre-signed asset download host.
+
 ## 1.38.0
 
 - FVM 4.9.0, 3.15.0 and 2.13.0, all on wasmtime 48 LTS (fixes RUSTSEC-2026-0424); Rust toolchain 1.99.1 ([#602](https://github.com/filecoin-project/filecoin-ffi/pull/602)).
