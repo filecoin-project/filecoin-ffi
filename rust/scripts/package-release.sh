@@ -26,7 +26,7 @@ main() {
     #
     find -L . -type f -name filcrypto.h -exec cp -- "{}" $__tmp_dir/ \;
     find -L . -type f -name libfilcrypto.a -exec cp -- "{}" $__tmp_dir/ \;
-    find -L . -type f -name filcrypto.pc -exec cp -- "{}" $__tmp_dir/ \;
+    cp -- ../cgo/libs_generated.go $__tmp_dir/
 
     # create gzipped tarball from contents of temporary directory
     #

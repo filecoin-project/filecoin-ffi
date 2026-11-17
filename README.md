@@ -6,7 +6,7 @@
 
 ## Building
 
-To build and install libfilcrypto, its header file and pkg-config manifest, run:
+To build and install libfilcrypto, its header file and cgo link flags, run:
 
 ```shell
 make

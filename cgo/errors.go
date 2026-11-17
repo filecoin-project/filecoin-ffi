@@ -1,8 +1,5 @@
 package cgo
 
-// #cgo linux LDFLAGS: ${SRCDIR}/../libfilcrypto.a -Wl,-unresolved-symbols=ignore-all
-// #cgo darwin LDFLAGS: ${SRCDIR}/../libfilcrypto.a -Wl,-undefined,dynamic_lookup
-// #cgo pkg-config: ${SRCDIR}/../filcrypto.pc
 // #include "../filcrypto.h"
 // // Provide fallbacks when FVM is not compiled into filcrypto
 // #ifndef FVM_ERROR_INVALID_HANDLE

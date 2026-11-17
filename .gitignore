@@ -5,6 +5,7 @@
 .install-filcrypto
 filcrypto.h
 filcrypto.pc
+cgo/libs_generated.go
 filecoin.h
 filecoin.pc
 *.a

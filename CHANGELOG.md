@@ -3,6 +3,7 @@
 ## Unreleased
 
 - `install-filcrypto` now treats an HTTP error from the release asset download (for example GitHub's API rate-limit reply) as a failed download and falls back to building from source, instead of passing an invalid or empty archive to `tar`. It also sends `GITHUB_TOKEN` only to `api.github.com`, not to the pre-signed asset download host.
+- Builds with Go 1.26.11, 1.27.4 and later, whose stricter cgo checks reject earlier releases. A generated `cgo/libs_generated.go` replaces `filcrypto.pc`: if you cache ffi build artifacts, cache it alongside `filcrypto.h` and `libfilcrypto.a`, or the build fails with `undefined: filcryptoLibs`. Source builds need the `llvm-tools` rustup component, which rustup installs from `rust-toolchain.toml`.
 
 ## 1.38.0
 

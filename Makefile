@@ -1,4 +1,4 @@
-DEPS:=filcrypto.h filcrypto.pc libfilcrypto.a
+DEPS:=filcrypto.h libfilcrypto.a cgo/libs_generated.go
 
 export CARGO_TARGET_DIR=target
 
