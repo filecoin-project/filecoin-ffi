@@ -51,7 +51,7 @@ main() {
 
         find -L "${__tmp_dir}" -type f -name filcrypto.h -exec cp -- "{}" . \;
         find -L "${__tmp_dir}" -type f -name libfilcrypto.a -exec cp -- "{}" . \;
-        find -L "${__tmp_dir}" -type f -name filcrypto.pc -exec cp -- "{}" . \;
+        find -L "${__tmp_dir}" -type f -name libs_generated.go -exec cp -- "{}" cgo/ \;
 
         check_installed_files
 
@@ -59,7 +59,7 @@ main() {
     else
         (>&2 echo "[install-filcrypto/main] building libfilcrypto from local sources (dir = ${rust_sources_dir})")
 
-        # build libfilcrypto (and corresponding header and pkg-config)
+        # build libfilcrypto (and corresponding header and cgo link flags)
         #
         build_from_source "${rust_sources_dir}" "${__release_flags}"
 
@@ -68,7 +68,6 @@ main() {
         find -L "${rust_sources_dir}/target/release" -type f -name libfilcrypto.a -exec cp -- "{}" . \;
 
         find -L "${rust_sources_dir}" -type f -name filcrypto.h -exec cp -- "{}" . \;
-        find -L "${rust_sources_dir}" -type f -name filcrypto.pc -exec cp -- "{}" . \;
 
         pwd
         ls ./*filcrypto*
@@ -328,8 +327,8 @@ check_installed_files() {
         exit 1
     fi
 
-    if [[ ! -f "./filcrypto.pc" ]]; then
-        (>&2 echo "[check_installed_files] failed to install filcrypto.pc")
+    if [[ ! -f "./cgo/libs_generated.go" ]]; then
+        (>&2 echo "[check_installed_files] failed to install cgo/libs_generated.go")
         exit 1
     fi
 }
