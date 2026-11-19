@@ -152,7 +152,7 @@ checksum = "0271a107b5f600ee41bdafbb3c8ddf4afa52983d4b078917d89dbb920116e987"
 dependencies = [
  "bellpepper-core",
  "byteorder",
- "ff",
+ "ff 0.13.1",
 ]
 
 [[package]]
@@ -163,7 +163,7 @@ checksum = "b2c9a1b2f748c59938bc72165ebdf34efffeecee9cfbe0bb7d6b01aea21cd523"
 dependencies = [
  "blake2s_simd 1.0.5",
  "byteorder",
- "ff",
+ "ff 0.13.1",
  "serde",
  "thiserror 1.0.69",
 ]
@@ -183,14 +183,14 @@ dependencies = [
  "digest 0.10.7",
  "ec-gpu",
  "ec-gpu-gen 0.7.1",
- "ff",
+ "ff 0.13.1",
  "fs2",
- "group",
+ "group 0.13.0",
  "log",
  "memmap2 0.5.10",
  "pairing",
- "rand",
- "rand_core",
+ "rand 0.8.8",
+ "rand_core 0.6.4",
  "rayon",
  "rustversion",
  "serde",
@@ -301,10 +301,10 @@ checksum = "ecc7fce0356b52c2483bb6188cc8bdc11add526bce75d1a44e5e5d889a6ab008"
 dependencies = [
  "blst",
  "blstrs",
- "ff",
- "group",
+ "ff 0.13.1",
+ "group 0.13.0",
  "pairing",
- "rand_core",
+ "rand_core 0.6.4",
  "subtle",
  "thiserror 1.0.69",
 ]
@@ -330,10 +330,10 @@ dependencies = [
  "blst",
  "byte-slice-cast",
  "ec-gpu",
- "ff",
- "group",
+ "ff 0.13.1",
+ "group 0.13.0",
  "pairing",
- "rand_core",
+ "rand_core 0.6.4",
  "serde",
  "subtle",
 ]
@@ -404,6 +404,17 @@ dependencies = [
  "cfg-if",
  "cipher",
  "cpufeatures 0.2.17",
+]
+
+[[package]]
+name = "chacha20"
+version = "0.10.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "65c35e4b699c7e15ccbe7ee35c005e4fc0a278d22238a2857e6ce2dadeda1b06"
+dependencies = [
+ "cfg-if",
+ "cpufeatures 0.3.1",
+ "rand_core 0.10.1",
 ]
 
 [[package]]
@@ -762,7 +773,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0dc92fb57ca44df6db8059111ab3af99a63d5d0f8375d9972e319a379c6bab76"
 dependencies = [
  "generic-array 0.14.7",
- "rand_core",
+ "rand_core 0.6.4",
  "subtle",
  "zeroize",
 ]
@@ -846,7 +857,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c54e03a951783e8b327515db3f2a2fd0e3bed362a96b066f341ce66ed49b4ead"
 dependencies = [
  "data-encoding",
- "syn 1.0.109",
+ "syn 3.0.9",
 ]
 
 [[package]]
@@ -938,8 +949,8 @@ dependencies = [
  "crossbeam-channel",
  "ec-gpu",
  "execute",
- "ff",
- "group",
+ "ff 0.13.1",
+ "group 0.13.0",
  "hex",
  "log",
  "num_cpus",
@@ -961,8 +972,8 @@ dependencies = [
  "crossbeam-channel",
  "ec-gpu",
  "execute",
- "ff",
- "group",
+ "ff 0.13.1",
+ "group 0.13.0",
  "hex",
  "log",
  "num_cpus",
@@ -1002,10 +1013,10 @@ dependencies = [
  "base16ct",
  "crypto-bigint",
  "digest 0.10.7",
- "ff",
+ "ff 0.13.1",
  "generic-array 0.14.7",
- "group",
- "rand_core",
+ "group 0.13.0",
+ "rand_core 0.6.4",
  "sec1",
  "subtle",
  "zeroize",
@@ -1161,7 +1172,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c0b50bfb653653f9ca9095b427bed08ab8d75a137839d9ad64eb11810d5b6393"
 dependencies = [
  "bitvec",
- "rand_core",
+ "rand_core 0.6.4",
+ "subtle",
+]
+
+[[package]]
+name = "ff"
+version = "0.14.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a1f686ab92a9fb0eaf188f6c6c87b89490baa6fdb0db4544ba4dc47f7942489f"
+dependencies = [
+ "rand_core 0.10.1",
  "subtle",
 ]
 
@@ -1207,14 +1228,14 @@ dependencies = [
  "fvm_shared 2.13.0",
  "fvm_shared 3.15.0",
  "fvm_shared 4.9.0",
- "group",
+ "group 0.14.0",
  "lazy_static",
  "libc",
  "log",
  "memmap2 0.9.12",
  "num-traits",
- "rand",
- "rand_chacha",
+ "rand 0.10.3",
+ "rand_chacha 0.10.0",
  "rayon",
  "rust-gpu-tools",
  "safer-ffi",
@@ -1233,13 +1254,13 @@ dependencies = [
  "anyhow",
  "bellperson",
  "blstrs",
- "ff",
+ "ff 0.13.1",
  "generic-array 0.14.7",
  "hex",
  "lazy_static",
  "merkletree",
  "neptune",
- "rand",
+ "rand 0.8.8",
  "serde",
  "sha2 0.10.9",
 ]
@@ -1255,7 +1276,7 @@ dependencies = [
  "bincode",
  "blake2b_simd",
  "blstrs",
- "ff",
+ "ff 0.13.1",
  "filecoin-hashers",
  "fr32",
  "generic-array 0.14.7",
@@ -1266,7 +1287,7 @@ dependencies = [
  "memmap2 0.5.10",
  "merkletree",
  "once_cell",
- "rand",
+ "rand 0.8.8",
  "rayon",
  "serde",
  "serde_json",
@@ -1296,12 +1317,12 @@ dependencies = [
 
 [[package]]
 name = "filepath"
-version = "0.1.3"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "38ea8b8ba1c652fcc17279418e1d1eac2a05c6a941e13407b325719b2b1f617f"
+checksum = "f81dd23d67f94e07ac941a8da9bd0c2a82d3ea063b7d8a921d1dd05f9052a407"
 dependencies = [
  "libc",
- "winapi 0.3.9",
+ "windows",
 ]
 
 [[package]]
@@ -1376,7 +1397,7 @@ dependencies = [
  "blstrs",
  "byte-slice-cast",
  "byteorder",
- "ff",
+ "ff 0.13.1",
  "thiserror 2.0.21",
 ]
 
@@ -1483,7 +1504,7 @@ dependencies = [
  "multihash-derive",
  "num-traits",
  "num_cpus",
- "rand",
+ "rand 0.8.8",
  "rayon",
  "replace_with",
  "serde",
@@ -1519,7 +1540,7 @@ dependencies = [
  "num-traits",
  "num_cpus",
  "once_cell",
- "rand",
+ "rand 0.8.8",
  "rayon",
  "replace_with",
  "serde",
@@ -1553,7 +1574,7 @@ dependencies = [
  "multihash-codetable",
  "multihash-derive",
  "num-traits",
- "rand",
+ "rand 0.8.8",
  "rayon",
  "replace_with",
  "serde",
@@ -1770,6 +1791,7 @@ dependencies = [
  "cfg-if",
  "libc",
  "r-efi",
+ "rand_core 0.10.1",
 ]
 
 [[package]]
@@ -1796,10 +1818,21 @@ version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f0f9ef7462f7c099f518d754361858f86d8a07af53ba9af0fe635bbccb151a63"
 dependencies = [
- "ff",
- "rand",
- "rand_core",
+ "ff 0.13.1",
+ "rand 0.8.8",
+ "rand_core 0.6.4",
  "rand_xorshift",
+ "subtle",
+]
+
+[[package]]
+name = "group"
+version = "0.14.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7fd1a1c7a5206c5b7a3f5a0d7ccd3ff85d0c8f5133d62a02680255b0004af5f4"
+dependencies = [
+ "ff 0.14.0",
+ "rand_core 0.10.1",
  "subtle",
 ]
 
@@ -1910,7 +1943,7 @@ dependencies = [
  "js-sys",
  "log",
  "wasm-bindgen",
- "windows-core",
+ "windows-core 0.62.2",
 ]
 
 [[package]]
@@ -2420,7 +2453,7 @@ dependencies = [
  "byteorder",
  "ec-gpu",
  "ec-gpu-gen 0.6.0",
- "ff",
+ "ff 0.13.1",
  "generic-array 0.14.7",
  "itertools 0.8.2",
  "log",
@@ -2574,7 +2607,7 @@ version = "0.23.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "81fec4625e73cf41ef4bb6846cafa6d44736525f442ba45e407c4a000a13996f"
 dependencies = [
- "group",
+ "group 0.13.0",
 ]
 
 [[package]]
@@ -2614,11 +2647,11 @@ checksum = "3437083215c505e867eea5478371feba43d7689d6d15ec0a209eb46fb0d4cda6"
 dependencies = [
  "blake2b_simd",
  "ec-gpu",
- "ff",
- "group",
+ "ff 0.13.1",
+ "group 0.13.0",
  "hex",
  "lazy_static",
- "rand",
+ "rand 0.8.8",
  "serde",
  "static_assertions",
  "subtle",
@@ -2784,8 +2817,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e058c7de0b26af77780c769414d6257830bb240f3c38477dbc2c16e5f54d6d4c"
 dependencies = [
  "libc",
- "rand_chacha",
- "rand_core",
+ "rand_chacha 0.3.1",
+ "rand_core 0.6.4",
+]
+
+[[package]]
+name = "rand"
+version = "0.10.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "65c9fb96cbc91e3478eaae79a69fcd3f1ae4ad052e471fe6732fff548984b4af"
+dependencies = [
+ "chacha20 0.10.2",
+ "getrandom 0.4.3",
+ "rand_core 0.10.1",
 ]
 
 [[package]]
@@ -2795,7 +2839,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e6c10a63a0fa32252be49d21e7709d4d4baf8d231c2dbce1eaa8141b9b127d88"
 dependencies = [
  "ppv-lite86",
- "rand_core",
+ "rand_core 0.6.4",
+]
+
+[[package]]
+name = "rand_chacha"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3e6af7f3e25ded52c41df4e0b1af2d047e45896c2f3281792ed68a1c243daedb"
+dependencies = [
+ "ppv-lite86",
+ "rand_core 0.10.1",
 ]
 
 [[package]]
@@ -2808,12 +2862,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "rand_core"
+version = "0.10.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "63b8176103e19a2643978565ca18b50549f6101881c443590420e4dc998a3c69"
+
+[[package]]
 name = "rand_xorshift"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d25bf25ec5ae4a3f1b92f929810509a2f53d7dca2f50b794ff57e3face536c8f"
 dependencies = [
- "rand_core",
+ "rand_core 0.6.4",
 ]
 
 [[package]]
@@ -3243,7 +3303,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "77549399552de45a898a580c1b41d445bf730df867cc44e6c0233bbc4b8329de"
 dependencies = [
  "digest 0.10.7",
- "rand_core",
+ "rand_core 0.6.4",
 ]
 
 [[package]]
@@ -3310,7 +3370,7 @@ dependencies = [
  "proc-macro-crate",
  "proc-macro2",
  "quote",
- "rand",
+ "rand 0.8.8",
  "syn 1.0.109",
 ]
 
@@ -3340,7 +3400,7 @@ dependencies = [
  "byteorder",
  "cbc",
  "config",
- "ff",
+ "ff 0.13.1",
  "filecoin-hashers",
  "fr32",
  "fs2",
@@ -3351,8 +3411,8 @@ dependencies = [
  "memmap2 0.5.10",
  "merkletree",
  "num_cpus",
- "rand",
- "rand_chacha",
+ "rand 0.8.8",
+ "rand_chacha 0.3.1",
  "rayon",
  "semver",
  "serde",
@@ -3374,10 +3434,10 @@ dependencies = [
  "blstrs",
  "byte-slice-cast",
  "byteorder",
- "chacha20",
+ "chacha20 0.9.1",
  "crossbeam",
  "fdlimit",
- "ff",
+ "ff 0.13.1",
  "filecoin-hashers",
  "fr32",
  "generic-array 0.14.7",
@@ -3414,7 +3474,7 @@ dependencies = [
  "bellperson",
  "blstrs",
  "byteorder",
- "ff",
+ "ff 0.13.1",
  "filecoin-hashers",
  "generic-array 0.14.7",
  "log",
@@ -3433,7 +3493,7 @@ dependencies = [
  "anyhow",
  "bellperson",
  "blstrs",
- "ff",
+ "ff 0.13.1",
  "filecoin-hashers",
  "fr32",
  "generic-array 0.14.7",
@@ -4143,16 +4203,50 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f"
 
 [[package]]
+name = "windows"
+version = "0.58.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dd04d41d93c4992d421894c18c8b43496aa748dd4c081bac0dc93eb0489272b6"
+dependencies = [
+ "windows-core 0.58.0",
+ "windows-targets",
+]
+
+[[package]]
+name = "windows-core"
+version = "0.58.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6ba6d44ec8c2591c134257ce647b7ea6b20335bf6379a27dac5f1641fcf59f99"
+dependencies = [
+ "windows-implement 0.58.0",
+ "windows-interface 0.58.0",
+ "windows-result 0.2.0",
+ "windows-strings 0.1.0",
+ "windows-targets",
+]
+
+[[package]]
 name = "windows-core"
 version = "0.62.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b8e83a14d34d0623b51dce9581199302a221863196a1dde71a7663a4c2be9deb"
 dependencies = [
- "windows-implement",
- "windows-interface",
+ "windows-implement 0.60.2",
+ "windows-interface 0.59.3",
  "windows-link",
- "windows-result",
- "windows-strings",
+ "windows-result 0.4.1",
+ "windows-strings 0.5.1",
+]
+
+[[package]]
+name = "windows-implement"
+version = "0.58.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2bbd5b46c938e506ecbce286b6628a02171d56153ba733b6c741fc627ec9579b"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.119",
 ]
 
 [[package]]
@@ -4160,6 +4254,17 @@ name = "windows-implement"
 version = "0.60.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "053e2e040ab57b9dc951b72c264860db7eb3b0200ba345b4e4c3b14f67855ddf"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.119",
+]
+
+[[package]]
+name = "windows-interface"
+version = "0.58.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "053c4c462dc91d3b1504c6fe5a726dd15e216ba718e84a0e46a88fbe5ded3515"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4185,11 +4290,30 @@ checksum = "f0805222e57f7521d6a62e36fa9163bc891acd422f971defe97d64e70d0a4fe5"
 
 [[package]]
 name = "windows-result"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1d1043d8214f791817bab27572aaa8af63732e11bf84aa21a45a78d6c317ae0e"
+dependencies = [
+ "windows-targets",
+]
+
+[[package]]
+name = "windows-result"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7781fa89eaf60850ac3d2da7af8e5242a5ea78d1a11c49bf2910bb5a73853eb5"
 dependencies = [
  "windows-link",
+]
+
+[[package]]
+name = "windows-strings"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4cd9b125c486025df0eabcb585e62173c6c9eddcec5d117d3b6e8c30e2ee4d10"
+dependencies = [
+ "windows-result 0.2.0",
+ "windows-targets",
 ]
 
 [[package]]
