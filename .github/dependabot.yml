@@ -20,7 +20,9 @@ updates:
           - "wasmtime*"
           - "cranelift*"
           - "pulley*"
+      # Majors arrive as separate PRs so one that can't build doesn't block the rest
       rust:
+        update-types: ["minor", "patch"]
         patterns:
           - "*"
     labels:
