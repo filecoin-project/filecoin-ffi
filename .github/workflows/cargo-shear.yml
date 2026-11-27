@@ -1,0 +1,25 @@
+# Runs `cargo-shear` against the Rust crate to find unused dependencies.
+# False positives are ignored via `[package.metadata.cargo-shear]` in rust/Cargo.toml.
+# The cargo-shear version comes from install-action's manifest, so it moves with Dependabot's install-action bumps.
+name: Cargo Shear
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  cargo-shear:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+    - name: Install cargo-shear
+      uses: taiki-e/install-action@75a7c0f87bd666af3cdb75c5b9e9d03ab6044e6f # v2.90.6
+      with:
+        tool: cargo-shear
+    - name: Run cargo-shear
+      working-directory: rust
+      run: cargo shear --deny-warnings --format=github
