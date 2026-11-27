@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- FVM 4.9.1, 3.15.1 and 2.13.1, on wasmtime 48.0.10 (fixes RUSTSEC-2026-0566 to RUSTSEC-2026-0573). The FVM's engine configuration doesn't reach the affected code.
+
+## 1.39.0
+
 - `install-filcrypto` now treats an HTTP error from the release asset download (for example GitHub's API rate-limit reply) as a failed download and falls back to building from source, instead of passing an invalid or empty archive to `tar`. It also sends `GITHUB_TOKEN` only to `api.github.com`, not to the pre-signed asset download host.
 - Builds with Go 1.26.11, 1.27.4 and later, whose stricter cgo checks reject earlier releases. A generated `cgo/libs_generated.go` replaces `filcrypto.pc`: if you cache ffi build artifacts, cache it alongside `filcrypto.h` and `libfilcrypto.a`, or the build fails with `undefined: filcryptoLibs`. Source builds need the `llvm-tools` rustup component, which rustup installs from `rust-toolchain.toml`.
 
